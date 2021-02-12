@@ -1,0 +1,3234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="1" passed="0" failed="1" skipped="0">
+  <reporter-output>
+    <line>
+      <![CDATA[<pre> <b>GENERATE_RESIDENTS_DATA: </b> <br/>{"requests":{"PR_ResidentAttribute":{"Iris":true,"Gender":"Any","PrimaryLanguage":"eng","Age":"RA_Adult"}}}</pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: http://localhost:3434/resident/1) <pre>{"response":[{"path":"C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_14872532237262213993\\845388453884538.json","id":"845388453884538"}],"status":"SUCCESS"}</pre>]]>
+    </line>
+    <line>
+      <![CDATA[<pre> <b>GET-TEMPLATE: </b> <br/>{"personaFilePath":["C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_14872532237262213993\\845388453884538.json"]}</pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: http://localhost:3434/packet/NEW/ /) <pre>{"packets":[{"path":"C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\packets_7991128750302584180\\845388453884538","id":"845388453884538"}]}</pre>]]>
+    </line>
+    <line>
+      <![CDATA[<pre> <b>Generate And UploadPacket: </b> <br/>{"personaFilePath":["C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\packets_7991128750302584180\\845388453884538","C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_14872532237262213993\\845388453884538.json"]}</pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: http://localhost:3434/packet/sync/0) <pre>{"response":{"registrationId":"10002100821000120210212125949","status":"SUCCESS"}}</pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Prereg_CheckStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.resident.checkstatus",
+  "request": {
+    "individualId": "10002100821000120210212125949",
+    "individualIdType": "RID"
+  },
+  "requesttime": "2021-02-12T13:00:38.147Z",
+  "version": "v1"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/rid/check-status) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.resident.checkstatus",
+  "version": "v1",
+  "responsetime": "2021-02-12T12:59:38.996Z",
+  "response": {
+    "ridStatus": "PROCESSED"
+  }
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>response.ridStatus</td>
+    <td>UNDER PROCESSING - PLEASE CHECK BACK AGAIN LATER.</td>
+    <td>PROCESSED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>mosip.resident.checkstatus</td>
+    <td>mosip.resident.checkstatus</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>GetIdentity By Rid</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "Rid": 10002100821000120210212125949
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Time taken to execute GetIdentityByRid: 830 MilliSec</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/idrepository/v1/identity/idvid/10002100821000120210212125949) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.id.read",
+  "version": "v1",
+  "responsetime": "2021-02-12T12:59:40.034Z",
+  "response": {
+    "status": "ACTIVATED",
+    "identity": {
+      "lastName": [
+        {
+          "language": "eng",
+          "value": "Hartley"
+        }
+      ],
+      "pobCountry": [
+        {
+          "language": "eng",
+          "value": ""
+        }
+      ],
+      "proofOfAddress": {
+        "format": "pdf",
+        "type": "DOC027",
+        "value": "proofOfAddress"
+      },
+      "gender": [
+        {
+          "language": "eng",
+          "value": "FLE"
+        }
+      ],
+      "modeOfClaim": [
+        {
+          "language": "eng",
+          "value": "Pick-up"
+        }
+      ],
+      "proofOfConsent": {
+        "format": "pdf",
+        "type": "DOC032",
+        "value": "proofOfConsent"
+      },
+      "dateOfBirth": "1949/02/12",
+      "suffix": [
+        {
+          "language": "eng",
+          "value": ""
+        }
+      ],
+      "bloodType": [
+        {
+          "language": "eng",
+          "value": "109"
+        }
+      ],
+      "pobprovince": [
+        {
+          "language": "eng",
+          "value": "100016"
+        }
+      ],
+      "individualBiometrics": {
+        "format": "cbeff",
+        "version": 1,
+        "value": "individualBiometrics_bio_CBEFF"
+      },
+      "firstName": [
+        {
+          "language": "eng",
+          "value": "Hadley"
+        }
+      ],
+      "proofOfIdentity": {
+        "format": "pdf",
+        "type": "DOC008",
+        "value": "proofOfIdentity"
+      },
+      "IDSchemaVersion": 0.9,
+      "phone": "7476420644",
+      "registrationType": [
+        {
+          "language": "eng",
+          "value": "Document-based"
+        }
+      ],
+      "pobcity": [
+        {
+          "language": "eng",
+          "value": "100210"
+        }
+      ],
+      "residenceStatus": [
+        {
+          "language": "eng",
+          "value": "NFR"
+        }
+      ],
+      "middleName": [
+        {
+          "language": "eng",
+          "value": ""
+        }
+      ],
+      "UIN": "512413673986",
+      "email": "Hadley.Hartley.2714@mailinator.com",
+      "maritalStatus": [
+        {
+          "language": "eng",
+          "value": "Single"
+        }
+      ]
+    }
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credential_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.identity.otp.internal",
+  "version": "1.0",
+  "requestTime": "2021-02-12T13:01:41.005Z",
+  "transactionID": "1234327890",
+  "individualId": "512413673986",
+  "individualIdType": "UIN",
+  "otpChannel": [
+    "EMAIL",
+    "PHONE"
+  ]
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/idauthentication/v1/internal/otp) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.identity.otp.internal",
+  "version": "1.0",
+  "transactionID": "1234327890",
+  "responseTime": "2021-02-12T13:00:41.763Z",
+  "response": {
+    "maskedMobile": "XXXXXX0644",
+    "maskedEmail": "XXdXXyXXaXXlXX.XX1X@mailinator.com"
+  }
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>mosip.identity.otp.internal</td>
+    <td>mosip.identity.otp.internal</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>1.0</td>
+    <td>1.0</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "string",
+  "request": {
+    "additionalData": {},
+    "credentialType": "euin",
+    "encrypt": false,
+    "encryptionKey": "abc123",
+    "individualId": "512413673986",
+    "issuer": "mpartner-default-print",
+    "otp": "111111",
+    "recepiant": "",
+    "sharableAttributes": [],
+    "transactionID": "1234327890",
+    "user": "string"
+  },
+  "requesttime": "2021-02-12T13:01:42.750Z",
+  "version": "v1"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "string",
+  "version": "v1",
+  "responsetime": "2021-02-12T13:00:42.416Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+  }
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>string</td>
+    <td>string</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>v1</td>
+    <td>v1</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>errors</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Time taken to execute CredentialRequest: 2843 MilliSec</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:01:13.463Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "NEW"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>NEW</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:01:44.395Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:02:15.277Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:02:46.130Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:03:16.984Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:03:47.920Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:04:18.704Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:04:49.562Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:05:20.390Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:05:51.199Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:06:21.991Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:06:52.815Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:07:23.616Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:07:54.442Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:08:25.258Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:08:56.097Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:09:26.897Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:09:57.676Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:10:28.486Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+    </line>
+    <line>
+      <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:10:59.602Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+    </line>
+    <line>
+      <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+    </line>
+    <line>
+      <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+    </line>
+  </reporter-output>
+  <suite started-at="2021-02-12T12:59:00Z" name="Suite1" finished-at="2021-02-12T13:12:00Z" duration-ms="780332">
+    <groups>
+    </groups>
+    <test started-at="2021-02-12T12:59:00Z" name="test1" finished-at="2021-02-12T13:12:00Z" duration-ms="780332">
+      <class name="io.mosip.ivv.orchestrator.Orchestrator">
+        <test-method is-config="true" signature="beforeSuite()[pri:0, instance:io.mosip.ivv.orchestrator.Orchestrator@14fc1f0]" started-at="2021-02-12T12:59:00Z" name="beforeSuite" finished-at="2021-02-12T12:59:00Z" duration-ms="275" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeSuite -->
+        <test-method is-config="true" signature="create_proxy_server()[pri:0, instance:io.mosip.ivv.orchestrator.Orchestrator@14fc1f0]" started-at="2021-02-12T12:59:00Z" name="create_proxy_server" finished-at="2021-02-12T12:59:00Z" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- create_proxy_server -->
+        <test-method is-config="true" signature="beforeMethod(java.lang.reflect.Method)[pri:0, instance:io.mosip.ivv.orchestrator.Orchestrator@14fc1f0]" started-at="2021-02-12T12:59:01Z" name="beforeMethod" finished-at="2021-02-12T12:59:01Z" duration-ms="4" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[private void io.mosip.ivv.orchestrator.Orchestrator.run(int,io.mosip.ivv.core.dtos.Scenario,java.util.HashMap,java.util.HashMap,java.util.Properties) throws java.sql.SQLException]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeMethod -->
+        <test-method signature="run(int, io.mosip.ivv.core.dtos.Scenario, java.util.HashMap, java.util.HashMap, java.util.Properties)[pri:0, instance:io.mosip.ivv.orchestrator.Orchestrator@14fc1f0]" started-at="2021-02-12T12:59:01Z" name="run" data-provider="ScenarioDataProvider" finished-at="2021-02-12T13:12:00Z" duration-ms="779679" status="FAIL">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[0]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[io.mosip.ivv.core.dtos.Scenario@27da994b]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[{LOCK_ATTEMPTS=5, INVALID_EMAIL=mosiptest@, INVALID_SLOT=23:30-23:45, INVALID_PRID=100000000, FUTUREDATE=SYSDATE + 30, SHARELIST=, SYSDATE=System Date, INVALID_DOCID=10000, INVALID_DOCTYPE=ABC, INVALID_MOBILE=1234587m, INVALID_DOCFORMAT=MPEG, INVALID_DOCCATEGORY=POF, INVALID_CENTER=IC01, PASDTDATE=SYSDATE-1}]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[{LOCK_ATTEMPTS=5, INVALID_PREREGISTRATION_ID=18131, OTHER_PERSON_PREREGISTRATION_ID=35353535353, INVALID_EMAIL=mosiptest@, INVALID_SLOT=23:30-23:45, INVALID_PRID=100000000, FUTUREDATE=SYSDATE + 30, SHARELIST=, INVALID_LANG_CODE=English, SYSDATE=System Date, INVALID_DOCID=10000, INVALID_DOCTYPE=ABC, INVALID_MOBILE=1234587m, INVALID_DOCFORMAT=MPEG, INVALID_DOCCATEGORY=POF, INVALID_CENTER=IC01, PASDTDATE=SYSDATE-1}]]>
+              </value>
+            </param>
+            <param index="4">
+              <value>
+                <![CDATA[{reportsFolder=\testRun\reports\, bookingBookID=mosip.pre-registration.booking.book, ivv.path.globals.sheet=local/GlobalsSheet.csv, ivv.global.apiversion=1.0, mosip.kernel.keygenerator.asymmetric-algorithm-name=RSA, ivv.path.biometrics.folder=local/data/biometrics/, otpServceID=mosip.identity.otp#Fri Oct 11 12:21:11 IST 2019, mosip.kernel.keygenerator.symmetric-algorithm-length=256, resourcesFolder=\src\main\resources\, ivv._path.reports=/testRun/reports/mosip_reports.html, mosip.kernel.keygenerator.symmetric-algorithm-name=AES, mosip.kernel.crypto.symmetric-algorithm-name=AES, mosip.kernel.keygenerator.asymmetric-algorithm-length=2048, ivv.db.url=jdbc:postgresql://52.172.54.231:9001/  , documentUploadID=mosip.pre-registration.document.upload, ivv.email.server.pass=vmfWuq2b1@feb2020, mosip.kernel.crypto.asymmetric-algorithm-name=RSA, uin=7324384587, ivv.prereg.skip=age,IDSchemaVersion,UIN,localAdministrativeAuthority,parentOrGuardianName,parentOrGuardianRID,parentOrGuardianUIN,CNIENumber, ivv._path.auditlog=/testRun/reports/mosip_auditLogs.log, ivv.path.documents.folder=local/data/documents/, ivv.path.persona.sheet=local/PersonaSheet.csv, mosip.kernel.data-key-splitter=#KEY_SPLITTER#, ivv.path.documents.sheet=local/DocumentsSheet.csv, ivv.path.mappingfile=local/mapping.json, logsFolder=\testRun\logs\, ivv.path.configs.sheet=local/ConfigsSheet.csv, ivv.swagger.host=http://localhost:8081, ivv.path.rcpersona.sheet=local/RCUserSheet.csv, ivv.scenario.continueOnFailure=N, ivv.path.biometrics.sheet=local/BiometricsSheet.csv, ivv.prereg.version=v1, ivv.db.user=mosipuser, apiver=1.0, archiveFolder=\testRun\archive\, ivv.prereg.apiversion=1.0, ivv.path.partner.sheet=local/PartnerSheet.csv, ivv.mosip.host=https://qa2.mosip.net, registrationID=10004100740002520191003100437, ivv.prereg.otp.subject=Otp message, ivv.global.version=v1, ivv.email.server.host=outlook.office365.com, resultsFolder=\testRun\results\, ivv.path.scenario.sheet=local/ScenarioSheet.csv, ivv.email.server.user=mosip-test@technoforte.co.in, resourcesDataDocumentsFolder=\src\main\resources\data\documents\, ivv.path.idobject=local/IDObjectSchema.json, environment=https://int.mosip.io, ivv.db.pass=Mosip@123, ivv.regclient.skip=}]]>
+              </value>
+            </param>
+          </params>
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[Failed at credential issuance status check Response validation expected [true] but found [false]]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: Failed at credential issuance status check Response validation expected [true] but found [false]
+at org.testng.Assert.fail(Assert.java:96)
+at org.testng.Assert.failNotEquals(Assert.java:776)
+at org.testng.Assert.assertTrue(Assert.java:44)
+at io.mosip.ivv.e2e.methods.CheckCredentialStatus.run(CheckCredentialStatus.java:53)
+at io.mosip.ivv.orchestrator.Orchestrator.run(Orchestrator.java:168)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:124)
+at org.testng.internal.Invoker.invokeMethod(Invoker.java:583)
+at org.testng.internal.Invoker.invokeTestMethod(Invoker.java:719)
+at org.testng.internal.Invoker.invokeTestMethods(Invoker.java:989)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:125)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:109)
+at org.testng.TestRunner.privateRun(TestRunner.java:648)
+at org.testng.TestRunner.run(TestRunner.java:505)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:455)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:450)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:415)
+at org.testng.SuiteRunner.run(SuiteRunner.java:364)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:84)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1208)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1137)
+at org.testng.TestNG.runSuites(TestNG.java:1049)
+at org.testng.TestNG.run(TestNG.java:1017)
+at io.mosip.ivv.orchestrator.TestRunner.startTestRunner(TestRunner.java:55)
+at io.mosip.ivv.orchestrator.TestRunner.main(TestRunner.java:30)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+            <line>
+              <![CDATA[<pre> <b>GENERATE_RESIDENTS_DATA: </b> <br/>{"requests":{"PR_ResidentAttribute":{"Iris":true,"Gender":"Any","PrimaryLanguage":"eng","Age":"RA_Adult"}}}</pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: http://localhost:3434/resident/1) <pre>{"response":[{"path":"C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_14872532237262213993\\845388453884538.json","id":"845388453884538"}],"status":"SUCCESS"}</pre>]]>
+            </line>
+            <line>
+              <![CDATA[<pre> <b>GET-TEMPLATE: </b> <br/>{"personaFilePath":["C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_14872532237262213993\\845388453884538.json"]}</pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: http://localhost:3434/packet/NEW/ /) <pre>{"packets":[{"path":"C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\packets_7991128750302584180\\845388453884538","id":"845388453884538"}]}</pre>]]>
+            </line>
+            <line>
+              <![CDATA[<pre> <b>Generate And UploadPacket: </b> <br/>{"personaFilePath":["C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\packets_7991128750302584180\\845388453884538","C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_14872532237262213993\\845388453884538.json"]}</pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: http://localhost:3434/packet/sync/0) <pre>{"response":{"registrationId":"10002100821000120210212125949","status":"SUCCESS"}}</pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Prereg_CheckStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.resident.checkstatus",
+  "request": {
+    "individualId": "10002100821000120210212125949",
+    "individualIdType": "RID"
+  },
+  "requesttime": "2021-02-12T13:00:38.147Z",
+  "version": "v1"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/rid/check-status) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.resident.checkstatus",
+  "version": "v1",
+  "responsetime": "2021-02-12T12:59:38.996Z",
+  "response": {
+    "ridStatus": "PROCESSED"
+  }
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>response.ridStatus</td>
+    <td>UNDER PROCESSING - PLEASE CHECK BACK AGAIN LATER.</td>
+    <td>PROCESSED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>mosip.resident.checkstatus</td>
+    <td>mosip.resident.checkstatus</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>GetIdentity By Rid</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "Rid": 10002100821000120210212125949
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Time taken to execute GetIdentityByRid: 830 MilliSec</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/idrepository/v1/identity/idvid/10002100821000120210212125949) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.id.read",
+  "version": "v1",
+  "responsetime": "2021-02-12T12:59:40.034Z",
+  "response": {
+    "status": "ACTIVATED",
+    "identity": {
+      "lastName": [
+        {
+          "language": "eng",
+          "value": "Hartley"
+        }
+      ],
+      "pobCountry": [
+        {
+          "language": "eng",
+          "value": ""
+        }
+      ],
+      "proofOfAddress": {
+        "format": "pdf",
+        "type": "DOC027",
+        "value": "proofOfAddress"
+      },
+      "gender": [
+        {
+          "language": "eng",
+          "value": "FLE"
+        }
+      ],
+      "modeOfClaim": [
+        {
+          "language": "eng",
+          "value": "Pick-up"
+        }
+      ],
+      "proofOfConsent": {
+        "format": "pdf",
+        "type": "DOC032",
+        "value": "proofOfConsent"
+      },
+      "dateOfBirth": "1949/02/12",
+      "suffix": [
+        {
+          "language": "eng",
+          "value": ""
+        }
+      ],
+      "bloodType": [
+        {
+          "language": "eng",
+          "value": "109"
+        }
+      ],
+      "pobprovince": [
+        {
+          "language": "eng",
+          "value": "100016"
+        }
+      ],
+      "individualBiometrics": {
+        "format": "cbeff",
+        "version": 1,
+        "value": "individualBiometrics_bio_CBEFF"
+      },
+      "firstName": [
+        {
+          "language": "eng",
+          "value": "Hadley"
+        }
+      ],
+      "proofOfIdentity": {
+        "format": "pdf",
+        "type": "DOC008",
+        "value": "proofOfIdentity"
+      },
+      "IDSchemaVersion": 0.9,
+      "phone": "7476420644",
+      "registrationType": [
+        {
+          "language": "eng",
+          "value": "Document-based"
+        }
+      ],
+      "pobcity": [
+        {
+          "language": "eng",
+          "value": "100210"
+        }
+      ],
+      "residenceStatus": [
+        {
+          "language": "eng",
+          "value": "NFR"
+        }
+      ],
+      "middleName": [
+        {
+          "language": "eng",
+          "value": ""
+        }
+      ],
+      "UIN": "512413673986",
+      "email": "Hadley.Hartley.2714@mailinator.com",
+      "maritalStatus": [
+        {
+          "language": "eng",
+          "value": "Single"
+        }
+      ]
+    }
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credential_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.identity.otp.internal",
+  "version": "1.0",
+  "requestTime": "2021-02-12T13:01:41.005Z",
+  "transactionID": "1234327890",
+  "individualId": "512413673986",
+  "individualIdType": "UIN",
+  "otpChannel": [
+    "EMAIL",
+    "PHONE"
+  ]
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/idauthentication/v1/internal/otp) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.identity.otp.internal",
+  "version": "1.0",
+  "transactionID": "1234327890",
+  "responseTime": "2021-02-12T13:00:41.763Z",
+  "response": {
+    "maskedMobile": "XXXXXX0644",
+    "maskedEmail": "XXdXXyXXaXXlXX.XX1X@mailinator.com"
+  }
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>mosip.identity.otp.internal</td>
+    <td>mosip.identity.otp.internal</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>1.0</td>
+    <td>1.0</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "string",
+  "request": {
+    "additionalData": {},
+    "credentialType": "euin",
+    "encrypt": false,
+    "encryptionKey": "abc123",
+    "individualId": "512413673986",
+    "issuer": "mpartner-default-print",
+    "otp": "111111",
+    "recepiant": "",
+    "sharableAttributes": [],
+    "transactionID": "1234327890",
+    "user": "string"
+  },
+  "requesttime": "2021-02-12T13:01:42.750Z",
+  "version": "v1"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "string",
+  "version": "v1",
+  "responsetime": "2021-02-12T13:00:42.416Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+  }
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>string</td>
+    <td>string</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>v1</td>
+    <td>v1</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>errors</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Time taken to execute CredentialRequest: 2843 MilliSec</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:01:13.463Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "NEW"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>NEW</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:01:44.395Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:02:15.277Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:02:46.130Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:03:16.984Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:03:47.920Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:04:18.704Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:04:49.562Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:05:20.390Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:05:51.199Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:06:21.991Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:06:52.815Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:07:23.616Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:07:54.442Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:08:25.258Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:08:56.097Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:09:26.897Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:09:57.676Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:10:28.486Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Resident_credentialStatus_All_Valid_Smoke</u></b>]]>
+            </line>
+            <line>
+              <![CDATA[<pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:10:59.602Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre>]]>
+            </line>
+            <line>
+              <![CDATA[<b> Output validation for: </b>expected vs actual]]>
+            </line>
+            <line>
+              <![CDATA[<table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table>]]>
+            </line>
+          </reporter-output>
+        </test-method> <!-- run -->
+        <test-method is-config="true" signature="afterMethod(org.testng.ITestResult)[pri:0, instance:io.mosip.ivv.orchestrator.Orchestrator@14fc1f0]" started-at="2021-02-12T13:12:00Z" name="afterMethod" finished-at="2021-02-12T13:12:00Z" duration-ms="0" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[[TestResult name=run status=FAILURE method=Orchestrator.run(int, io.mosip.ivv.core.dtos.Scenario, java.util.HashMap, java.util.HashMap, java.util.Properties)[pri:0, instance:io.mosip.ivv.orchestrator.Orchestrator@14fc1f0] output=<pre> <b>GENERATE_RESIDENTS_DATA: </b> <br/>{"requests":{"PR_ResidentAttribute":{"Iris":true,"Gender":"Any","PrimaryLanguage":"eng","Age":"RA_Adult"}}}</pre>]]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterMethod -->
+        <test-method is-config="true" signature="afterSuite()[pri:0, instance:io.mosip.ivv.orchestrator.Orchestrator@14fc1f0]" started-at="2021-02-12T13:12:00Z" name="afterSuite" finished-at="2021-02-12T13:12:01Z" duration-ms="548" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterSuite -->
+      </class> <!-- io.mosip.ivv.orchestrator.Orchestrator -->
+    </test> <!-- test1 -->
+  </suite> <!-- Suite1 -->
+</testng-results>

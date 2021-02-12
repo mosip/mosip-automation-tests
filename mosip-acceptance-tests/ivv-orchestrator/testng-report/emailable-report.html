@@ -1,0 +1,1207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>TestNG Report</title>
+<style type="text/css">table {margin-bottom:10px;border-collapse:collapse;empty-cells:show}th,td {border:1px solid #009;padding:.25em .5em}th {vertical-align:bottom}td {vertical-align:top}table a {font-weight:bold}.stripe td {background-color: #E6EBF9}.num {text-align:right}.passedodd td {background-color: #3F3}.passedeven td {background-color: #0A0}.skippedodd td {background-color: #DDD}.skippedeven td {background-color: #CCC}.failedodd td,.attn {background-color: #F33}.failedeven td,.stripe .attn {background-color: #D00}.stacktrace {white-space:pre;font-family:monospace}.totop {font-size:85%;text-align:center;border-bottom:2px solid #000}.invisible {display:none}</style>
+</head>
+<body>
+<table>
+<tr><th>Test</th><th># Passed</th><th># Skipped</th><th># Failed</th><th>Time (ms)</th><th>Included Groups</th><th>Excluded Groups</th></tr>
+<tr><th colspan="7">Suite1</th></tr>
+<tr><td><a href="#t0">test1</a></td><td class="num">0</td><td class="num">0</td><td class="num attn">1</td><td class="num">780,332</td><td></td><td></td></tr>
+</table>
+<table id='summary'><thead><tr><th>Class</th><th>Method</th><th>Start</th><th>Time (ms)</th></tr></thead><tbody><tr><th colspan="4">Suite1</th></tr></tbody><tbody id="t0"><tr><th colspan="4">test1 &#8212; failed</th></tr><tr class="failedeven"><td rowspan="1">io.mosip.ivv.orchestrator.Orchestrator</td><td><a href="#m0">run</a></td><td rowspan="1">1613134741130</td><td rowspan="1">779679</td></tr></tbody>
+</table>
+<h2>test1</h2><h3 id="m0">io.mosip.ivv.orchestrator.Orchestrator#run</h3><table class="result"><tr class="param"><th>Parameter #1</th><th>Parameter #2</th><th>Parameter #3</th><th>Parameter #4</th><th>Parameter #5</th></tr><tr class="param stripe"><td>0</td><td>io.mosip.ivv.core.dtos.Scenario@27da994b</td><td>{LOCK_ATTEMPTS=5, INVALID_EMAIL=mosiptest@, INVALID_SLOT=23:30-23:45, INVALID_PRID=100000000, FUTUREDATE=SYSDATE + 30, SHARELIST=, SYSDATE=System Date, INVALID_DOCID=10000, INVALID_DOCTYPE=ABC, INVALID_MOBILE=1234587m, INVALID_DOCFORMAT=MPEG, INVALID_DOCCATEGORY=POF, INVALID_CENTER=IC01, PASDTDATE=SYSDATE-1}</td><td>{LOCK_ATTEMPTS=5, INVALID_PREREGISTRATION_ID=18131, OTHER_PERSON_PREREGISTRATION_ID=35353535353, INVALID_EMAIL=mosiptest@, INVALID_SLOT=23:30-23:45, INVALID_PRID=100000000, FUTUREDATE=SYSDATE + 30, SHARELIST=, INVALID_LANG_CODE=English, SYSDATE=System Date, INVALID_DOCID=10000, INVALID_DOCTYPE=ABC, INVALID_MOBILE=1234587m, INVALID_DOCFORMAT=MPEG, INVALID_DOCCATEGORY=POF, INVALID_CENTER=IC01, PASDTDATE=SYSDATE-1}</td><td>{reportsFolder=\testRun\reports\, bookingBookID=mosip.pre-registration.booking.book, ivv.path.globals.sheet=local/GlobalsSheet.csv, ivv.global.apiversion=1.0, mosip.kernel.keygenerator.asymmetric-algorithm-name=RSA, ivv.path.biometrics.folder=local/data/biometrics/, otpServceID=mosip.identity.otp#Fri Oct 11 12:21:11 IST 2019, mosip.kernel.keygenerator.symmetric-algorithm-length=256, resourcesFolder=\src\main\resources\, ivv._path.reports=/testRun/reports/mosip_reports.html, mosip.kernel.keygenerator.symmetric-algorithm-name=AES, mosip.kernel.crypto.symmetric-algorithm-name=AES, mosip.kernel.keygenerator.asymmetric-algorithm-length=2048, ivv.db.url=jdbc:postgresql://52.172.54.231:9001/  , documentUploadID=mosip.pre-registration.document.upload, ivv.email.server.pass=vmfWuq2b1@feb2020, mosip.kernel.crypto.asymmetric-algorithm-name=RSA, uin=7324384587, ivv.prereg.skip=age,IDSchemaVersion,UIN,localAdministrativeAuthority,parentOrGuardianName,parentOrGuardianRID,parentOrGuardianUIN,CNIENumber, ivv._path.auditlog=/testRun/reports/mosip_auditLogs.log, ivv.path.documents.folder=local/data/documents/, ivv.path.persona.sheet=local/PersonaSheet.csv, mosip.kernel.data-key-splitter=#KEY_SPLITTER#, ivv.path.documents.sheet=local/DocumentsSheet.csv, ivv.path.mappingfile=local/mapping.json, logsFolder=\testRun\logs\, ivv.path.configs.sheet=local/ConfigsSheet.csv, ivv.swagger.host=http://localhost:8081, ivv.path.rcpersona.sheet=local/RCUserSheet.csv, ivv.scenario.continueOnFailure=N, ivv.path.biometrics.sheet=local/BiometricsSheet.csv, ivv.prereg.version=v1, ivv.db.user=mosipuser, apiver=1.0, archiveFolder=\testRun\archive\, ivv.prereg.apiversion=1.0, ivv.path.partner.sheet=local/PartnerSheet.csv, ivv.mosip.host=https://qa2.mosip.net, registrationID=10004100740002520191003100437, ivv.prereg.otp.subject=Otp message, ivv.global.version=v1, ivv.email.server.host=outlook.office365.com, resultsFolder=\testRun\results\, ivv.path.scenario.sheet=local/ScenarioSheet.csv, ivv.email.server.user=mosip-test@technoforte.co.in, resourcesDataDocumentsFolder=\src\main\resources\data\documents\, ivv.path.idobject=local/IDObjectSchema.json, environment=https://int.mosip.io, ivv.db.pass=Mosip@123, ivv.regclient.skip=}</td></tr><tr><th colspan="5">Messages</th></tr><tr><td colspan="5"><div class="messages"><pre> <b>GENERATE_RESIDENTS_DATA: </b> <br/>{"requests":{"PR_ResidentAttribute":{"Iris":true,"Gender":"Any","PrimaryLanguage":"eng","Age":"RA_Adult"}}}</pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: http://localhost:3434/resident/1) <pre>{"response":[{"path":"C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_14872532237262213993\\845388453884538.json","id":"845388453884538"}],"status":"SUCCESS"}</pre><br/><pre> <b>GET-TEMPLATE: </b> <br/>{"personaFilePath":["C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_14872532237262213993\\845388453884538.json"]}</pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: http://localhost:3434/packet/NEW/ /) <pre>{"packets":[{"path":"C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\packets_7991128750302584180\\845388453884538","id":"845388453884538"}]}</pre><br/><pre> <b>Generate And UploadPacket: </b> <br/>{"personaFilePath":["C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\packets_7991128750302584180\\845388453884538","C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_14872532237262213993\\845388453884538.json"]}</pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: http://localhost:3434/packet/sync/0) <pre>{"response":{"registrationId":"10002100821000120210212125949","status":"SUCCESS"}}</pre><br/><b><u>Prereg_CheckStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.resident.checkstatus",
+  "request": {
+    "individualId": "10002100821000120210212125949",
+    "individualIdType": "RID"
+  },
+  "requesttime": "2021-02-12T13:00:38.147Z",
+  "version": "v1"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/rid/check-status) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.resident.checkstatus",
+  "version": "v1",
+  "responsetime": "2021-02-12T12:59:38.996Z",
+  "response": {
+    "ridStatus": "PROCESSED"
+  }
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>response.ridStatus</td>
+    <td>UNDER PROCESSING - PLEASE CHECK BACK AGAIN LATER.</td>
+    <td>PROCESSED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>mosip.resident.checkstatus</td>
+    <td>mosip.resident.checkstatus</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>GetIdentity By Rid</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "Rid": 10002100821000120210212125949
+}</textarea></pre><br/><b><u>Time taken to execute GetIdentityByRid: 830 MilliSec</u></b><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/idrepository/v1/identity/idvid/10002100821000120210212125949) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.id.read",
+  "version": "v1",
+  "responsetime": "2021-02-12T12:59:40.034Z",
+  "response": {
+    "status": "ACTIVATED",
+    "identity": {
+      "lastName": [
+        {
+          "language": "eng",
+          "value": "Hartley"
+        }
+      ],
+      "pobCountry": [
+        {
+          "language": "eng",
+          "value": ""
+        }
+      ],
+      "proofOfAddress": {
+        "format": "pdf",
+        "type": "DOC027",
+        "value": "proofOfAddress"
+      },
+      "gender": [
+        {
+          "language": "eng",
+          "value": "FLE"
+        }
+      ],
+      "modeOfClaim": [
+        {
+          "language": "eng",
+          "value": "Pick-up"
+        }
+      ],
+      "proofOfConsent": {
+        "format": "pdf",
+        "type": "DOC032",
+        "value": "proofOfConsent"
+      },
+      "dateOfBirth": "1949/02/12",
+      "suffix": [
+        {
+          "language": "eng",
+          "value": ""
+        }
+      ],
+      "bloodType": [
+        {
+          "language": "eng",
+          "value": "109"
+        }
+      ],
+      "pobprovince": [
+        {
+          "language": "eng",
+          "value": "100016"
+        }
+      ],
+      "individualBiometrics": {
+        "format": "cbeff",
+        "version": 1,
+        "value": "individualBiometrics_bio_CBEFF"
+      },
+      "firstName": [
+        {
+          "language": "eng",
+          "value": "Hadley"
+        }
+      ],
+      "proofOfIdentity": {
+        "format": "pdf",
+        "type": "DOC008",
+        "value": "proofOfIdentity"
+      },
+      "IDSchemaVersion": 0.9,
+      "phone": "7476420644",
+      "registrationType": [
+        {
+          "language": "eng",
+          "value": "Document-based"
+        }
+      ],
+      "pobcity": [
+        {
+          "language": "eng",
+          "value": "100210"
+        }
+      ],
+      "residenceStatus": [
+        {
+          "language": "eng",
+          "value": "NFR"
+        }
+      ],
+      "middleName": [
+        {
+          "language": "eng",
+          "value": ""
+        }
+      ],
+      "UIN": "512413673986",
+      "email": "Hadley.Hartley.2714@mailinator.com",
+      "maritalStatus": [
+        {
+          "language": "eng",
+          "value": "Single"
+        }
+      ]
+    }
+  },
+  "errors": []
+}</textarea></pre><br/><b><u>Resident_credential_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.identity.otp.internal",
+  "version": "1.0",
+  "requestTime": "2021-02-12T13:01:41.005Z",
+  "transactionID": "1234327890",
+  "individualId": "512413673986",
+  "individualIdType": "UIN",
+  "otpChannel": [
+    "EMAIL",
+    "PHONE"
+  ]
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/idauthentication/v1/internal/otp) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "mosip.identity.otp.internal",
+  "version": "1.0",
+  "transactionID": "1234327890",
+  "responseTime": "2021-02-12T13:00:41.763Z",
+  "response": {
+    "maskedMobile": "XXXXXX0644",
+    "maskedEmail": "XXdXXyXXaXXlXX.XX1X@mailinator.com"
+  }
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>mosip.identity.otp.internal</td>
+    <td>mosip.identity.otp.internal</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>1.0</td>
+    <td>1.0</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "string",
+  "request": {
+    "additionalData": {},
+    "credentialType": "euin",
+    "encrypt": false,
+    "encryptionKey": "abc123",
+    "individualId": "512413673986",
+    "issuer": "mpartner-default-print",
+    "otp": "111111",
+    "recepiant": "",
+    "sharableAttributes": [],
+    "transactionID": "1234327890",
+    "user": "string"
+  },
+  "requesttime": "2021-02-12T13:01:42.750Z",
+  "version": "v1"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "id": "string",
+  "version": "v1",
+  "responsetime": "2021-02-12T13:00:42.416Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+  }
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>string</td>
+    <td>string</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>v1</td>
+    <td>v1</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>errors</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Time taken to execute CredentialRequest: 2843 MilliSec</u></b><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:01:13.463Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "NEW"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>NEW</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:01:44.395Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:02:15.277Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:02:46.130Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:03:16.984Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:03:47.920Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:04:18.704Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:04:49.562Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:05:20.390Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:05:51.199Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:06:21.991Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:06:52.815Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:07:23.616Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:07:54.442Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:08:25.258Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:08:56.097Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:09:26.897Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:09:57.676Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:10:28.486Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table><br/><b><u>Resident_credentialStatus_All_Valid_Smoke</u></b><br/><pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a"
+}</textarea></pre><br/><b><u>Actual Response Content: </u></b>(EndPointUrl: https://qa2.mosip.net/resident/v1/req/credential/status/{requestId}) <pre><textarea style='border:solid 1px white;' name='message' rows='20' cols='160' readonly='true'>{
+  "responsetime": "2021-02-12T13:10:59.602Z",
+  "response": {
+    "id": "512413673986",
+    "requestId": "2f00a109-d80e-494b-a1c3-92f24650e97a",
+    "statusCode": "ISSUED"
+  },
+  "errors": []
+}</textarea></pre><br/><b> Output validation for: </b>expected vs actual<br/><table width='90%' charset='UTF8'>
+  <tr>
+    <th>FieldName</th>
+    <th>Expected Value</th> 
+    <th>Actual Value</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>metadata</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.requestId</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td>2f00a109-d80e-494b-a1c3-92f24650e97a</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>response.statusCode</td>
+    <td>printing</td>
+    <td>ISSUED</td>
+    <td bgcolor='RED'>FAIL</td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>null</td>
+    <td>null</td>
+    <td bgcolor='Green'>PASS</td>
+  </tr>
+</table></div></td></tr><tr><th colspan="5">Exception</th></tr><tr><td colspan="5"><div class="stacktrace">java.lang.AssertionError: Failed at credential issuance status check Response validation expected [true] but found [false]
+	at io.mosip.ivv.e2e.methods.CheckCredentialStatus.run(CheckCredentialStatus.java:53)
+	at io.mosip.ivv.orchestrator.Orchestrator.run(Orchestrator.java:168)
+	at io.mosip.ivv.orchestrator.TestRunner.startTestRunner(TestRunner.java:55)
+	at io.mosip.ivv.orchestrator.TestRunner.main(TestRunner.java:30)
+... Removed 25 stack frames</div></td></tr></table><p class="totop"><a href="#summary">back to summary</a></p>
+</body>
+</html>
