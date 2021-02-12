@@ -1,0 +1,30 @@
+# Eclipse specific files #
+*bin/
+*target/
+
+# intelliJ specific files #
+.DS_Store
+.idea/
+*.iml
+*.eml
+
+# output files #
+*testRun/logs/*
+*testRun/reports/*
+*testRun/surefire
+*test-output
+*TestRun_Logs
+*TestRun_Reports
+*TestRun_Results
+*PacketStore
+*PreRegPacketStore
+
+# properties file #
+*/config.properties
+*reg
+*/db
+*local*
+*services_jar/*
+*.jar
+*.log
+/.tmp
