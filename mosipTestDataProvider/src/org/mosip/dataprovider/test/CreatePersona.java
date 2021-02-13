@@ -1,8 +1,10 @@
 package org.mosip.dataprovider.test;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+
 import java.util.Random;
 import java.util.Set;
 
@@ -15,11 +17,13 @@ import org.mosip.dataprovider.models.MosipGenderModel;
 import org.mosip.dataprovider.models.MosipIDSchema;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.models.SchemaValidator;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataCallback;
 import org.mosip.dataprovider.util.RestClient;
 import org.mosip.dataprovider.util.Translator;
+import org.mvel2.MVEL;
 
 import variables.VariableManager;
 
@@ -27,8 +31,6 @@ public class CreatePersona {
 
 	static 	Hashtable<Double,List<MosipIDSchema>> tbl;
 	
-	
-
 	public static JSONObject constructNode(JSONObject identity, String Id, String primLang, String secLang, String primVal, String secVal, Boolean bSimpleType) {
 		JSONObject obj = new JSONObject();
 		JSONArray array  = new JSONArray();
@@ -52,7 +54,47 @@ public class CreatePersona {
 		
 		return identity;
 	}
-	
+
+	 static Boolean validateCondn(String cndnexpr, Object inputObject) {
+		return MVEL.evalToBoolean(cndnexpr,inputObject);
+	}
+	public static List<String> validateIDObject(JSONObject mergedJsonMap){
+		Hashtable<Double, List<MosipIDSchema>> tblschema  = MosipMasterData.getIDSchemaLatestVersion();
+		List<MosipIDSchema> schema = tblschema.get( tblschema.keys().nextElement() );
+		JSONObject identity = mergedJsonMap.getJSONObject("identity");
+		List<String> failedSchemaIds = new ArrayList<String>();
+		
+		for(MosipIDSchema s: schema) {
+			if(s.getRequired() || s.getInputRequired()) {
+				List<SchemaValidator> validators = s.getValidators();
+				if(validators != null) {
+					if(!identity.has(s.getId())) {
+						failedSchemaIds.add(s.getId());
+						continue;
+					}
+					String fValue = "";
+					if(s.getType().equals("simpleType")) {
+						JSONArray arr = identity.getJSONArray(s.getId());
+						fValue = arr.getJSONObject(0).get("value").toString();
+					}
+					else
+					{
+						fValue  =identity.get(s.getId()).toString();
+					}
+					
+					for(SchemaValidator v: validators) {
+						if(v.getType().equals("regex")) {
+								String expr = v.getValidator();
+								if(!fValue.matches(expr))
+									failedSchemaIds.add(s.getId());
+						}
+					}
+				}
+				//validate requiredon
+			}
+		}
+		return failedSchemaIds;
+	}
 	public static JSONObject crateIdentity(ResidentModel resident, DataCallback cb) {
 
 		tbl = MosipMasterData.getIDSchemaLatestVersion();
@@ -300,7 +342,7 @@ public class CreatePersona {
 				}
 			}
 			else
-			if(schemaItem.getRequired()) {
+			if(schemaItem.getRequired() || schemaItem.getInputRequired()) {
 				String someVal = CommonUtil.generateRandomString(schemaItem.getMaximum());
 				if(schemaItem.getId().equals("IDSchemaVersion"))
 					someVal = Double.toString(schemaversion);
@@ -314,6 +356,8 @@ public class CreatePersona {
 		
 			}
 		}
+		
+
 		return identity;
 		
 		

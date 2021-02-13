@@ -2,6 +2,7 @@ package org.mosip.dataprovider.models;
 //skip validators,requiredOn,bioAttributes,controlType,label
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 @Data
-@JsonIgnoreProperties({"visible","validators","requiredOn","label","changeAction","bioAttributes"})
+@JsonIgnoreProperties({"visible","label","changeAction","bioAttributes"})
 public class MosipIDSchema  implements Serializable{
 
 	 private static final long serialVersionUID = 1L;
@@ -32,7 +33,8 @@ public class MosipIDSchema  implements Serializable{
 	
 	String fieldType ;
 	String group;
-	
+	List<SchemaValidator> validators;
+	List<SchemaRule> requiredOn;
 	public String toJSONString() {
 		
 		ObjectMapper Obj = new ObjectMapper();
