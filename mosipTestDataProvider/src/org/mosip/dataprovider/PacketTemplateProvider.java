@@ -329,7 +329,8 @@ public class PacketTemplateProvider {
 						secValue = primaryValue;	
 					}	
 					else
-					if(s.getType().equals("biometricsType") && ( s.getGroup() !=null && s.getGroup().equals("Biometrics")) && s.getId().toLowerCase().contains("individual") ) {
+					if(s.getType().equals("biometricsType") && ( s.getGroup() !=null && s.getGroup().equals("Biometrics")) &&
+							s.getId().toLowerCase().contains("individual") ) {
 						JSONObject o = new JSONObject();
 						o.put("format", "cbeff");
 						o.put("version", 1.0f);
@@ -355,7 +356,9 @@ public class PacketTemplateProvider {
 						continue;
 					}
 					else
-					if(s.getType().equals("biometricsType") && ( s.getGroup() !=null && s.getGroup().equals("Biometrics")) && s.getId().toLowerCase().contains("guardian") ) {
+					if(s.getType().equals("biometricsType") &&
+							( s.getGroup() !=null && s.getGroup().equals("Biometrics"))
+							&& s.getId().toLowerCase().contains("guardian") ) {
 					
 						if(resident.getGuardian() != null) {
 							//minor
