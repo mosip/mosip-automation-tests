@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
@@ -35,6 +38,7 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static String prid=null;
 	public static PacketUtility packetUtility= new PacketUtility();
 	public static HashMap<String, String> contextKey=new HashMap<String, String>();
+	public static List<String> resDataPathList= new LinkedList();
 	public BaseTestCaseUtil() {}
 	
 	public String encoder(String text) {

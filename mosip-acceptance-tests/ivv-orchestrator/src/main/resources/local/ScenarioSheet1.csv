@@ -1,0 +1,3 @@
+tc_no,tags,persona_class,persona,group_name,description,field1,field2,field3,field4,field5,field6,field7,field8,field9,field10,field11,field12,field13,field14,field15,field16,field17,field18,field19,field20,field21,field22
+1,Postive_Test,MorocconMaleAdult,,,Dummy_1_scenario_download_uin-card_Skipping_Preregister,e2e_setContext(qa2_context),"e2e_getResidentData(1,true,false,Any)",e2e_getPacketTemplate(NEW),e2e_generateAndUploadPacketSkippingPrereg(),
+2,Postive_Test,MorocconMaleAdult,,,Dummy_2_scenario_download_uin-card_Skipping_Preregister,e2e_setContext(qa2_context),"e2e_getResidentData(1,true,false,Any)",e2e_getPacketTemplate(NEW),e2e_generateAndUploadPacketSkippingPrereg(),

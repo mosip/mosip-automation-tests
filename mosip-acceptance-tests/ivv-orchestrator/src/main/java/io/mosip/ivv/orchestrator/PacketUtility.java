@@ -1,5 +1,6 @@
 package io.mosip.ivv.orchestrator;
 
+import static io.restassured.RestAssured.given;
 import static org.testng.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +11,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Reporter;
 
+import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.e2e.methods.CheckStatus;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class PacketUtility extends BaseTestCaseUtil {
@@ -194,6 +197,26 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String rid = jsonResp.getJSONObject("response").getString("registrationId");
 		assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to Generate And UploadPacket from packet utility");
 		return rid;
+	}
+	
+	public String createContext(String key, String baseUrl) {
+		String url = this.baseUrl + "/servercontext/" + key;
+		JSONObject jsonReq = new JSONObject();
+		jsonReq.put("urlBase", baseUrl);
+		jsonReq.put("mosip.test.baseurl", baseUrl);
+		jsonReq.put("mosip.test.regclient.machineid", E2EConstants.MACHINE_ID);
+		jsonReq.put("mosip.test.regclient.centerid", E2EConstants.CENTER_ID);
+		jsonReq.put("regclient.centerid", E2EConstants.CENTER_ID);
+		jsonReq.put("mosip.test.regclient.userid", E2EConstants.USER_ID);
+		jsonReq.put("prereg.operatorId", E2EConstants.USER_ID);
+		jsonReq.put("mosip.test.regclient.password", E2EConstants.USER_PASSWD);
+		jsonReq.put("prereg.password", E2EConstants.USER_PASSWD);
+		jsonReq.put("mosip.test.regclient.supervisorid", E2EConstants.SUPERVISOR_ID);
+		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
+		Response response =postReqest(url,jsonReq.toString(),"SetContext");
+		//Response response = given().contentType(ContentType.JSON).body(jsonReq.toString()).post(url);
+		return response.getBody().asString();
+
 	}
 	
 	
