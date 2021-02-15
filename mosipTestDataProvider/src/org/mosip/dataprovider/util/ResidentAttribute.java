@@ -20,6 +20,7 @@ public enum ResidentAttribute {
 	RA_Finger,				//if set to false dont generate finger prints
 	RA_FingersList,			/* if RA_Finger is not set to false, use this list to generate only those finger prints (1111111111)  */
 	RA_SKipGaurdian,		//if Set to true, and if Minor , dont generate gaurdian data
-	
+	RA_InvalidList,
+	RA_MissList
 }
 
