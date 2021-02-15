@@ -11,7 +11,9 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.testng.Assert;
 import org.testng.ITestResult;
+import org.testng.Reporter;
 import org.testng.SkipException;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
@@ -52,12 +54,13 @@ public class Orchestrator {
 
 	@BeforeSuite
 	public void beforeSuite() {
-		this.properties = Utils.getProperties(TestRunner.getGlobalResourcePath()+"/config/config.properties");
+		this.properties = Utils.getProperties(TestRunner.getExeternalResourcePath()+"/config/config.properties");
 		this.configToSystemProperties();
 		Utils.setupLogger(System.getProperty("user.dir") + this.properties.getProperty("ivv._path.auditlog"));
 		/* setting exentreport */
 		htmlReporter = new ExtentHtmlReporter(
-				System.getProperty("user.dir") + this.properties.getProperty("ivv._path.reports"));
+				//System.getProperty("user.dir") + this.properties.getProperty("ivv._path.reports"));
+				TestRunner.getGlobalResourcePath() + this.properties.getProperty("ivv._path.reports"));
 		extent = new ExtentReports();
 		extent.attachReporter(htmlReporter);
 	}
@@ -74,16 +77,19 @@ public class Orchestrator {
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = false)
 	public static Object[][] dataProvider() throws RigInternalError {
-		String configFile =TestRunner.getGlobalResourcePath()+"/config/config.properties";
+		String scenarioSheet=null;
+		String configFile =TestRunner.getExeternalResourcePath()+"/config/config.properties";
 		Properties properties = Utils.getProperties(configFile);
-		
+		scenarioSheet=System.getProperty("scenarioSheet");
+		if(scenarioSheet==null || scenarioSheet.isEmpty())
+			throw new RigInternalError("ScenarioSheet argument missing");
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
 		parserInputDTO.setConfigProperties(properties);
 		parserInputDTO.setDocumentsFolder(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.documents.folder"));
 		//System.out.println(":Path:"+TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.documents.folder"));
 		parserInputDTO.setBiometricsFolder(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.biometrics.folder"));
 		parserInputDTO.setPersonaSheet(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.persona.sheet"));
-		parserInputDTO.setScenarioSheet(TestRunner.getExeternalResourcePath()+"/"+properties.getProperty("ivv.path.scenario.sheet"));
+		parserInputDTO.setScenarioSheet(TestRunner.getExeternalResourcePath()+properties.getProperty("ivv.path.scenario.sheet.folder")+scenarioSheet);
 		parserInputDTO.setRcSheet(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.rcpersona.sheet"));
 		parserInputDTO.setPartnerSheet(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.partner.sheet"));
 		parserInputDTO.setIdObjectSchema(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.idobject"));
@@ -150,6 +156,7 @@ public class Orchestrator {
 		store.setRegistrationUsers(scenario.getRegistrationUsers());
 		store.setPartners(scenario.getPartners());
 		store.setProperties(this.properties);
+		Reporter.log("<b><u>"+"Scenario_" + scenario.getId() + ": " + scenario.getDescription()+ "</u></b>");
 		for (Scenario.Step step : scenario.getSteps()) {
 			Utils.auditLog.info("");
 			String identifier = "> #[Test Step: " + step.getName() + "] [module: " + step.getModule() + "] [variant: "
@@ -229,6 +236,11 @@ public class Orchestrator {
 	@AfterMethod
 	public void afterMethod(ITestResult result) {
 
+	}
+	
+	@AfterClass
+	public void publishResult() {
+		SlackChannelIntegration.postMessage(SlackChannelIntegration.defaultChannel, "Test message from Automation");
 	}
 
 	@SuppressWarnings("deprecation")
