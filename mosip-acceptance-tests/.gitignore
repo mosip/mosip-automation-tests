@@ -23,7 +23,6 @@
 */config.properties
 *reg
 */db
-*local*
 *services_jar/*
 *.jar
 *.log
