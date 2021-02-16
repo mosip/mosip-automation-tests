@@ -37,9 +37,11 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 			
 		}
 		for (String residentPath : residentTemplatePaths.keySet()) {
-			assertTrue(residentTemplatePaths.get(residentPath)!=null,"Unable to get packetTemplate from packet utility");
+			if(residentTemplatePaths.get(residentPath)==null)
+				throw new RigInternalError("Unable to get packetTemplate from packet utility");
+			//assertTrue(residentTemplatePaths.get(residentPath)!=null,"Unable to get packetTemplate from packet utility");
 		}
-		System.out.println("RESIDENTTEMPLATEPATHS: " + residentTemplatePaths);
+		//System.out.println("RESIDENTTEMPLATEPATHS: " + residentTemplatePaths);
 	}
 
 }
