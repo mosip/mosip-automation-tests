@@ -68,7 +68,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		Response templateResponse = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "GET-TEMPLATE");
 		JSONObject jsonResponse = new JSONObject(templateResponse.asString());
 		JSONArray resp = jsonResponse.getJSONArray("packets");
-		if(!(resp.length()<=0))
+		if((resp.length()<=0))
 			throw new RigInternalError("Unable to get Template from packet utility");
 		return resp;
 	}
