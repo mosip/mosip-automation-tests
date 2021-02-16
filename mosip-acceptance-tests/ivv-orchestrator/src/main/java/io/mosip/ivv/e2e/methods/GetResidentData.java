@@ -3,13 +3,14 @@ package io.mosip.ivv.e2e.methods;
 import java.util.List;
 import org.apache.log4j.Logger;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 
 public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(GetResidentData.class);
 
 	@Override
-	public void run() {
+	public void run() throws RigInternalError {
 		cleanData();
 		int nofResident=1;
 		Boolean bAdult=false;
