@@ -7,13 +7,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 
 public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(GetPacketTemplate.class);
 
 	@Override
-	public void run() {
+	public void run() throws RigInternalError {
 		String process = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Argument is missing in DSL steps: " + step.getName());

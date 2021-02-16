@@ -37,6 +37,8 @@ import io.mosip.ivv.dg.DataGenerator;
 import io.mosip.ivv.parser.Parser;
 
 public class Orchestrator {
+	String message=null;
+	StringBuilder messageBuilder=new StringBuilder();
 	private static ExtentHtmlReporter htmlReporter;
 	public static ExtentReports extent;
 	private Properties properties;
@@ -62,6 +64,7 @@ public class Orchestrator {
 				//System.getProperty("user.dir") + this.properties.getProperty("ivv._path.reports"));
 				TestRunner.getGlobalResourcePath() + this.properties.getProperty("ivv._path.reports"));
 		extent = new ExtentReports();
+	
 		extent.attachReporter(htmlReporter);
 	}
 
@@ -147,6 +150,7 @@ public class Orchestrator {
 			e.printStackTrace();
 		}
 		Utils.auditLog.info("");
+		message="Scenario_" + scenario.getId() + ": " + scenario.getDescription();
 		Utils.auditLog.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
 		Store store = new Store();
@@ -214,8 +218,8 @@ public class Orchestrator {
 				Assert.assertTrue(false);
 				return;
 			} catch (RigInternalError e) {
-				extentTest.error(identifier + " - RigInternalError --> " + e.toString());
-				e.printStackTrace();
+				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
+				//e.printStackTrace();
 				Assert.assertTrue(false);
 				return;
 			} catch (RuntimeException e) {
@@ -235,12 +239,19 @@ public class Orchestrator {
 
 	@AfterMethod
 	public void afterMethod(ITestResult result) {
-
+		String status="Fail";
+		if(result.getStatus()==ITestResult.SUCCESS)
+			status="Pass";
+		else if(result.getStatus()==ITestResult.SKIP)
+			status="Skip";
+		messageBuilder.append(message+": "+status).append("\n");
+		
 	}
 	
 	@AfterClass
 	public void publishResult() {
-		SlackChannelIntegration.postMessage(SlackChannelIntegration.defaultChannel, "Test message from Automation");
+		//System.out.println("publishResult:"+messageBuilder.toString());
+		SlackChannelIntegration.postMessage(SlackChannelIntegration.defaultChannel, messageBuilder.toString());
 	}
 
 	@SuppressWarnings("deprecation")
