@@ -25,7 +25,7 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 	
 	
 	
-	private String createPacket(String idJsonPath,String templatePath) {
+	private String createPacket(String idJsonPath,String templatePath) throws RigInternalError {
 		String url = baseUrl + props.getProperty("packetCretorUrl");
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("idJsonPath", idJsonPath);
@@ -33,7 +33,9 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 		jsonReq.put("source", E2EConstants.SOURCE);
 		jsonReq.put("templatePath", templatePath);
 		Response response =postReqest(url,jsonReq.toString(),"CreatePacket");
-		assertTrue(response.getBody().asString().contains("zip"),"Unable to get packet from packet utility");
+		//assertTrue(response.getBody().asString().contains("zip"),"Unable to get packet from packet utility");
+		if(!response.getBody().asString().toLowerCase().contains("zip"))
+			throw new RigInternalError("Unable to get packet from packet utility");
 		return response.getBody().asString().replaceAll("\\\\", "\\\\\\\\");
 		
 	}

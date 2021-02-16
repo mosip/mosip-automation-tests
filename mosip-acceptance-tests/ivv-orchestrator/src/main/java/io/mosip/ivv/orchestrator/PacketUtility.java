@@ -149,7 +149,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return rid;
 	}
 	
-	public  String updateResidentGuardian(String residentFilePath) throws RigInternalError {
+	public  String updateResidentGuardian(String residentFilePath, boolean withRid) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		List<String> generatedResidentData = generateResidents(1, true,true,"Any",contextKey);
 		JSONArray jsonArray=getTemplate(new HashSet<String>(generatedResidentData), "NEW",contextKey);
@@ -162,7 +162,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		bookAppointment(prid, 1,contextKey);
 		String rid=generateAndUploadPacket(prid, templatePath,contextKey);
 		// call Dsl step wait her sleep for 2 minute
-		String url = baseUrl+props.getProperty("updateResidentUrl")+"?RID="+rid;
+		String url = null;
+		if(withRid)
+			url = baseUrl+props.getProperty("updateResidentUrl")+"?RID="+rid;
+		else url = baseUrl+props.getProperty("updateResidentUrl");
+		
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
@@ -178,7 +182,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return rid;
 		
 	}
-	public  String updateResidentWithGuardianSkippingPreReg(String residentFilePath,HashMap<String,String> contextKey) throws RigInternalError {
+	public  String updateResidentWithGuardianSkippingPreReg(String residentFilePath,HashMap<String,String> contextKey, boolean withRid) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		List<String> generatedResidentData = generateResidents(1, true,true,"Any",contextKey);
 		JSONArray jsonArray=getTemplate(new HashSet<String>(generatedResidentData), "NEW",contextKey);
@@ -186,7 +190,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String templatePath = obj.get("path").toString();
 		String rid=generateAndUploadPacketSkippingPrereg(templatePath,generatedResidentData.get(0),contextKey);
 		// call Dsl step wait her sleep for 2 minute
-		String url = baseUrl+props.getProperty("updateResidentUrl")+"?RID="+rid;
+		String url = null;
+		if(withRid)
+			url = baseUrl+props.getProperty("updateResidentUrl")+"?RID="+rid;
+		else url = baseUrl+props.getProperty("updateResidentUrl");
+		
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
