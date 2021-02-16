@@ -11,6 +11,7 @@ import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testscripts.SimplePost;
 
@@ -20,7 +21,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 	public HashMap<String, String> tempPridAndRid = null;
 
 	@Override
-    public void run() {
+    public void run() throws RigInternalError {
     	//pridsAndRids.put("54253173891651", "10002100741000220210113045712");
     	if(tempPridAndRid ==null)
     		tempPridAndRid =pridsAndRids;
@@ -57,7 +58,9 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 							packetProcessed = true;
 						}
 					}
-					assertTrue(postScript.response.asString().contains("PROCESSED"), "Failed at credential issuance status check Response validation");
+					//assertTrue(postScript.response.asString().contains("PROCESSED"), "Failed at status check Response validation");
+					if(!postScript.response.getBody().asString().toLowerCase().contains("processed"))
+						throw new RigInternalError("Failed at Packet Processing");
 				}
 			}
 		} catch (InterruptedException e) {

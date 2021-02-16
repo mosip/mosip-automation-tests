@@ -31,14 +31,16 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 		}
 	}
 
-	private String ridsync(String containerPath, String supervisorStatus,String process) {
+	private String ridsync(String containerPath, String supervisorStatus,String process) throws RigInternalError {
 		String url = baseUrl + props.getProperty("ridsyncUrl");
 		JSONObject jsonReq = buildRequest(containerPath, supervisorStatus,process);
 		Response response = postReqest(url, jsonReq.toString(), "Ridsync");
 		
 		JSONArray jsonArray = new JSONArray(response.asString());
 		JSONObject responseJson = new JSONObject(jsonArray.get(0).toString());
-		assertTrue(response.getBody().asString().contains("SUCCESS"),"Unable to do RID sync from packet utility");
+		//assertTrue(response.getBody().asString().contains("SUCCESS"),"Unable to do RID sync from packet utility");
+		if(!response.getBody().asString().toLowerCase().contains("success"))
+			throw new RigInternalError("Unable to do RID sync from packet utility");
 		return responseJson.get("registrationId").toString();
 
 	}

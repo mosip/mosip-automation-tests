@@ -13,9 +13,14 @@ public class UpdateResidentWithGuardian extends BaseTestCaseUtil implements Step
 	Logger logger = Logger.getLogger(UpdateResidentWithGuardian.class);
 	@Override
 	public void run() throws RigInternalError {
+		boolean withRid = true;
+		if (step.getParameters() == null || step.getParameters().isEmpty() ||step.getParameters().size()<1) {
+			logger.warn("UpdateResidentWithGuardian Arugemnt is  Missing : Please pass the argument from DSL sheet");
+		}
+		else withRid = Boolean.parseBoolean(step.getParameters().get(0));
 		residentPathGuardianRid= new LinkedHashMap<String, String>();
 		for(String path:residentTemplatePaths.keySet()) {
-			residentPathGuardianRid.put(path, packetUtility.updateResidentGuardian(path));
+			residentPathGuardianRid.put(path, packetUtility.updateResidentGuardian(path, withRid));
 		}
 		Reporter.log("<b><u>Checking Status Of Created Guardians</u></b>");
 		CheckStatus checkStatus= new CheckStatus();

@@ -10,6 +10,7 @@ import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testscripts.PostWithBodyWithOtpGenerate;
 
@@ -18,7 +19,7 @@ public class UpdateUINDetail extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(UpdateUINDetail.class);
 
     @Override
-    public void run() {
+    public void run() throws RigInternalError {
     	String fileName = UPDATE_DEMOPHRAPIC_DETAIL;
     	PostWithBodyWithOtpGenerate postWithBodyWithOtpGenerate= new PostWithBodyWithOtpGenerate();
     	Object[] casesList = postWithBodyWithOtpGenerate.getYmlTestData(fileName);
@@ -52,7 +53,8 @@ public class UpdateUINDetail extends BaseTestCaseUtil implements StepInterface {
 
 				} catch (AuthenticationTestException | AdminTestException e) {
 					logger.error("Failed at downloading card: " + e.getMessage());
-					assertFalse(true, "Failed at downloading card");
+					//assertFalse(true, "Failed at downloading card");
+					throw new RigInternalError("Failed at Update UIN api response validation");
 				}
 			}
 		}
