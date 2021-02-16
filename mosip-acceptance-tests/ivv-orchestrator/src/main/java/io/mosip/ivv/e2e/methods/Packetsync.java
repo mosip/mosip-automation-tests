@@ -17,11 +17,13 @@ public class Packetsync extends BaseTestCaseUtil implements StepInterface {
 			 packetsync(packetPath);
 	}
 
-	private void packetsync(String packetPath) {
+	private void packetsync(String packetPath) throws RigInternalError {
 		String url = baseUrl + props.getProperty("packetsyncUrl") + "?path=" + packetPath;
 		Reporter.log("<pre> <b>PACKETSYNC: </b> <br/>"+url + "</pre>");
 		Response apiResponse = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
 		Reporter.log("<b><u>Actual Response Content: </u></b><pre>"+ apiResponse.getBody().asString() + "</pre>");
-		assertTrue(apiResponse.getBody().asString().contains("Packet has reached Packet Receiver"),"Unable to do sync packet from packet utility");
+		//assertTrue(apiResponse.getBody().asString().contains("Packet has reached Packet Receiver"),"Unable to do sync packet from packet utility");
+		if(!apiResponse.getBody().asString().contains("Packet has reached Packet Receiver"))
+			throw new RigInternalError("Unable to do sync packet from packet utility");
 	}
 }
