@@ -52,7 +52,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 						}
 					}
 					//assertTrue(getWithPathParam.response.asString().contains("printing"), "Failed at credential issuance status check Response validation");
-					if(!getWithPathParam.response.getBody().asString().toLowerCase().contains("processed"))
+					if(!getWithPathParam.response.getBody().asString().toLowerCase().contains("printing"))
 						throw new RigInternalError("Failed at credential issuance status check Response validation");
 				}
 			}
