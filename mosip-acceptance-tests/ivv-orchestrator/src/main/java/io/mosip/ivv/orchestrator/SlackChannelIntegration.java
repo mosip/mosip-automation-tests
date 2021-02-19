@@ -13,7 +13,8 @@ import com.slack.api.methods.response.chat.ChatPostMessageResponse;
  * oauth token: xoxb-831351446070-1751917508130-IAFVzzZlKb5dEMwQKmfdcWAP
  */
 public class SlackChannelIntegration {
-	static String reportUrl="http://ec2-13-233-116-131.ap-south-1.compute.amazonaws.com/MosipTestResource/mosip_e2e_emailable_report.html";
+	//static String reportUrl="http://ec2-13-233-116-131.ap-south-1.compute.amazonaws.com/MosipTestResource/mosip_e2e_emailable_report.html";
+	static String reportUrl="http://automation.mosip.net/MosipTestResource/mosip_e2e_emailable_report.html";
 	static Slack slack = Slack.getInstance();
 	static String token  = "xoxb-831351446070-1751917508130-IAFVzzZlKb5dEMwQKmfdcWAP";
 	//static String token  = "xoxp-831351446070-1724753972099-1775798923792-20fd629a791c9ab53235343d84e9f77a";
