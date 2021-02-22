@@ -149,6 +149,28 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return rid;
 	}
 	
+	public String updateResidentRid(String personaFilePath, String rid) throws RigInternalError {
+		String  url = baseUrl+props.getProperty("updateResidentUrl")+"?RID="+rid;
+
+		JSONObject jsonwrapper = new JSONObject();
+		JSONObject jsonReq = new JSONObject();
+		JSONObject residentAttrib = new JSONObject();
+	
+		residentAttrib.put("rid", personaFilePath);
+
+		jsonReq.put("PR_ResidentList", residentAttrib);
+		
+		jsonwrapper.put("requests", jsonReq);
+	
+		Response response =postReqest(url,jsonwrapper.toString(),"link Resident data with RID");
+		
+		if (!response.getBody().asString().toLowerCase().contains("success"))
+			throw new RigInternalError("Unable to add Resident RID in resident data");
+		  String ret = response.getBody().asString();
+		return ret;
+		
+	}
+	
 	public  String updateResidentGuardian(String residentFilePath, boolean withRid) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		List<String> generatedResidentData = generateResidents(1, true,true,"Any",contextKey);
@@ -160,12 +182,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String prid=preReg(generatedResidentData.get(0),contextKey);
 		uploadDocuments(generatedResidentData.get(0), prid,contextKey);
 		bookAppointment(prid, 1,contextKey);
-		String rid=generateAndUploadPacket(prid, templatePath,contextKey);
-		// call Dsl step wait her sleep for 2 minute
-		String url = null;
+		String rid=generateAndUploadPacket(prid, templatePath, contextKey);
+		
+		String url = baseUrl+props.getProperty("updateResidentUrl");
+		
 		if(withRid)
-			url = baseUrl+props.getProperty("updateResidentUrl")+"?RID="+rid;
-		else url = baseUrl+props.getProperty("updateResidentUrl");
+			updateResidentRid(generatedResidentData.get(0), rid);
 		
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
@@ -189,11 +211,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
 		String rid=generateAndUploadPacketSkippingPrereg(templatePath,generatedResidentData.get(0),contextKey);
-		// call Dsl step wait her sleep for 2 minute
-		String url = null;
+
+		String url = baseUrl+props.getProperty("updateResidentUrl");
+		
 		if(withRid)
-			url = baseUrl+props.getProperty("updateResidentUrl")+"?RID="+rid;
-		else url = baseUrl+props.getProperty("updateResidentUrl");
+			updateResidentRid(generatedResidentData.get(0), rid);
 		
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
