@@ -35,9 +35,12 @@ import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.dg.DataGenerator;
 import io.mosip.ivv.parser.Parser;
+import io.mosip.service.BaseTestCase;
 
 public class Orchestrator {
 	String message=null;
+	int countScenarioPassed=0;
+	static int totalScenario=0;
 	StringBuilder messageBuilder=new StringBuilder();
 	private static ExtentHtmlReporter htmlReporter;
 	public static ExtentReports extent;
@@ -117,6 +120,7 @@ public class Orchestrator {
 		HashMap<String, String> configs = parser.getConfigs();
 		HashMap<String, String> globals = parser.getGlobals();
 		ArrayList<RegistrationUser> rcUsers = parser.getRCUsers();
+		totalScenario=scenarios.size();
 		Object[][] dataArray = new Object[scenarios.size()][5];
 		for (int i = 0; i < scenarios.size(); i++) {
 			dataArray[i][0] = i;
@@ -239,19 +243,25 @@ public class Orchestrator {
 
 	@AfterMethod
 	public void afterMethod(ITestResult result) {
-		String status="Fail";
-		if(result.getStatus()==ITestResult.SUCCESS)
-			status="Pass";
-		else if(result.getStatus()==ITestResult.SKIP)
-			status="Skip";
-		messageBuilder.append(message+": "+status).append("\n");
-		
+		String status = "Fail";
+		if (result.getStatus() == ITestResult.SUCCESS) {
+			status = "Pass";
+			countScenarioPassed++;
+		} else if (result.getStatus() == ITestResult.SKIP)
+			status = "Skip";
+		//messageBuilder.append(message + ": " + status).append("\n");
+
 	}
 	
 	@AfterClass
 	public void publishResult() {
-		//System.out.println("publishResult:"+messageBuilder.toString());
+		messageBuilder.append("Execution Target: " + BaseTestCase.ApplnURI.split("//")[1]);
+		messageBuilder.append("\n").append("Total scenarios ran: " + totalScenario).append(" ")
+				.append("Failed: " + (totalScenario - countScenarioPassed)).append(" ")
+				.append("Passed : " + countScenarioPassed);
+		messageBuilder.append("\n").append("Find the report: " + SlackChannelIntegration.reportUrl);
 		SlackChannelIntegration.postMessage(SlackChannelIntegration.defaultChannel, messageBuilder.toString());
+		//System.out.println(messageBuilder);
 	}
 
 	@SuppressWarnings("deprecation")

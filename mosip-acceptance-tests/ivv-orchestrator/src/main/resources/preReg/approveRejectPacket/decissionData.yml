@@ -1,0 +1,23 @@
+DecissionData:
+   regProc_DecissionData_All_Valid_Smoke_sid:
+      endPoint: /registrationprocessor/v1/manualverification/decision
+      role: regProc
+      restMethod: post
+      inputTemplate: preReg/approveRejectPacket/request
+      outputTemplate: preReg/approveRejectPacket/response
+      input: '{
+  "id": "mosip.manual.verification.decision",
+  "version": "1.0",
+  "matchedRefType": "RID",
+  "mvUsrId": "$mvUsrId$",
+  "reasonCode": "Problem with biometrics",
+  "regId": "$regId$",
+  "statusCode": "$statusCode$",
+  "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "matchedRefType": "RID",
+  "mvUsrId": "$mvUsrId$",
+  "reasonCode": "Problem with biometrics",
+  "statusCode": "$statusCode$"
+}'

@@ -9,5 +9,5 @@ CheckStatus:
   "individualId":"$RID$"
 }'
       output: '{
-  "ridStatus": "UNDER PROCESSING - PLEASE CHECK BACK AGAIN LATER."
+  "ridStatus": "$ridStatus$"
 }'
