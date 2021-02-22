@@ -36,12 +36,20 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			case "rejected":
 				status_Message="REJECTED - PLEASE VISIT THE NEAREST CENTER FOR DETAILS.";
 				break;
+			case "failed":
+				status_Message="FAILED - PLEASE VISIT THE NEAREST CENTER FOR DETAILS.";
+				break;	
 			default:
 				logger.error("Parameter not supported");
 			}
 		}
     	//pridsAndRids.put("54253173891651", "10002100741000220210113045712");
-    	if(tempPridAndRid ==null)
+		checkStatus(status_param, status_Message);
+		
+	}
+    
+	public void checkStatus(String status_param, String status_Message) throws RigInternalError {
+		if(tempPridAndRid ==null)
     		tempPridAndRid =pridsAndRids;
     	String fileName = check_status_YML;
     	SimplePost postScript= new SimplePost();
@@ -85,6 +93,5 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 		}
 
 	}
-    
 
 }
