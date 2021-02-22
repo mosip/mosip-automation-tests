@@ -32,10 +32,12 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static HashMap<String, String> residentTemplatePaths = new LinkedHashMap<String, String>();
 	public static HashMap<String, String> residentPathsPrid = new LinkedHashMap<String, String>();
 	public static HashMap<String, String> templatePacketPath = new LinkedHashMap<String, String>();
+	public static HashMap<String, String> manualVerificationRid = new LinkedHashMap<String, String>();
 	public static HashMap<String, String> residentPathGuardianRid = null;
 	public static final long DEFAULT_WAIT_TIME = 30000l;
 	public static final long TIME_IN_MILLISEC = 1000l;
 	public static String prid=null;
+	public static String statusCode=null;
 	public static PacketUtility packetUtility= new PacketUtility();
 	public static HashMap<String, String> contextKey=new HashMap<String, String>();
 	public static List<String> resDataPathList= new LinkedList();
