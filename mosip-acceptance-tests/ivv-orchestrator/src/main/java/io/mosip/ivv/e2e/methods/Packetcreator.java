@@ -32,7 +32,7 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 		jsonReq.put("process", E2EConstants.LOST_PROCESS);
 		jsonReq.put("source", E2EConstants.SOURCE);
 		jsonReq.put("templatePath", templatePath);
-		Response response =postReqest(url,jsonReq.toString(),"CreatePacket");
+		Response response =postRequestWithPathParamAndBody(url,jsonReq.toString(),contextKey,"CreatePacket");
 		//assertTrue(response.getBody().asString().contains("zip"),"Unable to get packet from packet utility");
 		if(!response.getBody().asString().toLowerCase().contains("zip"))
 			throw new RigInternalError("Unable to get packet from packet utility");
