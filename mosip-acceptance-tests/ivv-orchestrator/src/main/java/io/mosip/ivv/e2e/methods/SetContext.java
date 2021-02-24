@@ -15,7 +15,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 @Override
 public void run() throws RigInternalError {
 	constantIntializer();
-	String contextKeyValue=null;
+	String contextKeyValue="dev_context";
 	if (step.getParameters() == null || step.getParameters().isEmpty() ||step.getParameters().size()<1) {
 		logger.warn("SetContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
 	} else {

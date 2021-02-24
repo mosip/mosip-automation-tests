@@ -1,5 +1,7 @@
 package io.mosip.ivv.orchestrator;
 
+import static io.restassured.RestAssured.given;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import io.mosip.authentication.fw.util.RestClient;
 import io.mosip.ivv.core.base.BaseStep;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.service.BaseTestCase;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class BaseTestCaseUtil extends BaseStep{
@@ -88,6 +91,15 @@ public class BaseTestCaseUtil extends BaseStep{
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response apiResponse = RestClient.postRequestWithQueryParamAndBody(url, body, contextKey,MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ apiResponse.getBody().asString() + "</pre>");
+		return apiResponse;
+	}
+	
+	public Response postRequestWithPathParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		Response apiResponse = given().contentType(ContentType.JSON).pathParams(contextKey)
+				.log().all().when().get(url).then().log().all().extract().response();
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ apiResponse.getBody().asString() + "</pre>");
 		return apiResponse;
