@@ -98,7 +98,7 @@ public class BaseTestCaseUtil extends BaseStep{
 	
 	public Response postRequestWithPathParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response apiResponse = given().contentType(ContentType.JSON).pathParams(contextKey)
+		Response apiResponse = given().contentType(ContentType.JSON).pathParams(contextKey).body(body)
 				.log().all().when().post(url).then().log().all().extract().response();
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ apiResponse.getBody().asString() + "</pre>");
