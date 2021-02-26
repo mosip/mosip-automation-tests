@@ -19,7 +19,7 @@ import io.restassured.response.Response;
 
 public class PacketUtility extends BaseTestCaseUtil {
 	
-	public List<String> generateResidents(int n, Boolean bAdult, Boolean bSkipGuardian, String gender,HashMap<String,String> contextKey) throws RigInternalError {
+	public List<String> generateResidents(int n, Boolean bAdult, Boolean bSkipGuardian, String gender,String missFields,HashMap<String,String> contextKey) throws RigInternalError {
 		
 		String url = baseUrl + props.getProperty("getResidentUrl") + n;
 		JSONObject jsonwrapper = new JSONObject();
@@ -34,6 +34,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		residentAttrib.put("Gender", gender);
 		residentAttrib.put("PrimaryLanguage", "eng");
 		residentAttrib.put("Iris", true);
+		if(missFields!=null)
+		residentAttrib.put("Miss", missFields);
 		jsonReq.put("PR_ResidentAttribute", residentAttrib);
 		jsonwrapper.put("requests", jsonReq);
 
@@ -173,7 +175,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	
 	public  String updateResidentGuardian(String residentFilePath, boolean withRid) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
-		List<String> generatedResidentData = generateResidents(1, true,true,"Any",contextKey);
+		List<String> generatedResidentData = generateResidents(1, true,true,"Any",null,contextKey);
 		JSONArray jsonArray=getTemplate(new HashSet<String>(generatedResidentData), "NEW",contextKey);
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
@@ -206,7 +208,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 	public  String updateResidentWithGuardianSkippingPreReg(String residentFilePath,HashMap<String,String> contextKey, boolean withRid) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
-		List<String> generatedResidentData = generateResidents(1, true,true,"Any",contextKey);
+		List<String> generatedResidentData = generateResidents(1, true,true,"Any",null,contextKey);
 		JSONArray jsonArray=getTemplate(new HashSet<String>(generatedResidentData), "NEW",contextKey);
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
