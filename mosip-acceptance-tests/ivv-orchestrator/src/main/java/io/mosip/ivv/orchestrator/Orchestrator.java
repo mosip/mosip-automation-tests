@@ -261,7 +261,7 @@ public class Orchestrator {
 				.append("Passed : " + countScenarioPassed);
 		messageBuilder.append("\n").append("Find the report: " + SlackChannelIntegration.reportUrl);
 		SlackChannelIntegration.postMessage(SlackChannelIntegration.defaultChannel, messageBuilder.toString());
-		//System.out.println(messageBuilder);
+		
 	}
 
 	@SuppressWarnings("deprecation")
