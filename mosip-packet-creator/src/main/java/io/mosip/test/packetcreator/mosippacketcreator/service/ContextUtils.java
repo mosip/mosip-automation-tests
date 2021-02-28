@@ -4,7 +4,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.UUID;
 
+import org.mosip.dataprovider.models.ExecContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,5 +65,15 @@ public class ContextUtils {
 	    		bRet = false;
 			}
 	    	return bRet;
+	    }
+	    public String createExecutionContext(String serverContextKey) {
+	    	
+	    	String uid = UUID.randomUUID().toString();
+	    	ExecContext context = new ExecContext();
+	    	context.setKey(uid);
+	    	Properties  p =loadServerContext(serverContextKey);
+	    	context.setProperties(p);
+	    	//Hashtable tbl = null;
+	    	return uid;
 	    }
 }
