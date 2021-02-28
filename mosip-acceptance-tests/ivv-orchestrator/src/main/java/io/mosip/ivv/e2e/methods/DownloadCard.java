@@ -14,6 +14,7 @@ import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestResources;
 import io.mosip.testscripts.GetWithParamForDownloadCard;
@@ -26,7 +27,7 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 
     @SuppressWarnings("static-access")
 	@Override
-    public void run() {
+    public void run() throws RigInternalError {
     	String fileName = downLoadCard_YML;
     	GetWithParamForDownloadCard getWithPathParam= new GetWithParamForDownloadCard();
     	Object[] casesList = getWithPathParam.getYmlTestData(fileName);
@@ -48,11 +49,14 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 						logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
 						Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 						// checking pdf file size
-						assertTrue(getWithPathParam.pdf.length>0);
+						//assertTrue(getWithPathParam.pdf.length>0);
+						if(getWithPathParam.pdf.length<0)
+							throw new RigInternalError("downloaded pdf size is less than 0");
 						download(getWithPathParam.pdf,requestid);
 					} catch (AuthenticationTestException | AdminTestException e) {
 						logger.error("Failed at downloading card: "+e.getMessage());
-						assertFalse(true, "Failed at downloading card");
+						//assertFalse(true, "Failed at downloading card");
+						throw new RigInternalError("Failed at downloading card");
 					} 
 			}
 		}

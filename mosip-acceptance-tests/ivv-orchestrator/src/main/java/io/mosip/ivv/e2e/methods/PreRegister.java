@@ -13,8 +13,8 @@ public class PreRegister extends BaseTestCaseUtil implements StepInterface {
 		for (String resDataPath : residentTemplatePaths.keySet()) {
 			Reporter.log("<b><u>"+"PreRegister and upload packet testCase: "+count+ "</u></b>");
 			count++;
-			packetUtility.requestOtp(resDataPath,contextKey);
-			packetUtility.verifyOtp(resDataPath,contextKey);
+			//packetUtility.requestOtp(resDataPath,contextKey);
+			//packetUtility.verifyOtp(resDataPath,contextKey);
 			String prid=packetUtility.preReg(resDataPath,contextKey);
 			residentPathsPrid.put(resDataPath, prid);
 		}

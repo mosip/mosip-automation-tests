@@ -15,6 +15,7 @@ import io.mosip.authentication.fw.util.FileUtil;
 import io.mosip.authentication.fw.util.ReportUtil;
 import io.mosip.authentication.fw.util.RestClient;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestResources;
 import io.mosip.kernel.util.KernelAuthentication;
@@ -29,11 +30,11 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
 	KernelAuthentication kauth = new KernelAuthentication();
     @SuppressWarnings("static-access")
 	@Override
-    public void run() {
+    public void run() throws RigInternalError {
     	getIdentity(this.pridsAndRids);
     }
 
-    public void getIdentity(HashMap<String, String> rids)
+    public void getIdentity(HashMap<String, String> rids) throws RigInternalError
     {
     	uinReqIds.clear();
     	for(String rid: rids.values())
@@ -63,7 +64,8 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
     		}else
     			{
     				logger.error("Issue while fetching identity for RID: "+rid+" Response: "+res.toString());
-    				assertFalse(true, "Not able to Fetch identity for RID: "+rid);
+    				//assertFalse(true, "Not able to Fetch identity for RID: "+rid);
+    				throw new RigInternalError("Not able to Fetch identity for RID: "+rid);
     			}
     			
     		}

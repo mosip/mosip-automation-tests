@@ -7,6 +7,7 @@ import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testscripts.GetWithParam;
 
@@ -16,7 +17,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 
     @SuppressWarnings("static-access")
 	@Override
-    public void run() {
+    public void run() throws RigInternalError {
     	String fileName = check_status_YML;
     	GetWithParam getWithPathParam= new GetWithParam();
     	Object[] casesList = getWithPathParam.getYmlTestData(fileName);
@@ -50,7 +51,9 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 							logger.error("Failed at checking Credential status with error: " + e.getMessage());
 						}
 					}
-					assertTrue(getWithPathParam.response.asString().contains("printing"), "Failed at credential issuance status check Response validation");
+					//assertTrue(getWithPathParam.response.asString().contains("printing"), "Failed at credential issuance status check Response validation");
+					if(!getWithPathParam.response.getBody().asString().toLowerCase().contains("printing"))
+						throw new RigInternalError("Failed at credential issuance status check Response validation");
 				}
 			}
 		} catch (InterruptedException e) {
