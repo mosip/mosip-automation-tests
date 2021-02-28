@@ -20,11 +20,11 @@ import javax.cache.spi.CachingProvider;
 
 import org.mosip.dataprovider.util.DataProviderConstants;
 
-public class VariableManager {
+public final class VariableManager {
 	public static String CONFIG_PATH = DataProviderConstants.RESOURCE+"config/";
 	public static String NS_DEFAULT = "mosipdefault";
-	public static String NS_PREREG = "prereg";
-	public static String NS_REGCLIENT = "regclient";
+//	public static String NS_PREREG = "prereg";
+//	public static String NS_REGCLIENT = "regclient";
 	
 	public static String NS_MASTERDATA = "masterdata";
 
@@ -34,52 +34,55 @@ public class VariableManager {
 	
 //	static Hashtable<String, Hashtable<String,Object>> varNameSpaces;
 	
-	static Hashtable<String, Cache> varNameSpaces;
-	static MutableConfiguration cacheConfig;
+	static Hashtable<String, Cache<String,Object>> varNameSpaces;
+	static MutableConfiguration<String, Object> cacheConfig;
 	static CacheManager cacheManager;
+	static boolean bInit= false;
 	
 	static {
-		Init();
-		varNameSpaces = new Hashtable<String, Cache>();
-		//load predefined variables
-		
-		 Cache cache = cacheManager.createCache(NS_DEFAULT, cacheConfig);
-		 varNameSpaces.put(NS_DEFAULT, cache);
-		
-		cache = cacheManager.createCache(NS_PREREG, cacheConfig);
-		varNameSpaces.put(NS_PREREG, cache);
-		
-		cache = cacheManager.createCache(NS_MASTERDATA, cacheConfig);
-		varNameSpaces.put(NS_MASTERDATA, cache);
-		
-		cache = cacheManager.createCache(NS_REGCLIENT, cacheConfig);
-		varNameSpaces.put(NS_REGCLIENT, cache);
-		
-		loadNamespaceFromPropertyFile(CONFIG_PATH+"prereg.properties", NS_PREREG);
-		loadNamespaceFromPropertyFile(CONFIG_PATH+"default.properties", NS_DEFAULT);
-		loadNamespaceFromPropertyFile(CONFIG_PATH+"masterdata.properties", NS_MASTERDATA);
-		loadNamespaceFromPropertyFile(CONFIG_PATH+"regclient.properties", NS_REGCLIENT);
-				
+		Init();				
 	}
 	
-	static void Init() {
+	public static void Init() {
+		
+		if(bInit) return;
 		 //resolve a cache manager
 		 CachingProvider cachingProvider = Caching.getCachingProvider();
 		 cacheManager = cachingProvider.getCacheManager();
 
 		 //configure the cache
 		 cacheConfig =
-		    new MutableConfiguration<>()
-		    .setTypes( Object.class, Object.class)
+		    new MutableConfiguration<String, Object>()
+		    .setTypes( String.class, Object.class)
 		    .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_DAY))
 		    .setStatisticsEnabled(true);
 
 		 //create the cache
 		
-
+		 varNameSpaces = new Hashtable<String, Cache<String,Object>>();
+			//load predefined variables
+			
+			 Cache<String,Object> cache = cacheManager.createCache ( NS_DEFAULT, cacheConfig);
+			 varNameSpaces.put(NS_DEFAULT, cache);
+			
+		//	cache = cacheManager.createCache(NS_PREREG, cacheConfig);
+		//	varNameSpaces.put(NS_PREREG, cache);
+			
+			cache = cacheManager.createCache(NS_MASTERDATA, cacheConfig);
+			varNameSpaces.put(NS_MASTERDATA, cache);
+			
+		//	cache = cacheManager.createCache(NS_REGCLIENT, cacheConfig);
+		//	varNameSpaces.put(NS_REGCLIENT, cache);
+			
+		//	loadNamespaceFromPropertyFile(CONFIG_PATH+"prereg.properties", NS_PREREG);
+			loadNamespaceFromPropertyFile(CONFIG_PATH+"default.properties", NS_DEFAULT);
+			loadNamespaceFromPropertyFile(CONFIG_PATH+"masterdata.properties", NS_MASTERDATA);
+		//	loadNamespaceFromPropertyFile(CONFIG_PATH+"regclient.properties", NS_REGCLIENT);
+			bInit = true;
+		
 	}
-	static Cache createNameSpace(String namespaceName) {
-		Cache ht = null;
+	static Cache<String, Object> createNameSpace(String namespaceName) {
+		Cache<String,Object> ht = null;
 		try {
 			ht = varNameSpaces.get(namespaceName);
 		}catch(Exception e) {}
@@ -90,7 +93,7 @@ public class VariableManager {
 		return ht;
 	}
 	public static Object setVariableValue(String namespaceName, String varName, Object value) {
-		Cache ht = createNameSpace(namespaceName);
+		Cache<String,Object> ht = createNameSpace(namespaceName);
 		ht.put(varName, value);
 		return value;
 	}
@@ -119,7 +122,7 @@ public class VariableManager {
 		return  set.toArray(a);
 	}
 	public static Object getVariableValue(String namespaceName, String varName) {
-		Cache ht = null;
+		Cache<String,?> ht = null;
 		Object ret = null;
 		try {
 			ht =  varNameSpaces.get(namespaceName);
@@ -207,20 +210,20 @@ public class VariableManager {
 		 CacheManager cacheManager = cachingProvider.getCacheManager();
 
 		 //configure the cache
-		 MutableConfiguration config =
-		    new MutableConfiguration<>()
-		    .setTypes( Object.class, Object.class)
+		 MutableConfiguration<String, Object> config =
+		    new MutableConfiguration<String, Object>()
+		    .setTypes( String.class, Object.class)
 		    .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_HOUR))
 		    .setStatisticsEnabled(true);
 
 		 //create the cache
-		 Cache cache = cacheManager.createCache("simpleCache", config);
+		 Cache<String, Object> cache = cacheManager.createCache("simpleCache", config);
 
 		 //cache operations
 		 String key = "key";
 		 Integer value1 = 1;
 		 cache.put("key", value1);
-		 Integer value2 = (Integer) cache.get(key);
+		// Integer value2 = (Integer) cache.get(key);
 		 cache.remove(key);
 		 
 	}

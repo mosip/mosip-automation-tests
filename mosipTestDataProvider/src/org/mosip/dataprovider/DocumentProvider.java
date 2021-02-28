@@ -215,14 +215,15 @@ public class DocumentProvider {
 	
 	public static void main(String[] args) {
 		
-		
-		String photo = PhotoProvider.getPhoto(1, "female");
-		String html = parseThymeleafTemplatePassport(photo,"Angel","01/12/2025", "Some where on this planet , on earth");
+	/*	
+		byte[][]photo = PhotoProvider.getPhoto(1, "female");
+		String html = parseThymeleafTemplatePassport(photo[0],"Angel","01/12/2025", "Some where on this planet , on earth");
 		try {
 			generatePdfFromHtml(html,new File("out.pdf"));
 		} catch (DocumentException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 	}
 }
