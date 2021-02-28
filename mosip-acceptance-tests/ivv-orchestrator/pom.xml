@@ -128,7 +128,12 @@
 			<artifactId>automationtests</artifactId>
 			<version>1.0.10</version>
 		</dependency>
-        
+		
+	<dependency>
+		<groupId>com.slack.api</groupId>
+		<artifactId>slack-api-client</artifactId>
+		<version>1.6.1-RC1</version>
+	</dependency>
     </dependencies>
     
 

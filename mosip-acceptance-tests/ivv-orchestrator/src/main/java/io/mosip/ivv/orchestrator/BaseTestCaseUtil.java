@@ -1,13 +1,18 @@
 package io.mosip.ivv.orchestrator;
 
+import static io.restassured.RestAssured.given;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
@@ -19,6 +24,7 @@ import io.mosip.authentication.fw.util.RestClient;
 import io.mosip.ivv.core.base.BaseStep;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.service.BaseTestCase;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class BaseTestCaseUtil extends BaseStep{
@@ -29,12 +35,15 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static HashMap<String, String> residentTemplatePaths = new LinkedHashMap<String, String>();
 	public static HashMap<String, String> residentPathsPrid = new LinkedHashMap<String, String>();
 	public static HashMap<String, String> templatePacketPath = new LinkedHashMap<String, String>();
+	public static HashMap<String, String> manualVerificationRid = new LinkedHashMap<String, String>();
 	public static HashMap<String, String> residentPathGuardianRid = null;
 	public static final long DEFAULT_WAIT_TIME = 30000l;
 	public static final long TIME_IN_MILLISEC = 1000l;
 	public static String prid=null;
+	public static String statusCode=null;
 	public static PacketUtility packetUtility= new PacketUtility();
 	public static HashMap<String, String> contextKey=new HashMap<String, String>();
+	public static List<String> resDataPathList= new LinkedList();
 	public BaseTestCaseUtil() {}
 	
 	public String encoder(String text) {
@@ -82,6 +91,15 @@ public class BaseTestCaseUtil extends BaseStep{
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response apiResponse = RestClient.postRequestWithQueryParamAndBody(url, body, contextKey,MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ apiResponse.getBody().asString() + "</pre>");
+		return apiResponse;
+	}
+	
+	public Response postRequestWithPathParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		Response apiResponse = given().contentType(ContentType.JSON).pathParams(contextKey).body(body)
+				.log().all().when().post(url).then().log().all().extract().response();
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ apiResponse.getBody().asString() + "</pre>");
 		return apiResponse;

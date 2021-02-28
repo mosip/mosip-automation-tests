@@ -7,13 +7,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 
 public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(GetPacketTemplate.class);
 
 	@Override
-	public void run() {
+	public void run() throws RigInternalError {
 		String process = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Argument is missing in DSL steps: " + step.getName());
@@ -36,9 +37,11 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 			
 		}
 		for (String residentPath : residentTemplatePaths.keySet()) {
-			assertTrue(residentTemplatePaths.get(residentPath)!=null,"Unable to get packetTemplate from packet utility");
+			if(residentTemplatePaths.get(residentPath)==null)
+				throw new RigInternalError("Unable to get packetTemplate from packet utility");
+			//assertTrue(residentTemplatePaths.get(residentPath)!=null,"Unable to get packetTemplate from packet utility");
 		}
-		System.out.println("RESIDENTTEMPLATEPATHS: " + residentTemplatePaths);
+		//System.out.println("RESIDENTTEMPLATEPATHS: " + residentTemplatePaths);
 	}
 
 }

@@ -1,6 +1,8 @@
 # Eclipse specific files #
 *bin/
 *target/
+*testng-report/
+*testRun/
 
 # intelliJ specific files #
 .DS_Store
@@ -17,13 +19,10 @@
 *TestRun_Reports
 *TestRun_Results
 *PacketStore
-*PreRegPacketStore
+*testng-report
 
 # properties file #
-*/config.properties
-*reg
 */db
-*local*
 *services_jar/*
 *.jar
 *.log

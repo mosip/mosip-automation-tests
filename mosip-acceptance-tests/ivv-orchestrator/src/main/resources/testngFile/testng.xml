@@ -4,7 +4,7 @@
 <suite name = "Suite1" data-provider-thread-count="5">
     <parameter name="scenarioFilter" value="random"/>
     <parameter name="stopOnError" value="false"/>
-    <test name = "test1" group-by-instances="true">
+    <test name = "E2E-AUTOMATION-TEST" group-by-instances="true">
         <classes>
             <class name = "io.mosip.ivv.orchestrator.Orchestrator"/>
         </classes>

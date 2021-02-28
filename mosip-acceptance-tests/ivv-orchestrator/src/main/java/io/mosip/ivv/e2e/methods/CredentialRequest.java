@@ -10,6 +10,7 @@ import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testscripts.PostWithBodyWithOtpGenerate;
 
@@ -19,7 +20,7 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 
     @SuppressWarnings("static-access")
 	@Override
-    public void run() {
+    public void run() throws RigInternalError {
     	try {
 			Thread.sleep(30000);
 		} catch (InterruptedException e) {
@@ -55,7 +56,8 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 			}
 		} catch (AuthenticationTestException | AdminTestException e) {
 			logger.error(e.getMessage());
-			assertFalse(true, "Failed at credential issuance Response validation");
+			//assertFalse(true, "Failed at credential issuance Response validation");
+			throw new RigInternalError("Failed at credential issuance Response validation");
 		}
 	}
 
