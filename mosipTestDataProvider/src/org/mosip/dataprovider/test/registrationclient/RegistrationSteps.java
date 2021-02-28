@@ -3,11 +3,7 @@ package org.mosip.dataprovider.test.registrationclient;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-
 import java.time.LocalDateTime;
-import java.util.Base64;
-
 import org.json.JSONObject;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.RestClient;
@@ -25,15 +21,17 @@ public class RegistrationSteps {
 		try {
 			workDirectory = Files.createTempDirectory("prereg").toFile().getAbsolutePath();
 			workPacketDirectory = Files.createTempDirectory("pktcreator").toFile().getAbsolutePath();
-			templateFolder = VariableManager.getVariableValue(VariableManager.NS_REGCLIENT, "packetTemplateLocation").toString();
+			templateFolder = VariableManager.getVariableValue( "packetTemplateLocation").toString();
 			
             File folder = new File(templateFolder);
-            File templateName = folder.listFiles()[0];
-            defaultTemplateLocation = templateName.getAbsolutePath();
+            if(folder.listFiles() != null) {
+            	File templateName = folder.listFiles()[0];
+            	defaultTemplateLocation = templateName.getAbsolutePath();
+            }
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		
 	}
@@ -46,12 +44,12 @@ public class RegistrationSteps {
 			 lastSyncTime = LocalDateTime.now().minusMinutes(10) ;
 			 
 		 }
-		 String url =  VariableManager.getVariableValue("urlBase") +
-					VariableManager.getVariableValue(VariableManager.NS_REGCLIENT, "preRegSyncURL").toString();
+		 String url =  VariableManager.getVariableValue("urlBase").toString().trim() +
+					VariableManager.getVariableValue( "preRegSyncURL").toString().trim();
 			
 		 JSONObject syncRequest = new JSONObject();
 		 syncRequest.put("registrationCenterId", 
-				 VariableManager.getVariableValue(VariableManager.NS_REGCLIENT, "centerId"));
+				 VariableManager.getVariableValue( "centerId"));
 		 syncRequest.put("fromDate",CommonUtil.getUTCDateTime(lastSyncTime));
 		 syncRequest.put("toDate",CommonUtil.getUTCDateTime(currentSyncTime ));
 
@@ -67,18 +65,44 @@ public class RegistrationSteps {
 		lastSyncTime = currentSyncTime;		
 	    return (JSONObject) preregResponse.get("preRegistrationIds");
 	 }
-	/*
-	 public String downloadPreregPacket(String preregId) throws Exception{
 
-		 String url =  VariableManager.getVariableValue("urlBase") +
-					VariableManager.getVariableValue(VariableManager.NS_REGCLIENT, "preRegSyncURL").toString();
-		
-		JSONObject preregResponse = RestClient.get(url+"/"+preregId, new JSONObject(), new JSONObject());
-		
-		Path temPath = Path.of(url, null);// (workDirectory, preregId+".zip");
-		
-		Files.write(temPath, Base64.getDecoder().decode(preregResponse.getString("zip-bytes")));
+	public String getRIDStatus(String rid) throws Exception {
+	
+		String uri =  "/resident/v1/rid/check-status";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() + uri ;
 
-		return temPath.toString();
-	}*/
+		JSONObject req = new JSONObject();
+		JSONObject reqWrapper = new JSONObject();
+		reqWrapper.put("id", "mosip.resident.checkstatus");
+		reqWrapper.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+		reqWrapper.put("version", "v1");
+		req.put("individualId", rid);
+		req.put("individualIdType", "RID");
+		reqWrapper.put("request", req);
+
+
+		JSONObject response =RestClient.post(url,reqWrapper);
+		return response.get("ridStatus").toString();
+		
+	}
+	public String getUINByRID(String rid) throws Exception {
+		
+		String uri =  "/idrepository/v1/identity/idvid/" + rid;
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() + uri ;
+
+		/*JSONObject req = new JSONObject();
+		JSONObject reqWrapper = new JSONObject();
+		reqWrapper.put("id", "mosip.resident.checkstatus");
+		reqWrapper.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+		reqWrapper.put("version", "v1");
+		req.put("individualId", rid);
+		req.put("individualIdType", "RID");
+		reqWrapper.put("request", req);
+		 */
+
+		JSONObject response =RestClient.get(url,new JSONObject(),new JSONObject());
+		return response.getJSONObject("identity").getString("UIN");
+		
+	}
+	
 }

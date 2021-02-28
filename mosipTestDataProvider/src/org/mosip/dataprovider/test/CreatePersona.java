@@ -25,6 +25,7 @@ import org.mosip.dataprovider.util.RestClient;
 import org.mosip.dataprovider.util.Translator;
 import org.mvel2.MVEL;
 
+import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import variables.VariableManager;
 
 public class CreatePersona {
@@ -36,15 +37,20 @@ public class CreatePersona {
 		JSONArray array  = new JSONArray();
 		
 		obj.put("language", primLang);
-		obj.put("value", primVal);
-		
+		if(primVal != null && primVal.equals(""))
+			obj.put("value", Json.NULL);
+		else
+			obj.put("value", primVal);
 		if(bSimpleType){
 			array.put(0, obj);
 			
 			if(secLang != null) {	
 				obj = new JSONObject();
 				obj.put("language", secLang);
-				obj.put("value", secVal);
+				if(secVal != null && secVal.equals(""))
+					obj.put("value", Json.NULL);
+				else
+					obj.put("value", secVal);
 				array.put(1, obj);
 			}
 			identity.put(Id, array);
@@ -112,10 +118,15 @@ public class CreatePersona {
 		if(cb != null)
 			cb.logDebug("createIdentity:schemaversion=" + schemaversion);
 		//ApplicationConfigSchemaItem schemaItem = null;
+		List<String> lstMissedAttributes = resident.getMissAttributes();
+		
 		for(MosipIDSchema schemaItem: lstSchema) {
 
 			if(cb != null) {
 				cb.logDebug(schemaItem.toJSONString());
+			}
+			if(lstMissedAttributes != null && lstMissedAttributes.stream().anyMatch( v -> v.equalsIgnoreCase(schemaItem.getId()))) {
+				continue;
 			}
 			//skip document types
 			//"type": "documentType","type": "biometricsType",
@@ -126,7 +137,7 @@ public class CreatePersona {
 			if(!schemaItem.getRequired() && !schemaItem.getInputRequired()) {
 				continue;
 			}
-			if(schemaItem.getRequired() && schemaItem.getType() != null &&
+			if(schemaItem.getType() != null &&
 				( schemaItem.getContactType() != null  || schemaItem.getGroup() != null)
 					
 			){
@@ -146,7 +157,7 @@ public class CreatePersona {
 					}
 					//known lookups
 					else {
-						if(schemaItem.getId().toLowerCase().equals("gender") ||schemaItem.getId().toLowerCase().equals("sex") ) {
+						if(schemaItem.getSubType().toLowerCase().equals("gender")  ) {
 							
 							String primLang = resident.getPrimaryLanguage();
 							String secLan = resident.getSecondaryLanguage();
@@ -330,7 +341,8 @@ public class CreatePersona {
 						);
 				}
 				else
-				if(schemaItem.getId().toLowerCase().contains("referenceIdentity") ) {
+				if(schemaItem.getId().toLowerCase().contains("referenceidentity") ) {
+					
 						String id = resident.getId();	
 						constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 								resident.getSecondaryLanguage(),
@@ -567,9 +579,10 @@ public class CreatePersona {
 		req.put("userId", to);	
 		obj.put("request", req);
 		//RestClient client = annotation.getRestClient();
-		String url = VariableManager.getVariableValue("urlBase") +"/preregistration/v1/login/sendOtp";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"preregistration/v1/login/sendOtp";
+	//	url = "https://dev.mosip.net/preregistration/v1/login/sendOtp";
 		try {
-			JSONObject resp = RestClient.post(url, obj);
+			JSONObject resp = RestClient.postNoAuth(url, obj);
 			response = resp.toString();
 		} catch (Exception e) {
 			
@@ -591,7 +604,7 @@ public class CreatePersona {
 	 *   }
 	 */
 	public static String validateOTP(String otp, String mobileOrEmailId) throws JSONException {
-		String url = VariableManager.getVariableValue("urlBase") +"/preregistration/v1/login/validateOtp";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"/preregistration/v1/login/validateOtp";
 		String response ="";
 		JSONObject obj = new JSONObject();
 		obj.put("id", "mosip.pre-registration.login.useridotp");
@@ -607,7 +620,7 @@ public class CreatePersona {
 
 		
 		try {
-			JSONObject resp = RestClient.post(url, obj);
+			JSONObject resp = RestClient.postNoAuth (url, obj);
 			response = resp.toString();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
