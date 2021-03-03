@@ -273,5 +273,19 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 	
+	public String updateBiometric(String resFilePath,List<String> attributeList)throws RigInternalError{
+		String url = baseUrl+props.getProperty("updatePersonaData");
+		JSONObject jsonReqInner = new JSONObject();
+		jsonReqInner.put("personaFilePath", resFilePath);
+		jsonReqInner.put("regenAttributeList", attributeList);
+		JSONArray jsonReq = new JSONArray();
+		jsonReq.put(0,jsonReqInner);	
+		Response response =postReqest(url,jsonReq.toString(),"Update BiometricData");
+		if(!response.getBody().asString().toLowerCase().contains("sucess"))
+			throw new RigInternalError("Unable to update BiometricData "+attributeList+" from packet utility");
+		return response.getBody().asString();	
+
+	}
+	
 	
 }
