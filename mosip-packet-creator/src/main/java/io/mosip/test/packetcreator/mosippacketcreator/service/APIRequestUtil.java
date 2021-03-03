@@ -2,31 +2,21 @@ package io.mosip.test.packetcreator.mosippacketcreator.service;
 
 import java.io.File;
 
-import java.net.URL;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
+
+
 import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.nimbusds.jose.JOSEObjectType;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
-import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
-import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
-import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mosip.dataprovider.util.SlackIt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +36,7 @@ public class APIRequestUtil {
 
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
 
-    private ConfigurableJWTProcessor<SecurityContext> jwtProcessor = null;
+   // private ConfigurableJWTProcessor<SecurityContext> jwtProcessor = null;
 
     String token;
     
@@ -88,6 +78,9 @@ public class APIRequestUtil {
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
 
+    @Value("${mosip.test.post2slack}")
+    private boolean bSlackit;
+    
     public void clearToken() {
     	token =null;
     }
@@ -97,8 +90,25 @@ public class APIRequestUtil {
     	if (!isValidToken()){
             initToken();
         }
-        Cookie kukki = new Cookie.Builder("Authorization", token).build();
-        Response response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(requestParams.toMap()).get(url,pathParam.toMap());
+    	boolean bDone = false;
+    	int nLoop  = 0;
+    	Response response =null;
+
+    	while(!bDone) {
+
+    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+    		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(requestParams.toMap()).get(url,pathParam.toMap());
+    		if(response.getStatusCode() == 401) {
+    			if(nLoop >= 1)
+    				bDone = true;
+    			else {
+    				initToken();
+    				nLoop++;
+    			}
+    		}
+    		else
+    			bDone = true;
+    	}
 
         checkErrorResponse(response.getBody().asString());
 
@@ -113,9 +123,24 @@ public class APIRequestUtil {
             initToken();
         }
 
-        Cookie kukki = new Cookie.Builder("Authorization", token).build();
-        Response response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
-
+    	boolean bDone = false;
+    	int nLoop  = 0;
+    	Response response =null;
+    	//implement a retry if token is invalud/unauthorized
+    	while(!bDone) {
+    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+    		response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+    		if(response.getStatusCode() == 401) {
+    			if(nLoop >= 1)
+    				bDone = true;
+    			else {
+    				initToken();
+    				nLoop++;
+    			}
+    		}
+    		else
+    			bDone = true;
+    	}
         checkErrorResponse(response.getBody().asString());
 
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -129,17 +154,34 @@ public class APIRequestUtil {
             initToken();
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        String outputJson = objectMapper.writeValueAsString(requestBody);
+    	boolean bDone = false;
+    	int nLoop  = 0;
+    	Response response =null;
 
-        Cookie kukki = new Cookie.Builder("Authorization", token).build();
-        Response response = given().cookie(kukki)
+    	while(!bDone) {
+        	
+    		ObjectMapper objectMapper = new ObjectMapper();
+    		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    		objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    		String outputJson = objectMapper.writeValueAsString(requestBody);
+
+    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+    		response = given().cookie(kukki)
                 .header("timestamp", timestamp)
                 .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
                 .contentType(ContentType.JSON).body(outputJson).post(url);
 
+    		if(response.getStatusCode() == 401) {
+    			if(nLoop >= 1)
+    				bDone = true;
+    			else {
+    				initToken();
+    				nLoop++;
+    			}
+    		}
+    		else
+    			bDone = true;
+    	}
         checkErrorResponse(response.getBody().asString());
 
         return new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
@@ -213,9 +255,17 @@ public class APIRequestUtil {
             //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
             Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
 			logger.info("Authtoken generation request response: {}", response.asString());
-
-            if (response.toString().contains("errorCode")) return false;
-            
+			if(response.getStatusCode() == 401) {
+				throw new Exception("401 - Unauthorized");
+				
+			}
+            if (response.getStatusCode() != 200 ||  response.toString().contains("errorCode")) {
+            	if(bSlackit)
+            		SlackIt.postMessage(null,
+            				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+            	
+            	return false;
+            }
             //token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
             //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
             token=response.getCookie("Authorization");
@@ -224,6 +274,10 @@ public class APIRequestUtil {
 		}
 		catch(Exception  ex){
             logger.error("",ex);
+            if(bSlackit)
+        		SlackIt.postMessage(null,
+        				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+        	
             return false;
 		}
     }

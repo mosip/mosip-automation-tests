@@ -47,10 +47,12 @@ import java.time.LocalDateTime;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 //import org.mosip.dataprovider.models.PairDeserializer;
 
 @Service
@@ -118,12 +120,7 @@ public class PacketSyncService {
     			
     			if(!key.startsWith("mosip.test")) {
     	
-    				if(key.startsWith("prereg"))
-    					ns = VariableManager.NS_PREREG;
-    				else
-    				if(key.startsWith("regclient"))
-        				ns = VariableManager.NS_REGCLIENT;
-        					
+					
     				VariableManager.setVariableValue(ns,key, v);
     			}
     			
@@ -174,6 +171,12 @@ public class PacketSyncService {
 		if(props.containsKey("Iris")) {
 			provider.addCondition(ResidentAttribute.RA_Iris, Boolean.parseBoolean(props.get("Iris").toString()));
 		}
+		if(props.containsKey("Face")) {
+			provider.addCondition(ResidentAttribute.RA_Photo, Boolean.parseBoolean(props.get("Face").toString()));
+		}
+		if(props.containsKey("Document")) {
+			provider.addCondition(ResidentAttribute.RA_Document, Boolean.parseBoolean(props.get("Document").toString()));
+		}
 		if(props.containsKey("Invalid")) {
 			List<String> invalidList = Arrays.asList(props.get("invalid").toString().split(",", -1));
 			provider.addCondition(ResidentAttribute.RA_InvalidList, invalidList);
@@ -181,9 +184,18 @@ public class PacketSyncService {
 		if(props.containsKey("Miss")) {
 
 			List<String> missedList = Arrays.asList(props.get("Miss").toString().split(",", -1));
-			provider.addCondition(ResidentAttribute.RA_InvalidList, missedList);
-
+			provider.addCondition(ResidentAttribute.RA_MissList, missedList);
+			logger.info("before Genrate: missthese:" + missedList.toString());
 		}
+		if(props.containsKey("ThirdLanguage")) {
+
+			provider.addCondition(ResidentAttribute.RA_THIRD_LANG, props.get("ThirdLanguage").toString());
+		}
+		if(props.containsKey("SchemaVersion")) {
+
+			provider.addCondition(ResidentAttribute.RA_SCHEMA_VERSION, props.get("SchemaVersion").toString());
+		}
+	
 		logger.info("before Genrate");
 		List<ResidentModel> lst = provider.generate();
 		logger.info("After Genrate");
@@ -465,8 +477,8 @@ public class PacketSyncService {
     loadServerContextProperties(contextKey);
     
     String base = VariableManager.getVariableValue("urlBase").toString().trim();
-	String api = VariableManager.getVariableValue(VariableManager.NS_PREREG, "appointmentslots").toString().trim();
-	String centerId = VariableManager.getVariableValue(VariableManager.NS_REGCLIENT, "centerId").toString().trim();
+	String api = VariableManager.getVariableValue("appointmentslots").toString().trim();
+	String centerId = VariableManager.getVariableValue( "centerId").toString().trim();
 	logger.info("BookAppointment:" + base +","+ api + ","+centerId);
 	
    	 AppointmentModel res = PreRegistrationSteps.getAppointments();
@@ -509,6 +521,50 @@ public class PacketSyncService {
     	}
 		    
     	return response;
+    }
+   
+    public String createPacket(PersonaRequestDto personaRequest, String process, String contextKey) throws IOException {
+
+    	Path packetDir = null;
+    	JSONArray packetPaths = new JSONArray();
+    	
+    	loadServerContextProperties(contextKey);
+ 
+    	packetDir = Files.createTempDirectory("packets_");
+    	Properties personaFiles = personaRequest.getRequests().get(PersonaRequestType.PR_ResidentList);
+    	Properties options = personaRequest.getRequests().get(PersonaRequestType.PR_Options);
+    	
+    	
+    	List<Object> lstObjects = Arrays.asList(personaFiles.values().toArray());
+    	List<String> personaFilePaths =  new ArrayList<String>();
+    	for(Object o: lstObjects) {
+    		personaFilePaths.add( o.toString());
+    	}
+    		
+    	
+    	if(!packetDir.toFile().exists()) {
+    		packetDir.toFile().createNewFile();
+    	}
+    	PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
+    	
+    	for(String path: personaFilePaths) {
+    		ResidentModel resident = readPersona(path);
+    		String packetPath = packetDir.toString()+File.separator + resident.getId();
+    		
+    		
+    		packetTemplateProvider.generate("registration_client", process, resident, packetPath);
+    		JSONObject obj = new JSONObject();
+    		obj.put("id",resident.getId());
+    		obj.put("path", packetPath);
+    		logger.info("createPacket:" + packetPath);
+    		packetPaths.put(obj);
+    		
+    		
+    	}
+    	JSONObject response = new JSONObject();
+    	response.put("packets", packetPaths);
+     	return response.toString();
+
     }
     public String createPackets(List<String> personaFilePaths, String process, String outDir, String contextKey) throws IOException {
 

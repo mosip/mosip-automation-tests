@@ -1,13 +1,14 @@
 package org.mosip.dataprovider.util;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -15,9 +16,21 @@ import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
 
+import javax.xml.bind.DatatypeConverter;
+
 
 public class CommonUtil {
 
+	public static String getHexEncodedHash(byte[] data) throws Exception{
+        try{
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(data);
+            return DatatypeConverter.printHexBinary(messageDigest.digest()).toUpperCase();
+        } catch(Exception ex){
+            throw new Exception("Invalid getHexEncodedHash "+ ex.getMessage());
+        }
+    }
+	
 	public static String toCaptialize(String text) {
 		return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
 	}

@@ -14,7 +14,7 @@ public class ResidentRegistration {
 	public static void register() {
 		String retVal="";
 		String url = VariableManager.getVariableValue("packetutilURLBase") +
-				VariableManager.getVariableValue(VariableManager.NS_REGCLIENT, "makeandsyncpacket").toString();
+				VariableManager.getVariableValue( "makeandsyncpacket").toString();
 		String preRegID = VariableManager.getVariableValue("PRID").toString();
 		String rid ="";
 		try {
@@ -33,7 +33,7 @@ public class ResidentRegistration {
 	public static void checkRegistrationStatus() {
 		String RegID = VariableManager.getVariableValue("RID").toString();
 		String url = VariableManager.getVariableValue("packetutilURLBase") +
-				VariableManager.getVariableValue(VariableManager.NS_REGCLIENT, "makeandsyncpacket").toString();
+				VariableManager.getVariableValue( "makeandsyncpacket").toString();
 		
 	}
 }

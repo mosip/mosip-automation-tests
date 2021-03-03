@@ -86,7 +86,7 @@ public class TestDataController {
          }
     	return bRet;
     }
-    @PostMapping(value = "/packetcreator")
+    @PostMapping(value = "/packetcreator/{contextKey}")
     public @ResponseBody String createPacket(@RequestBody PacketCreateDto packetCreateDto, 
     		@PathVariable("contextKey") String contextKey) {
         try{
@@ -159,11 +159,7 @@ public class TestDataController {
                 Cron.every5minutes());
         return response;
     }
-    @GetMapping(value = "/exectestcase/{testcaseId}")
-    public @ResponseBody String execJob(@PathVariable("testcaseId") String testcaseId) {
-        return testcaseExecutionService.execute(testcaseId);
-              
-    }
+    
     @GetMapping(value = "/makepacketandsync/{preregId}")
     public @ResponseBody String makePacketAndSync(@PathVariable("preregId") String preregId,
     		@RequestParam(name="contextKey",required = false) String contextKey) {

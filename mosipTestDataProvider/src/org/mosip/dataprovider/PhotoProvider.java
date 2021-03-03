@@ -9,6 +9,7 @@ import java.util.Base64;
 
 import javax.imageio.ImageIO;
 
+import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 
@@ -18,31 +19,37 @@ import io.cucumber.messages.internal.com.google.common.io.Files;
 public class PhotoProvider {
 	static String Photo_File_Format = "/photo_%02d.jpg";
 	
-	static String getPhoto(int idx, String gender) {
-		String encodedImage="";
+	static byte[][] getPhoto(int idx, String gender) {
+		//String encodedImage="";
+		//String hexHash ="";
+		byte[] bencoded =null;
+		byte[] bData = null;
 		try {
 			//JPEG2000
 			String photoFile = String.format(Photo_File_Format, idx);
 			BufferedImage img = ImageIO.read(new File(DataProviderConstants.RESOURCE+"Photos/" + gender.toLowerCase() + photoFile));
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
-			String [] names = ImageIO.getWriterFormatNames();
+			/*String [] names = ImageIO.getWriterFormatNames();
 			for(String s: names)
 				System.out.println(s);
-			
+			*/
 			ImageIO.write(img, "jpg", baos);
 			baos.flush();
-		
-			encodedImage = Base64.getEncoder().encodeToString(encodeFaceImageData(baos.toByteArray()));
+			bData = baos.toByteArray();
+			bencoded = encodeFaceImageData(bData);
 			
-			//encodedImage = Base64.getEncoder().encodeToString(baos.toByteArray());
+		//	encodedImage = Base64.getEncoder().encodeToString(encodeFaceImageData(bData));
 			baos.close();
-		//	encodedImage = java.net.URLEncoder.encode(encodedImage, "ISO-8859-1");
-		} catch (IOException e) {
+			
+		//	hexHash = CommonUtil.getHexEncodedHash(bData);
+
+			
+		} catch (Exception e) {
 			
 			e.printStackTrace();
 		}             
-		return encodedImage;
+		return new byte[][] {bencoded, bData};
 	}
 	static void splitImages() {
 		///125 x129
@@ -129,8 +136,8 @@ public class PhotoProvider {
 		
 	public static void main(String [] args) throws IOException {
 		//splitImages();
-		String strImg = getPhoto(21,Gender.Male.name());
-		Files.write(strImg.getBytes(), new File( "c:\\temp\\photo.txt"));
+		//String []strImg = getPhoto(21,Gender.Male.name());
+		//Files.write(strImg[0].getBytes(), new File( "c:\\temp\\photo.txt"));
 		//System.out.println(strImg);
 		
 	}
