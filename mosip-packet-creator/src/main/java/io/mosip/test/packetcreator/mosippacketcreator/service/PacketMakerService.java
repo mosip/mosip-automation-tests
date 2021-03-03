@@ -451,10 +451,12 @@ public class PacketMakerService {
         String finalPath = templateRootPath + File.separator+ src + File.separator + process;
         File rootFolder = new File(finalPath);
         File[] listFiles= rootFolder.listFiles();
+        if(listFiles != null) {
         for(File f: listFiles ){
             String name = f.getName();
             String finalName = name.replace("rid",regId);
             f.renameTo(new File(finalPath + File.separator + finalName));
+        }
         }
     }
 

@@ -28,8 +28,8 @@ public class PreRegistrationSteps {
 	//"/preregistration/v1/applications";
 	public static String postApplication(ResidentModel resident, DataCallback cb) throws JSONException {
 		String result = "";
-		String url = VariableManager.getVariableValue("urlBase") +
-		VariableManager.getVariableValue(VariableManager.NS_PREREG, "postapplication").toString();
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +
+		VariableManager.getVariableValue( "postapplication").toString().trim();
 		
 		JSONObject identity = CreatePersona.crateIdentity(resident,cb);
 		JSONObject demoData = new JSONObject();
@@ -41,7 +41,7 @@ public class PreRegistrationSteps {
 		//RestClient client = annotation.getRestClient();
 		
 		try {
-			JSONObject resp = RestClient.post(url, reqBody);
+			JSONObject resp = RestClient.postNoAuth (url, reqBody);
 			result = resp.get("preRegistrationId").toString();
 			
 		} catch (Exception e) {
@@ -53,15 +53,13 @@ public class PreRegistrationSteps {
 		AppointmentModel appointmentSlot = new AppointmentModel();
 
 		String base = VariableManager.getVariableValue("urlBase").toString().trim();
-		String api = VariableManager.getVariableValue(VariableManager.NS_PREREG, "appointmentslots").toString().trim();
-		String centerId = VariableManager.getVariableValue(VariableManager.NS_REGCLIENT, "centerId").toString().trim();
+		String api = VariableManager.getVariableValue( "appointmentslots").toString().trim();
+		String centerId = VariableManager.getVariableValue( "centerId").toString().trim();
 		String url =  base + api + centerId;
 
 
-				
-
 		try {
-			JSONObject resp = RestClient.get(url, new JSONObject(), new JSONObject());
+			JSONObject resp = RestClient.getNoAuth(url, new JSONObject(), new JSONObject());
 
 			if(resp != null) {
 				ObjectMapper objectMapper = new ObjectMapper();
@@ -77,8 +75,8 @@ public class PreRegistrationSteps {
 	public static String bookAppointment(String preRegId, String appointmentDate, int centerId, AppointmentTimeSlotModel slot) throws JSONException {
 
 		String result ="";
-			String url = VariableManager.getVariableValue("urlBase") +
-			VariableManager.getVariableValue(VariableManager.NS_PREREG, "postappointment").toString();
+			String url = VariableManager.getVariableValue("urlBase").toString().trim()+
+			VariableManager.getVariableValue( "postappointment").toString().trim();
 
 			JSONObject obj = new JSONObject();
 			JSONObject requestObject = new JSONObject();
@@ -98,7 +96,7 @@ public class PreRegistrationSteps {
 			bookingRequestObject.put(0, booking);
 
 			try {
-				JSONObject resp = RestClient.post(url, obj);
+				JSONObject resp = RestClient.postNoAuth(url, obj);
 
 				if(resp != null) {
 					result = resp.toString();
@@ -116,8 +114,8 @@ public class PreRegistrationSteps {
 	}
 	public static JSONObject UploadDocument(String docCatCode,String docTypCode, String langCode, String docFilePath, String preRegID) throws JSONException {
 		JSONObject response=null;
-		String url = VariableManager.getVariableValue("urlBase") +
-				VariableManager.getVariableValue(VariableManager.NS_PREREG, "uploaddocument").toString();
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +
+				VariableManager.getVariableValue("uploaddocument").toString().trim();
 				
 		JSONObject obj = new JSONObject();
 		JSONObject requestObject = new JSONObject();

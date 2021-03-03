@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.mosip.dataprovider.preparation.MosipMasterData;
 //import org.apache.commons.lang3.tuple.Pair;
 import org.mosip.dataprovider.util.CommonUtil;
 
@@ -25,10 +24,11 @@ public class ResidentModel  implements Serializable {
 	private String id;
 	private String primaryLanguage;
 	private String secondaryLanguage;	
+	private String thirdLanguage;
 	private String gender;
 	private String gender_seclang;
 	private String dob;
-	private Boolean minor;
+	private boolean minor;
 	private DynamicFieldValueModel bloodgroup;
 	//private List<MosipLocationModel> location;
 	private Hashtable<String, MosipLocationModel> location;
@@ -59,6 +59,10 @@ public class ResidentModel  implements Serializable {
 	
 	private List<MosipGenderModel> genderTypes ;
 	
+	private List<String> missAttributes;
+	private List<String> invalidAttributes;
+	private MosipIdentity identity;
+	private List<String> filteredBioAttribtures;
 	public ResidentModel() {
 	
 		id = String.format("%04d", CommonUtil.generateRandomNumbers(1,99999, 1000)[0]);

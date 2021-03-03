@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileAttribute;
+
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -16,14 +15,19 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.models.DynamicFieldModel;
-import org.mosip.dataprovider.models.MosipDocTypeModel;
+
 import org.mosip.dataprovider.models.MosipDocument;
 import org.mosip.dataprovider.models.MosipIDSchema;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
+import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Translator;
+
+
+import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
+import variables.VariableManager;
 
 /*
  * Generate Packet structure for a given Resident record
@@ -119,7 +123,7 @@ public class PacketTemplateProvider {
 		
 		JSONObject identity = new JSONObject();
 		for(MosipIDSchema s: schema) {
-			if(s.getFieldCategory().equals("evidence") ) {
+			if(s.getFieldCategory().equals("evidence") && ( s.getInputRequired() || s.getRequired()) ) {
 				
 				if(s.getType().equals("documentType") ) {
 					
@@ -157,63 +161,69 @@ public class PacketTemplateProvider {
 						continue;
 				}
 				else
-				if(s.getType().toLowerCase().equals("uin") ) {
-					identity.put(s.getId(), resident.getUIN());
+				if(s.getId().toLowerCase().equals("uin") ) {
+					if(resident.getUIN() == null || resident.getUIN().equals(""))
+						identity.put(s.getId(), JSONObject.NULL);
+					else
+						identity.put(s.getId(), resident.getUIN());
 					continue;
 				}
 				else
-				if(s.getType().toLowerCase().matches("guard.*uin") ) {
-					if(resident.getMinor()) {
-						identity.put(s.getId(),resident.getGuardian().getUIN());
+				if(s.getGroup().equals("GuardianDetails") && s.getId().toLowerCase().matches(".*guard.*uin") ) {
+					if(resident.isMinor()) {
+						if(resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
+							//skip if null
+							//	identity.put(s.getId(), JSONObject.NULL);
+						}
+						else
+							identity.put(s.getId(),resident.getGuardian().getUIN());
 					}
 					continue;
 				}
 				else
-				if(s.getType().toLowerCase().matches("guard.*rid") ) {
-						if(resident.getMinor()) {
-							identity.put(s.getId(),resident.getGuardian().getRID());
+				if(s.getGroup().equals("GuardianDetails") && s.getId().toLowerCase().matches(".*guard.*rid") ) {
+						if(resident.isMinor()) {
+							if(resident.getGuardian() != null && (resident.getGuardian().getRID() == null || resident.getGuardian().getRID().equals(""))) {
+								//As per MONO, skip
+								//identity.put(s.getId(), JSONObject.NULL);
+							}
+							else
+								identity.put(s.getId(),resident.getGuardian().getRID());
 						}
 						continue;
 				}
 				else
-				if(s.getType().toLowerCase().matches("guard.*Name") ) {
-					if(resident.getMinor()) {
+				if(s.getGroup().equals("GuardianDetails") && s.getId().toLowerCase().matches(".*guard.*name") ) {
+					if(resident.isMinor()) {
+						String primValue = "";
+						String secValue = "";
 						JSONArray arr = new JSONArray();
 						JSONObject o = new JSONObject();
 						o.put("language", resident.getPrimaryLanguage());
-						o.put("value",  resident.getGuardian().getName().getFirstName());
-						arr.put(o);
+						String value = null;
+						if(resident.getGuardian() != null)
+							primValue = resident.getGuardian().getName().getFirstName();
+						
 						if(resident.getSecondaryLanguage() != null) {
-							o = new JSONObject();
-							o.put("language", resident.getSecondaryLanguage());
-							o.put("value",  resident.getGuardian().getName_seclang().getFirstName());
-							arr.put(o);		
+							if(resident.getGuardian() != null && resident.getGuardian().getName_seclang() != null)
+								secValue = resident.getGuardian().getName_seclang().getFirstName();
 						}
-						identity.put(s.getId(),arr);
+
+						updateSimpleType(s.getId(),identity,primValue, secValue, resident.getPrimaryLanguage(),
+								resident.getSecondaryLanguage(), resident.getThirdLanguage());
+
 					}
 					continue;
 				}
 				if(s.getType().equals("simpleType")) {
-						//array
-						JSONArray ar = new JSONArray();
-						JSONObject o = new JSONObject();
-						o.put("language",resident.getPrimaryLanguage());
-						o.put("value", ""); 
-						ar.put(o);
-						if(resident.getSecondaryLanguage() != null) {
-							o = new JSONObject();
-							o.put("language",resident.getSecondaryLanguage());
-							o.put("value", ""); 
-							ar.put(o);
-						}
-						if(s.getId().toLowerCase().contains("parent.*name"))
-							identity.put(s.getId(),JSONObject.NULL);
-						else
-							identity.put(s.getId(), ar);
+					
+					updateSimpleType(s.getId(),identity,"", "", resident.getPrimaryLanguage(),
+							resident.getSecondaryLanguage(), resident.getThirdLanguage());
+
 				}
 				else
 				{
-						identity.put(s.getId(), "");
+						identity.put(s.getId(), JSONObject.NULL);
 				}
 			}
 		}
@@ -222,7 +232,116 @@ public class PacketTemplateProvider {
 		return retObject.toString();
 		
 	}
+	 JSONObject constructExceptnNode(String type, String missingBio) {
+		JSONObject	node = new JSONObject();
+		node.put("type", type);
+		node.put("missingBiometric", missingBio);
+		node.put("reason", "Temporary");
+		node.put("exceptionType", "Temporary");
+		node.put("individualType", "applicant");
+		return node;
+	 }
+	 JSONObject constructBioMetaNode() {
+		 JSONObject	node = new JSONObject();
+		 node.put("numRetry", 1);
+		 node.put("forceCaptured", false);
+		 node.put("birindex", "4c099c1f-4fb2-4de3-8a2f-928f79430e9b");
+		return node;
+	 }
+	 JSONObject constructBioMetaData(ResidentModel resident, JSONObject identity) {
+		
+		 List<String> lstAttr = resident.getFilteredBioAttribtures();
+		 if(lstAttr != null) {
+			JSONObject biometrics= new JSONObject();
+			JSONObject applicant = new JSONObject();
 
+			for(String n: DataProviderConstants.schemaNames) {					
+				if(lstAttr.contains(n)) {
+					applicant.put(n, constructBioMetaNode());
+				}	
+			}
+		
+			biometrics.put("introducer",new JSONObject());
+			biometrics.put("applicant-auth",new JSONObject());
+				
+			biometrics.put("applicant",applicant);
+			identity.put("biometrics", biometrics);
+		
+		 }
+		 return identity;
+	 }
+	 JSONObject constructBioException(ResidentModel resident, JSONObject identity) {
+			//update biometric exceptions
+		List<String> missedAttrib =  resident.getMissAttributes();
+		if(missedAttrib != null) {
+			JSONObject exceptionBiometrics= new JSONObject();
+			JSONObject applicant = new JSONObject();
+
+	if(missedAttrib.contains("leftEye")) {
+				applicant.put("leftEye", constructExceptnNode("Iris","leftEye"));
+			}
+			if(missedAttrib.contains("rightEye")) {
+				applicant.put("rightEye", constructExceptnNode("Iris","rightEye"));
+			}
+			for(String n: DataProviderConstants.schemaNames) {
+				if(n.contains("Eye") )
+					continue;
+				if( n.equals("face"))
+					applicant.put(n, constructExceptnNode("Face",n));
+					
+				if(missedAttrib.contains(n)) {
+					applicant.put(n, constructExceptnNode("Finger",n));
+				}	
+			}
+			exceptionBiometrics.put("introducer",new JSONObject());
+			exceptionBiometrics.put("applicant-auth",new JSONObject());
+				
+			exceptionBiometrics.put("applicant",applicant);
+			identity.put("exceptionBiometrics", exceptionBiometrics);
+				
+		}
+		return identity;
+	 }
+	 JSONObject updateSimpleType(String id,JSONObject identity, String primValue, String secValue, String primLang, String secLang, String thirdLang) {
+		 
+		 if( (secValue == null || secValue.equals("")) && secLang != null && !secLang.equals(""))
+			 secValue =  Translator.translate(secLang,  primValue);
+		 
+		 String thirdValue = "";
+		 if(  thirdLang != null && !thirdLang.equals(""))
+			 thirdValue =  Translator.translate(thirdLang,  primValue);
+		 	
+			//array
+			JSONArray ar = new JSONArray();
+			JSONObject o = new JSONObject();
+			o.put("language",primLang);
+			if(primValue.equals(""))
+				o.put("value", Json.NULL);
+			else
+			o.put("value", primValue); 
+			ar.put(o);
+			if(secLang != null) {
+				o = new JSONObject();
+				o.put("language",secLang);
+				if(secValue.equals(""))
+					o.put("value", Json.NULL);
+				else
+					o.put("value", secValue); 
+				ar.put(o);
+			}
+			if(thirdLang != null) {
+				o = new JSONObject();
+				o.put("language",thirdLang);
+				if(thirdValue.equals(""))
+					o.put("value", Json.NULL);
+				else
+					o.put("value", thirdValue); 
+				ar.put(o);
+			}
+			
+			identity.put(id, ar);
+			return identity;
+	 }
 	/*
 	 * HashMap<FolderType, [(in)folderPath][(out)biofilename]> fileInfo
 	 */
@@ -242,9 +361,13 @@ public class PacketTemplateProvider {
 		Set<String> locationSet_sec =  null;
 		if(locations_seclang != null)
 			locationSet_sec = locations_seclang.keySet();
-			
+		List<String> lstMissedAttributes = resident.getMissAttributes();
+		
 		for(MosipIDSchema s: schema) {
 			System.out.println(s.toJSONString());
+			if(lstMissedAttributes != null && lstMissedAttributes.stream().anyMatch( v -> v.equalsIgnoreCase(s.getId()))) {
+				continue;
+			}
 			if(s.getId().equalsIgnoreCase("idschemaVersion")) {
 				identity.put(s.getId(), schemaVersion);
 				continue;
@@ -343,8 +466,14 @@ public class PacketTemplateProvider {
 						
 						String outFile = fileInfo.get(RID_FOLDER)[0] +"/" + fileInfo.get(RID_FOLDER)[1];
 			        	try {
+			        		List<String> missAttribs =  resident.getMissAttributes();
+			        		List<String> bioAttrib = s.getBioAttributes();
+			        		if(missAttribs != null && !missAttribs.isEmpty())
+			        			bioAttrib.removeAll(missAttribs);
+			        		if(resident.getFilteredBioAttribtures() == null)
+			        			resident.setFilteredBioAttribtures(bioAttrib);
 			        		
-							BiometricFingerPrintProvider.toCBEFF(resident.getBiometric(), outFile);
+							BiometricDataProvider.toCBEFF(bioAttrib, resident.getBiometric(), outFile);
 							//test code- hard coded cbeff file
 						//	Files.copy(Paths.get("C:\\temp\\test\\individualBiometrics_bio_CBEFF.xml"),Paths.get(outFile));
 						//	Files.copy(Paths.get("C:\\temp\\test\\ID.json"),Paths.get(RID_FOLDER + "ID.json"));
@@ -358,20 +487,9 @@ public class PacketTemplateProvider {
 					else
 					if(s.getType().equals("biometricsType") &&
 							( s.getGroup() !=null && s.getGroup().equals("Biometrics"))
-							&& s.getId().toLowerCase().contains("guardian") ) {
+							&& s.getSubType().equals("introducer") ) {
 					
-						if(resident.getGuardian() != null) {
-							//minor
-						
-						
-							/*parentOrGuardianBiometrics" : {
-	    					"format" : "cbeff",
-	    					"version" : 1.0,
-	    					"value" : "parentOrGuardianBiometrics_bio_CBEFF"
-	  						}
-							 * 
-							 * 
-							 */
+						if(resident.isMinor() && resident.getGuardian() != null) {
 							JSONObject o = new JSONObject();
 							o.put("format", "cbeff");
 							o.put("version", 1.0f);
@@ -384,8 +502,12 @@ public class PacketTemplateProvider {
 							
 							String outFile = fileInfo.get(RID_FOLDER)[0] +"/" + v[2];
 				        	try {
-				        		
-								BiometricFingerPrintProvider.toCBEFF(resident.getGuardian().getBiometric(), outFile);
+				        		//Implement excetpions by parsing 'Miss' list
+				        		List<String> missAttribs =  resident.getMissAttributes();
+				        		List<String> bioAttrib = s.getBioAttributes();
+				        		if(missAttribs != null && !missAttribs.isEmpty())
+				        			bioAttrib.removeAll(missAttribs);
+								BiometricDataProvider.toCBEFF(bioAttrib, resident.getGuardian().getBiometric(), outFile);
 
 							
 							} catch (Exception e) {
@@ -396,7 +518,6 @@ public class PacketTemplateProvider {
 						}
 						continue;
 					}
-				
 					else
 					if(s.getType().equals("biometricsType") 
 							//&& ( s.getGroup() !=null && s.getGroup().equals("Biometrics")) 
@@ -445,8 +566,19 @@ public class PacketTemplateProvider {
 					if(s.getSubType().equals("parentOrGuardianName") || s.getSubType().equals("introducer") ||
 							(s.getGroup() != null && s.getGroup().equals("GuardianDetails")) ){
 						if(resident.getGuardian() != null) {
-							//minor
-						
+
+							//(JSONObject identity, String primValue, String secValue, String primLang, String secLang, String thirdLang) {
+							String primValue = null;
+							String secGValue = null;
+							if(resident.getGuardian() != null)
+								primValue = resident.getGuardian().getName().getFirstName();
+							if(resident.getGuardian() != null && resident.getGuardian().getName_seclang() != null)
+								secGValue = resident.getGuardian().getName_seclang().getFirstName();
+									 
+							updateSimpleType(s.getId(),identity, primValue, secGValue, resident.getPrimaryLanguage(),
+									resident.getSecondaryLanguage(), resident.getThirdLanguage());
+
+
 						}
 					}
 					else
@@ -491,26 +623,17 @@ public class PacketTemplateProvider {
 					if(s.getType().equals("simpleType") 
 							//&& !s.getId().toLowerCase().equals("postalcode")
 							) {
-						//array
-						JSONArray ar = new JSONArray();
-						JSONObject o = new JSONObject();
-						o.put("language",primaryLanguage);
-						o.put("value", primaryValue); 
-						ar.put(o);
-						if(secLanguage != null) {
-							o = new JSONObject();
-							o.put("language",secLanguage);
-							o.put("value", secValue); 
-							ar.put(o);
-						}
-						identity.put(s.getId(), ar);
+
+						updateSimpleType(s.getId(),identity, primaryValue, secValue, primaryLanguage,
+								secLanguage, resident.getThirdLanguage());
+
 					}
 					else
 					{
 						if(s.getRequired() && (primaryValue == null || primaryValue.equals(""))) {
 							primaryValue =  new Random().nextLong() +"";
 						}
-						if(primaryValue.equals("") && !s.getType().equals("string"))
+						if(primaryValue.equals("") ) //&& !s.getType().equals("string"))
 							identity.put(s.getId(), JSONObject.NULL);
 						else
 							identity.put(s.getId(), primaryValue);
@@ -526,6 +649,10 @@ public class PacketTemplateProvider {
 	String generateMetaDataJson(ResidentModel resident, HashMap<String, String[]> fileInfo) {
 
 
+		String templateMetaJsonPath = VariableManager.getVariableValue("templateIDMeta").toString().trim();
+		
+		String templateIdentityStr = CommonUtil.readFromJSONFile(templateMetaJsonPath);
+		JSONObject templateIdentity = new JSONObject(templateIdentityStr).getJSONObject("identity");
 		JSONObject identity = new JSONObject();
 		JSONArray docArray = new JSONArray();
 
@@ -533,29 +660,39 @@ public class PacketTemplateProvider {
 			if(s.getType().equals("documentType") ) {
 				int index = 0;
 				for(MosipDocument doc: resident.getDocuments()) {
-						index = 0;
-						if(doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
-							index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size()-1, 0)[0];
-							String docFile = doc.getDocs().get(index);
-							System.out.println("docFIle=" + docFile + " dType="+ s.getSubType() + " cat=" + s.getId());
+					index = 0;
+					if(doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
+						index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size()-1, 0)[0];
+						String docFile = doc.getDocs().get(index);
+						System.out.println("docFIle=" + docFile + " dType="+ s.getSubType() + " cat=" + s.getId());
 							
-							JSONObject o = new JSONObject();
-							o.put("documentCategory", doc.getDocCategoryCode());
-							o.put("documentType", doc.getType().get(index).getCode());
-							o.put("documentName",s.getId());
-							o.put("documentOwner", "Applicant");
-							docArray.put(o);		
+						JSONObject o = new JSONObject();
+						o.put("documentCategory", doc.getDocCategoryCode());
+						o.put("documentType", doc.getType().get(index).getCode());
+						o.put("documentName",s.getId());
+						o.put("documentOwner", "Applicant");
+						o.put("refNumber" , JSONObject.NULL);
+						docArray.put(o);		
 							 
-							break;	
-						}
-						
+						break;	
 					}
-					continue;
+						
+				}
+				continue;
 			}
 		}
 		identity.put("documents", docArray);
 		identity.put("metaData", new JSONArray());
 		identity.put("capturedRegisteredDevices", new JSONArray());
+		identity.put("exceptionBiometrics", new JSONArray());
+		identity.put("creationDate", CommonUtil.getUTCDateTime(null));
+		//identity.put("capturedRegisteredDevices",templateIdentity.getJSONArray("capturedRegisteredDevices") );
+		
+		constructBioException(resident,identity);
+		constructBioMetaData(resident, identity);
+		identity.put("operationsData",templateIdentity.getJSONArray("operationsData") );
+		
+		/*
 		JSONArray opData = new JSONArray();
 		JSONObject o = new JSONObject();
 		o.put("label", "officerId");
@@ -611,11 +748,12 @@ public class PacketTemplateProvider {
 		opData.put(o);
 		
 		identity.put("operationsData", opData);
-	
+		*/
 		JSONObject retObject = new JSONObject();
 		retObject.put("identity", identity);
 		return retObject.toString();
 	}
+	
 	String genRID_PacketTypeJson(String src, String process, String packetType) {
 	
 		 

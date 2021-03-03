@@ -13,9 +13,11 @@ import java.util.Stack;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mosip.dataprovider.ResidentDataProvider;
 import org.mosip.dataprovider.models.ApplicationConfigIdSchema;
 
 import org.mosip.dataprovider.models.DynamicFieldModel;
+import org.mosip.dataprovider.models.MosipIdentity;
 import org.mosip.dataprovider.models.LocationHierarchyModel;
 import org.mosip.dataprovider.models.MosipBiometricAttributeModel;
 import org.mosip.dataprovider.models.MosipBiometricTypeModel;
@@ -27,8 +29,14 @@ import org.mosip.dataprovider.models.MosipIndividualTypeModel;
 import org.mosip.dataprovider.models.MosipLanguage;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.MosipPreRegLoginConfig;
+import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.models.SchemaRule;
+import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.util.CommonUtil;
+import org.mosip.dataprovider.util.Gender;
+import org.mosip.dataprovider.util.ResidentAttribute;
 import org.mosip.dataprovider.util.RestClient;
+import org.mvel2.MVEL;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -260,7 +268,7 @@ public  class MosipMasterData {
 	public static MosipPreRegLoginConfig getPreregLoginConfig() {
 		MosipPreRegLoginConfig config = new MosipPreRegLoginConfig();
 		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_PREREG,"loginconfig").toString();
+				VariableManager.getVariableValue("loginconfig").toString();
 		Object o =getCache(url);
 		if(o != null)
 			return( (MosipPreRegLoginConfig) o);
@@ -288,7 +296,7 @@ public  class MosipMasterData {
 		ApplicationConfigIdSchema config = new ApplicationConfigIdSchema();
 		
 		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_PREREG,"applicaionconfig").toString();
+				VariableManager.getVariableValue("applicaionconfig").toString();
 		Object o =getCache(url);
 		if(o != null)
 			return( (ApplicationConfigIdSchema) o);
@@ -667,16 +675,59 @@ public  class MosipMasterData {
 			
 		
 	}
-	public static void main(String[] args) {
-	
+	static Boolean validateCondn(String cndnexpr, Object inputObject) {
+		return MVEL.evalToBoolean(cndnexpr,inputObject);
+	}
+	static void testSchemaRule() {
+		
+		ResidentDataProvider residentProvider = new ResidentDataProvider();
+		residentProvider.addCondition(ResidentAttribute.RA_Count, 1)
+		.addCondition(ResidentAttribute.RA_SECONDARY_LANG, "ara")
+		.addCondition(ResidentAttribute.RA_Gender, Gender.Any)
+		.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult)
+		.addCondition(ResidentAttribute.RA_Finger, false);
+		List<ResidentModel> lst =  residentProvider.generate();
 		Hashtable<Double, List<MosipIDSchema>>  schema = MosipMasterData.getIDSchemaLatestVersion();
 		Set<Double> schemaIds = schema.keySet();
 		Double schemVersion = schema.keySet().iterator().next();
-		
-		for( MosipIDSchema idschema: schema.get( schemVersion)) {
-			System.out.println(idschema.toJSONString());
+	
+		for(ResidentModel r: lst) {
+	
+			JSONObject jsonObject = CreatePersona.crateIdentity(r,null);
+			MosipIdentity identity = new MosipIdentity();
+			identity.setIsChild(false);
+			identity.setIsLost(false);
+			identity.setIsNew(true);
+			identity.setIsUpdate(false);
+
+			identity.setUpdatableFieldGroups("");
+			identity.setUpdatableFields("");
+			r.setIdentity(identity);
+			
+			
+	
+			for( MosipIDSchema idschema: schema.get( schemVersion)) {
+				//System.out.println(idschema.toJSONString());
+				List<SchemaRule>  rule = idschema.getRequiredOn();
+				if(rule != null) {
+					for(SchemaRule sr: rule) {
+						System.out.println("rule:" + sr);
+						boolean bval = validateCondn(sr.getExpr(),r);
+						System.out.println("rule:result=" + bval);
+					}
+				}
+			}
+				
 		}
-		
+	}
+	public static void main(String[] args) {
+	
+		List<MosipGenderModel> allg =MosipMasterData.getGenderTypes();
+		allg.forEach( g-> {
+			System.out.println(g.getCode() +"\t" + g.getGenderName());
+		});
+		testSchemaRule();
+		System.exit(1);
 		ApplicationConfigIdSchema ss;
 		try {
 			ss = getPreregLocHierarchy("fra",1);

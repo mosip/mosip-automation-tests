@@ -1,13 +1,18 @@
 package org.mosip.dataprovider;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
+import org.mosip.dataprovider.mds.MDSClient;
 import org.mosip.dataprovider.models.ApplicationConfigIdSchema;
 import org.mosip.dataprovider.models.BiometricDataModel;
 import org.mosip.dataprovider.models.Contact;
@@ -17,7 +22,8 @@ import org.mosip.dataprovider.models.IrisDataModel;
 import org.mosip.dataprovider.models.MosipGenderModel;
 import org.mosip.dataprovider.models.MosipIndividualTypeModel;
 import org.mosip.dataprovider.models.MosipLanguage;
-import org.mosip.dataprovider.models.MosipLocationModel;
+
+
 import org.mosip.dataprovider.models.MosipPreRegLoginConfig;
 import org.mosip.dataprovider.models.Name;
 import org.mosip.dataprovider.models.ResidentModel;
@@ -32,6 +38,8 @@ import org.mosip.dataprovider.util.Translator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.DocumentException;
+
+import variables.VariableManager;
 
 /*
  * Generate Resident record
@@ -48,6 +56,7 @@ import com.lowagie.text.DocumentException;
 public class ResidentDataProvider {
 		Properties attributeList;
 	
+	
 	public ResidentDataProvider() {
 		attributeList = new Properties();
 		attributeList.put(ResidentAttribute.RA_Count, 1);
@@ -55,6 +64,16 @@ public class ResidentDataProvider {
 		attributeList.put(ResidentAttribute.RA_Country, "PHIL");
 		RestClient.clearToken();
 	}
+	public static ResidentModel readPersona(String filePath) throws IOException {
+    	
+    	ObjectMapper mapper = new ObjectMapper();
+    	Path path = Paths.get(filePath);
+    	//mapper.registerModule(new SimpleModule().addDeserializer(Pair.class,new PairDeserializer()));
+    //	mapper.registerModule(new SimpleModule().addSerializer(Pair.class, new PairSerializer()));
+    	byte[] bytes = Files.readAllBytes(path);
+		return mapper.readValue(bytes, ResidentModel.class);
+    }
+	
 	//Attribute Value ->'Any','No' or specific value
 	public ResidentDataProvider addCondition(ResidentAttribute attributeName, Object attributeValue) {
 		attributeList.put(attributeName, attributeValue);
@@ -82,14 +101,22 @@ public class ResidentDataProvider {
 		Gender gender =  (Gender) attributeList.get(ResidentAttribute.RA_Gender);
 		String primary_lang = (String) attributeList.get(ResidentAttribute.RA_PRIMARAY_LANG);
 		String sec_lang = (String) attributeList.get(ResidentAttribute.RA_SECONDARY_LANG);
-		Object oAttr = attributeList.get(ResidentAttribute.RA_Iris);
-		Boolean bIrisRequired = false;
+		String override_primary_lan = primary_lang;
+		String override_sec_lang = sec_lang;
+		String third_lang = (String) attributeList.get(ResidentAttribute.RA_THIRD_LANG);
+		
+		Object oAttr = attributeList.get(ResidentAttribute.RA_SCHEMA_VERSION);
+		double schemaVersion = (oAttr == null) ? 0: (double)oAttr;
+		VariableManager.setVariableValue("schemaVersion", schemaVersion);
 		
 		List<MosipLanguage> allLang = MosipMasterData.getConfiguredLanguages();
 		MosipPreRegLoginConfig  preregconfig = MosipMasterData.getPreregLoginConfig();
 		if(preregconfig != null) {
 			primary_lang = preregconfig.getMosip_primary_language();
 		}
+		if(primary_lang == null)
+			primary_lang = "eng";
+		
 		boolean bFoundSecLang = false;
 		for(MosipLanguage lang: allLang) {
 			if(!lang.getIsActive())
@@ -111,8 +138,18 @@ public class ResidentDataProvider {
 		if(!bFoundSecLang)
 			sec_lang = null;
 		
+		//override if specified
+		if(override_primary_lan != null && !override_primary_lan.equals(""))
+			primary_lang = override_primary_lan;
+		
+		if(override_sec_lang != null && !override_sec_lang.equals(""))
+			sec_lang = override_sec_lang;
+		
+		oAttr = attributeList.get(ResidentAttribute.RA_Iris);
+		boolean bIrisRequired = true;
+		
 		if(oAttr != null) {
-			bIrisRequired = (Boolean)oAttr;
+			bIrisRequired = (boolean)oAttr;
 		}
 		if(gender == null)
 			gender  = Gender.Any;
@@ -168,11 +205,11 @@ public class ResidentDataProvider {
 			names_sec =NameProvider.generateNames(gender, sec_lang, count, names_primary);
 		}
 		List<Contact> contacts = ContactProvider.generate(names_primary, count);
-		Object  objCountry = attributeList.get(ResidentAttribute.RA_Country)  ;
-		String country  =null;
+//		Object  objCountry = attributeList.get(ResidentAttribute.RA_Country)  ;
+		//String country  =null;
 		
-		if(objCountry != null)
-			country = objCountry.toString();
+	//	if(objCountry != null)
+	//		country = objCountry.toString();
 		
 		//List<Location> locations = LocationProvider.generate(DataProviderConstants.COUNTRY_CODE, count);
 		//Hashtable<String, List<MosipLocationModel>> locations =  LocationProvider.generate( count, country);
@@ -193,8 +230,8 @@ public class ResidentDataProvider {
 		List<IrisDataModel> irisList = null;
 		try {
 			if(bIrisRequired)
-				irisList = BiometricFingerPrintProvider.generateIris(count);
-		} catch (IOException e1) {
+				irisList = BiometricDataProvider.generateIris(count);
+		} catch (  Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -207,9 +244,15 @@ public class ResidentDataProvider {
 			res.setSecondaryLanguage(sec_lang);
 			res.setDynaFields(dynaFields);
 			res.setName(names_primary.get(i));
-			
+			res.setThirdLanguage(third_lang);
 			res.setGenderTypes(genderTypes);
 			
+			if(attributeList.containsKey(ResidentAttribute.RA_MissList)) {
+				res.setMissAttributes( (List<String>) attributeList.get(ResidentAttribute.RA_MissList));
+			}
+			if(attributeList.containsKey(ResidentAttribute.RA_InvalidList)) {
+				res.setInvalidAttributes( (List<String>) attributeList.get(ResidentAttribute.RA_InvalidList));
+			}
 			if(primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH))
 				res.setGender(names_primary.get(i).getGender().name());
 			else
@@ -278,20 +321,39 @@ public class ResidentDataProvider {
 			}
 			Object bFinger = attributeList.get(ResidentAttribute.RA_Finger);
 			
-			BiometricDataModel bioData = BiometricFingerPrintProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger);
+			BiometricDataModel bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger);
 			if(bIrisRequired)
 				bioData.setIris(irisList.get(i));
-			String encodedPhoto = PhotoProvider.getPhoto(idxes[i], res_gender.name() );
-			bioData.setEncodedPhoto(encodedPhoto);
+			
+			Object bOFace = attributeList.get(ResidentAttribute.RA_Photo);
+			boolean bFace = ( bOFace == null ? true: (boolean)bOFace);
+			if(bFace) {
+				byte[][] faceData = PhotoProvider.getPhoto(idxes[i], res_gender.name() );
+				bioData.setEncodedPhoto(
+						Base64.getEncoder().encodeToString(faceData[0]));
+				bioData.setRawFaceData(faceData[1]);
+			
+				try {
+					bioData.setFaceHash(CommonUtil.getHexEncodedHash( faceData[1]));
+				} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				//e1.printStackTrace();
+				}
+			}
 //			res.setEncodedPhoto( );
 
 			res.setBiometric(bioData);
 		
-			try {
-				res.setDocuments(DocumentProvider.generateDocuments(res));
-			} catch (DocumentException | IOException  | ParseException e) {
-				
-				e.printStackTrace();
+			oAttr = attributeList.get(ResidentAttribute.RA_Document);
+			boolean bDocRequired = ( oAttr == null ? true: (boolean)oAttr);
+			
+			if(bDocRequired) {
+				try {
+					res.setDocuments(DocumentProvider.generateDocuments(res));
+				} catch (DocumentException | IOException  | ParseException e) {
+					
+					e.printStackTrace();
+				}
 			}
 			residents.add(res);
 		}
@@ -304,24 +366,17 @@ public class ResidentDataProvider {
 		residentProvider.addCondition(ResidentAttribute.RA_Count, 1)
 		.addCondition(ResidentAttribute.RA_SECONDARY_LANG, "ara")
 		.addCondition(ResidentAttribute.RA_Gender, Gender.Any)
-		.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Minor);
+		.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
 		
 		List<ResidentModel> lst =  residentProvider.generate();
+		MDSClient cli = new MDSClient(0);
 		
-		ObjectMapper Obj = new ObjectMapper();
-		 
 		for(ResidentModel r: lst) {
-			String jsonStr;
-			try {
-				jsonStr = Obj.writeValueAsString(r);
-				System.out.println(jsonStr);
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		
+			System.out.println(r.toJSONString());
+	
+			cli.createProfile("C:\\Mosip.io\\gitrepos\\mosip-mock-services\\MockMDS\\target\\Profile\\", "tst1", r);
+			
 		}
-		
 		
 	}
 }

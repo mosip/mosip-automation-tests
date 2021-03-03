@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 @Data
-@JsonIgnoreProperties({"visible","label","changeAction","bioAttributes"})
+@JsonIgnoreProperties({"visible","label","changeAction"})
 public class MosipIDSchema  implements Serializable{
 
 	 private static final long serialVersionUID = 1L;
@@ -35,6 +35,7 @@ public class MosipIDSchema  implements Serializable{
 	String group;
 	List<SchemaValidator> validators;
 	List<SchemaRule> requiredOn;
+	List<String> bioAttributes;
 	public String toJSONString() {
 		
 		ObjectMapper Obj = new ObjectMapper();
