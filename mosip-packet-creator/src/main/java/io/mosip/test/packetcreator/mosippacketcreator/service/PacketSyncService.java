@@ -1,7 +1,8 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.tuple.Pair;
+
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.PacketTemplateProvider;
@@ -9,14 +10,17 @@ import org.mosip.dataprovider.ResidentDataProvider;
 import org.mosip.dataprovider.models.AppointmentModel;
 import org.mosip.dataprovider.models.AppointmentTimeSlotModel;
 import org.mosip.dataprovider.models.CenterDetailsModel;
+
+import org.mosip.dataprovider.models.DynamicFieldValueModel;
+import org.mosip.dataprovider.models.IrisDataModel;
+import org.mosip.dataprovider.models.MosipDocTypeModel;
 import org.mosip.dataprovider.models.MosipDocument;
 
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.test.ResidentPreRegistration;
 import org.mosip.dataprovider.test.prereg.PreRegistrationSteps;
-import org.mosip.dataprovider.util.CommonUtil;
-import org.mosip.dataprovider.util.DataCallback;
+import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
 import org.slf4j.Logger;
@@ -25,16 +29,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+
 
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestType;
-import io.mosip.test.packetcreator.mosippacketcreator.dto.ResidentRequestDto;
+
+import io.mosip.test.packetcreator.mosippacketcreator.dto.UpdatePersonaDto;
 import variables.VariableManager;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -50,10 +54,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
-//import org.mosip.dataprovider.models.PairDeserializer;
+
 
 @Service
 public class PacketSyncService {
@@ -86,6 +90,9 @@ public class PacketSyncService {
 
     @Value("${mosip.test.packet.template.process:NEW}")
     private String process;
+
+    @Value("${mosip.test.packet.template.source:REGISTRATION_CLIENT}")
+    private String src;
 
     @Value("${mosip.test.regclient.centerid}")
     private String centerId;
@@ -230,6 +237,7 @@ public class PacketSyncService {
     			//"{\"status\":\"SUCCESS\"}";
     }
     public JSONObject makePacketAndSync(String preregId, String templateLocation, String personaPath,String contextKey) throws Exception {
+    
     	logger.info("makePacketAndSync for PRID : {}", preregId);
 
     	Path idJsonPath = null;
@@ -254,8 +262,10 @@ public class PacketSyncService {
     		//construct ID Json from persona
     		idJsonPath = createIDJsonFromPersona(personaPath);
     	}
-        
-        String packetPath = packetMakerService.createContainer(idJsonPath.toString(),templateLocation,null,null, contextKey);
+        if(templateLocation != null) {
+        	process = ContextUtils.ProcessFromTemplate(src, templateLocation);
+        }
+        String packetPath = packetMakerService.createContainer(idJsonPath.toString(),templateLocation,src,process, contextKey, true);
 
         logger.info("Packet created : {}", packetPath);
 
@@ -293,9 +303,9 @@ public class PacketSyncService {
         return functionResponse;
     	
     }
-    public Path createIDJsonFromPersona(String personaFile) throws IOException {
+    public static Path createIDJsonFromPersona(String personaFile) throws IOException {
     	
-    	ResidentModel resident = readPersona(personaFile);
+    	ResidentModel resident = ResidentModel.readPersona(personaFile);
     	JSONObject jsonIdentity = CreatePersona.crateIdentity(resident,null);
     	JSONObject jsonWrapper = new JSONObject();
     	jsonWrapper.put("identity", jsonIdentity);
@@ -312,7 +322,7 @@ public class PacketSyncService {
                                 String supervisorStatus, String supervisorComment, String proc,String contextKey) throws Exception {
         
     	if(contextKey != null && !contextKey.equals("")) {
-    		
+    
     		Properties props = contextUtils.loadServerContext(contextKey);
     		props.forEach((k,v)->{
     			if(k.toString().equals("mosip.test.packet.syncapi")) {
@@ -398,6 +408,7 @@ public class PacketSyncService {
                 	}	
     		});
     	}
+    	logger.info(baseUrl+uploadapi +",path="+ path);
         JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl+uploadapi, path);
         return response.toString();
     }
@@ -408,7 +419,7 @@ public class PacketSyncService {
     	loadServerContextProperties(contextKey);
     	
     	for(String path: personaFilePath) {
-    		ResidentModel resident = readPersona(path);
+    		ResidentModel resident = ResidentModel.readPersona(path);
     		String response = PreRegistrationSteps.postApplication(resident , null);
     		//preregid
     		saveRegIDMap(response, path);
@@ -452,9 +463,9 @@ public class PacketSyncService {
     	loadServerContextProperties(contextKey);
     	
     	for(String path: personaFilePath) {
-    		ResidentModel resident = readPersona(path);
+    		ResidentModel resident = ResidentModel.readPersona(path);
     		ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
-    		preReg.sendOtpTo(to);
+    		builder.append(preReg.sendOtpTo(to));
     		
     	}
     	return builder.toString();
@@ -462,7 +473,7 @@ public class PacketSyncService {
     public String verifyOtp(String personaFilePath, String to, String otp, String contextKey) throws IOException {
     
     	loadServerContextProperties(contextKey);
-    	ResidentModel resident = readPersona(personaFilePath);
+    	ResidentModel resident = ResidentModel.readPersona(personaFilePath);
     	ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
     	
     	preReg.fetchOtp();
@@ -508,7 +519,7 @@ public class PacketSyncService {
     	
     	loadServerContextProperties(contextKey);
     	
-    	ResidentModel resident = readPersona(personaFilePath);
+    	ResidentModel resident = ResidentModel.readPersona(personaFilePath);
     	 
     	//System.out.println("uploadProof " + docCategory);
    	 
@@ -548,7 +559,7 @@ public class PacketSyncService {
     	PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
     	
     	for(String path: personaFilePaths) {
-    		ResidentModel resident = readPersona(path);
+    		ResidentModel resident = ResidentModel.readPersona(path);
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
     		
     		
@@ -566,7 +577,7 @@ public class PacketSyncService {
      	return response.toString();
 
     }
-    public String createPackets(List<String> personaFilePaths, String process, String outDir, String contextKey) throws IOException {
+    public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String contextKey) throws IOException {
 
 
     	Path packetDir = null;
@@ -590,7 +601,7 @@ public class PacketSyncService {
     	PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
     	
     	for(String path: personaFilePaths) {
-    		ResidentModel resident = readPersona(path);
+    		ResidentModel resident = ResidentModel.readPersona(path);
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
     		
     		
@@ -613,7 +624,162 @@ public class PacketSyncService {
   		
   	  
     }
+    void updatePersona(Properties updateAttrs, ResidentModel persona) {
+    	 Iterator<Object> it = updateAttrs.keys().asIterator();
+    	 
+    	while(it.hasNext()) {
+    		String key = it.next().toString();
+    		key = key.toLowerCase().trim();
+    		String value  = updateAttrs.getProperty(key);
+    		//first check whether it is document being updated?
+    	
+    		MosipDocument doc = null;
+    		for(MosipDocument md: persona.getDocuments()) {
+    			if(md.getDocCategoryCode().equals(key) || md.getDocCategoryName().equals(key)) {
+    				doc = md;
+    				break;
+    			}
+    			
+    		}
+    		if(doc != null) {
+    			JSONObject jsonDoc = new JSONObject(value);
+    			String typeName = jsonDoc.has("typeName") ? jsonDoc.get("typeName").toString() : "";
+    			String typeCode = jsonDoc.has("typeCode") ? jsonDoc.get("typeCode").toString() : "";
+    			int indx = -1;
+    			for(MosipDocTypeModel tm: doc.getType()) {
+    				indx++;
+    				if(tm.getCode().equals(typeCode) || tm.getName().equals(typeName))
+    					break;
+    			}
+    			if(indx >=0 && indx < doc.getType().size()) {
+    				String docFilePath = jsonDoc.has("docPath") ? jsonDoc.getString("docPath").toString() : null;
+    				if(docFilePath != null)
+    					doc.getDocs().set(indx, docFilePath);
+    			}
+    			continue;
+
+    		}
+    		switch(key) {
+    		
+	    		case "firstname":
+	    			persona.getName().setFirstName(value);
+	    			break;
+	    		case "midname":
+	    			persona.getName().setMidName(value);
+	    			break;
+	    			
+	    		case "lastname":
+	    		case "surname":
+	    			persona.getName().setSurName(value);
+	    			break;
+	    		
+	    		case "gender":
+	    			persona.setGender(value);
+	    			break;
+	    		
+	    		case "dob":
+	    		case "dateofbirth":
+	    			persona.setDob(value);
+	    			break;
+	    		case "bloodgroup":
+	    		case "bg":
+	        			
+	    			DynamicFieldValueModel bg =  persona.getBloodgroup();
+	    			bg.setCode(value);
+	    			break;
+	    		case "maritalstatus":
+	    		case "ms":
+	    			DynamicFieldValueModel ms =  persona.getMaritalStatus();
+	    			ms.setCode(value);
+	    			break;
+
+    		}
+	    }
+    }
+    public String getPersonaData(List<UpdatePersonaDto> getPersonaRequest) throws Exception {
+
+
+    	Properties retProp = new Properties();
+    	
+    	for(UpdatePersonaDto req: getPersonaRequest) {
+
+    		ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
+			List<String> retrieveAttrs = req.getRetriveAttributeList();
+			if(retrieveAttrs != null) {
+				for(String attr: retrieveAttrs) {
+					Object val = null;
+					String key = attr.trim();
+					switch(key.toLowerCase()) {
+						case "faceraw":
+							val = persona.getBiometric().getRawFaceData();
+							retProp.put(key, val);
+							break;
+					
+						case "face":
+							val = persona.getBiometric().getEncodedPhoto();
+							retProp.put(key, val);
+							break;
+						case "iris":
+							IrisDataModel irisval = persona.getBiometric().getIris();
+							
+							retProp.put(key, irisval.toJSONString());
+							break;
+						case "finger":
+							String [] fps = persona.getBiometric().getFingerPrint();
+							for(int i=0;  i < fps.length; i++) {
+								retProp.put(DataProviderConstants.displayFingerName[i] , fps[i]);
+							}
+							break;
+						case "fingerraw":
+							byte[][] fpsraw = persona.getBiometric().getFingerRaw();
+							for(int i=0;  i < fpsraw.length; i++) {
+								retProp.put(DataProviderConstants.displayFingerName[i] , fpsraw[i]);
+							}
+							break;
+							
+						
+					}
+					
+				}	
+			}
+		
+    	}
+		JSONObject jsonProps = new JSONObject(retProp);
+    	return jsonProps.toString();
+    	//throw new Exception("TODO: Implement");
+    	//return "";
+    }
+    public String updatePersonaData(List<UpdatePersonaDto> updatePersonaRequest) throws Exception {
+    	String ret ="{Sucess}";
+    	for(UpdatePersonaDto req: updatePersonaRequest) {
+    		try {
+				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
+				List<String> regenAttrs = req.getRegenAttributeList();
+				if(regenAttrs != null) {
+					for(String attr: regenAttrs) {
+						ResidentDataProvider.updateBiometric(persona, attr);
+						
+					}
+				}
+				Properties updateAttrs = req.getUpdateAttributeList();
+				if(updateAttrs != null ) {
+					updatePersona(updateAttrs, persona);
+				}
+				List<String> missList = req.getMissAttributeList();
+				persona.setMissAttributes(missList);
+				
+				persona.writePersona(req.getPersonaFilePath());
+				
+			} catch (IOException e) {
+				logger.error("updatePersonaData:"+ e.getMessage());
+				//e.printStackTrace();
+			}
+    		
+    	}
+    	return ret;
+    }
     public String updateResidentData(Hashtable<PersonaRequestType, Properties> hashtable , String uin, String rid) throws IOException {
+    	
     	Properties list = hashtable.get(PersonaRequestType.PR_ResidentList);
     	
     	String filePathResident =null;
@@ -625,24 +791,24 @@ public class PacketSyncService {
     		String keyS = key.toString().toLowerCase();
     		if(keyS.startsWith("uin")) {
     			filePathResident = list.get(key).toString();
-    			persona = readPersona(filePathResident);
+    			persona = ResidentModel.readPersona(filePathResident);
         		persona.setUIN(uin);
     		}
     		else
     		if(keyS.toString().startsWith("rid")) {
     			filePathResident = list.get(key).toString();
-    			persona = readPersona(filePathResident);
+    			persona = ResidentModel.readPersona(filePathResident);
     			persona.setRID(rid);
     		}
     		else
         	if(keyS.toString().startsWith("child")) {
         		filePathResident = list.get(key).toString();
-        		persona = readPersona(filePathResident);
+        		persona = ResidentModel.readPersona(filePathResident);
         	}
     		else
     		if(keyS.startsWith("guardian")) {
     			filePathParent = list.get(key).toString();
-    			guardian = readPersona(filePathParent);
+    			guardian = ResidentModel.readPersona(filePathParent);
     		}   		
     	}
     	if(guardian != null)
@@ -651,15 +817,6 @@ public class PacketSyncService {
     	Files.write (Paths.get(filePathResident), persona.toJSONString().getBytes());
     	return "{\"response\":\"SUCCESS\"}";
     }
-    ResidentModel readPersona(String filePath) throws IOException {
-    	
-    	ObjectMapper mapper = new ObjectMapper();
-    	//mapper.registerModule(new SimpleModule().addDeserializer(Pair.class,new PairDeserializer()));
-    //	mapper.registerModule(new SimpleModule().addSerializer(Pair.class, new PairSerializer()));
-    	byte[] bytes = Files.readAllBytes(Path.of(filePath));
-		return mapper.readValue(bytes, ResidentModel.class);
-		
-    }
-
+   
  
 }
