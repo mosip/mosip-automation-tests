@@ -1,8 +1,10 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -75,5 +77,20 @@ public class ContextUtils {
 	    	context.setProperties(p);
 	    	//Hashtable tbl = null;
 	    	return uid;
+	    }
+	    public static String  ProcessFromTemplate(String src, String templatePacketLocation) {
+	    	String process = null;
+	    	if(templatePacketLocation == null)
+	    		return process;
+	    	Path fPath = Path.of(templatePacketLocation +"/" + src.toUpperCase());
+	    	for(File f: fPath.toFile().listFiles()) {
+	    		//logger.info("subfolder "+ f.getName());
+	    		if(f.isDirectory()) {
+	    			process = f.getName();
+	    			break;
+	    		}
+	    			
+	    	}
+	    	return process;
 	    }
 }

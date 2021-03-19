@@ -24,7 +24,6 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mosip.dataprovider.models.MosipIDSchema;
 import org.mosip.dataprovider.test.CreatePersona;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -88,6 +87,8 @@ public class PacketMakerService {
     @Autowired
     private ContextUtils contextUtils;
    
+    private String newRegId;
+    
     @PostConstruct
     public void initService(){
         if (workDirectory != null) return;
@@ -106,9 +107,13 @@ public class PacketMakerService {
     public String getWorkDirectory() {
         return workDirectory;
     }
+    String getRegIdFromPacketPath(String packetPath) {
+    	//leaf node of packet path is regid
+    	return Path.of(packetPath).getFileName().toString();
+    }
+    public String packPacketContainer(String packetPath,String source,String proc, String contextKey, boolean isValidChecksum) throws Exception {
 
-    public String createContainer(String dataFile, String templatePacketLocation, String source, String processArg, String contextKey) throws Exception{
-    	
+    	String retPath = "";
     	if(contextKey != null && !contextKey.equals("")) {
     		
     		Properties props = contextUtils.loadServerContext(contextKey);
@@ -135,21 +140,118 @@ public class PacketMakerService {
     			
     		});
     	}
+    	if(source != null)
+    		src = source;
+     
+    	String regId = getRegIdFromPacketPath(packetPath);
+    	String tempPacketRootFolder = Path.of(packetPath).toString();
+    	
+        if(proc != null)
+        	process = proc;
+        else {
+        	String tprocess = ContextUtils.ProcessFromTemplate(src,packetPath);
+        	if(tprocess != null)
+        		process = tprocess;
+        }
+        logger.info("packPacketContainer:src="+ src + ",process=" + process + "PacketRoot=" + tempPacketRootFolder +" regid=" + regId);
+      
+        packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id",contextKey);
+      
+        packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "evidence"), regId, "evidence",contextKey);
+        packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "optional"), regId, "optional",contextKey);
+        packContainer(tempPacketRootFolder,contextKey);
+        
+        retPath = Path.of(Path.of(tempPacketRootFolder) + ".zip").toString();
+        
+        return retPath;
+
+    }
+    public String createPacketFromTemplate(String templatePath, String personaPath, String contextKey) throws Exception {
+
+    	logger.info("createPacketFromTemplate" );
+    	
+    	Path idJsonPath = null;
+    	idJsonPath = PacketSyncService.createIDJsonFromPersona(personaPath);
+    	 if(templatePath != null) {
+         	process = ContextUtils.ProcessFromTemplate(src, templatePath);
+         }
+    	String packetPath = createContainer(idJsonPath.toString(),templatePath,src,process, contextKey,false);
+
+    	logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
+    	//newRegId
+    	JSONObject retObj = new JSONObject();
+    	retObj.put("packet", packetPath);
+    	retObj.put("regId", newRegId);
+    	
+    	return retObj.toString();
+    }
+
+
+    /*
+     * Create packet with our without Encryption
+     */
+    public String createContainer(String dataFile, String templatePacketLocation, String source, String processArg, String contextKey, boolean bZip) throws Exception{
+    	
+    	String retPath = "";
+    	if(contextKey != null && !contextKey.equals("")) {
+    		
+    		Properties props = contextUtils.loadServerContext(contextKey);
+    		props.forEach((k,v)->{
+    			if(k.toString().equals("mosip.test.packet.template.source")) {
+    				src = v.toString();
+    			}
+    			if(k.toString().equals("mosip.test.packet.template.process")) {
+    				process = v.toString();
+    			}
+    
+    			else
+    			if(k.toString().equals("mosip.test.regclient.centerid")) {
+        			centerId = v.toString();
+        		}
+    			else
+        		if(k.toString().equals("mosip.test.regclient.machineid")) {
+        			machineId = v.toString();
+            	}	
+        		else
+            		if(k.toString().equals("mosip.test.regclient.supervisorid")) {
+            			supervisorId = v.toString();
+                	}
+    			
+    		});
+    	}
+    	
         String templateLocation = (null == templatePacketLocation)?defaultTemplateLocation: templatePacketLocation;
         String regId = generateRegId();
+        newRegId = regId;
         if(source != null && !source.equals(""))
         	src = source;
         if(processArg != null && !processArg.equals(""))
         	process = processArg;
+        else {
+        	String tprocess = ContextUtils.ProcessFromTemplate(src,templatePacketLocation);
+        	if(tprocess != null)
+        		process = tprocess;
+        }
+        logger.info("src="+ src + ",process=" + process);
         String tempPacketRootFolder = createTempTemplate(templateLocation, regId);
         createPacket(tempPacketRootFolder, regId, dataFile, "id",contextKey);
-        packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id",contextKey);
+        if(bZip)
+        	packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id",contextKey);
         createPacket(tempPacketRootFolder, regId, dataFile, "evidence",contextKey);
-        packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "evidence"), regId, "evidence",contextKey);
+        if(bZip)
+        	packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "evidence"), regId, "evidence",contextKey);
         createPacket(tempPacketRootFolder, regId, dataFile, "optional",contextKey);
-        packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "optional"), regId, "optional",contextKey);
-        packContainer(tempPacketRootFolder,contextKey);
-        return Path.of(Path.of(tempPacketRootFolder) + ".zip").toString();
+        if(bZip) {
+        	packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "optional"), regId, "optional",contextKey);
+        	packContainer(tempPacketRootFolder,contextKey);
+        
+        	retPath = Path.of(Path.of(tempPacketRootFolder) + ".zip").toString();
+        }
+        else
+        {
+        	retPath = tempPacketRootFolder;
+        }
+        return retPath;
         
     }
 
