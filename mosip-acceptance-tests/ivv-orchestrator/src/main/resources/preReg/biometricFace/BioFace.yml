@@ -1,0 +1,76 @@
+BioFace:
+  Ida_Authentication_Biometric_Face_With_Valid_Smoke_Pos:
+      endPoint: /idauthentication/v1/auth/6cjBgdJLzKZoILBTHrBrGDJ9nPy2IPMqIto4NsgMYuEJ7bfu2U/9998/934303
+      role: ida
+      restMethod: post
+      inputTemplate: preReg/biometricFace/bioFace
+      outputTemplate: preReg/biometricFace/bioFaceResult
+      input: '{
+		"requestTime": "$TIMESTAMP$",
+		"individualId": "$UIN$",
+		"transactionID": "1234567890",
+	    "individualIdType": "$IdType$",
+        "bio": true,
+        "demo": false,
+        "otp": false,
+		"identityRequest":{
+          "bioSubType": "$bioSubType$",
+          "bioType": "$bioType$",
+          "bioValue": "$bioValue$",
+          "deviceCode": "$deviceCode$",
+          "deviceProviderID": "$deviceProviderId$",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "$deviceServiceVersion$",
+          "deviceProvider": "$deviceProvider$",
+          "deviceProviderId": "$deviceProviderId$",
+          "deviceSubType": "$deviceSubType$",
+          "make": "$make$",
+          "model": "$model$",
+          "serialNo": "$serialNo$",
+          "type": "$type$",
+    "transactionID": "1234567890",
+	"identityRequestTemplate": "preReg/biometricFace/BioIdentityEncrypt",
+	"identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+	}
+	}'
+      output: '{
+  "authStatus": "true"
+}'
+
+  Ida_Authentication_Biometric_leftEye_With_Valid_Smoke_Pos:
+      endPoint: /idauthentication/v1/auth/Uv03aBVDsmiSuvmFVZ3DStnofpkpIdOKo3Jw6MJAqQGsnDRbAh/9999/911720
+      role: ida
+      restMethod: post
+      inputTemplate: preReg/biometricFace/bioFace
+      outputTemplate: preReg/biometricFace/bioFaceResult
+      input: '{
+		"requestTime": "$TIMESTAMP$",
+		"individualId": "$UIN$",
+		"transactionID": "1234567890",
+	    "individualIdType": "$IdType$",
+        "bio": true,
+        "demo": false,
+        "otp": false,
+		"identityRequest":{
+          "bioSubType": "$bioSubType$",
+          "bioType": "$bioType$",
+          "bioValue": "$bioValue$",
+          "deviceCode": "$deviceCode$",
+          "deviceProviderID": "$deviceProviderId$",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "$deviceServiceVersion$",
+          "deviceProvider": "$deviceProvider$",
+          "deviceProviderId": "$deviceProviderId$",
+          "deviceSubType": "$deviceSubType$",
+          "make": "$make$",
+          "model": "$model$",
+          "serialNo": "$serialNo$",
+          "type": "$type$",
+    "transactionID": "1234567890",
+	"identityRequestTemplate": "preReg/biometricFace/BioIdentityEncrypt",
+	"identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+	}
+	}'
+      output: '{
+  "authStatus": "true"
+}'
