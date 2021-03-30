@@ -61,7 +61,8 @@ public class SchemaUtil {
         }
         
         JSONObject queryParams = new JSONObject();
-        queryParams.put(SCHEMA_VERSION_QUERY_PARAM, version);
+        queryParams.put(SCHEMA_VERSION_QUERY_PARAM, Double.valueOf(version));
+        schemaUrl = schemaUrl.trim();
         JSONObject response = apiRequestUtil.get(baseUrl, baseUrl+schemaUrl, queryParams, new JSONObject());
         
         try(FileOutputStream fos = new FileOutputStream(schemaFileLocation.toString())){

@@ -69,14 +69,14 @@ public class PreregSyncService {
 		LocalDateTime currentSyncTime = LocalDateTime.now();
 		JSONObject syncRequest = new JSONObject();
 		syncRequest.put("registrationCenterId", centerId);
-		syncRequest.put("fromDate",apiUtil.getUTCDate(lastSyncTime));
-		syncRequest.put("toDate",apiUtil.getUTCDate(currentSyncTime));
+		syncRequest.put("fromDate",APIRequestUtil.getUTCDate(lastSyncTime));
+		syncRequest.put("toDate",APIRequestUtil.getUTCDate(currentSyncTime));
 
 		JSONObject wrapper = new JSONObject();
 		//wrapper.put("metadata", "");
 		wrapper.put("version", "1.0");
 		wrapper.put("id", "mosip.pre-registration.datasync.fetch.ids");
-		wrapper.put("requesttime", apiUtil.getUTCDateTime(null));
+		wrapper.put("requesttime", APIRequestUtil.getUTCDateTime(null));
 		wrapper.put("request", syncRequest);
 
 		logger.info("pre-reg sync request {}", wrapper);
