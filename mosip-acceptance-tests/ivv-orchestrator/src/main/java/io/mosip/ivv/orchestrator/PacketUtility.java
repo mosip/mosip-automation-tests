@@ -173,9 +173,16 @@ public class PacketUtility extends BaseTestCaseUtil {
 		
 	}
 	
-	public  String updateResidentGuardian(String residentFilePath, boolean withRid) throws RigInternalError {
+	public  String updateResidentGuardian(String residentFilePath, boolean withRid,String missingFields) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
-		List<String> generatedResidentData = generateResidents(1, true,true,"Any",null,contextKey);
+		/*
+		 * String missingField=null; //boolean isGaurdianVal=false;
+		 * if(isGaurdianValid!=null) { //missingFields=isGaurdianValid.split("@@");
+		 * //isGaurdianVal=Boolean.parseBoolean(missingFields[0]);
+		 * missingField=missingFields[0]; }
+		 */
+		//List<String> generatedResidentData = generateResidents(1, true,true,"Any",null,contextKey);
+		List<String> generatedResidentData = generateResidents(1, true,true,"Any",missingFields,contextKey);
 		JSONArray jsonArray=getTemplate(new HashSet<String>(generatedResidentData), "NEW",contextKey);
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
@@ -206,9 +213,17 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return rid;
 		
 	}
-	public  String updateResidentWithGuardianSkippingPreReg(String residentFilePath,HashMap<String,String> contextKey, boolean withRid) throws RigInternalError {
+	public  String updateResidentWithGuardianSkippingPreReg(String residentFilePath,HashMap<String,String> contextKey, boolean withRid,String missingFields) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
-		List<String> generatedResidentData = generateResidents(1, true,true,"Any",null,contextKey);
+		/*
+		 * String missingField=null; boolean isGaurdianVal=false; String
+		 * []missingFields=null; if(isGaurdianValid!=null&&!isGaurdianValid.isEmpty()) {
+		 * missingFields=isGaurdianValid.split("@@");
+		 * isGaurdianVal=Boolean.parseBoolean(missingFields[0]); if(isGaurdianVal)
+		 * missingField=missingFields[1]; }
+		 */
+		//List<String> generatedResidentData = generateResidents(1, true,true,"Any",null,contextKey);
+		List<String> generatedResidentData = generateResidents(1, true,true,"Any",missingFields,contextKey);
 		JSONArray jsonArray=getTemplate(new HashSet<String>(generatedResidentData), "NEW",contextKey);
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
@@ -273,10 +288,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 	
-	public String updateBiometric(String resFilePath,List<String> attributeList)throws RigInternalError{
+	public String updateBiometric(String resFilePath,List<String> attributeList,List<String> missAttributeList)throws RigInternalError{
 		String url = baseUrl+props.getProperty("updatePersonaData");
 		JSONObject jsonReqInner = new JSONObject();
+		if(missAttributeList!=null && !(missAttributeList.isEmpty()))
+		jsonReqInner.put("missAttributeList", missAttributeList);
 		jsonReqInner.put("personaFilePath", resFilePath);
+		if(attributeList!=null && !(attributeList.isEmpty()))
 		jsonReqInner.put("regenAttributeList", attributeList);
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0,jsonReqInner);	

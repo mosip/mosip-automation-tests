@@ -35,5 +35,20 @@ public class E2EConstants{
 	public static String SUPERVISOR_ID = "supervisor_id";
 	public static String PRECONFIGURED_OTP="preconfigured_otp";
 	
+	//BioMetric Constant
+	public static final String LEFT_EYE = "leftEye";
+	public static final String RIGHT_EYE = "rightEye";
+	public static final String RIGHT_INDEX = "rightIndex";
+	public static final String RIGHT_LITTLE = "rightLittle";
+	public static final String RIGHT_RING = "rightRing";
+	public static final String RIGHT_MIDDLE = "rightMiddle";
+	public static final String LEFT_INDEX = "leftIndex";
+	public static final String LEFT_LITTLE = "leftLittle";
+	public static final String LEFT_RING = "leftRing";
+	public static final String LEFT_MIDDLE = "leftMiddle";
+	public static final String LEFT_THUMB = "leftThumb";
+	public static final String RIGHT_THUMB = "rightThumb";
+	public static final String FACE = "face";
+	
 	
 }
