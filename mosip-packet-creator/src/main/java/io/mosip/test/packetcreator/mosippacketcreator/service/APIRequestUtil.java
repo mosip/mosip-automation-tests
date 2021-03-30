@@ -193,8 +193,10 @@ public class APIRequestUtil {
     	if (!isValidToken()){
             initToken();
         }
+    	File f = new File(filePath);
+    	
         Cookie kukki = new Cookie.Builder("Authorization", token).build();
-        Response response = given().cookie(kukki).multiPart("file", new File(filePath)).post(url);
+        Response response = given().cookie(kukki).multiPart("file", f.getCanonicalFile()).post(url);
         checkErrorResponse(response.getBody().asString());
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }

@@ -16,6 +16,7 @@ public class ResidentService {
 	  
 	  private static final Logger logger = LoggerFactory.getLogger(ResidentController.class);
 		
+	  
 	  public String getRIDStatus(String rid) {
 		  VariableManager.Init();
 		  RegistrationSteps steps = new RegistrationSteps();

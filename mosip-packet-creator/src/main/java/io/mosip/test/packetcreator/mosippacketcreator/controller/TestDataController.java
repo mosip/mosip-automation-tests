@@ -61,7 +61,7 @@ public class TestDataController {
     ContextUtils contextUtils;
     
     @Autowired
-    TestcaseExecutionService testcaseExecutionService;
+    CommandsService testcaseExecutionService;
 
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
@@ -91,7 +91,7 @@ public class TestDataController {
     		@PathVariable("contextKey") String contextKey) {
         try{
             return pkm.createContainer(packetCreateDto.getIdJsonPath(), packetCreateDto.getTemplatePath(),
-            		packetCreateDto.getSource(), packetCreateDto.getProcess(), contextKey);
+            		packetCreateDto.getSource(), packetCreateDto.getProcess(), contextKey, true);
         } catch (Exception ex){
              logger.error("", ex);
         }
@@ -147,10 +147,10 @@ public class TestDataController {
                 syncRidDto.getSupervisorStatus(), syncRidDto.getSupervisorComment(), syncRidDto.getProcess(), contextKey);
     }
 
-    @GetMapping(value = "/packetsync")
-    public @ResponseBody String packetsync(String path, 
+    @PostMapping(value = "/packetsync")
+    public @ResponseBody String packetsync(@RequestBody PreRegisterRequestDto path, 
     		@RequestParam(name="contextKey",required = false) String contextKey) throws Exception {
-        return packetSyncService.uploadPacket(path, contextKey);
+        return packetSyncService.uploadPacket(path.getPersonaFilePath().get(0), contextKey);
     }
 
     @GetMapping(value = "/startjob")
@@ -318,7 +318,7 @@ public class TestDataController {
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
     			DataProviderConstants.RESOURCE = personaConfigPath;
     		}
-    		return packetSyncService.createPackets(preRegisterRequestDto.getPersonaFilePath(),process,outFolderPath, contextKey);
+    		return packetSyncService.createPacketTemplates(preRegisterRequestDto.getPersonaFilePath(),process,outFolderPath, contextKey);
     	
     	} catch (Exception ex){
              logger.error("createPackets", ex);
@@ -345,6 +345,9 @@ public class TestDataController {
     		if(preRegisterRequestDto.getPersonaFilePath().size() > 1) {
         		personaPath = preRegisterRequestDto.getPersonaFilePath().get(1);
     		}
+    		logger.info("packet-Sync: personaPath="+ (personaPath == null ? "N/A": personaPath));
+    		logger.info("packet-Sync: TemplatePath="+ preRegisterRequestDto.getPersonaFilePath().get(0));
+    		
     		return packetSyncService.preRegToRegister(preRegisterRequestDto.getPersonaFilePath().get(0),preregId, personaPath, contextKey);
     	
     	} catch (Exception ex){

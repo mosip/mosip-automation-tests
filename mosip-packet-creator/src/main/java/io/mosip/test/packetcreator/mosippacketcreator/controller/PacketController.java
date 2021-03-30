@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
+
+import io.mosip.test.packetcreator.mosippacketcreator.dto.PreRegisterRequestDto;
+import io.mosip.test.packetcreator.mosippacketcreator.service.PacketMakerService;
 import io.mosip.test.packetcreator.mosippacketcreator.service.PacketSyncService;
 
 @RestController
@@ -27,12 +29,56 @@ public class PacketController {
 	  @Autowired
 	    PacketSyncService packetSyncService;
 
+	  @Autowired
+	  PacketMakerService packetMakerService;
 	  /*
 	   * Create a packet from Resident data for the target context
 	   * requestDto may contain PersonaRequestType.PR_Options
 	   */
-	  @PostMapping(value = "/packet/create/{process}")
-	  public @ResponseBody String createPacket(@RequestBody PersonaRequestDto requestDto,
+	  @PostMapping(value = "/packet/create/")
+	  public @ResponseBody String createPacket(@RequestBody PreRegisterRequestDto requestDto,
+	    	@RequestParam(name="contextKey",required = false) String contextKey) {
+
+			try{    	
+	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+	    			DataProviderConstants.RESOURCE = personaConfigPath;
+	    		}
+
+	    		return packetMakerService.createPacketFromTemplate(requestDto.getPersonaFilePath().get(0),  requestDto.getPersonaFilePath().get(1), contextKey);
+	    		//return packetSyncService.createPackets(requestDto.,process,null, contextKey);
+	    		
+	    	
+	    	} catch (Exception ex){
+	             logger.error("createPackets", ex);
+	    	}
+	    	return "{\"Failed\"}";
+	  }
+	  @PostMapping(value = "/packet/pack/")
+	  public @ResponseBody String packPacket(@RequestBody PreRegisterRequestDto requestDto,
+	    	@RequestParam(name="contextKey",required = false) String contextKey
+	    	//@RequestParam(name="isValidChecksum",required = false) Boolean isValidcs
+			  ) {
+
+			try{    	
+	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+	    			DataProviderConstants.RESOURCE = personaConfigPath;
+	    		}
+	    		boolean isValidChecksum = true;
+	    		/*if(isValidcs != null)
+	    			isValidChecksum = isValidcs;
+	    		*/
+	    		return packetMakerService.packPacketContainer(requestDto.getPersonaFilePath().get(0),null,null, contextKey,isValidChecksum);
+	    		//return packetSyncService.createPackets(requestDto.,process,null, contextKey);
+	    		
+	    	
+	    	} catch (Exception ex){
+	             logger.error("createPackets", ex);
+	    	}
+	    	return "{\"Failed\"}";
+	  }
+
+	  @PostMapping(value = "/packet/template/{process}")
+	  public @ResponseBody String createTemplate(@RequestBody PreRegisterRequestDto requestDto,
 			@PathVariable("process") String process,
 	    	@RequestParam(name="contextKey",required = false) String contextKey) {
 
@@ -40,11 +86,14 @@ public class PacketController {
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
 	    			DataProviderConstants.RESOURCE = personaConfigPath;
 	    		}
-	    	//	return packetSyncService.createPackets(requestDto.getPersonaFilePath(),process,null, contextKey);
+
+	    		return packetSyncService.createPacketTemplates(requestDto.getPersonaFilePath(),process,null, contextKey);
+	    		
 	    	
 	    	} catch (Exception ex){
 	             logger.error("createPackets", ex);
 	    	}
 	    	return "{\"Failed\"}";
 	  }
+
 }
