@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.service.BaseTestCase;
 import io.restassured.response.Response;
 
 public class DeleteApplication extends BaseTestCaseUtil implements StepInterface {
@@ -22,10 +21,10 @@ public class DeleteApplication extends BaseTestCaseUtil implements StepInterface
 	}
 
 	private void deleteApplication(String prid) throws RigInternalError {
-		String url = BaseTestCase.ApplnURI + props.getProperty("deleteApplication") + prid;
-		Response response = deleteReqest(url, "DeleteApplication");
+		String url = baseUrl + props.getProperty("deleteApplication") + prid;
+		Response response = deleteReqestWithQueryParam(url, contextKey, "DeleteApplication");
 		if (!response.getBody().asString().contains(prid))
-			throw new RigInternalError("Unable to DeleteApplication");
+			throw new RigInternalError("Unable to DeleteApplication for Prid: "+prid);
 	}
 
 }

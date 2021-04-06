@@ -62,7 +62,8 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				for (Object object : testCaseList) {
 					for(String rid: this.tempPridAndRid.values()) {
 						int counter=0;
-					while(!packetProcessed && counter<Integer.parseInt(props.getProperty("loopCount"))) {
+						String status="under";
+					while(!packetProcessed && status.contains("under") && counter<Integer.parseInt(props.getProperty("loopCount"))) {
 						counter++;
 						try {
 							logger.info("Waiting for 30 sec to get packet procesed");
@@ -81,6 +82,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 						packetProcessed = true; 
 						} catch (AuthenticationTestException | AdminTestException e) {
 							logger.error("Failed at checking Packet status with error: " + e.getMessage());
+							status=postScript.response.getBody().asString().toLowerCase();
 						}
 					}
 					//assertTrue(postScript.response.asString().contains("PROCESSED"), "Failed at status check Response validation");
