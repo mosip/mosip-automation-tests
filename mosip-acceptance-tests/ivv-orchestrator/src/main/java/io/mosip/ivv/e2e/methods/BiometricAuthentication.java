@@ -139,7 +139,8 @@ public class BiometricAuthentication extends BaseTestCaseUtil implements StepInt
 				input=input.replace("$deviceCode$", deviceProp.getProperty("deviceCode"));
 				input=input.replace("$deviceServiceVersion$", deviceProp.getProperty("deviceServiceVersion"));
 				input=input.replace("$deviceProvider$", deviceProp.getProperty("deviceProvider"));
-				input=input.replace("$deviceProviderId$", deviceProp.getProperty("deviceProviderId"));
+				input=input.replace("$deviceProviderID$", deviceProp.getProperty("deviceProviderID"));
+				//input=input.replace("$deviceProviderId$", deviceProp.getProperty("deviceProviderId"));
 				//input=input.replace("$deviceSubType$", deviceProp.getProperty("deviceSubType"));
 				input=input.replace("$make$", deviceProp.getProperty("make"));
 				input=input.replace("$model$", deviceProp.getProperty("model"));

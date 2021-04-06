@@ -15,7 +15,7 @@ public class UpdateResidentWithGuardian extends BaseTestCaseUtil implements Step
 		boolean withRid = true;
 		String missingFields = null;
 		String gaurdianStatus="processed";
-
+		String emailOrPhone=null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("UpdateResidentWithGuardian Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else {
@@ -23,13 +23,13 @@ public class UpdateResidentWithGuardian extends BaseTestCaseUtil implements Step
 			if (step.getParameters().size() > 1) {
 				missingFields = step.getParameters().get(1);
 				gaurdianStatus= step.getParameters().get(2);
-				
+				emailOrPhone=step.getParameters().get(3);
 			}
 		}
 		residentPathGuardianRid = new LinkedHashMap<String, String>();
 		CheckStatus checkStatus = new CheckStatus();
 		for (String path : residentTemplatePaths.keySet()) {
-			residentPathGuardianRid.put(path, packetUtility.updateResidentGuardian(path, withRid, missingFields));
+			residentPathGuardianRid.put(path, packetUtility.updateResidentGuardian(path, withRid, missingFields,emailOrPhone));
 			Reporter.log("<b><u>Checking Status Of Created Guardians</u></b>");
 			checkStatus.tempPridAndRid = residentPathGuardianRid;
 			checkStatus.checkStatus(gaurdianStatus);

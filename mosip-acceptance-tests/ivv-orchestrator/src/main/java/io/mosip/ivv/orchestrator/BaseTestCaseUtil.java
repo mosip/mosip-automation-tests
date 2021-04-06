@@ -125,6 +125,15 @@ public class BaseTestCaseUtil extends BaseStep{
 		return getResponse;
 	}
 	
+	public static Response getRequestWithQueryParam(String url, HashMap<String,String> contextKey,String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		Response getResponse = given().relaxedHTTPSValidation().queryParams(contextKey)
+				.accept("*/*").log().all().when().get(url).then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ getResponse.getBody().asString() + "</pre>");
+		return getResponse;
+	}
+	
 	public Response postReqest(String url,String body,String opsToLog) {
 		Reporter.log("<pre> <b>"+opsToLog+": </b> <br/>"+body + "</pre>");
 		Response apiResponse = RestClient.postRequest(url, body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
@@ -150,6 +159,23 @@ public class BaseTestCaseUtil extends BaseStep{
 		return deleteResponse;
 	}
 	
+	public Response deleteReqestWithQueryParam(String url,HashMap<String,String> contextKey,String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		Response deleteResponse = given().relaxedHTTPSValidation().queryParams(contextKey)
+				.accept("*/*").log().all().when().delete(url).then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ deleteResponse.getBody().asString() + "</pre>");
+		return deleteResponse;
+	}
+	
+	public Response putRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		Response apiResponse = RestClient.putRequestWithQueryParamAndBody(url, body, contextKey,MediaType.APPLICATION_JSON,
+				"*/*");
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ apiResponse.getBody().asString() + "</pre>");
+		return apiResponse;
+	}
 	
 	public Response postRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
