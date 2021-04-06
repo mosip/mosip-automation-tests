@@ -50,5 +50,12 @@ public class E2EConstants{
 	public static final String RIGHT_THUMB = "rightThumb";
 	public static final String FACE = "face";
 	
+	//Pre-Registration booking details
+	public static final String APPOINTMENT_DATE = "appointment_date";
+	public static final String PRE_REGISTRATION_ID = "pre_registration_id";
+	public static final String REGISTRATION_CENTER_ID = "registration_center_id";
+	public static final String TIME_SLOT_FROM = "time_slot_from";
+	public static final String TIME_SLOT_TO = "time_slot_to";
+	
 	
 }
