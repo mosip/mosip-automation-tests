@@ -305,5 +305,17 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 	
+	public String packetSync(String personaPath, HashMap<String,String> contextKey) throws RigInternalError {
+		String url = baseUrl + props.getProperty("packetsyncUrl");
+		JSONObject jsonReq = new JSONObject();
+		JSONArray arr = new JSONArray();
+		arr.put(personaPath);	
+		jsonReq.put("personaFilePath",arr);
+		Response response =postRequestWithQueryParamAndBody(url,jsonReq.toString(),contextKey,"Packet Sync:");
+		if(!response.getBody().asString().toLowerCase().contains("packet has reached"))
+			throw new RigInternalError("Unable to do sync packet from packet utility");
+		return response.getBody().asString();
+	}
+	
 	
 }
