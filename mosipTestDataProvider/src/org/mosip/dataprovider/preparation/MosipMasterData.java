@@ -370,7 +370,8 @@ public  class MosipMasterData {
 	public static Hashtable<Double,List<MosipIDSchema>>  getIDSchemaLatestVersion() {
 	
 		Hashtable<Double,List<MosipIDSchema>> tbl = new Hashtable<Double,List<MosipIDSchema>> ();
-		String url = VariableManager.getVariableValue("urlBase").toString() +VariableManager.getVariableValue(
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(
 				VariableManager.NS_MASTERDATA,
 				//"individualtypes"
 				"idschemaapi"
@@ -401,10 +402,7 @@ public  class MosipMasterData {
 					MosipIDSchema schema = objectMapper.readValue(idSchema.get(i).toString(), MosipIDSchema.class);
 					listSchema.add(schema);
 				}
-				/*
-				List<MosipIDSchema>  listSchema = objectMapper.readValue(idSchema.toString(), 
-						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipIDSchema.class));
-				*/
+
 				tbl.put(schemaVersion, listSchema);
 				
 				setCache(url, tbl);
@@ -722,6 +720,9 @@ public  class MosipMasterData {
 	}
 	public static void main(String[] args) {
 	
+		Hashtable<Double,List<MosipIDSchema>> tbl1 = getIDSchemaLatestVersion();
+		 double schemaId = tbl1.keys().nextElement();
+		 System.out.println(schemaId);
 		List<MosipGenderModel> allg =MosipMasterData.getGenderTypes();
 		allg.forEach( g-> {
 			System.out.println(g.getCode() +"\t" + g.getGenderName());

@@ -12,11 +12,13 @@ public class BiometricDataModel  implements Serializable {
 	//Indexed by Finger value
 	private String [] fingerPrint;
 	private String [] fingerHash;
+	private byte[][] fingerRaw;
 
 	//left, right
 	private IrisDataModel iris;
 	private String encodedPhoto;
 	private String FaceHash;
 	private byte[] rawFaceData;
-	
+
+	private String cbeff;
 }

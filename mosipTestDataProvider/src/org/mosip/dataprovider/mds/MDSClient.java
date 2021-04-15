@@ -40,11 +40,11 @@ public class MDSClient {
 	}
 	//create profile folder and create all ISO images as per resident data
 	public void createProfile(String profilePath,String profile, ResidentModel resident) {
-		File profDir = new File(profilePath + profile);
+		File profDir = new File(profilePath + "/"+ profile);
 		if(!profDir.exists())
 			profDir.mkdir();
 		//copy from default profile
-		File defProfile = new File( profilePath + "Default");
+		File defProfile = new File( profilePath +"/"+ "Default");
 		File []defFiles = defProfile.listFiles();
 		for(File f: defFiles) {
 			try {
@@ -56,21 +56,22 @@ public class MDSClient {
 		}
 		ISOConverter convert = new ISOConverter();
 		try {
-			String face = resident.getBiometric().getEncodedPhoto();
-			convert.convertFace(face,profDir + "\\Face.iso");
+			byte[] face = resident.getBiometric().getRawFaceData();
+			convert.convertFace(face,profDir + "/" + "Face.iso");
 			IrisDataModel iris = resident.getBiometric().getIris();
 			if(iris != null) {
-				if(iris.getLeft() != null)
-					convert.convertIris(iris.getLeft(), profDir + "Left_Iris.iso", "Left");
-				if(iris.getRight() != null)
-					convert.convertIris(iris.getRight(), profDir + "Right_Iris.iso", "Right");
+				
+				if(iris.getRawLeft() != null)
+					convert.convertIris(iris.getRawLeft(), profDir + "/"+ "Left_Iris.iso", "Left");
+				if(iris.getRawRight() != null)
+					convert.convertIris(iris.getRawRight(), profDir + "/"+ "Right_Iris.iso", "Right");
 			}
-			String [] fingerData = resident.getBiometric().getFingerPrint();
+			byte[] [] fingerData = resident.getBiometric().getFingerRaw();
 			for(int i=0; i < 10; i++) {
 				String fingerName = DataProviderConstants.displayFingerName[i];
 				String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
 				if(fingerData[i] != null) {
-					convert.convertFinger(fingerData[i], profDir + outFileName + ".iso" , fingerName);
+					convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName);
 				}
 			}
 			
@@ -80,6 +81,21 @@ public class MDSClient {
 		}
 		
 			
+	}
+	public void removeProfile(String profilePath,String profile) {
+		setProfile("Default");
+		File profDir = new File(profilePath + "/"+ profile);
+		if(profDir.exists()) {
+			 // list all the files in an array
+		      File[] files = profDir.listFiles();
+
+		      // delete each file from the directory
+		      for(File file : files) {
+		        file.delete();
+		      }
+		      profDir.delete();
+		}
+		
 	}
 	public  void setProfile(String profile) {
 		
@@ -132,7 +148,7 @@ public class MDSClient {
 	public  MDSRCaptureModel captureFromRegDevice(MDSDevice device, 
 			MDSRCaptureModel rCaptureModel,
 			String type,
-			String bioSubType, int reqScore,int deviceId,int deviceSubId) {
+			String bioSubType, int reqScore,int deviceSubId) {
 
 		if(rCaptureModel == null)
 			rCaptureModel = new MDSRCaptureModel();
@@ -159,7 +175,7 @@ public class MDSClient {
 		
 		bio.put("count", count);
 		bio.put("requestedScore", reqScore);
-		bio.put("deviceId", deviceId);
+		bio.put("deviceId", Integer.valueOf(device.getDeviceId()));
 		bio.put("deviceSubId", deviceSubId);
 		JSONArray arr = new JSONArray();
 		arr.put(bio);
@@ -184,14 +200,14 @@ public class MDSClient {
 				String data = bioObject.getString("data");
 				String hash = bioObject.getString("hash");
 				JWTTokenModel jwtTok = new JWTTokenModel(data);
-				
+				JSONObject jsonPayload = jwtTok.getJwtPayload();
 				MDSDeviceCaptureModel model = new MDSDeviceCaptureModel();
-				model.setBioType( jwtTok.getJwtPayload().getString("bioType"));
-				model.setBioSubType( jwtTok.getJwtPayload().getString("bioSubType"));
-				model.setQualityScore( jwtTok.getJwtPayload().getString("qualityScore"));
-				model.setBioValue ( jwtTok.getJwtPayload().getString("bioValue"));
-				model.setDeviceServiceVersion ( jwtTok.getJwtPayload().getString("deviceServiceVersion"));
-				model.setDeviceCode( jwtTok.getJwtPayload().getString("deviceCode"));
+				model.setBioType( CommonUtil.getJSONObjectAttribute(jsonPayload, "bioType",""));
+				model.setBioSubType( CommonUtil.getJSONObjectAttribute(jsonPayload, "bioSubType",""));
+				model.setQualityScore(CommonUtil.getJSONObjectAttribute(jsonPayload, "qualityScore",""));
+				model.setBioValue ( CommonUtil.getJSONObjectAttribute(jsonPayload,"bioValue",""));
+				model.setDeviceServiceVersion ( CommonUtil.getJSONObjectAttribute(jsonPayload,"deviceServiceVersion",""));
+				model.setDeviceCode( CommonUtil.getJSONObjectAttribute(jsonPayload,"deviceCode",""));
 				model.setHash(hash);
 				lstBiometrics.add(model);
 				
@@ -214,11 +230,11 @@ public class MDSClient {
 			System.out.println(dv.toJSONString());	
 		});
 		
-		MDSRCaptureModel r =  client.captureFromRegDevice(d.get(0),null, "Finger",null,60,2,1);
+		MDSRCaptureModel r =  client.captureFromRegDevice(d.get(0),null, "Finger",null,60,1);
 		
 		System.out.println( r.toJSONString());
 		
-		r = client.captureFromRegDevice(d.get(0),r, "Face",null,60,1,1);
+		r = client.captureFromRegDevice(d.get(0),r, "Face",null,60,1);
 		
 		System.out.println( r.toJSONString());
 	}

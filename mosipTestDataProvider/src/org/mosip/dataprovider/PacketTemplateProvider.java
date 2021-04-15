@@ -1,7 +1,9 @@
 package org.mosip.dataprovider;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +22,7 @@ import org.mosip.dataprovider.models.MosipDocument;
 import org.mosip.dataprovider.models.MosipIDSchema;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
@@ -197,10 +200,10 @@ public class PacketTemplateProvider {
 					if(resident.isMinor()) {
 						String primValue = "";
 						String secValue = "";
-						JSONArray arr = new JSONArray();
+						//JSONArray arr = new JSONArray();
 						JSONObject o = new JSONObject();
 						o.put("language", resident.getPrimaryLanguage());
-						String value = null;
+						//String value = null;
 						if(resident.getGuardian() != null)
 							primValue = resident.getGuardian().getName().getFirstName();
 						
@@ -277,7 +280,7 @@ public class PacketTemplateProvider {
 			JSONObject exceptionBiometrics= new JSONObject();
 			JSONObject applicant = new JSONObject();
 
-	if(missedAttrib.contains("leftEye")) {
+			if(missedAttrib.contains("leftEye")) {
 				applicant.put("leftEye", constructExceptnNode("Iris","leftEye"));
 			}
 			if(missedAttrib.contains("rightEye")) {
@@ -341,6 +344,45 @@ public class PacketTemplateProvider {
 			
 			identity.put(id, ar);
 			return identity;
+	 }
+	 Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile) throws Exception {
+		
+		 String strVal =  VariableManager.getVariableValue("usemds").toString();
+		 boolean bMDS = Boolean.valueOf( strVal);
+		 String cbeff = resident.getBiometric().getCbeff();
+		 if(bMDS) {
+			 if(cbeff == null) {
+				 MDSRCaptureModel capture =  BiometricDataProvider.regenBiometricViaMDS(resident);
+				 String strCBeff  = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile);
+				 resident.getBiometric().setCbeff(strCBeff);
+				 
+			 }
+			 else
+			 {
+				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+				writer.print(cbeff);
+				writer.close();
+			 }
+		 }
+		 else
+		 {
+			
+			
+			 if(cbeff == null) {
+			
+				String strCBeff  = BiometricDataProvider.toCBEFF(bioAttrib, resident.getBiometric(), outFile);
+				resident.getBiometric().setCbeff(strCBeff);
+				
+			 }
+			 else
+			 {
+				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+				writer.print(cbeff);
+				writer.close();
+			 }
+		 }
+		 resident.save();
+		 return true;
 	 }
 	/*
 	 * HashMap<FolderType, [(in)folderPath][(out)biofilename]> fileInfo
@@ -424,9 +466,17 @@ public class PacketTemplateProvider {
 					}
 					else
 					if(s.getId().toLowerCase().contains("address") && !s.getGroup().toLowerCase().equals("documents")) {
-						primaryValue = "#111, 127th Main, " + s.getId();
-						if(secLanguage != null)
-							secValue = Translator.translate(secLanguage,primaryValue);
+						if(s.getControlType().equals("checkbox")) {
+							primaryValue = "Y";
+							if(secLanguage != null)
+								secValue = "Y";
+						}
+						else
+						{
+							primaryValue = "#111, 127th Main, " + s.getId();
+							if(secLanguage != null)
+								secValue = Translator.translate(secLanguage,primaryValue);
+						}
 						
 					}
 					else
@@ -472,8 +522,8 @@ public class PacketTemplateProvider {
 			        			bioAttrib.removeAll(missAttribs);
 			        		if(resident.getFilteredBioAttribtures() == null)
 			        			resident.setFilteredBioAttribtures(bioAttrib);
-			        		
-							BiometricDataProvider.toCBEFF(bioAttrib, resident.getBiometric(), outFile);
+			        		generateCBEFF(resident,  bioAttrib, outFile);
+							//BiometricDataProvider.toCBEFF(bioAttrib, resident.getBiometric(), outFile);
 							//test code- hard coded cbeff file
 						//	Files.copy(Paths.get("C:\\temp\\test\\individualBiometrics_bio_CBEFF.xml"),Paths.get(outFile));
 						//	Files.copy(Paths.get("C:\\temp\\test\\ID.json"),Paths.get(RID_FOLDER + "ID.json"));
@@ -507,7 +557,9 @@ public class PacketTemplateProvider {
 				        		List<String> bioAttrib = s.getBioAttributes();
 				        		if(missAttribs != null && !missAttribs.isEmpty())
 				        			bioAttrib.removeAll(missAttribs);
-								BiometricDataProvider.toCBEFF(bioAttrib, resident.getGuardian().getBiometric(), outFile);
+				        		
+				        		generateCBEFF(resident.getGuardian(),  bioAttrib, outFile);
+								//BiometricDataProvider.toCBEFF(bioAttrib, resident.getGuardian().getBiometric(), outFile);
 
 							
 							} catch (Exception e) {
@@ -684,7 +736,7 @@ public class PacketTemplateProvider {
 		identity.put("documents", docArray);
 		identity.put("metaData", new JSONArray());
 		identity.put("capturedRegisteredDevices", new JSONArray());
-		identity.put("exceptionBiometrics", new JSONArray());
+		identity.put("exceptionBiometrics", new JSONObject());
 		identity.put("creationDate", CommonUtil.getUTCDateTime(null));
 		//identity.put("capturedRegisteredDevices",templateIdentity.getJSONArray("capturedRegisteredDevices") );
 		
