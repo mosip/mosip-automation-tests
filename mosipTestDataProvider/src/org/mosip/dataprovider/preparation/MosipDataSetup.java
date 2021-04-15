@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mosip.dataprovider.models.MosipLanguage;
+
 import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.models.setup.MosipMachineSpecModel;
 import org.mosip.dataprovider.models.setup.MosipMachineTypeModel;
@@ -19,6 +19,10 @@ import variables.VariableManager;
 
 public class MosipDataSetup {
 
+	public static void geConfig() {
+		//https://sandbox.mosip.net/config/*/mz/1.1.4/print-mz.properties
+		//https://dev.mosip.net/config/*/mz/develop/registration-processor-mz.properties
+	}
 	public static Object getCache(String key) {
 		try {
 		return VariableManager.getVariableValue(key);

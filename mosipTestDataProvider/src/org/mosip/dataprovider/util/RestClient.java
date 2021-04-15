@@ -1,7 +1,7 @@
 package org.mosip.dataprovider.util;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,19 +16,13 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
+
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.ClientConnectionManager;
+
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
+
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 //import org.json.JSONArray;
@@ -126,6 +120,11 @@ public class RestClient {
     	int nLoop  = 0;
     	Response response =null;
 
+    	//Stict http validation errors - fix
+    	
+    	/*if(url.contains("//")) {
+    		url = url.replace("//", "/"); 		
+    	}*/
     	while(!bDone) {
 
     		String token = tokens.get(role);
@@ -189,7 +188,12 @@ public class RestClient {
 
 		 Response response =null;
 
-
+		//Stict http validation errors - fix
+		 /*
+	    	if(url.contains("//")) {
+	    		url = url.replace("//", "/"); 		
+	    	}
+	*/
 	    String token = tokens.get(role);
 	    Cookie kukki = new Cookie.Builder("Authorization", token).build();
         
@@ -257,6 +261,59 @@ public class RestClient {
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
 
+	public static JSONObject putNoAuth(String url, JSONObject jsonRequest) throws Exception {
+
+		String role = "resident";
+		String token = tokens.get(role);
+		Response response =null;
+
+	    System.out.println("Request:"+ jsonRequest.toString());
+	    Cookie kukki = new Cookie.Builder("Authorization", token).build();
+        
+	    response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+
+
+	    String cookie = response.getHeader("Set-Cookie");
+    	/*if(cookie == null) {
+    		cookie = response.getHeader("Cookies");
+    	}*/
+    	if(cookie != null) {
+    		token = cookie.split("=")[1];
+    		tokens.put(role,token);
+    	}
+    	System.out.println(token);
+        System.out.println("Response:"+response.getBody().asString());
+        checkErrorResponse(response.getBody().asString());
+
+        return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+    }
+	public static JSONObject deleteNoAuth(String url, JSONObject jsonRequest) throws Exception {
+
+		String role = "resident";
+		String token = tokens.get(role);
+		Response response =null;
+
+	    System.out.println("Request:"+ jsonRequest.toString());
+	    Cookie kukki = new Cookie.Builder("Authorization", token).build();
+        
+	    response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
+
+	    String cookie = response.getHeader("Set-Cookie");
+    	/*if(cookie == null) {
+    		cookie = response.getHeader("Cookies");
+    	}*/
+    	if(cookie != null) {
+    		token = cookie.split("=")[1];
+    		tokens.put(role,token);
+    	}
+    	System.out.println(token);
+        System.out.println("Response:"+response.getBody().asString());
+        checkErrorResponse(response.getBody().asString());
+
+        return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+    }
+
+
 	public static JSONObject post(String url, JSONObject jsonRequest) throws Exception {
 		String role = "system";
 		if (!isValidToken(role)){
@@ -266,6 +323,10 @@ public class RestClient {
 	    int nLoop  = 0;
 	    Response response =null;
 
+	  //Stict http validation errors - fix
+    	/*if(url.contains("//")) {
+    		url = url.replace("//", "/"); 		
+    	} */
 	    
 	    while(!bDone) {
 	    	String token = tokens.get(role);

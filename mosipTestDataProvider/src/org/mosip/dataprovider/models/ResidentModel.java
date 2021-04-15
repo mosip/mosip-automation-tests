@@ -3,7 +3,7 @@ package org.mosip.dataprovider.models;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
-
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Hashtable;
 import java.util.List;
@@ -63,6 +63,12 @@ public class ResidentModel  implements Serializable {
 	private List<String> invalidAttributes;
 	private MosipIdentity identity;
 	private List<String> filteredBioAttribtures;
+	
+	private String path;
+	//resident Metadata
+	//private double schemaVersion;
+	//private String targetCotext;
+	
 	public ResidentModel() {
 	
 		id = String.format("%04d", CommonUtil.generateRandomNumbers(1,99999, 1000)[0]);
@@ -83,6 +89,22 @@ public class ResidentModel  implements Serializable {
 				e.printStackTrace();
 		}	
 		return jsonStr;
+	}
+	public static ResidentModel readPersona(String filePath) throws IOException {
+    	
+    	ObjectMapper mapper = new ObjectMapper();
+    	//mapper.registerModule(new SimpleModule().addDeserializer(Pair.class,new PairDeserializer()));
+    //	mapper.registerModule(new SimpleModule().addSerializer(Pair.class, new PairSerializer()));
+    	byte[] bytes = Files.readAllBytes(Paths.get(filePath));
+    	ResidentModel model = mapper.readValue(bytes, ResidentModel.class);
+		model.setPath(filePath);
+		return model;
+    }
+	public void writePersona(String filePath) throws IOException {
+		Files.write(Paths.get(filePath), this.toJSONString().getBytes());
+	}
+	public void save() throws IOException {
+		Files.write(Paths.get(path), this.toJSONString().getBytes());
 	}
 	public static void main(String [] args) {
 		

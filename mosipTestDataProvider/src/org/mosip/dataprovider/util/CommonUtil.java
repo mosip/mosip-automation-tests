@@ -18,9 +18,16 @@ import java.util.TimeZone;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.json.JSONObject;
+
 
 public class CommonUtil {
 
+	public static String getJSONObjectAttribute(JSONObject obj, String attrName, String defValue) {
+		if(obj.has(attrName))
+			return obj.getString(attrName);
+		return defValue;
+	}
 	public static String getHexEncodedHash(byte[] data) throws Exception{
         try{
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");

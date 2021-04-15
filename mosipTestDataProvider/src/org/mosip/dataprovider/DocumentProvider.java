@@ -163,7 +163,7 @@ public class DocumentProvider {
 			List<String> catDocs = null;
 			if(allDocTypes != null && !allDocTypes.isEmpty()) {
 				MosipDocument doc = new MosipDocument();
-				doc.setDcoCategoryName(catModel.getName());
+				doc.setDocCategoryName(catModel.getName());
 				doc.setDocCategoryCode(catModel.getCode());
 				doc.setDocCategoryLang(catModel.getLangCode());
 				docTypes = new ArrayList<MosipDocTypeModel>();
