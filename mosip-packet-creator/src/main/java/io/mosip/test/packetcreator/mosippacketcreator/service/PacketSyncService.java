@@ -29,8 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-
-
+import io.mosip.test.packetcreator.mosippacketcreator.dto.AppointmentDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestType;
 
@@ -216,8 +215,11 @@ public class PacketSyncService {
 			tmpDir = Files.createTempDirectory("residents_").toFile().getAbsolutePath();
 			
 			for(ResidentModel r: lst) {
-				String jsonStr = r.toJSONString();
 				Path tempPath = Path.of(tmpDir, r.getId() +".json");
+				r.setPath(tempPath.toString());
+				
+				String jsonStr = r.toJSONString();
+				
 				Files.write(tempPath, jsonStr.getBytes());
 				
 				JSONObject id  = new JSONObject();
@@ -427,6 +429,20 @@ public class PacketSyncService {
     	}
     	return builder.toString();
     }
+    public String updateResidentApplication(String personaFilePath,String preregId, String contextKey) throws IOException {
+
+    	loadServerContextProperties(contextKey);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+		return PreRegistrationSteps.putApplication(resident,preregId);
+
+
+    }
+    
+    public String preRegisterGetApplications(String status,String preregId,String contextKey) {
+    	loadServerContextProperties(contextKey);
+    	logger.debug("preRegisterGetApplications preregId=" + preregId);
+    	return PreRegistrationSteps.getApplications(status,preregId);
+    }
     void saveRegIDMap(String preRegId, String personaFilePath) {
     	
     	Properties p=new Properties();
@@ -480,6 +496,23 @@ public class PacketSyncService {
     	return preReg.verifyOtp(to,otp);
     		
     }
+    public String getAvailableAppointments(String contextKey) {
+    	 loadServerContextProperties(contextKey);
+    	 AppointmentModel res = PreRegistrationSteps.getAppointments();
+    	 return res.toJSONString();
+    }
+    public String bookSpecificAppointment(String preregId,AppointmentDto appointmentDto, String contextKey) {
+    	
+    	AppointmentTimeSlotModel ts = new AppointmentTimeSlotModel();
+    	ts.setFromTime(appointmentDto.getTime_slot_from());
+    	ts.setToTime(appointmentDto.getTime_slot_to());
+    	
+    	return PreRegistrationSteps.bookAppointment(preregId,appointmentDto.getAppointment_date(),
+    			Integer.parseInt(appointmentDto.getRegistration_center_id()),
+    			ts);
+    	
+    }
+    
     public String bookAppointment( String preRegID,int nthSlot, String contextKey) {
    	
     String retVal= "{\"Failed\"}";
@@ -512,7 +545,72 @@ public class PacketSyncService {
 		}
 		return retVal;
     }
+   /*
+    * Book appointment on any specified slot
+    * nThSlot -> min 1
+    */
+    public String bookAppointmentSlot( String preRegID,int nthSlot,boolean bHoliday, String contextKey) {
+       	
+        String retVal= "{\"Failed\"}";
+        Boolean bBooked = false;
+        
+        loadServerContextProperties(contextKey);
+        
+     	
+       	 AppointmentModel res = PreRegistrationSteps.getAppointments();
+    		
+    		for( CenterDetailsModel a: res.getAvailableDates()) {
+    			//if specified book on a holiday
+    			if(bHoliday) {
+    				if(a.getHoliday()) {
+    					for(AppointmentTimeSlotModel ts: a.getTimeslots()) {
+    	    				
+    						nthSlot--;
+    						if(nthSlot ==0) {
+    							retVal =PreRegistrationSteps.bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts);
+    							bBooked = true;
+    							break;
+    						}
+						}
+    					if(bBooked)
+    						break;
+    					else
+    						continue;
+    				}
+    			}
+    			
+    			if(!a.getHoliday()) {
+    				for(AppointmentTimeSlotModel ts: a.getTimeslots()) {
+    					
+    					nthSlot--;
+    					if(nthSlot ==0) {
+    						retVal =PreRegistrationSteps.bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts);
+    						bBooked = true;
+    						break;
+    						
+    					}
+    				}
+    			}
+    			if(bBooked) break;
+    		}
+    		return retVal;
+    }
+    public String cancelAppointment(String preregId, AppointmentDto appointmentDto, String contextKey) {
+    	loadServerContextProperties(contextKey);
    
+    	return PreRegistrationSteps.cancelAppointment(preregId,
+    			appointmentDto.getTime_slot_from(),
+    			appointmentDto.getTime_slot_to(),
+    			appointmentDto.getAppointment_date(),
+    			appointmentDto.getRegistration_center_id()
+    	);
+
+
+    }
+    public String deleteApplication(String preregId, String contextKey) {
+    	loadServerContextProperties(contextKey);
+    	return PreRegistrationSteps.deleteApplication(preregId); 	
+    }
     public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
     
     	String response = "";

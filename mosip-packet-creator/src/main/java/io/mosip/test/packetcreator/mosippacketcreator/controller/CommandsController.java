@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.kubernetes.client.openapi.ApiException;
+
 import io.mosip.test.packetcreator.mosippacketcreator.service.CommandsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
