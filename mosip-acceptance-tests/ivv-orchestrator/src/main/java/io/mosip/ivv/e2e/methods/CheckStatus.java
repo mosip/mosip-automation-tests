@@ -22,33 +22,33 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
     public void run() throws RigInternalError {
-		String status_Message=null;
 		String status_param =null;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			assertTrue(false,"StatusCode paramter is  missing in step: "+step.getName());
 		} else {
 			status_param =step.getParameters().get(0);
-			switch(status_param) {
-			case "processed":
-				status_Message=status_param;
-				break;
-			case "rejected":
-				status_Message="REJECTED - PLEASE VISIT THE NEAREST CENTER FOR DETAILS.";
-				break;
-			case "failed":
-				status_Message="FAILED - PLEASE VISIT THE NEAREST CENTER FOR DETAILS.";
-				break;	
-			default:
-				logger.error("Parameter not supported");
-			}
 		}
     	//pridsAndRids.put("54253173891651", "10002100741000220210113045712");
-		checkStatus(status_param, status_Message);
+		checkStatus(status_param);
 		
 	}
     
-	public void checkStatus(String status_param, String status_Message) throws RigInternalError {
+	public void checkStatus(String status_param) throws RigInternalError {
+		String status_Message=null;
+		switch(status_param) {
+		case "processed":
+			status_Message=status_param;
+			break;
+		case "rejected":
+			status_Message="REJECTED - PLEASE VISIT THE NEAREST CENTER FOR DETAILS.";
+			break;
+		case "failed":
+			status_Message="FAILED - PLEASE VISIT THE NEAREST CENTER FOR DETAILS.";
+			break;	
+		default:
+			logger.error("Parameter not supported");
+		}
 		if(tempPridAndRid ==null)
     		tempPridAndRid =pridsAndRids;
     	String fileName = check_status_YML;
@@ -62,7 +62,8 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				for (Object object : testCaseList) {
 					for(String rid: this.tempPridAndRid.values()) {
 						int counter=0;
-					while(!packetProcessed && counter<Integer.parseInt(props.getProperty("loopCount"))) {
+						String status="under";
+					while(!packetProcessed && status.contains("under") && counter<Integer.parseInt(props.getProperty("loopCount"))) {
 						counter++;
 						try {
 							logger.info("Waiting for 30 sec to get packet procesed");
@@ -81,6 +82,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 						packetProcessed = true; 
 						} catch (AuthenticationTestException | AdminTestException e) {
 							logger.error("Failed at checking Packet status with error: " + e.getMessage());
+							status=postScript.response.getBody().asString().toLowerCase();
 						}
 					}
 					//assertTrue(postScript.response.asString().contains("PROCESSED"), "Failed at status check Response validation");

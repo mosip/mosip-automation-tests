@@ -13,16 +13,19 @@ public class UpdateDemoWithBio extends BaseTestCaseUtil implements StepInterface
 	@Override
 	public void run() throws RigInternalError {
 		String bioType = null;
+		String missFields = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			throw new RigInternalError("bioType paramter is  missing in step: " + step.getName());
 		} else {
 			bioType = step.getParameters().get(0);
+			if(step.getParameters().size()>1)
+			missFields=step.getParameters().get(1);
 		}
-		String[] inputBioTypeReceived = bioType.split("@@");
-		List<String> regenAttributeList=Arrays.asList(inputBioTypeReceived);
+		List<String> regenAttributeList=(bioType!=null)?Arrays.asList(bioType.split("@@")):null;
+		List<String> missFieldsAttributeList=(missFields!=null)?Arrays.asList(missFields.split("@@")):null;
 		for (String resDataPath : residentTemplatePaths.keySet()) {
-			packetUtility.updateBiometric(resDataPath, regenAttributeList);
+			packetUtility.updateBiometric(resDataPath, regenAttributeList,missFieldsAttributeList);
 		}
 
 	}
