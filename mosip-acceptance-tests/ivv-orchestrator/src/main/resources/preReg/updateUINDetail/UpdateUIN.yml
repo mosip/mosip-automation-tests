@@ -21,7 +21,7 @@ UpdateUIN:
                         "value": "UpdateMName"
                     }
                 ],
-		"IDSchemaVersion": 0.9,
+		"IDSchemaVersion": 0.1,
 		"UIN": "$UIN$"
 	}
 },

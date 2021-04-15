@@ -4,22 +4,27 @@ import static io.restassured.RestAssured.given;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
 import org.testng.Reporter;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import io.mosip.admin.fw.util.AdminTestUtil;
 import io.mosip.admin.fw.util.TestCaseDTO;
+import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.RestClient;
 import io.mosip.ivv.core.base.BaseStep;
 import io.mosip.ivv.e2e.constant.E2EConstants;
@@ -79,6 +84,56 @@ public class BaseTestCaseUtil extends BaseStep{
 		 return testCases;
 	}
 	
+	public Object[] filterBioTestCases(Object[] testCases, List<String> bioType) {
+		String testlable = BaseTestCase.testLevel;
+		List<Object> filteredCases = new ArrayList<>();
+		if (testlable.equalsIgnoreCase("smoke")) {
+			for (Object object : testCases) {
+				TestCaseDTO test = (TestCaseDTO) object;
+				if (test.getTestCaseName().toLowerCase().contains(testlable.toLowerCase())) {
+					for (String bioValue : bioType) {
+						String testcase = test.getTestCaseName().toLowerCase();
+						if (testcase.contains(bioValue.toLowerCase())) {
+							filteredCases.add(object);
+						}
+					}
+				}
+			}
+		} else {
+			if (bioType != null && !bioType.isEmpty()) {
+				for (Object object : filteredCases) {
+					TestCaseDTO test = (TestCaseDTO) object;
+					for (String bioValue : bioType) {
+						String testcase = test.getTestCaseName().toLowerCase();
+						if (!testcase.equalsIgnoreCase("smoke") && testcase.contains(bioValue.toLowerCase())) {
+							filteredCases.add(object);
+						}
+					}
+				}
+			}
+		}
+		return filteredCases.toArray();
+	}
+	
+	
+	public static Response getRequest(String url, String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		Response getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ getResponse.getBody().asString() + "</pre>");
+		return getResponse;
+	}
+	
+	public static Response getRequestWithQueryParam(String url, HashMap<String,String> contextKey,String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		Response getResponse = given().relaxedHTTPSValidation().queryParams(contextKey)
+				.accept("*/*").log().all().when().get(url).then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ getResponse.getBody().asString() + "</pre>");
+		return getResponse;
+	}
+	
 	public Response postReqest(String url,String body,String opsToLog) {
 		Reporter.log("<pre> <b>"+opsToLog+": </b> <br/>"+body + "</pre>");
 		Response apiResponse = RestClient.postRequest(url, body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
@@ -86,6 +141,41 @@ public class BaseTestCaseUtil extends BaseStep{
 		return apiResponse;
 	}
 	
+	public Response putReqest(String url,String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		Response putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON).log().all().when().put(url).then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ putResponse.getBody().asString() + "</pre>");
+		return putResponse;
+	}
+	
+	public Response deleteReqest(String url,String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		Response deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ deleteResponse.getBody().asString() + "</pre>");
+		return deleteResponse;
+	}
+	
+	public Response deleteReqestWithQueryParam(String url,HashMap<String,String> contextKey,String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		Response deleteResponse = given().relaxedHTTPSValidation().queryParams(contextKey)
+				.accept("*/*").log().all().when().delete(url).then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ deleteResponse.getBody().asString() + "</pre>");
+		return deleteResponse;
+	}
+	
+	public Response putRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		Response apiResponse = RestClient.putRequestWithQueryParamAndBody(url, body, contextKey,MediaType.APPLICATION_JSON,
+				"*/*");
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ apiResponse.getBody().asString() + "</pre>");
+		return apiResponse;
+	}
 	
 	public Response postRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
@@ -112,6 +202,25 @@ public class BaseTestCaseUtil extends BaseStep{
 		E2EConstants.USER_PASSWD=props.getProperty("user_passwd");
 		E2EConstants.SUPERVISOR_ID=props.getProperty("supervisor_id");
 		E2EConstants.PRECONFIGURED_OTP=props.getProperty("preconfigured_otp");
+	}
+	
+	
+	public static String getBioValueFromJson(String filePath) {
+		String bioMetricData = null;
+		try {
+			String jsonObj = new String(Files.readAllBytes(Paths.get(filePath)), "UTF-8");
+			bioMetricData = JsonPrecondtion.getValueFromJson(jsonObj, "response.(documents)[0].value");
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return bioMetricData;
 	}
 	 
 	

@@ -11,7 +11,8 @@ public class PreRegister extends BaseTestCaseUtil implements StepInterface {
 	public void run() throws RigInternalError {
 		int count=1;
 		for (String resDataPath : residentTemplatePaths.keySet()) {
-			Reporter.log("<b><u>"+"PreRegister and upload packet testCase: "+count+ "</u></b>");
+			//Reporter.log("<b><u>"+"PreRegister and upload packet testCase: "+count+ "</u></b>");
+			Reporter.log("<b><u>"+"PreRegister testCase: "+count+ "</u></b>");
 			count++;
 			//packetUtility.requestOtp(resDataPath,contextKey);
 			//packetUtility.verifyOtp(resDataPath,contextKey);
