@@ -12,10 +12,11 @@ public class ValidateOtp extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		
-		String emailOrPhone =null;
+		String emailOrPhone ="test.automation@gmail.com" ;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
-			logger.error("Parameter is  missing from DSL step");
-			assertTrue(false,"Paramter is  missing in step: "+step.getName());
+			//emailOrPhone=" ";
+			//logger.error("Parameter is  missing from DSL step");
+			//assertTrue(false,"Paramter is  missing in step: "+step.getName());
 		} else {
 			emailOrPhone =step.getParameters().get(0);
 		}
