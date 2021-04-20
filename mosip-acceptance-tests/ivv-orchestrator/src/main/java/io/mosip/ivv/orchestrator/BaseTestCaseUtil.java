@@ -49,6 +49,8 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static PacketUtility packetUtility= new PacketUtility();
 	public static HashMap<String, String> contextKey=new HashMap<String, String>();
 	public static List<String> resDataPathList= new LinkedList();
+	public static Properties uinPersonaProp=new Properties();
+	public static HashMap<String, String> ridPersonaPath=new LinkedHashMap<String, String>();
 	public BaseTestCaseUtil() {}
 	
 	public String encoder(String text) {
