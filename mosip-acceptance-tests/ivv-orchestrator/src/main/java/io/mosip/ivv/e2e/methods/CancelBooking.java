@@ -1,6 +1,7 @@
 package io.mosip.ivv.e2e.methods;
 
 import static org.testng.Assert.assertTrue;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
@@ -13,8 +14,8 @@ import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.restassured.response.Response;
 
-public class CancelBookingByPrid extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(CancelBookingByPrid.class);
+public class CancelBooking extends BaseTestCaseUtil implements StepInterface {
+	Logger logger = Logger.getLogger(CancelBooking.class);
 
 	@Override
 	public void run() throws RigInternalError {
@@ -27,9 +28,9 @@ public class CancelBookingByPrid extends BaseTestCaseUtil implements StepInterfa
 		}
 		for (String resDataPath : residentPathsPrid.keySet()) {
 			String prid = residentPathsPrid.get(resDataPath);
-			//String  prid="42170240546143";
 			if (!StringUtils.isEmpty(prid)) {
 				Map<String, String> retrieveBookingByPrid = retrieveBookingByPrid(prid);
+				if(!retrieveBookingByPrid.isEmpty())
 				cancelBookingByPrid(retrieveBookingByPrid,prid,bookingStatus);
 			} else
 				throw new RigInternalError("PRID cannot be null or empty");
@@ -62,13 +63,18 @@ public class CancelBookingByPrid extends BaseTestCaseUtil implements StepInterfa
 	}
 
 	private Map<String, String> retrieveBookingByPrid(String prid) throws RigInternalError {
+		Map<String,String> bookingMetadata=new HashMap<String, String>();
 		contextKey.put("preregId", prid);
 		String url = baseUrl + props.getProperty("retrieveBookingbyPrid");
 		Response response = getRequestWithQueryParam(url, contextKey, "RetrieveBookingByPrid");
-		if (!response.getBody().asString().contains(prid))
+		if(response.getBody().asString().equalsIgnoreCase("{}")) {
+			logger.info("booking data not found for prid : "+prid);
+			return bookingMetadata;
+		}
+		else if (!response.getBody().asString().contains(prid))
 			throw new RigInternalError("Unable to RetrieveBooking for Prid: " + prid);
 		JSONObject jsonResp = new JSONObject(response.getBody().asString());
-		Map<String,String> bookingMetadata=getBookingDetail(jsonResp);
+		bookingMetadata=getBookingDetail(jsonResp);
 		return bookingMetadata;
 	}
 	

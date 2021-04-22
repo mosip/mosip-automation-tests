@@ -48,7 +48,8 @@ public class E2EConstants{
 	public static final String LEFT_MIDDLE = "leftMiddle";
 	public static final String LEFT_THUMB = "leftThumb";
 	public static final String RIGHT_THUMB = "rightThumb";
-	public static final String FACE = "face";
+	//public static final String FACE = "face";
+	public static final String FACE = "faceraw";
 	
 	//Pre-Registration booking details
 	public static final String APPOINTMENT_DATE = "appointment_date";

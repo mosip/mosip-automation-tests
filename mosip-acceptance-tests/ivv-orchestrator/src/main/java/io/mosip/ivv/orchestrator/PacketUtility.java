@@ -30,6 +30,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		residentAttrib.put("Gender", gender);
 		residentAttrib.put("PrimaryLanguage", "eng");
 		residentAttrib.put("Iris", true);
+		// added for face biometric related issue
+		residentAttrib.put("Finger", true);
+		residentAttrib.put("Face", true);
+		//
+		
 		if (missFields != null)
 			residentAttrib.put("Miss", missFields);
 		jsonReq.put("PR_ResidentAttribute", residentAttrib);
