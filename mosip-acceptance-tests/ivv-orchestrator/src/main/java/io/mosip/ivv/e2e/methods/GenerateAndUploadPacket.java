@@ -12,6 +12,7 @@ public class GenerateAndUploadPacket extends BaseTestCaseUtil implements StepInt
 			String rid = packetUtility.generateAndUploadPacket(residentPathsPrid.get(resDataPath),
 					residentTemplatePaths.get(resDataPath),contextKey);
 			pridsAndRids.put(residentPathsPrid.get(resDataPath), rid);
+			ridPersonaPath.put(rid, resDataPath);
 		}
 
 	}

@@ -12,6 +12,7 @@ import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testscripts.SimplePost;
 
@@ -74,6 +75,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 						Reporter.log("<b><u>"+test.getTestCaseName()+ "</u></b>");
 						long startTime = System.currentTimeMillis();
 						logger.info(this.getClass().getSimpleName()+" starts at..."+startTime +" MilliSec");
+						Utils.auditLog.info(this.getClass().getSimpleName()+" Rid :"+rid);
 						postScript.test(test);
 						long stopTime = System.currentTimeMillis();
 						long elapsedTime = stopTime - startTime;
