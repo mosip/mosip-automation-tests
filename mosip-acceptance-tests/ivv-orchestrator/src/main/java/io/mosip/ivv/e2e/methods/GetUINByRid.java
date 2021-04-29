@@ -40,18 +40,18 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
         		Reporter.log("<pre>" + ReportUtil.getTextAreaJsonMsgHtml("{Rid: "+rid +"}") + "</pre>");
         		long startTime = System.currentTimeMillis();
 				logger.info(this.getClass().getSimpleName()+" starts at..."+startTime +" MilliSec");
-        		Response response = getRequest(baseUrl+getIdentityUrl+rid, "GetUinByRid");
+        		Response response = getRequest(baseUrl+getIdentityUrl+rid, "");
         		long stopTime = System.currentTimeMillis();
 				long elapsedTime = stopTime - startTime;
 				logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
 				Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 				logger.info("Response from get Identity for RID: "+rid+" "+response.asString());
-    		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + baseUrl+getIdentityUrl+rid + ") <pre>"
-					+ ReportUtil.getTextAreaJsonMsgHtml(response.asString()) + "</pre>");
+    		
     		
     		String uin=response.asString();
     		if(!StringUtils.isEmpty(uin)) {
     			uinReqIds.put(uin, null);
+    			if(!uinPersonaProp.containsKey(uin))
     			uinPersonaProp.put(uin, ridPersonaPath.get(rid));
     		}
 				/*JSONObject res = new JSONObject(response.asString());
