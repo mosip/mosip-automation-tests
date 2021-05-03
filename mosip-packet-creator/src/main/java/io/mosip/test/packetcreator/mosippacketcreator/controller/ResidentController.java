@@ -1,6 +1,8 @@
 package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 
+import java.util.List;
+
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,9 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.mosip.test.packetcreator.mosippacketcreator.dto.UpdatePersonaDto;
 import io.mosip.test.packetcreator.mosippacketcreator.service.ResidentService;
+import io.swagger.annotations.ApiOperation;
 
 
 @RestController
@@ -27,13 +36,13 @@ public class ResidentController {
 	    
 
 	  @GetMapping(value = "/resident/status/{rid}")
-	  public @ResponseBody String getRIDStatus( @PathVariable("rid") String rid) {
+	  public @ResponseBody String getRIDStatus( @PathVariable("rid") String rid, @RequestParam(name="contextKey",required = false) String contextKey) {
 
 		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
   			DataProviderConstants.RESOURCE = personaConfigPath;
   		}
 		  try {
-			return residentService.getRIDStatus(rid);
+			return residentService.getRIDStatus(rid, contextKey);
 		} catch (Exception e) {
 			   logger.error("getRIDStatus", e);
 		}
@@ -41,19 +50,65 @@ public class ResidentController {
 	  }
 	
 	  @GetMapping(value = "/resident/uin/{rid}")
-	  public @ResponseBody String getUINByRid( @PathVariable("rid") String rid) {
-
+	  public @ResponseBody String getUINByRid( @PathVariable("rid") String rid, @RequestParam(name="contextKey",required = false) String contextKey) {
+		  String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
+		  
 		  if(personaConfigPath !=null && !personaConfigPath.equals("")) {
 	  			DataProviderConstants.RESOURCE = personaConfigPath;
 	  		}
 
  
 		  try {
-			return residentService.getUINByRID(rid);
+			return residentService.getUINByRID(rid, contextKey);
 		  }catch (Exception e) {
 			   logger.error("getUINByRid", e);
+			   err = String.format(err, e.getMessage());
 		  }
-		  return "{Failed}";
+		  return err;
 	  }
 	
+	  //resident/v1/req/credential
+	  @ApiOperation(value = "download card for the UIN", response = String.class)
+	  @PostMapping(value = "/resident/card/{uin}")
+	  public @ResponseBody String downloadCard(@RequestBody String personaPath, @PathVariable("uin") String uin, @RequestParam(name="contextKey",required = false) String contextKey) {
+		  String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
+
+		  if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+	  			DataProviderConstants.RESOURCE = personaConfigPath;
+	  		}
+
+		  try {
+			return residentService.downloadCard(personaPath, uin, contextKey);
+		  }catch (Exception e) {
+			   logger.error("getUINByRid", e);
+			   err = String.format(err, e.getMessage());
+		  }
+		  return err;
+	  
+		 /*
+		  * {
+			  "id": "string",
+			  "request": {
+			    "additionalData": {},
+			    "credentialType": "string",
+			    "encrypt": true,
+			    "encryptionKey": "string",
+			    "individualId": "string",
+			    "issuer": "string",
+			    "otp": "string",
+			    "recepiant": "string",
+			    "sharableAttributes": [
+			      "string"
+			    ],
+			    "transactionID": "string",
+			    "user": "string"
+			  },
+			  "requesttime": "string",
+			  "version": "string"
+		}
+		  * 
+		  */
+		 
+	  }
+		
 }
