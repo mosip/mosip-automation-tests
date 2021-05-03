@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
+import org.mosip.dataprovider.models.setup.MosipDeviceModel;
 import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.models.setup.MosipMachineSpecModel;
 import org.mosip.dataprovider.models.setup.MosipMachineTypeModel;
@@ -24,8 +24,9 @@ public class MosipDataSetup {
 		//https://dev.mosip.net/config/*/mz/develop/registration-processor-mz.properties
 	}
 	public static Object getCache(String key) {
+	
 		try {
-		return VariableManager.getVariableValue(key);
+			return VariableManager.getVariableValue(key);
 		}catch(Exception e) {
 			
 		}
@@ -228,5 +229,36 @@ public class MosipDataSetup {
 			e.printStackTrace();
 		}
 
+	}
+	public static List<MosipDeviceModel> getDevices(String centerId) {
+		//GET /v1/masterdata/devices/mappeddevices/1001?direction=DESC&orderBy=createdDateTime&pageNumber=0&pageSize=100
+	
+		List<MosipDeviceModel> devices = null;
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"mappeddevices").toString();
+	
+		url = url +centerId;
+		
+		Object o =getCache(url);
+		if(o != null)
+			return( (List<MosipDeviceModel>) o);
+		
+		try {
+			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			if(resp != null) {
+				JSONArray typeArray = resp.getJSONArray("data");
+				ObjectMapper objectMapper = new ObjectMapper();
+				
+				devices = objectMapper.readValue(typeArray.toString(), 
+						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipDeviceModel.class));
+				
+				setCache(url, devices);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+		return devices;
 	}
 }

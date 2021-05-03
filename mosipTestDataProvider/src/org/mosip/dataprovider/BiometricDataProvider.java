@@ -30,6 +30,7 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.codec.binary.Hex;
 import org.mosip.dataprovider.mds.MDSClient;
+import org.mosip.dataprovider.models.BioModality;
 //import org.apache.commons.io.IOUtils;
 //import org.apache.commons.lang3.tuple.Pair;
 import org.mosip.dataprovider.models.BiometricDataModel;
@@ -133,6 +134,16 @@ public class BiometricDataProvider {
 				
 		return builder.asString(null);
 	}
+	public static List<BioModality> getModalitiesByType(List<BioModality> bioExceptions, String type){
+		List<BioModality> lst = new ArrayList<BioModality>();
+		
+		for(BioModality m: bioExceptions) {
+			if(m.getType().equalsIgnoreCase(type)) {
+				lst.add(m);
+			}
+		}
+		return lst;
+	}
 	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident) {
 	
 		BiometricDataModel biodata = resident.getBiometric();
@@ -149,25 +160,118 @@ public class BiometricDataProvider {
 		mds.setProfile(profileName);
 		MDSRCaptureModel capture = null;
 
-		if(biodata.getRawFaceData() != null) {
-			List<MDSDevice> faceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
-			MDSDevice faceDevice = faceDevices.get(0);
-			// client.captureFromRegDevice(d.get(0),r, "Face",null,60,1,1);
-			capture =  mds.captureFromRegDevice(faceDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_FACE,
+		List<String> filteredAttribs = resident.getFilteredBioAttribtures();
+		List<BioModality> bioExceptions = resident.getBioExceptions();
+		
+		if((filteredAttribs != null && filteredAttribs.contains("face")) && biodata.getRawFaceData() != null) {
+
+			List<BioModality> faceExceptions = null;
+			if(bioExceptions != null && !bioExceptions.isEmpty())
+				faceExceptions = getModalitiesByType(bioExceptions, "Face");
+			if(faceExceptions == null || faceExceptions.isEmpty() ) {
+
+				List<MDSDevice> faceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
+				MDSDevice faceDevice = faceDevices.get(0);
+				// client.captureFromRegDevice(d.get(0),r, "Face",null,60,1,1);
+				capture =  mds.captureFromRegDevice(faceDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_FACE,
 					null, 60, faceDevice.getDeviceSubId().get(0));
+			}
 		}
-		if(biodata.getIris() != null) {
+		if( biodata.getIris() != null) {
+			List<BioModality> irisExceptions = null;
+			if(bioExceptions != null && !bioExceptions.isEmpty())
+				irisExceptions = getModalitiesByType(bioExceptions, "Iris");
 			List<MDSDevice> irisDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
 			MDSDevice irisDevice = irisDevices.get(0);
-			capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
-					null, 60, irisDevice.getDeviceSubId().get(0));
+				
+			if(irisExceptions == null || irisExceptions.isEmpty() ) {
+				if(filteredAttribs != null && filteredAttribs.contains("leftEye")) {
+					capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
+						null, 60, irisDevice.getDeviceSubId().get(0));
+				}
+			
+				if(irisDevice.getDeviceSubId().size() > 1) {
+					if(filteredAttribs != null && filteredAttribs.contains("rightEye")) {
+						
+						capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
+								null, 60, irisDevice.getDeviceSubId().get(1));
+					}
+				}
+			}
+			else {
+				String [] irisSubTypes = new String[ irisExceptions.size()];
+				int i=0;
+				for(BioModality bm: irisExceptions) {
+					irisSubTypes[i] = bm.getSubType();
+					i++;
+				}
+				for(String f: irisSubTypes) {
+					if(f.equalsIgnoreCase("right") && (filteredAttribs != null && filteredAttribs.contains("leftEye"))) {
+						capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
+								null, 60, irisDevice.getDeviceSubId().get(0));	
+					}
+					else
+					if(f.equalsIgnoreCase("left") && (filteredAttribs != null && filteredAttribs.contains("rightEye"))) {
+						if(irisDevice.getDeviceSubId().size() > 1)
+							capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
+								null, 60, irisDevice.getDeviceSubId().get(1));
+					}
+				}
+			}
 		}
 		
 		if(biodata.getFingerPrint() != null) {
+			List<BioModality> fingerExceptions = null;
+			List<MDSDeviceCaptureModel> lstToRemove = new ArrayList<MDSDeviceCaptureModel>();
+			if(bioExceptions != null && !bioExceptions.isEmpty())
+				fingerExceptions = getModalitiesByType(bioExceptions, "Finger");
+
 			List<MDSDevice> fingerDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 			MDSDevice fingerDevice = fingerDevices.get(0);
-			capture =  mds.captureFromRegDevice(fingerDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_FINGER,
-					null, 60, fingerDevice.getDeviceSubId().get(0));
+			for(int i = 0; i < fingerDevice.getDeviceSubId().size(); i++) {
+				capture =  mds.captureFromRegDevice(fingerDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_FINGER,
+					null, 60, fingerDevice.getDeviceSubId().get(i));
+			}
+			List<MDSDeviceCaptureModel> lstFingers= capture.getLstBiometrics().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
+			if(fingerExceptions != null  && !fingerExceptions.isEmpty()) {
+				//remove the fingers listed
+			
+				for(BioModality bm: fingerExceptions) {
+					for(MDSDeviceCaptureModel mdc: lstFingers) {
+						if( bm.getSubType().equalsIgnoreCase( mdc.getBioSubType().toLowerCase())){
+							lstToRemove.remove( mdc);
+						}
+					}
+				}
+				lstFingers.removeAll(lstToRemove);	
+			}
+			if(filteredAttribs != null ) {
+				//schemaNames
+				String attr = null;
+			
+				for(MDSDeviceCaptureModel mdc: lstFingers) {
+					int indx =0;
+					boolean bFound = false;
+					for(indx = 0; indx < DataProviderConstants.schemaNames.length ; indx++) {
+						if(DataProviderConstants.displayFingerName[indx].equals(mdc.getBioSubType())) {
+							attr = DataProviderConstants.schemaNames[indx];
+							break;
+						}
+					}
+					if(attr != null) {
+						for(String a: filteredAttribs) {
+							if(a.equals(attr)) {
+								bFound = true;
+								break;
+							}
+						}
+					}
+					if(!bFound)
+						lstToRemove.add( mdc);
+				}
+				lstFingers.removeAll(lstToRemove);			
+			}
+			
 		}
 		
 		mds.removeProfile( mdsprofilePath, profileName );

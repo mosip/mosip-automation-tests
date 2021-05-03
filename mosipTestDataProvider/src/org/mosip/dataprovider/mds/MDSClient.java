@@ -192,7 +192,9 @@ public class MDSClient {
 			String response = RestClient.rawHttp(capture, jsonReq.toString());
 			JSONObject respObject = new JSONObject(response);
 			JSONArray bioArray = respObject.getJSONArray("biometrics");
-			List<MDSDeviceCaptureModel> lstBiometrics  = new ArrayList<MDSDeviceCaptureModel>();
+			List<MDSDeviceCaptureModel> lstBiometrics  = rCaptureModel.getLstBiometrics().get(type);
+			if(lstBiometrics == null)
+				lstBiometrics = new ArrayList<MDSDeviceCaptureModel>();
 			rCaptureModel.getLstBiometrics().put(type, lstBiometrics);
 			
 			for(int i=0; i < bioArray.length(); i++) {
@@ -224,18 +226,27 @@ public class MDSClient {
 	public static void main(String[] args) {
 		
 		MDSClient client = new MDSClient(0);
-		client.setProfile("automated");
-		List<MDSDevice> d= client.getRegDeviceInfo("Finger");
+		client.setProfile("res643726437264372");
+		List<MDSDevice> d= client.getRegDeviceInfo("Iris");
 		d.forEach( dv-> {
 			System.out.println(dv.toJSONString());	
 		});
 		
-		MDSRCaptureModel r =  client.captureFromRegDevice(d.get(0),null, "Finger",null,60,1);
 		
-		System.out.println( r.toJSONString());
+		List<MDSDevice> f= client.getRegDeviceInfo("Finger");
+
+
+		f.forEach( dv-> {
+			System.out.println(dv.toJSONString());	
+			MDSRCaptureModel r =  client.captureFromRegDevice(dv, null, "Finger",null,60,1);
+			//MDSRCaptureModel r =  client.captureFromRegDevice(d.get(0),null, "Iris",null,60,2);
 		
-		r = client.captureFromRegDevice(d.get(0),r, "Face",null,60,1);
+			System.out.println( r.toJSONString());
+			
+		});
 		
-		System.out.println( r.toJSONString());
+		//r = client.captureFromRegDevice(d.get(0),r, "Face",null,60,1);
+		
+		//System.out.println( r.toJSONString());
 	}
 }
