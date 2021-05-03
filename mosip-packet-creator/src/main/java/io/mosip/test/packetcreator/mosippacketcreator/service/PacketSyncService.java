@@ -17,6 +17,7 @@ import org.mosip.dataprovider.models.MosipDocTypeModel;
 import org.mosip.dataprovider.models.MosipDocument;
 
 import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
 import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.test.ResidentPreRegistration;
 import org.mosip.dataprovider.test.prereg.PreRegistrationSteps;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.mosip.test.packetcreator.mosippacketcreator.dto.AppointmentDto;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.BioExceptionDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestType;
 
@@ -267,7 +269,7 @@ public class PacketSyncService {
         if(templateLocation != null) {
         	process = ContextUtils.ProcessFromTemplate(src, templateLocation);
         }
-        String packetPath = packetMakerService.createContainer(idJsonPath.toString(),templateLocation,src,process, contextKey, true);
+        String packetPath = packetMakerService.createContainer(idJsonPath.toString(),templateLocation,src,process,preregId, contextKey, true);
 
         logger.info("Packet created : {}", packetPath);
 
@@ -632,7 +634,7 @@ public class PacketSyncService {
     	return response;
     }
    
-    public String createPacket(PersonaRequestDto personaRequest, String process, String contextKey) throws IOException {
+    public String createPacket(PersonaRequestDto personaRequest, String process, String preregId, String contextKey) throws IOException {
 
     	Path packetDir = null;
     	JSONArray packetPaths = new JSONArray();
@@ -661,7 +663,7 @@ public class PacketSyncService {
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
     		
     		
-    		packetTemplateProvider.generate("registration_client", process, resident, packetPath);
+    		packetTemplateProvider.generate("registration_client", process, resident, packetPath,preregId,machineId, centerId);
     		JSONObject obj = new JSONObject();
     		obj.put("id",resident.getId());
     		obj.put("path", packetPath);
@@ -675,7 +677,7 @@ public class PacketSyncService {
      	return response.toString();
 
     }
-    public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String contextKey) throws IOException {
+    public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir,String preregId, String contextKey) throws IOException {
 
 
     	Path packetDir = null;
@@ -703,7 +705,7 @@ public class PacketSyncService {
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
     		
     		
-    		packetTemplateProvider.generate("registration_client", process, resident, packetPath);
+    		packetTemplateProvider.generate("registration_client", process, resident, packetPath , preregId, machineId, centerId);
     		JSONObject obj = new JSONObject();
     		obj.put("id",resident.getId());
     		obj.put("path", packetPath);
@@ -808,6 +810,10 @@ public class PacketSyncService {
 					Object val = null;
 					String key = attr.trim();
 					switch(key.toLowerCase()) {
+						case "demodata":
+							val = persona.loadDemoData();
+							retProp.put(key, val);
+							break;
 						case "faceraw":
 							val = persona.getBiometric().getRawFaceData();
 							retProp.put(key, val);
@@ -817,15 +823,51 @@ public class PacketSyncService {
 							val = persona.getBiometric().getEncodedPhoto();
 							retProp.put(key, val);
 							break;
+						case "face_encrypted":
+							if(persona.getBiometric().getCapture() != null){
+								val = persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FACE).get(0).getBioValue();
+							}
+							retProp.put(key, val);
+							break;
 						case "iris":
 							IrisDataModel irisval = persona.getBiometric().getIris();
 							
 							retProp.put(key, irisval.toJSONString());
 							break;
+						case "iris_encrypted":
+							IrisDataModel irisvalue = null;
+							String strval = "";
+							if(persona.getBiometric().getCapture() != null) {
+								irisvalue = new IrisDataModel();
+								
+								List<MDSDeviceCaptureModel> lstIrisData =persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
+								for(MDSDeviceCaptureModel cm: lstIrisData) {
+									
+									if(cm.getBioSubType().equals("Left"))
+										irisvalue.setLeft(cm.getBioValue());
+									else
+									if(cm.getBioSubType().equals("Right"))
+										irisvalue.setRight(cm.getBioValue());
+								}
+								strval = irisvalue.toJSONString();
+							}
+							
+							retProp.put(key, strval );
+							break;	
 						case "finger":
 							String [] fps = persona.getBiometric().getFingerPrint();
 							for(int i=0;  i < fps.length; i++) {
 								retProp.put(DataProviderConstants.displayFingerName[i] , fps[i]);
+							}
+							break;
+						case "finger_encrypted":
+							
+							if(persona.getBiometric().getCapture() != null) {
+								
+								List<MDSDeviceCaptureModel> lstFingerData =persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
+								for(MDSDeviceCaptureModel cm: lstFingerData) {
+									retProp.put(	cm.getBioSubType() , cm.getBioValue());
+								}
 							}
 							break;
 						case "fingerraw":
@@ -915,6 +957,21 @@ public class PacketSyncService {
     	Files.write (Paths.get(filePathResident), persona.toJSONString().getBytes());
     	return "{\"response\":\"SUCCESS\"}";
     }
+
+	public String updatePersonaBioExceptions(BioExceptionDto personaBERequestDto, String contextKey) {
+
+		loadServerContextProperties(contextKey);
+		String ret ="{Sucess}";
+    	try {
+			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath());
+			persona.setBioExceptions(personaBERequestDto.getExceptions());
+			
+			persona.writePersona(personaBERequestDto.getPersonaFilePath());
+    	}catch(Exception e) {
+    		logger.error("updatePersonaBioExceptions:"+ e.getMessage());
+    	}
+		return null;
+	}
    
  
 }

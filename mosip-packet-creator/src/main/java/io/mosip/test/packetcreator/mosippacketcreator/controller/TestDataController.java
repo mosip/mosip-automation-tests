@@ -91,7 +91,7 @@ public class TestDataController {
     		@PathVariable("contextKey") String contextKey) {
         try{
             return pkm.createContainer(packetCreateDto.getIdJsonPath(), packetCreateDto.getTemplatePath(),
-            		packetCreateDto.getSource(), packetCreateDto.getProcess(), contextKey, true);
+            		packetCreateDto.getSource(), packetCreateDto.getProcess(), null,contextKey, true);
         } catch (Exception ex){
              logger.error("", ex);
         }
@@ -318,7 +318,7 @@ public class TestDataController {
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
     			DataProviderConstants.RESOURCE = personaConfigPath;
     		}
-    		return packetSyncService.createPacketTemplates(preRegisterRequestDto.getPersonaFilePath(),process,outFolderPath, contextKey);
+    		return packetSyncService.createPacketTemplates(preRegisterRequestDto.getPersonaFilePath(),process,outFolderPath, null,contextKey);
     	
     	} catch (Exception ex){
              logger.error("createPackets", ex);

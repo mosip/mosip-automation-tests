@@ -1,5 +1,6 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -10,11 +11,14 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
 import org.springframework.util.StringUtils;
-
+import org.json.JSONObject;
+import org.mosip.dataprovider.util.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.kubernetes.client.util.ClientBuilder;
-import io.kubernetes.client.util.Config;
+
+
 import io.kubernetes.client.util.KubeConfig;
 
 import io.kubernetes.client.openapi.ApiClient;
@@ -47,11 +52,70 @@ public class CommandsService {
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
    
+    @Value("${mosip.test.pinglistfile:../deploy/pinglist.txt}")
+    private String pinglistfile;
+   
     @Autowired
     private ContextUtils contextUtils;
    
 	 private static final Logger logger = LoggerFactory.getLogger(CommandsService.class);
 		
+	 public String checkContext(String contextKey, String module) throws IOException {
+		 
+		Properties props = contextUtils.loadServerContext(contextKey);
+		baseUrl = props.getProperty("urlBase");
+		//v1/keymanager/decrypt
+		///v1/keymanager/encrypt
+
+		File file=new File(pinglistfile);      
+		FileReader fr=new FileReader(file);   
+		BufferedReader br=new BufferedReader(fr);  
+
+		String line;  
+
+		List<String> failedAPIs = new ArrayList<String>();
+		boolean allModules = false;
+		if(module == null ||  module.equals("")) {
+			allModules = true;
+		}
+		while((line=br.readLine())!=null)  
+		{
+			if(line.trim().equals(""))
+				continue;
+			boolean bcheck = false;
+			//enhanced to support module
+			String controllerPath = line.trim();
+			String modName = null;
+			String [] parts = controllerPath.split("=");
+			if(parts.length > 1) {
+				controllerPath = parts[1];
+				modName = parts[0].trim();
+			}
+			if(allModules )
+					bcheck = true;
+			else {
+				if(modName == null || module.equalsIgnoreCase(modName))
+					bcheck = true;
+			}
+			if(bcheck) {
+				logger.info(controllerPath);
+				Boolean bRet1 = RestClient.checkActuatorNoAuth( baseUrl + controllerPath.trim() );
+				if(bRet1 == false) {
+					failedAPIs.add(line);	
+				}
+			}
+		}  
+		fr.close();
+		JSONObject retJson = new JSONObject();
+		
+		if(failedAPIs.isEmpty())
+			retJson.put("status", true);
+		else {
+			retJson.put("status", false);
+			retJson.put("failed",failedAPIs);
+		}
+		return retJson.toString();
+	 }
 	public String writeToFile(Properties requestData, long offset) throws IOException {
 		
 		//take file name

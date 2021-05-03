@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.mosip.test.packetcreator.mosippacketcreator.dto.BioExceptionDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.UpdatePersonaDto;
 import io.mosip.test.packetcreator.mosippacketcreator.service.PacketSyncService;
@@ -38,12 +39,29 @@ public class PersonaController {
 
 	@ApiOperation(value = "Update given persona record with the given list of attribute values", response = String.class)
 	@PutMapping(value = "/persona/{id}")
-	public @ResponseBody String updatePersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto , @PathVariable("id") String id) {
+	public @ResponseBody String updatePersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto ,
+			@PathVariable("id") String id ) {
 	    	try{    	
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
 	    			DataProviderConstants.RESOURCE = personaConfigPath;
 	    		}
 	    		return packetSyncService.updatePersonaData(personaRequestDto);
+	    	
+	    	} catch (Exception ex){
+	             logger.error("updatePersonaData", ex);
+	    	}
+	    	return "{Failed}";
+	    	
+	}
+	@ApiOperation(value = "Update given persona record with the given list of biometric exceptions", response = String.class)
+	@PutMapping(value = "/persona/bioexceptions/{id}")
+	public @ResponseBody String updatePersonaBioExceptions(@RequestBody BioExceptionDto personaBERequestDto , @PathVariable("id") String id,
+			@RequestParam(name="contextKey",required = false) String contextKey) {
+	    	try{    	
+	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+	    			DataProviderConstants.RESOURCE = personaConfigPath;
+	    		}
+	    		return packetSyncService.updatePersonaBioExceptions(personaBERequestDto,contextKey);
 	    	
 	    	} catch (Exception ex){
 	             logger.error("updatePersonaData", ex);
@@ -90,7 +108,7 @@ public class PersonaController {
 	    		return packetSyncService.getPersonaData(personaRequestDto);
 	    	
 	    	} catch (Exception ex){
-	             logger.error("updatePersonaData", ex);
+	             logger.error("getPersonaData", ex);
 	    	}
 	    	return "{Failed}";
 	    	
