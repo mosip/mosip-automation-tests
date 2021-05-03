@@ -36,19 +36,28 @@ public class E2EConstants{
 	public static String PRECONFIGURED_OTP="preconfigured_otp";
 	
 	//BioMetric Constant
-	public static final String LEFT_EYE = "leftEye";
-	public static final String RIGHT_EYE = "rightEye";
-	public static final String RIGHT_INDEX = "rightIndex";
-	public static final String RIGHT_LITTLE = "rightLittle";
-	public static final String RIGHT_RING = "rightRing";
-	public static final String RIGHT_MIDDLE = "rightMiddle";
-	public static final String LEFT_INDEX = "leftIndex";
-	public static final String LEFT_LITTLE = "leftLittle";
-	public static final String LEFT_RING = "leftRing";
-	public static final String LEFT_MIDDLE = "leftMiddle";
-	public static final String LEFT_THUMB = "leftThumb";
-	public static final String RIGHT_THUMB = "rightThumb";
-	public static final String FACE = "face";
+	public static final String LEFT_EYE = "iris_encrypted.left";
+	public static final String RIGHT_EYE = "iris_encrypted.right";
+	
+	public static final String RIGHT_INDEX = "Right IndexFinger";
+	public static final String RIGHT_LITTLE = "Right LittleFinger";
+	public static final String RIGHT_RING = "Right RingFinger";
+	public static final String RIGHT_MIDDLE = "Right MiddleFinger";
+	public static final String LEFT_INDEX = "Left IndexFinger";
+	public static final String LEFT_LITTLE = "Left LittleFinger";
+	public static final String LEFT_RING = "Left RingFinger";
+	public static final String LEFT_MIDDLE = "Left MiddleFinger";
+	public static final String LEFT_THUMB = "Left Thumb";
+	public static final String RIGHT_THUMB = "Right Thumb";
+	
+	public static final String FACEFETCH = "face_encrypted";
+	public static final String IRISFETCH = "iris_encrypted";
+	public static final String FINGERFETCH = "finger_encrypted";
+	
+	public static final String FACEBIOTYPE = "FACE";
+	public static final String IRISBIOTYPE = "Iris";
+	public static final String FINGERBIOTYPE = "Finger";
+	
 	
 	//Pre-Registration booking details
 	public static final String APPOINTMENT_DATE = "appointment_date";
