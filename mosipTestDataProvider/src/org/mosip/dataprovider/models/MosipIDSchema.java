@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 @Data
-@JsonIgnoreProperties({"visible","label","changeAction"})
+@JsonIgnoreProperties({"visible","label","changeAction","locationHierarchy","transliterate","fieldLayout","groupLabel","templateName"})
 public class MosipIDSchema  implements Serializable{
 
 	 private static final long serialVersionUID = 1L;

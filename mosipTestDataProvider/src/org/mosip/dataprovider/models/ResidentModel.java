@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.json.JSONObject;
 //import org.apache.commons.lang3.tuple.Pair;
 import org.mosip.dataprovider.util.CommonUtil;
 
@@ -63,6 +64,7 @@ public class ResidentModel  implements Serializable {
 	private List<String> invalidAttributes;
 	private MosipIdentity identity;
 	private List<String> filteredBioAttribtures;
+	private List<BioModality> bioExceptions;
 	
 	private String path;
 	//resident Metadata
@@ -134,4 +136,20 @@ public class ResidentModel  implements Serializable {
 		}
 	}			
     
+	public JSONObject loadDemoData() {
+		JSONObject demodata = new JSONObject();
+		demodata.put("id", id);
+		demodata.put("firstName", name.getFirstName());
+		demodata.put("midName", name.getMidName());
+		demodata.put("lastName", name.getSurName());
+		demodata.put("dob", dob);
+		demodata.put("gender", gender);
+		demodata.put("UIN", UIN);
+		demodata.put("RID", RID);
+		demodata.put("emailId", contact.getEmailId());
+		demodata.put("mobileNumber", contact.getMobileNumber());
+		demodata.put("residenceNumber", contact.getResidenceNumber());
+		
+		return demodata;
+	}
 }

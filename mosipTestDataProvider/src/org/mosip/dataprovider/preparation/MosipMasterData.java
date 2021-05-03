@@ -31,6 +31,7 @@ import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.MosipPreRegLoginConfig;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.models.SchemaRule;
+import org.mosip.dataprovider.models.setup.MosipDeviceModel;
 import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.Gender;
@@ -720,6 +721,10 @@ public  class MosipMasterData {
 	}
 	public static void main(String[] args) {
 	
+		List<MosipDeviceModel> devices = MosipDataSetup.getDevices("10002");
+		
+		List<DynamicFieldModel> lstDyn =  MosipMasterData.getAllDynamicFields();
+		
 		Hashtable<Double,List<MosipIDSchema>> tbl1 = getIDSchemaLatestVersion();
 		 double schemaId = tbl1.keys().nextElement();
 		 System.out.println(schemaId);

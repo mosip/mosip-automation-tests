@@ -514,5 +514,81 @@ public class RestClient {
 		*/
 	}
 
+	public static boolean checkActuator(String url) {
 	
+		String urlAct = url + "/actuator/health";
+
+		String role = "system";
+        if (!isValidToken(role)){
+        	initToken();
+        }
+    	boolean bDone = false;
+    	int nLoop  = 0;
+    	Response response =null;
+
+    	//Stict http validation errors - fix
+    	
+    	/*if(url.contains("//")) {
+    		url = url.replace("//", "/"); 		
+    	}*/
+    	while(!bDone) {
+
+    		String token = tokens.get(role);
+        	
+    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+
+    		response = given().cookie(kukki).contentType(ContentType.JSON).get(url);
+
+    		if(response.getStatusCode() == 401) {
+    			if(nLoop >= 1)
+    				bDone = true;
+    			else {
+    				initToken();
+    				nLoop++;
+    			}
+    		}
+    		else
+    			bDone = true;
+    	}
+    	
+        if(response != null && 	response.getStatusCode() == 200 ) {
+        	
+        	System.out.println(response.getBody().asString());        	
+
+        	JSONObject jsonResponse = new JSONObject(response.getBody().asString());
+        	
+        	if(jsonResponse.getString("status").equals("UP")) {
+        		return true;
+        	}
+        	return false;
+        }
+        else
+        	return false;
+	}
+
+	public static boolean checkActuatorNoAuth(String url) {
+		
+		String urlAct = url + "/actuator/health";
+
+    	Response response =null;
+
+    		response = given().contentType(ContentType.JSON).get(urlAct);
+
+   	
+        if(response != null && 	response.getStatusCode() == 200 ) {
+        	
+        	System.out.println(response.getBody().asString());        	
+
+        	JSONObject jsonResponse = new JSONObject(response.getBody().asString());
+        	
+        	if(jsonResponse.getString("status").equals("UP")) {
+        		return true;
+        	}
+        	return false;
+        }
+        else
+        	return false;
+	}
+	
+
 }

@@ -1,7 +1,10 @@
 package org.mosip.dataprovider.models;
 
 import java.io.Serializable;
+import java.util.Hashtable;
+import java.util.List;
 
+import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
 
 
 import lombok.Data;
@@ -20,5 +23,7 @@ public class BiometricDataModel  implements Serializable {
 	private String FaceHash;
 	private byte[] rawFaceData;
 
+	private Hashtable<String, List<MDSDeviceCaptureModel>> capture;
+	
 	private String cbeff;
 }

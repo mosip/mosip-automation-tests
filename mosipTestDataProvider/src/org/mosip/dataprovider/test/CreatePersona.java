@@ -146,6 +146,7 @@ public class CreatePersona {
 			){
 				if(schemaItem.getControlType().equals("dropdown")) {
 					if(schemaItem.getFieldType().equals("dynamic")) {
+						if(dynaFields != null)
 						for(DynamicFieldModel dfm: dynaFields) {
 							if(dfm.getActive() && 
 									( dfm.getId().equals(schemaItem.getId()) || dfm.getName().equals(schemaItem.getId()))
