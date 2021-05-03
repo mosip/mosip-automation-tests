@@ -355,7 +355,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 			jsonReqInner.put("regenAttributeList", attributeList);
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
-		Response response = postReqest(url, jsonReq.toString(), "Update BiometricData");
+		//Response response = postReqest(url, jsonReq.toString(), "Update BiometricData");
+		Response response = putReqestWithBody(url, jsonReq.toString(), "Update BiometricData");
 		if (!response.getBody().asString().toLowerCase().contains("sucess"))
 			throw new RigInternalError("Unable to update BiometricData " + attributeList + " from packet utility");
 		return response.getBody().asString();
