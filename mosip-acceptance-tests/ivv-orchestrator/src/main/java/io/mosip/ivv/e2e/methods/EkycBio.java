@@ -39,7 +39,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		// AuthPartnerProcessor.startProcess();
+		 AuthPartnerProcessor.startProcess();
 		//uinPersonaProp.put("7209149850", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
 
 		String deviceInfoFilePath = null;
@@ -52,7 +52,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 			deviceInfoFilePath = step.getParameters().get(0);
 			if (!StringUtils.isBlank(deviceInfoFilePath)) {
 				deviceInfoFilePath = TestRunner.getExeternalResourcePath()
-						+ properties.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
+						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 			} else
 				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
