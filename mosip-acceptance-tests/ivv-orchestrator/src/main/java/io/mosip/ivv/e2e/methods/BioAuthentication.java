@@ -39,7 +39,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 
 	@Override
 	public void run() throws RigInternalError {
-		// AuthPartnerProcessor.startProcess();
+		AuthPartnerProcessor.startProcess();
 		//uinPersonaProp.put("5174650156", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_17396353760056333062\\913439134391343.json");
 
 		String deviceInfoFilePath = null;
@@ -52,7 +52,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			deviceInfoFilePath = step.getParameters().get(0);
 			if (!StringUtils.isBlank(deviceInfoFilePath)) {
 				deviceInfoFilePath = TestRunner.getExeternalResourcePath()
-						+ properties.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
+						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 			} else
 				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
