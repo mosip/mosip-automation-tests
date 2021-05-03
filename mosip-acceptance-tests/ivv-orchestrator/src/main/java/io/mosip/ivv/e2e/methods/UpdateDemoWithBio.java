@@ -25,7 +25,8 @@ public class UpdateDemoWithBio extends BaseTestCaseUtil implements StepInterface
 		List<String> regenAttributeList=(bioType!=null)?Arrays.asList(bioType.split("@@")):null;
 		List<String> missFieldsAttributeList=(missFields!=null)?Arrays.asList(missFields.split("@@")):null;
 		for (String resDataPath : residentTemplatePaths.keySet()) {
-			packetUtility.updateBiometric(resDataPath, regenAttributeList,missFieldsAttributeList);
+			//packetUtility.updateBiometric(resDataPath, regenAttributeList,missFieldsAttributeList);
+			packetUtility.updateBiometric(resDataPath, (regenAttributeList.get(0).equalsIgnoreCase("0"))?null:regenAttributeList,missFieldsAttributeList);
 		}
 
 	}
