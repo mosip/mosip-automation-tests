@@ -28,6 +28,8 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 		for (String packetPath : templatePacketPath.values()) {
 			registrationId=ridsync(packetPath, E2EConstants.APPROVED_SUPERVISOR_STATUS,process);
 			pridsAndRids.put(packetPath, registrationId);
+			ridPersonaPath.put(registrationId, ridPersonaPath.get(packetPath));
+			ridPersonaPath.remove(packetPath);
 		}
 	}
 

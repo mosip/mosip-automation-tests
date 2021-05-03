@@ -1,18 +1,21 @@
 package io.mosip.ivv.e2e.methods;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 import org.testng.Reporter;
+
 import io.mosip.authentication.fw.util.FileUtil;
 import io.mosip.authentication.fw.util.ReportUtil;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestResources;
+import io.mosip.ivv.orchestrator.TestRunner;
 import io.mosip.kernel.util.KernelAuthentication;
 import io.restassured.response.Response;
 
@@ -27,7 +30,6 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
     public void run() throws RigInternalError {
     	getIdentity(this.pridsAndRids);
     }
-    
     public void getIdentity(HashMap<String, String> rids) throws RigInternalError
     {
     	uinReqIds.clear();
@@ -38,19 +40,19 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
         		Reporter.log("<pre>" + ReportUtil.getTextAreaJsonMsgHtml("{Rid: "+rid +"}") + "</pre>");
         		long startTime = System.currentTimeMillis();
 				logger.info(this.getClass().getSimpleName()+" starts at..."+startTime +" MilliSec");
-        		Response response = getRequest(baseUrl+getIdentityUrl+rid, "GetUinByRid");
+        		Response response = getRequest(baseUrl+getIdentityUrl+rid, "");
         		long stopTime = System.currentTimeMillis();
 				long elapsedTime = stopTime - startTime;
 				logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
 				Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 				logger.info("Response from get Identity for RID: "+rid+" "+response.asString());
-    		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + baseUrl+getIdentityUrl+rid + ") <pre>"
-					+ ReportUtil.getTextAreaJsonMsgHtml(response.asString()) + "</pre>");
+    		
     		
     		String uin=response.asString();
     		if(!StringUtils.isEmpty(uin)) {
     			uinReqIds.put(uin, null);
-    			FileUtil.createFile(new File(TestResources.getResourcePath()+identitypath+uin+".json"), response.asString());
+    			if(!uinPersonaProp.containsKey(uin))
+    			uinPersonaProp.put(uin, ridPersonaPath.get(rid));
     		}
 				/*JSONObject res = new JSONObject(response.asString());
 				 * if(!res.get("response").toString().equals("null")) { JSONObject respJson =
@@ -65,8 +67,18 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
     				logger.error("Issue while fetching identity for RID: "+rid+" Response: "+response.toString());
     				throw new RigInternalError("Not able to Fetch identity for RID: "+rid);
     			}
-    			
-    		}
+				/*
+				 * for (String resDataPath : residentTemplatePaths.keySet()) {
+				 * uinPersonaProp.put(uin, resDataPath); String propFilePath
+				 * =TestRunner.getExeternalResourcePath() +
+				 * properties.getProperty("ivv.path.uinpersonafile"); try { FileOutputStream
+				 * outputStrem = new FileOutputStream(propFilePath);
+				 * uinPersonaProp.store(outputStrem,
+				 * "This file contain uin and corresponding persona file path"); } catch
+				 * (IOException e) {
+				 * logger.error("failed to mapped the uin with personafile path"); } }
+				 */
+    	}
     	}
     }
 
