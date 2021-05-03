@@ -1,22 +1,36 @@
 package io.mosip.ivv.orchestrator;
 
+import static io.restassured.RestAssured.given;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
+
+import javax.ws.rs.core.MediaType;
+
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Reporter;
+
+import io.mosip.admin.fw.util.AdminTestException;
+import io.mosip.admin.fw.util.TestCaseDTO;
+import io.mosip.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
+import io.mosip.ivv.e2e.methods.BioAuthentication;
+import io.mosip.testscripts.BioAuth;
 import io.restassured.response.Response;
 
 public class PacketUtility extends BaseTestCaseUtil {
-
+	Logger logger = Logger.getLogger(PacketUtility.class);
 	public List<String> generateResidents(int n, Boolean bAdult, Boolean bSkipGuardian, String gender,
 			String missFields, HashMap<String, String> contextKey) throws RigInternalError {
-
+		
 		String url = baseUrl + props.getProperty("getResidentUrl") + n;
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
@@ -361,5 +375,77 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return response.getBody().asString();
 	}
 	
-	
+	 public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test, BioAuth bioAuth) throws RigInternalError {
+		 
+		 test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", deviceProps.getProperty("partnerKey")));
+		 String input = test.getInput();
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,uin, "individualId");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("bioSubType"), "identityRequest.bioSubType");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("bioType"), "identityRequest.bioType");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("deviceCode"), "identityRequest.deviceCode");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("deviceProviderID"), "identityRequest.deviceProviderID");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("deviceServiceID"), "identityRequest.deviceServiceID");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("deviceServiceVersion"), "identityRequest.deviceServiceVersion");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("deviceProvider"), "identityRequest.deviceProvider");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("deviceSubType"), "identityRequest.deviceSubType");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("make"), "identityRequest.make");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("model"), "identityRequest.model");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("serialNo"), "identityRequest.serialNo");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("type"), "identityRequest.type");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					deviceProps.getProperty("individualIdType"), "individualIdType");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
+		 test.setInput(input);
+		 Reporter.log("<b><u>" + test.getTestCaseName()+"_"+ modility + "</u></b>");
+
+			try {
+				bioAuth.test(test);
+			} catch (AuthenticationTestException | AdminTestException e) {
+				throw new RigInternalError(e.getMessage());
+			}finally {
+				// AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+			}
+	 }
+	 public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList) throws RigInternalError {
+			String url = baseUrl + props.getProperty("getPersonaData");
+			JSONObject jsonReqInner = new JSONObject();
+			if (retriveAttributeList != null && !(retriveAttributeList.isEmpty()))
+				jsonReqInner.put("retriveAttributeList", retriveAttributeList);
+			jsonReqInner.put("personaFilePath", resFilePath);
+			JSONArray jsonReq = new JSONArray();
+			jsonReq.put(0, jsonReqInner);
+			Response response = getReqest(url, jsonReq.toString(), "Retrive BiometricData");
+			if (response.getBody().asString().equals(""))
+				throw new RigInternalError(
+						"Unable to retrive BiometricData " + retriveAttributeList + " from packet utility");
+			return response.getBody().asString();
+
+		}
+
+		private Response getReqest(String url, String body, String opsToLog) {
+			Response apiResponse = getRequestWithbody(url, body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+			return apiResponse;
+		}
+
+		private Response getRequestWithbody(String url, String body, String contentHeader, String acceptHeader) {
+			logger.info("RESSURED: Sending a GET request to " + url);
+			logger.info("REQUEST: Sending a GET request to " + url);
+			Response getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").log()
+					.all().when().body(body).get(url).then().extract().response();
+			logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
+			return getResponse;
+		}
+
 }

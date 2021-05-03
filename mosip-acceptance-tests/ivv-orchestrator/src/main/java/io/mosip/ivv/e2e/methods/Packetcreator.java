@@ -16,10 +16,13 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 	public void run() throws RigInternalError {
 		
 		String packetPath=null;
-		for(String templatePath:residentTemplatePaths.values()) {
+		for(String resDataPath:residentTemplatePaths.keySet()) {
+			String templatePath = residentTemplatePaths.get(resDataPath);
 			String idJosn=templatePath + "/REGISTRATION_CLIENT/" + E2EConstants.LOST_PROCESS + "/rid_id/" + "ID.json";
 			packetPath=createPacket(idJosn,templatePath);
 			templatePacketPath.put(templatePath, packetPath);
+			//this is inserted for storing rid with resident data it will be deleted in RIDSync
+			ridPersonaPath.put(packetPath, resDataPath);
 		}
 	}
 	
