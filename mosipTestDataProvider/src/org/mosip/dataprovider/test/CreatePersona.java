@@ -137,14 +137,20 @@ public class CreatePersona {
 			if(!schemaItem.getRequired() && !schemaItem.getInputRequired()) {
 				continue;
 			}
+			if(schemaItem.getId().equals("IDSchemaVersion"))
+				continue;
+			
 			if(schemaItem.getType() != null &&
 				( schemaItem.getContactType() != null  || schemaItem.getGroup() != null)
 					
 			){
 				if(schemaItem.getControlType().equals("dropdown")) {
 					if(schemaItem.getFieldType().equals("dynamic")) {
+						if(dynaFields != null)
 						for(DynamicFieldModel dfm: dynaFields) {
-							if(dfm.getActive() && dfm.getId().equals(schemaItem.getId())) {
+							if(dfm.getActive() && 
+									( dfm.getId().equals(schemaItem.getId()) || dfm.getName().equals(schemaItem.getId()))
+							) {
 
 								constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
 											dfm.getFieldVal().get(0).getValue(),
@@ -286,18 +292,26 @@ public class CreatePersona {
 				
 					String addr = "";
 					String addr_sec="";
-					Random rand = new Random();
-					
-					addr = "#%d, %d Street, %d block" ;//+ schemaItem.getId();
-					addr = String.format(addr, (100+ rand.nextInt(999)),
-							(1 + rand.nextInt(99)),
-							(1 + rand.nextInt(10))
-							);
-					if(schemaItem.getMaximum() > 0 && addr.length() >= schemaItem.getMaximum() )
-						addr = addr.substring(0,schemaItem.getMaximum() -1);
-					
-					if(resident.getSecondaryLanguage() != null)
-						addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+				
+					if(schemaItem.getControlType().equals("checkbox")) {
+						addr = "Y";
+						addr_sec="Y";
+					}
+					else
+					{
+						Random rand = new Random();
+						
+						addr = "#%d, %d Street, %d block" ;//+ schemaItem.getId();
+						addr = String.format(addr, (100+ rand.nextInt(999)),
+								(1 + rand.nextInt(99)),
+								(1 + rand.nextInt(10))
+								);
+						if(schemaItem.getMaximum() > 0 && addr.length() >= schemaItem.getMaximum() )
+							addr = addr.substring(0,schemaItem.getMaximum() -1);
+						
+						if(resident.getSecondaryLanguage() != null)
+							addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+					}
 					constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 							resident.getSecondaryLanguage(),
 							addr,
@@ -358,7 +372,7 @@ public class CreatePersona {
 				String someVal = CommonUtil.generateRandomString(schemaItem.getMaximum());
 				if(schemaItem.getId().equals("IDSchemaVersion"))
 					someVal = Double.toString(schemaversion);
-				
+				else
 				constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 						resident.getSecondaryLanguage(),
 						someVal,
@@ -550,11 +564,14 @@ public class CreatePersona {
 		
 	}
 	*/
-	public static JSONObject createRequestBody(JSONObject requestObject) throws JSONException {
+	public static JSONObject createRequestBody(JSONObject requestObject, Boolean bUpdate) throws JSONException {
 		
 		
 		JSONObject obj = new JSONObject();
-		obj.put("id", "mosip.pre-registration.demographic.create");
+		if(bUpdate)
+			obj.put("id", "mosip.pre-registration.demographic.update");
+		else
+			obj.put("id", "mosip.pre-registration.demographic.create");
 		obj.put("version", "1.0");
 		obj.put("request", requestObject);
 		obj.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));

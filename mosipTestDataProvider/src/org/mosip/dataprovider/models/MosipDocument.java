@@ -12,7 +12,7 @@ public class MosipDocument  implements Serializable{
 
 	 private static final long serialVersionUID = 1L;
 	String docCategoryCode;
-	String dcoCategoryName;
+	String docCategoryName;
 	String docCategoryLang;
 	
 	List<MosipDocTypeModel> type;

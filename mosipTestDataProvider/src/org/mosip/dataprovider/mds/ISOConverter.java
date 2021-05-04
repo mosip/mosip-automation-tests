@@ -90,14 +90,14 @@ public class ISOConverter {
 		mapFingerPos.put("Left LittleFinger", FingerPosition.LEFT_LITTLE_FINGER);
 				
 	}
-	public void convertFinger(String inStream, String outFile, String biometricSubType) throws IOException {
+	public void convertFinger(byte[] inStream, String outFile, String biometricSubType) throws IOException {
 		
-		byte[] imageData = Base64.getDecoder().decode(inStream);
+		byte[] imageData = inStream;// Base64.getDecoder().decode(inStream);
 		
 		//ImageDataType imageDataType = ImageDataType.JPEG2000_LOSS_LESS;
-		ByteArrayInputStream bis = new ByteArrayInputStream(imageData);
+		//	ByteArrayInputStream bis = new ByteArrayInputStream(imageData);
 		
-		BufferedImage buffImg  = ImageIO.read(bis);
+		// BufferedImage buffImg  = ImageIO.read(bis);
 
 
 		FingerPosition fingerPosition = mapFingerPos.get(biometricSubType);
@@ -155,9 +155,9 @@ public class ISOConverter {
 		}
     				
 	}
-	public void convertIris(String inStream, String outFile, String biometricSubType) throws IOException {
+	public void convertIris(byte[] inStream, String outFile, String biometricSubType) throws IOException {
 		
-		byte[] imageData = Base64.getDecoder().decode(inStream);
+		byte[] imageData =  inStream;//Base64.getDecoder().decode(inStream);
 		
 		//ImageDataType imageDataType = ImageDataType.JPEG2000_LOSS_LESS;
 		ByteArrayInputStream bis = new ByteArrayInputStream(imageData);
@@ -224,7 +224,7 @@ public class ISOConverter {
 		}
 	}
 
-	public void convertFace(String inStream, String outFile) throws IOException {
+	public void convertFace(byte[] inStream, String outFile) throws IOException {
 		
 		FaceFormatIdentifier formatIdentifier = FaceFormatIdentifier.FORMAT_FAC;
 		FaceVersionNumber versionNumber = FaceVersionNumber.VERSION_030;
@@ -258,7 +258,7 @@ public class ISOConverter {
 		FaceQualityBlock [] qualityBlock = new FaceQualityBlock [] { new FaceQualityBlock ((byte)quality , algorithmVendorIdentifier, qualityAlgorithmIdentifier)};
 		//Base64.getEncoder().encodeToString
 		
-		byte[] imageData = Base64.getDecoder().decode(inStream);
+		byte[] imageData = inStream;//Base64.getDecoder().decode(inStream);
 		
 		ImageDataType imageDataType = ImageDataType.JPEG2000_LOSS_LESS;
 		

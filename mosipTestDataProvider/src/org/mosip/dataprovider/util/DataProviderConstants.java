@@ -60,4 +60,10 @@ public class DataProviderConstants {
 			"Right RingFinger",
 			"Right LittleFinger"
 	};
+	//MDS Device types
+	public static String MDS_DEVICE_TYPE_FINGER="Finger";
+	public static String MDS_DEVICE_TYPE_IRIS="Iris";
+	public static String MDS_DEVICE_TYPE_FACE="Face";
+	
+
 }
