@@ -218,6 +218,28 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return ret;
 
 	}
+	
+	public String updateResidentUIN(String personaFilePath, String uin) throws RigInternalError {
+		String url = baseUrl + props.getProperty("updateResidentUrl") + "?UIN=" + uin;
+
+		JSONObject jsonwrapper = new JSONObject();
+		JSONObject jsonReq = new JSONObject();
+		JSONObject residentAttrib = new JSONObject();
+
+		residentAttrib.put("uin", personaFilePath);
+
+		jsonReq.put("PR_ResidentList", residentAttrib);
+
+		jsonwrapper.put("requests", jsonReq);
+
+		Response response = postReqest(url, jsonwrapper.toString(), "link Resident data with UIN");
+
+		if (!response.getBody().asString().toLowerCase().contains("success"))
+			throw new RigInternalError("Unable to add UIN in resident data");
+		String ret = response.getBody().asString();
+		return ret;
+
+	}
 
 	public String updateResidentGuardian(String residentFilePath, boolean withRid, String missingFields,
 			String parentEmailOrPhone) throws RigInternalError {
