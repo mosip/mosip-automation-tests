@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.kubernetes.client.openapi.ApiException;
+
 import io.mosip.test.packetcreator.mosippacketcreator.service.CommandsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -65,6 +65,21 @@ public class CommandsController {
 		return "{Failed}";
 	}
 	
+	@ApiOperation(value = "Verify target environment (context) is available", response = String.class)
+	
+	@GetMapping("/ping")
+	public @ResponseBody String checkContext(@RequestParam(name="module", required = false) String module, @RequestParam("contextKey") String contextKey) {
+	
+		try {
+
+			return commandsService.checkContext(contextKey, module);
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		return "{Failed}";
+	}
 	/*
 	@GetMapping("/kube/all")
 	public @ResponseBody String getAllPods(@RequestParam(name="contextKey",required = false) String contextKey) {

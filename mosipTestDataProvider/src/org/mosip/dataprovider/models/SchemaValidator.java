@@ -12,5 +12,5 @@ public class SchemaValidator implements Serializable {
 	 private static final long serialVersionUID = 1L;
 	 String type;
 	 String validator;
-	
+	 String langCode;
 }

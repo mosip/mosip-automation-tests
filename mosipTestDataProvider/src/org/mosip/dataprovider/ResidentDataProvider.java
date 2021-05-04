@@ -35,7 +35,8 @@ import org.mosip.dataprovider.util.ResidentAttribute;
 import org.mosip.dataprovider.util.RestClient;
 import org.mosip.dataprovider.util.Translator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.DocumentException;
 
@@ -64,6 +65,7 @@ public class ResidentDataProvider {
 		attributeList.put(ResidentAttribute.RA_Country, "PHIL");
 		RestClient.clearToken();
 	}
+	/*
 	public static ResidentModel readPersona(String filePath) throws IOException {
     	
     	ObjectMapper mapper = new ObjectMapper();
@@ -73,7 +75,7 @@ public class ResidentDataProvider {
     	byte[] bytes = Files.readAllBytes(path);
 		return mapper.readValue(bytes, ResidentModel.class);
     }
-	
+	*/
 	//Attribute Value ->'Any','No' or specific value
 	public ResidentDataProvider addCondition(ResidentAttribute attributeName, Object attributeValue) {
 		attributeList.put(attributeName, attributeValue);
@@ -92,6 +94,39 @@ public class ResidentDataProvider {
 		provider.attributeList = attributeList;
 		ResidentModel guardian = provider.generate().get(0);
 		return guardian;
+	}
+	public static ResidentModel updateBiometric(ResidentModel model,String bioType) throws Exception {
+		boolean bDirty = false;
+		
+		if(bioType.equalsIgnoreCase("finger")) {
+			BiometricDataModel bioData = BiometricDataProvider.getBiometricData(true);
+			model.getBiometric().setFingerPrint( bioData.getFingerPrint());
+			model.getBiometric().setFingerHash( bioData.getFingerHash());
+			bDirty = true;
+		}
+		else
+		if(bioType.equalsIgnoreCase("iris")) {
+			List<IrisDataModel> iris = BiometricDataProvider.generateIris(1);
+			if(iris != null && !iris.isEmpty()) {
+				model.getBiometric().setIris(iris.get(0));
+				bDirty = true;
+			}
+		}
+		else
+		if(bioType.equalsIgnoreCase("face")) {
+			BiometricDataModel bioData = model.getBiometric();
+			byte[][] faceData = PhotoProvider.getPhoto(CommonUtil.generateRandomNumbers(1, DataProviderConstants.MAX_PHOTOS, 1)[0], model.getGender() );
+			bioData.setEncodedPhoto(
+					Base64.getEncoder().encodeToString(faceData[0]));
+			bioData.setRawFaceData(faceData[1]);
+		
+			bioData.setFaceHash(CommonUtil.getHexEncodedHash( faceData[1]));
+			bDirty = true;
+		}
+		if(bDirty)
+			model.getBiometric().setCbeff(null); 
+			 
+		return model;
 	}
 	public List<ResidentModel> generate() {
 		
@@ -321,7 +356,13 @@ public class ResidentDataProvider {
 			}
 			Object bFinger = attributeList.get(ResidentAttribute.RA_Finger);
 			
-			BiometricDataModel bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger);
+			BiometricDataModel bioData =null;
+			try {
+				bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger);
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 			if(bIrisRequired)
 				bioData.setIris(irisList.get(i));
 			

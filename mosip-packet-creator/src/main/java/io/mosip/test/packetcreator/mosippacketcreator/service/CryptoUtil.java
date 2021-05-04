@@ -3,15 +3,20 @@ package io.mosip.test.packetcreator.mosippacketcreator.service;
 import java.io.ByteArrayInputStream;
 
 import java.io.FileOutputStream;
-
+import java.io.InputStream;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.security.*;
+import java.security.KeyStore.PrivateKeyEntry;
+import java.security.KeyStore.ProtectionParameter;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Properties;
 
@@ -28,7 +33,16 @@ import tss.tpm.CreatePrimaryResponse;
 import tss.tpm.*;
 
 import javax.annotation.PostConstruct;
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource.PSpecified;
+import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
+import static java.util.Arrays.copyOfRange;
+import java.security.KeyStore.PasswordProtection;
 
 @Component
 public class CryptoUtil {
@@ -165,6 +179,125 @@ public class CryptoUtil {
         return mergeddata;
     }
 
+    public String decrypt(String data) throws Exception {
+		PrivateKeyEntry privateKeyEntry = loadP12();
+		byte[] dataBytes = org.apache.commons.codec.binary.Base64.decodeBase64(data);
+		byte[] data1 = decryptData(dataBytes, privateKeyEntry);
+		String strData = new String(data1);
+		return strData;
+	}
+    private static int getSplitterIndex(byte[] encryptedData, int keyDemiliterIndex, String keySplitter) {
+		final byte keySplitterFirstByte = keySplitter.getBytes()[0];
+		final int keySplitterLength = keySplitter.length();
+		for (byte data : encryptedData) {
+			if (data == keySplitterFirstByte) {
+				final String keySplit = new String(
+						copyOfRange(encryptedData, keyDemiliterIndex, keyDemiliterIndex + keySplitterLength));
+				if (keySplitter.equals(keySplit)) {
+					break;
+				}
+			}
+			keyDemiliterIndex++;
+		}
+		return keyDemiliterIndex;
+	}
+
+    private final static int THUMBPRINT_LENGTH = 32;
+    private final static String RSA_ECB_OAEP_PADDING = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
+    
+    public static byte[] decryptData(byte[] requestData, PrivateKeyEntry privateKey) throws Exception {
+		String keySplitter = "#KEY_SPLITTER#";
+		SecretKey symmetricKey = null;
+		byte[] encryptedData = null;
+		byte[] encryptedSymmetricKey = null;
+		final int cipherKeyandDataLength = requestData.length;
+		final int keySplitterLength = keySplitter.length();
+
+		int keyDemiliterIndex = getSplitterIndex(requestData, 0, keySplitter);
+		byte[] encryptedKey = copyOfRange(requestData, 0, keyDemiliterIndex);
+		try {
+			encryptedData = copyOfRange(requestData, keyDemiliterIndex + keySplitterLength, cipherKeyandDataLength);
+			// byte[] dataThumbprint = Arrays.copyOfRange(encryptedKey, 0,
+			// THUMBPRINT_LENGTH);
+			encryptedSymmetricKey = Arrays.copyOfRange(encryptedKey, THUMBPRINT_LENGTH, encryptedKey.length);
+			// byte[] certThumbprint =
+			// getCertificateThumbprint(privateKey.getCertificate());
+
+			/*
+			 * if (!Arrays.equals(dataThumbprint, certThumbprint)) { throw new
+			 * Exception("Error in generating Certificate Thumbprint."); }
+			 */
+
+			byte[] decryptedSymmetricKey = asymmetricDecrypt(privateKey.getPrivateKey(),
+					((RSAPrivateKey) privateKey.getPrivateKey()).getModulus(), encryptedSymmetricKey);
+			symmetricKey = new SecretKeySpec(decryptedSymmetricKey, 0, decryptedSymmetricKey.length, "AES");
+			return symmetricDecrypt(symmetricKey, encryptedData, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		throw new Exception("Not able to decrypt the data.");
+	}
+    /**
+	 * 
+	 * @param privateKey
+	 * @param keyModulus
+	 * @param data
+	 * @return
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchPaddingException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws InvalidKeyException
+	 */
+	private static byte[] asymmetricDecrypt(PrivateKey privateKey, BigInteger keyModulus, byte[] data)
+			throws Exception {
+
+		Cipher cipher;
+		try {
+			cipher = Cipher.getInstance(RSA_ECB_OAEP_PADDING);
+			OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
+					PSpecified.DEFAULT);
+			cipher.init(Cipher.DECRYPT_MODE, privateKey, oaepParams);
+			return cipher.doFinal(data);
+		} catch (java.security.NoSuchAlgorithmException e) {
+			throw new NoSuchAlgorithmException(e);
+		} catch (NoSuchPaddingException e) {
+			throw new NoSuchPaddingException(e.getMessage());
+		} catch (java.security.InvalidKeyException e) {
+			throw new InvalidKeyException(e);
+		} catch (InvalidAlgorithmParameterException e) {
+			throw new InvalidAlgorithmParameterException(e);
+		}
+	}
+
+	private static byte[] symmetricDecrypt(SecretKey key, byte[] data, byte[] aad) {
+		byte[] output = null;
+		try {
+			Cipher cipher = Cipher.getInstance("AES/GCM/PKCS5Padding");
+			byte[] randomIV = Arrays.copyOfRange(data, data.length - cipher.getBlockSize(), data.length);
+			SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+			GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, randomIV);
+
+			cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmParameterSpec);
+			if (aad != null && aad.length != 0) {
+				cipher.updateAAD(aad);
+			}
+			output = cipher.doFinal(Arrays.copyOf(data, data.length - cipher.getBlockSize()));
+		} catch (Exception e) {
+
+		}
+		return output;
+	}
+
+    public PrivateKeyEntry loadP12() throws Exception {
+    	KeyStore mosipKeyStore = KeyStore.getInstance("PKCS12");
+    	InputStream in = getClass().getClassLoader().getResourceAsStream("partner.p12");
+    	mosipKeyStore.load(in, "password@123".toCharArray());
+    	ProtectionParameter password = new PasswordProtection("password@123".toCharArray());
+    	PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) mosipKeyStore.getEntry("partner", password);
+    	return privateKeyEntry;
+    }
     /*private void test(String requestBody, String refId,JSONObject encryptObj) throws Exception {
         byte[] packet = org.apache.commons.codec.binary.Base64.decodeBase64(requestBody);
         byte[] nonce = Arrays.copyOfRange(packet, 0, GCM_NONCE_LENGTH);

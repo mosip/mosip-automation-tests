@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import org.json.JSONObject;
+import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.RestClient;
 
@@ -36,6 +37,37 @@ public class RegistrationSteps {
 		
 	}
 
+	public String downloadCard(ResidentModel resident, String uin) throws Exception {
+		 String url =  VariableManager.getVariableValue("urlBase").toString().trim() +
+					VariableManager.getVariableValue( "residentCredentialAPI").toString().trim() + uin;
+		 JSONObject wrapperJson = new JSONObject();
+		 JSONObject reqJson = new JSONObject();
+		 
+		 wrapperJson.put("id", "none");
+		 wrapperJson.put("requesttime", CommonUtil.getUTCDateTime(null));
+		 wrapperJson.put("version", "1.0");
+	
+		 reqJson.put("credentialType", "euin");
+		 reqJson.put("encrypt", false);
+		 reqJson.put("encryptionKey", "abc");
+		 reqJson.put("individualId", uin);
+		 reqJson.put("issuer", "mpartner-default-print");
+		 reqJson.put("otp", "111111");
+		 reqJson.put("recepiant", resident.getContact().getEmailId());
+		 reqJson.put("transactionID", resident.getId());
+		 reqJson.put("user", resident.getContact().getEmailId());
+		 wrapperJson.put("request", reqJson);
+		 /*
+		 * { 
+    "sharableAttributes": [
+      "string"
+    ],
+		 */
+		JSONObject apiResponse = RestClient.post(url, wrapperJson);
+
+		return  apiResponse.toString();
+		
+	}
 
 	public JSONObject syncPrereg() throws Exception {
 

@@ -142,20 +142,20 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String updateApplication(String resFilePath, HashMap<String, String> residentPathsPrid,
-			HashMap<String, String> contextKey) throws RigInternalError {
-		String url = baseUrl + props.getProperty("updateApplication") + residentPathsPrid.get(resFilePath);
-		JSONObject jsonReq = new JSONObject();
-		JSONArray jsonArray = new JSONArray();
-		jsonArray.put(resFilePath);
-		jsonReq.put("personaFilePath", jsonArray);
-		Response response = putRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "UpdateApplication");
-		String prid = response.getBody().asString();
-		if (!((int) prid.charAt(0) > 47 && (int) prid.charAt(0) < 58))
-			throw new RigInternalError("Unable to updateApplication using packet utility");
-		return prid;
-
-	}
+//	public String updateApplication(String resFilePath, HashMap<String, String> residentPathsPrid,
+//			HashMap<String, String> contextKey) throws RigInternalError {
+//		String url = baseUrl + props.getProperty("updateApplication") + residentPathsPrid.get(resFilePath);
+//		JSONObject jsonReq = new JSONObject();
+//		JSONArray jsonArray = new JSONArray();
+//		jsonArray.put(resFilePath);
+//		jsonReq.put("personaFilePath", jsonArray);
+//		Response response = putRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "UpdateApplication");
+//		String prid = response.getBody().asString();
+//		if (!((int) prid.charAt(0) > 47 && (int) prid.charAt(0) < 58))
+//			throw new RigInternalError("Unable to updateApplication using packet utility");
+//		return prid;
+//
+//	}
 
 	public void uploadDocuments(String resFilePath, String prid, HashMap<String, String> contextKey) {
 		String url = baseUrl + "/prereg/documents/" + prid;
@@ -356,7 +356,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 			jsonReqInner.put("regenAttributeList", attributeList);
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
-		Response response = postReqest(url, jsonReq.toString(), "Update BiometricData");
+		//Response response = postReqest(url, jsonReq.toString(), "Update BiometricData");
+		Response response = putReqestWithBody(url, jsonReq.toString(), "Update BiometricData");
 		if (!response.getBody().asString().toLowerCase().contains("sucess"))
 			throw new RigInternalError("Unable to update BiometricData " + attributeList + " from packet utility");
 		return response.getBody().asString();
@@ -415,7 +416,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 			} catch (AuthenticationTestException | AdminTestException e) {
 				throw new RigInternalError(e.getMessage());
 			}finally {
-				AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+				 AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+
 			}
 	 }
 	 public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList) throws RigInternalError {

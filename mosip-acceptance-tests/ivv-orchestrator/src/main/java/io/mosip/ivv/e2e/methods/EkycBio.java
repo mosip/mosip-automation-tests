@@ -39,10 +39,10 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-	AuthPartnerProcessor.startProcess();
-		// uinPersonaProp.put("2759239619", "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_2140454779925252334\\498484984849848.json");
-			
-		String deviceInfoFilePath = null;
+		 AuthPartnerProcessor.startProcess();
+		//uinPersonaProp.put("7209149850", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
+
+		 String deviceInfoFilePath = null;
 		String uins = null;
 		List<String> uinList = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
