@@ -1,0 +1,24 @@
+DemoAuth:
+  auth_DemoAuth_Valid_Smoke_Single:
+      endPoint: /idauthentication/v1/auth/$PartnerKey$
+      role: ida
+      restMethod: post
+      inputTemplate: idaData/DemoAuth/demoAuth
+      outputTemplate: idaData/DemoAuth/demoAuthResult
+      input: '{
+		"requestTime": "$TIMESTAMP$",
+		"individualId": "2759239619",
+		"transactionId": "1234567890",
+	    "individualIdType": "UIN",
+        "bio": false,
+        "demo": true,
+        "otp": false,
+		"identityRequest":{
+    "value": "1970/07/08",
+"key": "dob",
+	"identityRequestTemplate": "idaData/DemoAuth/DemoIdentityEncrypt"
+	}
+	}'
+      output: '{
+  "authStatus": "true"
+}'
