@@ -31,7 +31,7 @@ import io.restassured.response.Response;
 
 public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EkycBio.class);
-	private static final String BIOMETRIC_FACE = "ida/EkycBio/EkycBio.yml";
+	private static final String BIOMETRIC_FACE = "idaData/EkycBio/EkycBio.yml";
 	Properties deviceProp =null;
 	Properties uinResidentDataPathFinalProps = new Properties();
 	BioAuth bioAuth = new BioAuth();
@@ -42,7 +42,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 		 AuthPartnerProcessor.startProcess();
 		//uinPersonaProp.put("7209149850", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
 
-		String deviceInfoFilePath = null;
+		 String deviceInfoFilePath = null;
 		String uins = null;
 		List<String> uinList = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
