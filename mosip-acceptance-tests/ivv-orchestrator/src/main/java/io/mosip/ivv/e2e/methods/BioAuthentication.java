@@ -31,7 +31,7 @@ import io.restassured.response.Response;
 
 public class BioAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(BioAuthentication.class);
-	private static final String BIOMETRIC_FACE = "ida/BioAuth/BioAuth.yml";
+	private static final String BIOMETRIC_FACE = "idaData/BioAuth/BioAuth.yml";
 	Properties deviceProp =null;
 	Properties uinResidentDataPathFinalProps = new Properties();
 	BioAuth bioAuth = new BioAuth();
@@ -39,9 +39,10 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 
 	@Override
 	public void run() throws RigInternalError {
-		// AuthPartnerProcessor.startProcess();
-		//uinPersonaProp.put("5174650156", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_17396353760056333062\\913439134391343.json");
-
+		AuthPartnerProcessor.startProcess();
+		
+		// uinPersonaProp.put("2759239619", "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_2140454779925252334\\498484984849848.json");
+			
 		String deviceInfoFilePath = null;
 		String uins = null;
 		List<String> uinList = null;
@@ -52,7 +53,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			deviceInfoFilePath = step.getParameters().get(0);
 			if (!StringUtils.isBlank(deviceInfoFilePath)) {
 				deviceInfoFilePath = TestRunner.getExeternalResourcePath()
-						+ properties.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
+						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 			} else
 				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");

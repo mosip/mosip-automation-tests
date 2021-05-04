@@ -93,6 +93,7 @@ public class TestRunner {
 		getListOfFilesFromJarAndCopyToExternalResource("preReg/");
 		getListOfFilesFromJarAndCopyToExternalResource("kernel/");
 		getListOfFilesFromJarAndCopyToExternalResource("ida/");
+		getListOfFilesFromJarAndCopyToExternalResource("idaData/");
 	}
 	
 	public static void getListOfFilesFromJarAndCopyToExternalResource(String key) {
@@ -155,6 +156,7 @@ public class TestRunner {
 		TestResources.copyTestResource("/config");
 		TestResources.copyTestResource("/kernel");
 		TestResources.copyTestResource("/ida");
+		TestResources.copyTestResource("/idaData");
 	}
 	
 	public static String getExeternalResourcePath() {

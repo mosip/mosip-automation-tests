@@ -13,7 +13,9 @@ public class TestResources {
 	public static void copyPreRegTestResource() {
 		try {
 			File source = new File(TestResources.getGlobalResourcePaths() + "/preReg");
-			File source3 = new File(TestResources.getGlobalResourcePaths() + "/ida");
+			File source3 = new File(TestResources.getGlobalResourcePaths() + "/idaData");
+
+			File source4 = new File(TestResources.getGlobalResourcePaths() + "/ida");
 			File destination = new File(TestResources.getGlobalResourcePaths() + "/"+TestResources.resourceFolderName);
 			FileUtils.copyDirectoryToDirectory(source, destination);
 			String path=TestResources.getGlobalResourcePaths().replace("classes", "test-classes");
@@ -22,6 +24,8 @@ public class TestResources {
 			FileUtils.copyDirectoryToDirectory(source2, destination2);
 			FileUtils.copyDirectoryToDirectory(source, destination2);
 			FileUtils.copyDirectoryToDirectory(source3, destination2);
+			FileUtils.copyDirectoryToDirectory(source4, destination2);
+			
 			logger.info("Copied the preReg test resource successfully");
 		} catch (Exception e) {
 			logger.error("Exception occured while copying the file: "+e.getMessage());

@@ -19,6 +19,7 @@ import org.testng.Reporter;
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.authentication.fw.util.AuthPartnerProcessor;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
@@ -414,7 +415,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			} catch (AuthenticationTestException | AdminTestException e) {
 				throw new RigInternalError(e.getMessage());
 			}finally {
-				// AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+				AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
 			}
 	 }
 	 public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList) throws RigInternalError {
