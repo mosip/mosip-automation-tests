@@ -36,7 +36,7 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 	private String ridsync(String containerPath, String supervisorStatus,String process) throws RigInternalError {
 		String url = baseUrl + props.getProperty("ridsyncUrl");
 		JSONObject jsonReq = buildRequest(containerPath, supervisorStatus,process);
-		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),contextKey, "Ridsync");
+		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),contextInuse, "Ridsync");
 		
 		JSONArray jsonArray = new JSONArray(response.asString());
 		JSONObject responseJson = new JSONObject(jsonArray.get(0).toString());

@@ -22,7 +22,7 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 			process = step.getParameters().get(0);
 		}
 		
-		JSONArray resp = packetUtility.getTemplate(residentTemplatePaths.keySet(), process,contextKey);
+		JSONArray resp = packetUtility.getTemplate(residentTemplatePaths.keySet(), process,contextInuse);
 
 		for (int i = 0; i < resp.length(); i++) {
 			JSONObject obj = resp.getJSONObject(i);
