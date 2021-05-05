@@ -19,7 +19,7 @@ public class SendOtp  extends BaseTestCaseUtil implements StepInterface {
 		for (String resDataPath : residentTemplatePaths.keySet()) {
 			//Reporter.log("<b><u>"+"PreRegister and upload packet testCase: "+count+ "</u></b>");
 		//String resDataPath="C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_6736584730385608513\\468584685846858.json";
-			packetUtility.requestOtp(resDataPath,contextKey,emailOrPhone);
+			packetUtility.requestOtp(resDataPath,contextInuse,emailOrPhone);
 		}
 	}
 

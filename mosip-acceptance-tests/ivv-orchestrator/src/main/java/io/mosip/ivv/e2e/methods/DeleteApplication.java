@@ -22,7 +22,7 @@ public class DeleteApplication extends BaseTestCaseUtil implements StepInterface
 
 	private void deleteApplication(String prid) throws RigInternalError {
 		String url = baseUrl + props.getProperty("deleteApplication") + prid;
-		Response response = deleteReqestWithQueryParam(url, contextKey, "DeleteApplication");
+		Response response = deleteReqestWithQueryParam(url, contextInuse, "DeleteApplication");
 		if (!response.getBody().asString().contains(prid))
 			throw new RigInternalError("Unable to DeleteApplication for Prid: "+prid);
 	}

@@ -10,7 +10,7 @@ public class GenerateAndUploadPacket extends BaseTestCaseUtil implements StepInt
 	public void run() throws RigInternalError {
 		for (String resDataPath : residentTemplatePaths.keySet()) {
 			String rid = packetUtility.generateAndUploadPacket(residentPathsPrid.get(resDataPath),
-					residentTemplatePaths.get(resDataPath),contextKey);
+					residentTemplatePaths.get(resDataPath),contextInuse);
 			pridsAndRids.put(residentPathsPrid.get(resDataPath), rid);
 			ridPersonaPath.put(rid, resDataPath);
 		}

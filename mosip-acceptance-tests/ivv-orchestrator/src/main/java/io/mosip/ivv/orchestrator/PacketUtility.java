@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
+import org.assertj.core.util.Arrays;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Reporter;
@@ -76,7 +78,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return residentPaths;
 
 	}
-
+	
 	public JSONArray getTemplate(Set<String> resPath, String process, HashMap<String, String> contextKey)
 			throws RigInternalError {
 		JSONObject jsonReq = new JSONObject();
@@ -218,6 +220,28 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return ret;
 
 	}
+	
+	public String updateResidentUIN(String personaFilePath, String uin) throws RigInternalError {
+		String url = baseUrl + props.getProperty("updateResidentUrl") + "?UIN=" + uin;
+
+		JSONObject jsonwrapper = new JSONObject();
+		JSONObject jsonReq = new JSONObject();
+		JSONObject residentAttrib = new JSONObject();
+
+		residentAttrib.put("uin", personaFilePath);
+
+		jsonReq.put("PR_ResidentList", residentAttrib);
+
+		jsonwrapper.put("requests", jsonReq);
+
+		Response response = postReqest(url, jsonwrapper.toString(), "link Resident data with UIN");
+
+		if (!response.getBody().asString().toLowerCase().contains("success"))
+			throw new RigInternalError("Unable to add UIN in resident data");
+		String ret = response.getBody().asString();
+		return ret;
+
+	}
 
 	public String updateResidentGuardian(String residentFilePath, boolean withRid, String missingFields,
 			String parentEmailOrPhone) throws RigInternalError {
@@ -324,6 +348,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContext(String key, String baseUrl) throws RigInternalError {
 		String url = this.baseUrl + "/servercontext/" + key;
+		
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
@@ -335,6 +360,43 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("mosip.test.regclient.password", E2EConstants.USER_PASSWD);
 		jsonReq.put("prereg.password", E2EConstants.USER_PASSWD);
 		jsonReq.put("mosip.test.regclient.supervisorid", E2EConstants.SUPERVISOR_ID);
+		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
+		Response response = postReqest(url, jsonReq.toString(), "SetContext");
+		// Response response =
+		// given().contentType(ContentType.JSON).body(jsonReq.toString()).post(url);
+		if (!response.getBody().asString().toLowerCase().contains("true"))
+			throw new RigInternalError("Unable to set context from packet utility");
+		return response.getBody().asString();
+
+	}
+	
+	
+	public String createContexts(String key, String userAndMachineDetailParam, String baseUrl) throws RigInternalError {
+		String url = this.baseUrl + "/servercontext/" + key;
+		
+		Map<String,String> map= new HashMap<String,String>();
+		if(userAndMachineDetailParam!=null && !userAndMachineDetailParam.isEmpty()) {
+			String[] details=userAndMachineDetailParam.split("@@");
+			for (String detail : details) {
+	            String detailData[] = detail.split("=");
+	            String keys = detailData[0].trim();
+	            String value = detailData[1].trim();
+	            map.put(keys, value);
+	        }
+				
+		}
+	//  machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
+		JSONObject jsonReq = new JSONObject();
+		jsonReq.put("urlBase", baseUrl);
+		jsonReq.put("mosip.test.baseurl", baseUrl);
+		jsonReq.put("mosip.test.regclient.machineid", (map.get("machineid")!=null)?map.get("machineid"):E2EConstants.MACHINE_ID);
+		jsonReq.put("mosip.test.regclient.centerid", (map.get("centerid")!=null)?map.get("centerid"):E2EConstants.CENTER_ID);
+		jsonReq.put("regclient.centerid", (map.get("centerid")!=null)?map.get("centerid"):E2EConstants.CENTER_ID);
+		jsonReq.put("mosip.test.regclient.userid", (map.get("userid")!=null)?map.get("userid"):E2EConstants.USER_ID);
+		jsonReq.put("prereg.operatorId", (map.get("userid")!=null)?map.get("userid"):E2EConstants.USER_ID);
+		jsonReq.put("mosip.test.regclient.password", (map.get("password")!=null)?map.get("password"):E2EConstants.USER_PASSWD);
+		jsonReq.put("prereg.password", (map.get("password")!=null)?map.get("password"):E2EConstants.USER_PASSWD);
+		jsonReq.put("mosip.test.regclient.supervisorid", (map.get("supervisorid")!=null)?map.get("supervisorid"):E2EConstants.SUPERVISOR_ID);
 		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
 		Response response = postReqest(url, jsonReq.toString(), "SetContext");
 		// Response response =
