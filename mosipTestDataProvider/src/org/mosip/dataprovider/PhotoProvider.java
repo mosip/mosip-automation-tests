@@ -14,6 +14,7 @@ import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 
 import io.cucumber.messages.internal.com.google.common.io.Files;
+import variables.VariableManager;
 
 
 public class PhotoProvider {
@@ -27,7 +28,24 @@ public class PhotoProvider {
 		try {
 			//JPEG2000
 			String photoFile = String.format(Photo_File_Format, idx);
-			BufferedImage img = ImageIO.read(new File(DataProviderConstants.RESOURCE+"Photos/" + gender.toLowerCase() + photoFile));
+			Object val = VariableManager.getVariableValue("enableExternalBiometricSource");
+			boolean bExternalSrc = false;
+			BufferedImage img = null;
+			
+			if(val != null )
+				bExternalSrc = Boolean.valueOf(val.toString());
+			
+			if(bExternalSrc) {
+				//folder where all bio input available
+				String bioSrc = VariableManager.getVariableValue("externalBiometricsource").toString();
+				
+				//String srcpath = "C:\\Mosip.io\\external-data\\CBEFF Validated\\jp2\\Face.jp2";
+				img = ImageIO.read(new File(bioSrc +"Face.jp2" ));
+			}
+			else
+			{
+				img = ImageIO.read(new File(DataProviderConstants.RESOURCE+"Photos/" + gender.toLowerCase() + photoFile));
+			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
 			/*String [] names = ImageIO.getWriterFormatNames();
@@ -136,7 +154,7 @@ public class PhotoProvider {
 		
 	public static void main(String [] args) throws IOException {
 		//splitImages();
-		//String []strImg = getPhoto(21,Gender.Male.name());
+		byte[][] strImg = getPhoto(21,Gender.Male.name());
 		//Files.write(strImg[0].getBytes(), new File( "c:\\temp\\photo.txt"));
 		//System.out.println(strImg);
 		

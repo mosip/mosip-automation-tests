@@ -31,7 +31,7 @@ import io.restassured.response.Response;
 
 public class BioAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(BioAuthentication.class);
-	private static final String BIOMETRIC_FACE = "ida/BioAuth/BioAuth.yml";
+	private static final String BIOMETRIC_FACE = "idaData/BioAuth/BioAuth.yml";
 	Properties deviceProp =null;
 	Properties uinResidentDataPathFinalProps = new Properties();
 	BioAuth bioAuth = new BioAuth();

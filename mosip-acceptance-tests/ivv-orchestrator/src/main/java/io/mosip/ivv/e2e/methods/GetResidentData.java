@@ -32,7 +32,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 			missFields = step.getParameters().get(4).replaceAll("@@", ",");			 
 		}
 		//false,true,any
-		List<String> generateDResidentData = packetUtility.generateResidents(nofResident,bAdult,bSkipGuardian,gender,missFields,contextKey);
+		List<String> generateDResidentData = packetUtility.generateResidents(nofResident,bAdult,bSkipGuardian,gender,missFields,contextInuse);
 		//List<String> generateDResidentData = packetUtility.generateResidents(nofResident,bAdult,bSkipGuardian,gender);
 	    for (String path : generateDResidentData) {
 	    	residentTemplatePaths.put(path, null);
