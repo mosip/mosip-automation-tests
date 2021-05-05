@@ -85,12 +85,12 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 					modalityKeyTogetBioValue = E2EConstants.FACEFETCH;
 					break;
 				case E2EConstants.IRISBIOTYPE:
-					modalityList.add(E2EConstants.FACEFETCH);
+					modalityList.add(E2EConstants.IRISFETCH);
 					modalityToLog = bioSubType+"_"+bioType;
 					modalityKeyTogetBioValue = (bioSubType.equalsIgnoreCase("left"))? E2EConstants.LEFT_EYE:E2EConstants.RIGHT_EYE;
 					break;
 				case E2EConstants.FINGERBIOTYPE:
-					modalityList.add(E2EConstants.FACEFETCH);
+					modalityList.add(E2EConstants.FINGERFETCH);
 					modalityToLog = bioSubType;
 					modalityKeyTogetBioValue = bioSubType;
 					break;
@@ -107,6 +107,8 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue!= null) {
 					String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
+					if(bioValue== null || bioValue.length()<100)
+						throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
 					for (Object object : casesList) {
 						TestCaseDTO test = (TestCaseDTO) object;
 						packetUtility.bioAuth(modalityToLog, bioValue, uin, deviceProp, test, bioAuth);
