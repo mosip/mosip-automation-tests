@@ -175,7 +175,7 @@ public class PacketMakerService {
     	 if(templatePath != null) {
          	process = ContextUtils.ProcessFromTemplate(src, templatePath);
          }
-    	String packetPath = createContainer(idJsonPath.toString(),templatePath,src,process, contextKey,false);
+    	String packetPath = createContainer(idJsonPath.toString(),templatePath,src,process, null,contextKey,false);
 
     	logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
     	//newRegId
@@ -190,7 +190,7 @@ public class PacketMakerService {
     /*
      * Create packet with our without Encryption
      */
-    public String createContainer(String dataFile, String templatePacketLocation, String source, String processArg, String contextKey, boolean bZip) throws Exception{
+    public String createContainer(String dataFile, String templatePacketLocation, String source, String processArg, String preregId, String contextKey, boolean bZip) throws Exception{
     	
     	String retPath = "";
     	if(contextKey != null && !contextKey.equals("")) {
@@ -234,13 +234,13 @@ public class PacketMakerService {
         }
         logger.info("src="+ src + ",process=" + process);
         String tempPacketRootFolder = createTempTemplate(templateLocation, regId);
-        createPacket(tempPacketRootFolder, regId, dataFile, "id",contextKey);
+        createPacket(tempPacketRootFolder, regId, dataFile, "id",preregId,contextKey);
         if(bZip)
         	packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id",contextKey);
-        createPacket(tempPacketRootFolder, regId, dataFile, "evidence",contextKey);
+        createPacket(tempPacketRootFolder, regId, dataFile, "evidence",preregId,contextKey);
         if(bZip)
         	packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "evidence"), regId, "evidence",contextKey);
-        createPacket(tempPacketRootFolder, regId, dataFile, "optional",contextKey);
+        createPacket(tempPacketRootFolder, regId, dataFile, "optional",preregId,contextKey);
         if(bZip) {
         	packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "optional"), regId, "optional",contextKey);
         	packContainer(tempPacketRootFolder,contextKey);
@@ -401,7 +401,7 @@ public class PacketMakerService {
     	return data.toString();
     }
     
-     boolean createPacket(String containerRootFolder, String regId, String dataFilePath, String type, String contextKey) throws Exception{
+     boolean createPacket(String containerRootFolder, String regId, String dataFilePath, String type, String preregId, String contextKey) throws Exception{
         String packetRootFolder = getPacketRoot(getProcessRoot(containerRootFolder), regId, type);
         String templateFile = getIdJSONFileLocation(packetRootFolder);
 
@@ -442,11 +442,14 @@ public class PacketMakerService {
         	writeJSONFile(mergedJsonMap, "c:\\temp\\id_"+regId + ".json");
         }*/
         updatePacketMetaInfo(packetRootFolder, "metaData","registrationId", regId, true);
+        updatePacketMetaInfo(packetRootFolder, "metaData","preRegistrationId", preregId, true);
+        
         updatePacketMetaInfo(packetRootFolder, "metaData","creationDate", APIRequestUtil.getUTCDateTime(null), true);
         updatePacketMetaInfo(packetRootFolder, "metaData","machineId", machineId, false);
         updatePacketMetaInfo(packetRootFolder, "metaData","centerId", centerId, false);
         updatePacketMetaInfo(packetRootFolder, "metaData","registrationType",
                 StringUtils.capitalize(process.toLowerCase()), false);
+        
 
         updatePacketMetaInfo(packetRootFolder, "operationsData", "officerId", officerId, false);
         updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorId", supervisorId, false);

@@ -1,10 +1,10 @@
 BioAuth:
-  Ida_EKYC_Biometric_Valid_Smoke_Pos:
-      endPoint: /idauthentication/v1/kyc/$PartnerKey$
+  Ida_BioAuth_Biometric_Valid_Smoke_Pos:
+      endPoint: /idauthentication/v1/auth/$PartnerKey$
       role: ida
       restMethod: post
-      inputTemplate: ida/EkycBio/ekycBio
-      outputTemplate: ida/EkycBio/ekycBioResult
+      inputTemplate: idaData/BioAuth/bioAuth
+      outputTemplate: idaData/BioAuth/bioAuthResult
       input: '{
 		"requestTime": "$TIMESTAMP$",
 		"individualId": "uinnumber",
@@ -29,10 +29,10 @@ BioAuth:
           "serialNo": "78467171",
           "type": "Face",
     "transactionId": "1234567890",
-	"identityRequestTemplate": "ida/EkycBio/EkycIdentityEncrypt",
+	"identityRequestTemplate": "idaData/BioAuth/BioAuthIdentityEncrypt",
 	"identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
 	}
 	}'
       output: '{
-  "kycStatus": "true"
+  "authStatus": "true"
 }'

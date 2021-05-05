@@ -87,16 +87,16 @@
             <artifactId>ivv-dg</artifactId>
             <version>0.1.1-SNAPSHOT</version>
         </dependency>
-        <dependency>
+     <!--    <dependency>
             <groupId>io.mosip.ivv.preregistration</groupId>
             <artifactId>ivv-preregistration</artifactId>
             <version>0.1.1-SNAPSHOT</version>
         </dependency>
-       <!--  <dependency>
+        <dependency>
             <groupId>io.mosip.ivv.registration</groupId>
             <artifactId>ivv-registration</artifactId>
             <version>0.1.1-SNAPSHOT</version>
-        </dependency> -->
+        </dependency> 
         <dependency>
             <groupId>io.mosip.ivv.regprocessor</groupId>
             <artifactId>ivv-regprocessor</artifactId>
@@ -116,7 +116,7 @@
             <groupId>io.mosip.ivv.mutators</groupId>
             <artifactId>ivv-mutators</artifactId>
             <version>0.1.1-SNAPSHOT</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>com.aventstack</groupId>
             <artifactId>extentreports</artifactId>

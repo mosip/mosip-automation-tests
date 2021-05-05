@@ -56,7 +56,7 @@ public class CancelBooking extends BaseTestCaseUtil implements StepInterface {
 		jsonReq.put(E2EConstants.REGISTRATION_CENTER_ID, retrieveBookingByPrid.get("registration_center_id"));
 		jsonReq.put(E2EConstants.TIME_SLOT_FROM, retrieveBookingByPrid.get("time_slot_from"));
 		jsonReq.put(E2EConstants.TIME_SLOT_TO, retrieveBookingByPrid.get("time_slot_to"));
-		Response response =postRequestWithQueryParamAndBody(url,jsonReq.toString(),contextKey,"CancelBookingByPrid");
+		Response response =postRequestWithQueryParamAndBody(url,jsonReq.toString(),contextInuse,"CancelBookingByPrid");
 		if (!response.getBody().asString().toLowerCase()
 				.contains(message))
 			throw new RigInternalError("Unable to CancelAppointment");
@@ -66,7 +66,7 @@ public class CancelBooking extends BaseTestCaseUtil implements StepInterface {
 		Map<String,String> bookingMetadata=new HashMap<String, String>();
 		contextKey.put("preregId", prid);
 		String url = baseUrl + props.getProperty("retrieveBookingbyPrid");
-		Response response = getRequestWithQueryParam(url, contextKey, "RetrieveBookingByPrid");
+		Response response = getRequestWithQueryParam(url, contextInuse, "RetrieveBookingByPrid");
 		if(response.getBody().asString().equalsIgnoreCase("{}")) {
 			logger.info("booking data not found for prid : "+prid);
 			return bookingMetadata;

@@ -19,12 +19,61 @@ import org.mosip.dataprovider.util.RestClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
 import variables.VariableManager;
 
 
 
 public class PreRegistrationSteps {
 
+	private static JSONObject matchApplication(JSONArray arr, String preregId) {
+		for(int i=0; i < arr.length() ; i++)
+			if(arr.getJSONObject(i).getString("preRegistrationId").equals(preregId))
+				return arr.getJSONObject(i);
+		
+		return new JSONObject();
+	}
+	public static String getApplications(String status, String preregId) {
+
+
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +
+		VariableManager.getVariableValue( "postapplication").toString().trim();
+		JSONArray newArray = new JSONArray();
+
+		try {
+			JSONObject resp = RestClient.getNoAuth (url, new JSONObject(),new JSONObject());
+			String strCount = resp.getString("totalRecords");
+			int count =0;
+			if(strCount != null && !strCount.equals(""))
+				count = Integer.parseInt(strCount);
+			if(count >0 && status == null) {
+				if(preregId == null || preregId.equals(""))
+					return resp.getJSONArray("basicDetails").toString();
+				return matchApplication(resp.getJSONArray("basicDetails"),preregId).toString();
+			}
+			
+			if(count > 0) {	
+				JSONArray arr = resp.getJSONArray("basicDetails");
+				
+				
+				for(int j=0; j < arr.length(); j++) {
+					if( arr.getJSONObject(j).has("statusCode")) {
+						String curstatus = arr.getJSONObject(j).getString("statusCode");
+						if(curstatus.equals(status)) {
+							newArray.put( arr.getJSONObject(j));
+						}
+					}
+				}
+			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(preregId == null || preregId.equals(""))
+			return  newArray.toString();
+		return matchApplication(newArray,preregId).toString();
+	}
 	//"/preregistration/v1/applications";
 	public static String postApplication(ResidentModel resident, DataCallback cb) throws JSONException {
 		String result = "";
@@ -36,7 +85,7 @@ public class PreRegistrationSteps {
 		demoData.put("identity",identity);
 		JSONObject reqObject = new JSONObject();
 		reqObject.put("demographicDetails", demoData);
-		JSONObject reqBody = CreatePersona.createRequestBody(reqObject);
+		JSONObject reqBody = CreatePersona.createRequestBody(reqObject,false);
 		reqObject.put("langCode","eng");//resident.getPrimaryLanguare());
 		//RestClient client = annotation.getRestClient();
 		
@@ -48,6 +97,30 @@ public class PreRegistrationSteps {
 			e.printStackTrace();
 		}
 		return  result;
+	}
+	public static String putApplication(ResidentModel resident, String preregId) {
+		String result = "";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +
+				VariableManager.getVariableValue( "postapplication").toString().trim();
+		url = url + "/"+ preregId;
+		JSONObject identity = CreatePersona.crateIdentity(resident,null);
+		JSONObject demoData = new JSONObject();
+		demoData.put("identity",identity);
+		JSONObject reqObject = new JSONObject();
+		reqObject.put("demographicDetails", demoData);
+		JSONObject reqBody = CreatePersona.createRequestBody(reqObject,true);
+		reqObject.put("langCode","eng");//resident.getPrimaryLanguare());
+		//RestClient client = annotation.getRestClient();
+		
+		try {
+			JSONObject resp = RestClient.putNoAuth(url, reqBody);
+			result = resp.get("preRegistrationId").toString();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return  result;
+		
 	}
 	public static AppointmentModel getAppointments() {
 		AppointmentModel appointmentSlot = new AppointmentModel();
@@ -72,11 +145,57 @@ public class PreRegistrationSteps {
 		}		
 		return appointmentSlot;
 	}
+	public static String cancelAppointment(String preregId, String startTime, String toTime, String appointmentDate, String centerId) {
+		String response = "";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim()+
+		VariableManager.getVariableValue( "postappointment").toString().trim();
+		JSONObject obj = new JSONObject();
+		JSONObject requestObject = new JSONObject();
+
+		obj.put("id", "mosip.pre-registration.booking.book");
+		obj.put("version", "1.0");
+		obj.put("request", requestObject);
+		obj.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+		requestObject.put("registration_center_id",centerId);
+		requestObject.put("appointment_date",appointmentDate);
+		requestObject.put("time_slot_from",startTime);
+		requestObject.put("time_slot_to",toTime);
+		requestObject.put("pre_registration_id",preregId);
+		
+		try {
+			url = url + "/" + preregId;
+			JSONObject resp = RestClient.putNoAuth(url, obj);
+			response = resp.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			response = e.getMessage();
+		}
+		return response;
+			
+	}
+	public static String deleteApplication(String preregId) {
+	
+		String response = "";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim()+
+		VariableManager.getVariableValue( "postapplication").toString().trim();
+		url = url + "/" + preregId;		
+		try {
+			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject());
+			response = resp.toString();
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			response = e.getMessage();
+		}
+		return response;
+	}
+		
 	public static String bookAppointment(String preRegId, String appointmentDate, int centerId, AppointmentTimeSlotModel slot) throws JSONException {
 
 		String result ="";
-			String url = VariableManager.getVariableValue("urlBase").toString().trim()+
-			VariableManager.getVariableValue( "postappointment").toString().trim();
+		String url = VariableManager.getVariableValue("urlBase").toString().trim()+
+		VariableManager.getVariableValue( "postappointment").toString().trim();
 
 			JSONObject obj = new JSONObject();
 			JSONObject requestObject = new JSONObject();

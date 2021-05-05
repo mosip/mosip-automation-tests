@@ -87,7 +87,7 @@ public class PacketController {
 	    			DataProviderConstants.RESOURCE = personaConfigPath;
 	    		}
 
-	    		return packetSyncService.createPacketTemplates(requestDto.getPersonaFilePath(),process,null, contextKey);
+	    		return packetSyncService.createPacketTemplates(requestDto.getPersonaFilePath(),process,null,null, contextKey);
 	    		
 	    	
 	    	} catch (Exception ex){

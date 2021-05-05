@@ -54,9 +54,22 @@ public class E2EConstants{
 	public static final String IRISFETCH = "iris_encrypted";
 	public static final String FINGERFETCH = "finger_encrypted";
 	
+	public static final String DEMOFETCH = "demodata";
+	
+	
+	
 	public static final String FACEBIOTYPE = "FACE";
 	public static final String IRISBIOTYPE = "Iris";
 	public static final String FINGERBIOTYPE = "Finger";
+	
+	public static final String DEMOFNAME="firstName";
+	public static final String DEMOMNAME="midName";
+	public static final String DEMOLNAME="lastName";
+	public static final String DEMOGENDER="gender";
+	public static final String DEMODOB="dob";
+	public static final String DEMOPHONE="mobileNumber";
+	public static final String DEMOEMAIL="emailId";
+	public static final String DEMOAGE="age";
 	
 	
 	//Pre-Registration booking details
