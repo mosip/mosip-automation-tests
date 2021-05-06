@@ -2,6 +2,8 @@ package io.mosip.ivv.e2e.methods;
 
 import static org.testng.Assert.assertTrue;
 
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,6 +11,7 @@ import org.json.JSONObject;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.ivv.orchestrator.PacketUtility;
 
 public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(GetPacketTemplate.class);
@@ -16,10 +19,23 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 	@Override
 	public void run() throws RigInternalError {
 		String process = null;
+		 Properties personaIdValue =null;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Argument is missing in DSL steps: " + step.getName());
 		} else {
 			process = step.getParameters().get(0);
+			
+			if (step.getParameters().size() > 1) {
+				String personaId = step.getParameters().get(1);
+				personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
+				for (String id : personaIdValue.stringPropertyNames()) {
+					String value = personaIdValue.get(id).toString();
+					if (residentPersonaIdPro.get(value) == null)
+						throw new RigInternalError("Persona id : ["+value+"] is not present is the system");
+					String personaPath = residentPersonaIdPro.get(value).toString();
+					residentTemplatePaths.put(personaPath, null);
+				}
+			}
 		}
 		
 		JSONArray resp = packetUtility.getTemplate(residentTemplatePaths.keySet(), process,contextInuse);
