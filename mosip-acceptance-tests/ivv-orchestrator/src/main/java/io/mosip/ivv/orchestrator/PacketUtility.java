@@ -79,6 +79,41 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 	
+	
+	public Response generateResident(int n, Boolean bAdult, Boolean bSkipGuardian, String gender,
+			String missFields, HashMap<String, String> contextKey) throws RigInternalError {
+		
+		String url = baseUrl + props.getProperty("getResidentUrl") + n;
+		JSONObject jsonwrapper = new JSONObject();
+		JSONObject jsonReq = new JSONObject();
+		JSONObject residentAttrib = new JSONObject();
+		if (bAdult) {
+			residentAttrib.put("Age", "RA_Adult");
+		} else {
+			residentAttrib.put("Age", "RA_Minor");
+			residentAttrib.put("SkipGaurdian", bSkipGuardian);
+		}
+		residentAttrib.put("Gender", gender);
+		residentAttrib.put("PrimaryLanguage", "eng");
+		residentAttrib.put("Iris", true);
+		// added for face biometric related issue
+		residentAttrib.put("Finger", true);
+		residentAttrib.put("Face", true);
+		//
+		
+		if (missFields != null)
+			residentAttrib.put("Miss", missFields);
+		jsonReq.put("PR_ResidentAttribute", residentAttrib);
+		jsonwrapper.put("requests", jsonReq);
+
+		// Response response = postReqest(url, jsonwrapper.toString(),
+		// "GENERATE_RESIDENTS_DATA");
+		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), contextKey,
+				"GENERATE_RESIDENTS_DATA");
+		return response;
+
+	}
+	
 	public JSONArray getTemplate(Set<String> resPath, String process, HashMap<String, String> contextKey)
 			throws RigInternalError {
 		JSONObject jsonReq = new JSONObject();
@@ -510,6 +545,21 @@ public class PacketUtility extends BaseTestCaseUtil {
 					.all().when().body(body).get(url).then().extract().response();
 			logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
 			return getResponse;
+		}
+		
+		public static Properties getParamsFromArg(String argVal, String pattern){
+			Properties props = new Properties();
+			
+			String [] attr =  argVal.split(pattern);
+			if(attr != null) {
+				for(String s: attr) {
+					String[] arr = s.split("=");
+					if(arr.length > 1) {
+						props.put(arr[0].trim(), arr[1].trim());
+					}
+				}
+			}
+			return props;
 		}
 
 }
