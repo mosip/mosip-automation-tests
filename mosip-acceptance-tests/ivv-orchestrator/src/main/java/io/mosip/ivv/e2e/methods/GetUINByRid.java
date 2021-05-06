@@ -33,6 +33,7 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
     public void getIdentity(HashMap<String, String> rids) throws RigInternalError
     {
     	uinReqIds.clear();
+    	uinPersonaProp.clear();
     	for(String rid: rids.values())
     	{
     		if(rid!=null) {
@@ -49,10 +50,12 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
     		
     		
     		String uin=response.asString();
+    		
     		if(!StringUtils.isEmpty(uin)) {
     			uinReqIds.put(uin, null);
     			if(!uinPersonaProp.containsKey(uin))
     			uinPersonaProp.put(uin, ridPersonaPath.get(rid));
+    			
     		}
 				/*JSONObject res = new JSONObject(response.asString());
 				 * if(!res.get("response").toString().equals("null")) { JSONObject respJson =
