@@ -1,0 +1,34 @@
+EkycOtp:
+  Ida_EkycOtp_Auth_With_Valid_Smoke_Pos:
+      endPoint: /idauthentication/v1/kyc/$PartnerKey$
+      role: ida
+      restMethod: post
+      inputTemplate: idaData/EkycOtp/ekycOtp
+      outputTemplate: idaData/EkycOtp/ekycOtpResult
+      input: '{
+		"requestTime": "$TIMESTAMP$",
+		"individualId": "$ID$",
+		"transactionId": "1234567890",
+	    "individualIdType": "$IDTYPE$",
+        "bio": false,
+        "demo": false,
+        "otp": true,
+		"sendOtp":{
+	"transactionID": "1234567890",
+	"requestTime": "$TIMESTAMP$",
+	"individualId": "$ID$",
+	"individualIdType": "$IDTYPE$",
+	"sendOtpReqTemplate": "idaData/EkycOtp/sendOtp",
+	"sendOtpEndPoint": "/idauthentication/v1/otp/$PartnerKey$",
+	"otpIdentyEnryptRequestPath": "idaData/EkycOtp/EkycotpIdentityEncrypt.json"
+	}
+	}'
+      output: '{
+  "kycStatus": "true",
+ "sendOtpResp":{
+        "transactionID": "1234567890",
+        "maskedMobile": "$IGNORE$",
+		"sendOtpResTemplate":"idaData/EkycOtp/sendOtpRes",
+		"maskedEmail": "$IGNORE$"
+    }
+}'
