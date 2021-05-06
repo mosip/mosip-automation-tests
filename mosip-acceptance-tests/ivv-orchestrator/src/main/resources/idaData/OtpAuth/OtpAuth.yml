@@ -1,0 +1,34 @@
+OtpAuth:
+  Ida_OTP_Auth_With_Valid_UIN_Smoke_Pos:
+      endPoint: /idauthentication/v1/auth/$PartnerKey$
+      role: ida
+      restMethod: post
+      inputTemplate: idaData/OtpAuth/otpAuth
+      outputTemplate: idaData/OtpAuth/otpAuthResult
+      input: '{
+		"requestTime": "$TIMESTAMP$",
+		"individualId": "$ID$",
+		"transactionId": "1234567890",
+	    "individualIdType": "$IDTYPE$",
+        "bio": false,
+        "demo": false,
+        "otp": true,
+		"sendOtp":{
+	"transactionID": "1234567890",
+	"requestTime": "$TIMESTAMP$",
+	"individualId": "$ID$",
+	"individualIdType": "$IDTYPE$",
+	"sendOtpReqTemplate": "idaData/OtpAuth/sendOtp",
+	"sendOtpEndPoint": "/idauthentication/v1/otp/$PartnerKey$",
+	"otpIdentyEnryptRequestPath": "idaData/OtpAuth/OtpIdentityEncrypt.json"
+	}
+	}'
+      output: '{
+  "authStatus": "true",
+ "sendOtpResp":{
+        "transactionID": "1234567890",
+        "maskedMobile": "$IGNORE$",
+		"sendOtpResTemplate":"idaData/OtpAuth/sendOtpRes",
+		"maskedEmail": "$IGNORE$"
+    }
+}'
