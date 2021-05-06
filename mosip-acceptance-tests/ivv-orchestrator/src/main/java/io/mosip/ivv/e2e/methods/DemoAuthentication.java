@@ -48,8 +48,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		String demoResponse = null;
 		demoAuth=new DemoAuth();
 
-		//AuthPartnerProcessor.startProcess();
-		uinPersonaProp.put("2759239619", "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_2140454779925252334\\498484984849848.json");
+		AuthPartnerProcessor.startProcess();
+		//uinPersonaProp.put("2759239619", "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_2140454779925252334\\498484984849848.json");
 		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
@@ -73,6 +73,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 		Object[] testObj=demoAuth.getYmlTestData(DEMOPATH);
 
+		TestCaseDTO test=(TestCaseDTO)testObj[0];
+	test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", props.getProperty("partnerKey")));
+
+
 		for (String uin : uinList) {
 			String personFilePathvalue = null;
 			if (uinPersonaProp.containsKey(uin))
@@ -80,56 +84,150 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			else
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
 
+			
+			
 			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList);
 
+			String input=test.getInput();
+			 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+						uin, "individualId");
+			
+			JSONObject inputJson = new JSONObject(input);
+			
+			String identityRequest = null;
+			if(inputJson.has("identityRequest")) {
+				identityRequest = inputJson.get("identityRequest").toString();
+			}
+			JSONObject identityReqJson = new JSONObject(identityRequest);
+		
 			for(String demoField : demofieldList )
-			{
-				TestCaseDTO test =null;
-				String testFilterKey=null,demoFieldValueKey=null;
-
+			{	String testFilterKey=null,demoFieldValueKey=null;
+				String demoValue=null;
 
 				switch(demoField) {
 				case "dob":
-					testFilterKey="single";
 					demoFieldValueKey=E2EConstants.DEMODOB;
-
-					break;
-
-
+					 demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey); //array fill all the values
+					if(demoValue==null)
+						throw  new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
+					 identityReqJson.put(demoField, demoValue);
+								break;
+				
 				case "emailId":
-					testFilterKey="single";
 					demoFieldValueKey=E2EConstants.DEMOEMAIL;
-
-					break;
+					demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey); //array fill all the values
+					if(demoValue==null)
+						 throw new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
+					
+					identityReqJson.put(demoField, demoValue);
+									break;
 
 				case "phoneNumber":
-					testFilterKey="single";
 					demoFieldValueKey=E2EConstants.DEMOPHONE;
-
+					demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey); //array fill all the values
+					if(demoValue==null)
+						 throw new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
+					
+					identityReqJson.put(demoField, demoValue);
+					
 					break;
 
 				case "age":
-					testFilterKey="single";
 					demoFieldValueKey=E2EConstants.DEMOAGE;
+					demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey); //array fill all the values
+					if(demoValue==null)
+						 throw new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
+					
+					identityReqJson.put(demoField, demoValue);
+					
+					break;
+				case "address":
+					testFilterKey="deg";
+					//demoFieldValueKey=E2EConstants.DEMOAGE;
 
 					break;
+					
+				case "name":
+					testFilterKey="deg";
+					
+					String fn=null,mn=null,ln=null,fullname=null;
+					fn=JsonPrecondtion.getValueFromJson(demoResponse,E2EConstants.DEMOFETCH+"."+E2EConstants.DEMOFNAME);
+
+					mn=JsonPrecondtion.getValueFromJson(demoResponse,E2EConstants.DEMOFETCH+"."+E2EConstants.DEMOMNAME);
+
+					ln=JsonPrecondtion.getValueFromJson(demoResponse,E2EConstants.DEMOFETCH+"."+E2EConstants.DEMOLNAME);
+					
+					fullname=fn +" "+ mn + " "+ ln ;
+					JSONArray nameArray=new JSONArray();
+					JSONObject nameObj=new JSONObject();
+					
+					nameObj.put("language", "eng");
+					nameObj.put("value", fullname);
+					nameArray.put(nameObj);
+					
+					
+					if(fullname==null)
+						 throw new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
+					
+					identityReqJson.put(demoField, nameArray);
+					
+					
+					break;
+			/*	case "name1":
+					testFilterKey="deg";
+					
+					String fn=null,mn=null,ln=null,fullname=null;
+					fn=JsonPrecondtion.getValueFromJson(demoResponse,E2EConstants.DEMOFETCH+"."+E2EConstants.DEMOFNAME);
+
+					mn=JsonPrecondtion.getValueFromJson(demoResponse,E2EConstants.DEMOFETCH+"."+E2EConstants.DEMOMNAME);
+
+					ln=JsonPrecondtion.getValueFromJson(demoResponse,E2EConstants.DEMOFETCH+"."+E2EConstants.DEMOLNAME);
+					
+					//fullname=fn +" "+ mn + " "+ ln ;
+					JSONArray nameArray1=new JSONArray();
+					JSONObject nameObj1=new JSONObject();
+					
+					nameObj1.put("language", "eng");
+					nameObj1.put("value", fn);
+					nameObj1.put("value", mn);
+					nameObj1.put("value", ln);
+					nameArray1.put(nameObj);
+					
+					
+					if(fullname==null)
+						 throw new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
+					
+					identityReqJson.put(demoField, nameArray1);
+					
+					
+					break;*/
+		
+				case "gender":
+					 demoFieldValueKey=E2EConstants.DEMOGENDER;
+					 demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey); //array fill all the values
+					JSONArray genArray=new JSONArray();
+					JSONObject genderObj=new JSONObject();
+					
+					genderObj.put("language", "eng");
+					genderObj.put("value", demoValue);
+					
+					genArray.put(genderObj);
+					
+					if(demoValue==null)
+						throw  new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
+					
+					identityReqJson.put(demoField, genArray);
+					break;
+
 				default:
 					throw new RigInternalError("Given DEMO doesn't match with the options in the script");
-				}			
-				test=filterOutTestCase(testObj,testFilterKey);
-				 test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", props.getProperty("partnerKey")));
-					
+				}	
+			}
+				inputJson.put("identityRequest",identityReqJson.toString());
+
+				test.setInput(inputJson.toString());
 				
-				String demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey);
-				if(demoValue==null)
-					throw new RigInternalError("Received null value from Persona for" + demoField);
-
-				String input = test.getInput(); 
-
-				input = JsonPrecondtion.parseAndReturnJsonContent(input,demoField, "identityRequest.key");
-				input = JsonPrecondtion.parseAndReturnJsonContent(input,demoValue, "identityRequest.value");
-
-				test.setInput(input);
+						
 				try {
 					demoAuth.test(test);
 				} catch (AuthenticationTestException | AdminTestException e) {
@@ -141,7 +239,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				}
 
 
-			}
+			
 		}
 
-	}}
+	}
+}
