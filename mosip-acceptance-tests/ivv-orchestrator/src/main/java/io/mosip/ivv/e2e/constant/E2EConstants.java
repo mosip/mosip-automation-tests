@@ -76,7 +76,7 @@ public class E2EConstants{
 	public static final String DEMOADDRESSLINE1="addressLine1";
 	public static final String DEMOADDRESSLINE2="addressLine2";
 	public static final String DEMOADDRESSLINE3="addressLine3";
-
+	public static final String CONTEXTKEY="contextKey";
 
 	//Pre-Registration booking details
 	public static final String APPOINTMENT_DATE = "appointment_date";
