@@ -3,9 +3,27 @@
 		"demographics": {
 			"dob": "{{dob}}",
 			"emailId": "{{emailId}}",
-			"phoneNumber": "{{phoneNumber}}",
-			"fullAddress": [
-      {{#each fullAddress}}
+			"phone": "{{phone}}",
+			"addressLine1": [
+      {{#each addressLine1}}
+            {
+            "language": "{{language}}",
+            "value": "{{value}}"
+        }
+          {{#unless @last}},{{/unless}}
+      	{{/each}}
+			],
+			"addressLine2": [
+      {{#each addressLine2}}
+            {
+            "language": "{{language}}",
+            "value": "{{value}}"
+        }
+          {{#unless @last}},{{/unless}}
+      	{{/each}}
+			],
+			"addressLine3": [
+      {{#each addressLine3}}
             {
             "language": "{{language}}",
             "value": "{{value}}"
