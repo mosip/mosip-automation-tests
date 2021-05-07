@@ -49,12 +49,13 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 		logger.info(res.toString());
 		
 		  if(res.get("status").equals(true)) {
-			  	logger.info("RESPONSE="+true);
+			  	logger.info("RESPONSE="+res.toString());
 		}
 		else
 		{
-			logger.error("RESPONSE="+false);
-			throw new RigInternalError("Health check status False");
+			logger.error("RESPONSE="+res.toString());
+			//throw new RigInternalError("Health check status False");
+			throw new RuntimeException(res.toString());
 		}
 		
 	}}
