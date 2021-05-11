@@ -1,6 +1,8 @@
 package io.mosip.ivv.e2e.methods;
 
 import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import io.mosip.ivv.core.base.StepInterface;
@@ -27,7 +29,10 @@ public class BulkUploadPacket extends BaseTestCaseUtil implements StepInterface 
 				}
 				String personaPath = residentPersonaIdPro.get(value).toString();
 				String templatePath = residentTemplatePaths.get(personaPath);
-				String packetPath = templatePacketPath.get(templatePath);
+				if (StringUtils.isBlank(templatePath))
+					throw new RigInternalError(
+							"Template path is not present in the system for persona id : [" + value + "]");
+				String packetPath  = templatePacketPath.get(templatePath);
 				if (packetPath != null && !packetPath.isEmpty())
 					packetPathArray.put(packetPath);
 			}
