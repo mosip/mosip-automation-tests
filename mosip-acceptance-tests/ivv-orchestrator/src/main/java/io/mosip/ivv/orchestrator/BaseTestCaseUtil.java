@@ -53,6 +53,7 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static Properties uinPersonaProp=new Properties();
 	public static HashMap<String, String> ridPersonaPath=new LinkedHashMap<String, String>();
 	public static Properties residentPersonaIdPro=new Properties();
+	public static Properties ridPacketPathPro=new Properties();
 	public BaseTestCaseUtil() {}
 	
 	public String encoder(String text) {
