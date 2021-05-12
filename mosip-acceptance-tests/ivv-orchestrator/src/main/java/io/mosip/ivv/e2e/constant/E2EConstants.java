@@ -84,6 +84,12 @@ public class E2EConstants{
 	public static final String REGISTRATION_CENTER_ID = "registration_center_id";
 	public static final String TIME_SLOT_FROM = "time_slot_from";
 	public static final String TIME_SLOT_TO = "time_slot_to";
+	
+	// server concurrency check
+	public static final String FREE = "free";
+	public static final String INUSE = "inUse";
+	public static final String ALLOCATE = "allocate";
+	public static final String DE_ALLOCATE = "deallocate";
 
 
 }
