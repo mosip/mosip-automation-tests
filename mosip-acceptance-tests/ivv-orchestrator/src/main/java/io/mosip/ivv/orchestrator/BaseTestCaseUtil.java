@@ -218,6 +218,15 @@ public class BaseTestCaseUtil extends BaseStep{
 		return apiResponse;
 	}
 	
+	public Response putRequestWithQueryParam(String url, HashMap<String, String> queryParams,String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		Response puttResponse = given().queryParams(queryParams).relaxedHTTPSValidation().log().all().when().put(url)
+				.then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ puttResponse.getBody().asString() + "</pre>");
+		return puttResponse;
+	}
+	
 	public void constantIntializer() {
 		E2EConstants.MACHINE_ID=props.getProperty("machine_id");
 		E2EConstants.CENTER_ID=props.getProperty("center_id");

@@ -561,5 +561,41 @@ public class PacketUtility extends BaseTestCaseUtil {
 			}
 			return props;
 		}
+		
+		
+	public void serverResourceStatusManager(String responsePattern,String status) throws RigInternalError {
+		String respnseStatus = "";
+		HashMap<String, String> getHMapQParam = createGetRequest();
+		String url = baseUrl + props.getProperty("statusCheck");
+		Response getResponse = getRequestWithQueryParam(url, getHMapQParam, "Get server status");
+		if (getResponse == null) {
+			throw new RigInternalError("Packet utility get method doesn't return any response");
+		}
+		respnseStatus = getResponse.getBody().asString();
+		if (!respnseStatus.isEmpty()) {
+			if (respnseStatus.toLowerCase().contains(responsePattern.toLowerCase())) {
+				HashMap<String, String> putHMapQParam =createPutReqeust(status);
+				putRequestWithQueryParam(url, putHMapQParam, "Update server key");
+			} else {
+				throw new RigInternalError("execution status alrady in use");
+			}
+		} else {
+			throw new RigInternalError("got empty status");
+		}
+	}
+		
+		
+	private HashMap<String, String> createGetRequest() {
+		HashMap<String, String> getHMapQParam = new HashMap<>();
+		getHMapQParam.put("key", "automation_key");
+		return getHMapQParam;
+	}
+
+	private HashMap<String, String> createPutReqeust(String status) {
+		HashMap<String, String> putHMapQParam = new HashMap<>();
+		putHMapQParam.put("key", "automation_key");
+		putHMapQParam.put("status", status);
+		return putHMapQParam;
+	}
 
 }
