@@ -79,6 +79,41 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 	
+	
+	public Response generateResident(int n, Boolean bAdult, Boolean bSkipGuardian, String gender,
+			String missFields, HashMap<String, String> contextKey) throws RigInternalError {
+		
+		String url = baseUrl + props.getProperty("getResidentUrl") + n;
+		JSONObject jsonwrapper = new JSONObject();
+		JSONObject jsonReq = new JSONObject();
+		JSONObject residentAttrib = new JSONObject();
+		if (bAdult) {
+			residentAttrib.put("Age", "RA_Adult");
+		} else {
+			residentAttrib.put("Age", "RA_Minor");
+			residentAttrib.put("SkipGaurdian", bSkipGuardian);
+		}
+		residentAttrib.put("Gender", gender);
+		residentAttrib.put("PrimaryLanguage", "eng");
+		residentAttrib.put("Iris", true);
+		// added for face biometric related issue
+		residentAttrib.put("Finger", true);
+		residentAttrib.put("Face", true);
+		//
+		
+		if (missFields != null)
+			residentAttrib.put("Miss", missFields);
+		jsonReq.put("PR_ResidentAttribute", residentAttrib);
+		jsonwrapper.put("requests", jsonReq);
+
+		// Response response = postReqest(url, jsonwrapper.toString(),
+		// "GENERATE_RESIDENTS_DATA");
+		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), contextKey,
+				"GENERATE_RESIDENTS_DATA");
+		return response;
+
+	}
+	
 	public JSONArray getTemplate(Set<String> resPath, String process, HashMap<String, String> contextKey)
 			throws RigInternalError {
 		JSONObject jsonReq = new JSONObject();
@@ -511,5 +546,56 @@ public class PacketUtility extends BaseTestCaseUtil {
 			logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
 			return getResponse;
 		}
+		
+		public static Properties getParamsFromArg(String argVal, String pattern){
+			Properties props = new Properties();
+			
+			String [] attr =  argVal.split(pattern);
+			if(attr != null) {
+				for(String s: attr) {
+					String[] arr = s.split("=");
+					if(arr.length > 1) {
+						props.put(arr[0].trim(), arr[1].trim());
+					}
+				}
+			}
+			return props;
+		}
+		
+		
+	public void serverResourceStatusManager(String responsePattern,String status) throws RigInternalError {
+		String respnseStatus = "";
+		HashMap<String, String> getHMapQParam = createGetRequest();
+		String url = baseUrl + props.getProperty("statusCheck");
+		Response getResponse = getRequestWithQueryParam(url, getHMapQParam, "Get server status");
+		if (getResponse == null) {
+			throw new RigInternalError("Packet utility get method doesn't return any response");
+		}
+		respnseStatus = getResponse.getBody().asString();
+		if (!respnseStatus.isEmpty()) {
+			if (respnseStatus.toLowerCase().contains(responsePattern.toLowerCase())) {
+				HashMap<String, String> putHMapQParam =createPutReqeust(status);
+				putRequestWithQueryParam(url, putHMapQParam, "Update server key");
+			} else {
+				throw new RigInternalError("execution status alrady in use");
+			}
+		} else {
+			throw new RigInternalError("got empty status");
+		}
+	}
+		
+		
+	private HashMap<String, String> createGetRequest() {
+		HashMap<String, String> getHMapQParam = new HashMap<>();
+		getHMapQParam.put("key", "automation_key");
+		return getHMapQParam;
+	}
+
+	private HashMap<String, String> createPutReqeust(String status) {
+		HashMap<String, String> putHMapQParam = new HashMap<>();
+		putHMapQParam.put("key", "automation_key");
+		putHMapQParam.put("status", status);
+		return putHMapQParam;
+	}
 
 }

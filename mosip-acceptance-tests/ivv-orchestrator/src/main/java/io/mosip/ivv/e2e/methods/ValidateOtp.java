@@ -22,7 +22,7 @@ public class ValidateOtp extends BaseTestCaseUtil implements StepInterface {
 		}
 		for (String resDataPath : residentTemplatePaths.keySet()) {
 			//Reporter.log("<b><u>"+"PreRegister and upload packet testCase: "+count+ "</u></b>");
-			packetUtility.verifyOtp(resDataPath,contextKey,emailOrPhone);
+			packetUtility.verifyOtp(resDataPath,contextInuse,emailOrPhone);
 		}
 	}
 }

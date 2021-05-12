@@ -9,7 +9,7 @@ public class UploadDocuments extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		for (String resDataPath : residentPathsPrid.keySet()) {
-			packetUtility.uploadDocuments(resDataPath, residentPathsPrid.get(resDataPath),contextKey);
+			packetUtility.uploadDocuments(resDataPath, residentPathsPrid.get(resDataPath),contextInuse);
 		}
 		
 	}
