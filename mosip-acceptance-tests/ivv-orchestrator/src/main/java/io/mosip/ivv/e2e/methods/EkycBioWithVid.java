@@ -54,10 +54,14 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 		for (String vid : vidList) {
 			String personFilePathvalue = null;
 			if (vidPersonaProp.containsKey(vid))
-				personFilePathvalue = vidPersonaProp.getProperty(vid);
+			{
+				String uin =vidPersonaProp.get(vid).toString();
+				personFilePathvalue= uinPersonaProp.get(uin).toString();
+				//personFilePathvalue = vidAnduinpersonaprop.getProperty(vid);
+			}	
 			else
 				throw new RigInternalError("Persona doesn't exist for the given VID " + vid);
-			
+
 			String bioType=null, bioSubType=null;
 			List<String> modalityList = new ArrayList<>();
 			String modalityToLog = null;

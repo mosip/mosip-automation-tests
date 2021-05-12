@@ -40,7 +40,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		uinPersonaProp.put("6471974360", "C:\\\\Users\\\\Sohan.Dey\\\\AppData\\\\Local\\\\Temp\\\\residents_1250718917110156783\\\\101681016810168.json");
+		//uinPersonaProp.put("6471974360", "C:\\\\Users\\\\Sohan.Dey\\\\AppData\\\\Local\\\\Temp\\\\residents_1250718917110156783\\\\101681016810168.json");
 
 		String uins = null;
 		String vidtype = null;
@@ -83,9 +83,9 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 			{
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 		        String vid = jsonResp.getJSONObject("response").getString("vid"); 
-		        vidAnduinpersonaprop.put(vid, uin);
+		        vidPersonaProp.put(vid, uin);
 		        
-		        System.out.println(vidAnduinpersonaprop);
+		        System.out.println(vidPersonaProp);
 			}
 			
 		} catch (AuthenticationTestException | AdminTestException e) {
