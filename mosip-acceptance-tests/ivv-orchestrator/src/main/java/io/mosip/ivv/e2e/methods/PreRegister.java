@@ -16,7 +16,7 @@ public class PreRegister extends BaseTestCaseUtil implements StepInterface {
 			count++;
 			//packetUtility.requestOtp(resDataPath,contextKey);
 			//packetUtility.verifyOtp(resDataPath,contextKey);
-			String prid=packetUtility.preReg(resDataPath,contextKey);
+			String prid=packetUtility.preReg(resDataPath,contextInuse);
 			residentPathsPrid.put(resDataPath, prid);
 		}
 		
