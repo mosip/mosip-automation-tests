@@ -408,7 +408,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 	
 	public String createContexts(String key, String userAndMachineDetailParam, String baseUrl) throws RigInternalError {
 		String url = this.baseUrl + "/servercontext/" + key;
-		
 		Map<String,String> map= new HashMap<String,String>();
 		if(userAndMachineDetailParam!=null && !userAndMachineDetailParam.isEmpty()) {
 			String[] details=userAndMachineDetailParam.split("@@");
@@ -597,5 +596,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 		putHMapQParam.put("status", status);
 		return putHMapQParam;
 	}
-
+	
+	public void setMockabisExpectaion(boolean duplicate, JSONArray filePathArray, HashMap<String, String> contextKey)
+			throws RigInternalError {
+		String url = baseUrl + props.getProperty("mockAbis") + duplicate;
+		Response response = postRequestWithQueryParamAndBody(url, filePathArray.toString(), contextKey,
+				"Mockabis Expectaion");
+		if (!response.getBody().asString().toLowerCase().contains("success"))
+			throw new RigInternalError("Unable to set mockabis expectaion from packet utility");
+	}
+	
 }
