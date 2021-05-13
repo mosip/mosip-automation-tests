@@ -50,7 +50,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 	@Override
 	public void run() throws RigInternalError {
 		//AuthPartnerProcessor.startProcess();
-		uinPersonaProp.put("2310290713", "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\residents_8783170256176160783\\\\915849158491584.json");
+		//uinPersonaProp.put("2310290713", "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\residents_8783170256176160783\\\\915849158491584.json");
 
 		List<String> demoFetchList = null;
 		TestCaseDTO test = null;
@@ -110,14 +110,10 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 			}
 			Object[] testObj = multiFactorAuth.getYmlTestData(MULTIFACTOR);
 			for(Object obj:testObj) {
-				System.out.println("sadjlkj");
 				test = (TestCaseDTO)obj;
 				test = demoAuthE2eTest(demoFetchList, individualIdAuth, test);
-				System.out.println(test);
 				test = bioAuthE2eTest(bioAuthList, individualIdAuth, test);
-				System.out.println(test);
 				test = otpAuthE2eTest(individualIdAuth, test);
-				System.out.println(test);
 			}
 			
 			
