@@ -2,17 +2,24 @@ package io.mosip.ivv.e2e.methods;
 
 import static org.testng.Assert.assertTrue;
 
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.ivv.orchestrator.TestRunner;
 import io.restassured.response.Response;
 
 public class Ridsync extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(Wait.class);
+	Logger logger = Logger.getLogger(Ridsync.class);
 	
 	@Override
 	public void run() throws RigInternalError {
@@ -31,12 +38,13 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 			ridPersonaPath.put(registrationId, ridPersonaPath.get(packetPath));
 			ridPersonaPath.remove(packetPath);
 		}
+		storeProp(pridsAndRids);
 	}
 
 	private String ridsync(String containerPath, String supervisorStatus,String process) throws RigInternalError {
 		String url = baseUrl + props.getProperty("ridsyncUrl");
 		JSONObject jsonReq = buildRequest(containerPath, supervisorStatus,process);
-		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),contextKey, "Ridsync");
+		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),contextInuse, "Ridsync");
 		
 		JSONArray jsonArray = new JSONArray(response.asString());
 		JSONObject responseJson = new JSONObject(jsonArray.get(0).toString());
@@ -57,6 +65,23 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 		jsonReq.put("supervisorComment", "supervisorComment");
 		jsonReq.put("supervisorStatus", supervisorStatus);
 		return jsonReq;
+	}
+	
+	private static void storeProp(HashMap<String,String> map) {
+		Properties prop= new Properties();
+		for(String key: map.keySet())
+			prop.put(key, map.get(key));
+		String filePath=TestRunner.getExeternalResourcePath()
+				+ props.getProperty("ivv.path.deviceinfo.folder") +"ridPersonaPathProp.properties";
+		OutputStream output = null;
+		try {
+			output = new FileOutputStream(filePath,true);
+			prop.store(output, null);
+			output.close();
+			output.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
