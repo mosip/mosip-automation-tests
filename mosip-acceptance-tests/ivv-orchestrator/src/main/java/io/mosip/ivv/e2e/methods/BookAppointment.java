@@ -15,7 +15,7 @@ public class BookAppointment extends BaseTestCaseUtil implements StepInterface {
 			bookOnHolidays =Boolean.parseBoolean(step.getParameters().get(0));
 		
 		for (String resDataPath : residentPathsPrid.keySet()) {
-			packetUtility.bookAppointment(residentPathsPrid.get(resDataPath), 1,contextKey,bookOnHolidays);
+			packetUtility.bookAppointment(residentPathsPrid.get(resDataPath), 1,contextInuse,bookOnHolidays);
 		}
 	}
 

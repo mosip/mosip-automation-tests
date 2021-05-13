@@ -30,7 +30,7 @@ public class UpdateResidentWithGuardianSkippingPreReg extends BaseTestCaseUtil i
 		residentPathGuardianRid= new LinkedHashMap<String, String>();
 		CheckStatus checkStatus= new CheckStatus();
 		for(String path:residentTemplatePaths.keySet()) {
-			residentPathGuardianRid.put(path, packetUtility.updateResidentWithGuardianSkippingPreReg(path,contextKey,withRid,missingFields));
+			residentPathGuardianRid.put(path, packetUtility.updateResidentWithGuardianSkippingPreReg(path,contextInuse,withRid,missingFields));
 			Reporter.log("<b><u>Checking Status Of Created Guardians</u></b>");
 			checkStatus.tempPridAndRid=residentPathGuardianRid;
 			checkStatus.checkStatus(gaurdianStatus);

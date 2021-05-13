@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
+import org.assertj.core.util.Arrays;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Reporter;
@@ -76,7 +78,42 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return residentPaths;
 
 	}
+	
+	
+	public Response generateResident(int n, Boolean bAdult, Boolean bSkipGuardian, String gender,
+			String missFields, HashMap<String, String> contextKey) throws RigInternalError {
+		
+		String url = baseUrl + props.getProperty("getResidentUrl") + n;
+		JSONObject jsonwrapper = new JSONObject();
+		JSONObject jsonReq = new JSONObject();
+		JSONObject residentAttrib = new JSONObject();
+		if (bAdult) {
+			residentAttrib.put("Age", "RA_Adult");
+		} else {
+			residentAttrib.put("Age", "RA_Minor");
+			residentAttrib.put("SkipGaurdian", bSkipGuardian);
+		}
+		residentAttrib.put("Gender", gender);
+		residentAttrib.put("PrimaryLanguage", "eng");
+		residentAttrib.put("Iris", true);
+		// added for face biometric related issue
+		residentAttrib.put("Finger", true);
+		residentAttrib.put("Face", true);
+		//
+		
+		if (missFields != null)
+			residentAttrib.put("Miss", missFields);
+		jsonReq.put("PR_ResidentAttribute", residentAttrib);
+		jsonwrapper.put("requests", jsonReq);
 
+		// Response response = postReqest(url, jsonwrapper.toString(),
+		// "GENERATE_RESIDENTS_DATA");
+		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), contextKey,
+				"GENERATE_RESIDENTS_DATA");
+		return response;
+
+	}
+	
 	public JSONArray getTemplate(Set<String> resPath, String process, HashMap<String, String> contextKey)
 			throws RigInternalError {
 		JSONObject jsonReq = new JSONObject();
@@ -218,6 +255,28 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return ret;
 
 	}
+	
+	public String updateResidentUIN(String personaFilePath, String uin) throws RigInternalError {
+		String url = baseUrl + props.getProperty("updateResidentUrl") + "?UIN=" + uin;
+
+		JSONObject jsonwrapper = new JSONObject();
+		JSONObject jsonReq = new JSONObject();
+		JSONObject residentAttrib = new JSONObject();
+
+		residentAttrib.put("uin", personaFilePath);
+
+		jsonReq.put("PR_ResidentList", residentAttrib);
+
+		jsonwrapper.put("requests", jsonReq);
+
+		Response response = postReqest(url, jsonwrapper.toString(), "link Resident data with UIN");
+
+		if (!response.getBody().asString().toLowerCase().contains("success"))
+			throw new RigInternalError("Unable to add UIN in resident data");
+		String ret = response.getBody().asString();
+		return ret;
+
+	}
 
 	public String updateResidentGuardian(String residentFilePath, boolean withRid, String missingFields,
 			String parentEmailOrPhone) throws RigInternalError {
@@ -324,6 +383,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContext(String key, String baseUrl) throws RigInternalError {
 		String url = this.baseUrl + "/servercontext/" + key;
+		
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
@@ -335,6 +395,42 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("mosip.test.regclient.password", E2EConstants.USER_PASSWD);
 		jsonReq.put("prereg.password", E2EConstants.USER_PASSWD);
 		jsonReq.put("mosip.test.regclient.supervisorid", E2EConstants.SUPERVISOR_ID);
+		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
+		Response response = postReqest(url, jsonReq.toString(), "SetContext");
+		// Response response =
+		// given().contentType(ContentType.JSON).body(jsonReq.toString()).post(url);
+		if (!response.getBody().asString().toLowerCase().contains("true"))
+			throw new RigInternalError("Unable to set context from packet utility");
+		return response.getBody().asString();
+
+	}
+	
+	
+	public String createContexts(String key, String userAndMachineDetailParam, String baseUrl) throws RigInternalError {
+		String url = this.baseUrl + "/servercontext/" + key;
+		Map<String,String> map= new HashMap<String,String>();
+		if(userAndMachineDetailParam!=null && !userAndMachineDetailParam.isEmpty()) {
+			String[] details=userAndMachineDetailParam.split("@@");
+			for (String detail : details) {
+	            String detailData[] = detail.split("=");
+	            String keys = detailData[0].trim();
+	            String value = detailData[1].trim();
+	            map.put(keys, value);
+	        }
+				
+		}
+	//  machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
+		JSONObject jsonReq = new JSONObject();
+		jsonReq.put("urlBase", baseUrl);
+		jsonReq.put("mosip.test.baseurl", baseUrl);
+		jsonReq.put("mosip.test.regclient.machineid", (map.get("machineid")!=null)?map.get("machineid"):E2EConstants.MACHINE_ID);
+		jsonReq.put("mosip.test.regclient.centerid", (map.get("centerid")!=null)?map.get("centerid"):E2EConstants.CENTER_ID);
+		jsonReq.put("regclient.centerid", (map.get("centerid")!=null)?map.get("centerid"):E2EConstants.CENTER_ID);
+		jsonReq.put("mosip.test.regclient.userid", (map.get("userid")!=null)?map.get("userid"):E2EConstants.USER_ID);
+		jsonReq.put("prereg.operatorId", (map.get("userid")!=null)?map.get("userid"):E2EConstants.USER_ID);
+		jsonReq.put("mosip.test.regclient.password", (map.get("password")!=null)?map.get("password"):E2EConstants.USER_PASSWD);
+		jsonReq.put("prereg.password", (map.get("password")!=null)?map.get("password"):E2EConstants.USER_PASSWD);
+		jsonReq.put("mosip.test.regclient.supervisorid", (map.get("supervisorid")!=null)?map.get("supervisorid"):E2EConstants.SUPERVISOR_ID);
 		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
 		Response response = postReqest(url, jsonReq.toString(), "SetContext");
 		// Response response =
@@ -449,5 +545,65 @@ public class PacketUtility extends BaseTestCaseUtil {
 			logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
 			return getResponse;
 		}
+		
+		public static Properties getParamsFromArg(String argVal, String pattern){
+			Properties props = new Properties();
+			
+			String [] attr =  argVal.split(pattern);
+			if(attr != null) {
+				for(String s: attr) {
+					String[] arr = s.split("=");
+					if(arr.length > 1) {
+						props.put(arr[0].trim(), arr[1].trim());
+					}
+				}
+			}
+			return props;
+		}
+		
+		
+	public void serverResourceStatusManager(String responsePattern,String status) throws RigInternalError {
+		String respnseStatus = "";
+		HashMap<String, String> getHMapQParam = createGetRequest();
+		String url = baseUrl + props.getProperty("statusCheck");
+		Response getResponse = getRequestWithQueryParam(url, getHMapQParam, "Get server status");
+		if (getResponse == null) {
+			throw new RigInternalError("Packet utility get method doesn't return any response");
+		}
+		respnseStatus = getResponse.getBody().asString();
+		if (!respnseStatus.isEmpty()) {
+			if (respnseStatus.toLowerCase().contains(responsePattern.toLowerCase())) {
+				HashMap<String, String> putHMapQParam =createPutReqeust(status);
+				putRequestWithQueryParam(url, putHMapQParam, "Update server key");
+			} else {
+				throw new RigInternalError("execution status alrady in use");
+			}
+		} else {
+			throw new RigInternalError("got empty status");
+		}
+	}
+		
+		
+	private HashMap<String, String> createGetRequest() {
+		HashMap<String, String> getHMapQParam = new HashMap<>();
+		getHMapQParam.put("key", "automation_key");
+		return getHMapQParam;
+	}
 
+	private HashMap<String, String> createPutReqeust(String status) {
+		HashMap<String, String> putHMapQParam = new HashMap<>();
+		putHMapQParam.put("key", "automation_key");
+		putHMapQParam.put("status", status);
+		return putHMapQParam;
+	}
+	
+	public void setMockabisExpectaion(boolean duplicate, JSONArray filePathArray, HashMap<String, String> contextKey)
+			throws RigInternalError {
+		String url = baseUrl + props.getProperty("mockAbis") + duplicate;
+		Response response = postRequestWithQueryParamAndBody(url, filePathArray.toString(), contextKey,
+				"Mockabis Expectaion");
+		if (!response.getBody().asString().toLowerCase().contains("success"))
+			throw new RigInternalError("Unable to set mockabis expectaion from packet utility");
+	}
+	
 }

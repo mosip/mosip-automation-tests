@@ -16,13 +16,20 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 public void run() throws RigInternalError {
 	constantIntializer();
 	String contextKeyValue="dev_context";
+	String userAndMachineDetailParam=null;
 	if (step.getParameters() == null || step.getParameters().isEmpty() ||step.getParameters().size()<1) {
 		logger.warn("SetContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
 	} else {
 		contextKeyValue=step.getParameters().get(0);
-		contextKey.put("contextKey",contextKeyValue );
+		//contextKey.put("contextKey",contextKeyValue );
+		contextKey.put(contextKeyValue,"true");
+		contextInuse.clear();
+		contextInuse.put("contextKey",contextKeyValue);
+		if(step.getParameters().size()>1)
+			userAndMachineDetailParam=step.getParameters().get(1);
 	}
-	packetUtility.createContext(contextKeyValue,BaseTestCase.ApplnURI+"/");
+	//packetUtility.createContext(contextKeyValue,BaseTestCase.ApplnURI+"/");
+	packetUtility.createContexts(contextKeyValue,userAndMachineDetailParam,BaseTestCase.ApplnURI+"/");
 	
 }
 
