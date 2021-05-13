@@ -40,7 +40,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 	@Override
 	public void run() throws RigInternalError {
 		AuthPartnerProcessor.startProcess();
-		//uinPersonaProp.put("5174650156", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_17396353760056333062\\913439134391343.json");
+		//uinPersonaProp.put("3465728037", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_1872907547484694868\\894268942689426.json");
 
 		String deviceInfoFilePath = null;
 		String uins = null;
@@ -85,12 +85,12 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 					modalityKeyTogetBioValue = E2EConstants.FACEFETCH;
 					break;
 				case E2EConstants.IRISBIOTYPE:
-					modalityList.add(E2EConstants.FACEFETCH);
+					modalityList.add(E2EConstants.IRISFETCH);
 					modalityToLog = bioSubType+"_"+bioType;
 					modalityKeyTogetBioValue = (bioSubType.equalsIgnoreCase("left"))? E2EConstants.LEFT_EYE:E2EConstants.RIGHT_EYE;
 					break;
 				case E2EConstants.FINGERBIOTYPE:
-					modalityList.add(E2EConstants.FACEFETCH);
+					modalityList.add(E2EConstants.FINGERFETCH);
 					modalityToLog = bioSubType;
 					modalityKeyTogetBioValue = bioSubType;
 					break;
@@ -107,6 +107,8 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue!= null) {
 					String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
+					if(bioValue== null || bioValue.length()<100)
+						throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
 					for (Object object : casesList) {
 						TestCaseDTO test = (TestCaseDTO) object;
 						packetUtility.bioAuth(modalityToLog, bioValue, uin, deviceProp, test, bioAuth);

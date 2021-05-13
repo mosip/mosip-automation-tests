@@ -47,7 +47,7 @@ public class BookSpecificSlotForPrid extends BaseTestCaseUtil implements StepInt
 		jsonReq.put(E2EConstants.REGISTRATION_CENTER_ID, registration_center_id);
 		jsonReq.put(E2EConstants.TIME_SLOT_FROM, time_slot_from);
 		jsonReq.put(E2EConstants.TIME_SLOT_TO, time_slot_to);
-		Response response =postRequestWithQueryParamAndBody(url,jsonReq.toString(),contextKey,"BookSlotForPrid");
+		Response response =postRequestWithQueryParamAndBody(url,jsonReq.toString(),contextInuse,"BookSlotForPrid");
 		if (!response.getBody().asString().toLowerCase()
 				.contains("appointment booked successfully"))
 			throw new RigInternalError("Unable to Book Appointment for Prid :"+prid);

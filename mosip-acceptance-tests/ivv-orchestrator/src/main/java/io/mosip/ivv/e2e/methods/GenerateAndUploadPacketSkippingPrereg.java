@@ -11,7 +11,7 @@ public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil impl
 
 		for (String resDataPath : residentTemplatePaths.keySet()) {
 			String rid = packetUtility.generateAndUploadPacketSkippingPrereg(residentTemplatePaths.get(resDataPath),
-					resDataPath,contextKey);
+					resDataPath,contextInuse);
 			pridsAndRids.put("0", rid);
 			ridPersonaPath.put(rid, resDataPath);
 		}

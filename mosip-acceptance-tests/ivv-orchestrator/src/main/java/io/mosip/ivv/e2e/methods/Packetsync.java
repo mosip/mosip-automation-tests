@@ -16,7 +16,7 @@ public class Packetsync extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		for (String packetPath : templatePacketPath.values())
-			packetUtility.packetSync(packetPath, contextKey);
+			packetUtility.packetSync(packetPath, contextInuse);
 	}
 
 	/*

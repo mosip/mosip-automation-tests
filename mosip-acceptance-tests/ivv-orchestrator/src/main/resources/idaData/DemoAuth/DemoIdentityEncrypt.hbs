@@ -1,7 +1,54 @@
 {
 	"identityRequest": {
 		"demographics": {
-			"{{key}}": "{{value}}"
+			"dob": "{{dob}}",
+			"emailId": "{{emailId}}",
+			"phone": "{{phone}}",
+			"addressLine1": [
+      {{#each addressLine1}}
+            {
+            "language": "{{language}}",
+            "value": "{{value}}"
+        }
+          {{#unless @last}},{{/unless}}
+      	{{/each}}
+			],
+			"addressLine2": [
+      {{#each addressLine2}}
+            {
+            "language": "{{language}}",
+            "value": "{{value}}"
+        }
+          {{#unless @last}},{{/unless}}
+      	{{/each}}
+			],
+			"addressLine3": [
+      {{#each addressLine3}}
+            {
+            "language": "{{language}}",
+            "value": "{{value}}"
+        }
+          {{#unless @last}},{{/unless}}
+      	{{/each}}
+			],
+				"gender": [
+      {{#each gender}}
+            {
+            "language": "{{language}}",
+            "value": "{{value}}"
+        }
+          {{#unless @last}},{{/unless}}
+      	{{/each}}
+			],
+			"name": [
+      {{#each name}}
+            {
+            "language": "{{language}}",
+            "value": "{{value}}"
+        }
+          {{#unless @last}},{{/unless}}
+      	{{/each}}
+			]
 		},
 		"timestamp": "2019-03-16T10:01:57.086+05:30"
 	}
