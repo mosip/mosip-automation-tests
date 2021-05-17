@@ -51,8 +51,10 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static HashMap<String, String> contextInuse=new HashMap<String, String>();
 	public static List<String> resDataPathList= new LinkedList();
 	public static Properties uinPersonaProp=new Properties();
+	public static Properties vidPersonaProp=new Properties();
 	public static HashMap<String, String> ridPersonaPath=new LinkedHashMap<String, String>();
 	public static Properties residentPersonaIdPro=new Properties();
+	public static Properties ridPacketPathPro=new Properties();
 	public BaseTestCaseUtil() {}
 	
 	public String encoder(String text) {
@@ -215,6 +217,15 @@ public class BaseTestCaseUtil extends BaseStep{
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ apiResponse.getBody().asString() + "</pre>");
 		return apiResponse;
+	}
+	
+	public Response putRequestWithQueryParam(String url, HashMap<String, String> queryParams,String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		Response puttResponse = given().queryParams(queryParams).relaxedHTTPSValidation().log().all().when().put(url)
+				.then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ puttResponse.getBody().asString() + "</pre>");
+		return puttResponse;
 	}
 	
 	public void constantIntializer() {
