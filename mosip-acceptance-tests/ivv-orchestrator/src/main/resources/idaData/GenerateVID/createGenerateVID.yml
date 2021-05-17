@@ -1,0 +1,34 @@
+GenerateVID:
+   Resident_GenerateVID_All_Valid_Smoke_Perpetual_sid:
+      endPoint: /resident/v1/vid
+      role: resident
+      restMethod: post
+      inputTemplate: idaData/GenerateVID/createGenerateVID
+      outputTemplate: idaData/GenerateVID/createGenerateVIDResult
+      input: '{
+		"transactionID": "1234567890",
+		"individualId": "$ID$",
+		"individualIdType": "UIN",
+		"requesttime": "$TIMESTAMP$",
+        "id": "mosip.resident.vid",
+        "version": "v1",
+        "vidType": "Perpetual",
+		"otp": "111111",
+		"sendOtp":{
+	"transactionID": "1234567890",
+	"requestTime": "$TIMESTAMP$",
+	"individualId": "$ID$",
+	"individualIdType": "UIN",
+	"sendOtpReqTemplate": "idaData/SendOTP/createSendOTP",
+	"sendOtpEndPoint": "/resident/v1/req/otp"
+	}
+	}'
+      output: '{
+  "vid": "$IGNORE$",
+  "message": "Notification has been sent to the provided contact detail(s)",
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+		"sendOtpResTemplate":"idaData/SendOTP/createSendOTPResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
