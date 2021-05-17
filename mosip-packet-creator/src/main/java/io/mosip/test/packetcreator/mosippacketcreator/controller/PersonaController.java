@@ -2,6 +2,8 @@ package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 import java.util.List;
 
+import javax.websocket.server.PathParam;
+
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +99,7 @@ public class PersonaController {
 	             logger.error("generateResidentData", ex);
 	    	}
 	    	return "{Failed}";
-	    }    
+	}    
 	@ApiOperation(value = "Return from the given persona record , list of specified attribute values", response = String.class)
 	@GetMapping(value = "/persona/")
 	public @ResponseBody String getPersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto ) {
@@ -110,6 +112,26 @@ public class PersonaController {
 	    	} catch (Exception ex){
 	             logger.error("getPersonaData", ex);
 	    	}
+	    	return "{Failed}";
+	    	
+	}
+	
+	@ApiOperation(value = "Set Persona specific expectations in mock ABIS, Duplicate -> True/False", response = String.class)
+	@PostMapping(value = "/persona/mockabis/expectaions/{duplicate}")
+	public @ResponseBody String setPersonaMockABISExpectation(@RequestBody List<String>  personaFilePath,
+			@PathVariable("duplicate") boolean bDuplicate,
+			@RequestParam(name="contextKey",required = false) String contextKey
+			) {
+	    	
+		try{    	
+	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+	    			DataProviderConstants.RESOURCE = personaConfigPath;
+	    		}
+	    		return packetSyncService.setPersonaMockABISExpectation(personaFilePath, bDuplicate,contextKey);
+	    	
+	    } catch (Exception ex){
+	             logger.error("setPersonaMockABISExpectation", ex);
+	    }
 	    	return "{Failed}";
 	    	
 	 }

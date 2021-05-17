@@ -1,9 +1,9 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
 import org.apache.commons.codec.binary.Base64;
-
-
+import org.everit.json.schema.ValidationException;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.mosip.dataprovider.PacketTemplateProvider;
 import org.mosip.dataprovider.ResidentDataProvider;
@@ -18,9 +18,12 @@ import org.mosip.dataprovider.models.MosipDocument;
 
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
+import org.mosip.dataprovider.preparation.MosipDataSetup;
+import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.test.ResidentPreRegistration;
 import org.mosip.dataprovider.test.prereg.PreRegistrationSteps;
+import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
@@ -34,7 +37,7 @@ import io.mosip.test.packetcreator.mosippacketcreator.dto.AppointmentDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.BioExceptionDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestType;
-
+import io.mosip.test.packetcreator.mosippacketcreator.dto.PreRegisterRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.UpdatePersonaDto;
 import variables.VariableManager;
 
@@ -47,7 +50,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 
 import java.time.ZoneOffset;
@@ -245,7 +248,7 @@ public class PacketSyncService {
     	logger.info("makePacketAndSync for PRID : {}", preregId);
 
     	Path idJsonPath = null;
-    	
+    	preregId = preregId.trim();
     	if(!preregId.equals("0")) {
     		String location = preregSyncService.downloadPreregPacket( preregId, contextKey);
     		logger.info("Downloaded the prereg packet in {} ", location);
@@ -390,7 +393,7 @@ public class PacketSyncService {
                 cryptoUtil.encrypt(wrapper.toString().getBytes("UTF-8"),
                 centerId + UNDERSCORE + machineId, timestamp, contextKey) );
 
-        JSONArray response = apiRequestUtil.syncRid(baseUrl,baseUrl+syncapi, requestBody, APIRequestUtil.getUTCDateTime(timestamp));
+        JSONArray response = apiRequestUtil.syncRid(baseUrl,baseUrl+syncapi, requestBody, APIRequestUtil.getUTCDateTime(timestamp),contextKey);
 
         return response.toString();
     }
@@ -413,7 +416,7 @@ public class PacketSyncService {
     		});
     	}
     	logger.info(baseUrl+uploadapi +",path="+ path);
-        JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl+uploadapi, path);
+        JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl+uploadapi, path, contextKey);
         return response.toString();
     }
 
@@ -836,7 +839,7 @@ public class PacketSyncService {
 							break;
 						case "iris_encrypted":
 							IrisDataModel irisvalue = null;
-							String strval = "";
+							//String strval = "";
 							if(persona.getBiometric().getCapture() != null) {
 								irisvalue = new IrisDataModel();
 								
@@ -849,10 +852,10 @@ public class PacketSyncService {
 									if(cm.getBioSubType().equals("Right"))
 										irisvalue.setRight(cm.getBioValue());
 								}
-								strval = irisvalue.toJSONString();
+								val = irisvalue; //.toJSONString();
 							}
 							
-							retProp.put(key, strval );
+							retProp.put(key, val );
 							break;	
 						case "finger":
 							String [] fps = persona.getBiometric().getFingerPrint();
@@ -877,7 +880,34 @@ public class PacketSyncService {
 							}
 							break;
 							
-						
+						case "address":
+							JSONObject resp = new JSONObject();
+							String secLang = persona.getSecondaryLanguage();
+							String[] addr = persona.getAddress();
+							
+							if(secLang != null) {
+								String[] addr_sec = persona.getAddress_seclang();
+								for(int i=0; i < 3; i++) {	
+									JSONArray addrJson = new JSONArray();
+									JSONObject lineJson = new JSONObject();
+									lineJson.put("language", persona.getPrimaryLanguage());
+									lineJson.put("value", addr[i]);
+									addrJson.put( lineJson);
+									lineJson = new JSONObject();
+									lineJson.put("language", persona.getSecondaryLanguage());
+									lineJson.put("value", addr_sec[i]);
+									addrJson.put( lineJson);
+									resp.put("addressLine"+(i+1), addrJson);
+								}	
+							}
+							else
+							{
+								for(int i=0; i < 3; i++) {	
+									resp.put("addressLine"+(i+1), addr[i]);
+								}	
+							}
+							retProp.put(key, resp);
+							break;
 					}
 					
 				}	
@@ -971,6 +1001,79 @@ public class PacketSyncService {
     		logger.error("updatePersonaBioExceptions:"+ e.getMessage());
     	}
 		return null;
+	}
+
+	public String bulkuploadPackets(List<String> packetPaths, String contextKey) {
+
+		loadServerContextProperties(contextKey);
+	
+		return MosipDataSetup.uploadPackets( packetPaths);
+
+
+	}
+
+	public String setPersonaMockABISExpectation(List<String> personaFilePath, boolean bDuplicate, String contextKey) throws JSONException, NoSuchAlgorithmException, IOException {
+
+		String bdbString ="";
+		String [] duplicateBdbs;
+		
+		loadServerContextProperties(contextKey);
+		for(String personaPath: personaFilePath) {
+			
+			ResidentModel persona = ResidentModel.readPersona(personaPath);
+			List<MDSDeviceCaptureModel> capDetails =  persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
+			bdbString = capDetails.get(0).getBioValue();
+	
+			/*
+			 * "gallery": {
+    "referenceIds": [
+      {
+        "referenceId": "<hash of biometric>"
+      },
+      {
+        "referenceId": "<hash of biometric>"
+      }
+    ]
+  }
+*/
+			if(bDuplicate) {
+				duplicateBdbs = new String[2];
+				duplicateBdbs[0] =capDetails.get(1).getBioValue();
+				duplicateBdbs[1] =capDetails.get(2).getBioValue();
+			}
+			else
+				duplicateBdbs= null;
+			MosipDataSetup.configureMockABISBiometric(bdbString, bDuplicate,duplicateBdbs );
+		}
+		return "{\"status\":\"Success\"}";
+	}
+
+	String getRegIdFromPacketPath(String packetPath) {
+    	//leaf node of packet path is regid
+    	return Path.of(packetPath).getFileName().toString();
+    }
+	public String validatePacket(String packetPath, String processArg, String contextKey) {
+
+		JSONObject ret = new JSONObject();
+		ret.put("status", "Success");
+		loadServerContextProperties(contextKey);
+		String regId = getRegIdFromPacketPath(packetPath);
+    	String tempPacketRootFolder = Path.of(packetPath).toString();
+    	String jsonSchema = MosipMasterData.getIDSchemaSchemaLatestVersion();
+    	String processRoot =  Path.of(tempPacketRootFolder, src, process).toString();
+    	String packetRoot = Path.of(processRoot, "rid_id").toString();
+    	String identityJson = CommonUtil.readFromJSONFile(packetRoot + "/ID.json");
+    	try {
+    		
+    		CommonUtil.validateJSONSchema(jsonSchema, identityJson);
+    		
+    	}catch(ValidationException ex) {
+    	
+    		ret.put("status", "Error");
+    		ret.put("message", ex.getMessage());
+    		
+    	}
+		return ret.toString();
 	}
    
  
