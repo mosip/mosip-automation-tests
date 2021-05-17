@@ -12,6 +12,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -30,6 +32,7 @@ import org.json.JSONObject;
 import org.mosip.dataprovider.mds.HttpRCapture;
 
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import variables.VariableManager;
 
 import static io.restassured.RestAssured.given;
@@ -215,6 +218,42 @@ public class RestClient {
         checkErrorResponse(response.getBody().asString());
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
+	public static JSONObject uploadFiles(String url, List<String> filePaths, JSONObject requestData) throws Exception {
+		String role = "system";
+	
+		if (!isValidToken(role)){
+            initToken();
+        }
+
+
+		 Response response =null;
+
+		//Stict http validation errors - fix
+		 /*
+	    	if(url.contains("//")) {
+	    		url = url.replace("//", "/"); 		
+	    	}
+	*/
+	    String token = tokens.get(role);
+	    Cookie kukki = new Cookie.Builder("Authorization", token).build();
+        
+	    RequestSpecification spec = given().cookie(kukki);
+    	for(String fName: filePaths)
+    		spec = spec.multiPart("files", new File(fName));
+    	if(requestData != null) {
+    		Iterator<String> paramKeys = requestData.keys();
+    		while(paramKeys.hasNext()) {
+    			String key = paramKeys.next();
+    			spec = spec.formParam(key,requestData.get(key));
+    		
+    		}
+    	}
+	    response = spec.post(url);
+
+        checkErrorResponse(response.getBody().asString());
+        return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+    }
+
 /*
 	public static JSONObject getNoCookie(String url, JSONObject requestParams, JSONObject pathParam) throws Exception {
 	       
@@ -354,10 +393,15 @@ public class RestClient {
     		String token = cookie.split("=")[1];
     		tokens.put(role, token);
     	}
-        System.out.println("Response:"+response.getBody().asString());
-        checkErrorResponse(response.getBody().asString());
-
-        return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+    	if(response.getBody().asString().startsWith("{")) {
+    		System.out.println("Response:"+response.getBody().asString());
+    		checkErrorResponse(response.getBody().asString());
+    	
+    		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+    	}
+    	else {
+    		return new JSONObject("{\"status\":\""+ response.getBody().asString() + "\"}" );
+    	}
     }
 	public  static boolean initToken(){
 	        try {		

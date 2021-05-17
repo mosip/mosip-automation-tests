@@ -4,6 +4,7 @@ package org.mosip.dataprovider.models;
 import java.io.Serializable;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +34,10 @@ public class MosipIDSchema  implements Serializable{
 	
 	String fieldType ;
 	String group;
+	
+	@JsonAlias({"$ref"})
+	String typeRef;
+	
 	List<SchemaValidator> validators;
 	List<SchemaRule> requiredOn;
 	List<String> bioAttributes;

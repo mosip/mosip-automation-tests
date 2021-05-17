@@ -45,6 +45,8 @@ public class ResidentModel  implements Serializable {
 	private MosipIndividualTypeModel residentStatus;
 	private MosipIndividualTypeModel residentStatus_seclang;
 
+	private String[] address;
+	private String[] address_seclang;
 	
 	//if minor set guardian
 	private ResidentModel guardian;
@@ -76,6 +78,7 @@ public class ResidentModel  implements Serializable {
 		id = String.format("%04d", CommonUtil.generateRandomNumbers(1,99999, 1000)[0]);
 	//ID must be atleast 12 characters
 		id = id + id + id;
+		
 	}
 
 	public String toJSONString() {

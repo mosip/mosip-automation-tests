@@ -319,11 +319,26 @@ public class ResidentDataProvider {
 			res.setAppConfigIdSchema_secLang(locations_secLang);
 			
 			res.setLocation(  locations.getTblLocations().get(i));
-			
+			String [] addr = new String[3];
+			String addrFmt = "#%d, %d Street, %d block, lane #%d" ;//+ schemaItem.getId();
+			for(int ii=0; ii< 3; ii++) {
+				String addrLine = String.format(addrFmt, (10+ rand.nextInt(999)),
+					(1 + rand.nextInt(99)),
+					(1 + rand.nextInt(10)), ii+1
+					);
+				addr[ii] = addrLine;
+			}
+
+			res.setAddress(addr);
 			//res.setLocation(locations.get(res.getPrimaryLanguage()));
-			if(res.getSecondaryLanguage() != null)
+			if(res.getSecondaryLanguage() != null) {
 				res.setLocation_seclang (  locations_secLang.getTblLocations().get(i));
-			
+				String[] addr_sec = new String[3];
+				for(int ii=0; ii< 3; ii++) {
+					addr_sec[ii] = Translator.translate(res.getSecondaryLanguage(), addr[ii]);
+				}	
+				res.setAddress_seclang(addr_sec);
+			}
 			//	res.setLocation_seclang(locations.get(res.getPrimaryLanguage()));
 			
 			List<MosipIndividualTypeModel> lstResStatusPrimLang = resStatusList.get( res.getPrimaryLanguage());

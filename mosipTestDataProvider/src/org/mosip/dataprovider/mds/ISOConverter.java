@@ -90,7 +90,11 @@ public class ISOConverter {
 		mapFingerPos.put("Left LittleFinger", FingerPosition.LEFT_LITTLE_FINGER);
 				
 	}
-	public void convertFinger(byte[] inStream, String outFile, String biometricSubType) throws IOException {
+	public static int getFingerPos(String bioSubType) {
+		FingerPosition fingerPosition = mapFingerPos.get(bioSubType);
+		return fingerPosition.ordinal();
+	}
+	public byte [] convertFinger(byte[] inStream, String outFile, String biometricSubType) throws IOException {
 		
 		byte[] imageData = inStream;// Base64.getDecoder().decode(inStream);
 		
@@ -148,14 +152,14 @@ public class ISOConverter {
 						noOfFingerPresent, imageData, 
 						segmentationBlock, annotationBlock, commentBlock
 				);
-		if (isoData != null)
+		if (isoData != null && outFile != null)
 		{
 			Files.write(isoData,new File(outFile));
 		
 		}
-    				
+    	return isoData;		
 	}
-	public void convertIris(byte[] inStream, String outFile, String biometricSubType) throws IOException {
+	public byte [] convertIris(byte[] inStream, String outFile, String biometricSubType) throws IOException {
 		
 		byte[] imageData =  inStream;//Base64.getDecoder().decode(inStream);
 		
@@ -217,14 +221,15 @@ public class ISOConverter {
 				qualityBlocks, 
 				imageData, imageWidth, imageHeight
 			);
-		if (isoData != null)
+		if (isoData != null && outFile != null)
 		{
 			Files.write(isoData,new File(outFile));
 		
 		}
+		return isoData;
 	}
 
-	public void convertFace(byte[] inStream, String outFile) throws IOException {
+	public byte [] convertFace(byte[] inStream, String outFile) throws IOException {
 		
 		FaceFormatIdentifier formatIdentifier = FaceFormatIdentifier.FORMAT_FAC;
 		FaceVersionNumber versionNumber = FaceVersionNumber.VERSION_030;
@@ -283,10 +288,11 @@ public class ISOConverter {
 					imageColourSpace, landmarkPoints
 				); 
 		
-		if (isoData != null)
+		if (isoData != null && outFile != null)
 		{
 			Files.write(isoData,new File(outFile));
 		
 		}
+		return isoData;
 	}
 }
