@@ -214,8 +214,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 			throw new RigInternalError("Unable to BookAppointment from packet utility");
 	}
 
-	public String generateAndUploadPacket(String prid, String packetPath, HashMap<String, String> contextKey)
+	public String generateAndUploadPacket(String prid, String packetPath, HashMap<String, String> contextKey,String responseStatus)
 			throws RigInternalError {
+		String rid =null;
 		String url = baseUrl + "/packet/sync/" + prid;
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
@@ -225,11 +226,16 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// UploadPacket");
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey,
 				"Generate And UploadPacket");
-		JSONObject jsonResp = new JSONObject(response.getBody().asString());
-		String rid = jsonResp.getJSONObject("response").getString("registrationId");
+		if(!(response.getBody().asString().toLowerCase().contains("failed"))) {
+			JSONObject jsonResp = new JSONObject(response.getBody().asString());
+			rid = jsonResp.getJSONObject("response").getString("registrationId");
+		}
+		//JSONObject jsonResp = new JSONObject(response.getBody().asString());
+		//String rid = jsonResp.getJSONObject("response").getString("registrationId");
 		// assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to
 		// Generate And UploadPacket from packet utility");
-		if (!response.getBody().asString().toLowerCase().contains("success"))
+		//if (!response.getBody().asString().toLowerCase().contains("success"))
+		if (!response.getBody().asString().toLowerCase().contains(responseStatus))
 			throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
 		return rid;
 	}
@@ -289,16 +295,16 @@ public class PacketUtility extends BaseTestCaseUtil {
 		 */
 		// List<String> generatedResidentData = generateResidents(1,
 		// true,true,"Any",null,contextKey);
-		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields, contextKey);
-		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextKey);
+		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields, contextInuse);
+		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextInuse);
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
-		requestOtp(generatedResidentData.get(0), contextKey, parentEmailOrPhone);
-		verifyOtp(generatedResidentData.get(0), contextKey, parentEmailOrPhone);
-		String prid = preReg(generatedResidentData.get(0), contextKey);
-		uploadDocuments(generatedResidentData.get(0), prid, contextKey);
-		bookAppointment(prid, 1, contextKey, false);
-		String rid = generateAndUploadPacket(prid, templatePath, contextKey);
+		requestOtp(generatedResidentData.get(0), contextInuse, parentEmailOrPhone);
+		verifyOtp(generatedResidentData.get(0), contextInuse, parentEmailOrPhone);
+		String prid = preReg(generatedResidentData.get(0), contextInuse);
+		uploadDocuments(generatedResidentData.get(0), prid, contextInuse);
+		bookAppointment(prid, 1, contextInuse, false);
+		String rid = generateAndUploadPacket(prid, templatePath, contextInuse,"success");
 
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 
@@ -338,7 +344,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextKey);
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
-		String rid = generateAndUploadPacketSkippingPrereg(templatePath, generatedResidentData.get(0), contextKey);
+		String rid = generateAndUploadPacketSkippingPrereg(templatePath, generatedResidentData.get(0), contextKey,"success");
 
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 
@@ -363,7 +369,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
-			HashMap<String, String> contextKey) throws RigInternalError {
+			HashMap<String, String> contextKey,String responseStatus) throws RigInternalError {
+		String rid = null;
 		String url = baseUrl + "/packet/sync/0";
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
@@ -372,11 +379,16 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("personaFilePath", arr);
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey,
 				"Generate And UploadPacket");
-		JSONObject jsonResp = new JSONObject(response.getBody().asString());
-		String rid = jsonResp.getJSONObject("response").getString("registrationId");
+		if(!(response.getBody().asString().toLowerCase().contains("failed"))) {
+			JSONObject jsonResp = new JSONObject(response.getBody().asString());
+			rid = jsonResp.getJSONObject("response").getString("registrationId");
+		}
+		//JSONObject jsonResp = new JSONObject(response.getBody().asString());
+		//String rid = jsonResp.getJSONObject("response").getString("registrationId");
 		// assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to
 		// Generate And UploadPacket from packet utility");
-		if (!response.getBody().asString().toLowerCase().contains("success"))
+		//if (!response.getBody().asString().toLowerCase().contains("success"))
+		if (!response.getBody().asString().toLowerCase().contains(responseStatus))
 			throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
 		return rid;
 	}
