@@ -99,8 +99,9 @@ public class PreregSyncService {
     			
     		});
     	}
-    	
-		JSONObject preregResponse = apiUtil.get(baseUrl,baseUrl + syncapi+"/"+preregId, new JSONObject(), new JSONObject());
+    	//Fix:MOSIP-13932- Auth API signature changed
+    	logger.info("Before getPreReg");
+		JSONObject preregResponse = apiUtil.getPreReg(baseUrl,baseUrl + syncapi+"/"+preregId, new JSONObject(), new JSONObject());
 		logger.info("Downloaded data for prereg id {} ", preregResponse.getString("pre-registration-id"));
 		Path temPath = Path.of(workDirectory, preregId+".zip");
 		Files.write(temPath, Base64.getDecoder().decode(preregResponse.getString("zip-bytes")));
