@@ -30,6 +30,8 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.codec.binary.Hex;
 import org.mosip.dataprovider.mds.MDSClient;
+import org.mosip.dataprovider.mds.MDSClientInterface;
+import org.mosip.dataprovider.mds.MDSClientNoMDS;
 import org.mosip.dataprovider.models.BioModality;
 //import org.apache.commons.io.IOUtils;
 //import org.apache.commons.lang3.tuple.Pair;
@@ -153,8 +155,15 @@ public class BiometricDataProvider {
 		String mdsprofilePath = VariableManager.getVariableValue("mdsprofilepath").toString();
 		
 		port = (port ==0 ? 4501: port);
-		
-		MDSClient mds = new MDSClient(port);
+	
+		MDSClientInterface mds = null;
+		val =  VariableManager.getVariableValue("mdsbypass").toString();
+		if(val == null || val.equals("") || val.equals("false")) {
+			 mds =new MDSClient(port);
+		}
+		else {
+			mds = new MDSClientNoMDS();
+		}
 		String profileName = "res"+ resident.getId();
 		mds.createProfile(mdsprofilePath, profileName , resident);
 		mds.setProfile(profileName);
@@ -277,6 +286,7 @@ public class BiometricDataProvider {
 		mds.removeProfile( mdsprofilePath, profileName );
 		return capture;
 	}
+	
 	public static String toCBEFFFromCapture(List<String> bioFilter,MDSRCaptureModel capture, String toFile) throws Exception {
 	
 		String retXml = "";

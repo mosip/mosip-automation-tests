@@ -1,9 +1,11 @@
 package org.mosip.dataprovider.preparation;
 
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.mosip.dataprovider.models.setup.MosipDeviceModel;
 import org.mosip.dataprovider.models.setup.MosipMachineModel;
@@ -15,6 +17,7 @@ import org.mosip.dataprovider.util.RestClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import variables.VariableManager;
 
 public class MosipDataSetup {
@@ -261,4 +264,72 @@ public class MosipDataSetup {
 	
 		return devices;
 	}
+	public static String configureMockABISBiometric(String bdbString, boolean bDuplicate, String[] duplicateBdbs) 
+			throws JSONException, NoSuchAlgorithmException {
+		
+
+		String responseStr = "";
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue("mockABISsetExpectaion").toString();
+
+		JSONObject req = new JSONObject();
+		req.put("id", CommonUtil.getSHA(bdbString));
+		req.put("version","1.0");
+		req.put("requesttime",CommonUtil.getUTCDateTime(null) );
+		req.put("actionToInterfere","Identify" );
+		req.put("forcedResponse","Duplicate" );
+		if(!bDuplicate)
+			req.put("gallery",JSONObject.NULL);
+		else
+		{
+			JSONObject duprefs = new JSONObject();
+			JSONArray arr = new JSONArray();
+			for(String s: duplicateBdbs) {
+				JSONObject ref = new JSONObject();
+				ref.put("referenceId", CommonUtil.getSHA(bdbString));
+				arr.put(ref);
+			}
+			duprefs.put("referenceIds", arr);
+			req.put("gallery", duprefs);
+		}
+				
+		try {
+			JSONObject resp = RestClient.post(url, req);
+			if(resp != null) {
+				responseStr = resp.toString();
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			responseStr = e.getMessage();
+		}
+
+		return responseStr;
+	}
+	public static String uploadPackets( List<String> packetPaths) {
+
+		String responseStr = "";
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue("bulkupload").toString();
+
+		JSONObject req = new JSONObject();
+		req.put("category","packet");
+		req.put("tableName","packet");
+		req.put("operation","");
+		
+		
+		try {
+			JSONObject resp = RestClient.uploadFiles(url, packetPaths, req);
+			if(resp != null) {
+				responseStr = resp.toString();
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			responseStr = e.getMessage();
+		}
+		return responseStr;
+	}
+
+
 }

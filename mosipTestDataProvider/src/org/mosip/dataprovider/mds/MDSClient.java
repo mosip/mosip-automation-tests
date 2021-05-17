@@ -27,7 +27,7 @@ import io.cucumber.messages.internal.com.google.common.io.Files;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
-public class MDSClient {
+public class MDSClient implements MDSClientInterface {
 
 	int port;
 	public static String MDSURL = "http://127.0.0.1:";
@@ -39,6 +39,7 @@ public class MDSClient {
 			this.port = port;
 	}
 	//create profile folder and create all ISO images as per resident data
+	
 	public void createProfile(String profilePath,String profile, ResidentModel resident) {
 		File profDir = new File(profilePath + "/"+ profile);
 		if(!profDir.exists())

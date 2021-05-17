@@ -4,11 +4,13 @@ import java.io.File;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,11 +20,26 @@ import java.util.TimeZone;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
+import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 
 public class CommonUtil {
 
+	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    
+	public static boolean isExists(List<String> missList,String categoryCode) {
+		if(missList != null) {
+			for(String s: missList) {
+				if(s.equals(categoryCode))
+					return true;
+			}
+		}
+		return false;
+	}
 	public static String getJSONObjectAttribute(JSONObject obj, String attrName, String defValue) {
 		if(obj.has(attrName))
 			return obj.getString(attrName);
@@ -124,5 +141,29 @@ public class CommonUtil {
 	    
 	    return lstFiles;
 	    
+	}
+	public static String getSHA(String cbeffStr) throws NoSuchAlgorithmException  {
+		   MessageDigest md = MessageDigest.getInstance("SHA-256");
+		   return bytesToHex(md.digest(cbeffStr.getBytes(StandardCharsets.UTF_8)));
+	}
+	public static String bytesToHex(byte[] bytes) {
+		
+		char[] hexChars = new char[bytes.length * 2];
+	    for (int j = 0; j < bytes.length; j++) {
+	        int v = bytes[j] & 0xFF;
+	        hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+	        hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+	    }
+	    return new String(hexChars);
+	}
+	
+	public static void validateJSONSchema(String schemaJson, String identity) throws ValidationException {
+	
+		JSONObject jsonSchema = new JSONObject(schemaJson);
+
+		JSONObject jsonSubject = new JSONObject(identity);
+		    
+		Schema schema = SchemaLoader.load(jsonSchema);
+		schema.validate(jsonSubject);
 	}
 }

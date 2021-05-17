@@ -368,6 +368,129 @@ public  class MosipMasterData {
         
         return queryParams;
 	}
+	 public static Hashtable<Double,List<MosipIDSchema>>  getIDSchemaLatestVersion_defunct() {
+			
+		Hashtable<Double,List<MosipIDSchema>> tbl = new Hashtable<Double,List<MosipIDSchema>> ();
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(
+				VariableManager.NS_MASTERDATA,
+					//"individualtypes"
+				"idschemaapi"
+				).toString();
+		
+		Object o =getCache(url);
+		if(o != null)
+			return( (Hashtable<Double,List<MosipIDSchema>>) o);
+
+	    try {
+				JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject());
+
+				//int nSchema = resp.getInt("totalItems");
+				JSONArray idSchema = null;
+				double schemaVersion = 0.0;
+				String schemaTitle = "";
+				idSchema = resp.getJSONArray("schema");
+				
+				String schemaJson = resp.getString("schemaJson");
+				System.out.println(idSchema.toString());
+				schemaVersion=	resp.getDouble( "idVersion");
+				schemaTitle = resp.getString("title");
+				List<MosipIDSchema>  listSchema  = new ArrayList<MosipIDSchema>();
+				
+				if(schemaJson != null && !schemaJson.equals("")) {
+					JSONObject schemaObj = new JSONObject(schemaJson);
+					JSONObject identityObj = schemaObj.getJSONObject("properties").getJSONObject("identity");
+					JSONObject identityProps = identityObj.getJSONObject("properties");
+					JSONArray jsonArray = identityObj.getJSONArray("required");
+
+					ObjectMapper objectMapper = new ObjectMapper();
+					objectMapper.setSerializationInclusion(Include.NON_NULL);
+
+					for(int i = 0; i < jsonArray.length(); i++){
+					     String reqdField = jsonArray.getString(i);
+					     JSONObject prop = identityProps.getJSONObject(reqdField);
+					 	MosipIDSchema schema = objectMapper.readValue(prop.toString(), MosipIDSchema.class);
+					 	schema.setRequired(true);
+					 	schema.setInputRequired(true);
+					 	
+					 	schema.setId(reqdField);
+					 	if(schema.getTypeRef() != null) {
+						 	if(schema.getTypeRef().contains("simpleType"))
+						 		schema.setType("simpleType");
+						 	else
+						 	if(schema.getTypeRef().contains("documentType"))
+						 		schema.setType("documentType");
+						 	else
+							 if(schema.getTypeRef().contains("biometricsType"))
+							 	schema.setType("biometricsType");
+					 	} 	
+						listSchema.add(schema);
+					     
+					}
+
+					tbl.put(schemaVersion, listSchema);
+					
+					setCache(url, tbl);
+				}
+				/*
+				if(idSchema != null) {
+						
+					ObjectMapper objectMapper = new ObjectMapper();
+					objectMapper.setSerializationInclusion(Include.NON_NULL);
+
+					
+					for(int i=0; i < idSchema.length(); i++) {
+						MosipIDSchema schema = objectMapper.readValue(idSchema.get(i).toString(), MosipIDSchema.class);
+						listSchema.add(schema);
+					}
+
+					tbl.put(schemaVersion, listSchema);
+					
+					setCache(url, tbl);
+				}*/
+						
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        return tbl;
+		}
+
+	 private static JSONArray getRequiredFileds(JSONObject resp) {
+
+			String schemaJson = resp.getString("schemaJson");
+
+			JSONArray jsonArray = null;
+			if(schemaJson != null && !schemaJson.equals("")) {
+				JSONObject schemaObj = new JSONObject(schemaJson);
+				JSONObject identityObj = schemaObj.getJSONObject("properties").getJSONObject("identity");
+				JSONObject identityProps = identityObj.getJSONObject("properties");
+				jsonArray = identityObj.getJSONArray("required");
+			}
+			return jsonArray;
+				
+	 }
+	public static String getIDSchemaSchemaLatestVersion() {
+		String schemaJson = null;
+		
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(
+				VariableManager.NS_MASTERDATA,
+				//"individualtypes"
+				"idschemaapi"
+				).toString();
+	    try {
+				JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject());
+
+				schemaJson = resp.getString("schemaJson");
+
+	
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    return schemaJson;
+	}
 	public static Hashtable<Double,List<MosipIDSchema>>  getIDSchemaLatestVersion() {
 	
 		Hashtable<Double,List<MosipIDSchema>> tbl = new Hashtable<Double,List<MosipIDSchema>> ();
@@ -395,13 +518,21 @@ public  class MosipMasterData {
 			schemaTitle = resp.getString("title");
 			
 			if(idSchema != null) {
+				JSONArray reqdFields = getRequiredFileds(resp);
 				ObjectMapper objectMapper = new ObjectMapper();
 				objectMapper.setSerializationInclusion(Include.NON_NULL);
 
 				List<MosipIDSchema>  listSchema  = new ArrayList<MosipIDSchema>();
 				for(int i=0; i < idSchema.length(); i++) {
-					MosipIDSchema schema = objectMapper.readValue(idSchema.get(i).toString(), MosipIDSchema.class);
-					listSchema.add(schema);
+					 MosipIDSchema schema = objectMapper.readValue(idSchema.get(i).toString(), MosipIDSchema.class);
+					 
+					for(int ii = 0; ii < reqdFields.length(); ii++){
+					     String reqdField = reqdFields.getString(ii);
+					     if(reqdField.equals(schema.getId())) {
+					    	
+					    	 listSchema.add(schema);
+					     }
+					}
 				}
 
 				tbl.put(schemaVersion, listSchema);
@@ -721,14 +852,16 @@ public  class MosipMasterData {
 	}
 	public static void main(String[] args) {
 	
-		List<MosipDeviceModel> devices = MosipDataSetup.getDevices("10002");
+		VariableManager.setVariableValue("urlBase","https://sandbox.mosip.net/");
+	//	List<MosipDeviceModel> devices = MosipDataSetup.getDevices("10002");
 		
 		List<DynamicFieldModel> lstDyn =  MosipMasterData.getAllDynamicFields();
+		
 		
 		Hashtable<Double,List<MosipIDSchema>> tbl1 = getIDSchemaLatestVersion();
 		 double schemaId = tbl1.keys().nextElement();
 		 System.out.println(schemaId);
-		List<MosipGenderModel> allg =MosipMasterData.getGenderTypes();
+		List<MosipGenderModel> allg = MosipMasterData.getGenderTypes();
 		allg.forEach( g-> {
 			System.out.println(g.getCode() +"\t" + g.getGenderName());
 		});

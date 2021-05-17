@@ -134,21 +134,21 @@ public class CreatePersona {
 					( schemaItem.getType().equals("documentType") || schemaItem.getType().equals("biometricsType"))) {
 				continue;
 			}
-			if(!schemaItem.getRequired() && !schemaItem.getInputRequired()) {
+			if(!(schemaItem.getRequired() || schemaItem.getInputRequired())) {
 				continue;
 			}
 			if(schemaItem.getId().equals("IDSchemaVersion"))
 				continue;
 			
-			if(schemaItem.getType() != null &&
-				( schemaItem.getContactType() != null  || schemaItem.getGroup() != null)
+			if(schemaItem.getType() != null 
+					//&& ( schemaItem.getContactType() != null  || schemaItem.getGroup() != null)
 					
 			){
 				if(schemaItem.getControlType().equals("dropdown")) {
 					if(schemaItem.getFieldType().equals("dynamic")) {
 						if(dynaFields != null)
 						for(DynamicFieldModel dfm: dynaFields) {
-							if(dfm.getActive() && 
+							if(dfm.getIsActive() && 
 									( dfm.getId().equals(schemaItem.getId()) || dfm.getName().equals(schemaItem.getId()))
 							) {
 
@@ -290,7 +290,7 @@ public class CreatePersona {
 				else
 				if(schemaItem.getId().toLowerCase().contains("address")) {
 				
-					String addr = "";
+					String addr = null;
 					String addr_sec="";
 				
 					if(schemaItem.getControlType().equals("checkbox")) {
@@ -299,18 +299,43 @@ public class CreatePersona {
 					}
 					else
 					{
-						Random rand = new Random();
 						
-						addr = "#%d, %d Street, %d block" ;//+ schemaItem.getId();
-						addr = String.format(addr, (100+ rand.nextInt(999)),
+						String [] addressLines = resident.getAddress();
+						int index = -1;
+						
+						switch(schemaItem.getId().toLowerCase()) {
+							case "addressline1":
+								index = 0;
+								break;
+							case "addressline2":
+								index = 1;
+								break;
+							case "addressline3":
+								index = 2;
+								break;
+						}
+						if(index > -1)
+							addr = addressLines[index];
+						if(addr != null  ) {
+							Random rand = new Random();
+							addr = "#%d, %d Street, %d block" ;//+ schemaItem.getId();
+							addr = String.format(addr, (100+ rand.nextInt(999)),
 								(1 + rand.nextInt(99)),
 								(1 + rand.nextInt(10))
 								);
+						
+							if(resident.getSecondaryLanguage() != null)
+								addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+						}
+						else
+						{
+							if(resident.getSecondaryLanguage() != null)
+								addr_sec = resident.getAddress_seclang()[index];
+							
+						}
 						if(schemaItem.getMaximum() > 0 && addr.length() >= schemaItem.getMaximum() )
 							addr = addr.substring(0,schemaItem.getMaximum() -1);
-						
-						if(resident.getSecondaryLanguage() != null)
-							addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+				
 					}
 					constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 							resident.getSecondaryLanguage(),
@@ -365,6 +390,21 @@ public class CreatePersona {
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
 						
+				}
+				else
+				if(schemaItem.getId().toLowerCase().equals("gender")){
+						String primaryValue ="Female";
+						if(resident.getGender().equals("Male"))
+							primaryValue = "Male";
+						String secValue = primaryValue;
+						
+						
+						constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+								resident.getSecondaryLanguage(),
+								primaryValue,
+								secValue,
+								schemaItem.getType().equals("simpleType") ? true: false
+						);
 				}
 			}
 			else

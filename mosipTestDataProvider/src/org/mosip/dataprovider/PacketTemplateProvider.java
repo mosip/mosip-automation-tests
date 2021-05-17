@@ -125,10 +125,16 @@ public class PacketTemplateProvider {
        
        
 	}
+	
 	 String generateEvidenceJson(ResidentModel resident, HashMap<String, String[]> fileInfo) {
 		
 		JSONObject identity = new JSONObject();
+	
+		List<String> missList= resident.getMissAttributes();
+		
 		for(MosipIDSchema s: schema) {
+			String primVal  = "";
+			String secVal = "";
 			if(s.getFieldCategory().equals("evidence") && ( s.getInputRequired() || s.getRequired()) ) {
 				
 				if(s.getType().equals("documentType") ) {
@@ -136,6 +142,8 @@ public class PacketTemplateProvider {
 					//	String docType = s.getSubType();
 						int index = 0;
 						for(MosipDocument doc: resident.getDocuments()) {
+							if(CommonUtil.isExists(missList, doc.getDocCategoryCode()))
+								continue;
 							index = 0;
 							if(doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
 								index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size()-1, 0)[0];
@@ -221,15 +229,31 @@ public class PacketTemplateProvider {
 					}
 					continue;
 				}
+				else
+				if(s.getId().toLowerCase().contains("consent")) {
+						continue;
+				}
+				else
+				if(s.getControlType().equals("checkbox")) {
+					primVal = "Y";
+					secVal = "Y";
+				}
+				else
+				{
+					primVal = "Some text value";
+					if(resident.getSecondaryLanguage() != null)
+						secVal = Translator.translate(resident.getSecondaryLanguage(), primVal); 
+					
+				}
 				if(s.getType().equals("simpleType")) {
 					
-					updateSimpleType(s.getId(),identity,"", "", resident.getPrimaryLanguage(),
-							resident.getSecondaryLanguage(), resident.getThirdLanguage());
+					updateSimpleType(s.getId(),identity,primVal, secVal, resident.getPrimaryLanguage(),
+						resident.getSecondaryLanguage(), resident.getThirdLanguage());
 
 				}
 				else
 				{
-						identity.put(s.getId(), JSONObject.NULL);
+					identity.put(s.getId(), primVal.equals("") ? JSONObject.NULL : primVal);		
 				}
 			}
 		}
@@ -330,6 +354,9 @@ public class PacketTemplateProvider {
 	 }
 	 JSONObject updateSimpleType(String id,JSONObject identity, String primValue, String secValue, String primLang, String secLang, String thirdLang) {
 		 
+		 if(primValue == null)
+			 primValue = "Some Text Value";
+		 
 		 if( (secValue == null || secValue.equals("")) && secLang != null && !secLang.equals(""))
 			 secValue =  Translator.translate(secLang,  primValue);
 		 
@@ -341,7 +368,7 @@ public class PacketTemplateProvider {
 			JSONArray ar = new JSONArray();
 			JSONObject o = new JSONObject();
 			o.put("language",primLang);
-			if(primValue.equals(""))
+			if(primValue != null && primValue.equals(""))
 				o.put("value", Json.NULL);
 			else
 			o.put("value", primValue); 
@@ -495,7 +522,7 @@ public class PacketTemplateProvider {
 						secValue = primaryValue;
 					}
 					else
-					if(s.getId().toLowerCase().contains("address") && !s.getGroup().toLowerCase().equals("documents")) {
+					if(s.getId().toLowerCase().contains("address") && (s.getGroup() != null && !s.getGroup().toLowerCase().equals("documents"))) {
 						if(s.getControlType().equals("checkbox")) {
 							primaryValue = "Y";
 							if(secLanguage != null)
@@ -503,11 +530,49 @@ public class PacketTemplateProvider {
 						}
 						else
 						{
-							primaryValue = "#111, 127th Main, " + s.getId();
-							if(secLanguage != null)
-								secValue = Translator.translate(secLanguage,primaryValue);
+							String addr = null;
+							String addr_sec="";
+								
+							String [] addressLines = resident.getAddress();
+							int index = 0;
+							if(s.getId().toLowerCase().contains("line1"))
+								index = 0;
+							else
+							if(s.getId().toLowerCase().contains("line2"))
+								index = 1;
+							else
+							if(s.getId().toLowerCase().contains("line3"))
+								index = 2;
+
+
+							if(index > -1)
+								addr = addressLines[index];
+							if(addr != null  ) {
+								Random rand = new Random();
+								addr = "#%d, %d Street, %d block" ;//+ schemaItem.getId();
+								addr = String.format(addr, (100+ rand.nextInt(999)),
+									(1 + rand.nextInt(99)),
+									(1 + rand.nextInt(10))
+									);
+							
+								if(resident.getSecondaryLanguage() != null)
+									addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+							}
+							else
+							{
+								if(resident.getSecondaryLanguage() != null)
+									addr_sec = resident.getAddress_seclang()[index];
+								
+							}
+							if(s.getMaximum() > 0 && addr.length() >= s.getMaximum() )
+								addr = addr.substring(0,s.getMaximum() -1);
+						
+							primaryValue = addr;
+							secValue = addr_sec;
+					
 						}
 						
+					
 					}
 					else
 					if(s.getId().toLowerCase().contains("residen")  ) {
@@ -614,6 +679,9 @@ public class PacketTemplateProvider {
 					//	String docType = s.getSubType();
 						int index = 0;
 						for(MosipDocument doc: resident.getDocuments()) {
+							
+							if(CommonUtil.isExists(lstMissedAttributes, doc.getDocCategoryCode()))
+								continue;
 							index = 0;
 							if(doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
 								index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size()-1, 0)[0];
@@ -645,8 +713,8 @@ public class PacketTemplateProvider {
 						continue;
 					}
 					else
-					if(s.getSubType().equals("parentOrGuardianName") || s.getSubType().equals("introducer") ||
-							(s.getGroup() != null && s.getGroup().equals("GuardianDetails")) ){
+					if(s.getSubType() != null && ( s.getSubType().equals("parentOrGuardianName") || s.getSubType().equals("introducer") ||
+							(s.getGroup() != null && s.getGroup().equals("GuardianDetails"))) ){
 						if(resident.getGuardian() != null) {
 
 							//(JSONObject identity, String primValue, String secValue, String primLang, String secLang, String thirdLang) {
