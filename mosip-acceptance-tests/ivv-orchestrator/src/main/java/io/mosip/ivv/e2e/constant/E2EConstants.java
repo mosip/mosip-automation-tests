@@ -90,6 +90,13 @@ public class E2EConstants{
 	public static final String INUSE = "inUse";
 	public static final String ALLOCATE = "allocate";
 	public static final String DE_ALLOCATE = "deallocate";
+	
+	
+	//Activate/DeActivate [machine/operator/regCenter/device/partner]
+	public static final String MACHINE = "machine";
+	public static final String OPERATOR = "operator";
+	public static final String PARTNER = "partner";
+	public static final String REGCENTER = "regcenter";
 
 
 }
