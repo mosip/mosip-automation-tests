@@ -35,7 +35,8 @@ public class StepParser {
                 }else{
                     step.setVariant("DEFAULT");
                 }
-                String[] param_array = Pattern.compile("," ).split(Utils.regex("\\((.*?)\\)", str_split[i]).replaceAll("\\s+",""));
+                //String[] param_array = Pattern.compile("," ).split(Utils.regex("\\((.*?)\\)", str_split[i]).replaceAll("\\s+",""));
+                String[] param_array = Pattern.compile("," ).split(Utils.regex("\\((.*?)\\)", str_split[i]));
                 for(int z=0; z<param_array.length;z++){
                     if(param_array[z] != null && !param_array[z].isEmpty()){
                         parameters.add(param_array[z]);

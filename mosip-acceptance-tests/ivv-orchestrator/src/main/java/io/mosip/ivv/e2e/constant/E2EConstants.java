@@ -57,7 +57,11 @@ public class E2EConstants{
 	public static final String DEMOFETCH = "demodata";
 	public static final String FACEBIOTYPE = "FACE";
 	public static final String IRISBIOTYPE = "Iris";
+	public static final String IRISBIOTYPE_LEFT = "Left";
+	public static final String IRISBIOTYPE_RIGHT = "Right";
 	public static final String FINGERBIOTYPE = "Finger";
+	public static final String LEFT_RINGFINGER = "Left RingFinger";
+	public static final String RIGHT_RINGFINGER = "Right RingFinger";
 
 	public static final String DEMONAME="name";
 	public static final String DEMOFNAME="firstName";
@@ -97,6 +101,16 @@ public class E2EConstants{
 	public static final String OPERATOR = "operator";
 	public static final String PARTNER = "partner";
 	public static final String REGCENTER = "regcenter";
+	
+	//to fetch hashValue from personapath
+	public static final String FACEHASHFETCH = "face_hash";
+	public static final String IRISHASHFETCH = "iris_hash";
+	public static final String FINGERHASHFETCH = "finger_hash";
+	
+	
+	
+	public static final String LEFT_EYE_HASH = "iris_hash.left";
+	public static final String RIGHT_EYE_HASH = "iris_hash.right";
 
 
 }

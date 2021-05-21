@@ -10,9 +10,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
@@ -55,6 +57,7 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static HashMap<String, String> ridPersonaPath=new LinkedHashMap<String, String>();
 	public static Properties residentPersonaIdPro=new Properties();
 	public static Properties ridPacketPathPro=new Properties();
+	public static Hashtable<String,Map<String,String>> hashtable= new Hashtable<>();
 	public BaseTestCaseUtil() {}
 	
 	public String encoder(String text) {
