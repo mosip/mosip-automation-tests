@@ -223,7 +223,7 @@ public class Orchestrator {
 				return;
 			} catch (RigInternalError e) {
 				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
-				//e.printStackTrace();
+				e.printStackTrace();
 				Assert.assertTrue(false);
 				return;
 			} catch (RuntimeException e) {
