@@ -570,6 +570,18 @@ public class PacketUtility extends BaseTestCaseUtil {
 			return props;
 		}
 		
+		public static List<String> getParamsArg(String argVal, String pattern){
+			List<String> list = new ArrayList<>();
+			
+			String [] attr =  argVal.split(pattern);
+			if(attr != null) {
+				for(String s: attr) {
+					list.add(s);
+				}
+			}
+			return list;
+		}
+		
 		
 	public void serverResourceStatusManager(String responsePattern,String status) throws RigInternalError {
 		String respnseStatus = "";
@@ -606,10 +618,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return putHMapQParam;
 	}
 	
-	public void setMockabisExpectaion(boolean duplicate, JSONArray filePathArray, HashMap<String, String> contextKey)
+	public void setMockabisExpectaion(JSONArray jsonreq, HashMap<String, String> contextKey)
 			throws RigInternalError {
-		String url = baseUrl + props.getProperty("mockAbis") + duplicate;
-		Response response = postRequestWithQueryParamAndBody(url, filePathArray.toString(), contextKey,
+		String url = baseUrl + props.getProperty("mockAbis");
+		Response response = postRequestWithQueryParamAndBody(url, jsonreq.toString(), contextKey,
 				"Mockabis Expectaion");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to set mockabis expectaion from packet utility");
