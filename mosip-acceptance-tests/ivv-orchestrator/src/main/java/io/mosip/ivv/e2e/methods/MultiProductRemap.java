@@ -1,9 +1,19 @@
 package io.mosip.ivv.e2e.methods;
 
 import static io.restassured.RestAssured.given;
+
+import java.io.File;
+import java.io.FileReader;
+
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
+import org.mortbay.util.ajax.JSON;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.ResourceUtils;
 
+import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
@@ -14,6 +24,7 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 	
 	KernelAuthentication kernelAuthLib = new KernelAuthentication();
 	Logger logger = Logger.getLogger(MultiProductRemap.class);
+	String GETREQBODYDEVICEPATH = "DeviceRequestBody.json";
 	
 	@Override
 	public void run() throws RigInternalError {
@@ -65,6 +76,34 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 					message = userStatus ? "Reampped "+type : "Remap Fail "+type;
 				else
 					throw new RigInternalError("Unable to " + message);
+			break;
+			
+			case "device":
+				String getDeviceRequestBody = null;
+				String GETDEVICEURL = System.getProperty("env.endpoint") + props.getProperty("getDeviceToRemap") + value;
+				JSONParser jsonParser = new JSONParser();
+				try{
+					FileReader reader = new FileReader(GETREQBODYDEVICEPATH);
+					Object obj = jsonParser.parse(reader);
+					JSONObject jsonRequestInput = (JSONObject) obj;
+					getDeviceRequestBody = JsonPrecondtion.parseAndReturnJsonContent(JSONValue.toJSONString(jsonRequestInput), type, "request.(filters)[0].columnName");
+					getDeviceRequestBody = JsonPrecondtion.parseAndReturnJsonContent(JSONValue.toJSONString(jsonRequestInput), value, "request.(filters)[0].value");
+					Response responseDevice = packetUtility.postReqestWithCookiesAndBody(GETDEVICEURL, getDeviceRequestBody, token, "Get device detail by deviceId");
+					if (responseDevice.getBody().asString().toLowerCase().contains("errorcode")) {
+						logger.error("deviceId :[" + value + "] not found");
+						throw new RigInternalError("deviceId :[" + value + "] not found");
+					}
+					JSONObject jsonRespDevice = new JSONObject(responseDevice.getBody().asString());
+					Boolean deviceStatus = packetUtility.remapDevice(jsonRespDevice.toString(), token, value, regCenterId, zoneCode);
+					if (deviceStatus != null)
+						message = deviceStatus ? "Reampped "+type : "Remap Fail "+type;
+					else
+						throw new RigInternalError("Unable to " + message);
+					
+				}catch(Exception ex) {
+					
+				}
+				
 			break;
 		}
 	}
