@@ -39,8 +39,7 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 			logger.warn("arugemnt is  missing  please pass the argument from DSL sheet");
 		} else {
 			type=step.getParameters().get(0);
-			arrayValue = step.getParameters().get(1).split("=");
-			if(arrayValue.length > 1) {
+			if(step.getParameters().get(1).split("=").length > 1) {
 				arrayValue=step.getParameters().get(1).split("=");
 			}else {
 				value=step.getParameters().get(1);
