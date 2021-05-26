@@ -40,6 +40,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			for (String personaid : residentPersonaIdPro.stringPropertyNames()) {
 				personaId = personaid;
 				personaPath = residentPersonaIdPro.getProperty(personaid);
+				break;
 			}
 		 }
 		}else

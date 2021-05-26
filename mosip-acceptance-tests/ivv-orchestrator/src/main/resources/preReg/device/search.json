@@ -1,0 +1,22 @@
+{
+	"id": null,
+	"metadata": null,
+	"request": {
+		"filters": [{
+			"columnName": "id",
+			"type": "equals",
+			"value": "1001"
+		}],
+		"sort": [{
+			"sortType": "desc",
+			"sortField": "createdDateTime"
+		}],
+		"pagination": {
+			"pageStart": 0,
+			"pageFetch": 10
+		},
+		"languageCode": "eng"
+	},
+	"version": "1.0",
+	"requesttime": "2021-05-25T15:25:31.381Z"
+}
