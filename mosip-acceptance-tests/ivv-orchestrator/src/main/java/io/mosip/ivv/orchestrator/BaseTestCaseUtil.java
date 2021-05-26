@@ -222,6 +222,16 @@ public class BaseTestCaseUtil extends BaseStep{
 		return apiResponse;
 	}
 	
+	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		Response posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+				.accept("*/*").log().all().when().cookie("Authorization", token).post(url).then().log().all().extract()
+				.response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ posttResponse.getBody().asString() + "</pre>");
+		return posttResponse;
+	}
+	
 	public Response putRequestWithQueryParam(String url, HashMap<String, String> queryParams,String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response puttResponse = given().queryParams(queryParams).relaxedHTTPSValidation().log().all().when().put(url)
