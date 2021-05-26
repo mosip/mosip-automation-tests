@@ -1,6 +1,11 @@
 package io.mosip.ivv.orchestrator;
 
 import static io.restassured.RestAssured.given;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -15,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.testng.Reporter;
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
@@ -671,6 +677,15 @@ public class PacketUtility extends BaseTestCaseUtil {
 				+ puttResponse.getBody().asString() + "</pre>");
 		return puttResponse;
 	}
+	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		Response posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+				.accept("*/*").log().all().when().cookie("Authorization", token).post(url).then().log().all().extract()
+				.response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ posttResponse.getBody().asString() + "</pre>");
+		return posttResponse;
+	}
 	
 	public Response patchReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
@@ -790,5 +805,5 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		
 		//Activate/DeActivate RegCenter--- end
-	
+		
 }
