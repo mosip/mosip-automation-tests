@@ -2,10 +2,6 @@ package io.mosip.ivv.orchestrator;
 
 import static io.restassured.RestAssured.given;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -20,7 +16,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.json.simple.JSONValue;
 import org.testng.Reporter;
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
@@ -668,6 +664,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return isActive;
 	}
 
+
 	public Response putReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
@@ -686,6 +683,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 				+ posttResponse.getBody().asString() + "</pre>");
 		return posttResponse;
 	}
+
 	
 	public Response patchReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
@@ -706,6 +704,86 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return patchResponse;
 	}
 
+	/* Remap User--- start */
+	public Boolean remapUser(String jsonInput, String token,String value, String regCenterId, String zoneCode) throws RigInternalError {
+		regCenterId = !regCenterId.equals("0") ? regCenterId : JsonPrecondtion.getValueFromJson(jsonInput, "response.regCenterId");
+		String PUTUSERURL = System.getProperty("env.endpoint") + props.getProperty("putUserToRemap")+value+"/eng/"+regCenterId;
+		String updatedRegCenter = updateToRemapUser(PUTUSERURL, token);
+		return updatedRegCenter.equals(regCenterId)?true:false;
+	}
+	
+	/**** Remap Device ****/
+	public Boolean remapDevice(String jsonInput, String token,String value, String regCenterId, String zoneCode) throws RigInternalError {
+		regCenterId = !regCenterId.equals("0") ? regCenterId : JsonPrecondtion.getValueFromJson(jsonInput, "response.(data)[0].regCenterId");
+		String PUTUSERURL = System.getProperty("env.endpoint") + props.getProperty("putDeviceToRemap")+value+"/eng/"+regCenterId;
+		JSONObject jsonPutReq = requestBuilderDeviceRemap(jsonInput, zoneCode, regCenterId);
+		Response response = putReqestWithCookiesAndBody(PUTUSERURL,JSONValue.toJSONString(jsonPutReq), token, "Remap device to different registration center");
+		return new JSONObject(response.getBody().asString()).getString("regCenterId").equals(regCenterId)?true:false;
+	}
+	
+	/* Remap Machine--- start */
+	public String remapMachine(String jsonInput, String token, String regCenterId, String zoneCode) throws RigInternalError {
+		regCenterId = !regCenterId.equals("0") ? regCenterId : JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].regCenterId");
+		String url = System.getProperty("env.endpoint") + props.getProperty("getRegistrationCenter") + regCenterId+ "/eng";
+		Response getResponse = getRequestWithCookiesAndPathParam(url, token, "Get zoneCode by regCenterId");
+		if (getResponse.getBody().asString().toLowerCase().contains("errorcode")) {
+			logger.error("zoneCode not found for  :[" + regCenterId + "]");
+			throw new RigInternalError("zoneCode not found for  :[" + regCenterId + "]");
+		}
+		JSONObject jsonResp = new JSONObject(getResponse.getBody().asString());
+		zoneCode = !zoneCode.equals("0")?zoneCode:JsonPrecondtion.getValueFromJson(jsonResp.toString(),
+				"response.(registrationCenters)[0].zoneCode");
+		JSONObject jsonPutReq = requestBuilderMachineRemap(jsonInput, zoneCode, regCenterId);
+		String updatedMachineID = updateToRemapMachine(jsonPutReq, token);
+		return updatedMachineID;
+	}
+	
+	private  JSONObject requestBuilderMachineRemap(String jsonInput, String zoneCode, String regCenterId) {
+		JSONObject jsonOutterReq = new JSONObject();
+		jsonOutterReq.put("id", "string");
+		jsonOutterReq.put("metadata", new JSONObject());
+		JSONObject jsonInnerReq = new JSONObject();
+		jsonInnerReq.put("id", JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].id"));
+		jsonInnerReq.put("name", JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].name"));
+		jsonInnerReq.put("macAddress",
+				JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].macAddress"));
+		jsonInnerReq.put("ipAddress", JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].ipAddress"));
+		jsonInnerReq.put("machineSpecId",
+				JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].machineSpecId"));
+		jsonInnerReq.put("langCode", "eng");
+		jsonInnerReq.put("regCenterId", JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].macAddress"));
+		jsonInnerReq.put("zoneCode", zoneCode);
+		jsonInnerReq.put("regCenterId", regCenterId);
+		jsonInnerReq.put("isActive", true);
+		jsonOutterReq.put("request", jsonInnerReq);
+		//jsonOutterReq.put("requesttime", Timestamp.valueOf(LocalDateTime.now()));
+		jsonOutterReq.put("requesttime", getCurrentDateAndTimeForAPI());
+		jsonOutterReq.put("version", "string");
+		return jsonOutterReq;
+	}
+	
+	private  JSONObject requestBuilderDeviceRemap(String jsonInput, String zoneCode, String regCenterId) {
+		JSONObject jsonOutterReq = new JSONObject();
+		jsonOutterReq.put("id", "string");
+		jsonOutterReq.put("metadata", new JSONObject());
+		JSONObject jsonInnerReq = new JSONObject();
+		jsonInnerReq.put("deviceSpecId", JsonPrecondtion.getValueFromJson(jsonInput, "response.(data)[0].deviceSpecId"));
+		jsonInnerReq.put("id", JsonPrecondtion.getValueFromJson(jsonInput, "response.(data)[0].id"));
+		jsonInnerReq.put("ipAddress",
+				JsonPrecondtion.getValueFromJson(jsonInput, "response.(data)[0].ipAddress"));
+		jsonInnerReq.put("isActive", true);
+		jsonInnerReq.put("langCode", "eng");
+		jsonInnerReq.put("macAddress", JsonPrecondtion.getValueFromJson(jsonInput, "response.(data)[0].macAddress"));
+		jsonInnerReq.put("name", JsonPrecondtion.getValueFromJson(jsonInput, "response.(data)[0].name"));
+		jsonInnerReq.put("regCenterId", regCenterId);
+		jsonInnerReq.put("serialNum", JsonPrecondtion.getValueFromJson(jsonInput, "response.(data)[0].serialNum"));
+		jsonInnerReq.put("zoneCode", zoneCode);
+		jsonOutterReq.put("request", jsonInnerReq);
+		jsonOutterReq.put("requesttime", getCurrentDateAndTimeForAPI());
+		jsonOutterReq.put("version", "string");
+		return jsonOutterReq;
+	}
+	
 	public  Response getRequestWithCookiesAndPathParam(String url, String token, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response getResponse = given().relaxedHTTPSValidation().cookie("Authorization", token).log().all().when()
@@ -721,20 +799,23 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonOutterReq.put("id", "string");
 		jsonOutterReq.put("metadata", new JSONObject());
 		JSONObject jsonInnerReq = new JSONObject();
-		jsonInnerReq.put("id", machineid);
-		jsonInnerReq.put("machineSpecId", machineSpecId);
-		jsonInnerReq.put("zoneCode", zoneCode);
-		jsonInnerReq.put("isActive", status);
-		jsonInnerReq.put("name", (jsonInput == null) ? "xyz_".hashCode(): JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].name"));
-		jsonInnerReq.put("macAddress", (jsonInput == null) ? "8C-16-45-88-E1-1D": JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].macAddress"));
-		jsonInnerReq.put("ipAddress", (jsonInput == null) ? "193.168.0.122"	: JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].ipAddress"));
+		jsonInnerReq.put("id", JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].id"));
+		jsonInnerReq.put("name", JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].name"));
+		jsonInnerReq.put("macAddress",
+				JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].macAddress"));
+		jsonInnerReq.put("ipAddress", JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].ipAddress"));
+		jsonInnerReq.put("machineSpecId",
+				JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].machineSpecId"));
 		jsonInnerReq.put("langCode", "eng");
+		jsonInnerReq.put("regCenterId", JsonPrecondtion.getValueFromJson(jsonInput, "response.(machines)[0].macAddress"));
+		jsonInnerReq.put("zoneCode", zoneCode);
+		jsonInnerReq.put("isActive", true);
 		jsonOutterReq.put("request", jsonInnerReq);
+		//jsonOutterReq.put("requesttime", Timestamp.valueOf(LocalDateTime.now()));
 		jsonOutterReq.put("requesttime", getCurrentDateAndTimeForAPI());
 		jsonOutterReq.put("version", "string");
 		return jsonOutterReq;
 	}
-	//Activate/DeActivate machine--- end
 	
 	public  String getCurrentDateAndTimeForAPI() {
 		return	javax.xml.bind.DatatypeConverter.printDateTime(
@@ -805,5 +886,37 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		
 		//Activate/DeActivate RegCenter--- end
-		
+
+	private String updateToRemapMachine(JSONObject jsonPutReq, String token) throws RigInternalError {
+		String url = System.getProperty("env.endpoint") + props.getProperty("putMachineToRemap");
+		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token, "Update machine detail");
+		if (puttResponse.getBody().asString().toLowerCase().contains("errorcode")) {
+			logger.error("unable to update machine detail");
+			throw new RigInternalError("unable to update machine detail");
+		}
+		JSONObject jsonResp = new JSONObject(puttResponse.getBody().asString());
+		String machineID = jsonResp.getJSONObject("response").getString("id");
+		return machineID;
+	}
+	
+	private String updateToRemapUser(String url, String token) throws RigInternalError {
+		Response puttResponse = putReqestWithCookiesAndNoBody(url, token, "Update user detail");
+		if (puttResponse.getBody().asString().toLowerCase().contains("errorcode")) {
+			logger.error("unable to update user detail");
+			throw new RigInternalError("unable to update user detail");
+		}
+		JSONObject jsonResp = new JSONObject(puttResponse.getBody().asString());
+		String regCenterId = jsonResp.getJSONObject("response").getString("regCenterId");
+		return regCenterId;
+	}
+	
+	public Response putReqestWithCookiesAndNoBody(String url, String token, String opsToLog) {
+		Response puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+				.accept("*/*").log().all().when().cookie("Authorization", token).put(url).then().log().all().extract()
+				.response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ puttResponse.getBody().asString() + "</pre>");
+		return puttResponse;
+	}
+
 }
