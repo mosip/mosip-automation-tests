@@ -24,7 +24,7 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 	
 	KernelAuthentication kernelAuthLib = new KernelAuthentication();
 	Logger logger = Logger.getLogger(MultiProductRemap.class);
-	String GETREQBODYDEVICEPATH = "src/main/resources/local/DeviceRequestBody.json";
+	String GETREQBODYDEVICEPATH = "src/main/resources/kernel/Device/Search.json";
 	
 	@Override
 	public void run() throws RigInternalError {
@@ -39,6 +39,7 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 			logger.warn("arugemnt is  missing  please pass the argument from DSL sheet");
 		} else {
 			type=step.getParameters().get(0);
+			
 			if(step.getParameters().get(1).split("=").length > 1) {
 				arrayValue=step.getParameters().get(1).split("=");
 			}else {
