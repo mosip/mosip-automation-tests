@@ -715,10 +715,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 	/**** Remap Device ****/
 	public Boolean remapDevice(String jsonInput, String token,String value, String regCenterId, String zoneCode) throws RigInternalError {
 		regCenterId = !regCenterId.equals("0") ? regCenterId : JsonPrecondtion.getValueFromJson(jsonInput, "response.(data)[0].regCenterId");
-		String PUTUSERURL = System.getProperty("env.endpoint") + props.getProperty("putDeviceToRemap")+value+"/eng/"+regCenterId;
+		zoneCode = !zoneCode.equals("0")?zoneCode:JsonPrecondtion.getValueFromJson(jsonInput, "response.(data)[0].zoneCode");
+		String PUTUSERURL = System.getProperty("env.endpoint") + props.getProperty("putDeviceToRemap");
 		JSONObject jsonPutReq = requestBuilderDeviceRemap(jsonInput, zoneCode, regCenterId);
 		Response response = putReqestWithCookiesAndBody(PUTUSERURL,JSONValue.toJSONString(jsonPutReq), token, "Remap device to different registration center");
-		return new JSONObject(response.getBody().asString()).getString("regCenterId").equals(regCenterId)?true:false;
+		return JsonPrecondtion.getValueFromJson(response.getBody().asString(), "response.regCenterId").equals(regCenterId)?true:false;
 	}
 	
 	/* Remap Machine--- start */
