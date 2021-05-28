@@ -282,7 +282,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String updateResidentGuardian(String residentFilePath, boolean withRid, String missingFields,
+	public String updateResidentGuardian(String residentFilePath, String withRidOrUin, String missingFields,
 			String parentEmailOrPhone) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		/*
@@ -306,8 +306,19 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 
-		if (withRid)
+		if (withRidOrUin.equalsIgnoreCase("rid"))
 			updateResidentRid(generatedResidentData.get(0), rid);
+		else if (withRidOrUin.equalsIgnoreCase("uin")) {
+			try {
+				Thread.sleep(30000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
+			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid);
+			String uin = response.asString();
+			updateResidentUIN(generatedResidentData.get(0), uin);
+		}
 
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
@@ -327,7 +338,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String updateResidentWithGuardianSkippingPreReg(String residentFilePath, HashMap<String, String> contextKey,
-			boolean withRid, String missingFields) throws RigInternalError {
+			String withRidOrUin, String missingFields) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		/*
 		 * String missingField=null; boolean isGaurdianVal=false; String
@@ -346,8 +357,19 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 
-		if (withRid)
+		if (withRidOrUin.equalsIgnoreCase("rid"))
 			updateResidentRid(generatedResidentData.get(0), rid);
+		else if (withRidOrUin.equalsIgnoreCase("uin")) {
+			try {
+				Thread.sleep(30000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
+			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid);
+			String uin = response.asString();
+			updateResidentUIN(generatedResidentData.get(0), uin);
+		}
 
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
