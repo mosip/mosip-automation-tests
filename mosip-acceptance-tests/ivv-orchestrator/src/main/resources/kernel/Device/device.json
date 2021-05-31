@@ -1,0 +1,18 @@
+{
+  "id": "string",
+  "metadata": {},
+  "request": {
+    "deviceSpecId": "327",
+    "ipAddress": "",
+    "id": "1001",
+    "isActive": true,
+    "langCode": "eng",
+    "macAddress": "85-BB-97-4B-14-05",
+    "name": "Mock IRIS Scanner",
+    "regCenterId": "10001",
+    "serialNum": "3456789012",
+    "zoneCode": "RBT"
+  },
+  "requesttime": "2018-12-10T06:12:52.994Z",
+  "version": "string"
+}

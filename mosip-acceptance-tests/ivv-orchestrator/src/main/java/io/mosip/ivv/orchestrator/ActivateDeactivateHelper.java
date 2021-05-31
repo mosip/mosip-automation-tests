@@ -89,7 +89,7 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 	//Activate/DeActivate Device--- start
 	public JSONObject filterRecordByColumnName(String columnName, String value, boolean isActive, String token)
 			throws RigInternalError {
-		String searchJsonRequest = "preReg/device/search.json";
+		String searchJsonRequest = "kernel/Device/Search.json";
 		JSONObject jsonResp = null;
 		try {
 			InputStream inputStream = new FileInputStream(
@@ -118,7 +118,7 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 	}
 
 	public String buildDeviceRequest(JSONObject jsonResp, Boolean isActiveFlag) {
-		String deviceFilePath = "preReg/device/device.json";
+		String deviceFilePath = "kernel/Device/device.json";
 		String json = null;
 		try {
 			InputStream inputStream = new FileInputStream(
