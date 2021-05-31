@@ -101,6 +101,8 @@ public class E2EConstants{
 	public static final String OPERATOR = "operator";
 	public static final String PARTNER = "partner";
 	public static final String REGCENTER = "regcenter";
+	public static final String DEVICE = "device";
+	public static final String DEVICElTS = "devicelts";
 	
 	//to fetch hashValue from personapath
 	public static final String FACEHASHFETCH = "face_hash";
@@ -111,6 +113,8 @@ public class E2EConstants{
 	
 	public static final String LEFT_EYE_HASH = "iris_hash.left";
 	public static final String RIGHT_EYE_HASH = "iris_hash.right";
+	
+	
 
 
 }
