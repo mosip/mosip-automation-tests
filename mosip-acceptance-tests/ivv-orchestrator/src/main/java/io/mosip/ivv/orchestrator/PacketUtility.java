@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -485,12 +487,22 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (attributeList != null && !(attributeList.isEmpty()))
 			jsonReqInner.put("regenAttributeList", attributeList);
 		if (updateAttributeList != null && !(updateAttributeList.isEmpty())) {
-			updateAttributeList.forEach(key->{
-				String[] arr = key.split("=");
-				if(arr.length > 1) {
-					updateAttribute.put(arr[0].trim(), arr[1].trim());
+			String langcode = null;
+			for (String keys : updateAttributeList) {
+				String[] arr = keys.split("=");
+				if (arr.length > 1) {
+					if (arr[0].trim().equalsIgnoreCase("langCode")) {
+						langcode = arr[1].trim();
+						continue;
+					}
+					if (arr[0].trim().equalsIgnoreCase("residencestatus")) {
+						if(StringUtils.isEmpty(langcode))
+							throw new RigInternalError("LangCode is missing in paramter");
+						updateAttribute.put(arr[0].trim(), langcode + "=" + arr[1].trim());}
+					else
+						updateAttribute.put(arr[0].trim(), arr[1].trim());
 				}
-			});
+			}
 			jsonReqInner.put("updateAttributeList", updateAttribute);
 		}
 		JSONArray jsonReq = new JSONArray();
