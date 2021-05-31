@@ -452,21 +452,30 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String updateBiometric(String resFilePath, List<String> attributeList, List<String> missAttributeList)
+	public String updateDemoOrBioDetail(String resFilePath, List<String> attributeList, List<String> missAttributeList,List<String> updateAttributeList)
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePersonaData");
 		JSONObject jsonReqInner = new JSONObject();
+		JSONObject updateAttribute = new JSONObject();
 		if (missAttributeList != null && !(missAttributeList.isEmpty()))
 			jsonReqInner.put("missAttributeList", missAttributeList);
 		jsonReqInner.put("personaFilePath", resFilePath);
 		if (attributeList != null && !(attributeList.isEmpty()))
 			jsonReqInner.put("regenAttributeList", attributeList);
+		if (updateAttributeList != null && !(updateAttributeList.isEmpty())) {
+			updateAttributeList.forEach(key->{
+				String[] arr = key.split("=");
+				if(arr.length > 1) {
+					updateAttribute.put(arr[0].trim(), arr[1].trim());
+				}
+			});
+			jsonReqInner.put("updateAttributeList", updateAttribute);
+		}
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
-		//Response response = postReqest(url, jsonReq.toString(), "Update BiometricData");
-		Response response = putReqestWithBody(url, jsonReq.toString(), "Update BiometricData");
+		Response response = putReqestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail");
 		if (!response.getBody().asString().toLowerCase().contains("sucess"))
-			throw new RigInternalError("Unable to update BiometricData " + attributeList + " from packet utility");
+			throw new RigInternalError("Unable to update DemoOrBioDetail " + attributeList + " from packet utility");
 		return response.getBody().asString();
 
 	}

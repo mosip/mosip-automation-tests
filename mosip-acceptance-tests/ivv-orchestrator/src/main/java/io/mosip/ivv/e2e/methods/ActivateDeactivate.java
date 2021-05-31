@@ -24,7 +24,7 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 	// RegCenter [type=regcenter@@value=10001@@locationCode=14023@@zoneCode=SAL@@status=true]
 	// Operator [type=operator@@value=110124@@status=true]
 	// Device [type=device@@id=1001@@status=true]
-	// Device-LTS [type=device@@value=1001@@status=true]
+	// Device-LTS [type=devicelts@@value=1001@@status=true]
 
 	@Override
 	public void run() throws RigInternalError {

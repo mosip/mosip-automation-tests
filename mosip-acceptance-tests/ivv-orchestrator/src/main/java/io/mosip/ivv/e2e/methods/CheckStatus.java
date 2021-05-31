@@ -37,7 +37,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
     
 	public void checkStatus(String status_param) throws RigInternalError {
 		String status_Message=null;
-		switch(status_param) {
+		switch(status_param.toLowerCase()) {
 		case "processed":
 			status_Message=status_param;
 			break;
@@ -48,7 +48,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			status_Message="FAILED - PLEASE VISIT THE NEAREST CENTER FOR DETAILS.";
 			break;	
 		default:
-			logger.error("Parameter not supported");
+			logger.error("Parameter not supported only allowed are [processed/rejected/failed]");
 		}
 		if(tempPridAndRid ==null)
     		tempPridAndRid =pridsAndRids;
