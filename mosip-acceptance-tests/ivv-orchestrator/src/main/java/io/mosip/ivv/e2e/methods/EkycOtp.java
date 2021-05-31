@@ -39,7 +39,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		 //AuthPartnerProcessor.startProcess();
+		 AuthPartnerProcessor.startProcess();
 		//uinPersonaProp.put("7209149850", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
 
 		String uins = null;

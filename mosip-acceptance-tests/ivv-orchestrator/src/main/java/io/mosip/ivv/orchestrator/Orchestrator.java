@@ -38,36 +38,37 @@ import io.mosip.ivv.parser.Parser;
 import io.mosip.service.BaseTestCase;
 
 public class Orchestrator {
-	String message=null;
-	int countScenarioPassed=0;
-	static int totalScenario=0;
-	StringBuilder messageBuilder=new StringBuilder();
+	String message = null;
+	int countScenarioPassed = 0;
+	static int totalScenario = 0;
+	StringBuilder messageBuilder = new StringBuilder();
 	private static ExtentHtmlReporter htmlReporter;
 	public static ExtentReports extent;
 	private Properties properties;
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
 			put("e2e", "io.mosip.ivv.e2e.methods");
-			//put("pr", "io.mosip.ivv.preregistration.methods");
-			//put("rc", "io.mosip.ivv.registration.methods");
-			//put("rp", "io.mosip.ivv.regprocessor.methods");
-			//put("kr", "io.mosip.ivv.kernel.methods");
-			//put("ia", "io.mosip.ivv.ida.methods");
-			//put("mt", "io.mosip.ivv.mutators.methods");
+			// put("pr", "io.mosip.ivv.preregistration.methods");
+			// put("rc", "io.mosip.ivv.registration.methods");
+			// put("rp", "io.mosip.ivv.regprocessor.methods");
+			// put("kr", "io.mosip.ivv.kernel.methods");
+			// put("ia", "io.mosip.ivv.ida.methods");
+			// put("mt", "io.mosip.ivv.mutators.methods");
 		}
 	};
 
 	@BeforeSuite
 	public void beforeSuite() {
-		this.properties = Utils.getProperties(TestRunner.getExeternalResourcePath()+"/config/config.properties");
+		this.properties = Utils.getProperties(TestRunner.getExeternalResourcePath() + "/config/config.properties");
 		this.configToSystemProperties();
 		Utils.setupLogger(System.getProperty("user.dir") + this.properties.getProperty("ivv._path.auditlog"));
 		/* setting exentreport */
 		htmlReporter = new ExtentHtmlReporter(
-				//System.getProperty("user.dir") + this.properties.getProperty("ivv._path.reports"));
+				// System.getProperty("user.dir") +
+				// this.properties.getProperty("ivv._path.reports"));
 				TestRunner.getGlobalResourcePath() + this.properties.getProperty("ivv._path.reports"));
 		extent = new ExtentReports();
-	
+
 		extent.attachReporter(htmlReporter);
 	}
 
@@ -83,26 +84,37 @@ public class Orchestrator {
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = false)
 	public static Object[][] dataProvider() throws RigInternalError {
-		String scenarioSheet=null;
-		String configFile =TestRunner.getExeternalResourcePath()+"/config/config.properties";
+		String scenarioSheet = null;
+		String configFile = TestRunner.getExeternalResourcePath() + "/config/config.properties";
 		Properties properties = Utils.getProperties(configFile);
-		scenarioSheet=System.getProperty("scenarioSheet");
-		if(scenarioSheet==null || scenarioSheet.isEmpty())
+		scenarioSheet = System.getProperty("scenarioSheet");
+		if (scenarioSheet == null || scenarioSheet.isEmpty())
 			throw new RigInternalError("ScenarioSheet argument missing");
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
 		parserInputDTO.setConfigProperties(properties);
-		parserInputDTO.setDocumentsFolder(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.documents.folder"));
-		//System.out.println(":Path:"+TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.documents.folder"));
-		parserInputDTO.setBiometricsFolder(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.biometrics.folder"));
-		parserInputDTO.setPersonaSheet(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.persona.sheet"));
-		parserInputDTO.setScenarioSheet(TestRunner.getExeternalResourcePath()+properties.getProperty("ivv.path.scenario.sheet.folder")+scenarioSheet);
-		parserInputDTO.setRcSheet(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.rcpersona.sheet"));
-		parserInputDTO.setPartnerSheet(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.partner.sheet"));
-		parserInputDTO.setIdObjectSchema(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.idobject"));
-		parserInputDTO.setDocumentsSheet(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.documents.sheet"));
-		parserInputDTO.setBiometricsSheet(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.biometrics.sheet"));
-		parserInputDTO.setGlobalsSheet(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.globals.sheet"));
-		parserInputDTO.setConfigsSheet(TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.configs.sheet"));
+		parserInputDTO.setDocumentsFolder(
+				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.documents.folder"));
+		// System.out.println(":Path:"+TestRunner.getGlobalResourcePath()+"/"+properties.getProperty("ivv.path.documents.folder"));
+		parserInputDTO.setBiometricsFolder(
+				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.biometrics.folder"));
+		parserInputDTO.setPersonaSheet(
+				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.persona.sheet"));
+		parserInputDTO.setScenarioSheet(TestRunner.getExeternalResourcePath()
+				+ properties.getProperty("ivv.path.scenario.sheet.folder") + scenarioSheet);
+		parserInputDTO.setRcSheet(
+				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.rcpersona.sheet"));
+		parserInputDTO.setPartnerSheet(
+				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.partner.sheet"));
+		parserInputDTO.setIdObjectSchema(
+				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.idobject"));
+		parserInputDTO.setDocumentsSheet(
+				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.documents.sheet"));
+		parserInputDTO.setBiometricsSheet(
+				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.biometrics.sheet"));
+		parserInputDTO.setGlobalsSheet(
+				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.globals.sheet"));
+		parserInputDTO.setConfigsSheet(
+				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.configs.sheet"));
 
 		Parser parser = new Parser(parserInputDTO);
 		DataGenerator dg = new DataGenerator();
@@ -120,7 +132,7 @@ public class Orchestrator {
 		HashMap<String, String> configs = parser.getConfigs();
 		HashMap<String, String> globals = parser.getGlobals();
 		ArrayList<RegistrationUser> rcUsers = parser.getRCUsers();
-		totalScenario=scenarios.size();
+		totalScenario = scenarios.size();
 		Object[][] dataArray = new Object[scenarios.size()][5];
 		for (int i = 0; i < scenarios.size(); i++) {
 			dataArray[i][0] = i;
@@ -154,7 +166,7 @@ public class Orchestrator {
 			e.printStackTrace();
 		}
 		Utils.auditLog.info("");
-		message="Scenario_" + scenario.getId() + ": " + scenario.getDescription();
+		message = "Scenario_" + scenario.getId() + ": " + scenario.getDescription();
 		Utils.auditLog.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
 		Store store = new Store();
@@ -164,15 +176,16 @@ public class Orchestrator {
 		store.setRegistrationUsers(scenario.getRegistrationUsers());
 		store.setPartners(scenario.getPartners());
 		store.setProperties(this.properties);
-		Reporter.log("<b><u>"+"Scenario_" + scenario.getId() + ": " + scenario.getDescription()+ "</u></b>");
+		Reporter.log("<b><u>" + "Scenario_" + scenario.getId() + ": " + scenario.getDescription() + "</u></b>");
 		for (Scenario.Step step : scenario.getSteps()) {
 			Utils.auditLog.info("");
 			String identifier = "> #[Test Step: " + step.getName() + "] [module: " + step.getModule() + "] [variant: "
 					+ step.getVariant() + "]";
 			Utils.auditLog.info(identifier);
+
 			try {
-				extentTest.info(identifier + " - running");
-				// extentTest.info("parameters: "+step.getParameters().toString());
+				extentTest.info(identifier + " - running"); //
+				extentTest.info("parameters: " + step.getParameters().toString());
 				StepInterface st = getInstanceOf(step);
 				st.setExtentInstance(extentTest);
 				st.setSystemProperties(properties);
@@ -232,9 +245,9 @@ public class Orchestrator {
 				Assert.assertTrue(false);
 				return;
 			}
+
 		}
 	}
-
 
 	private String getPackage(Scenario.Step step) {
 		String pack = packages.get(step.getModule().toString());
@@ -249,10 +262,10 @@ public class Orchestrator {
 			countScenarioPassed++;
 		} else if (result.getStatus() == ITestResult.SKIP)
 			status = "Skip";
-		//messageBuilder.append(message + ": " + status).append("\n");
+		// messageBuilder.append(message + ": " + status).append("\n");
 
 	}
-	
+
 	@AfterClass
 	public void publishResult() {
 		messageBuilder.append("Execution Target: " + BaseTestCase.ApplnURI.split("//")[1]);
@@ -261,7 +274,7 @@ public class Orchestrator {
 				.append("Passed : " + countScenarioPassed);
 		messageBuilder.append("\n").append("Find the report: " + SlackChannelIntegration.reportUrl);
 		SlackChannelIntegration.postMessage(SlackChannelIntegration.defaultChannel, messageBuilder.toString());
-		
+
 	}
 
 	@SuppressWarnings("deprecation")
