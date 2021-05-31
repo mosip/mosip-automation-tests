@@ -1,6 +1,7 @@
 package io.mosip.ivv.orchestrator;
 
 import static io.restassured.RestAssured.given;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -473,21 +474,30 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String updateBiometric(String resFilePath, List<String> attributeList, List<String> missAttributeList)
+	public String updateDemoOrBioDetail(String resFilePath, List<String> attributeList, List<String> missAttributeList,List<String> updateAttributeList)
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePersonaData");
 		JSONObject jsonReqInner = new JSONObject();
+		JSONObject updateAttribute = new JSONObject();
 		if (missAttributeList != null && !(missAttributeList.isEmpty()))
 			jsonReqInner.put("missAttributeList", missAttributeList);
 		jsonReqInner.put("personaFilePath", resFilePath);
 		if (attributeList != null && !(attributeList.isEmpty()))
 			jsonReqInner.put("regenAttributeList", attributeList);
+		if (updateAttributeList != null && !(updateAttributeList.isEmpty())) {
+			updateAttributeList.forEach(key->{
+				String[] arr = key.split("=");
+				if(arr.length > 1) {
+					updateAttribute.put(arr[0].trim(), arr[1].trim());
+				}
+			});
+			jsonReqInner.put("updateAttributeList", updateAttribute);
+		}
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
-		//Response response = postReqest(url, jsonReq.toString(), "Update BiometricData");
-		Response response = putReqestWithBody(url, jsonReq.toString(), "Update BiometricData");
+		Response response = putReqestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail");
 		if (!response.getBody().asString().toLowerCase().contains("sucess"))
-			throw new RigInternalError("Unable to update BiometricData " + attributeList + " from packet utility");
+			throw new RigInternalError("Unable to update DemoOrBioDetail " + attributeList + " from packet utility");
 		return response.getBody().asString();
 
 	}
@@ -684,6 +694,27 @@ public class PacketUtility extends BaseTestCaseUtil {
 		Boolean isActive = jsonResp.getJSONObject("response").getBoolean("isActive");
 		return isActive;
 	}
+
+
+	public Response putReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+				.accept("*/*").log().all().when().cookie("Authorization", token).put(url).then().log().all().extract()
+				.response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ puttResponse.getBody().asString() + "</pre>");
+		return puttResponse;
+	}
+	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		Response posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+				.accept("*/*").log().all().when().cookie("Authorization", token).post(url).then().log().all().extract()
+				.response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ posttResponse.getBody().asString() + "</pre>");
+		return posttResponse;
+	}
+
 	
 	public Response patchReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
@@ -887,6 +918,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		
 		//Activate/DeActivate RegCenter--- end
+
 	private String updateToRemapMachine(JSONObject jsonPutReq, String token) throws RigInternalError {
 		String url = System.getProperty("env.endpoint") + props.getProperty("putMachineToRemap");
 		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token, "Update machine detail");
@@ -910,16 +942,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return regCenterId;
 	}
 	
-	public Response putReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-				.accept("*/*").log().all().when().cookie("Authorization", token).put(url).then().log().all().extract()
-				.response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ puttResponse.getBody().asString() + "</pre>");
-		return puttResponse;
-	}
-	
 	public Response putReqestWithCookiesAndNoBody(String url, String token, String opsToLog) {
 		Response puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 				.accept("*/*").log().all().when().cookie("Authorization", token).put(url).then().log().all().extract()
@@ -928,5 +950,5 @@ public class PacketUtility extends BaseTestCaseUtil {
 				+ puttResponse.getBody().asString() + "</pre>");
 		return puttResponse;
 	}
-	
+
 }
