@@ -88,7 +88,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 						}
 					}
 					//assertTrue(postScript.response.asString().contains("PROCESSED"), "Failed at status check Response validation");
-						if(!postScript.response.getBody().asString().toLowerCase().contains(status_param))
+						if(!postScript.response.getBody().asString().toLowerCase().contains(status_param.toLowerCase())) 
 						throw new RigInternalError("Failed at Packet Processing");
 				}
 			}
