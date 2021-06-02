@@ -41,7 +41,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		//uinPersonaProp.put("6471974360", "C:\\\\Users\\\\Sohan.Dey\\\\AppData\\\\Local\\\\Temp\\\\residents_1250718917110156783\\\\101681016810168.json");
-
+		vidPersonaProp.clear();
 		String uins = null;
 		String vidtype = null;
 		List<String> uinList = null;
