@@ -1,5 +1,6 @@
  package io.mosip.ivv.e2e.methods;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -31,7 +32,7 @@ public class UpdateDemoWithBio extends BaseTestCaseUtil implements StepInterface
 		for (String resDataPath : residentTemplatePaths.keySet()) {
 			packetUtility.updateDemoOrBioDetail(resDataPath,
 					(regenAttributeList.get(0).equalsIgnoreCase("0")) ? null : regenAttributeList,
-					(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? null : missFieldsAttributeList,
+					(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>() : missFieldsAttributeList,
 					updateAttributeList);
 			
 		}

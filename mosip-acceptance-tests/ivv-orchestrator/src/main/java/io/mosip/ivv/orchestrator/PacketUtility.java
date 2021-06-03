@@ -481,7 +481,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + props.getProperty("updatePersonaData");
 		JSONObject jsonReqInner = new JSONObject();
 		JSONObject updateAttribute = new JSONObject();
-		if (missAttributeList != null && !(missAttributeList.isEmpty()))
+		if (missAttributeList != null)
 			jsonReqInner.put("missAttributeList", missAttributeList);
 		jsonReqInner.put("personaFilePath", resFilePath);
 		if (attributeList != null && !(attributeList.isEmpty()))
