@@ -114,6 +114,14 @@ public class E2EConstants{
 	public static final String LEFT_EYE_HASH = "iris_hash.left";
 	public static final String RIGHT_EYE_HASH = "iris_hash.right";
 	
+	//check status api   processed
+	public static final String PROCESSED = "processed";
+	public static final String REJECTED = "rejected";
+	public static final String REJECTED_MSG = "REJECTED - PLEASE VISIT THE NEAREST CENTER FOR DETAILS.";
+	public static final String FAILED = "failed";
+	public static final String FAILED_MSG = "FAILED - PLEASE VISIT THE NEAREST CENTER FOR DETAILS.";
+	public static final String UNDER_PROCESSING_MSG = "UNDER PROCESSING - PLEASE CHECK BACK AGAIN LATER.";
+	
 	
 
 
