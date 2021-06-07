@@ -58,6 +58,11 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static Properties residentPersonaIdPro=new Properties();
 	public static Properties ridPacketPathPro=new Properties();
 	public static Hashtable<String,Map<String,String>> hashtable= new Hashtable<>();
+	public static List<String> generatedResidentData =new ArrayList<>();
+	public static String templatPath_updateResident=null;
+	public static String rid_updateResident=null;
+	public static String uin_updateResident=null;
+	public static String prid_updateResident=null;
 	public BaseTestCaseUtil() {}
 	
 	public String encoder(String text) {

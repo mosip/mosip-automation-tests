@@ -42,7 +42,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 		
 		String uri=baseUrl + "/ping?contextKey="+context.get(E2EConstants.CONTEXTKEY)+"&module="+modules;
 		
-		Response response = getRequest(uri, "");
+		Response response = getRequest(uri, "Health Check");
 		
 		JSONObject res = new JSONObject(response.asString());
 		

@@ -8,8 +8,8 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 
-public class UpdateDemoWithBio extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(UpdateDemoWithBio.class);
+public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInterface {
+	Logger logger = Logger.getLogger(UpdateDemoOrBioDetails.class);
 
 	@Override
 	public void run() throws RigInternalError {

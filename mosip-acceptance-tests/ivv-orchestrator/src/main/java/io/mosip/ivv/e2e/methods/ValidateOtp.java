@@ -1,6 +1,5 @@
 package io.mosip.ivv.e2e.methods;
 
-import static org.testng.Assert.assertTrue;
 import org.apache.log4j.Logger;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
@@ -12,17 +11,17 @@ public class ValidateOtp extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		
-		String emailOrPhone ="test.automation@gmail.com" ;
-		if (step.getParameters() == null || step.getParameters().isEmpty()) {
-			//emailOrPhone=" ";
-			//logger.error("Parameter is  missing from DSL step");
-			//assertTrue(false,"Paramter is  missing in step: "+step.getName());
-		} else {
-			emailOrPhone =step.getParameters().get(0);
-		}
-		for (String resDataPath : residentTemplatePaths.keySet()) {
-			//Reporter.log("<b><u>"+"PreRegister and upload packet testCase: "+count+ "</u></b>");
-			packetUtility.verifyOtp(resDataPath,contextInuse,emailOrPhone);
+		Boolean isForChildPacket = false;
+		String emailOrPhone = "test.automation@gmail.com";
+		if (step.getParameters().isEmpty()) {
+			// emailOrPhone =step.getParameters().get(0);
+			for (String resDataPath : residentTemplatePaths.keySet()) {
+				packetUtility.verifyOtp(resDataPath,contextInuse,emailOrPhone);
+			}
+		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
+			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
+			if (isForChildPacket && !generatedResidentData.isEmpty())
+				packetUtility.verifyOtp(generatedResidentData.get(0), contextInuse, emailOrPhone);
 		}
 	}
 }
