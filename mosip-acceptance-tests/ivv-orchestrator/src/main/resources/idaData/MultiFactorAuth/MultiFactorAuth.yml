@@ -12,14 +12,14 @@ MultiFactorAuth:
       "individualIdType": "UIN",
         "bio": true,
         "demo": true,
-        "otp": false,
+        "otp": true,
         "sendOtp":{
   "transactionID": "1234567890",
   "requestTime": "$TIMESTAMP$",
   "individualId": "uinnumber",
   "individualIdType": "UIN",
   "sendOtpReqTemplate": "idaData/MultiFactorAuth/sendOtp",
-  "sendOtpEndPoint": "/idauthentication/v1/otp/Kc0w35WMYCTqlnaKqmnW5uu3Z3hrDS0tYHAnSw47a5H6NTs6Bm/4810/212959"
+  "sendOtpEndPoint": "/idauthentication/v1/otp/$PartnerKey$
   },
     "identityRequest":{
           "bioSubType": "Left",
