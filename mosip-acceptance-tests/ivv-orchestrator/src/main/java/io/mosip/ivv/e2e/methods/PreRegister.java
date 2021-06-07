@@ -9,18 +9,20 @@ public class PreRegister extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		int count=1;
-		for (String resDataPath : residentTemplatePaths.keySet()) {
-			//Reporter.log("<b><u>"+"PreRegister and upload packet testCase: "+count+ "</u></b>");
-			Reporter.log("<b><u>"+"PreRegister testCase: "+count+ "</u></b>");
-			count++;
-			//packetUtility.requestOtp(resDataPath,contextKey);
-			//packetUtility.verifyOtp(resDataPath,contextKey);
-			String prid=packetUtility.preReg(resDataPath,contextInuse);
-			residentPathsPrid.put(resDataPath, prid);
+		Boolean isForChildPacket = false;
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
+			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
+			if (isForChildPacket && !generatedResidentData.isEmpty())
+				prid_updateResident = packetUtility.preReg(generatedResidentData.get(0), contextInuse);
+		} else {
+			int count = 1;
+			for (String resDataPath : residentTemplatePaths.keySet()) {
+				Reporter.log("<b><u>" + "PreRegister testCase: " + count + "</u></b>");
+				count++;
+				String prid = packetUtility.preReg(resDataPath, contextInuse);
+				residentPathsPrid.put(resDataPath, prid);
+			}
 		}
-		
 	}
-	
 
 }

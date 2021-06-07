@@ -7,16 +7,23 @@ import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 
 public class BookAppointment extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(BookAppointment.class);
-	boolean bookOnHolidays=Boolean.FALSE;
-	
+	boolean bookOnHolidays = Boolean.FALSE;
+
 	@Override
 	public void run() throws RigInternalError {
-		if (step.getParameters() != null && !step.getParameters().isEmpty())
-			bookOnHolidays =Boolean.parseBoolean(step.getParameters().get(0));
-		
-		for (String resDataPath : residentPathsPrid.keySet()) {
-			packetUtility.bookAppointment(residentPathsPrid.get(resDataPath), 1,contextInuse,bookOnHolidays);
+		Boolean isForChildPacket = false;
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) {
+			bookOnHolidays = Boolean.parseBoolean(step.getParameters().get(0));
+			for (String resDataPath : residentPathsPrid.keySet()) {
+				packetUtility.bookAppointment(residentPathsPrid.get(resDataPath), 1, contextInuse, bookOnHolidays);
+			}
+		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { // used for child packet processing
+			bookOnHolidays = Boolean.parseBoolean(step.getParameters().get(0));
+			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(1));
+			if (isForChildPacket && prid_updateResident != null)
+				packetUtility.bookAppointment(prid_updateResident, 1, contextInuse, bookOnHolidays);
+		} else {
+			throw new RigInternalError("Input parmeter is missiing [true/false]");
 		}
 	}
-
 }
