@@ -285,7 +285,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String updateResidentGuardian(String residentFilePath, String withRidOrUin, String missingFields,
+	public String updateResidentGuardian_old(String residentFilePath, String withRidOrUin, String missingFields,
 			String parentEmailOrPhone) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		/*
@@ -339,8 +339,25 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return rid;
 
 	}
+	public String updateResidentGuardian(String residentFilePath) throws RigInternalError {
+		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
+		JSONObject jsonwrapper = new JSONObject();
+		JSONObject jsonReq = new JSONObject();
+		JSONObject residentAttrib = new JSONObject();
+		residentAttrib.put("guardian", generatedResidentData.get(0));
+		residentAttrib.put("child", residentFilePath);
+		jsonReq.put("PR_ResidentList", residentAttrib);
+		jsonwrapper.put("requests", jsonReq);
+		String url = baseUrl + props.getProperty("updateResidentUrl");
+		Response response = postReqest(url, jsonwrapper.toString(), "Update Resident Guardian");
+		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + rid_updateResident + " And linked to child </u></b>");
+		if (!response.getBody().asString().toLowerCase().contains("success"))
+			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
+		return rid_updateResident;
 
-	public String updateResidentWithGuardianSkippingPreReg(String residentFilePath, HashMap<String, String> contextKey,
+	}
+
+	public String updateResidentWithGuardianSkippingPreReg_old(String residentFilePath, HashMap<String, String> contextKey,
 			String withRidOrUin, String missingFields) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		/*
@@ -391,6 +408,26 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
+	public String updateResidentWithGuardianSkippingPreReg(String residentFilePath, HashMap<String, String> contextKey)
+			throws RigInternalError {
+		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
+		JSONObject jsonwrapper = new JSONObject();
+		JSONObject jsonReq = new JSONObject();
+		JSONObject residentAttrib = new JSONObject();
+		residentAttrib.put("guardian", generatedResidentData.get(0));
+		residentAttrib.put("child", residentFilePath);
+		jsonReq.put("PR_ResidentList", residentAttrib);
+		jsonwrapper.put("requests", jsonReq);
+		String url = baseUrl + props.getProperty("updateResidentUrl");
+		Response response = postReqest(url, jsonwrapper.toString(), "Update Resident Guardian");
+		if (!response.getBody().asString().toLowerCase().contains("success"))
+			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
+		Reporter.log(
+				"<b><u>Generated GuardianPacket with Rid: " + rid_updateResident + " And linked to child </u></b>");
+		return rid_updateResident;
+
+	}
+
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
 			HashMap<String, String> contextKey,String responseStatus) throws RigInternalError {
 		String rid = null;
@@ -406,11 +443,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			rid = jsonResp.getJSONObject("response").getString("registrationId");
 		}
-		//JSONObject jsonResp = new JSONObject(response.getBody().asString());
-		//String rid = jsonResp.getJSONObject("response").getString("registrationId");
-		// assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to
-		// Generate And UploadPacket from packet utility");
-		//if (!response.getBody().asString().toLowerCase().contains("success"))
 		if (!response.getBody().asString().toLowerCase().contains(responseStatus))
 			throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
 		return rid;
