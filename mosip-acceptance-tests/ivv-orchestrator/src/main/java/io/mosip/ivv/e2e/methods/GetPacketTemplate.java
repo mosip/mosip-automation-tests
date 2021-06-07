@@ -1,7 +1,6 @@
 package io.mosip.ivv.e2e.methods;
 
-import static org.testng.Assert.assertTrue;
-
+import java.util.HashSet;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -19,45 +18,46 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 	@Override
 	public void run() throws RigInternalError {
 		String process = null;
-		 Properties personaIdValue =null;
-		if (step.getParameters() == null || step.getParameters().isEmpty()) {
-			logger.error("Argument is missing in DSL steps: " + step.getName());
+		Properties personaIdValue = null;
+		if (step.getParameters().isEmpty() && !generatedResidentData.isEmpty()) {  //  used to child packet processing
+			JSONArray jsonArray = packetUtility.getTemplate(new HashSet<String>(generatedResidentData), "NEW",
+					contextInuse);
+			JSONObject obj = jsonArray.getJSONObject(0);
+			templatPath_updateResident = obj.get("path").toString();
 		} else {
 			process = step.getParameters().get(0);
-			
 			if (step.getParameters().size() > 1) {
 				String personaId = step.getParameters().get(1);
 				personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
 				for (String id : personaIdValue.stringPropertyNames()) {
 					String value = personaIdValue.get(id).toString();
 					if (residentPersonaIdPro.get(value) == null)
-						throw new RigInternalError("Persona id : ["+value+"] is not present is the system");
+						throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
 					String personaPath = residentPersonaIdPro.get(value).toString();
 					residentTemplatePaths.put(personaPath, null);
 				}
 			}
-		}
-		
-		JSONArray resp = packetUtility.getTemplate(residentTemplatePaths.keySet(), process,contextInuse);
 
-		for (int i = 0; i < resp.length(); i++) {
-			JSONObject obj = resp.getJSONObject(i);
-			String id = obj.get("id").toString();
-			String tempFilePath = obj.get("path").toString();
-			for (String residentPath : residentTemplatePaths.keySet()) {
-				if (residentPath.contains(id)) {
-					residentTemplatePaths.put(residentPath, tempFilePath);
-					break;
+			JSONArray resp = packetUtility.getTemplate(residentTemplatePaths.keySet(), process, contextInuse);
+
+			for (int i = 0; i < resp.length(); i++) {
+				JSONObject obj = resp.getJSONObject(i);
+				String id = obj.get("id").toString();
+				String tempFilePath = obj.get("path").toString();
+				for (String residentPath : residentTemplatePaths.keySet()) {
+					if (residentPath.contains(id)) {
+						residentTemplatePaths.put(residentPath, tempFilePath);
+						break;
+					}
 				}
+
 			}
-			
+			for (String residentPath : residentTemplatePaths.keySet()) {
+				if (residentTemplatePaths.get(residentPath) == null)
+					throw new RigInternalError("Unable to get packetTemplate from packet utility");
+			}
 		}
-		for (String residentPath : residentTemplatePaths.keySet()) {
-			if(residentTemplatePaths.get(residentPath)==null)
-				throw new RigInternalError("Unable to get packetTemplate from packet utility");
-			//assertTrue(residentTemplatePaths.get(residentPath)!=null,"Unable to get packetTemplate from packet utility");
-		}
-		//System.out.println("RESIDENTTEMPLATEPATHS: " + residentTemplatePaths);
+
 	}
 
 }

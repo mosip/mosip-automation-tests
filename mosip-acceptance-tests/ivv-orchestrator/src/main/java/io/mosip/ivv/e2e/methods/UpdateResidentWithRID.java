@@ -10,9 +10,15 @@ public class UpdateResidentWithRID extends BaseTestCaseUtil implements StepInter
 
 	@Override
 	public void run() throws RigInternalError {
-		for (String rid : ridPersonaPath.keySet()) {
-			packetUtility.updateResidentRid(ridPersonaPath.get(rid), rid);
+		Boolean isForChildPacket = false;
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
+			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
+			if (isForChildPacket && !generatedResidentData.isEmpty() && rid_updateResident != null)
+				packetUtility.updateResidentRid(generatedResidentData.get(0), rid_updateResident);
+		} else {
+			for (String rid : ridPersonaPath.keySet()) {
+				packetUtility.updateResidentRid(ridPersonaPath.get(rid), rid);
+			}
 		}
 	}
-
 }
