@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="main/resource/" kind="src" output="target/classes" path="src">
+	<classpathentry kind="src" output="target/classes" path="src">
 		<attributes>
 			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-15.0.1">
-		<attributes>
-			<attribute name="module" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
@@ -19,28 +13,9 @@
 	</classpathentry>
 	<classpathentry kind="src" path="target/generated-sources/annotations">
 		<attributes>
-			<attribute name="ignore_optional_problems" value="true"/>
 			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="m2e-apt" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" output="target/test-classes" path="target/generated-test-sources/test-annotations">
-		<attributes>
-			<attribute name="ignore_optional_problems" value="true"/>
-			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="m2e-apt" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/varam/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.11.3/jackson-core-2.11.3.jar" sourcepath="C:/Users/varam/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.11.3/jackson-core-2.11.3-sources.jar">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="maven.groupId" value="com.fasterxml.jackson.core"/>
-			<attribute name="maven.artifactId" value="jackson-core"/>
-			<attribute name="maven.version" value="2.11.3"/>
-			<attribute name="maven.scope" value="compile"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

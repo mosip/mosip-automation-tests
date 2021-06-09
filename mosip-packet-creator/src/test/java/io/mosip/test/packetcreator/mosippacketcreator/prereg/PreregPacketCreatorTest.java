@@ -1,9 +1,6 @@
 package io.mosip.test.packetcreator.mosippacketcreator.prereg;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.junit.jupiter.api.Test;
@@ -26,7 +23,8 @@ public class PreregPacketCreatorTest {
         try {
             if(packetMaker == null)
                 packetMaker = new PacketMakerService();
-            assertNotNull(packetMaker.createContainer("/home/sasikumar/Documents/MOSIP/packetcreator/prereg/60736047859260/ID.json", null,null,null,null));
+            assertNotNull(
+            		packetMaker.createContainer("/home/sasikumar/Documents/MOSIP/packetcreator/prereg/60736047859260/ID.json", null,null,null,null,null, true));
         } catch (Exception ex) {
             // do nothing
             logger.error("", ex);

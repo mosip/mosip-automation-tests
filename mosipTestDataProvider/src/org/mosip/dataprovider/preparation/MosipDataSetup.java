@@ -264,10 +264,13 @@ public class MosipDataSetup {
 	
 		return devices;
 	}
-	public static String configureMockABISBiometric(String bdbString, boolean bDuplicate, String[] duplicateBdbs) 
+	public static String configureMockABISBiometric(String bdbString, boolean bDuplicate, String[] duplicateBdbs, int delay, String operation) 
 			throws JSONException, NoSuchAlgorithmException {
 		
 
+		if(operation == null || operation.equals(""))
+			operation = "Indentify";
+		
 		String responseStr = "";
 		String url = VariableManager.getVariableValue("urlBase").toString() +
 				VariableManager.getVariableValue("mockABISsetExpectaion").toString();
@@ -276,8 +279,11 @@ public class MosipDataSetup {
 		req.put("id", CommonUtil.getSHA(bdbString));
 		req.put("version","1.0");
 		req.put("requesttime",CommonUtil.getUTCDateTime(null) );
-		req.put("actionToInterfere","Identify" );
+		req.put("actionToInterfere",operation );
 		req.put("forcedResponse","Duplicate" );
+		
+		req.put("delayInExecution",Integer.toString(delay) );
+		
 		if(!bDuplicate)
 			req.put("gallery",JSONObject.NULL);
 		else

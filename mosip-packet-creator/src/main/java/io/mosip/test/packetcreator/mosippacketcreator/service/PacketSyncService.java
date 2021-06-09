@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mosip.dataprovider.PacketTemplateProvider;
 import org.mosip.dataprovider.ResidentDataProvider;
+import org.mosip.dataprovider.mds.ISOConverter;
 import org.mosip.dataprovider.models.AppointmentModel;
 import org.mosip.dataprovider.models.AppointmentTimeSlotModel;
 import org.mosip.dataprovider.models.CenterDetailsModel;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Service;
 
 import io.mosip.test.packetcreator.mosippacketcreator.dto.AppointmentDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.BioExceptionDto;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.MockABISExpectationsDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestType;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PreRegisterRequestDto;
@@ -267,7 +269,7 @@ public class PacketSyncService {
     	else
     	{
     		//construct ID Json from persona
-    		idJsonPath = createIDJsonFromPersona(personaPath);
+    		idJsonPath = createIDJsonFromPersona(personaPath,contextKey);
     	}
         if(templateLocation != null) {
         	process = ContextUtils.ProcessFromTemplate(src, templateLocation);
@@ -310,8 +312,9 @@ public class PacketSyncService {
         return functionResponse;
     	
     }
-    public static Path createIDJsonFromPersona(String personaFile) throws IOException {
+    public  Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
     	
+    	loadServerContextProperties(contextKey);
     	ResidentModel resident = ResidentModel.readPersona(personaFile);
     	JSONObject jsonIdentity = CreatePersona.crateIdentity(resident,null);
     	JSONObject jsonWrapper = new JSONObject();
@@ -879,7 +882,44 @@ public class PacketSyncService {
 								retProp.put(DataProviderConstants.displayFingerName[i] , fpsraw[i]);
 							}
 							break;
+						case "finger_hash":
+						{
+							if(persona.getBiometric().getCapture() != null) {
+								
+								List<MDSDeviceCaptureModel> lstFingerData =persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
+								for(MDSDeviceCaptureModel cm: lstFingerData) {
+									retProp.put(	cm.getBioSubType() , CommonUtil.getSHA(cm.getBioValue()));
+								}
+							}
+						}
+							break;
+						case "iris_hash":
+							IrisDataModel irisvalueh = null;
+							//String strval = "";
+							if(persona.getBiometric().getCapture() != null) {
+								irisvalueh = new IrisDataModel();
+								
+								List<MDSDeviceCaptureModel> lstIrisData =persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
+								for(MDSDeviceCaptureModel cm: lstIrisData) {
+									
+									if(cm.getBioSubType().equals("Left"))
+										irisvalueh.setLeft(CommonUtil.getSHA( cm.getBioValue()));
+									else
+									if(cm.getBioSubType().equals("Right"))
+										irisvalueh.setRight(CommonUtil.getSHA( cm.getBioValue()));
+								}
+								val = irisvalueh; //.toJSONString();
+							}
 							
+							retProp.put(key, val );
+							break;	
+						case "face_hash":
+							if(persona.getBiometric().getCapture() != null){
+								val = persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FACE).get(0).getBioValue();
+								val = CommonUtil.getSHA(val.toString());
+							}
+							retProp.put(key, val);
+							break;	
 						case "address":
 							JSONObject resp = new JSONObject();
 							String secLang = persona.getSecondaryLanguage();
@@ -1043,7 +1083,7 @@ public class PacketSyncService {
 			}
 			else
 				duplicateBdbs= null;
-			MosipDataSetup.configureMockABISBiometric(bdbString, bDuplicate,duplicateBdbs );
+			MosipDataSetup.configureMockABISBiometric(bdbString, bDuplicate,duplicateBdbs, DataProviderConstants.DEFAULT_ABIS_DELAY, null );
 		}
 		return "{\"status\":\"Success\"}";
 	}
@@ -1074,6 +1114,74 @@ public class PacketSyncService {
     		
     	}
 		return ret.toString();
+	}
+
+	public String setPersonaMockABISExpectationV2(List<MockABISExpectationsDto> expectations, String contextKey) throws JSONException, NoSuchAlgorithmException, IOException {
+
+		String bdbString ="";
+		String [] duplicateBdbs;
+		
+		loadServerContextProperties(contextKey);
+		for(MockABISExpectationsDto expct : expectations) {
+			
+			ResidentModel persona = ResidentModel.readPersona(expct.getPersonaPath());
+			
+			List<String> modalities = expct.getModalities();
+			List<MDSDeviceCaptureModel> capFingers =  persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
+			List<MDSDeviceCaptureModel> capFace =  persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
+			List<MDSDeviceCaptureModel> capIris =  persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
+			List<String> subTypeBdbStr = new ArrayList<String>();
+			if(modalities != null) {
+				for(String m: modalities) {
+					if(m.toLowerCase().contains("finger")) {
+						int pos = ISOConverter.getFingerPos(m.trim());
+						bdbString = capFingers.get(pos).getBioValue();
+						subTypeBdbStr.add(bdbString);
+					}
+					else
+					if(m.toLowerCase().contains("iris")) {
+						int pos = m.toLowerCase().equals(capIris.get(0).getBioSubType().toLowerCase()) ? 0: 1;
+						bdbString = capIris.get(0).getBioValue();
+						subTypeBdbStr.add(bdbString);
+						
+					}
+					else
+					if(m.toLowerCase().contains("face")) {
+						bdbString = capFace.get(0).getBioValue();
+						subTypeBdbStr.add(bdbString);
+					}
+					
+				}
+				
+			}
+			else {
+				bdbString = capFingers.get(0).getBioValue();
+				subTypeBdbStr.add(bdbString);
+			}
+	
+			
+			if(expct.isDuplicate()) {
+				List<String> refHashs =expct.getRefHashs();
+				if(refHashs != null && refHashs.size() > 0 ) {
+					duplicateBdbs = new String[ refHashs.size()];
+					for(int i=0; i < duplicateBdbs.length; i++)
+						duplicateBdbs[i] = refHashs.get(i);
+				}
+				else {
+					duplicateBdbs = new String[2];
+					duplicateBdbs[0] =capFingers.get(1).getBioValue();
+					duplicateBdbs[1] =capFingers.get(2).getBioValue();
+				}
+			}
+			else
+				duplicateBdbs= null;
+			for(String b:subTypeBdbStr ) {
+				MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
+						(expct.getDelaySec() <= 0 ?  DataProviderConstants.DEFAULT_ABIS_DELAY : expct.getDelaySec()),
+						expct.getOperation());
+			}
+		}
+		return "{\"status\":\"Success\"}";
 	}
    
  
