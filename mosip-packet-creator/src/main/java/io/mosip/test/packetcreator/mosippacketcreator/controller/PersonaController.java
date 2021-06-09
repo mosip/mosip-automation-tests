@@ -2,6 +2,7 @@ package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.websocket.server.PathParam;
 
 import org.mosip.dataprovider.util.DataProviderConstants;
@@ -19,11 +20,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.test.packetcreator.mosippacketcreator.dto.BioExceptionDto;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.MockABISExpectationsDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.UpdatePersonaDto;
 import io.mosip.test.packetcreator.mosippacketcreator.service.PacketSyncService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import variables.VariableManager;
 
 @Api(value = "PersonaController", description = "REST APIs for Persona management")
 @RestController
@@ -38,6 +41,8 @@ public class PersonaController {
 	   
 	private static final Logger logger = LoggerFactory.getLogger(PersonaController.class);
 
+	
+	
 
 	@ApiOperation(value = "Update given persona record with the given list of attribute values", response = String.class)
 	@PutMapping(value = "/persona/{id}")
@@ -47,6 +52,8 @@ public class PersonaController {
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
 	    			DataProviderConstants.RESOURCE = personaConfigPath;
 	    		}
+	    		 VariableManager.Init();
+	    			
 	    		return packetSyncService.updatePersonaData(personaRequestDto);
 	    	
 	    	} catch (Exception ex){
@@ -135,4 +142,25 @@ public class PersonaController {
 	    	return "{Failed}";
 	    	
 	 }
+	
+
+	@ApiOperation(value = "Extended API to set Persona specific expectations in mock ABIS ", response = String.class)
+	@PostMapping(value = "/persona/mockabis/v2/expectaions")
+	public @ResponseBody String setPersonaMockABISExpectationV2(@RequestBody List<MockABISExpectationsDto>  expectations,
+			@RequestParam(name="contextKey",required = false) String contextKey
+			) {
+	    	
+		try{    	
+	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+	    			DataProviderConstants.RESOURCE = personaConfigPath;
+	    		}
+	    		return packetSyncService.setPersonaMockABISExpectationV2(expectations,contextKey);
+	    	
+	    } catch (Exception ex){
+	             logger.error("setPersonaMockABISExpectation", ex);
+	    }
+	    	return "{Failed}";
+	    	
+	 }
+
 }

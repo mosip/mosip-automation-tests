@@ -87,6 +87,9 @@ public class PacketMakerService {
     @Autowired
     private ContextUtils contextUtils;
    
+    @Autowired
+    private PacketSyncService packetSyncService;
+    
     private String newRegId;
     
     @PostConstruct
@@ -137,7 +140,10 @@ public class PacketMakerService {
             		if(k.toString().equals("mosip.test.regclient.supervisorid")) {
             			supervisorId = v.toString();
                 	}
-    			
+            		else
+                		if(k.toString().equals("mosip.test.regclient.userid")) {
+                			officerId = v.toString();
+                    	}
     		});
     	}
     	if(source != null)
@@ -171,11 +177,18 @@ public class PacketMakerService {
     	logger.info("createPacketFromTemplate" );
     	
     	Path idJsonPath = null;
-    	idJsonPath = PacketSyncService.createIDJsonFromPersona(personaPath);
+    	//Fix for change in Demodata
     	 if(templatePath != null) {
          	process = ContextUtils.ProcessFromTemplate(src, templatePath);
-         }
-    	String packetPath = createContainer(idJsonPath.toString(),templatePath,src,process, null,contextKey,false);
+         	//get idJson From Template itself
+         	idJsonPath = ContextUtils.idJsonPathFromTemplate(src, templatePath);
+    	 }
+    	 else
+    		 idJsonPath = packetSyncService.createIDJsonFromPersona(personaPath, contextKey);
+     	
+    	String packetPath = createContainer( 
+    			(idJsonPath == null ? null: idJsonPath.toString()),
+    			templatePath,src,process, null,contextKey,false);
 
     	logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
     	//newRegId
@@ -216,7 +229,9 @@ public class PacketMakerService {
             		if(k.toString().equals("mosip.test.regclient.supervisorid")) {
             			supervisorId = v.toString();
                 	}
-    			
+				else if (k.toString().equals("mosip.test.regclient.userid")) {
+					officerId = v.toString();
+				}
     		});
     	}
     	
@@ -405,7 +420,10 @@ public class PacketMakerService {
         String packetRootFolder = getPacketRoot(getProcessRoot(containerRootFolder), regId, type);
         String templateFile = getIdJSONFileLocation(packetRootFolder);
 
-        String dataToMerge = Files.readString(Path.of(dataFilePath));
+        String dataToMerge = null;
+        if(dataFilePath != null)
+        	dataToMerge = Files.readString(Path.of(dataFilePath));
+        
         JSONObject jb = new JSONObject(dataToMerge).getJSONObject("identity");
         
         String schemaVersion = jb.optString("IDSchemaVersion", "0");

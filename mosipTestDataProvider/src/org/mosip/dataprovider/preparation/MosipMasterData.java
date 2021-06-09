@@ -46,6 +46,10 @@ import variables.VariableManager;
 
 public  class MosipMasterData {
 
+/*	static {
+		VariableManager.Init();
+	}
+*/
 	public static Object getCache(String key) {
 		try {
 		return VariableManager.getVariableValue(key);
@@ -508,31 +512,40 @@ public  class MosipMasterData {
         try {
 			JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject());
 
+			
 			//int nSchema = resp.getInt("totalItems");
 			JSONArray idSchema = null;
 			double schemaVersion = 0.0;
 			String schemaTitle = "";
-			idSchema = resp.getJSONArray("schema");
+			idSchema = resp.getJSONArray("schema"); //UISpec
 			System.out.println(idSchema.toString());
+			CommonUtil.saveToTemp(idSchema.toString(), "idschema.json");
+			
 			schemaVersion=	resp.getDouble( "idVersion");
 			schemaTitle = resp.getString("title");
 			
 			if(idSchema != null) {
-				JSONArray reqdFields = getRequiredFileds(resp);
+				JSONArray reqdFields = getRequiredFileds(resp); //FROM IDSchema
 				ObjectMapper objectMapper = new ObjectMapper();
 				objectMapper.setSerializationInclusion(Include.NON_NULL);
 
 				List<MosipIDSchema>  listSchema  = new ArrayList<MosipIDSchema>();
 				for(int i=0; i < idSchema.length(); i++) {
 					 MosipIDSchema schema = objectMapper.readValue(idSchema.get(i).toString(), MosipIDSchema.class);
-					 
-					for(int ii = 0; ii < reqdFields.length(); ii++){
-					     String reqdField = reqdFields.getString(ii);
-					     if(reqdField.equals(schema.getId())) {
-					    	
-					    	 listSchema.add(schema);
-					     }
-					}
+					 listSchema.add(schema);
+					 /*
+					if(schema.getId().toLowerCase().contains("uin") || schema.getId().toLowerCase().contains("rid") )
+						listSchema.add(schema);
+					else
+					{
+						for(int ii = 0; ii < reqdFields.length(); ii++){
+						     String reqdField = reqdFields.getString(ii);
+						     if(reqdField.equals(schema.getId())) {
+						    	
+						    	 listSchema.add(schema);
+						     }
+						}
+					}*/
 				}
 
 				tbl.put(schemaVersion, listSchema);
@@ -852,7 +865,7 @@ public  class MosipMasterData {
 	}
 	public static void main(String[] args) {
 	
-		VariableManager.setVariableValue("urlBase","https://sandbox.mosip.net/");
+		//VariableManager.setVariableValue("urlBase","https://sandbox.mosip.net/");
 	//	List<MosipDeviceModel> devices = MosipDataSetup.getDevices("10002");
 		
 		List<DynamicFieldModel> lstDyn =  MosipMasterData.getAllDynamicFields();

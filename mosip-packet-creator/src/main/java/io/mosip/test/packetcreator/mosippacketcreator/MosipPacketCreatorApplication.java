@@ -17,18 +17,21 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 
+
+
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 
 public class MosipPacketCreatorApplication {
 
 	  private static ConfigurableApplicationContext context;
-
+	
 	public static void main(String[] args) {
 		System.setProperty("spring.devtools.restart.enabled", "false");
 		//		#security.ignored=/**
 	//	System.setProperty("security.basic.enabled", "false");
 	//	System.setProperty("management.security.enabled", "false");
 	//	System.setProperty("security.ignored", "/**");
+	
 	
 		context = SpringApplication.run(MosipPacketCreatorApplication.class, args);
 	}
@@ -53,6 +56,7 @@ public class MosipPacketCreatorApplication {
 	@ConditionalOnProperty(name = "spring.config.location", matchIfMissing = false)
 	public PropertiesConfiguration propertiesConfiguration(
 	  @Value("${spring.config.location}") String path) throws Exception {
+		System.out.println("PATH spring.config.location : "+path);
 	    String filePath = new File(path.substring("file:".length())).getCanonicalPath();
 	    
 	    PropertiesConfiguration configuration = new PropertiesConfiguration(

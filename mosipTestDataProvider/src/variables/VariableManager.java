@@ -42,7 +42,9 @@ public final class VariableManager {
 	static {
 		Init();				
 	}
-	
+	public static boolean isInit() {
+		return bInit;
+	}
 	public static void Init() {
 		
 		if(bInit) return;
@@ -58,27 +60,27 @@ public final class VariableManager {
 		    .setStatisticsEnabled(true);
 
 		 //create the cache
-		
-		 varNameSpaces = new Hashtable<String, Cache<String,Object>>();
+		if(varNameSpaces == null) {
+			varNameSpaces = new Hashtable<String, Cache<String,Object>>();
 			//load predefined variables
 			
-			 Cache<String,Object> cache = cacheManager.createCache ( NS_DEFAULT, cacheConfig);
-			 varNameSpaces.put(NS_DEFAULT, cache);
+			Cache<String,Object> cache = cacheManager.createCache ( NS_DEFAULT, cacheConfig);
+			varNameSpaces.put(NS_DEFAULT, cache);
 			
 		//	cache = cacheManager.createCache(NS_PREREG, cacheConfig);
 		//	varNameSpaces.put(NS_PREREG, cache);
 			
 			cache = cacheManager.createCache(NS_MASTERDATA, cacheConfig);
 			varNameSpaces.put(NS_MASTERDATA, cache);
-			
+		}
 		//	cache = cacheManager.createCache(NS_REGCLIENT, cacheConfig);
 		//	varNameSpaces.put(NS_REGCLIENT, cache);
-			
+		CONFIG_PATH = DataProviderConstants.RESOURCE+"config/";
 		//	loadNamespaceFromPropertyFile(CONFIG_PATH+"prereg.properties", NS_PREREG);
-			loadNamespaceFromPropertyFile(CONFIG_PATH+"default.properties", NS_DEFAULT);
+			Boolean bret = loadNamespaceFromPropertyFile(CONFIG_PATH+"default.properties", NS_DEFAULT);
 			loadNamespaceFromPropertyFile(CONFIG_PATH+"masterdata.properties", NS_MASTERDATA);
 		//	loadNamespaceFromPropertyFile(CONFIG_PATH+"regclient.properties", NS_REGCLIENT);
-			bInit = true;
+			bInit = bret;
 		
 	}
 	static Cache<String, Object> createNameSpace(String namespaceName) {
@@ -122,6 +124,9 @@ public final class VariableManager {
 		return  set.toArray(a);
 	}
 	public static Object getVariableValue(String namespaceName, String varName) {
+		
+		if(!bInit) Init();
+		
 		Cache<String,?> ht = null;
 		Object ret = null;
 		try {
@@ -148,7 +153,8 @@ public final class VariableManager {
 			bRet = true;
 			
 		} catch (IOException e) {
-			
+			String err = e.getMessage();
+			e.printStackTrace();
 		}
 		
 		return bRet;
