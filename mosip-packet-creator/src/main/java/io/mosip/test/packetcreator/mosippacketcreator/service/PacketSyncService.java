@@ -1120,7 +1120,7 @@ public class PacketSyncService {
 
 		String bdbString ="";
 		String [] duplicateBdbs;
-		
+		List<String>  mockABISBiometricResponse= new ArrayList<>();
 		loadServerContextProperties(contextKey);
 		for(MockABISExpectationsDto expct : expectations) {
 			
@@ -1176,12 +1176,16 @@ public class PacketSyncService {
 			else
 				duplicateBdbs= null;
 			for(String b:subTypeBdbStr ) {
-				MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
+				logger.info("before configureMockABISBiometric() :  "+b);
+				logger.info("before configureMockABISBiometric()  duplicateBdbs :  "+duplicateBdbs);
+				String configureMockABISBiometricResponse = MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
 						(expct.getDelaySec() <= 0 ?  DataProviderConstants.DEFAULT_ABIS_DELAY : expct.getDelaySec()),
 						expct.getOperation());
+				mockABISBiometricResponse.add(configureMockABISBiometricResponse);
+				logger.info("After configureMockABISBiometric() :  "+configureMockABISBiometricResponse);
 			}
 		}
-		return "{\"status\":\"Success\"}";
+		return "{\"status\":\"Success\", \"info\":\""+String.join(",", mockABISBiometricResponse)+"\"}";
 	}
    
  
