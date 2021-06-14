@@ -839,7 +839,7 @@ public class PacketTemplateProvider {
 		identity.put("capturedRegisteredDevices", new JSONArray());
 		identity.put("exceptionBiometrics", new JSONObject());
 		identity.put("creationDate", CommonUtil.getUTCDateTime(null));
-		//identity.put("capturedRegisteredDevices",templateIdentity.getJSONArray("capturedRegisteredDevices") );
+		identity.put("capturedRegisteredDevices",templateIdentity.getJSONArray("capturedRegisteredDevices") );
 		
 		constructBioException(resident,identity);
 		constructBioMetaData(resident, identity);
@@ -852,18 +852,21 @@ public class PacketTemplateProvider {
 		metadata.put(obj);
 
 		if(preRegistrationId != null && !preRegistrationId.equals("")) {
+			obj = new JSONObject();
 			obj.put("label","preRegistrationId");
-			obj.put("value",  preRegistrationId);
+			obj.put("value",  (preRegistrationId.equalsIgnoreCase("0")?JSONObject.NULL:preRegistrationId));
 			metadata.put(obj);
 
 		}
 		if(centerId != null && !centerId.equals("")) {
+			obj = new JSONObject();
 			obj.put("label","centerId");
 			obj.put("value",  centerId);
 			metadata.put(obj);
 		}
 		
 		if(machineId != null && !machineId.equals("")) {
+			obj = new JSONObject();
 			obj.put("label","machineId");
 			obj.put("value",  machineId);
 			metadata.put(obj);
