@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -165,5 +165,14 @@ public class CommonUtil {
 		    
 		Schema schema = SchemaLoader.load(jsonSchema);
 		schema.validate(jsonSubject);
+	}
+	public static void saveToTemp(String data, String fileName) {
+		// TODO Auto-generated method stub
+		try {
+			Files.write(Paths.get("/temp/"+fileName), data.getBytes());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
 	}
 }

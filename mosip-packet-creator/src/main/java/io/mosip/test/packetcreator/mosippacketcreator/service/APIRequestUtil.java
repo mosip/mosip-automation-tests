@@ -303,7 +303,7 @@ public class APIRequestUtil {
        // return false;
     }
 
-    @PostConstruct
+   // @PostConstruct
     public boolean initPreregToken() {
     	try {		
 			JSONObject requestBody = new JSONObject();
@@ -349,9 +349,20 @@ public class APIRequestUtil {
 		}
 
     }
-    @PostConstruct
+   // @PostConstruct
     public boolean initToken(){
-        try {		
+        try {	
+        	if(VariableManager.isInit()) {
+	        	Object o =VariableManager.getVariableValue("operatorId");
+	        	if(o != null)
+	        		operatorId = o.toString();
+	        	
+	        	o =VariableManager.getVariableValue("password");
+	        	
+	        	if(o != null)
+	        		password = o.toString();
+	        }
+        	
 			JSONObject requestBody = new JSONObject();
 			JSONObject nestedRequest = new JSONObject();
 			nestedRequest.put("userName", operatorId);
