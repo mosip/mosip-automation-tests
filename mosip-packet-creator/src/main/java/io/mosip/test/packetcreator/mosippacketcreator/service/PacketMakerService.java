@@ -87,6 +87,9 @@ public class PacketMakerService {
     @Autowired
     private ContextUtils contextUtils;
    
+    @Autowired
+    private PacketSyncService packetSyncService;
+    
     private String newRegId;
     
     @PostConstruct
@@ -137,7 +140,10 @@ public class PacketMakerService {
             		if(k.toString().equals("mosip.test.regclient.supervisorid")) {
             			supervisorId = v.toString();
                 	}
-    			
+            		else
+                		if(k.toString().equals("mosip.test.regclient.userid")) {
+                			officerId = v.toString();
+                    	}
     		});
     	}
     	if(source != null)
@@ -171,11 +177,18 @@ public class PacketMakerService {
     	logger.info("createPacketFromTemplate" );
     	
     	Path idJsonPath = null;
-    	idJsonPath = PacketSyncService.createIDJsonFromPersona(personaPath);
+    	//Fix for change in Demodata
     	 if(templatePath != null) {
          	process = ContextUtils.ProcessFromTemplate(src, templatePath);
-         }
-    	String packetPath = createContainer(idJsonPath.toString(),templatePath,src,process, null,contextKey,false);
+         	//get idJson From Template itself
+         	idJsonPath = ContextUtils.idJsonPathFromTemplate(src, templatePath);
+    	 }
+    	 else
+    		 idJsonPath = packetSyncService.createIDJsonFromPersona(personaPath, contextKey);
+     	
+    	String packetPath = createContainer( 
+    			(idJsonPath == null ? null: idJsonPath.toString()),
+    			templatePath,src,process, null,contextKey,false);
 
     	logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
     	//newRegId
@@ -216,7 +229,9 @@ public class PacketMakerService {
             		if(k.toString().equals("mosip.test.regclient.supervisorid")) {
             			supervisorId = v.toString();
                 	}
-    			
+				else if (k.toString().equals("mosip.test.regclient.userid")) {
+					officerId = v.toString();
+				}
     		});
     	}
     	
@@ -405,7 +420,10 @@ public class PacketMakerService {
         String packetRootFolder = getPacketRoot(getProcessRoot(containerRootFolder), regId, type);
         String templateFile = getIdJSONFileLocation(packetRootFolder);
 
-        String dataToMerge = Files.readString(Path.of(dataFilePath));
+        String dataToMerge = null;
+        if(dataFilePath != null)
+        	dataToMerge = Files.readString(Path.of(dataFilePath));
+        
         JSONObject jb = new JSONObject(dataToMerge).getJSONObject("identity");
         
         String schemaVersion = jb.optString("IDSchemaVersion", "0");
@@ -442,7 +460,9 @@ public class PacketMakerService {
         	writeJSONFile(mergedJsonMap, "c:\\temp\\id_"+regId + ".json");
         }*/
         updatePacketMetaInfo(packetRootFolder, "metaData","registrationId", regId, true);
+        if(preregId!=null && !preregId.equalsIgnoreCase("0"))
         updatePacketMetaInfo(packetRootFolder, "metaData","preRegistrationId", preregId, true);
+       // updatePacketMetaInfo(packetRootFolder, "metaData","preRegistrationId", preregId, true); updated by alok
         
         updatePacketMetaInfo(packetRootFolder, "metaData","creationDate", APIRequestUtil.getUTCDateTime(null), true);
         updatePacketMetaInfo(packetRootFolder, "metaData","machineId", machineId, false);
@@ -761,6 +781,8 @@ public class PacketMakerService {
             JSONArray metadata = jsonObject.getJSONObject("identity").getJSONArray(parentKey);
             for(int i=0;i<metadata.length();i++) {
                 if(metadata.getJSONObject(i).getString("label").equals(key)) {
+                	//if(metadata.getJSONObject(i).getString("label").equals("preRegistrationId") && value!=null)
+                	//	value=(value.equalsIgnoreCase("0")?null:value);
                     jsonObject.getJSONObject("identity").getJSONArray(parentKey)
                             .getJSONObject(i).put("value", value);
                     updated = true;
@@ -775,7 +797,7 @@ public class PacketMakerService {
             jsonObject.getJSONObject("identity").getJSONArray(parentKey).put(rid);
         }
 
-        Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), jsonObject.toString().getBytes("UTF-8"));
+        Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), jsonObject.toString().getBytes("UTF-8")	);
     }
 
     private void updateAudit(String path, String rid) {

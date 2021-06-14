@@ -93,4 +93,23 @@ public class ContextUtils {
 	    	}
 	    	return process;
 	    }
+	    public static Path idJsonPathFromTemplate(String src, String templatePacketLocation) {
+	    	Path fPath = Path.of(templatePacketLocation +"/" + src.toUpperCase());
+	    	String process = null;
+	    	
+	    	for(File f: fPath.toFile().listFiles()) {
+	    		//logger.info("subfolder "+ f.getName());
+	    		if(f.isDirectory()) {
+	    			process = f.getName();
+	    			break;
+	    		}
+	    			
+	    	}    	
+	    	if(process != null) {
+	    		fPath = Path.of(templatePacketLocation +"/" + src.toUpperCase() + "/" + process + "/rid_id/ID.json");
+	    		return fPath;
+	    	}
+	    	return null;
+	    }
+	 	   
 }
