@@ -95,7 +95,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 			residentAttrib.put("SkipGaurdian", bSkipGuardian);
 		}
 		residentAttrib.put("Gender", gender);
-		residentAttrib.put("PrimaryLanguage", "eng");
+		//residentAttrib.put("PrimaryLanguage", "eng");
+		//residentAttrib.put("SecondaryLanguage", "ara");
+		//residentAttrib.put("ThirdLanguage", "fra");
 		residentAttrib.put("Iris", true);
 		// added for face biometric related issue
 		residentAttrib.put("Finger", true);
@@ -614,6 +616,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			if (response.getBody().asString().equals(""))
 				throw new RigInternalError(
 						"Unable to retrive BiometricData " + retriveAttributeList + " from packet utility");
+			logger.info("Response : " + response.getBody().asString());
 			return response.getBody().asString();
 
 		}
