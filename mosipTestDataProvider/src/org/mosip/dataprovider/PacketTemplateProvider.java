@@ -11,24 +11,28 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
+import org.javatuples.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.models.BioModality;
 import org.mosip.dataprovider.models.DynamicFieldModel;
 
 import org.mosip.dataprovider.models.MosipDocument;
+import org.mosip.dataprovider.models.MosipGenderModel;
 import org.mosip.dataprovider.models.MosipIDSchema;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.models.SchemaValidator;
 import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
 import org.mosip.dataprovider.preparation.MosipMasterData;
+import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Translator;
-
 
 import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import variables.VariableManager;
@@ -44,15 +48,17 @@ public class PacketTemplateProvider {
 	public static String RID_EVIDENCE = "rid_evidence";
 	public static String RID_OPTIONAL = "rid_optional";
 
-	Hashtable<Double,List<MosipIDSchema>> allSchema = MosipMasterData.getIDSchemaLatestVersion();
+	Hashtable<Double,Properties> allSchema = MosipMasterData.getIDSchemaLatestVersion();
 	
 	Double schemaVersion = allSchema.keys().nextElement();
-	List<MosipIDSchema> schema = allSchema.get(schemaVersion  );
+	List<MosipIDSchema> schema = (List<MosipIDSchema>) allSchema.get(schemaVersion  ).get("schemaList");
+	List<String> requiredAttribs = (List<String>) allSchema.get(schemaVersion).get("requiredAttributes");
 	
 	public  void getSchema() {
 		allSchema = MosipMasterData.getIDSchemaLatestVersion();
 		schemaVersion = allSchema.keys().nextElement();
-		schema = allSchema.get(schemaVersion  );
+		schema = (List<MosipIDSchema>) allSchema.get(schemaVersion  ).get("schemaList");
+		requiredAttribs = (List<String>) allSchema.get(schemaVersion).get("requiredAttributes");
 	}
 	//generate un encrypted template
 	public  void generate(String source, String process, ResidentModel resident, String packetFilePath,
@@ -438,6 +444,111 @@ public class PacketTemplateProvider {
 	/*
 	 * HashMap<FolderType, [(in)folderPath][(out)biofilename]> fileInfo
 	 */
+	 public static boolean processGender(MosipIDSchema s, ResidentModel resident,JSONObject identity, List<MosipGenderModel> genderTypes, List<DynamicFieldModel> dynaFields) {
+			
+			boolean processed = false;
+			
+			if(s.getSubType().toLowerCase().equals("gender") || s.getId().toLowerCase().equals("gender")  ) {
+				
+				String primLang = resident.getPrimaryLanguage();
+				String secLan = resident.getSecondaryLanguage();
+				String resGen = resident.getGender();
+				
+				String primVal = "";
+				String secVal = "";
+			
+				
+				for(MosipGenderModel g: genderTypes) {
+					if(!g.getIsActive())
+						continue;
+					if(g.getLangCode().equals(primLang) && g.getGenderName().equals(resGen)) {
+							primVal = g.getCode();
+					}
+					
+				}
+				if(secVal.equals(""))
+					secVal = primVal;
+				CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
+						primVal,
+						secVal,
+						s.getType().equals("simpleType") ? true: false
+				);
+				processed = true;
+				
+			}
+			return processed;
+
+	}
+	public static	Pair<String,String> processAddresslines(MosipIDSchema s, ResidentModel resident,JSONObject identity) {
+		String addr = null;
+		String addr_sec="";
+			
+		if(s.getControlType().equals("checkbox")) {
+			addr = "Y";
+			addr_sec="Y";
+		}
+		else
+		{
+			String [] addressLines = resident.getAddress();
+			int index = 0;
+			if(s.getId().toLowerCase().contains("line1"))
+				index = 0;
+			else
+			if(s.getId().toLowerCase().contains("line2"))
+				index = 1;
+			else
+			if(s.getId().toLowerCase().contains("line3"))
+				index = 2;
+	
+	
+			if(index > -1)
+				addr = addressLines[index];
+			if(addr == null  ) {
+				Random rand = new Random();
+				addr = "#%d, %d Street, %d block" ;//+ schemaItem.getId();
+				addr = String.format(addr, (100+ rand.nextInt(999)),
+					(1 + rand.nextInt(99)),
+					(1 + rand.nextInt(10))
+					);
+			
+				if(resident.getSecondaryLanguage() != null)
+					addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+			}
+			else
+			{
+				if(resident.getSecondaryLanguage() != null)
+					addr_sec = resident.getAddress_seclang()[index];
+				
+			}
+			if(s.getMaximum() > 0 && addr.length() >= s.getMaximum() )
+				addr = addr.substring(0,s.getMaximum() -1);
+		}
+		Pair<String,String> retVal = new Pair<String,String>(addr,addr_sec);
+		return retVal;
+
+	}
+	public static String generateDefaultAttributes(MosipIDSchema schemaItem, ResidentModel resident,JSONObject identity){
+		String someVal= null;
+		List<SchemaValidator>  validators = schemaItem.getValidators();
+		if(validators != null) {
+			for(SchemaValidator v: validators) {
+				if(v.getType().equalsIgnoreCase("regex")) {
+					String regexpr = v.getValidator();
+					if(regexpr != null && !regexpr.equals(""))
+						try {
+							someVal = CommonUtil.genStringAsperRegex(regexpr);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+				}
+			}
+		}
+		if(someVal == null)
+			someVal = CommonUtil.generateRandomString(schemaItem.getMaximum());
+		return someVal;
+
+	}
 	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo) {
 
 		String idjson="";
@@ -448,7 +559,9 @@ public class PacketTemplateProvider {
 		String secLanguage = resident.getSecondaryLanguage();
 		Hashtable<String, MosipLocationModel> locations =   resident.getLocation();
 		Hashtable<String, MosipLocationModel> locations_seclang =   resident.getLocation_seclang();
-		
+		List<DynamicFieldModel> dynaFields = resident.getDynaFields();
+		List<MosipGenderModel> genderTypes = resident.getGenderTypes();
+	
 		Set<String> locationSet =  locations.keySet();
 		
 		Set<String> locationSet_sec =  null;
@@ -458,6 +571,10 @@ public class PacketTemplateProvider {
 		
 		for(MosipIDSchema s: schema) {
 			System.out.println(s.toJSONString());
+			//if not reqd field , skip it
+			if(!CommonUtil.isExists(requiredAttribs, s.getId()))
+				continue;
+			
 			if(lstMissedAttributes != null && lstMissedAttributes.stream().anyMatch( v -> v.equalsIgnoreCase(s.getId()))) {
 				continue;
 			}
@@ -470,134 +587,116 @@ public class PacketTemplateProvider {
 				if(uin != null && !uin.trim().equals("")) {
 					identity.put(s.getId(), uin.trim());
 				}
+				continue;
 			}
 			if(!s.getRequired() && !s.getInputRequired()) {
 				continue;
 			}
+			 if(s.getFieldType().equals("dynamic")) {
+				 
+				boolean found=false;
+				found = processGender(s, resident,identity, genderTypes, dynaFields);
+				if(found)
+					continue;
+					
+				if(dynaFields != null) {
+					for(DynamicFieldModel dfm: dynaFields) {
+						if(dfm.getIsActive() && 
+									( dfm.getId().equals(s.getId()) || dfm.getName().equals(s.getId()))
+						) {
+	
+							CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
+											dfm.getFieldVal().get(0).getValue(),
+											dfm.getFieldVal().get(0).getValue(),
+											s.getType().equals("simpleType") ? true: false
+											);
+							found=true;
+							break;
+						}
+					}
+					if(found) 
+						continue;
+				}
+			 }
 			
+	
 			if(s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc"))
 			{
 				String primaryValue = "";
 				String secValue  ="";
-				//System.out.println(s.toJSONString());
-				if(s.getRequired() || s.getInputRequired()) {
-				/*	if(s.getId().equalsIgnoreCase("idschemaVersion")) {
-						
-						primaryValue = schemaVersion.toString();	
-					}
-					else */
-					if(s.getId().toLowerCase().equals("fullname")) {
+				if(s.getId().toLowerCase().equals("fullname")) {
 						primaryValue = resident.getName().getFirstName() +" " + resident.getName().getMidName()+ " "+ resident.getName().getSurName();
 						if(secLanguage != null)
 							secValue = resident.getName_seclang().getFirstName() +" "+ resident.getName_seclang().getMidName() + " " + resident.getName_seclang().getSurName();
-					}
-					else
-					if(s.getId().toLowerCase().equals("firstname")) {
-						primaryValue = resident.getName().getFirstName() ;
-						if(secLanguage != null)
-							secValue = resident.getName_seclang().getFirstName();
-					}
-					else
-					if(s.getId().toLowerCase().equals("lastname") || s.getId().toLowerCase().equals("surname")) {
+				}
+				else
+				if(s.getId().toLowerCase().equals("firstname")) {
+					primaryValue = resident.getName().getFirstName() ;
+					if(secLanguage != null)
+						secValue = resident.getName_seclang().getFirstName();
+				}
+				else
+				if(s.getId().toLowerCase().equals("lastname") || s.getId().toLowerCase().equals("surname")) {
 						primaryValue = resident.getName().getSurName();
 						if(secLanguage != null)
 							secValue = resident.getName_seclang().getSurName();
-					}
-					else
-					if(s.getId().toLowerCase().equals("middlename") || s.getId().toLowerCase().equals("midname")) {
+				}
+				else
+				if(s.getId().toLowerCase().equals("middlename") || s.getId().toLowerCase().equals("midname")) {
 						primaryValue = resident.getName().getMidName();
 						if(secLanguage != null)
 							secValue = resident.getName_seclang().getMidName();
-					}
-					else
-					if(s.getId().toLowerCase().equals("dateofbirth") ||s.getId().toLowerCase().equals("dob") || s.getId().toLowerCase().equals("birthdate") ) {
+				}
+				else
+				if(s.getId().toLowerCase().equals("dateofbirth") ||s.getId().toLowerCase().equals("dob") || s.getId().toLowerCase().equals("birthdate") ) {
 						primaryValue = resident.getDob();
 						secValue = primaryValue;
-					}
-					else
-					if(s.getId().toLowerCase().equals("gender")){
+				}
+				else
+				if(s.getId().toLowerCase().equals("gender")){
 						primaryValue ="Female";
 						if(resident.getGender().equals("Male"))
 							primaryValue = "Male";
 						secValue = primaryValue;
-					}
-					else
-					if(s.getId().toLowerCase().contains("address") && (s.getGroup() != null && !s.getGroup().toLowerCase().equals("documents"))) {
-						if(s.getControlType().equals("checkbox")) {
+				}
+				else
+				if(s.getId().toLowerCase().contains("address") && (s.getGroup() != null && !s.getGroup().toLowerCase().equals("documents"))) {
+					if(s.getControlType().equals("checkbox")) {
 							primaryValue = "Y";
 							if(secLanguage != null)
 								secValue = "Y";
-						}
-						else
-						{
-							String addr = null;
-							String addr_sec="";
-								
-							String [] addressLines = resident.getAddress();
-							int index = 0;
-							if(s.getId().toLowerCase().contains("line1"))
-								index = 0;
-							else
-							if(s.getId().toLowerCase().contains("line2"))
-								index = 1;
-							else
-							if(s.getId().toLowerCase().contains("line3"))
-								index = 2;
-
-
-							if(index > -1)
-								addr = addressLines[index];
-							if(addr != null  ) {
-								Random rand = new Random();
-								addr = "#%d, %d Street, %d block" ;//+ schemaItem.getId();
-								addr = String.format(addr, (100+ rand.nextInt(999)),
-									(1 + rand.nextInt(99)),
-									(1 + rand.nextInt(10))
-									);
-							
-								if(resident.getSecondaryLanguage() != null)
-									addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
-							}
-							else
-							{
-								if(resident.getSecondaryLanguage() != null)
-									addr_sec = resident.getAddress_seclang()[index];
-								
-							}
-							if(s.getMaximum() > 0 && addr.length() >= s.getMaximum() )
-								addr = addr.substring(0,s.getMaximum() -1);
-						
-							primaryValue = addr;
-							secValue = addr_sec;
-					
-						}
-						
-					
 					}
 					else
-					if(s.getId().toLowerCase().contains("residen")  ) {
-						primaryValue = resident.getResidentStatus().getCode() ;
-						secValue = primaryValue;
+					{
+						Pair<String, String> addrLines = processAddresslines(s, resident,identity);
+						primaryValue = addrLines.getValue0();
+						secValue = addrLines.getValue1();
 					}
-					else
-					if(s.getId().toLowerCase().contains("phone") || s.getId().toLowerCase().contains("mobile") ) {
-						primaryValue =  resident.getContact().getMobileNumber();
-					}
-					else
-					if(s.getId().toLowerCase().contains("email") || s.getId().toLowerCase().contains("mail") ) {
-						primaryValue =  resident.getContact().getEmailId();
-					}
-					else
-					if(s.getId().toLowerCase().contains("referenceIdentity") ) {
-						primaryValue = resident.getId();
-					}
-					else
-					if(s.getId().toLowerCase().contains("blood") ) {
-						primaryValue = resident.getBloodgroup().getCode();
-						secValue = primaryValue;	
-					}	
-					else
-					if(s.getType().equals("biometricsType") && ( s.getGroup() !=null && s.getGroup().equals("Biometrics")) &&
+				}
+				else
+				if(s.getId().toLowerCase().contains("residen")  ) {
+					primaryValue = resident.getResidentStatus().getCode() ;
+					secValue = primaryValue;
+				}
+				else
+				if(s.getId().toLowerCase().contains("phone") || s.getId().toLowerCase().contains("mobile") ) {
+					primaryValue =  resident.getContact().getMobileNumber();
+				}
+				else
+				if(s.getId().toLowerCase().contains("email") || s.getId().toLowerCase().contains("mail") ) {
+					primaryValue =  resident.getContact().getEmailId();
+				}
+				else
+				if(s.getId().toLowerCase().contains("referenceIdentity") ) {
+					primaryValue = resident.getId();
+				}
+				else
+				if(s.getId().toLowerCase().contains("blood") ) {
+					primaryValue = resident.getBloodgroup().getCode();
+					secValue = primaryValue;	
+				}	
+				else
+				if(s.getType().equals("biometricsType") && ( s.getGroup() !=null && s.getGroup().equals("Biometrics")) &&
 							s.getId().toLowerCase().contains("individual") ) {
 						JSONObject o = new JSONObject();
 						o.put("format", "cbeff");
@@ -618,19 +717,16 @@ public class PacketTemplateProvider {
 			        		if(resident.getFilteredBioAttribtures() == null)
 			        			resident.setFilteredBioAttribtures(bioAttrib);
 			        		generateCBEFF(resident,  bioAttrib, outFile);
-							//BiometricDataProvider.toCBEFF(bioAttrib, resident.getBiometric(), outFile);
-							//test code- hard coded cbeff file
-						//	Files.copy(Paths.get("C:\\temp\\test\\individualBiometrics_bio_CBEFF.xml"),Paths.get(outFile));
-						//	Files.copy(Paths.get("C:\\temp\\test\\ID.json"),Paths.get(RID_FOLDER + "ID.json"));
-							
+
+				
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} 
 						continue;
-					}
-					else
-					if(s.getType().equals("biometricsType") &&
+				}
+				else
+				if(s.getType().equals("biometricsType") &&
 							( s.getGroup() !=null && s.getGroup().equals("Biometrics"))
 							&& s.getSubType().equals("introducer") ) {
 					
@@ -684,7 +780,10 @@ public class PacketTemplateProvider {
 								continue;
 							index = 0;
 							if(doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
-								index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size()-1, 0)[0];
+								
+								index = resident.getDocIndexes().get(doc.getDocCategoryCode());
+								
+								//index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size()-1, 0)[0];
 								String docFile = doc.getDocs().get(index);
 								System.out.println("docFIle=" + docFile + " dType="+ s.getSubType() + " cat=" + s.getId());
 								
@@ -734,9 +833,11 @@ public class PacketTemplateProvider {
 					else
 					if(s.getInputRequired() && s.getId().contains("IdentityNumber") ) {
 
-						int []r = CommonUtil.generateRandomNumbers(2, 99999, 11111);
+					
+						primaryValue = resident.getId();
+						//int []r = CommonUtil.generateRandomNumbers(2, 99999, 11111);
 						
-						primaryValue = String.format("%d%d", r[0],r[1]);
+						//primaryValue = String.format("%d%d", r[0],r[1]);
 						identity.put(s.getId(), primaryValue);
 
 					}
@@ -755,7 +856,10 @@ public class PacketTemplateProvider {
 					for(String locKey:locationSet) {
 						MosipLocationModel locModel = locations.get(locKey);
 		
-						if(s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())  ) {
+						if(
+								s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase()) ||
+								s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())
+							) {
 							primaryValue = locModel.getName();
 
 							break;
@@ -770,6 +874,13 @@ public class PacketTemplateProvider {
 							break;
 						}
 					}
+				
+					if(primaryValue == null || primaryValue.equals("")) {
+						primaryValue = generateDefaultAttributes(s,resident, identity);
+						if(secLanguage != null) {
+							secValue = Translator.translate(secLanguage, primaryValue);
+						}
+					}
 					
 					if(s.getType().equals("simpleType") 
 							//&& !s.getId().toLowerCase().equals("postalcode")
@@ -781,16 +892,16 @@ public class PacketTemplateProvider {
 					}
 					else
 					{
-						if(s.getRequired() && (primaryValue == null || primaryValue.equals(""))) {
-							primaryValue =  new Random().nextLong() +"";
-						}
+						//if(s.getRequired() && (primaryValue == null || primaryValue.equals(""))) {
+						//	primaryValue =  new Random().nextLong() +"";
+						//}
 						if(primaryValue.equals("") ) //&& !s.getType().equals("string"))
 							identity.put(s.getId(), JSONObject.NULL);
 						else
 							identity.put(s.getId(), primaryValue);
 					}
 				}
-			}
+		
 		}
 		JSONObject retObject = new JSONObject();
 		retObject.put("identity", identity);
@@ -839,7 +950,7 @@ public class PacketTemplateProvider {
 		identity.put("capturedRegisteredDevices", new JSONArray());
 		identity.put("exceptionBiometrics", new JSONObject());
 		identity.put("creationDate", CommonUtil.getUTCDateTime(null));
-		identity.put("capturedRegisteredDevices",templateIdentity.getJSONArray("capturedRegisteredDevices") );
+		//identity.put("capturedRegisteredDevices",templateIdentity.getJSONArray("capturedRegisteredDevices") );
 		
 		constructBioException(resident,identity);
 		constructBioMetaData(resident, identity);
@@ -854,7 +965,7 @@ public class PacketTemplateProvider {
 		if(preRegistrationId != null && !preRegistrationId.equals("")) {
 			obj = new JSONObject();
 			obj.put("label","preRegistrationId");
-			obj.put("value",  (preRegistrationId.equalsIgnoreCase("0")?JSONObject.NULL:preRegistrationId));
+			obj.put("value",  preRegistrationId);
 			metadata.put(obj);
 
 		}

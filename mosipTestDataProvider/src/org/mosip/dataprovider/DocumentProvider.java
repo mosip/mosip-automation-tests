@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.mosip.dataprovider.models.MosipDocCategoryModel;
@@ -87,10 +88,13 @@ public class DocumentProvider {
 	 public static List<MosipIDSchema> getDocTypesFromSchema(){
 		List<MosipIDSchema> docSchema = new ArrayList<MosipIDSchema>();
 		 
-		 Hashtable<Double, List<MosipIDSchema>>  schema = MosipMasterData.getIDSchemaLatestVersion();
+		 Hashtable<Double, Properties>  schema = MosipMasterData.getIDSchemaLatestVersion();
+		// List<MosipIDSchema> lstSchema = (List<MosipIDSchema>) tbl1.get(schemaId).get("schemaList");
+		// List<String> reqdFields = (List<String>) tbl1.get(schemaId).get("requiredAttributes");
+		
 		Double schemVersion = schema.keySet().iterator().next();
-			
-		for( MosipIDSchema schemaItem: schema.get( schemVersion)) {
+		List<MosipIDSchema> lstSchema = (List<MosipIDSchema>) schema.get(schemVersion).get("schemaList");	
+		for( MosipIDSchema schemaItem: lstSchema) {
 			if(!schemaItem.getRequired() && !schemaItem.getInputRequired()) {
 				continue;
 			}

@@ -149,24 +149,35 @@ public class BiometricDataProvider {
 	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident) {
 	
 		BiometricDataModel biodata = resident.getBiometric();
-		
-		String val =  VariableManager.getVariableValue("mdsport").toString();
-		int port = Integer.parseInt(val);
-		String mdsprofilePath = VariableManager.getVariableValue("mdsprofilepath").toString();
-		
-		port = (port ==0 ? 4501: port);
-	
 		MDSClientInterface mds = null;
+		String val;
+		boolean bNoMDS = true;
+		String mdsprofilePath = null;
+		String profileName = null;
+		
 		val =  VariableManager.getVariableValue("mdsbypass").toString();
 		if(val == null || val.equals("") || val.equals("false")) {
-			 mds =new MDSClient(port);
+	
+			val =  VariableManager.getVariableValue("mdsport").toString();
+			int port = Integer.parseInt(val);
+			mdsprofilePath = VariableManager.getVariableValue("mdsprofilepath").toString();
+		
+			port = (port ==0 ? 4501: port);
+	
+			mds =new MDSClient(port);
+			profileName = "res"+ resident.getId();
+			mds.createProfile(mdsprofilePath, profileName , resident);
+			mds.setProfile(profileName);
+				
 		}
 		else {
 			mds = new MDSClientNoMDS();
+			bNoMDS = false;
+			profileName = "res"+ resident.getId();
+			mds.createProfile(mdsprofilePath, profileName , resident);
+			mds.setProfile(profileName);
 		}
-		String profileName = "res"+ resident.getId();
-		mds.createProfile(mdsprofilePath, profileName , resident);
-		mds.setProfile(profileName);
+
 		MDSRCaptureModel capture = null;
 
 		List<String> filteredAttribs = resident.getFilteredBioAttribtures();
@@ -283,7 +294,9 @@ public class BiometricDataProvider {
 			
 		}
 		
-		mds.removeProfile( mdsprofilePath, profileName );
+		if(!bNoMDS) {
+			mds.removeProfile( mdsprofilePath, profileName );
+		}
 		return capture;
 	}
 	

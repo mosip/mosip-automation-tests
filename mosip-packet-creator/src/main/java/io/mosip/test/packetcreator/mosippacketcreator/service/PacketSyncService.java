@@ -16,7 +16,7 @@ import org.mosip.dataprovider.models.DynamicFieldValueModel;
 import org.mosip.dataprovider.models.IrisDataModel;
 import org.mosip.dataprovider.models.MosipDocTypeModel;
 import org.mosip.dataprovider.models.MosipDocument;
-
+import org.mosip.dataprovider.models.MosipIndividualTypeModel;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
 import org.mosip.dataprovider.preparation.MosipDataSetup;
@@ -171,9 +171,10 @@ public class PacketSyncService {
 		String primaryLanguage = "eng";
 		if(props.containsKey("PrimaryLanguage")) {
 			primaryLanguage = props.get("PrimaryLanguage").toString();
+			provider.addCondition(ResidentAttribute.RA_PRIMARAY_LANG, primaryLanguage);
 		}
 
-		provider.addCondition(ResidentAttribute.RA_PRIMARAY_LANG, primaryLanguage);
+	
 
 		if(props.containsKey("SecondaryLanguage")) {
 			provider.addCondition(ResidentAttribute.RA_SECONDARY_LANG, props.get("SecondaryLanguage").toString());
@@ -268,8 +269,14 @@ public class PacketSyncService {
     	}
     	else
     	{
-    		//construct ID Json from persona
-    		idJsonPath = createIDJsonFromPersona(personaPath,contextKey);
+    		
+    		if(templateLocation != null) {
+             	//get idJson From Template itself
+             	idJsonPath = ContextUtils.idJsonPathFromTemplate(src, templateLocation);
+        	 }
+        	 else
+        		 idJsonPath = createIDJsonFromPersona(personaPath, contextKey);
+         	
     	}
         if(templateLocation != null) {
         	process = ContextUtils.ProcessFromTemplate(src, templateLocation);
@@ -798,7 +805,32 @@ public class PacketSyncService {
 	    			DynamicFieldValueModel ms =  persona.getMaritalStatus();
 	    			ms.setCode(value);
 	    			break;
-
+	    		case "residencestatus":
+	    		case "rs":
+	    			if(value != null && !value.equals("")) {
+	    				String lang = persona.getPrimaryLanguage();
+	    				String [] parts = value.split("=");
+	    				String msCode = null;
+	    				if(parts.length > 1) {
+	    					lang = parts[0].trim();
+	    					msCode = parts[1].trim();
+	    				}
+	    				else
+	    					msCode = parts[0].trim();
+	    					
+	    				if(lang.equals(persona.getPrimaryLanguage())) {
+	    				
+	    					MosipIndividualTypeModel  rs= persona.getResidentStatus();
+	    					rs.setCode(msCode);
+	    				}
+	    				else
+	    				{
+	    					MosipIndividualTypeModel  rs= persona.getResidentStatus_seclang();
+	    					rs.setCode(msCode);
+	    				}
+	    			}
+	    			
+    			
     		}
 	    }
     }
@@ -976,7 +1008,8 @@ public class PacketSyncService {
 					updatePersona(updateAttrs, persona);
 				}
 				List<String> missList = req.getMissAttributeList();
-				persona.setMissAttributes(missList);
+				if(missList != null && missList.size() >=0)
+					persona.setMissAttributes(missList);
 				
 				persona.writePersona(req.getPersonaFilePath());
 				
@@ -1030,10 +1063,13 @@ public class PacketSyncService {
 
 	public String updatePersonaBioExceptions(BioExceptionDto personaBERequestDto, String contextKey) {
 
+		logger.info("updatePersonaBioExceptions:"+contextKey);
+		
 		loadServerContextProperties(contextKey);
 		String ret ="{Sucess}";
     	try {
 			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath());
+		
 			persona.setBioExceptions(personaBERequestDto.getExceptions());
 			
 			persona.writePersona(personaBERequestDto.getPersonaFilePath());
@@ -1056,6 +1092,8 @@ public class PacketSyncService {
 
 		String bdbString ="";
 		String [] duplicateBdbs;
+		
+		logger.info("setPersonaMockABISExpectation");
 		
 		loadServerContextProperties(contextKey);
 		for(String personaPath: personaFilePath) {
@@ -1120,7 +1158,7 @@ public class PacketSyncService {
 
 		String bdbString ="";
 		String [] duplicateBdbs;
-		List<String>  mockABISBiometricResponse= new ArrayList<>();
+		
 		loadServerContextProperties(contextKey);
 		for(MockABISExpectationsDto expct : expectations) {
 			
@@ -1176,16 +1214,12 @@ public class PacketSyncService {
 			else
 				duplicateBdbs= null;
 			for(String b:subTypeBdbStr ) {
-				logger.info("before configureMockABISBiometric() :  "+b);
-				logger.info("before configureMockABISBiometric()  duplicateBdbs :  "+duplicateBdbs);
-				String configureMockABISBiometricResponse = MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
+				MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
 						(expct.getDelaySec() <= 0 ?  DataProviderConstants.DEFAULT_ABIS_DELAY : expct.getDelaySec()),
 						expct.getOperation());
-				mockABISBiometricResponse.add(configureMockABISBiometricResponse);
-				logger.info("After configureMockABISBiometric() :  "+configureMockABISBiometricResponse);
 			}
 		}
-		return "{\"status\":\"Success\", \"info\":\""+String.join(",", mockABISBiometricResponse)+"\"}";
+		return "{\"status\":\"Success\"}";
 	}
    
  

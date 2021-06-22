@@ -1,6 +1,6 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
-import java.io.IOException;
+
 import java.util.Properties;
 
 import org.mosip.dataprovider.models.ResidentModel;
@@ -8,7 +8,7 @@ import org.mosip.dataprovider.test.registrationclient.RegistrationSteps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.config.client.ConfigServerBootstrapper.LoadContext;
+
 import org.springframework.stereotype.Component;
 
 import io.mosip.test.packetcreator.mosippacketcreator.controller.ResidentController;
