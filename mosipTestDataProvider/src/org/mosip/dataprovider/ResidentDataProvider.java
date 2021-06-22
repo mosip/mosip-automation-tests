@@ -19,6 +19,7 @@ import org.mosip.dataprovider.models.Contact;
 import org.mosip.dataprovider.models.DynamicFieldModel;
 import org.mosip.dataprovider.models.DynamicFieldValueModel;
 import org.mosip.dataprovider.models.IrisDataModel;
+import org.mosip.dataprovider.models.MosipDocument;
 import org.mosip.dataprovider.models.MosipGenderModel;
 import org.mosip.dataprovider.models.MosipIndividualTypeModel;
 import org.mosip.dataprovider.models.MosipLanguage;
@@ -61,8 +62,8 @@ public class ResidentDataProvider {
 	public ResidentDataProvider() {
 		attributeList = new Properties();
 		attributeList.put(ResidentAttribute.RA_Count, 1);
-		attributeList.put(ResidentAttribute.RA_PRIMARAY_LANG, DataProviderConstants.LANG_CODE_ENGLISH);
-		attributeList.put(ResidentAttribute.RA_Country, "PHIL");
+		//attributeList.put(ResidentAttribute.RA_PRIMARAY_LANG, DataProviderConstants.LANG_CODE_ENGLISH);
+		//attributeList.put(ResidentAttribute.RA_Country, "PHIL");
 		RestClient.clearToken();
 	}
 	/*
@@ -215,30 +216,37 @@ public class ResidentDataProvider {
 		}
 		List<Name> eng_male_names = null;
 		List<Name> eng_female_names = null;
+		List<Name> eng_names = null;
 		
-		if((primary_lang != null && primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH))|| 
-			(sec_lang != null && sec_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH))) {
-			if(maleCount >0)
-				eng_male_names = NameProvider.generateNames(Gender.Male,  DataProviderConstants.LANG_CODE_ENGLISH, maleCount, null);
-			if(femaleCount > 0)
-				eng_female_names = NameProvider.generateNames(Gender.Female,  DataProviderConstants.LANG_CODE_ENGLISH, femaleCount, null);
-			
-			names_primary = eng_male_names;
-			if(eng_female_names != null) {
-				if(names_primary != null)
-					names_primary.addAll(eng_female_names);
-				else
-					names_primary = eng_female_names;
+		if(maleCount >0) {
+			eng_male_names = NameProvider.generateNames(Gender.Male,  DataProviderConstants.LANG_CODE_ENGLISH, maleCount, null);
+			eng_names = eng_male_names;
+		}
+		if(femaleCount > 0) {
+			eng_female_names = NameProvider.generateNames(Gender.Female,  DataProviderConstants.LANG_CODE_ENGLISH, femaleCount, null);
+			if(eng_names != null)
+				eng_names.addAll(eng_female_names);
+			else
+				eng_names = eng_female_names;
+		}
+		
+		if(primary_lang != null) {
+			if(!primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
+				names_primary = NameProvider.generateNames(gender, primary_lang, count, eng_names);
 			}
+			else
+				names_primary = eng_names;
+
 		}
-		
-		if(primary_lang != null && !primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
-			names_primary = NameProvider.generateNames(gender, primary_lang, count, names_primary);
+		if(sec_lang != null) {
+			if(!sec_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
+				names_sec = NameProvider.generateNames(gender, sec_lang, count, eng_names);
+			}
+			else
+				names_sec = eng_names;
+
 		}
-		
-		if(sec_lang != null && !sec_lang.equals("") && !sec_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
-			names_sec =NameProvider.generateNames(gender, sec_lang, count, names_primary);
-		}
+
 		List<Contact> contacts = ContactProvider.generate(names_primary, count);
 //		Object  objCountry = attributeList.get(ResidentAttribute.RA_Country)  ;
 		//String country  =null;
@@ -410,6 +418,12 @@ public class ResidentDataProvider {
 					
 					e.printStackTrace();
 				}
+			}
+			
+			for(MosipDocument doc: res.getDocuments()) {
+				String id = doc.getDocCategoryCode();
+				int index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size()-1, 0)[0];
+				res.getDocIndexes().put(id,index);
 			}
 			residents.add(res);
 		}

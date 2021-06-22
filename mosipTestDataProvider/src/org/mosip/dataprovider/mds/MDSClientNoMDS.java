@@ -15,7 +15,12 @@ import org.mosip.dataprovider.models.mds.MDSDataModel;
 import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
 import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
+import org.mosip.dataprovider.models.setup.MosipDeviceModel;
+import org.mosip.dataprovider.preparation.MosipDataSetup;
+import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
+
+import variables.VariableManager;
 
 public class MDSClientNoMDS implements MDSClientInterface {
 
@@ -77,7 +82,21 @@ public class MDSClientNoMDS implements MDSClientInterface {
 	@Override
 	public List<MDSDevice> getRegDeviceInfo(String type) {
 		// TODO Auto-generated method stub
-		return null;
+		//get configured Center ID  the devices belonging to that center
+		String centerId = VariableManager.getVariableValue("centerId").toString();
+		
+		List<MosipDeviceModel> deviceModels = MosipDataSetup.getDevices(centerId);
+		List<MDSDevice> lstRet = new ArrayList<MDSDevice>();
+		
+		for(MosipDeviceModel dm: deviceModels) {
+			MDSDevice mdsDev = new MDSDevice();
+			if(dm.getIsActive() != null && dm.getIsActive().equals("true") ) {
+				mdsDev.setDeviceId( dm.getId());
+				
+				lstRet.add(mdsDev);
+			}
+		}
+		return lstRet;
 	}
 
 	@Override

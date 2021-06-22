@@ -1,15 +1,12 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.codec.Hex;
-import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
-
-import java.io.*;
-
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,7 +14,16 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.DatatypeConverter;
@@ -25,11 +31,17 @@ import javax.xml.bind.DatatypeConverter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.test.CreatePersona;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.springframework.util.StringUtils;
 
 @Service
 public class PacketMakerService {
@@ -99,8 +111,12 @@ public class PacketMakerService {
             workDirectory = Files.createTempDirectory("pktcreator").toFile().getAbsolutePath();
             logger.info("CURRENT WORK DIRECTORY --> {}", workDirectory);
             File folder = new File(templateFolder);
-            File templateName = folder.listFiles()[0];
-            defaultTemplateLocation = templateName.getAbsolutePath();
+            File[] files = folder.listFiles();
+            if(files != null && files.length > 0) {
+            	File templateName = folder.listFiles()[0];
+            	defaultTemplateLocation = templateName.getAbsolutePath();
+            }
+            
         } catch(Exception ex) {
             logger.error("", ex);
         }
@@ -140,10 +156,10 @@ public class PacketMakerService {
             		if(k.toString().equals("mosip.test.regclient.supervisorid")) {
             			supervisorId = v.toString();
                 	}
-            		else
-                		if(k.toString().equals("mosip.test.regclient.userid")) {
-                			officerId = v.toString();
-                    	}
+            		else if (k.toString().equals("mosip.test.regclient.userid")) {
+    					officerId = v.toString();
+    				}
+    			
     		});
     	}
     	if(source != null)
@@ -229,9 +245,10 @@ public class PacketMakerService {
             		if(k.toString().equals("mosip.test.regclient.supervisorid")) {
             			supervisorId = v.toString();
                 	}
-				else if (k.toString().equals("mosip.test.regclient.userid")) {
-					officerId = v.toString();
-				}
+            		else if (k.toString().equals("mosip.test.regclient.userid")) {
+    					officerId = v.toString();
+    				}
+    			
     		});
     	}
     	
@@ -460,9 +477,8 @@ public class PacketMakerService {
         	writeJSONFile(mergedJsonMap, "c:\\temp\\id_"+regId + ".json");
         }*/
         updatePacketMetaInfo(packetRootFolder, "metaData","registrationId", regId, true);
-        if(preregId!=null && !preregId.equalsIgnoreCase("0"))
+        if(preregId!=null && !preregId.equalsIgnoreCase("0")) // newly added
         updatePacketMetaInfo(packetRootFolder, "metaData","preRegistrationId", preregId, true);
-       // updatePacketMetaInfo(packetRootFolder, "metaData","preRegistrationId", preregId, true); updated by alok
         
         updatePacketMetaInfo(packetRootFolder, "metaData","creationDate", APIRequestUtil.getUTCDateTime(null), true);
         updatePacketMetaInfo(packetRootFolder, "metaData","machineId", machineId, false);
@@ -781,8 +797,6 @@ public class PacketMakerService {
             JSONArray metadata = jsonObject.getJSONObject("identity").getJSONArray(parentKey);
             for(int i=0;i<metadata.length();i++) {
                 if(metadata.getJSONObject(i).getString("label").equals(key)) {
-                	//if(metadata.getJSONObject(i).getString("label").equals("preRegistrationId") && value!=null)
-                	//	value=(value.equalsIgnoreCase("0")?null:value);
                     jsonObject.getJSONObject("identity").getJSONArray(parentKey)
                             .getJSONObject(i).put("value", value);
                     updated = true;
@@ -797,7 +811,7 @@ public class PacketMakerService {
             jsonObject.getJSONObject("identity").getJSONArray(parentKey).put(rid);
         }
 
-        Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), jsonObject.toString().getBytes("UTF-8")	);
+        Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), jsonObject.toString().getBytes("UTF-8"));
     }
 
     private void updateAudit(String path, String rid) {

@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -25,6 +27,8 @@ import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import com.mifmif.common.regex.Generex;
 
 
 public class CommonUtil {
@@ -79,6 +83,36 @@ public class CommonUtil {
 		String utcTime = time.format(dateFormat);
 		return utcTime;
     }
+	public static String genStringAsperRegex(String regex) throws Exception {
+		if(Generex.isValidPattern(regex)) {
+			
+		
+			Generex generex = new Generex(regex);
+			
+			String randomStr = generex.random();
+			System.out.println("regex:  "+regex);
+			System.out.println(randomStr);
+			// Generate all String that matches the given Regex.
+			//List<String> matchedStrs = generex.getAllMatchedStrings();
+			boolean bFound = false;
+			do {
+				bFound = false;
+				if(randomStr.startsWith("^")) {
+					int idx = randomStr.indexOf("^");
+					randomStr =randomStr.substring(idx+1);
+					bFound = true;
+				}
+				if(randomStr.endsWith("$")) {
+					int idx = randomStr.indexOf("$");
+					randomStr =randomStr.substring(0, idx);
+					bFound = true;
+				}
+			}while(bFound);
+			return randomStr;
+		}
+		throw new Exception("invalid regex");
+		
+	}
 	public static String readFromJSONFile(String filePath) {
 		
 		StringBuilder builder  = new StringBuilder();
@@ -174,5 +208,23 @@ public class CommonUtil {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
 		}
+	}
+	public static void main(String [] args) throws Exception {
+		String regex1 = "^|^0[5-7][0-9]{8}$";
+		String regex2 ="^[a-zA-Zء-ي٠-٩ ]{5,47}$";
+		String regex3 = "(^|^[A-Z]{2}[0-9]{1,6}$)|(^[A-Z]{1}[0-9]{1,7}$)";
+		String regex4 = "^|^(?=.{0,10}$).*";
+		
+		String regex5 = "^(1869|18[7-9][0-9]|19[0-9][0-9]|20[0-9][0-9])/([0][1-9]|1[0-2])/([0][1-9]|[1-2][0-9]|3[01])$";
+		
+		String rex = regex5;
+		String values  = genStringAsperRegex(rex);
+		System.out.println("\n\nv="+values);
+		Pattern p = Pattern.compile(rex);//. represents single character  
+		Matcher m = p.matcher(values);  
+		boolean b = m.matches();  
+		System.out.println("Matched ?" + b);
+		
+		
 	}
 }

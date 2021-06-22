@@ -56,7 +56,6 @@ public class MosipPacketCreatorApplication {
 	@ConditionalOnProperty(name = "spring.config.location", matchIfMissing = false)
 	public PropertiesConfiguration propertiesConfiguration(
 	  @Value("${spring.config.location}") String path) throws Exception {
-		System.out.println("PATH spring.config.location : "+path);
 	    String filePath = new File(path.substring("file:".length())).getCanonicalPath();
 	    
 	    PropertiesConfiguration configuration = new PropertiesConfiguration(
