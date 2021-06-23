@@ -1,36 +1,5 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
-
-import javax.annotation.PostConstruct;
-import javax.xml.bind.DatatypeConverter;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.mosip.dataprovider.test.CreatePersona;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +7,29 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
-import org.springframework.util.StringUtils;
+
+import java.io.*;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import javax.annotation.PostConstruct;
+import javax.xml.bind.DatatypeConverter;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.mosip.dataprovider.test.CreatePersona;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.springframework.util.StringUtils;
 
 @Service
 public class PacketMakerService {
@@ -157,8 +145,8 @@ public class PacketMakerService {
             			supervisorId = v.toString();
                 	}
             		else if (k.toString().equals("mosip.test.regclient.userid")) {
-    					officerId = v.toString();
-    				}
+                        officerId = v.toString();
+                    }
     			
     		});
     	}
@@ -246,8 +234,8 @@ public class PacketMakerService {
             			supervisorId = v.toString();
                 	}
             		else if (k.toString().equals("mosip.test.regclient.userid")) {
-    					officerId = v.toString();
-    				}
+                        officerId = v.toString();
+                    }
     			
     		});
     	}
@@ -478,6 +466,7 @@ public class PacketMakerService {
         }*/
         updatePacketMetaInfo(packetRootFolder, "metaData","registrationId", regId, true);
         if(preregId!=null && !preregId.equalsIgnoreCase("0")) // newly added
+
         updatePacketMetaInfo(packetRootFolder, "metaData","preRegistrationId", preregId, true);
         
         updatePacketMetaInfo(packetRootFolder, "metaData","creationDate", APIRequestUtil.getUTCDateTime(null), true);

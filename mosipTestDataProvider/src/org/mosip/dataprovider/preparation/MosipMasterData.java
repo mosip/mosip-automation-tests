@@ -296,11 +296,11 @@ public  class MosipMasterData {
 				try {
 				config.setMosip_id_validation_identity_dateOfBirth(resp.getString("mosip.id.validation.identity.dateOfBirth"));
 				config.setMosip_primary_language(resp.getString("mosip.primary-language"));
+				config.setPreregistration_documentupload_allowed_file_type(resp.getString("preregistration.documentupload.allowed.file.type"));
 				}catch(Exception e) {
 					
 				}
-				//config.setMosip_primary_language(resp.getString("mosip.primary-language"));
-				config.setPreregistration_documentupload_allowed_file_type(resp.getString("preregistration.documentupload.allowed.file.type"));
+				
 				setCache(url, config);
 			}
 		} catch (Exception e) {

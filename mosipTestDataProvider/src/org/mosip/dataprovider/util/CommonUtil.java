@@ -90,7 +90,6 @@ public class CommonUtil {
 			Generex generex = new Generex(regex);
 			
 			String randomStr = generex.random();
-			System.out.println("regex:  "+regex);
 			System.out.println(randomStr);
 			// Generate all String that matches the given Regex.
 			//List<String> matchedStrs = generex.getAllMatchedStrings();
