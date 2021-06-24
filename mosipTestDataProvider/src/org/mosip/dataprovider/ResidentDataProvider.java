@@ -150,29 +150,72 @@ public class ResidentDataProvider {
 		if(preregconfig != null) {
 			primary_lang = preregconfig.getMosip_primary_language();
 		}
-		if(primary_lang == null)
-			primary_lang = "eng";
 		
-		boolean bFoundSecLang = false;
+		  if(primary_lang == null) {
+			  String mandatory_languages=preregconfig.getMandatory_languages();
+			  if(mandatory_languages!=null && !mandatory_languages.equals("")) {
+				  String[] mandatlangueage = mandatory_languages.split(",");
+				  primary_lang=mandatlangueage[0].trim();
+				  if(mandatlangueage.length>1) {
+					  sec_lang= mandatlangueage[1].trim();
+				  }
+				  if(mandatlangueage.length>2) {
+					  third_lang=  mandatlangueage[2].trim();
+				  }
+			  }
+			  
+			  if(primary_lang==null) {
+				 String languages= preregconfig.getOptional_languages();
+				 if(languages!=null && !languages.equals("")) {
+					  String[] langueage = languages.split(",");
+					  primary_lang=langueage[0].trim();
+					  if(langueage.length>1) {
+						  sec_lang= langueage[1].trim();
+					  }
+					  if(langueage.length>2) {
+						  third_lang=  langueage[2].trim();
+					  }
+				  }
+
+			  }
+			  
+		  }
+			 // primary_lang = "eng";
+		 
+		int minLanguages=Integer.parseInt(preregconfig.getMin_languages_count());
+		
+		//boolean bFoundSecLang = false;
 		for(MosipLanguage lang: allLang) {
 			if(!lang.getIsActive())
 				continue;
 			
-			if(sec_lang == null) {
+			if (primary_lang == null) {
+				primary_lang = lang.getCode();
+				// bFoundSecLang = true;
+				break;
+			}
+			
+			if(sec_lang == null && minLanguages>1) {
 				if(!lang.getCode().equals(primary_lang)){
 					sec_lang = lang.getCode();
-					bFoundSecLang = true;
+					//bFoundSecLang = true;
 					break;
 				}
 			}
-			else
-			if(lang.getCode().equals(sec_lang)){
-					bFoundSecLang = true;
+			if(third_lang == null && minLanguages>2) {
+				if(!lang.getCode().equals(sec_lang) && !lang.getCode().equals(primary_lang) ){
+					third_lang = lang.getCode();
+					//bFoundSecLang = true;
 					break;
+				}
 			}
+			/*
+			 * else if(lang.getCode().equals(sec_lang)){ bFoundSecLang = true; break; }
+			 */
 		}
-		if(!bFoundSecLang)
-			sec_lang = null;
+		/*
+		 * if(!bFoundSecLang) sec_lang = null;
+		 */
 		
 		//override if specified
 		if(override_primary_lan != null && !override_primary_lan.equals(""))
