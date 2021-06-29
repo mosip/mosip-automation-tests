@@ -674,22 +674,23 @@ public class PacketTemplateProvider {
 					}
 				}
 				else
-				if(s.getId().toLowerCase().contains("residen")  ) {
+				if(s.getSubType().toLowerCase().contains("residenceStatus")  ) {
 					primaryValue = resident.getResidentStatus().getCode() ;
 					secValue = primaryValue;
 				}
-				else
-				if(s.getId().toLowerCase().contains("phone") || s.getId().toLowerCase().contains("mobile") ) {
-					primaryValue =  resident.getContact().getMobileNumber();
-				}
+				/*
+				 * else if(s.getId().toLowerCase().contains("phone") ||
+				 * s.getId().toLowerCase().contains("mobile") ) { primaryValue =
+				 * resident.getContact().getMobileNumber(); }
+				 */
 				else
 				if(s.getId().toLowerCase().contains("email") || s.getId().toLowerCase().contains("mail") ) {
 					primaryValue =  resident.getContact().getEmailId();
 				}
-				else
-				if(s.getId().toLowerCase().contains("referenceIdentity") ) {
-					primaryValue = resident.getId();
-				}
+				/*
+				 * else if(s.getId().toLowerCase().contains("referenceIdentity") ) {
+				 * primaryValue = resident.getId(); }
+				 */
 				else
 				if(s.getId().toLowerCase().contains("blood") ) {
 					primaryValue = resident.getBloodgroup().getCode();
