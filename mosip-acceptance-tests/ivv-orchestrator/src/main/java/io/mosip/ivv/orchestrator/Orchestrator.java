@@ -48,12 +48,6 @@ public class Orchestrator {
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
 			put("e2e", "io.mosip.ivv.e2e.methods");
-			// put("pr", "io.mosip.ivv.preregistration.methods");
-			// put("rc", "io.mosip.ivv.registration.methods");
-			// put("rp", "io.mosip.ivv.regprocessor.methods");
-			// put("kr", "io.mosip.ivv.kernel.methods");
-			// put("ia", "io.mosip.ivv.ida.methods");
-			// put("mt", "io.mosip.ivv.mutators.methods");
 		}
 	};
 

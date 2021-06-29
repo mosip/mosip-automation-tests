@@ -15,7 +15,7 @@
     </properties>
     <build>
         <plugins>
-           <plugin>
+           <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M4</version>
@@ -26,7 +26,7 @@
                     </suiteXmlFiles>
                     <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
                 </configuration>
-            </plugin>
+            </plugin> -->
             
             
             <plugin>
@@ -126,7 +126,7 @@
         <dependency>
 			<groupId>io.mosip.automationtests</groupId>
 			<artifactId>automationtests</artifactId>
-			<version>1.0.10</version>
+			<version>1.2.0-SNAPSHOT</version>
 		</dependency>
 		
 	<dependency>
