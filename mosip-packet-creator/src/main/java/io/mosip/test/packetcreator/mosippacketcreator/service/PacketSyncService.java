@@ -385,6 +385,8 @@ public class PacketSyncService {
         jsonObject.put("packetSize", fileBytes.length);
         jsonObject.put("supervisorStatus", supervisorStatus);
         jsonObject.put("supervisorComment", supervisorComment);
+        //jsonObject.put("packetId", rid+"-"+process);
+       // jsonObject.put("additionalInfoReqId", rid+"-"+process);
         JSONArray list = new JSONArray();
         list.put(jsonObject);
 
