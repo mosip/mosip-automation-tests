@@ -48,10 +48,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 
@@ -922,7 +923,9 @@ public class PacketSyncService {
 								
 								List<MDSDeviceCaptureModel> lstFingerData =persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 								for(MDSDeviceCaptureModel cm: lstFingerData) {
-									retProp.put(	cm.getBioSubType() , CommonUtil.getSHA(cm.getBioValue()));
+									//retProp.put(	cm.getBioSubType() , CommonUtil.getSHA(cm.getBioValue()));
+									byte[] valBytes=java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
+									retProp.put(	cm.getBioSubType() , CommonUtil.getSHAFromBytes(valBytes));
 								}
 							}
 						}
@@ -936,11 +939,17 @@ public class PacketSyncService {
 								List<MDSDeviceCaptureModel> lstIrisData =persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
 								for(MDSDeviceCaptureModel cm: lstIrisData) {
 									
-									if(cm.getBioSubType().equals("Left"))
-										irisvalueh.setLeft(CommonUtil.getSHA( cm.getBioValue()));
+									if(cm.getBioSubType().equals("Left")) {
+										//irisvalueh.setLeft(CommonUtil.getSHA( cm.getBioValue()));
+										byte[] valBytes=java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
+										irisvalueh.setLeft(CommonUtil.getSHAFromBytes(valBytes));
+									}
 									else
-									if(cm.getBioSubType().equals("Right"))
-										irisvalueh.setRight(CommonUtil.getSHA( cm.getBioValue()));
+									if(cm.getBioSubType().equals("Right")) {
+										//irisvalueh.setRight(CommonUtil.getSHA( cm.getBioValue()));
+										byte[] valBytes=java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
+										irisvalueh.setRight(CommonUtil.getSHAFromBytes(valBytes));
+										}
 								}
 								val = irisvalueh; //.toJSONString();
 							}
@@ -950,7 +959,9 @@ public class PacketSyncService {
 						case "face_hash":
 							if(persona.getBiometric().getCapture() != null){
 								val = persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FACE).get(0).getBioValue();
-								val = CommonUtil.getSHA(val.toString());
+								byte[] valBytes=java.util.Base64.getUrlDecoder().decode(val.toString());
+								//val = CommonUtil.getSHA(new String(valBytes));
+								val = CommonUtil.getSHAFromBytes(valBytes);
 							}
 							retProp.put(key, val);
 							break;	
@@ -993,6 +1004,7 @@ public class PacketSyncService {
     	//throw new Exception("TODO: Implement");
     	//return "";
     }
+    
     public String updatePersonaData(List<UpdatePersonaDto> updatePersonaRequest) throws Exception {
     	String ret ="{Sucess}";
     	for(UpdatePersonaDto req: updatePersonaRequest) {
@@ -1173,22 +1185,43 @@ public class PacketSyncService {
 			List<String> subTypeBdbStr = new ArrayList<String>();
 			if(modalities != null) {
 				for(String m: modalities) {
-					if(m.toLowerCase().contains("finger")) {
-						int pos = ISOConverter.getFingerPos(m.trim());
-						bdbString = capFingers.get(pos).getBioValue();
-						subTypeBdbStr.add(bdbString);
+					if(m.toLowerCase().contains("finger") || m.toLowerCase().contains("right thumb") || m.toLowerCase().contains("left thumb")) {
+						//int pos = ISOConverter.getFingerPos(m.trim());
+						for (int i = 0; i < capFingers.size(); i++) {
+							MDSDeviceCaptureModel mds = capFingers.get(i);
+							if (mds.getBioSubType().equals(m)) {
+								bdbString = capFingers.get(i).getBioValue();
+								subTypeBdbStr.add(bdbString);
+								System.out.println("Modality : " + m);
+								break;
+							}
+						}
 					}
 					else
-					if(m.toLowerCase().contains("iris")) {
-						int pos = m.toLowerCase().equals(capIris.get(0).getBioSubType().toLowerCase()) ? 0: 1;
-						bdbString = capIris.get(0).getBioValue();
-						subTypeBdbStr.add(bdbString);
+					if(m.toLowerCase().contains("iris") || m.toLowerCase().contains("left") || m.toLowerCase().contains("right")) {
+						for (int i = 0; i < capIris.size(); i++) {
+							MDSDeviceCaptureModel mds = capIris.get(i);
+							if (mds.getBioSubType().equals(m)) {
+								bdbString = capIris.get(i).getBioValue();
+								subTypeBdbStr.add(bdbString);
+								System.out.println("Modality : " + m);
+								break;
+							}
+						}
+						/*
+						 * 
+						 * //int pos =
+						 * m.toLowerCase().equals(capIris.get(0).getBioSubType().toLowerCase()) ? 0: 1;
+						 * bdbString = capIris.get(0).getBioValue(); subTypeBdbStr.add(bdbString);
+						 * System.out.println("Modality : "+m);
+						 */
 						
 					}
 					else
 					if(m.toLowerCase().contains("face")) {
 						bdbString = capFace.get(0).getBioValue();
 						subTypeBdbStr.add(bdbString);
+						System.out.println("Modality : "+m);
 					}
 					
 				}
@@ -1196,6 +1229,7 @@ public class PacketSyncService {
 			}
 			else {
 				bdbString = capFingers.get(0).getBioValue();
+				System.out.println("else part -->bdbString : "+bdbString);
 				subTypeBdbStr.add(bdbString);
 			}
 	
@@ -1215,12 +1249,16 @@ public class PacketSyncService {
 			}
 			else
 				duplicateBdbs= null;
+			List<String> reponse= new ArrayList<>();
 			for(String b:subTypeBdbStr ) {
-				MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
+				String responseStr=MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
 						(expct.getDelaySec() <= 0 ?  DataProviderConstants.DEFAULT_ABIS_DELAY : expct.getDelaySec()),
 						expct.getOperation());
+				reponse.add(responseStr);
 			}
+			System.out.println(String.join(", ", reponse));
 		}
+		
 		return "{\"status\":\"Success\"}";
 	}
    

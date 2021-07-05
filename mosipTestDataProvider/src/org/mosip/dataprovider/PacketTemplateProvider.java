@@ -457,7 +457,7 @@ public class PacketTemplateProvider {
 				String primVal = "";
 				String secVal = "";
 			
-				
+				if(genderTypes != null) {
 				for(MosipGenderModel g: genderTypes) {
 					if(!g.getIsActive())
 						continue;
@@ -465,6 +465,7 @@ public class PacketTemplateProvider {
 							primVal = g.getCode();
 					}
 					
+				}
 				}
 				if(secVal.equals(""))
 					secVal = primVal;
