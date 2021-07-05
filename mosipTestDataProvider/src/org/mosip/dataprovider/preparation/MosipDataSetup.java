@@ -1,6 +1,7 @@
 package org.mosip.dataprovider.preparation;
 
 
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -325,7 +326,9 @@ public class MosipDataSetup {
 				VariableManager.getVariableValue("mockABISsetExpectaion").toString();
 
 		JSONObject req = new JSONObject();
-		req.put("id", CommonUtil.getSHA(bdbString));
+		//req.put("id", CommonUtil.getSHA(bdbString));
+		byte[] valBytes=java.util.Base64.getUrlDecoder().decode(bdbString);
+		req.put("id", CommonUtil.getSHAFromBytes(valBytes));
 		req.put("version","1.0");
 		req.put("requesttime",CommonUtil.getUTCDateTime(null) );
 		req.put("actionToInterfere",operation );
@@ -341,7 +344,8 @@ public class MosipDataSetup {
 			JSONArray arr = new JSONArray();
 			for(String s: duplicateBdbs) {
 				JSONObject ref = new JSONObject();
-				ref.put("referenceId", CommonUtil.getSHA(bdbString));
+				//ref.put("referenceId", CommonUtil.getSHA(bdbString));
+				ref.put("referenceId", CommonUtil.getSHAFromBytes(valBytes));
 				arr.put(ref);
 			}
 			duprefs.put("referenceIds", arr);
@@ -361,6 +365,8 @@ public class MosipDataSetup {
 
 		return responseStr;
 	}
+	
+	
 	public static String uploadPackets( List<String> packetPaths) {
 
 		String responseStr = "";
