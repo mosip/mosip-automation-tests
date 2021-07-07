@@ -175,20 +175,42 @@ public class CommonUtil {
 	    return lstFiles;
 	    
 	}
-	public static String getSHA(String cbeffStr) throws NoSuchAlgorithmException  {
+	 public static String getSHAFromBytes(byte[] byteArray) throws NoSuchAlgorithmException  {
 		   MessageDigest md = MessageDigest.getInstance("SHA-256");
-		   return bytesToHex(md.digest(cbeffStr.getBytes(StandardCharsets.UTF_8)));
+		   return bytesToHex(md.digest(byteArray));
 	}
-	public static String bytesToHex(byte[] bytes) {
-		
-		char[] hexChars = new char[bytes.length * 2];
-	    for (int j = 0; j < bytes.length; j++) {
-	        int v = bytes[j] & 0xFF;
-	        hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-	        hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-	    }
-	    return new String(hexChars);
+	
+  private static String bytesToHex(byte[] hash) {
+  	   StringBuffer hexString = new StringBuffer();
+  	   for (int i = 0; i < hash.length; i++) {
+  	      String hex = Integer.toHexString(0xff & hash[i]);
+  	      if (hex.length() == 1) {
+  	         hexString.append('0');
+  	      }
+  	      hexString.append(hex);
+  	   }
+  	   return hexString.toString();
+  	}
+  
+	public static String getSHA(String cbeffStr) throws NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		return bytesToHex(md.digest(cbeffStr.getBytes(StandardCharsets.UTF_8)));
 	}
+	
+	/*
+	 * public static String getSHA(String cbeffStr) throws NoSuchAlgorithmException
+	 * { MessageDigest md = MessageDigest.getInstance("SHA-256"); return
+	 * bytesToHex(md.digest(cbeffStr.getBytes(StandardCharsets.UTF_8))); }
+	 * 
+	 * 
+	 * public static String bytesToHex(byte[] bytes) {
+	 * 
+	 * char[] hexChars = new char[bytes.length * 2]; for (int j = 0; j <
+	 * bytes.length; j++) { int v = bytes[j] & 0xFF; hexChars[j * 2] = HEX_ARRAY[v
+	 * >>> 4]; hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F]; } return new
+	 * String(hexChars); }
+	 */
+	 
 	
 	public static void validateJSONSchema(String schemaJson, String identity) throws ValidationException {
 	
