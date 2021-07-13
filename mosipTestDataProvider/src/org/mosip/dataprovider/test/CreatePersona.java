@@ -139,7 +139,11 @@ public class CreatePersona {
 					( schemaItem.getType().equals("documentType") || schemaItem.getType().equals("biometricsType"))) {
 				continue;
 			}
-			if(!(schemaItem.getRequired() || schemaItem.getInputRequired())) {
+			/*
+			 * if(!(schemaItem.getRequired() || schemaItem.getInputRequired())) { continue;
+			 * }
+			 */
+			if(!(schemaItem.getRequired())) {
 				continue;
 			}
 			if(schemaItem.getId().equals("IDSchemaVersion"))
