@@ -792,7 +792,20 @@ public class PacketSyncService {
 	    		case "gender":
 	    			persona.setGender(value);
 	    			break;
+	    	
+	    		case "phone":
+	    		case "mobile":
+	    		case "mobilephone":
+	    		case "mobilenumber":
+	    			persona.getContact().setMobileNumber(value);
+	    			
+	    			break;
+	    		case "email":
+	    		case "emailid":
+	    			persona.getContact().setEmailId(value);
 	    		
+	    			break;
+	    			
 	    		case "dob":
 	    		case "dateofbirth":
 	    			persona.setDob(value);
