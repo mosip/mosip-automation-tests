@@ -751,7 +751,7 @@ public class PacketSyncService {
     	
     		MosipDocument doc = null;
     		for(MosipDocument md: persona.getDocuments()) {
-    			if(md.getDocCategoryCode().equals(key) || md.getDocCategoryName().equals(key)) {
+    			if(md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
     				doc = md;
     				break;
     			}
