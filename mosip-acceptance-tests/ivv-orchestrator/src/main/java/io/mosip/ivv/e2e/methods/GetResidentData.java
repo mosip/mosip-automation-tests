@@ -48,8 +48,11 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 						String resFilePath = obj.get("path").toString();
 						String id = obj.get("id").toString();
 						residentPaths.add(resFilePath);
+						//TODO : REMOVE AFTER TESTING
 						residentTemplatePaths.put(resFilePath, null);
+						//residentTemplatePaths.put("C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_3868007285188428668\\3717670314.json", null);
 						residentPersonaIdPro.put(id, resFilePath);
+						//residentPersonaIdPro.put("3717670314", "C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_3868007285188428668\\3717670314.json");
 					}
 					if(!residentPersonaIdPro.isEmpty())
 					storeProp(residentPersonaIdPro);
