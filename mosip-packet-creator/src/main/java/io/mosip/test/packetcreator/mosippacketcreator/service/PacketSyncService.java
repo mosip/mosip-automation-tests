@@ -16,7 +16,7 @@ import org.mosip.dataprovider.models.DynamicFieldValueModel;
 import org.mosip.dataprovider.models.IrisDataModel;
 import org.mosip.dataprovider.models.MosipDocTypeModel;
 import org.mosip.dataprovider.models.MosipDocument;
-
+import org.mosip.dataprovider.models.MosipIndividualTypeModel;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
 import org.mosip.dataprovider.preparation.MosipDataSetup;
@@ -48,10 +48,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 
@@ -171,9 +172,10 @@ public class PacketSyncService {
 		String primaryLanguage = "eng";
 		if(props.containsKey("PrimaryLanguage")) {
 			primaryLanguage = props.get("PrimaryLanguage").toString();
+			provider.addCondition(ResidentAttribute.RA_PRIMARAY_LANG, primaryLanguage);
 		}
 
-		provider.addCondition(ResidentAttribute.RA_PRIMARAY_LANG, primaryLanguage);
+	
 
 		if(props.containsKey("SecondaryLanguage")) {
 			provider.addCondition(ResidentAttribute.RA_SECONDARY_LANG, props.get("SecondaryLanguage").toString());
@@ -268,8 +270,14 @@ public class PacketSyncService {
     	}
     	else
     	{
-    		//construct ID Json from persona
-    		idJsonPath = createIDJsonFromPersona(personaPath,contextKey);
+    		
+    		if(templateLocation != null) {
+             	//get idJson From Template itself
+             	idJsonPath = ContextUtils.idJsonPathFromTemplate(src, templateLocation);
+        	 }
+        	 else
+        		 idJsonPath = createIDJsonFromPersona(personaPath, contextKey);
+         	
     	}
         if(templateLocation != null) {
         	process = ContextUtils.ProcessFromTemplate(src, templateLocation);
@@ -378,6 +386,8 @@ public class PacketSyncService {
         jsonObject.put("packetSize", fileBytes.length);
         jsonObject.put("supervisorStatus", supervisorStatus);
         jsonObject.put("supervisorComment", supervisorComment);
+        //jsonObject.put("packetId", rid+"-"+process);
+       // jsonObject.put("additionalInfoReqId", rid+"-"+process);
         JSONArray list = new JSONArray();
         list.put(jsonObject);
 
@@ -741,7 +751,7 @@ public class PacketSyncService {
     	
     		MosipDocument doc = null;
     		for(MosipDocument md: persona.getDocuments()) {
-    			if(md.getDocCategoryCode().equals(key) || md.getDocCategoryName().equals(key)) {
+    			if(md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
     				doc = md;
     				break;
     			}
@@ -782,7 +792,20 @@ public class PacketSyncService {
 	    		case "gender":
 	    			persona.setGender(value);
 	    			break;
+	    	
+	    		case "phone":
+	    		case "mobile":
+	    		case "mobilephone":
+	    		case "mobilenumber":
+	    			persona.getContact().setMobileNumber(value);
+	    			
+	    			break;
+	    		case "email":
+	    		case "emailid":
+	    			persona.getContact().setEmailId(value);
 	    		
+	    			break;
+	    			
 	    		case "dob":
 	    		case "dateofbirth":
 	    			persona.setDob(value);
@@ -798,7 +821,32 @@ public class PacketSyncService {
 	    			DynamicFieldValueModel ms =  persona.getMaritalStatus();
 	    			ms.setCode(value);
 	    			break;
-
+	    		case "residencestatus":
+	    		case "rs":
+	    			if(value != null && !value.equals("")) {
+	    				String lang = persona.getPrimaryLanguage();
+	    				String [] parts = value.split("=");
+	    				String msCode = null;
+	    				if(parts.length > 1) {
+	    					lang = parts[0].trim();
+	    					msCode = parts[1].trim();
+	    				}
+	    				else
+	    					msCode = parts[0].trim();
+	    					
+	    				if(lang.equals(persona.getPrimaryLanguage())) {
+	    				
+	    					MosipIndividualTypeModel  rs= persona.getResidentStatus();
+	    					rs.setCode(msCode);
+	    				}
+	    				else
+	    				{
+	    					MosipIndividualTypeModel  rs= persona.getResidentStatus_seclang();
+	    					rs.setCode(msCode);
+	    				}
+	    			}
+	    			
+    			
     		}
 	    }
     }
@@ -888,7 +936,9 @@ public class PacketSyncService {
 								
 								List<MDSDeviceCaptureModel> lstFingerData =persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 								for(MDSDeviceCaptureModel cm: lstFingerData) {
-									retProp.put(	cm.getBioSubType() , CommonUtil.getSHA(cm.getBioValue()));
+									//retProp.put(	cm.getBioSubType() , CommonUtil.getSHA(cm.getBioValue()));
+									byte[] valBytes=java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
+									retProp.put(	cm.getBioSubType() , CommonUtil.getSHAFromBytes(valBytes));
 								}
 							}
 						}
@@ -902,11 +952,17 @@ public class PacketSyncService {
 								List<MDSDeviceCaptureModel> lstIrisData =persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
 								for(MDSDeviceCaptureModel cm: lstIrisData) {
 									
-									if(cm.getBioSubType().equals("Left"))
-										irisvalueh.setLeft(CommonUtil.getSHA( cm.getBioValue()));
+									if(cm.getBioSubType().equals("Left")) {
+										//irisvalueh.setLeft(CommonUtil.getSHA( cm.getBioValue()));
+										byte[] valBytes=java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
+										irisvalueh.setLeft(CommonUtil.getSHAFromBytes(valBytes));
+									}
 									else
-									if(cm.getBioSubType().equals("Right"))
-										irisvalueh.setRight(CommonUtil.getSHA( cm.getBioValue()));
+									if(cm.getBioSubType().equals("Right")) {
+										//irisvalueh.setRight(CommonUtil.getSHA( cm.getBioValue()));
+										byte[] valBytes=java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
+										irisvalueh.setRight(CommonUtil.getSHAFromBytes(valBytes));
+										}
 								}
 								val = irisvalueh; //.toJSONString();
 							}
@@ -916,7 +972,9 @@ public class PacketSyncService {
 						case "face_hash":
 							if(persona.getBiometric().getCapture() != null){
 								val = persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FACE).get(0).getBioValue();
-								val = CommonUtil.getSHA(val.toString());
+								byte[] valBytes=java.util.Base64.getUrlDecoder().decode(val.toString());
+								//val = CommonUtil.getSHA(new String(valBytes));
+								val = CommonUtil.getSHAFromBytes(valBytes);
 							}
 							retProp.put(key, val);
 							break;	
@@ -959,6 +1017,7 @@ public class PacketSyncService {
     	//throw new Exception("TODO: Implement");
     	//return "";
     }
+    
     public String updatePersonaData(List<UpdatePersonaDto> updatePersonaRequest) throws Exception {
     	String ret ="{Sucess}";
     	for(UpdatePersonaDto req: updatePersonaRequest) {
@@ -976,7 +1035,8 @@ public class PacketSyncService {
 					updatePersona(updateAttrs, persona);
 				}
 				List<String> missList = req.getMissAttributeList();
-				persona.setMissAttributes(missList);
+				if(missList != null && missList.size() >=0)
+					persona.setMissAttributes(missList);
 				
 				persona.writePersona(req.getPersonaFilePath());
 				
@@ -1030,10 +1090,13 @@ public class PacketSyncService {
 
 	public String updatePersonaBioExceptions(BioExceptionDto personaBERequestDto, String contextKey) {
 
+		logger.info("updatePersonaBioExceptions:"+contextKey);
+		
 		loadServerContextProperties(contextKey);
 		String ret ="{Sucess}";
     	try {
 			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath());
+		
 			persona.setBioExceptions(personaBERequestDto.getExceptions());
 			
 			persona.writePersona(personaBERequestDto.getPersonaFilePath());
@@ -1056,6 +1119,8 @@ public class PacketSyncService {
 
 		String bdbString ="";
 		String [] duplicateBdbs;
+		
+		logger.info("setPersonaMockABISExpectation");
 		
 		loadServerContextProperties(contextKey);
 		for(String personaPath: personaFilePath) {
@@ -1120,7 +1185,7 @@ public class PacketSyncService {
 
 		String bdbString ="";
 		String [] duplicateBdbs;
-		List<String>  mockABISBiometricResponse= new ArrayList<>();
+		
 		loadServerContextProperties(contextKey);
 		for(MockABISExpectationsDto expct : expectations) {
 			
@@ -1133,22 +1198,43 @@ public class PacketSyncService {
 			List<String> subTypeBdbStr = new ArrayList<String>();
 			if(modalities != null) {
 				for(String m: modalities) {
-					if(m.toLowerCase().contains("finger")) {
-						int pos = ISOConverter.getFingerPos(m.trim());
-						bdbString = capFingers.get(pos).getBioValue();
-						subTypeBdbStr.add(bdbString);
+					if(m.toLowerCase().contains("finger") || m.toLowerCase().contains("right thumb") || m.toLowerCase().contains("left thumb")) {
+						//int pos = ISOConverter.getFingerPos(m.trim());
+						for (int i = 0; i < capFingers.size(); i++) {
+							MDSDeviceCaptureModel mds = capFingers.get(i);
+							if (mds.getBioSubType().equals(m)) {
+								bdbString = capFingers.get(i).getBioValue();
+								subTypeBdbStr.add(bdbString);
+								System.out.println("Modality : " + m);
+								break;
+							}
+						}
 					}
 					else
-					if(m.toLowerCase().contains("iris")) {
-						int pos = m.toLowerCase().equals(capIris.get(0).getBioSubType().toLowerCase()) ? 0: 1;
-						bdbString = capIris.get(0).getBioValue();
-						subTypeBdbStr.add(bdbString);
+					if(m.toLowerCase().contains("iris") || m.toLowerCase().contains("left") || m.toLowerCase().contains("right")) {
+						for (int i = 0; i < capIris.size(); i++) {
+							MDSDeviceCaptureModel mds = capIris.get(i);
+							if (mds.getBioSubType().equals(m)) {
+								bdbString = capIris.get(i).getBioValue();
+								subTypeBdbStr.add(bdbString);
+								System.out.println("Modality : " + m);
+								break;
+							}
+						}
+						/*
+						 * 
+						 * //int pos =
+						 * m.toLowerCase().equals(capIris.get(0).getBioSubType().toLowerCase()) ? 0: 1;
+						 * bdbString = capIris.get(0).getBioValue(); subTypeBdbStr.add(bdbString);
+						 * System.out.println("Modality : "+m);
+						 */
 						
 					}
 					else
 					if(m.toLowerCase().contains("face")) {
 						bdbString = capFace.get(0).getBioValue();
 						subTypeBdbStr.add(bdbString);
+						System.out.println("Modality : "+m);
 					}
 					
 				}
@@ -1156,6 +1242,7 @@ public class PacketSyncService {
 			}
 			else {
 				bdbString = capFingers.get(0).getBioValue();
+				System.out.println("else part -->bdbString : "+bdbString);
 				subTypeBdbStr.add(bdbString);
 			}
 	
@@ -1175,17 +1262,17 @@ public class PacketSyncService {
 			}
 			else
 				duplicateBdbs= null;
+			List<String> reponse= new ArrayList<>();
 			for(String b:subTypeBdbStr ) {
-				logger.info("before configureMockABISBiometric() :  "+b);
-				logger.info("before configureMockABISBiometric()  duplicateBdbs :  "+duplicateBdbs);
-				String configureMockABISBiometricResponse = MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
+				String responseStr=MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
 						(expct.getDelaySec() <= 0 ?  DataProviderConstants.DEFAULT_ABIS_DELAY : expct.getDelaySec()),
 						expct.getOperation());
-				mockABISBiometricResponse.add(configureMockABISBiometricResponse);
-				logger.info("After configureMockABISBiometric() :  "+configureMockABISBiometricResponse);
+				reponse.add(responseStr);
 			}
+			System.out.println(String.join(", ", reponse));
 		}
-		return "{\"status\":\"Success\", \"info\":\""+String.join(",", mockABISBiometricResponse)+"\"}";
+		
+		return "{\"status\":\"Success\"}";
 	}
    
  

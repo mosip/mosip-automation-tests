@@ -4,14 +4,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
+import org.javatuples.Pair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import org.mosip.dataprovider.PacketTemplateProvider;
 import org.mosip.dataprovider.models.DynamicFieldModel;
 import org.mosip.dataprovider.models.MosipGenderModel;
 import org.mosip.dataprovider.models.MosipIDSchema;
@@ -30,7 +31,7 @@ import variables.VariableManager;
 
 public class CreatePersona {
 
-	static 	Hashtable<Double,List<MosipIDSchema>> tbl;
+	static 	Hashtable<Double,Properties> tbl;
 	
 	public static JSONObject constructNode(JSONObject identity, String Id, String primLang, String secLang, String primVal, String secVal, Boolean bSimpleType) {
 		JSONObject obj = new JSONObject();
@@ -65,8 +66,8 @@ public class CreatePersona {
 		return MVEL.evalToBoolean(cndnexpr,inputObject);
 	}
 	public static List<String> validateIDObject(JSONObject mergedJsonMap){
-		Hashtable<Double, List<MosipIDSchema>> tblschema  = MosipMasterData.getIDSchemaLatestVersion();
-		List<MosipIDSchema> schema = tblschema.get( tblschema.keys().nextElement() );
+		Hashtable<Double, Properties> tblschema  = MosipMasterData.getIDSchemaLatestVersion();
+		List<MosipIDSchema> schema = (List<MosipIDSchema>) tblschema.get( tblschema.keys().nextElement() ).get("schemaList");
 		JSONObject identity = mergedJsonMap.getJSONObject("identity");
 		List<String> failedSchemaIds = new ArrayList<String>();
 		
@@ -105,7 +106,8 @@ public class CreatePersona {
 
 		tbl = MosipMasterData.getIDSchemaLatestVersion();
 		Double schemaversion = tbl.keys().nextElement();
-		List<MosipIDSchema>  lstSchema =tbl.get(schemaversion);
+		List<MosipIDSchema>  lstSchema =(List<MosipIDSchema>) tbl.get(schemaversion).get("schemaList");
+		List<String> requiredAttribs = (List<String>) tbl.get(schemaversion).get("requiredAttributes");
 		
 		JSONObject identity = new JSONObject();
 
@@ -122,9 +124,12 @@ public class CreatePersona {
 		
 		for(MosipIDSchema schemaItem: lstSchema) {
 
+			boolean found = false;
 			if(cb != null) {
 				cb.logDebug(schemaItem.toJSONString());
 			}
+			if(!CommonUtil.isExists(requiredAttribs,schemaItem.getId()))
+				continue;
 			if(lstMissedAttributes != null && lstMissedAttributes.stream().anyMatch( v -> v.equalsIgnoreCase(schemaItem.getId()))) {
 				continue;
 			}
@@ -134,102 +139,78 @@ public class CreatePersona {
 					( schemaItem.getType().equals("documentType") || schemaItem.getType().equals("biometricsType"))) {
 				continue;
 			}
-			if(!(schemaItem.getRequired() || schemaItem.getInputRequired())) {
+			/*
+			 * if(!(schemaItem.getRequired() || schemaItem.getInputRequired())) { continue;
+			 * }
+			 */
+			if(!(schemaItem.getRequired())) {
 				continue;
 			}
 			if(schemaItem.getId().equals("IDSchemaVersion"))
 				continue;
 			
-			if(schemaItem.getType() != null 
-					//&& ( schemaItem.getContactType() != null  || schemaItem.getGroup() != null)
+			if(schemaItem.getType() == null )
+				continue;
+			
+			if(schemaItem.getFieldType().equals("dynamic")) {
+			
+				boolean genderFound = PacketTemplateProvider.processGender(schemaItem, resident,identity, genderTypes,dynaFields);
+				if(genderFound)
+					continue;
+						
+				if(dynaFields != null) {
 					
-			){
-				if(schemaItem.getControlType().equals("dropdown")) {
-					if(schemaItem.getFieldType().equals("dynamic")) {
-						if(dynaFields != null)
-						for(DynamicFieldModel dfm: dynaFields) {
-							if(dfm.getIsActive() && 
+					
+					for(DynamicFieldModel dfm: dynaFields) {
+						if(dfm.getIsActive() && 
 									( dfm.getId().equals(schemaItem.getId()) || dfm.getName().equals(schemaItem.getId()))
-							) {
+						) {
 
-								constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
+							constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
 											dfm.getFieldVal().get(0).getValue(),
 											dfm.getFieldVal().get(0).getValue(),
 											schemaItem.getType().equals("simpleType") ? true: false
 											);
-								break;
-							}
+							found = true;
+							break;
 						}
 					}
-					//known lookups
-					else {
-						if(schemaItem.getSubType().toLowerCase().equals("gender")  ) {
-							
-							String primLang = resident.getPrimaryLanguage();
-							String secLan = resident.getSecondaryLanguage();
-							String resGen = resident.getGender();
-							String primVal = "";
-							String secVal = "";
-							for(MosipGenderModel g: genderTypes) {
-								if(!g.getIsActive())
-									continue;
-								if(g.getGenderName().equals(resGen)) {
-
-									if(g.getLangCode().equals(primLang) ) {
-										primVal = g.getCode();
-									}
-									else
-									if(secLan != null && g.getLangCode().equals(secLan) ) {
-											
-										secVal =  g.getCode();
-									
-									}
-								}
-							}
-							if(secVal.equals(""))
-								secVal = primVal;
-							constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
-									primVal,
-									secVal,
-									schemaItem.getType().equals("simpleType") ? true: false
-							);
-	
-							
-						}
-						else
-						if(schemaItem.getId().toLowerCase().contains("residen")  ) {
-							String name = resident.getResidentStatus().getCode() ;
-
-							constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
-											resident.getSecondaryLanguage(),
-											name,
-											name,
-											schemaItem.getType().equals("simpleType") ? true: false
-							);
-									
-						}
-						/* check with location details */
-						else {
-							
-							for(String locLevel: locationSet) {
-				
-								if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
-									
-			//					if(schemaItem.getId().toLowerCase().contains(locLevel.toLowerCase())) {
-									constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
-											resident.getSecondaryLanguage(),
-											locations.get(locLevel).getCode(),
-											locations.get(locLevel).getCode(),
-											schemaItem.getType().equals("simpleType") ? true: false
-									);
-									break;
-								}
-							}
-						}
-					}
+					if(found)
+						continue;
 				}
-				else 
-				if(schemaItem.getId().toLowerCase().equals("fullname")) {
+				if(schemaItem.getId().toLowerCase().contains("residen")  ) {
+					String name = resident.getResidentStatus().getCode() ;
+
+					constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+											resident.getSecondaryLanguage(),
+											name,
+											name,
+											schemaItem.getType().equals("simpleType") ? true: false
+							);
+					continue;				
+				}
+				else {
+					found = false;	
+					for(String locLevel: locationSet) {
+				
+						if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
+									
+							constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+								resident.getSecondaryLanguage(),
+								locations.get(locLevel).getCode(),
+								locations.get(locLevel).getCode(),
+								schemaItem.getType().equals("simpleType") ? true: false
+								);
+							found = true;
+							break;
+						}
+					}
+					if(found)
+						continue;
+				}
+			}
+			else 
+			if(schemaItem.getId().toLowerCase().equals("fullname")) {
 					String name = resident.getName().getFirstName();
 					if(resident.getName().getMidName() != null && !resident.getName().getMidName().equals(""))
 						name = name + " " + resident.getName().getMidName();
@@ -253,9 +234,9 @@ public class CreatePersona {
 						name_sec,
 						schemaItem.getType().equals("simpleType") ? true: false
 					);
-				}
-				else
-				if(schemaItem.getId().toLowerCase().equals("firstname") ||
+			}
+			else
+			if(schemaItem.getId().toLowerCase().equals("firstname") ||
 						schemaItem.getId().toLowerCase().equals("lastname") ||
 						schemaItem.getId().toLowerCase().equals("middlename") 
 				) {
@@ -286,66 +267,21 @@ public class CreatePersona {
 							name_sec,
 							schemaItem.getType().equals("simpleType") ? true: false
 					);
-				}	
-				else
-				if(schemaItem.getId().toLowerCase().contains("address")) {
+			}	
+			else
+			if(schemaItem.getId().toLowerCase().contains("address")) {
+			
+				Pair<String,String> addrLines = PacketTemplateProvider.processAddresslines(schemaItem, resident, identity);
 				
-					String addr = null;
-					String addr_sec="";
-				
-					if(schemaItem.getControlType().equals("checkbox")) {
-						addr = "Y";
-						addr_sec="Y";
-					}
-					else
-					{
-						
-						String [] addressLines = resident.getAddress();
-						int index = -1;
-						
-						switch(schemaItem.getId().toLowerCase()) {
-							case "addressline1":
-								index = 0;
-								break;
-							case "addressline2":
-								index = 1;
-								break;
-							case "addressline3":
-								index = 2;
-								break;
-						}
-						if(index > -1)
-							addr = addressLines[index];
-						if(addr != null  ) {
-							Random rand = new Random();
-							addr = "#%d, %d Street, %d block" ;//+ schemaItem.getId();
-							addr = String.format(addr, (100+ rand.nextInt(999)),
-								(1 + rand.nextInt(99)),
-								(1 + rand.nextInt(10))
-								);
-						
-							if(resident.getSecondaryLanguage() != null)
-								addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
-						}
-						else
-						{
-							if(resident.getSecondaryLanguage() != null)
-								addr_sec = resident.getAddress_seclang()[index];
-							
-						}
-						if(schemaItem.getMaximum() > 0 && addr.length() >= schemaItem.getMaximum() )
-							addr = addr.substring(0,schemaItem.getMaximum() -1);
-				
-					}
-					constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+				constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 							resident.getSecondaryLanguage(),
-							addr,
-							addr_sec,
+							addrLines.getValue0(),
+							addrLines.getValue1(),
 							schemaItem.getType().equals("simpleType") ? true: false
-					);
-				}
-				else
-				if(schemaItem.getId().toLowerCase().equals("dateofbirth") ||schemaItem.getId().toLowerCase().equals("dob") || schemaItem.getId().toLowerCase().equals("birthdate") ) {
+				);
+			}
+			else
+			if(schemaItem.getId().toLowerCase().equals("dateofbirth") ||schemaItem.getId().toLowerCase().equals("dob") || schemaItem.getId().toLowerCase().equals("birthdate") ) {
 						
 						//should be informat yyyy/mm/dd
 						//SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");  
@@ -356,9 +292,9 @@ public class CreatePersona {
 								strDate,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
-				}
-				else
-				if(schemaItem.getId().toLowerCase().contains("phone") || schemaItem.getId().toLowerCase().contains("mobile") ) {
+			}
+		/*	else
+			if(schemaItem.getId().toLowerCase().contains("phone") || schemaItem.getId().toLowerCase().contains("mobile") ) {
 					String mobileNo =   resident.getContact().getMobileNumber();
 					constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 							resident.getSecondaryLanguage(),
@@ -367,9 +303,9 @@ public class CreatePersona {
 							schemaItem.getType().equals("simpleType") ? true: false
 					);
 					
-				}
-				else
-				if(schemaItem.getId().toLowerCase().contains("email") || schemaItem.getId().toLowerCase().contains("mail") ) {
+			}*/
+			else
+			if(schemaItem.getId().toLowerCase().contains("email") || schemaItem.getId().toLowerCase().contains("mail") ) {
 						
 						String emailId =   resident.getContact().getEmailId();
 						constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
@@ -378,9 +314,9 @@ public class CreatePersona {
 								emailId,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
-				}
-				else
-				if(schemaItem.getId().toLowerCase().contains("referenceidentity") ) {
+			}
+			else
+			if(schemaItem.getId().toLowerCase().contains("referenceidentity") ) {
 					
 						String id = resident.getId();	
 						constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
@@ -390,9 +326,9 @@ public class CreatePersona {
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
 						
-				}
-				else
-				if(schemaItem.getId().toLowerCase().equals("gender")){
+			}
+			else
+			if(schemaItem.getId().toLowerCase().equals("gender")){
 						String primaryValue ="Female";
 						if(resident.getGender().equals("Male"))
 							primaryValue = "Male";
@@ -405,14 +341,49 @@ public class CreatePersona {
 								secValue,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
-				}
+				
 			}
 			else
-			if(schemaItem.getRequired() || schemaItem.getInputRequired()) {
-				String someVal = CommonUtil.generateRandomString(schemaItem.getMaximum());
+			{
+				found = false;
+				for(String locLevel: locationSet) {
+					
+					if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
+								
+						constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+							resident.getSecondaryLanguage(),
+							locations.get(locLevel).getCode(),
+							locations.get(locLevel).getCode(),
+							schemaItem.getType().equals("simpleType") ? true: false
+							);
+						found = true;
+						break;
+					}
+				}
+				if(found)
+					continue;
+
+				String someVal= null;
+				List<SchemaValidator>  validators = schemaItem.getValidators();
+				if(validators != null) {
+					for(SchemaValidator v: validators) {
+						if(v.getType().equalsIgnoreCase("regex")) {
+							String regexpr = v.getValidator();
+							if(regexpr != null && !regexpr.equals(""))
+								try {
+									someVal = CommonUtil.genStringAsperRegex(regexpr);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+						}
+					}
+				}
+				if(someVal == null)
+					someVal = CommonUtil.generateRandomString(schemaItem.getMaximum());
 				if(schemaItem.getId().equals("IDSchemaVersion"))
 					someVal = Double.toString(schemaversion);
-				else
+				
 				constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 						resident.getSecondaryLanguage(),
 						someVal,

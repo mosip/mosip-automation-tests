@@ -1,12 +1,10 @@
 package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -38,9 +36,6 @@ import io.mosip.kernel.websub.api.model.SubscriptionChangeResponse;
 import io.mosip.kernel.websub.api.model.UnsubscriptionRequest;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.webSubEventModel;
 import io.mosip.test.packetcreator.mosippacketcreator.service.CryptoCoreUtil;
-
-
-
 
 import io.swagger.annotations.Api;
 

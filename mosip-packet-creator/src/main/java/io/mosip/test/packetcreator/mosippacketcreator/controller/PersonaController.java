@@ -41,9 +41,6 @@ public class PersonaController {
 	   
 	private static final Logger logger = LoggerFactory.getLogger(PersonaController.class);
 
-	
-	
-
 	@ApiOperation(value = "Update given persona record with the given list of attribute values", response = String.class)
 	@PutMapping(value = "/persona/{id}")
 	public @ResponseBody String updatePersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto ,

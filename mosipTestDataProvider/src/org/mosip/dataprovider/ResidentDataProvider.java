@@ -19,6 +19,7 @@ import org.mosip.dataprovider.models.Contact;
 import org.mosip.dataprovider.models.DynamicFieldModel;
 import org.mosip.dataprovider.models.DynamicFieldValueModel;
 import org.mosip.dataprovider.models.IrisDataModel;
+import org.mosip.dataprovider.models.MosipDocument;
 import org.mosip.dataprovider.models.MosipGenderModel;
 import org.mosip.dataprovider.models.MosipIndividualTypeModel;
 import org.mosip.dataprovider.models.MosipLanguage;
@@ -61,8 +62,8 @@ public class ResidentDataProvider {
 	public ResidentDataProvider() {
 		attributeList = new Properties();
 		attributeList.put(ResidentAttribute.RA_Count, 1);
-		attributeList.put(ResidentAttribute.RA_PRIMARAY_LANG, DataProviderConstants.LANG_CODE_ENGLISH);
-		attributeList.put(ResidentAttribute.RA_Country, "PHIL");
+		//attributeList.put(ResidentAttribute.RA_PRIMARAY_LANG, DataProviderConstants.LANG_CODE_ENGLISH);
+		//attributeList.put(ResidentAttribute.RA_Country, "PHIL");
 		RestClient.clearToken();
 	}
 	/*
@@ -149,29 +150,72 @@ public class ResidentDataProvider {
 		if(preregconfig != null) {
 			primary_lang = preregconfig.getMosip_primary_language();
 		}
-		if(primary_lang == null)
-			primary_lang = "eng";
 		
-		boolean bFoundSecLang = false;
+		  if(primary_lang == null) {
+			  String mandatory_languages=preregconfig.getMandatory_languages();
+			  if(mandatory_languages!=null && !mandatory_languages.equals("")) {
+				  String[] mandatlangueage = mandatory_languages.split(",");
+				  primary_lang=mandatlangueage[0].trim();
+				  if(mandatlangueage.length>1) {
+					  sec_lang= mandatlangueage[1].trim();
+				  }
+				  if(mandatlangueage.length>2) {
+					  third_lang=  mandatlangueage[2].trim();
+				  }
+			  }
+			  
+			  if(primary_lang==null) {
+				 String languages= preregconfig.getOptional_languages();
+				 if(languages!=null && !languages.equals("")) {
+					  String[] langueage = languages.split(",");
+					  primary_lang=langueage[0].trim();
+					  if(langueage.length>1) {
+						  sec_lang= langueage[1].trim();
+					  }
+					  if(langueage.length>2) {
+						  third_lang=  langueage[2].trim();
+					  }
+				  }
+
+			  }
+			  
+		  }
+			 // primary_lang = "eng";
+		 
+		int minLanguages=Integer.parseInt(preregconfig.getMin_languages_count());
+		
+		//boolean bFoundSecLang = false;
 		for(MosipLanguage lang: allLang) {
 			if(!lang.getIsActive())
 				continue;
 			
-			if(sec_lang == null) {
+			if (primary_lang == null) {
+				primary_lang = lang.getCode();
+				// bFoundSecLang = true;
+				break;
+			}
+			
+			if(sec_lang == null && minLanguages>1) {
 				if(!lang.getCode().equals(primary_lang)){
 					sec_lang = lang.getCode();
-					bFoundSecLang = true;
+					//bFoundSecLang = true;
 					break;
 				}
 			}
-			else
-			if(lang.getCode().equals(sec_lang)){
-					bFoundSecLang = true;
+			if(third_lang == null && minLanguages>2) {
+				if(!lang.getCode().equals(sec_lang) && !lang.getCode().equals(primary_lang) ){
+					third_lang = lang.getCode();
+					//bFoundSecLang = true;
 					break;
+				}
 			}
+			/*
+			 * else if(lang.getCode().equals(sec_lang)){ bFoundSecLang = true; break; }
+			 */
 		}
-		if(!bFoundSecLang)
-			sec_lang = null;
+		/*
+		 * if(!bFoundSecLang) sec_lang = null;
+		 */
 		
 		//override if specified
 		if(override_primary_lan != null && !override_primary_lan.equals(""))
@@ -215,30 +259,37 @@ public class ResidentDataProvider {
 		}
 		List<Name> eng_male_names = null;
 		List<Name> eng_female_names = null;
+		List<Name> eng_names = null;
 		
-		if((primary_lang != null && primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH))|| 
-			(sec_lang != null && sec_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH))) {
-			if(maleCount >0)
-				eng_male_names = NameProvider.generateNames(Gender.Male,  DataProviderConstants.LANG_CODE_ENGLISH, maleCount, null);
-			if(femaleCount > 0)
-				eng_female_names = NameProvider.generateNames(Gender.Female,  DataProviderConstants.LANG_CODE_ENGLISH, femaleCount, null);
-			
-			names_primary = eng_male_names;
-			if(eng_female_names != null) {
-				if(names_primary != null)
-					names_primary.addAll(eng_female_names);
-				else
-					names_primary = eng_female_names;
+		if(maleCount >0) {
+			eng_male_names = NameProvider.generateNames(Gender.Male,  DataProviderConstants.LANG_CODE_ENGLISH, maleCount, null);
+			eng_names = eng_male_names;
+		}
+		if(femaleCount > 0) {
+			eng_female_names = NameProvider.generateNames(Gender.Female,  DataProviderConstants.LANG_CODE_ENGLISH, femaleCount, null);
+			if(eng_names != null)
+				eng_names.addAll(eng_female_names);
+			else
+				eng_names = eng_female_names;
+		}
+		
+		if(primary_lang != null) {
+			if(!primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
+				names_primary = NameProvider.generateNames(gender, primary_lang, count, eng_names);
 			}
+			else
+				names_primary = eng_names;
+
 		}
-		
-		if(primary_lang != null && !primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
-			names_primary = NameProvider.generateNames(gender, primary_lang, count, names_primary);
+		if(sec_lang != null) {
+			if(!sec_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
+				names_sec = NameProvider.generateNames(gender, sec_lang, count, eng_names);
+			}
+			else
+				names_sec = eng_names;
+
 		}
-		
-		if(sec_lang != null && !sec_lang.equals("") && !sec_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
-			names_sec =NameProvider.generateNames(gender, sec_lang, count, names_primary);
-		}
+
 		List<Contact> contacts = ContactProvider.generate(names_primary, count);
 //		Object  objCountry = attributeList.get(ResidentAttribute.RA_Country)  ;
 		//String country  =null;
@@ -410,6 +461,12 @@ public class ResidentDataProvider {
 					
 					e.printStackTrace();
 				}
+			}
+			
+			for(MosipDocument doc: res.getDocuments()) {
+				String id = doc.getDocCategoryCode();
+				int index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size()-1, 0)[0];
+				res.getDocIndexes().put(id,index);
 			}
 			residents.add(res);
 		}

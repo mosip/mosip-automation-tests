@@ -22,7 +22,9 @@ public class ContextController {
 	 private static final Logger logger = LoggerFactory.getLogger(TestDataController.class);
 	 
 	  @PostMapping(value = "/context/server/{contextKey}")
-	    public @ResponseBody String createServerContext(@RequestBody Properties contextProperties, @PathVariable("contextKey") String contextKey) {
+	    public @ResponseBody String createServerContext(
+	    		@RequestBody Properties contextProperties,
+	    		@PathVariable("contextKey") String contextKey) {
 	    	Boolean bRet = false;
 	    	try{
 	    		bRet = contextUtils.createUpdateServerContext(contextProperties, contextKey);
