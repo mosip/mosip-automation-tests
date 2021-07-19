@@ -569,11 +569,13 @@ public class PacketTemplateProvider {
 			if(s.getId().equalsIgnoreCase(key)) {
 				if(s.getType().equals("simpleType")) {
 					
-					JSONObject jsonO= null;
+					JSONArray jsonO= null;
 					try {
-					jsonO = new JSONObject(value);
+						jsonO = new JSONArray(value);
 						identity.put(s.getId(), jsonO);
-					}catch(Exception e) {}
+					}catch(Exception e) {
+						e.printStackTrace();
+					}
 					if(jsonO == null) {
 						CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
 								value,null,true);
