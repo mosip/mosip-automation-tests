@@ -1,6 +1,7 @@
 package org.mosip.dataprovider.preparation;
 
 
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -14,15 +15,14 @@ import org.mosip.dataprovider.models.setup.MosipMachineTypeModel;
 import org.mosip.dataprovider.models.setup.MosipRegistrationCenterTypeModel;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.RestClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import variables.VariableManager;
 
 public class MosipDataSetup {
-	private static final Logger logger = LoggerFactory.getLogger(MosipDataSetup.class);
+
 	public static void geConfig() {
 		//https://sandbox.mosip.net/config/*/mz/1.1.4/print-mz.properties
 		//https://dev.mosip.net/config/*/mz/develop/registration-processor-mz.properties
@@ -39,6 +39,55 @@ public class MosipDataSetup {
 	public static void setCache(String key, Object value) {
 		
 		VariableManager.setVariableValue(key,  value);
+	}
+	
+	//GET "https://dev.mosip.net/v1/syncdata/configs/<machine_name>" - machine config
+	public static void getMachineConfig(String machineName) {
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue("syncdata").toString();
+				
+		url = url + machineName;
+		JSONObject resp;
+		try {
+			resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			if(resp != null) {
+				JSONArray typeArray = resp.getJSONArray("machines");
+		
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	// get all machines
+	public static List<MosipMachineModel> getMachineDetail(String machineId, String langCode) {
+		
+		List<MosipMachineModel> machines = null;
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinedetail").toString();
+		url = url + machineId + "/" + langCode;
+		
+		Object o =getCache(url);
+		if(o != null)
+			return( (List<MosipMachineModel>) o);
+		
+		try {
+			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			if(resp != null) {
+				JSONArray typeArray = resp.getJSONArray("machines");
+				ObjectMapper objectMapper = new ObjectMapper();
+				machines = objectMapper.readValue(typeArray.toString(), 
+						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
+				
+				setCache(url, machines);
+			
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return machines;
 	}
 	public static void createRegCenterType(MosipRegistrationCenterTypeModel type) {
 		String url = VariableManager.getVariableValue("urlBase").toString() +
@@ -267,8 +316,8 @@ public class MosipDataSetup {
 	}
 	public static String configureMockABISBiometric(String bdbString, boolean bDuplicate, String[] duplicateBdbs, int delay, String operation) 
 			throws JSONException, NoSuchAlgorithmException {
-		//System.out.println("configureMockABISBiometric initiated....");
-		logger.info("configureMockABISBiometric initiated....");
+		
+
 		if(operation == null || operation.equals(""))
 			operation = "Indentify";
 		
@@ -277,7 +326,9 @@ public class MosipDataSetup {
 				VariableManager.getVariableValue("mockABISsetExpectaion").toString();
 
 		JSONObject req = new JSONObject();
-		req.put("id", CommonUtil.getSHA(bdbString));
+		//req.put("id", CommonUtil.getSHA(bdbString));
+		byte[] valBytes=java.util.Base64.getUrlDecoder().decode(bdbString);
+		req.put("id", CommonUtil.getSHAFromBytes(valBytes));
 		req.put("version","1.0");
 		req.put("requesttime",CommonUtil.getUTCDateTime(null) );
 		req.put("actionToInterfere",operation );
@@ -293,7 +344,8 @@ public class MosipDataSetup {
 			JSONArray arr = new JSONArray();
 			for(String s: duplicateBdbs) {
 				JSONObject ref = new JSONObject();
-				ref.put("referenceId", CommonUtil.getSHA(bdbString));
+				//ref.put("referenceId", CommonUtil.getSHA(bdbString));
+				ref.put("referenceId", CommonUtil.getSHAFromBytes(valBytes));
 				arr.put(ref);
 			}
 			duprefs.put("referenceIds", arr);
@@ -309,12 +361,12 @@ public class MosipDataSetup {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			responseStr = e.getMessage();
-			logger.error("configureMockABISBiometric end...."+e.getMessage());
-			System.out.println("configureMockABISBiometric end...."+e.getMessage());
 		}
 
 		return responseStr;
 	}
+	
+	
 	public static String uploadPackets( List<String> packetPaths) {
 
 		String responseStr = "";

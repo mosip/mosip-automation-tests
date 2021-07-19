@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.messages.internal.com.google.common.io.Files;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import variables.VariableManager;
 
 public class MDSClient implements MDSClientInterface {
 
@@ -150,6 +151,12 @@ public class MDSClient implements MDSClientInterface {
 			MDSRCaptureModel rCaptureModel,
 			String type,
 			String bioSubType, int reqScore,int deviceSubId) {
+		String mosipVersion=null;
+		try {
+	      mosipVersion=VariableManager.getVariableValue("mosip.version").toString();
+		}catch(Exception e) {
+			
+		}
 
 		if(rCaptureModel == null)
 			rCaptureModel = new MDSRCaptureModel();
@@ -204,6 +211,7 @@ public class MDSClient implements MDSClientInterface {
 				String hash = bioObject.getString("hash");
 				JWTTokenModel jwtTok = new JWTTokenModel(data);
 				JSONObject jsonPayload = jwtTok.getJwtPayload();
+				String jwtSign = jwtTok.getJwtSign();
 				MDSDeviceCaptureModel model = new MDSDeviceCaptureModel();
 				model.setBioType( CommonUtil.getJSONObjectAttribute(jsonPayload, "bioType",""));
 				model.setBioSubType( CommonUtil.getJSONObjectAttribute(jsonPayload, "bioSubType",""));
@@ -212,6 +220,17 @@ public class MDSClient implements MDSClientInterface {
 				model.setDeviceServiceVersion ( CommonUtil.getJSONObjectAttribute(jsonPayload,"deviceServiceVersion",""));
 				model.setDeviceCode( CommonUtil.getJSONObjectAttribute(jsonPayload,"deviceCode",""));
 				model.setHash(hash);
+				if(mosipVersion!=null && mosipVersion.equalsIgnoreCase("1.2")) {
+				model.setSb(jwtSign); // SB is signature block (header..signature)
+				String BIOVALUE_KEY = "bioValue";
+				String BIOVALUE_PLACEHOLDER = "\"<bioValue>\"";
+				int bioValueKeyIndex = jsonPayload.toString().indexOf(BIOVALUE_KEY) + (BIOVALUE_KEY.length() + 1);
+				int bioValueStartIndex = jsonPayload.toString().indexOf('"', bioValueKeyIndex);
+				int bioValueEndIndex = jsonPayload.toString().indexOf('"', (bioValueStartIndex + 1));
+				String bioValue = jsonPayload.toString().substring(bioValueStartIndex, (bioValueEndIndex + 1));
+				String payload = jsonPayload.toString().replace(bioValue, BIOVALUE_PLACEHOLDER);
+				model.setPayload(payload);
+				}
 				lstBiometrics.add(model);
 				
 			}
