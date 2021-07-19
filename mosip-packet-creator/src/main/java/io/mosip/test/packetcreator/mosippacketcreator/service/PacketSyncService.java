@@ -745,8 +745,9 @@ public class PacketSyncService {
     	 
     	while(it.hasNext()) {
     		String key = it.next().toString();
-    		key = key.toLowerCase().trim();
     		String value  = updateAttrs.getProperty(key);
+    		key = key.toLowerCase().trim();
+    		
     		//first check whether it is document being updated?
     	
     		MosipDocument doc = null;
@@ -845,7 +846,10 @@ public class PacketSyncService {
 	    					rs.setCode(msCode);
 	    				}
 	    			}
-	    			
+	    			break;
+	    		default://Added by VS to passthrough attributes
+	    			persona.getAddtionalAttributes().put(key, value);
+	    			break;
     			
     		}
 	    }
