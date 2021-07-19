@@ -200,14 +200,14 @@ public class BaseTestCaseUtil extends BaseStep{
 		return deleteResponse;
 	}
 	
-//	public Response putRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
-//		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-//		Response apiResponse = RestClient.putRequestWithQueryParamAndBody(url, body, contextKey,MediaType.APPLICATION_JSON,
-//				"*/*");
-//		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-//				+ apiResponse.getBody().asString() + "</pre>");
-//		return apiResponse;
-//	}
+	public Response putRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		Response apiResponse = RestClient.putRequestWithQueryParamAndBody(url, body, contextKey,MediaType.APPLICATION_JSON,
+				"*/*");
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ apiResponse.getBody().asString() + "</pre>");
+		return apiResponse;
+	}
 	
 	public Response postRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
