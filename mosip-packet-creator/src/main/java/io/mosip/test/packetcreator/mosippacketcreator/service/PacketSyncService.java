@@ -777,7 +777,7 @@ public class PacketSyncService {
 
     		}
     		switch(key) {
-    		
+    	/*	
 	    		case "firstname":
 	    			persona.getName().setFirstName(value);
 	    			break;
@@ -789,7 +789,7 @@ public class PacketSyncService {
 	    		case "surname":
 	    			persona.getName().setSurName(value);
 	    			break;
-	    		
+	    	*/	
 	    		case "gender":
 	    			persona.setGender(value);
 	    			break;
