@@ -143,6 +143,10 @@ public class PacketTemplateProvider {
 			String secVal = "";
 			if(s.getFieldCategory().equals("evidence") && ( s.getInputRequired() || s.getRequired()) ) {
 				
+				if((!s.getRequired()) && ( s.getRequiredOn() != null && s.getRequiredOn().size()>0) ){
+					continue;
+				}
+				
 				if(s.getType().equals("documentType") ) {
 					
 					//	String docType = s.getSubType();
@@ -593,6 +597,9 @@ public class PacketTemplateProvider {
 			if(!s.getRequired() && !s.getInputRequired()) {
 				continue;
 			}
+			if((!s.getRequired()) && ( s.getRequiredOn() != null && s.getRequiredOn().size()>0) ){
+				continue;
+			}
 			 if(s.getFieldType().equals("dynamic")) {
 				 
 				boolean found=false;
@@ -688,6 +695,7 @@ public class PacketTemplateProvider {
 				if(s.getId().toLowerCase().contains("email") || s.getId().toLowerCase().contains("mail") ) {
 					primaryValue =  resident.getContact().getEmailId();
 				}
+				
 				/*
 				 * else if(s.getId().toLowerCase().contains("referenceIdentity") ) {
 				 * primaryValue = resident.getId(); }
@@ -786,12 +794,14 @@ public class PacketTemplateProvider {
 								index = resident.getDocIndexes().get(doc.getDocCategoryCode());
 								
 								//index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size()-1, 0)[0];
-								String docFile = doc.getDocs().get(index);
+								//String docFile = doc.getDocs().get(index); by alok
+								String docFile = doc.getDocs().get(0);
 								System.out.println("docFIle=" + docFile + " dType="+ s.getSubType() + " cat=" + s.getId());
 								
 								JSONObject o = new JSONObject();
 								o.put("format", "pdf");
-								o.put("type", doc.getType().get(index).getCode());
+								//o.put("type", doc.getType().get(index).getCode());  by alok
+								o.put("type", doc.getType().get(0).getCode());
 								String [] v = fileInfo.get(RID_FOLDER);
 								v[1] =s.getId() +".pdf";
 								fileInfo.put(RID_FOLDER, v);

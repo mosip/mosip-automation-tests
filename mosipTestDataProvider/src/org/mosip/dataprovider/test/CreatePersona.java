@@ -139,7 +139,11 @@ public class CreatePersona {
 					( schemaItem.getType().equals("documentType") || schemaItem.getType().equals("biometricsType"))) {
 				continue;
 			}
-			if(!(schemaItem.getRequired() || schemaItem.getInputRequired())) {
+			/*
+			 * if(!(schemaItem.getRequired() || schemaItem.getInputRequired())) { continue;
+			 * }
+			 */
+			if(!(schemaItem.getRequired())) {
 				continue;
 			}
 			if(schemaItem.getId().equals("IDSchemaVersion"))
@@ -341,6 +345,24 @@ public class CreatePersona {
 			}
 			else
 			{
+				found = false;
+				for(String locLevel: locationSet) {
+					
+					if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
+								
+						constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+							resident.getSecondaryLanguage(),
+							locations.get(locLevel).getCode(),
+							locations.get(locLevel).getCode(),
+							schemaItem.getType().equals("simpleType") ? true: false
+							);
+						found = true;
+						break;
+					}
+				}
+				if(found)
+					continue;
+
 				String someVal= null;
 				List<SchemaValidator>  validators = schemaItem.getValidators();
 				if(validators != null) {
