@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.nio.file.Files;
 
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -73,6 +74,7 @@ public class ResidentModel  implements Serializable {
 	//resident Metadata
 	//private double schemaVersion;
 	//private String targetCotext;
+	private Hashtable<String,String> addtionalAttributes;
 	
 	public ResidentModel() {
 	
@@ -82,6 +84,7 @@ public class ResidentModel  implements Serializable {
 		int [] r = CommonUtil.generateRandomNumbers(2, 99999, 11111);
 		id = String.format("%d%d", r[0],r[1]);
 		docIndexes = new Hashtable<String,Integer>();
+		addtionalAttributes =new Hashtable<String,String>();
 	}
 
 	public String toJSONString() {
@@ -158,4 +161,5 @@ public class ResidentModel  implements Serializable {
 		
 		return demodata;
 	}
+
 }
