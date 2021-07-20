@@ -283,6 +283,52 @@ public class MosipDataSetup {
 		}
 
 	}
+	
+public static void updateMachine(MosipMachineModel machine) {
+		
+	
+	  String url = VariableManager.getVariableValue("urlBase").toString() +
+	  VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"updateMachne"
+	  ).toString();
+	 
+		//String url="https://qa2.mosip.net/v1/masterdata/machines";
+		
+		JSONObject jsonMachine = new JSONObject();
+		jsonMachine.put("id", machine.getId());
+		jsonMachine.put("ipAddress", machine.getIpAddress());
+		jsonMachine.put("isActive", machine.isActive());
+		jsonMachine.put("langCode", machine.getLangCode());
+		jsonMachine.put("macAddress", machine.getMacAddress());
+		jsonMachine.put("machineSpecId", machine.getMachineSpecId());
+		jsonMachine.put("name", machine.getName());
+		jsonMachine.put("publicKey", machine.getPublicKey());
+		jsonMachine.put("regCenterId", machine.getRegCenterId());
+		jsonMachine.put("serialNum", machine.getSerialNum());
+		jsonMachine.put("signPublicKey", machine.getSignPublicKey());
+		jsonMachine.put("validityDateTime", machine.getValidityDateTime());
+		jsonMachine.put("zoneCode", machine.getZoneCode());
+					
+		JSONObject jsonReqWrapper = new JSONObject();
+		jsonReqWrapper.put("request", jsonMachine);
+		jsonReqWrapper.put("requesttime", CommonUtil.getUTCDateTime(null));
+		jsonReqWrapper.put("version", "1.0");
+		jsonReqWrapper.put("id", "id.machine");
+		jsonReqWrapper.put("metadata", new JSONObject());
+
+	
+		
+		try {
+			JSONObject resp = RestClient.put(url,jsonReqWrapper);
+			if(resp != null) {
+				String r = resp.toString();
+				System.out.println(r);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 	public static List<MosipDeviceModel> getDevices(String centerId) {
 		//GET /v1/masterdata/devices/mappeddevices/1001?direction=DESC&orderBy=createdDateTime&pageNumber=0&pageSize=100
 	
