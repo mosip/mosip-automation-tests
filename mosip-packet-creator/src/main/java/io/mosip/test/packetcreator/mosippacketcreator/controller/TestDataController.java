@@ -14,6 +14,7 @@ import variables.VariableManager;
 
 import org.jobrunr.scheduling.JobScheduler;
 import org.jobrunr.scheduling.cron.Cron;
+import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -354,6 +355,22 @@ public class TestDataController {
              logger.error("createPacket", ex);
     	}
     	return "{\"Failed\"}";
+    }
+    
+    @PutMapping(value = "/updateMachine") 
+    public @ResponseBody String updateMachine(@RequestBody MosipMachineModel machine,
+    		@RequestParam(name="contextKey",required = false) String contextKey) {
+
+    	try{    	
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
+    		return packetSyncService.updateMachine(machine, contextKey);
+    	
+    	} catch (Exception ex){
+             logger.error("updateMachine", ex);
+    	}
+    	return "{Failed}";
     }
     
 }
