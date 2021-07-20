@@ -7,9 +7,10 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -554,6 +555,40 @@ public class PacketTemplateProvider {
 		return someVal;
 
 	}
+	private static Boolean updateFromAdditionalAttribute(JSONObject identity,MosipIDSchema s, ResidentModel resident) {
+		Boolean bRet = false;
+		Hashtable<String,String> addtnAttr = resident.getAddtionalAttributes();
+		if(addtnAttr == null) 
+			return bRet;
+		Enumeration<String> keys =  addtnAttr.keys();
+		
+		while( keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			String value = addtnAttr.get(key);
+			
+			if(s.getId().equalsIgnoreCase(key)) {
+				if(s.getType().equals("simpleType")) {
+					
+					JSONArray jsonO= null;
+					try {
+						jsonO = new JSONArray(value);
+						identity.put(s.getId(), jsonO);
+					}catch(Exception e) {
+						e.printStackTrace();
+					}
+					if(jsonO == null) {
+						CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
+								value,null,true);
+					}
+				}
+				else
+					identity.put(s.getId(), value);
+				bRet = true;
+				break;
+			}
+		}
+		return bRet;
+	}
 	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo) {
 
 		String idjson="";
@@ -598,6 +633,9 @@ public class PacketTemplateProvider {
 				continue;
 			}
 			if((!s.getRequired()) && ( s.getRequiredOn() != null && s.getRequiredOn().size()>0) ){
+				continue;
+			}
+			if(updateFromAdditionalAttribute(identity,s, resident)) {
 				continue;
 			}
 			 if(s.getFieldType().equals("dynamic")) {
@@ -851,7 +889,7 @@ public class PacketTemplateProvider {
 						
 						//primaryValue = String.format("%d%d", r[0],r[1]);
 						identity.put(s.getId(), primaryValue);
-
+						continue;
 					}
 					else
 					{
