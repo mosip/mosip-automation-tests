@@ -266,7 +266,7 @@ public class PreRegistrationSteps {
 				
 		String preRegID ="30491084523580";
 		Boolean bBooked = false;
-		CreatePersona.sendOtpTo("sanath@mailinator.com");
+		//CreatePersona.sendOtpTo("sanath@mailinator.com");
 		CreatePersona.validateOTP("111111", "sanath@mailinator.com");
 		AppointmentModel res = getAppointments();
 		System.out.println(res.getRegCenterId());
