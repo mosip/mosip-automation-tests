@@ -595,7 +595,7 @@ public class CreatePersona {
 	 *    "version":"1.0","requesttime":"2020-12-05T10:01:50.763Z"
 	 *    }
 	 */
-	public static String sendOtpTo(String to) throws JSONException {
+	public static String sendOtpTo(String to, String langCode) throws JSONException {
 		//urlBase
 		//https://dev.mosip.net//preregistration/v1/login/sendOtp
 		String response ="";
@@ -604,10 +604,11 @@ public class CreatePersona {
 		obj.put("version", "1.0");
 		obj.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
 		JSONObject req = new JSONObject();
-		req.put("userId", to);	
+		req.put("userId", to);
+		req.put("langCode", langCode);
 		obj.put("request", req);
 		//RestClient client = annotation.getRestClient();
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"preregistration/v1/login/sendOtp";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"/preregistration/v1/login/sendOtp/langcode";
 	//	url = "https://dev.mosip.net/preregistration/v1/login/sendOtp";
 		try {
 			JSONObject resp = RestClient.postNoAuth(url, obj);
@@ -620,7 +621,7 @@ public class CreatePersona {
 	}
 	
 	public static String sendOtpToPhone(String mobile) throws JSONException {
-		return sendOtpTo(mobile);
+		return sendOtpTo(mobile, "");
 	}
 	/*
 	 * {"id":"mosip.pre-registration.login.useridotp",
