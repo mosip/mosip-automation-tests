@@ -89,7 +89,7 @@ public class ResidentPreRegistration {
 		if(emailTo != null && !emailTo.equals(""))
 			otpTarget = emailTo;
 		
-		String result = CreatePersona.sendOtpTo(otpTarget);
+		String result = CreatePersona.sendOtpTo(otpTarget,person.getPrimaryLanguage());
 		System.out.println(String.format("sendOtp Result %s ",result));
 		return result;
 	}
