@@ -938,6 +938,10 @@ public  class MosipMasterData {
 	public static void main(String[] args) {
 	
 		VariableManager.setVariableValue("urlBase","https://sandbox.mosip.net/");
+		VariableManager.setVariableValue("configpath","config/*/mz/1.1.5/registration-processor-mz.properties");
+
+	
+		MosipDataSetup.getConfig();
 	//	List<MosipDeviceModel> devices = MosipDataSetup.getDevices("10002");
 		test1();
 		
