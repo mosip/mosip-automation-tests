@@ -275,5 +275,23 @@ public class preRegController {
     	return packetSyncService.deleteApplication(preregId, contextKey);
     	
     }
+	
+	@ApiOperation(value = "Update applications status for a given pre-registration-Id", response = String.class)
+	@PutMapping(value = "/application/status/{preregid}")
+	public @ResponseBody String updatePreRegStatus(@PathVariable("preregid") String preregId,
+			@RequestParam(name = "statusCode") String statusCode,
+			@RequestParam(name = "contextKey", required = false) String contextKey) {
+
+    	try{    	
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
+    		return packetSyncService.updatePreRegistrationStatus(preregId, statusCode,contextKey);
+    	
+    	} catch (Exception ex){
+             logger.error("updatePreRegStatus", ex);
+    	}
+    	return "{Failed}";
+    }
     
 }
