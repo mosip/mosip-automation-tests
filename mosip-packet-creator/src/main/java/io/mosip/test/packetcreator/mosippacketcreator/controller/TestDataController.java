@@ -357,20 +357,4 @@ public class TestDataController {
     	return "{\"Failed\"}";
     }
     
-    @PutMapping(value = "/updateMachine") 
-    public @ResponseBody String updateMachine(@RequestBody MosipMachineModel machine,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
-
-    	try{    	
-    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
-    			DataProviderConstants.RESOURCE = personaConfigPath;
-    		}
-    		return packetSyncService.updateMachine(machine, contextKey);
-    	
-    	} catch (Exception ex){
-             logger.error("updateMachine", ex);
-    	}
-    	return "{Failed}";
-    }
-    
 }
