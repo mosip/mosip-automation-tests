@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 import tss.Tpm;
 import tss.TpmFactory;
 import tss.tpm.CreatePrimaryResponse;
+import variables.VariableManager;
 import tss.tpm.*;
 
 import javax.annotation.PostConstruct;
@@ -357,7 +358,7 @@ public class CryptoUtil {
                 logger.info("Completed Signing data using TPM");
                 return ((TPMS_SIGNATURE_RSASSA) signedData).sig;
             }
-
+            
             Signature sign = Signature.getInstance(SIGN_ALGORITHM);
             sign.initSign(getMachinePrivateKey());
 
@@ -376,7 +377,9 @@ public class CryptoUtil {
     }
 
     private PrivateKey getMachinePrivateKey() throws Exception {
-        byte[] key = Files.readAllBytes(Path.of(KEY_PATH ,KEYS_DIR ,PRIVATE_KEY));
+    	//String machinePrivateKey=VariableManager.getVariableValue("machineprivatekey").toString();
+    	byte[] key = Files.readAllBytes(Path.of(KEY_PATH ,KEYS_DIR ,PRIVATE_KEY));
+    	//byte[] key = machinePrivateKey.getBytes();
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return kf.generatePrivate(keySpec);

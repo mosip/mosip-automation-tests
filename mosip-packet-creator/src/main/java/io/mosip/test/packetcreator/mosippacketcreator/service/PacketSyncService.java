@@ -19,6 +19,7 @@ import org.mosip.dataprovider.models.MosipDocument;
 import org.mosip.dataprovider.models.MosipIndividualTypeModel;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
+import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.preparation.MosipDataSetup;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.test.CreatePersona;
@@ -745,8 +746,9 @@ public class PacketSyncService {
     	 
     	while(it.hasNext()) {
     		String key = it.next().toString();
-    		key = key.toLowerCase().trim();
     		String value  = updateAttrs.getProperty(key);
+    		key = key.toLowerCase().trim();
+    		
     		//first check whether it is document being updated?
     	
     		MosipDocument doc = null;
@@ -776,7 +778,7 @@ public class PacketSyncService {
 
     		}
     		switch(key) {
-    		
+    	/*	
 	    		case "firstname":
 	    			persona.getName().setFirstName(value);
 	    			break;
@@ -788,7 +790,7 @@ public class PacketSyncService {
 	    		case "surname":
 	    			persona.getName().setSurName(value);
 	    			break;
-	    		
+	    	*/	
 	    		case "gender":
 	    			persona.setGender(value);
 	    			break;
@@ -845,7 +847,10 @@ public class PacketSyncService {
 	    					rs.setCode(msCode);
 	    				}
 	    			}
-	    			
+	    			break;
+	    		default://Added by VS to passthrough attributes
+	    			persona.getAddtionalAttributes().put(key, value);
+	    			break;
     			
     		}
 	    }
@@ -1273,6 +1278,18 @@ public class PacketSyncService {
 		}
 		
 		return "{\"status\":\"Success\"}";
+	}
+	
+	public String updateMachine(MosipMachineModel machine,String contextKey) {
+		loadServerContextProperties(contextKey);
+		MosipDataSetup.updateMachine(machine);
+		return "{\"status\":\"Success\"}";
+	}
+	
+	public String updatePreRegistrationStatus(String preregId,String statusCode,String contextKey) {
+		loadServerContextProperties(contextKey);
+		String status=MosipDataSetup.updatePreRegStatus(preregId,statusCode);
+		return status;
 	}
    
  

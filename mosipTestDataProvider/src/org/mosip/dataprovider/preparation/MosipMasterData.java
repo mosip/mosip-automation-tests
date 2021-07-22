@@ -935,8 +935,43 @@ public  class MosipMasterData {
 				
 		}
 	}
-	public static void main(String[] args) {
 	
+	public static JSONArray getUiSpecId() {
+		JSONArray array= new JSONArray();
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"preregistration/v1/uispec/latest?identitySchemaVersion=0&version=0";
+		//String url = VariableManager.getVariableValue("urlBase").toString() +VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"uiSpec").toString();
+
+		Object o =getCache(url);
+		if(o != null)
+			return( (JSONArray) o);
+		
+		try {
+			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			if(resp != null) {
+				JSONArray identityArray = resp.getJSONObject("jsonSpec").getJSONObject("identity").getJSONArray("identity");
+				Iterator<Object> iterator = identityArray.iterator();
+				while (iterator.hasNext()) {
+					JSONObject identityJson=(JSONObject)iterator.next();
+					if(identityJson.getBoolean("required") && !identityJson.getString("id").toLowerCase().contains("proof")) {
+						array.put(identityJson.getString("id"));
+					}
+				}
+				System.out.println("printing Array : "+ array);
+				
+				
+				setCache(url, array);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return array;
+	}
+	
+	
+	
+	
+	public static void main(String[] args) {
 		VariableManager.setVariableValue("urlBase","https://sandbox.mosip.net/");
 	//	List<MosipDeviceModel> devices = MosipDataSetup.getDevices("10002");
 		test1();
