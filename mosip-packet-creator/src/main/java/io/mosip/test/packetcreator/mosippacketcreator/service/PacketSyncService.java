@@ -1285,6 +1285,12 @@ public class PacketSyncService {
 		MosipDataSetup.updateMachine(machine);
 		return "{\"status\":\"Success\"}";
 	}
+	
+	public String updatePreRegistrationStatus(String preregId,String statusCode,String contextKey) {
+		loadServerContextProperties(contextKey);
+		String status=MosipDataSetup.updatePreRegStatus(preregId,statusCode);
+		return status;
+	}
    
  
 }

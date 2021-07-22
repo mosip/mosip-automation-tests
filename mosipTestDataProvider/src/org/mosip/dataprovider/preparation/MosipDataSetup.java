@@ -329,6 +329,26 @@ public static void updateMachine(MosipMachineModel machine) {
 		}
 
 	}
+
+	public static String updatePreRegStatus(String preregId, String statusCode) {
+		String response = null;
+		String url = VariableManager.getVariableValue("urlBase").toString() + "/preregistration/v1/applications/status/"
+				+ preregId + "?statusCode=" + statusCode;
+
+		try {
+			JSONObject resp = RestClient.put(url, new JSONObject());
+			if (resp != null) {
+				response = resp.toString();
+				System.out.println(response);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+
+	}
+
+
 	public static List<MosipDeviceModel> getDevices(String centerId) {
 		//GET /v1/masterdata/devices/mappeddevices/1001?direction=DESC&orderBy=createdDateTime&pageNumber=0&pageSize=100
 	
