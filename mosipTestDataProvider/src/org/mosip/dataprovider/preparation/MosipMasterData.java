@@ -292,10 +292,39 @@ public  class MosipMasterData {
 			//JSONObject configObject = resp.getJSONObject("response");
 			
 			if(resp != null) {
-				config.setMosip_country_code(  resp.getString("mosip.country.code"));
 				try {
-				config.setMosip_id_validation_identity_dateOfBirth(resp.getString("mosip.id.validation.identity.dateOfBirth"));
-				config.setMosip_primary_language(resp.getString("mosip.primary-language"));
+					config.setMosip_country_code(  resp.getString("mosip.country.code"));
+				}catch(Exception e) {
+					
+				}
+				try {
+					config.setMandatory_languages(resp.getString("mosip.mandatory-languages"));
+				}catch(Exception e) {
+					
+				}
+				try {
+					config.setMin_languages_count(resp.getString("mosip.min-languages.count"));
+				}catch(Exception e) {
+					
+				}
+				try {
+					config.setOptional_languages(resp.getString("mosip.optional-languages"));
+				}catch(Exception e) {
+					
+				}
+				try {
+					config.setMosip_id_validation_identity_dateOfBirth(resp.getString("mosip.id.validation.identity.dateOfBirth"));
+				}catch(Exception e) {
+					
+				}
+				
+				try {
+					config.setMosip_primary_language(resp.getString("mosip.primary-language"));
+				}catch(Exception e) {
+					
+				}
+				
+				try {
 				config.setPreregistration_documentupload_allowed_file_type(resp.getString("preregistration.documentupload.allowed.file.type"));
 				}catch(Exception e) {
 					

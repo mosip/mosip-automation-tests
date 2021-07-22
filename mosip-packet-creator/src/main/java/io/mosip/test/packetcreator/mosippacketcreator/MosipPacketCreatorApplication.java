@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 
 
@@ -63,6 +64,5 @@ public class MosipPacketCreatorApplication {
 	    configuration.setReloadingStrategy(new FileChangedReloadingStrategy());
 	    return configuration;
 	}
-	 
-
+	
 }

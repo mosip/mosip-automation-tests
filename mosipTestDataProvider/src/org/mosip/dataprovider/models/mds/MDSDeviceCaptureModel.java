@@ -15,6 +15,8 @@ public class MDSDeviceCaptureModel {
 	String deviceServiceVersion;
 	String deviceCode;
 	String hash;
+	String sb;
+	String payload;
 	
 	public String toJSONString() {
 		
