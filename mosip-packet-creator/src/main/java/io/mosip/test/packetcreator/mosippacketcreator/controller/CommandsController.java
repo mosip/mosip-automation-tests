@@ -3,11 +3,9 @@ package io.mosip.test.packetcreator.mosippacketcreator.controller;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
-
 import org.jose4j.json.internal.json_simple.JSONObject;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-
 import io.mosip.test.packetcreator.mosippacketcreator.service.CommandsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,7 +23,7 @@ import variables.VariableManager;
 @Api(value = "CommandsController", description = "REST APIs for Command Center,x Kubernetes Control")
 @RestController
 public class CommandsController {
-
+	
 	
 	@Autowired
     CommandsService commandsService;
@@ -132,5 +128,19 @@ public class CommandsController {
 		}
 		return response;
 	}*/
+	
+	@ApiOperation(value = "Generate privatekey based on machineId", response = String.class)
+	@GetMapping(value = "/generatekey/{machineId}")
+	public String generatekey(@PathVariable String machineId) {
+		try {
+			return commandsService.generatekey(machineId);
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+		return "{Failed}";
+	}
+    
+    
 	
 }
