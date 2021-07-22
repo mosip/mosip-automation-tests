@@ -1,9 +1,17 @@
 package org.mosip.dataprovider.preparation;
 
 
+
 import java.security.MessageDigest;
+
+import static io.restassured.RestAssured.given;
+
+import java.io.Reader;
+import java.io.StringReader;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Properties;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,13 +27,34 @@ import org.mosip.dataprovider.util.RestClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import variables.VariableManager;
 
 public class MosipDataSetup {
 
-	public static void geConfig() {
+	public static Properties getConfig() {
+		Properties props = new Properties();
 		//https://sandbox.mosip.net/config/*/mz/1.1.4/print-mz.properties
 		//https://dev.mosip.net/config/*/mz/develop/registration-processor-mz.properties
+		String configPath = "config/*/mz/develop/pre-registration-mz.properties";
+		
+		try {
+			configPath = VariableManager.getVariableValue("configpath").toString();
+		}catch(Exception e) {}
+		
+		String url = VariableManager.getVariableValue("urlBase").toString() + configPath;
+		
+		try {
+			Response response = given().contentType(ContentType.TEXT).get(url );
+    		if(response.getStatusCode() == 200) {
+    			props.load(new StringReader(response.getBody().asString()));
+    		}
+    	} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return props;
 	}
 	public static Object getCache(String key) {
 	

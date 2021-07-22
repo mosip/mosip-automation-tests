@@ -2,6 +2,10 @@ package io.mosip.ivv.orchestrator;
 
 import static io.restassured.RestAssured.given;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -206,6 +210,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("personaFilePath", jsonArray);
 		// postReqest(url,jsonReq.toString(),"Upload Documents");
 		postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "Upload Documents");
+	}
+	
+	public void updatePreRegStatus(String prid, String status, HashMap<String, String> contextKey) throws RigInternalError {
+		String url = baseUrl + props.getProperty("updatePreRegStatus")+prid+"?statusCode=" + status;
+		putRequestWithQueryParam(url,contextKey,"UpdatePreRegStatus");
+		Reporter.log("STATUS_UPDATED_SUCESSFULLY");
+		logger.info("STATUS_UPDATED_SUCESSFULLY");
 	}
 
 	public void bookAppointment(String prid, int nthSlot, HashMap<String, String> contextKey, boolean bookOnHolidays)
@@ -503,12 +514,23 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("mosip.test.regclient.supervisorid", (map.get("supervisorid")!=null)?map.get("supervisorid"):E2EConstants.SUPERVISOR_ID);
 		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
 		if (machinePrivateKeyProp != null && !machinePrivateKeyProp.isEmpty()) {
+			String privateKeyfileName=machinePrivateKeyProp.getProperty("privatekey");
+			File file= new File(TestRunner.getExeternalResourcePath()+"/config/"+privateKeyfileName);
+			try {
+				String privateKeyValue = new String(Files.readAllBytes(file.toPath()), Charset.defaultCharset());
+				System.out.println(privateKeyValue);
+				jsonReq.put("machineprivatekey",privateKeyValue);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			//jsonReq.put("machineprivatekey", machinePrivateKeyProp.getProperty("privatekey"));
+			
 			//update MachineId against public key 
 			HashMap<String,String> contextInuse= new HashMap<String,String>();
 			contextInuse.put("contextKey", key);
 			String machineUrl=this.baseUrl+"/updateMachine";
 			JSONObject jsonMachine=createPayload(machinePrivateKeyProp);
-			putRequestWithQueryParamAndBody(machineUrl, jsonMachine.toString(),contextInuse, "updateMachine");
+			//putRequestWithQueryParamAndBody(machineUrl, jsonMachine.toString(),contextInuse, "updateMachine");
 			
 		}
 		if(mosipVersion!=null && !mosipVersion.isEmpty())
