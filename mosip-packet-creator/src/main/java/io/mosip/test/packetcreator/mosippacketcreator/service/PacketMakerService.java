@@ -499,7 +499,7 @@ public class PacketMakerService {
         String encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(messageDigest.
                 digest(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
 
-        String signature = Base64.getEncoder().encodeToString(cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + "_unenc.zip"))));
+        String signature = Base64.getEncoder().encodeToString(cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + "_unenc.zip")),contextKey));
 
         Path src = Path.of(containerRootFolder + "_unenc.zip");
         Files.copy(src, Path.of(tempLogPath + src.getFileName()),StandardCopyOption.REPLACE_EXISTING );

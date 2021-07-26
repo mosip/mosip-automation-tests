@@ -22,6 +22,7 @@ import org.mosip.dataprovider.models.MosipDocument;
 import org.mosip.dataprovider.models.MosipIndividualTypeModel;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
+import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.preparation.MosipDataSetup;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.test.CreatePersona;
@@ -1328,6 +1329,18 @@ public class PacketSyncService {
 		}
 		
 		return "{\"status\":\"Success\"}";
+	}
+	
+	public String updateMachine(MosipMachineModel machine,String contextKey) {
+		loadServerContextProperties(contextKey);
+		MosipDataSetup.updateMachine(machine);
+		return "{\"status\":\"Success\"}";
+	}
+	
+	public String updatePreRegistrationStatus(String preregId,String statusCode,String contextKey) {
+		loadServerContextProperties(contextKey);
+		String status=MosipDataSetup.updatePreRegStatus(preregId,statusCode);
+		return status;
 	}
    
  

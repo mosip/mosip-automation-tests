@@ -1,7 +1,7 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
 import java.io.ByteArrayInputStream;
-
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 import tss.Tpm;
 import tss.TpmFactory;
 import tss.tpm.CreatePrimaryResponse;
+import variables.VariableManager;
 import tss.tpm.*;
 
 import javax.annotation.PostConstruct;
@@ -79,6 +80,12 @@ public class CryptoUtil {
 
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
+    
+    @Value("${mosip.test.regclient.machineid}")
+    private String machineid;
+    
+    @Value("${mosip.test.persona.configpath}")
+	private String personaConfigPath;
    
     @Autowired
     private ContextUtils contextUtils;
@@ -347,7 +354,7 @@ public class CryptoUtil {
         }
     }
 
-    public byte[] sign(byte[] dataToSign) throws Exception {
+    public byte[] sign(byte[] dataToSign,String contextKey) throws Exception {
         try {
             if(tpmAvailable) {
                 CreatePrimaryResponse signingKey = createSigningKey();
@@ -357,9 +364,9 @@ public class CryptoUtil {
                 logger.info("Completed Signing data using TPM");
                 return ((TPMS_SIGNATURE_RSASSA) signedData).sig;
             }
-
+            
             Signature sign = Signature.getInstance(SIGN_ALGORITHM);
-            sign.initSign(getMachinePrivateKey());
+            sign.initSign(getMachinePrivateKey(contextKey));
 
             try(ByteArrayInputStream in = new ByteArrayInputStream(dataToSign)) {
                 byte[] buffer = new byte[2048];
@@ -375,8 +382,33 @@ public class CryptoUtil {
         }
     }
 
-    private PrivateKey getMachinePrivateKey() throws Exception {
-        byte[] key = Files.readAllBytes(Path.of(KEY_PATH ,KEYS_DIR ,PRIVATE_KEY));
+    private PrivateKey getMachinePrivateKey(String contextKey) throws Exception {
+    	String filePath=null;
+		if (contextKey != null && !contextKey.equals("")) {
+
+			Properties props = contextUtils.loadServerContext(contextKey);
+			props.forEach((k, v) -> {
+				if (k.toString().equals("mosip.test.regclient.machineid")) {
+					machineid = v.toString().trim();
+				}
+
+			});
+		}
+		File folder = new File(String.valueOf(personaConfigPath) + File.separator +"privatekeys//");
+		File[] listOfFiles = folder.listFiles();
+		for (File file : listOfFiles) {
+		    if (file.isFile()) {
+				if (file.getName().contains(machineid)) {
+					filePath = file.getAbsolutePath();
+					break;
+				}
+		    }
+		}
+    	//byte[] key = Files.readAllBytes(Path.of(KEY_PATH ,KEYS_DIR ,PRIVATE_KEY));
+		if(filePath==null ||filePath.isEmpty() )
+			throw new Exception("privatekey file not found"); 
+		System.out.println("PRIVATEKEY FILE PATH::"+filePath);
+    	byte[] key = Files.readAllBytes(Path.of(filePath));
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return kf.generatePrivate(keySpec);
