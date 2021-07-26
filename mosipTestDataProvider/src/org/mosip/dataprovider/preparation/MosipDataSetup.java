@@ -1,9 +1,17 @@
 package org.mosip.dataprovider.preparation;
 
 
+
 import java.security.MessageDigest;
+
+import static io.restassured.RestAssured.given;
+
+import java.io.Reader;
+import java.io.StringReader;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Properties;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,13 +27,34 @@ import org.mosip.dataprovider.util.RestClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import variables.VariableManager;
 
 public class MosipDataSetup {
 
-	public static void geConfig() {
+	public static Properties getConfig() {
+		Properties props = new Properties();
 		//https://sandbox.mosip.net/config/*/mz/1.1.4/print-mz.properties
 		//https://dev.mosip.net/config/*/mz/develop/registration-processor-mz.properties
+		String configPath = "config/*/mz/develop/pre-registration-mz.properties";
+		
+		try {
+			configPath = VariableManager.getVariableValue("configpath").toString();
+		}catch(Exception e) {}
+		
+		String url = VariableManager.getVariableValue("urlBase").toString() + configPath;
+		
+		try {
+			Response response = given().contentType(ContentType.TEXT).get(url );
+    		if(response.getStatusCode() == 200) {
+    			props.load(new StringReader(response.getBody().asString()));
+    		}
+    	} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return props;
 	}
 	public static Object getCache(String key) {
 	
@@ -283,6 +312,72 @@ public class MosipDataSetup {
 		}
 
 	}
+	
+public static void updateMachine(MosipMachineModel machine) {
+		
+	
+	  String url = VariableManager.getVariableValue("urlBase").toString() +
+	  VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"updateMachne"
+	  ).toString();
+	 
+		//String url="https://qa2.mosip.net/v1/masterdata/machines";
+		
+		JSONObject jsonMachine = new JSONObject();
+		jsonMachine.put("id", machine.getId());
+		jsonMachine.put("ipAddress", machine.getIpAddress());
+		jsonMachine.put("isActive", machine.isActive());
+		jsonMachine.put("langCode", machine.getLangCode());
+		jsonMachine.put("macAddress", machine.getMacAddress());
+		jsonMachine.put("machineSpecId", machine.getMachineSpecId());
+		jsonMachine.put("name", machine.getName());
+		jsonMachine.put("publicKey", machine.getPublicKey());
+		jsonMachine.put("regCenterId", machine.getRegCenterId());
+		jsonMachine.put("serialNum", machine.getSerialNum());
+		jsonMachine.put("signPublicKey", machine.getSignPublicKey());
+		jsonMachine.put("validityDateTime", machine.getValidityDateTime());
+		jsonMachine.put("zoneCode", machine.getZoneCode());
+					
+		JSONObject jsonReqWrapper = new JSONObject();
+		jsonReqWrapper.put("request", jsonMachine);
+		jsonReqWrapper.put("requesttime", CommonUtil.getUTCDateTime(null));
+		jsonReqWrapper.put("version", "1.0");
+		jsonReqWrapper.put("id", "id.machine");
+		jsonReqWrapper.put("metadata", new JSONObject());
+
+	
+		
+		try {
+			JSONObject resp = RestClient.put(url,jsonReqWrapper);
+			if(resp != null) {
+				String r = resp.toString();
+				System.out.println(r);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	public static String updatePreRegStatus(String preregId, String statusCode) {
+		String response = null;
+		String url = VariableManager.getVariableValue("urlBase").toString() + "/preregistration/v1/applications/status/"
+				+ preregId + "?statusCode=" + statusCode;
+
+		try {
+			JSONObject resp = RestClient.put(url, new JSONObject());
+			if (resp != null) {
+				response = resp.toString();
+				System.out.println(response);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+
+	}
+
+
 	public static List<MosipDeviceModel> getDevices(String centerId) {
 		//GET /v1/masterdata/devices/mappeddevices/1001?direction=DESC&orderBy=createdDateTime&pageNumber=0&pageSize=100
 	

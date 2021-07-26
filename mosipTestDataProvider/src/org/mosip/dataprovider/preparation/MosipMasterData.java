@@ -747,33 +747,99 @@ public  class MosipMasterData {
 	}
 	public static List<MosipGenderModel> getGenderTypes() {
 		List<MosipGenderModel> genderTypeList = null;
+		String mosipVersion="LTS";
+		if(mosipVersion.equalsIgnoreCase("LTS")) { //TODO : code need to be updated
+			getGenderTypesLTS();
+		}else {
+			String url = VariableManager.getVariableValue("urlBase").toString() +
+					VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"gendertypes").toString();
+							
+							Object o =getCache(url);
+							if(o != null)
+								return( (List<MosipGenderModel>) o);
 
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"gendertypes").toString();
-				
-				Object o =getCache(url);
-				if(o != null)
-					return( (List<MosipGenderModel>) o);
-
-				try {
-					JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
-					JSONArray docCatArray = resp.getJSONArray("genderType");
-					
-					if(docCatArray != null) {
-						ObjectMapper objectMapper = new ObjectMapper();
-						genderTypeList = objectMapper.readValue(docCatArray.toString(), 
-							objectMapper.getTypeFactory().constructCollectionType(List.class, MosipGenderModel.class));
-			
-						setCache(url, genderTypeList);
-						return genderTypeList;
+							try {
+								JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+								JSONArray docCatArray = resp.getJSONArray("genderType");
 								
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return genderTypeList;
+								if(docCatArray != null) {
+									ObjectMapper objectMapper = new ObjectMapper();
+									genderTypeList = objectMapper.readValue(docCatArray.toString(), 
+										objectMapper.getTypeFactory().constructCollectionType(List.class, MosipGenderModel.class));
+						
+									setCache(url, genderTypeList);
+									return genderTypeList;
+											
+								}
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							return genderTypeList;
+		}
+		return null;
 
+		
+
+	}
+	private static List<MosipGenderModel> getGenderTypesLTS() {
+		List<MosipGenderModel> genderTypeList = new ArrayList<>();
+		
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"genderTypesByDynamicField").toString();
+		
+		Object o =getCache(url);
+		if(o != null)
+			return( (List<MosipGenderModel>) o);
+		
+		JSONArray filters= new JSONArray();
+		JSONObject jsonFilters= new JSONObject();
+		jsonFilters.put("columnName", "name");
+		jsonFilters.put("type", "contains");
+		jsonFilters.put("value", "gender");
+		filters.put(jsonFilters);
+		JSONArray sort= new JSONArray();
+		JSONObject jsonSort= new JSONObject();
+		jsonSort.put("sortType", "desc");
+		jsonSort.put("sortField", "createdDateTime");
+		sort.put(jsonSort);
+		JSONObject jsonDynamicField = new JSONObject();
+		jsonDynamicField.put("filters", filters);
+		jsonDynamicField.put("sort", sort);
+		jsonDynamicField.put("languageCode", "hin");
+					
+		JSONObject jsonReqWrapper = new JSONObject();
+		jsonReqWrapper.put("request", jsonDynamicField);
+		jsonReqWrapper.put("requesttime", CommonUtil.getUTCDateTime(null));
+		jsonReqWrapper.put("version", "1.0");
+		jsonReqWrapper.put("id", JSONObject.NULL);
+		jsonReqWrapper.put("metadata", JSONObject.NULL);
+		try {
+			JSONObject resp = RestClient.post(url,jsonReqWrapper);
+			if(resp!=null) {
+				JSONArray genderArray =resp.getJSONArray("data");
+				for (int i=0; i<genderArray.length(); i++) {
+				    JSONObject genderDataItem = genderArray.getJSONObject(i);
+				    String genderName = genderDataItem.getString("name");
+				    String langCode = genderDataItem.getString("langCode");
+				    Boolean isActive = genderDataItem.getBoolean("isActive");
+				    JSONObject fieldValItem =genderDataItem.getJSONObject("fieldVal");
+				    String code = fieldValItem.getString("code");
+				    MosipGenderModel mgm= new MosipGenderModel();
+				    mgm.setGenderName(genderName);
+				    mgm.setCode(code);
+				    mgm.setIsActive(isActive);
+				    mgm.setLangCode(langCode);
+				    genderTypeList.add(mgm);
+				}
+				setCache(url, genderTypeList);
+				return genderTypeList;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return genderTypeList;
+		
 	}
 	public static Boolean isExists(List<MosipIDSchema> lst, String val) {
 		for(MosipIDSchema s: lst) {
@@ -935,9 +1001,48 @@ public  class MosipMasterData {
 				
 		}
 	}
-	public static void main(String[] args) {
 	
+	public static JSONArray getUiSpecId() {
+		JSONArray array= new JSONArray();
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"preregistration/v1/uispec/latest?identitySchemaVersion=0&version=0";
+		//String url = VariableManager.getVariableValue("urlBase").toString() +VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"uiSpec").toString();
+
+		Object o =getCache(url);
+		if(o != null)
+			return( (JSONArray) o);
+		
+		try {
+			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			if(resp != null) {
+				JSONArray identityArray = resp.getJSONObject("jsonSpec").getJSONObject("identity").getJSONArray("identity");
+				Iterator<Object> iterator = identityArray.iterator();
+				while (iterator.hasNext()) {
+					JSONObject identityJson=(JSONObject)iterator.next();
+					if(identityJson.getBoolean("required") && !identityJson.getString("id").toLowerCase().contains("proof")) {
+						array.put(identityJson.getString("id"));
+					}
+				}
+				System.out.println("printing Array : "+ array);
+				
+				
+				setCache(url, array);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return array;
+	}
+	
+	
+	
+	
+	public static void main(String[] args) {
 		VariableManager.setVariableValue("urlBase","https://sandbox.mosip.net/");
+		VariableManager.setVariableValue("configpath","config/*/mz/1.1.5/registration-processor-mz.properties");
+
+	
+		MosipDataSetup.getConfig();
 	//	List<MosipDeviceModel> devices = MosipDataSetup.getDevices("10002");
 		test1();
 		

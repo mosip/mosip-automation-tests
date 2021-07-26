@@ -14,6 +14,7 @@ import variables.VariableManager;
 
 import org.jobrunr.scheduling.JobScheduler;
 import org.jobrunr.scheduling.cron.Cron;
+import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

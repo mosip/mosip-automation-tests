@@ -12,6 +12,7 @@ import org.mosip.dataprovider.models.CenterDetailsModel;
 
 
 import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataCallback;
@@ -80,11 +81,13 @@ public class PreRegistrationSteps {
 		String url = VariableManager.getVariableValue("urlBase").toString().trim() +
 		VariableManager.getVariableValue( "postapplication").toString().trim();
 		
+		JSONArray requiredFieldsArray=MosipMasterData.getUiSpecId();
 		JSONObject identity = CreatePersona.crateIdentity(resident,cb);
 		JSONObject demoData = new JSONObject();
 		demoData.put("identity",identity);
 		JSONObject reqObject = new JSONObject();
 		reqObject.put("demographicDetails", demoData);
+		reqObject.put("requiredFields", requiredFieldsArray);
 		JSONObject reqBody = CreatePersona.createRequestBody(reqObject,false);
 		reqObject.put("langCode","eng");//resident.getPrimaryLanguare());
 		//RestClient client = annotation.getRestClient();
@@ -263,7 +266,7 @@ public class PreRegistrationSteps {
 				
 		String preRegID ="30491084523580";
 		Boolean bBooked = false;
-		CreatePersona.sendOtpTo("sanath@mailinator.com");
+		//CreatePersona.sendOtpTo("sanath@mailinator.com");
 		CreatePersona.validateOTP("111111", "sanath@mailinator.com");
 		AppointmentModel res = getAppointments();
 		System.out.println(res.getRegCenterId());
