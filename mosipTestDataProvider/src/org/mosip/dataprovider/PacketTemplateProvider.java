@@ -33,6 +33,7 @@ import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
+import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.Translator;
 
 import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
@@ -449,7 +450,9 @@ public class PacketTemplateProvider {
 	/*
 	 * HashMap<FolderType, [(in)folderPath][(out)biofilename]> fileInfo
 	 */
-	 public static boolean processGender(MosipIDSchema s, ResidentModel resident,JSONObject identity, List<MosipGenderModel> genderTypes, List<DynamicFieldModel> dynaFields) {
+	 public static boolean processGender(MosipIDSchema s, ResidentModel resident,JSONObject identity, 
+			 Hashtable<String,List<MosipGenderModel>> genderTypesLang,
+			 Hashtable<String,List<DynamicFieldModel>> dynaFields) {
 			
 			boolean processed = false;
 			
@@ -457,20 +460,46 @@ public class PacketTemplateProvider {
 				
 				String primLang = resident.getPrimaryLanguage();
 				String secLan = resident.getSecondaryLanguage();
-				String resGen = resident.getGender();
+				//String thirdLan = resident.getThirdLanguage();
 				
+				Gender resGen = resident.getGender();
+				String genderCode = null;
 				String primVal = "";
 				String secVal = "";
-			
-				if(genderTypes != null) {
-				for(MosipGenderModel g: genderTypes) {
-					if(!g.getIsActive())
-						continue;
-					if(g.getLangCode().equals(primLang) && g.getGenderName().equals(resGen)) {
-							primVal = g.getCode();
-					}
-					
+				
+				//context should set Male/Female code values 
+				Object obj = VariableManager.getVariableValue(resGen.name());
+				if(obj != null) {
+					genderCode = obj.toString();
+					primVal = secVal = genderCode;
 				}
+				if(genderCode != null) {
+					if(genderTypesLang != null) {
+						List<MosipGenderModel> genderTypes = genderTypesLang.get(primLang);
+						if(genderTypes != null)
+						for(MosipGenderModel g: genderTypes) {
+							if(!g.getIsActive())
+								continue;
+							if(g.getCode().equals(genderCode)) {
+								primVal = g.getValue();
+								break;
+							}
+						
+						}
+						if(secLan != null) {
+							genderTypes = genderTypesLang.get(secLan);
+							if(genderTypes != null)
+							for(MosipGenderModel g: genderTypes) {
+								if(!g.getIsActive())
+									continue;
+								if(g.getCode().equals(genderCode)) {
+									secVal = g.getValue();
+									break;
+								}
+							
+							}
+						}
+					}
 				}
 				if(secVal.equals(""))
 					secVal = primVal;
@@ -505,7 +534,10 @@ public class PacketTemplateProvider {
 			else
 			if(s.getId().toLowerCase().contains("line3"))
 				index = 2;
-	
+			else
+			if(s.getId().toLowerCase().contains("line4"))
+					index = 3;
+		
 	
 			if(index > -1)
 				addr = addressLines[index];
@@ -589,6 +621,55 @@ public class PacketTemplateProvider {
 		}
 		return bRet;
 	}
+	public static Boolean processDynamicFields(MosipIDSchema s, JSONObject identity, ResidentModel resident) {
+		
+		String primaryLanguage = resident.getPrimaryLanguage();
+		String secLanguage = resident.getSecondaryLanguage();
+		Hashtable<String,List<DynamicFieldModel>> dynaFields = resident.getDynaFields();
+		Hashtable<String,List<MosipGenderModel>> genderTypes = resident.getGenderTypes();
+		boolean found=false;
+		
+		if(s.getFieldType().equals("dynamic")) {
+			 
+			found = processGender(s, resident,identity, genderTypes, dynaFields);
+			if(found)
+				return found;
+				
+			if(dynaFields != null) {
+				DynamicFieldModel dfmPrim = null;
+				String primaryValue = "";
+				String secValue = "";
+				
+				for(DynamicFieldModel dfm: dynaFields.get(primaryLanguage)) {
+					if(dfm.getIsActive() && dfm.getName().equals(s.getId())) {
+						primaryValue = 	dfm.getFieldVal().get(0).getValue();
+						dfmPrim = dfm;
+						break;
+					}
+				}
+				secValue = primaryValue;
+				
+				if(secLanguage != null)
+				for(DynamicFieldModel dfm1: dynaFields.get(secLanguage)) {
+					if(dfm1.getIsActive() && dfm1.getName().equals(s.getId())){
+						secValue = dfm1.getFieldVal().get(0).getValue();
+						break;
+					}
+				}
+					
+				CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
+										primaryValue,
+										secValue,
+										s.getType().equals("simpleType") ? true: false
+										);
+				found=true;
+					
+			}
+			
+		}
+		return found;
+	}
+	
 	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo) {
 
 		String idjson="";
@@ -599,8 +680,8 @@ public class PacketTemplateProvider {
 		String secLanguage = resident.getSecondaryLanguage();
 		Hashtable<String, MosipLocationModel> locations =   resident.getLocation();
 		Hashtable<String, MosipLocationModel> locations_seclang =   resident.getLocation_seclang();
-		List<DynamicFieldModel> dynaFields = resident.getDynaFields();
-		List<MosipGenderModel> genderTypes = resident.getGenderTypes();
+	//	Hashtable<String,List<DynamicFieldModel>> dynaFields = resident.getDynaFields();
+	//	Hashtable<String,List<MosipGenderModel>> genderTypes = resident.getGenderTypes();
 	
 		Set<String> locationSet =  locations.keySet();
 		
@@ -638,7 +719,10 @@ public class PacketTemplateProvider {
 			if(updateFromAdditionalAttribute(identity,s, resident)) {
 				continue;
 			}
-			 if(s.getFieldType().equals("dynamic")) {
+			if(processDynamicFields(s,identity,resident))
+				continue;
+			
+			/*if(s.getFieldType().equals("dynamic")) {
 				 
 				boolean found=false;
 				found = processGender(s, resident,identity, genderTypes, dynaFields);
@@ -646,26 +730,39 @@ public class PacketTemplateProvider {
 					continue;
 					
 				if(dynaFields != null) {
-					for(DynamicFieldModel dfm: dynaFields) {
-						if(dfm.getIsActive() && 
-									( dfm.getId().equals(s.getId()) || dfm.getName().equals(s.getId()))
-						) {
-	
-							CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
-											dfm.getFieldVal().get(0).getValue(),
-											dfm.getFieldVal().get(0).getValue(),
+					DynamicFieldModel dfmPrim = null;
+					String primaryValue = "";
+					String secValue = "";
+					
+					for(DynamicFieldModel dfm: dynaFields.get(primaryLanguage)) {
+						if(dfm.getIsActive() && dfm.getName().equals(s.getId())
+					) {
+						primaryValue = 	dfm.getFieldVal().get(0).getValue();
+						dfmPrim = dfm;
+						break;
+					}
+					if(secLanguage != null)
+					for(DynamicFieldModel dfm1: dynaFields.get(secLanguage)) {
+						if(dfm1.getIsActive() && dfm1.getId().equals(dfmPrim.getId())){
+							secValue = dfm1.getFieldVal().get(0).getValue();
+							break;
+						}
+					}
+						
+					CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
+											primaryValue,
+											secValue,
 											s.getType().equals("simpleType") ? true: false
 											);
 							found=true;
 							break;
-						}
-					}
-					if(found) 
-						continue;
 				}
-			 }
-			
-	
+				
+				if(found) 
+					continue;
+			}
+			*/
+		
 			if(s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc"))
 			{
 				String primaryValue = "";
@@ -764,6 +861,14 @@ public class PacketTemplateProvider {
 			        			bioAttrib.removeAll(missAttribs);
 			        		if(resident.getFilteredBioAttribtures() == null)
 			        			resident.setFilteredBioAttribtures(bioAttrib);
+			        		if(resident.getSkipFace())
+			        			bioAttrib.removeAll(List.of("face"));
+			        		if(resident.getSkipIris())
+			        			bioAttrib.removeAll(List.of("leftEye","rightEye"));
+			        		if(resident.getSkipFinger()) {
+			        			bioAttrib.removeAll(
+			        					List.of(DataProviderConstants.schemaFingerNames ));
+			        		}
 			        		generateCBEFF(resident,  bioAttrib, outFile);
 
 				
@@ -891,18 +996,31 @@ public class PacketTemplateProvider {
 						identity.put(s.getId(), primaryValue);
 						continue;
 					}
+				/*
 					else
 					{
 						//System.out.println("SchemaID:"+ s.getId());
-						if(resident.getDynaFields() != null)
-						for(DynamicFieldModel dfm: resident.getDynaFields()) {
-							//System.out.println("dfm:"+ dfm.getName());
-							if(s.getId().toLowerCase().endsWith(dfm.getName().toLowerCase())){
-								primaryValue = dfm.getFieldVal().get(0).getValue();
-								break;
+						if(resident.getDynaFields() != null) {
+							DynamicFieldModel dfmVal = null;
+							for(DynamicFieldModel dfm: resident.getDynaFields().get(primaryLanguage)) {
+								//System.out.println("dfm:"+ dfm.getName());
+								if(s.getId().toLowerCase().endsWith(dfm.getName().toLowerCase())){
+									primaryValue = dfm.getFieldVal().get(0).getValue();
+									dfmVal = dfm;
+									break;
+								}
 							}
-						}	
+							if(secLanguage != null)
+							for(DynamicFieldModel dfm: resident.getDynaFields().get(secLanguage)) {
+						
+								if(dfm.getId().equals(dfmVal.getId())){
+									secValue = dfm.getFieldVal().get(0).getValue();
+									break;
+								}
+							}
+						}
 					}
+				*/
 					for(String locKey:locationSet) {
 						MosipLocationModel locModel = locations.get(locKey);
 		

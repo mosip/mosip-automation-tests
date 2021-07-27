@@ -3,6 +3,7 @@ package org.mosip.dataprovider.util;
 public class DataProviderConstants {
 
 	public static final int DEFAULT_ABIS_DELAY = 3;
+	public static final Object INDIVIDUAL_TYPE = "residenceStatus";
 	public static int Age_Adult_Min_Age = 18;
 	public static int Age_Minor_Max_Age = 5;
 	public static int Age_Senior_Citizen_Min_Age = 60;
@@ -36,6 +37,19 @@ public class DataProviderConstants {
 			"rightEye",
 			"face"
 	};
+	public static String [] schemaFingerNames = {
+			"leftThumb",
+			"leftIndex",
+			"leftMiddle",
+			"leftRing",
+			"leftLittle",
+			"rightThumb",
+			"rightIndex",
+			"rightMiddle",
+			"rightRing",
+			"rightLittle"
+			
+	};
 	public static String [] MDSProfileFingerNames = {
 			"Left_Thumb",
 			"Left_Index",
@@ -66,5 +80,5 @@ public class DataProviderConstants {
 	public static String MDS_DEVICE_TYPE_IRIS="Iris";
 	public static String MDS_DEVICE_TYPE_FACE="Face";
 	
-
+	public static int MAX_ADDRESS_LINES = 5;
 }
