@@ -842,7 +842,7 @@ public class PacketSyncService {
 	    			break;
 	    	*/	
 	    		case "gender":
-	    			persona.setGender(value);
+	    			persona.setGender(Gender.valueOf(value));
 	    			break;
 	    	/*
 	    		case "phone":
