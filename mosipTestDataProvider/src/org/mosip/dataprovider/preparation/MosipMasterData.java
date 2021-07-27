@@ -3,11 +3,13 @@ package org.mosip.dataprovider.preparation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -19,6 +21,7 @@ import org.mosip.dataprovider.ResidentDataProvider;
 import org.mosip.dataprovider.models.ApplicationConfigIdSchema;
 
 import org.mosip.dataprovider.models.DynamicFieldModel;
+import org.mosip.dataprovider.models.DynamicFieldValueModel;
 import org.mosip.dataprovider.models.MosipIdentity;
 import org.mosip.dataprovider.models.LocationHierarchyModel;
 import org.mosip.dataprovider.models.MosipBiometricAttributeModel;
@@ -37,6 +40,7 @@ import org.mosip.dataprovider.models.setup.MosipDeviceModel;
 import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.util.CommonUtil;
+import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
 import org.mosip.dataprovider.util.RestClient;
@@ -154,34 +158,64 @@ public  class MosipMasterData {
 		
 	}
 	
-	public static List<DynamicFieldModel> getAllDynamicFields() {
+	public static Hashtable<String,List<DynamicFieldModel>> getAllDynamicFields() {
 		
-		List<DynamicFieldModel> lstDynamicFields = null;
+		Hashtable<String,List<DynamicFieldModel>> tblDynaFieldsLang = new Hashtable<String,List<DynamicFieldModel>>();
+		
+		//List<DynamicFieldModel> lstDynamicFields = null;
 		
 		String url = VariableManager.getVariableValue("urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"dynamicFields").toString();
 	
 		Object o =getCache(url);
 		if(o != null)
-			return( (List<DynamicFieldModel>) o);
+			return( (Hashtable<String,List<DynamicFieldModel>>) o);
 	
-		try {
-			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
-			if(resp != null) {
-				JSONArray dynaFields = resp.getJSONArray("data");
-				ObjectMapper objectMapper = new ObjectMapper();
+		int pageno = 0;
+		int nPages = 0;
+		do {
+			try {
+				List<DynamicFieldModel> lstDynamicFieldsPart = null;
+				String urlQuery = url + "?pageNumber="+ pageno;
+				JSONObject resp = RestClient.get(urlQuery,new JSONObject() , new JSONObject());
+				if(resp != null) {
+					// "pageNo":0,"totalPages":11
+					pageno = resp.getInt("pageNo");
+					nPages = resp.getInt("totalPages");
+					
+					JSONArray dynaFields = resp.getJSONArray("data");
+					ObjectMapper objectMapper = new ObjectMapper();
+					
+					lstDynamicFieldsPart = objectMapper.readValue(dynaFields.toString(), 
+							objectMapper.getTypeFactory().constructCollectionType(List.class, DynamicFieldModel.class));
+		/*			if(lstDynamicFields == null)
+						lstDynamicFields = lstDynamicFieldsPart;
+					else
+						lstDynamicFields.addAll(lstDynamicFieldsPart);
+		*/
+					if(lstDynamicFieldsPart.size() ==0)
+						break;
+					for(DynamicFieldModel m: lstDynamicFieldsPart) {
+						List<DynamicFieldModel> lst = tblDynaFieldsLang.get(m.getLangCode());
+						if(lst == null) {
+							lst = new ArrayList<DynamicFieldModel>();
+							tblDynaFieldsLang.put(m.getLangCode(), lst);
+						}
+						lst.add(m);
+						
+					}
+					setCache(url, tblDynaFieldsLang);
 				
-				lstDynamicFields = objectMapper.readValue(dynaFields.toString(), 
-						objectMapper.getTypeFactory().constructCollectionType(List.class, DynamicFieldModel.class));
-	
-				setCache(url, lstDynamicFields);
-				
+					pageno++;
+				}
+			} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return lstDynamicFields;
+		}while(pageno <= nPages);
+			
+		
+		return tblDynaFieldsLang;
 	}
 	public static HashMap<String,LocationHierarchyModel[]> getAllLocationHierarchies() {
 		
@@ -699,8 +733,49 @@ public  class MosipMasterData {
 		}
 		return docTypeList;
 	}
-	
+	public static Hashtable<String, List<MosipIndividualTypeModel>> getIndividualTypesFromDynamicFields() {
+		Hashtable<String, List<MosipIndividualTypeModel>> tbl = new Hashtable<String, List<MosipIndividualTypeModel>>();
+		Hashtable<String, List<DynamicFieldModel>> tblDyn = MosipMasterData.getAllDynamicFields();
+		Iterator<String> it = tblDyn.keys().asIterator();
+		while(it.hasNext()) {
+			String key = it.next();
+			List<DynamicFieldModel> dynaFields = tblDyn.get(key);
+			for(DynamicFieldModel dfm: dynaFields) {
+				if(dfm.getIsActive() && dfm.getName().equals(DataProviderConstants.INDIVIDUAL_TYPE)) {
+					for(DynamicFieldValueModel dfmv: dfm.getFieldVal()) {
+						MosipIndividualTypeModel im = new MosipIndividualTypeModel();
+						im.setCode(dfmv.getCode());
+						im.setIsActive(true);
+						im.setLangCode(key);
+						
+						im.setName(dfmv.getValue());
+						
+						List<MosipIndividualTypeModel> indList = tbl.get(key);
+						if(indList == null) {
+							indList = new ArrayList<MosipIndividualTypeModel>();
+							
+							tbl.put(key, indList);
+						}
+						indList.add(im);
+					}
+							
+				}
+			}
+		}
+		return tbl;
+	}
 	public static Hashtable<String, List<MosipIndividualTypeModel>> getIndividualTypes() {
+	
+		String mosipVersion = "legacy";
+		Object obj = VariableManager.getVariableValue("mosip.version");
+		if(obj != null)
+			mosipVersion = obj.toString();
+		if(mosipVersion.equals("1.2")) {
+			return getIndividualTypesFromDynamicFields();
+		}
+		return getIndividualTypes_legacy();
+	}
+	public static Hashtable<String, List<MosipIndividualTypeModel>> getIndividualTypes_legacy() {
 		
 		Hashtable<String, List<MosipIndividualTypeModel>> tbl = new Hashtable<String, List<MosipIndividualTypeModel>>();
 		
@@ -745,11 +820,15 @@ public  class MosipMasterData {
 		return tbl;
 
 	}
-	public static List<MosipGenderModel> getGenderTypes() {
+	public static List<MosipGenderModel> getGenderTypes(String lang) {
 		List<MosipGenderModel> genderTypeList = null;
-		String mosipVersion="LTS";
-		if(mosipVersion.equalsIgnoreCase("LTS")) { //TODO : code need to be updated
-			getGenderTypesLTS();
+
+		String mosipVersion = "legacy";
+		Object obj = VariableManager.getVariableValue("mosip.version");
+		if(obj != null)
+			mosipVersion = obj.toString();
+		if(mosipVersion.equals("1.2")) {
+			genderTypeList = getGenderTypesLTS(lang);
 		}else {
 			String url = VariableManager.getVariableValue("urlBase").toString() +
 					VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"gendertypes").toString();
@@ -777,18 +856,18 @@ public  class MosipMasterData {
 							}
 							return genderTypeList;
 		}
-		return null;
+		return genderTypeList;
 
 		
 
 	}
-	private static List<MosipGenderModel> getGenderTypesLTS() {
+	private static List<MosipGenderModel> getGenderTypesLTS(String lang) {
 		List<MosipGenderModel> genderTypeList = new ArrayList<>();
 		
 		String url = VariableManager.getVariableValue("urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"genderTypesByDynamicField").toString();
 		
-		Object o =getCache(url);
+		Object o =getCache(url +"_"+lang);
 		if(o != null)
 			return( (List<MosipGenderModel>) o);
 		
@@ -806,7 +885,7 @@ public  class MosipMasterData {
 		JSONObject jsonDynamicField = new JSONObject();
 		jsonDynamicField.put("filters", filters);
 		jsonDynamicField.put("sort", sort);
-		jsonDynamicField.put("languageCode", "hin");
+		jsonDynamicField.put("languageCode", lang);
 					
 		JSONObject jsonReqWrapper = new JSONObject();
 		jsonReqWrapper.put("request", jsonDynamicField);
@@ -825,14 +904,16 @@ public  class MosipMasterData {
 				    Boolean isActive = genderDataItem.getBoolean("isActive");
 				    JSONObject fieldValItem =genderDataItem.getJSONObject("fieldVal");
 				    String code = fieldValItem.getString("code");
+				    String value =fieldValItem.getString("value");
 				    MosipGenderModel mgm= new MosipGenderModel();
 				    mgm.setGenderName(genderName);
 				    mgm.setCode(code);
 				    mgm.setIsActive(isActive);
 				    mgm.setLangCode(langCode);
+				    mgm.setValue(value);
 				    genderTypeList.add(mgm);
 				}
-				setCache(url, genderTypeList);
+				setCache(url +"_"+lang, genderTypeList);
 				return genderTypeList;
 			}
 		} catch (Exception e) {
@@ -1058,7 +1139,7 @@ public  class MosipMasterData {
 		 List<String> reqdFields = (List<String>) tbl1.get(schemaId).get("requiredAttributes");
 					
 		
-		List<MosipGenderModel> allg = MosipMasterData.getGenderTypes();
+		List<MosipGenderModel> allg = MosipMasterData.getGenderTypes("eng");
 		allg.forEach( g-> {
 			System.out.println(g.getCode() +"\t" + g.getGenderName());
 		});
@@ -1087,7 +1168,7 @@ public  class MosipMasterData {
 			
 		HashMap<String,LocationHierarchyModel[]> locHi = getAllLocationHierarchies();
 		
-		List<MosipGenderModel> genderTypes = MosipMasterData.getGenderTypes();
+		List<MosipGenderModel> genderTypes = MosipMasterData.getGenderTypes("hin");
 		
 		List<MosipBiometricTypeModel> bioTypes = getBiometricTypes();
 		for(MosipBiometricTypeModel bt: bioTypes) {
@@ -1106,14 +1187,18 @@ public  class MosipMasterData {
 			 
 			//test dynamic fields fields;
 		
-			List<DynamicFieldModel> lstDynF =  getAllDynamicFields() ;
-			for(DynamicFieldModel dm: lstDynF) {
-	
-				System.out.println(dm.getName() );
-				
+			Hashtable<String,List<DynamicFieldModel>> lstDynF =  getAllDynamicFields() ;
+			lstDynF.forEach( (k,v)->{
 			
-			}
+				for(DynamicFieldModel dm: v) {
+					
+					System.out.println(dm.getName() );
+					
 				
+				}
+		
+			});
+						
 			Hashtable<Double,Properties> tbl = getIDSchemaLatestVersion();
 			List<MosipIDSchema> lst = null;
 			if(tbl != null)
