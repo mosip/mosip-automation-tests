@@ -723,6 +723,30 @@ public class BiometricDataProvider {
 		}
 		return tblFiles;
 	}
+	public static IrisDataModel loadIris(String filePath, String subModality, IrisDataModel im) throws Exception {
+		
+		IrisDataModel m = im;
+		if(m == null)
+			m = new IrisDataModel();
+		String irisData ="";
+		String irisHash ="";
+			
+		if(Files.exists(Paths.get(filePath))) {
+			byte[] fdata = Files.readAllBytes(Paths.get(filePath));
+			irisData = Hex.encodeHexString( fdata ) ;	
+			irisHash = CommonUtil.getHexEncodedHash(fdata);
+			if(subModality.equals("left")) {
+				m.setLeftHash(irisHash);
+				m.setLeft(irisData);
+			}
+			else {
+				m.setRightHash(irisHash);
+				m.setRight(irisData);
+			}
+		}
+
+		return m;
+	}
 	//Left Eye, Right Eye
 	static List<IrisDataModel> generateIris(int count) throws Exception{
 	

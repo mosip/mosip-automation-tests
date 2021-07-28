@@ -87,6 +87,7 @@ public class PhotoProvider {
 	}
 	static public byte[] encodeFaceImageData(byte[] faceImage) {
 
+		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
 
@@ -158,5 +159,29 @@ public class PhotoProvider {
 		//Files.write(strImg[0].getBytes(), new File( "c:\\temp\\photo.txt"));
 		//System.out.println(strImg);
 		
+	}
+	public static byte[][] loadPhoto(String faceFile) {
+
+		byte[] bencoded =null;
+		byte[] bData = null;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+		BufferedImage img;
+		try {
+			img = ImageIO.read(new File(faceFile));
+			ImageIO.write(img, "jpg", baos);
+			baos.flush();
+			bData = baos.toByteArray();
+			bencoded = encodeFaceImageData(bData);
+			baos.close();
+		
+	    
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	         
+		return new byte[][] {bencoded, bData};
+
 	}
 }

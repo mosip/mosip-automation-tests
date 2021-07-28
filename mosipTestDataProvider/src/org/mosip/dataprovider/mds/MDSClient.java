@@ -58,22 +58,29 @@ public class MDSClient implements MDSClientInterface {
 		}
 		ISOConverter convert = new ISOConverter();
 		try {
-			byte[] face = resident.getBiometric().getRawFaceData();
-			convert.convertFace(face,profDir + "/" + "Face.iso");
-			IrisDataModel iris = resident.getBiometric().getIris();
-			if(iris != null) {
-				
-				if(iris.getRawLeft() != null)
-					convert.convertIris(iris.getRawLeft(), profDir + "/"+ "Left_Iris.iso", "Left");
-				if(iris.getRawRight() != null)
-					convert.convertIris(iris.getRawRight(), profDir + "/"+ "Right_Iris.iso", "Right");
+			if(!resident.getSkipFace()) {
+				byte[] face = resident.getBiometric().getRawFaceData();
+				convert.convertFace(face,profDir + "/" + "Face.iso");
 			}
-			byte[] [] fingerData = resident.getBiometric().getFingerRaw();
-			for(int i=0; i < 10; i++) {
-				String fingerName = DataProviderConstants.displayFingerName[i];
-				String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
-				if(fingerData[i] != null) {
-					convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName);
+			if(!resident.getSkipIris()) {
+				
+				IrisDataModel iris = resident.getBiometric().getIris();
+				if(iris != null) {
+					
+					if(iris.getRawLeft() != null)
+						convert.convertIris(iris.getRawLeft(), profDir + "/"+ "Left_Iris.iso", "Left");
+					if(iris.getRawRight() != null)
+						convert.convertIris(iris.getRawRight(), profDir + "/"+ "Right_Iris.iso", "Right");
+				}
+			}
+			if(!resident.getSkipFinger()) {
+				byte[] [] fingerData = resident.getBiometric().getFingerRaw();
+				for(int i=0; i < 10; i++) {
+					String fingerName = DataProviderConstants.displayFingerName[i];
+					String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
+					if(fingerData[i] != null) {
+						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName);
+					}
 				}
 			}
 			

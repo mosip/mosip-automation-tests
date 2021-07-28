@@ -13,6 +13,6 @@ public class MosipGenderModel  implements Serializable {
 	String genderName;
 	Boolean isActive;
 	String langCode;
-	
+	String value;
 	
 }
