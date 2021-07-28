@@ -3,7 +3,7 @@ package io.mosip.test.packetcreator.mosippacketcreator.controller;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
-import org.jose4j.json.internal.json_simple.JSONObject;
+import org.json.JSONObject;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
