@@ -230,6 +230,20 @@ public class CommonUtil {
 			//e.printStackTrace();
 		}
 	}
+
+	public static Properties String2Props(String str) {
+		// C=AU, O=The Legion of the Bouncy Castle, OU=Bouncy Primary Certificate""
+		 Properties props = new Properties();
+		 String [] parts = str.split(",");
+		 for(String p: parts) {
+			 String[] v = p.split("=");
+			 if(v.length > 0) {
+				 props.put( v[0].trim(), v[1].trim());
+			 }
+		 }
+		 return props;
+	 }
+
 	public static void main(String [] args) throws Exception {
 		String regex1 = "^|^0[5-7][0-9]{8}$";
 		String regex2 ="^[a-zA-Zء-ي٠-٩ ]{5,47}$";
