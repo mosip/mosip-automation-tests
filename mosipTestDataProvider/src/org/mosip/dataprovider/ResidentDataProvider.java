@@ -116,7 +116,7 @@ public class ResidentDataProvider {
 		else
 		if(bioType.equalsIgnoreCase("face")) {
 			BiometricDataModel bioData = model.getBiometric();
-			byte[][] faceData = PhotoProvider.getPhoto(CommonUtil.generateRandomNumbers(1, DataProviderConstants.MAX_PHOTOS, 1)[0], model.getGender() );
+			byte[][] faceData = PhotoProvider.getPhoto(CommonUtil.generateRandomNumbers(1, DataProviderConstants.MAX_PHOTOS, 1)[0], model.getGender().name() );
 			bioData.setEncodedPhoto(
 					Base64.getEncoder().encodeToString(faceData[0]));
 			bioData.setRawFaceData(faceData[1]);
@@ -128,6 +128,67 @@ public class ResidentDataProvider {
 			model.getBiometric().setCbeff(null); 
 			 
 		return model;
+	}
+	private static String[] getConfiguredLanguages() {
+		String [] lang_arr = null;
+		List<String> langs= new ArrayList<String>();
+		List<MosipLanguage> allLang = null;
+		try {
+			allLang = MosipMasterData.getConfiguredLanguages();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		MosipPreRegLoginConfig  preregconfig = MosipMasterData.getPreregLoginConfig();
+		if(preregconfig == null) {
+
+			try {
+			
+				lang_arr = new String[allLang.size()];
+				int i=0;
+				for(MosipLanguage l: allLang){
+					lang_arr[i]= l.getIso2();
+					i++;
+				}
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return lang_arr;
+		}
+		//check if primary lang is already configured
+		String primary_lang = preregconfig.getMosip_primary_language();
+		if(primary_lang != null)
+			langs.add(primary_lang);
+		
+		//Step1 : check any mandatory languages configured
+		String mandatory_languages_list =preregconfig.getMandatory_languages();
+		 String[] mandatlangueages = null;
+		if(mandatory_languages_list !=null && !mandatory_languages_list.equals("")) {
+			  mandatlangueages = mandatory_languages_list.split(",");
+		}
+		int minLanguages=Integer.parseInt(preregconfig.getMin_languages_count());
+		String opt_lang_list = preregconfig.getOptional_languages();
+		String[] opt_langs = null;
+		if(opt_lang_list != null && !opt_lang_list.equals("")) {
+			opt_langs = opt_lang_list.split(",");
+		}
+		if(mandatlangueages != null && mandatlangueages.length > 0 ) {
+			for(int i=0; i < mandatlangueages.length; i++)
+				langs.add( mandatlangueages[i]);
+		}
+		if(opt_langs != null && opt_langs.length >0) {
+			for(int i=0; i < opt_langs.length; i++)
+				langs.add( opt_langs[i]);
+		}
+		//if not enough languags add from the default master datalist
+		if(minLanguages > 0  && langs.size() < minLanguages && allLang != null ) {
+			int n2add = minLanguages - langs.size();
+			for(int i= 0; i < allLang.size() && i < n2add; i++ ) {
+				langs.add( allLang.get(i).getIso2());
+			}
+		}
+		lang_arr = new String [ minLanguages > 0 ? minLanguages : langs.size()];
+		return langs.toArray(lang_arr);
 	}
 	public List<ResidentModel> generate() {
 		
@@ -144,12 +205,31 @@ public class ResidentDataProvider {
 		Object oAttr = attributeList.get(ResidentAttribute.RA_SCHEMA_VERSION);
 		double schemaVersion = (oAttr == null) ? 0: (double)oAttr;
 		VariableManager.setVariableValue("schemaVersion", schemaVersion);
-		
-		List<MosipLanguage> allLang = MosipMasterData.getConfiguredLanguages();
+
+
+		String[] langsRequired = getConfiguredLanguages();
+		if(langsRequired != null) {
+			primary_lang = langsRequired[0];
+			if(langsRequired.length > 0)
+				sec_lang = langsRequired[1];
+			if(langsRequired.length > 1)
+				third_lang = langsRequired[2];
+			
+		}
+		/*
 		MosipPreRegLoginConfig  preregconfig = MosipMasterData.getPreregLoginConfig();
 		if(preregconfig != null) {
 			primary_lang = preregconfig.getMosip_primary_language();
 		}
+		
+		String mandatory_languages_list =preregconfig.getMandatory_languages();
+		 String[] mandatlangueages = null;
+		if(mandatory_languages_list !=null && !mandatory_languages_list.equals("")) {
+			  mandatlangueages = mandatory_languages_list.split(",");
+		}
+		
+		List<MosipLanguage> allLang = MosipMasterData.getConfiguredLanguages();
+		
 		
 		  if(primary_lang == null) {
 			  String mandatory_languages=preregconfig.getMandatory_languages();
@@ -209,10 +289,9 @@ public class ResidentDataProvider {
 					break;
 				}
 			}
-			/*
-			 * else if(lang.getCode().equals(sec_lang)){ bFoundSecLang = true; break; }
-			 */
+		
 		}
+	*/
 		/*
 		 * if(!bFoundSecLang) sec_lang = null;
 		 */
@@ -235,10 +314,18 @@ public class ResidentDataProvider {
 		List<Name> names_sec = null;
 		List<Name> names_primary =null;
 		
-		List<DynamicFieldModel> dynaFields = MosipMasterData.getAllDynamicFields();
+		Hashtable<String,List<DynamicFieldModel>> dynaFields = MosipMasterData.getAllDynamicFields();
 		 
-		List<MosipGenderModel> genderTypes = MosipMasterData.getGenderTypes();
+		List<MosipGenderModel> genderTypes_primary = MosipMasterData.getGenderTypes(primary_lang);
+		List<MosipGenderModel> genderTypes_sec = null;
+		List<MosipGenderModel> genderTypes_third = null;
 		
+		if(sec_lang != null)
+			genderTypes_sec = MosipMasterData.getGenderTypes(sec_lang);
+
+		if(third_lang != null)
+			genderTypes_third = MosipMasterData.getGenderTypes(third_lang);
+
 		//generate mix of both genders
 		int maleCount =0,femaleCount = 0;
 		
@@ -290,7 +377,7 @@ public class ResidentDataProvider {
 
 		}
 
-		List<Contact> contacts = ContactProvider.generate(names_primary, count);
+		List<Contact> contacts = ContactProvider.generate(eng_names, count);
 //		Object  objCountry = attributeList.get(ResidentAttribute.RA_Country)  ;
 		//String country  =null;
 		
@@ -305,7 +392,7 @@ public class ResidentDataProvider {
 		if(sec_lang != null)
 			locations_secLang = LocationProvider.generate(sec_lang, count);
 		
-		List<DynamicFieldValueModel> bloodGroups = null;
+		Hashtable<String,List<DynamicFieldValueModel>> bloodGroups = null;
 		if(dynaFields != null && !dynaFields.isEmpty())
 			 bloodGroups = BloodGroupProvider.generate(count, dynaFields);
 
@@ -331,7 +418,12 @@ public class ResidentDataProvider {
 			res.setDynaFields(dynaFields);
 			res.setName(names_primary.get(i));
 			res.setThirdLanguage(third_lang);
-			res.setGenderTypes(genderTypes);
+			
+			res.getGenderTypes().put(primary_lang, genderTypes_primary);
+			if(sec_lang != null)
+				res.getGenderTypes().put(sec_lang, genderTypes_sec);
+			if(third_lang != null)
+				res.getGenderTypes().put(third_lang, genderTypes_third);
 			
 			if(attributeList.containsKey(ResidentAttribute.RA_MissList)) {
 				res.setMissAttributes( (List<String>) attributeList.get(ResidentAttribute.RA_MissList));
@@ -339,6 +431,8 @@ public class ResidentDataProvider {
 			if(attributeList.containsKey(ResidentAttribute.RA_InvalidList)) {
 				res.setInvalidAttributes( (List<String>) attributeList.get(ResidentAttribute.RA_InvalidList));
 			}
+			res.setGender(res_gender);
+			/*
 			if(primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH))
 				res.setGender(names_primary.get(i).getGender().name());
 			else
@@ -348,13 +442,13 @@ public class ResidentDataProvider {
 					res.setGender_seclang(names_primary.get(i).getGender().name());
 				else
 					res.setGender_seclang(Translator.translate(sec_lang, names_primary.get(i).getGender().name()));
-			}
+			}*/
 			if(names_sec != null) {
 				res.setName_seclang(names_sec.get(i));
 			}
 		
 			if(bloodGroups != null)
-				res.setBloodgroup(bloodGroups.get(i));
+				res.setBloodgroup(bloodGroups.get(res.getPrimaryLanguage()).get(i));
 			res.setContact(contacts.get(i));
 			res.setDob( DateOfBirthProvider.generate((ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age)));
 			ResidentAttribute age =  (ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age);
@@ -370,9 +464,9 @@ public class ResidentDataProvider {
 			res.setAppConfigIdSchema_secLang(locations_secLang);
 			
 			res.setLocation(  locations.getTblLocations().get(i));
-			String [] addr = new String[3];
+			String [] addr = new String[ DataProviderConstants.MAX_ADDRESS_LINES];
 			String addrFmt = "#%d, %d Street, %d block, lane #%d" ;//+ schemaItem.getId();
-			for(int ii=0; ii< 3; ii++) {
+			for(int ii=0; ii< DataProviderConstants.MAX_ADDRESS_LINES; ii++) {
 				String addrLine = String.format(addrFmt, (10+ rand.nextInt(999)),
 					(1 + rand.nextInt(99)),
 					(1 + rand.nextInt(10)), ii+1
@@ -380,12 +474,25 @@ public class ResidentDataProvider {
 				addr[ii] = addrLine;
 			}
 
-			res.setAddress(addr);
+			String primLang = res.getPrimaryLanguage();
+			if(!primLang.toLowerCase().startsWith("en"))
+			{
+				
+				String [] addrP = new String[ DataProviderConstants.MAX_ADDRESS_LINES];
+
+				for(int ii=0; ii< DataProviderConstants.MAX_ADDRESS_LINES; ii++) {
+					
+					addrP[ii] = Translator.translate(primLang, addr[ii]);
+				}
+				res.setAddress(addrP);
+			}
+			else
+				res.setAddress(addr);
 			//res.setLocation(locations.get(res.getPrimaryLanguage()));
 			if(res.getSecondaryLanguage() != null) {
 				res.setLocation_seclang (  locations_secLang.getTblLocations().get(i));
-				String[] addr_sec = new String[3];
-				for(int ii=0; ii< 3; ii++) {
+				String[] addr_sec = new String[DataProviderConstants.MAX_ADDRESS_LINES];
+				for(int ii=0; ii< DataProviderConstants.MAX_ADDRESS_LINES; ii++) {
 					addr_sec[ii] = Translator.translate(res.getSecondaryLanguage(), addr[ii]);
 				}	
 				res.setAddress_seclang(addr_sec);
@@ -400,6 +507,7 @@ public class ResidentDataProvider {
 						res.setResidentStatus(itm);
 						break;
 					}
+					indx++;
 				}
 				if(res.getResidentStatus() == null) {
 					indx = rand.nextInt(lstResStatusPrimLang.size());
@@ -421,6 +529,15 @@ public class ResidentDataProvider {
 				}
 			}
 			Object bFinger = attributeList.get(ResidentAttribute.RA_Finger);
+			Boolean skip =  (bFinger == null ? false: !(Boolean)bFinger);
+			res.setSkipFinger(skip);
+			bFinger = attributeList.get(ResidentAttribute.RA_Photo);
+			skip =  (bFinger == null ? false: !(Boolean)bFinger);
+			res.setSkipFace(skip);
+			bFinger = attributeList.get(ResidentAttribute.RA_Iris);
+			skip =  (bFinger == null ? false: !(Boolean)bFinger);
+			res.setSkipIris(skip);
+			
 			
 			BiometricDataModel bioData =null;
 			try {

@@ -5,11 +5,14 @@ import org.everit.json.schema.ValidationException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mosip.dataprovider.BiometricDataProvider;
 import org.mosip.dataprovider.PacketTemplateProvider;
+import org.mosip.dataprovider.PhotoProvider;
 import org.mosip.dataprovider.ResidentDataProvider;
 import org.mosip.dataprovider.mds.ISOConverter;
 import org.mosip.dataprovider.models.AppointmentModel;
 import org.mosip.dataprovider.models.AppointmentTimeSlotModel;
+import org.mosip.dataprovider.models.BiometricDataModel;
 import org.mosip.dataprovider.models.CenterDetailsModel;
 
 import org.mosip.dataprovider.models.DynamicFieldValueModel;
@@ -743,6 +746,7 @@ public class PacketSyncService {
     }
     void updatePersona(Properties updateAttrs, ResidentModel persona) {
     	 Iterator<Object> it = updateAttrs.keys().asIterator();
+    	 BiometricDataModel bioData = null;
     	 
     	while(it.hasNext()) {
     		String key = it.next().toString();
@@ -778,6 +782,52 @@ public class PacketSyncService {
 
     		}
     		switch(key) {
+    			case "face":
+    			case "photo":
+    				bioData =persona.getBiometric();
+    				byte[][] faceData = PhotoProvider.loadPhoto(value );
+    				bioData.setEncodedPhoto(
+    					Base64.encodeBase64String(faceData[0]));
+    				bioData.setRawFaceData(faceData[1]);
+    				
+    				try {
+    					bioData.setFaceHash(CommonUtil.getHexEncodedHash( faceData[1]));
+    				} catch (Exception e1) {
+    					// TODO Auto-generated catch block
+    					//e1.printStackTrace();
+    				}
+    				
+    				break;
+    			case "left_iris":
+    				bioData =persona.getBiometric();
+    				IrisDataModel im = bioData.getIris();
+    				IrisDataModel imUpdated = null;
+    				try {
+    					imUpdated = BiometricDataProvider.loadIris(value, "left", im);
+    					if(imUpdated != null)
+    						persona.getBiometric().setIris(imUpdated);
+					
+    				} catch (Exception e) {
+					// TODO Auto-generated catch block
+    					e.printStackTrace();
+    				}
+    				
+    				break;
+    			case "right_iris":
+    				bioData =persona.getBiometric();
+    				IrisDataModel im1 = bioData.getIris();
+    				IrisDataModel imUpdated1 = null;
+    				try {
+    					imUpdated1 = BiometricDataProvider.loadIris(value, "right", im1);
+    					if(imUpdated1 != null)
+    						persona.getBiometric().setIris(imUpdated1);
+					
+    				} catch (Exception e) {
+					// TODO Auto-generated catch block
+    					e.printStackTrace();
+    				}
+    				
+    				break;
     	/*	
 	    		case "firstname":
 	    			persona.getName().setFirstName(value);
@@ -792,9 +842,9 @@ public class PacketSyncService {
 	    			break;
 	    	*/	
 	    		case "gender":
-	    			persona.setGender(value);
+	    			persona.setGender(Gender.valueOf(value));
 	    			break;
-	    	
+	    	/*
 	    		case "phone":
 	    		case "mobile":
 	    		case "mobilephone":
@@ -802,6 +852,7 @@ public class PacketSyncService {
 	    			persona.getContact().setMobileNumber(value);
 	    			
 	    			break;
+	    		*/
 	    		case "email":
 	    		case "emailid":
 	    			persona.getContact().setEmailId(value);

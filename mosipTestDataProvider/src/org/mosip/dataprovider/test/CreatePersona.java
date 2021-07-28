@@ -113,8 +113,8 @@ public class CreatePersona {
 
 		Hashtable<String, MosipLocationModel> locations =   resident.getLocation();
 		Set<String> locationSet =  locations.keySet();
-		List<DynamicFieldModel> dynaFields = resident.getDynaFields();
-		List<MosipGenderModel> genderTypes = resident.getGenderTypes();
+		Hashtable<String,List<DynamicFieldModel>> dynaFields = resident.getDynaFields();
+		Hashtable<String,List<MosipGenderModel>> genderTypes = resident.getGenderTypes();
 		
 		identity.put("IDSchemaVersion",schemaversion );
 		if(cb != null)
@@ -152,12 +152,17 @@ public class CreatePersona {
 			if(schemaItem.getType() == null )
 				continue;
 			
+			if(PacketTemplateProvider.processDynamicFields(schemaItem, identity, resident))
+				continue;
+			
+			
 			if(schemaItem.getFieldType().equals("dynamic")) {
 			
+				/*
 				boolean genderFound = PacketTemplateProvider.processGender(schemaItem, resident,identity, genderTypes,dynaFields);
 				if(genderFound)
 					continue;
-						
+					
 				if(dynaFields != null) {
 					
 					
@@ -178,6 +183,7 @@ public class CreatePersona {
 					if(found)
 						continue;
 				}
+				*/
 				if(schemaItem.getId().toLowerCase().contains("residen")  ) {
 					String name = resident.getResidentStatus().getCode() ;
 
