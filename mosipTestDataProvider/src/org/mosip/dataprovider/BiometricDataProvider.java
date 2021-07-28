@@ -145,7 +145,7 @@ public class BiometricDataProvider {
 				.e("BIRInfo").e("Integrity").t("false").up().up()
 				.e("BDBInfo").e("Format").e("Organization").t("Mosip").up().e("Type").t("8").up().up()
 					.e("CreationDate").t(today).up().e("Type").t("Face").up()
-					.e("Level").t("Raw").up().e("Purpose").t("Enroll").up()
+					.e("Subtype").t("").up().e("Level").t("Raw").up().e("Purpose").t("Enroll").up()
 					.e("Quality").e("Algorithm").e("Organization").t("HMAC").up().e("Type").t("SHA-256").up().up().e("Score").t("100").up()
 				.up().up()
 				.e("BDB").t(faceInfo).up().up();
