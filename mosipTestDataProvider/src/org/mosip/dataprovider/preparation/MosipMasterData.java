@@ -955,6 +955,67 @@ public  class MosipMasterData {
 			
 		
 	}
+
+	public static String getIDschemaStringLatest(){
+
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(
+				VariableManager.NS_MASTERDATA,
+				//"individualtypes"
+				"idschemaapi"
+				).toString();
+
+		
+
+		try {
+			JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject());
+
+			return resp.toString();
+
+		
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "{\"Failed\"}";
+		
+	}
+
+	public static String postSchema(String id, int version,  JSONArray schema){
+
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"idschema").toString();
+	
+
+		JSONObject request = new JSONObject();
+		request.put("description", "new ID schema post");
+		request.put("effectiveFrom", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+		request.put("schema", schema);
+		request.put("schemaVersion", version);
+		request.put("title", "test");
+
+
+		JSONObject obj = new JSONObject();
+		obj.put("id", id);
+		obj.put("metadata", new JSONObject());
+		obj.put("request", request);
+		obj.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+		obj.put("version", "1.0");
+
+
+
+		JSONObject resp;
+		try{
+			resp = RestClient.post(url, obj);
+			return resp.toString();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return "{\"post failed\"}";
+		}
+
+	}
+
 	static Boolean validateCondn(String cndnexpr, Object inputObject) {
 		return MVEL.evalToBoolean(cndnexpr,inputObject);
 	}

@@ -36,14 +36,14 @@ import org.springframework.web.multipart.MultipartFile;
 import io.kubernetes.client.util.ClientBuilder;
 
 
-import io.kubernetes.client.util.KubeConfig;
+// import io.kubernetes.client.util.KubeConfig;
 
-import io.kubernetes.client.openapi.ApiClient;
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1PodList;
+// import io.kubernetes.client.openapi.ApiClient;
+// import io.kubernetes.client.openapi.ApiException;
+// import io.kubernetes.client.openapi.Configuration;
+// import io.kubernetes.client.openapi.apis.CoreV1Api;
+// import io.kubernetes.client.openapi.models.V1Pod;
+// import io.kubernetes.client.openapi.models.V1PodList;
 import java.io.FileReader;
 
 @Service
@@ -141,34 +141,34 @@ public class CommandsService {
 		accessor.close();
 		return filePath;
 	}
-	public String getAllPods(String contextKey) throws ApiException, IOException {
- 		Properties props = contextUtils.loadServerContext(contextKey);
- 		if(props.contains("mosip.test.baseurl")) {
+	// public String getAllPods(String contextKey) throws ApiException, IOException {
+ 	// 	Properties props = contextUtils.loadServerContext(contextKey);
+ 	// 	if(props.contains("mosip.test.baseurl")) {
  			
- 			baseUrl = props.getProperty("mosip.test.baseUrl");
+ 	// 		baseUrl = props.getProperty("mosip.test.baseUrl");
  			
- 		}
- 		 String kubeConfigPath =  "../deploy/kube/mzcluster.config";
+ 	// 	}
+ 	// 	 String kubeConfigPath =  "../deploy/kube/mzcluster.config";
 
- 		Reader reader = new FileReader(kubeConfigPath);
+ 	// 	Reader reader = new FileReader(kubeConfigPath);
 
 
- 	    // loading the out-of-cluster config, a kubeconfig from file-system
- 	    ApiClient client =
- 	        ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(reader)).build();
+ 	//     // loading the out-of-cluster config, a kubeconfig from file-system
+ 	//     ApiClient client =
+ 	//         ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(reader)).build();
 
- 	    // set the global default api-client to the in-cluster one from above
- 	    Configuration.setDefaultApiClient(client);
+ 	//     // set the global default api-client to the in-cluster one from above
+ 	//     Configuration.setDefaultApiClient(client);
 
- 	    // the CoreV1Api loads default api-client from global configuration.
- 	    CoreV1Api api = new CoreV1Api();
+ 	//     // the CoreV1Api loads default api-client from global configuration.
+ 	//     CoreV1Api api = new CoreV1Api();
 
-        V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
-        for (V1Pod item : list.getItems()) {
-            System.out.println(item.getMetadata().getName());
-        }
-        return "";
-	}
+    //     V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
+    //     for (V1Pod item : list.getItems()) {
+    //         System.out.println(item.getMetadata().getName());
+    //     }
+    //     return "";
+	// }
 	public String execute(String testcaseId, boolean bSync) {
 		String result = "Success";
 		Properties props = new Properties();
