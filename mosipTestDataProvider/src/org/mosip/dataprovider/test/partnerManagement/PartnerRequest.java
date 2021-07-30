@@ -76,4 +76,54 @@ public class PartnerRequest {
 
     }
 
+    public static String selfRegister(JSONObject selfRegisterRequest){
+
+        selfRegisterRequest.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+		selfRegisterRequest.put("version", "v1.0");
+
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+		            VariableManager.getVariableValue("partner").toString();
+
+
+		try {
+
+			JSONObject resp = RestClient.post(url, selfRegisterRequest);
+			return resp.toString();
+		}
+		catch(Exception ex){
+			ex.printStackTrace();
+            return ex.getMessage();
+		}
+
+    }
+
+    public static String updatePartnerStatus(String partnerId, String status){
+
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+		VariableManager.getVariableValue("partner").toString() + partnerId; 
+
+        JSONObject request = new JSONObject();
+        request.put("status", status);
+
+        JSONObject updateStatusReq = new JSONObject();
+        updateStatusReq.put("id", "string");
+        updateStatusReq.put("metadata", new JSONObject());
+        updateStatusReq.put("request", request);
+        updateStatusReq.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+		updateStatusReq.put("version", "v1.0");
+
+        System.out.print(updateStatusReq);
+
+		try {
+
+			JSONObject resp = RestClient.patch(url, updateStatusReq);
+			return resp.toString();
+		}
+		catch(Exception ex){
+			ex.printStackTrace();
+            return ex.getMessage();
+		}
+
+    }
+
 }
