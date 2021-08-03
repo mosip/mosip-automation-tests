@@ -27,6 +27,8 @@ public final class VariableManager {
 //	public static String NS_REGCLIENT = "regclient";
 	
 	public static String NS_MASTERDATA = "masterdata";
+	public static String NS_POLICYMANAGEMENT = "policymanagement";
+	public static String NS_PARTNERMANAGEMENT = "partnermanagement";
 
 	private static String VAR_SUBSTITUE_PATTERN = "\\{\\{%s\\}\\}";
 	private static String VAR_FIND_PATTERN = "\\{\\{[_a-zA-Z]+[0-9]*[\\.]?[_a-zA-Z]+[0-9]*\\}\\}";
@@ -72,6 +74,10 @@ public final class VariableManager {
 			
 			cache = cacheManager.createCache(NS_MASTERDATA, cacheConfig);
 			varNameSpaces.put(NS_MASTERDATA, cache);
+
+			
+			cache = cacheManager.createCache(NS_PARTNERMANAGEMENT, cacheConfig);
+			varNameSpaces.put(NS_PARTNERMANAGEMENT, cache);
 		}
 		//	cache = cacheManager.createCache(NS_REGCLIENT, cacheConfig);
 		//	varNameSpaces.put(NS_REGCLIENT, cache);
@@ -79,6 +85,7 @@ public final class VariableManager {
 		//	loadNamespaceFromPropertyFile(CONFIG_PATH+"prereg.properties", NS_PREREG);
 			Boolean bret = loadNamespaceFromPropertyFile(CONFIG_PATH+"default.properties", NS_DEFAULT);
 			loadNamespaceFromPropertyFile(CONFIG_PATH+"masterdata.properties", NS_MASTERDATA);
+			loadNamespaceFromPropertyFile(CONFIG_PATH+"partnermanagement.properties", NS_PARTNERMANAGEMENT);
 		//	loadNamespaceFromPropertyFile(CONFIG_PATH+"regclient.properties", NS_REGCLIENT);
 			bInit = bret;
 		
