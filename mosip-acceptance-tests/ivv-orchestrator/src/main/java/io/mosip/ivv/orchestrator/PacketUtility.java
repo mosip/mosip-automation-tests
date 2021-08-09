@@ -50,7 +50,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			residentAttrib.put("SkipGaurdian", bSkipGuardian);
 		}
 		residentAttrib.put("Gender", gender);
-		residentAttrib.put("PrimaryLanguage", "eng");
+		//residentAttrib.put("PrimaryLanguage", "eng");
 		residentAttrib.put("Iris", true);
 		// added for face biometric related issue
 		residentAttrib.put("Finger", true);
@@ -488,7 +488,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 	
 	
 	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,Boolean generatePrivateKey,String baseUrl) throws RigInternalError {
-		String url = this.baseUrl + "/servercontext/" + key;
+		//String url = this.baseUrl + "/servercontext/" + key;
+		String url = this.baseUrl + "/context/server/"+key;
 		Map<String,String> map= new HashMap<String,String>();
 		if(userAndMachineDetailParam!=null && !userAndMachineDetailParam.isEmpty()) {
 			String[] details=userAndMachineDetailParam.split("@@");
@@ -513,21 +514,25 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("prereg.password", (map.get("password")!=null)?map.get("password"):E2EConstants.USER_PASSWD);
 		jsonReq.put("mosip.test.regclient.supervisorid", (map.get("supervisorid")!=null)?map.get("supervisorid"):E2EConstants.SUPERVISOR_ID);
 		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
-		if(mosipVersion!=null && !mosipVersion.isEmpty())
+		jsonReq.put("Male", "MLE");
+        jsonReq.put("Female", "FLE");
+        jsonReq.put("Other", "OTH");
+        jsonReq.put("generatePrivateKey", generatePrivateKey);
+        if(mosipVersion!=null && !mosipVersion.isEmpty())
 			jsonReq.put("mosip.version", mosipVersion);
 		
-		if (generatePrivateKey) {
-			String machineId=map.get("machineid");
-			String generateKeyUrl=this.baseUrl+"/generatekey/"+machineId;
-			Response getResponse =getRequest(generateKeyUrl,"Generate publicKey");
-			String publicKey=getResponse.getBody().asString();
-			//update MachineId against public key 
-			HashMap<String,String> contextInuse= new HashMap<String,String>();
-			contextInuse.put("contextKey", key);
-			String machineUrl=this.baseUrl+"/updateMachine";
-			JSONObject jsonMachine=createPayload(publicKey,machineId);
-			putRequestWithQueryParamAndBody(machineUrl, jsonMachine.toString(),contextInuse, "updateMachine");
-		}
+		/*
+		 * if (generatePrivateKey) { String machineId=map.get("machineid"); String
+		 * generateKeyUrl=this.baseUrl+"/generatekey/"+machineId; Response getResponse
+		 * =getRequest(generateKeyUrl,"Generate publicKey"); String
+		 * publicKey=getResponse.getBody().asString(); //update MachineId against public
+		 * key HashMap<String,String> contextInuse= new HashMap<String,String>();
+		 * contextInuse.put("contextKey", key); String
+		 * machineUrl=this.baseUrl+"/updateMachine"; JSONObject
+		 * jsonMachine=createPayload(publicKey,machineId);
+		 * putRequestWithQueryParamAndBody(machineUrl,
+		 * jsonMachine.toString(),contextInuse, "updateMachine"); }
+		 */
 		Response response = postReqest(url, jsonReq.toString(), "SetContext");
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
