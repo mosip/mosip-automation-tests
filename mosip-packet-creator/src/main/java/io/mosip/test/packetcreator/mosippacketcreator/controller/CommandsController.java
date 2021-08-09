@@ -76,7 +76,7 @@ public class CommandsController {
 			JSONObject json = new JSONObject();
 			json.put(key, stsVal);
 			json.put("ts", ts);
-			return json.toJSONString();
+			return json.toString();
 			
 		}catch(Exception e) {
 			

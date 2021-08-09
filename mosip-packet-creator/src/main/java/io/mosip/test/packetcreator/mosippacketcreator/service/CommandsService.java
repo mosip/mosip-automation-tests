@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.kubernetes.client.util.ClientBuilder;
+//import io.kubernetes.client.util.ClientBuilder;
 
 
 // import io.kubernetes.client.util.KubeConfig;
