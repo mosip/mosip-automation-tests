@@ -89,7 +89,7 @@ public class PreRegistrationSteps {
 		reqObject.put("demographicDetails", demoData);
 		reqObject.put("requiredFields", requiredFieldsArray);
 		JSONObject reqBody = CreatePersona.createRequestBody(reqObject,false);
-		reqObject.put("langCode","eng");//resident.getPrimaryLanguare());
+		reqObject.put("langCode",resident.getPrimaryLanguage());//resident.getPrimaryLanguare());
 		//RestClient client = annotation.getRestClient();
 		
 		try {

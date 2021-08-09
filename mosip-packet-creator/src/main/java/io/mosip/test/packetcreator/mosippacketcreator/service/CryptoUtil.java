@@ -394,11 +394,11 @@ public class CryptoUtil {
 
 			});
 		}
-		File folder = new File(String.valueOf(personaConfigPath) + File.separator +"privatekeys//");
+		File folder = new File(String.valueOf(personaConfigPath) + File.separator +"privatekeys"+File.separator);
 		File[] listOfFiles = folder.listFiles();
 		for (File file : listOfFiles) {
 		    if (file.isFile()) {
-				if (file.getName().contains(machineid)) {
+				if (file.getName().contains(contextKey +"."+ machineid)) {
 					filePath = file.getAbsolutePath();
 					break;
 				}
