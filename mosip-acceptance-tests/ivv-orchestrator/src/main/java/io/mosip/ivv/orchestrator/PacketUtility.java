@@ -50,7 +50,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			residentAttrib.put("SkipGaurdian", bSkipGuardian);
 		}
 		residentAttrib.put("Gender", gender);
-		residentAttrib.put("PrimaryLanguage", "eng");
+		//residentAttrib.put("PrimaryLanguage", "eng");
 		residentAttrib.put("Iris", true);
 		// added for face biometric related issue
 		residentAttrib.put("Finger", true);
@@ -487,8 +487,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 	
 	
-	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,Properties machinePrivateKeyProp,String baseUrl) throws RigInternalError {
-		String url = this.baseUrl + "/servercontext/" + key;
+	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,Boolean generatePrivateKey,String baseUrl) throws RigInternalError {
+		//String url = this.baseUrl + "/servercontext/" + key;
+		String url = this.baseUrl + "/context/server/"+key;
 		Map<String,String> map= new HashMap<String,String>();
 		if(userAndMachineDetailParam!=null && !userAndMachineDetailParam.isEmpty()) {
 			String[] details=userAndMachineDetailParam.split("@@");
@@ -513,59 +514,46 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("prereg.password", (map.get("password")!=null)?map.get("password"):E2EConstants.USER_PASSWD);
 		jsonReq.put("mosip.test.regclient.supervisorid", (map.get("supervisorid")!=null)?map.get("supervisorid"):E2EConstants.SUPERVISOR_ID);
 		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
-		if (machinePrivateKeyProp != null && !machinePrivateKeyProp.isEmpty()) {
-			String privateKeyfileName=machinePrivateKeyProp.getProperty("privatekey");
-			File file= new File(TestRunner.getExeternalResourcePath()+"/config/"+privateKeyfileName);
-			try {
-				String privateKeyValue = new String(Files.readAllBytes(file.toPath()), Charset.defaultCharset());
-				System.out.println(privateKeyValue);
-				jsonReq.put("machineprivatekey",privateKeyValue);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			//jsonReq.put("machineprivatekey", machinePrivateKeyProp.getProperty("privatekey"));
-			
-			//update MachineId against public key 
-			HashMap<String,String> contextInuse= new HashMap<String,String>();
-			contextInuse.put("contextKey", key);
-			String machineUrl=this.baseUrl+"/updateMachine";
-			JSONObject jsonMachine=createPayload(machinePrivateKeyProp);
-			//putRequestWithQueryParamAndBody(machineUrl, jsonMachine.toString(),contextInuse, "updateMachine");
-			
-		}
-		if(mosipVersion!=null && !mosipVersion.isEmpty())
+		jsonReq.put("Male", "MLE");
+        jsonReq.put("Female", "FLE");
+        jsonReq.put("Other", "OTH");
+        jsonReq.put("generatePrivateKey", generatePrivateKey);
+        if(mosipVersion!=null && !mosipVersion.isEmpty())
 			jsonReq.put("mosip.version", mosipVersion);
 		
-		
+		/*
+		 * if (generatePrivateKey) { String machineId=map.get("machineid"); String
+		 * generateKeyUrl=this.baseUrl+"/generatekey/"+machineId; Response getResponse
+		 * =getRequest(generateKeyUrl,"Generate publicKey"); String
+		 * publicKey=getResponse.getBody().asString(); //update MachineId against public
+		 * key HashMap<String,String> contextInuse= new HashMap<String,String>();
+		 * contextInuse.put("contextKey", key); String
+		 * machineUrl=this.baseUrl+"/updateMachine"; JSONObject
+		 * jsonMachine=createPayload(publicKey,machineId);
+		 * putRequestWithQueryParamAndBody(machineUrl,
+		 * jsonMachine.toString(),contextInuse, "updateMachine"); }
+		 */
 		Response response = postReqest(url, jsonReq.toString(), "SetContext");
-		// Response response =
-		// given().contentType(ContentType.JSON).body(jsonReq.toString()).post(url);
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
 		return response.getBody().asString();
 
 	}
 	
-	private JSONObject createPayload(Properties machinePrivateKeyProp) {
+	private JSONObject createPayload(String publicKey,String machineId) {
 		JSONObject jsonMachine = new JSONObject();
-		jsonMachine.put("id", machinePrivateKeyProp.getProperty("machineId"));
+		jsonMachine.put("id", machineId);
 		jsonMachine.put("ipAddress", "192.168.0.412");
 		jsonMachine.put("isActive", true);
 		jsonMachine.put("langCode", "eng");
 		jsonMachine.put("macAddress", "A4-BB-6D-0F-B4-D0");
 		jsonMachine.put("machineSpecId", "1001");
-		jsonMachine.put("name", machinePrivateKeyProp.getProperty("machineName"));
-		jsonMachine.put("publicKey", machinePrivateKeyProp.getProperty("publicKey"));
+		jsonMachine.put("name", "Auto-1");
+		jsonMachine.put("publicKey", publicKey);
 		jsonMachine.put("regCenterId", "10002");
 		jsonMachine.put("serialNum", "FB5962911686");
-		jsonMachine.put("signPublicKey", machinePrivateKeyProp.getProperty("publicKey"));
+		jsonMachine.put("signPublicKey", publicKey);
 		jsonMachine.put("zoneCode", "NTH");
-					
-		/*
-		 * JSONObject jsonReqWrapper = new JSONObject(); jsonReqWrapper.put("request",
-		 * jsonMachine); jsonReqWrapper.put("version", "1.0"); jsonReqWrapper.put("id",
-		 * "id.machine"); jsonReqWrapper.put("metadata", new JSONObject());
-		 */
 		return jsonMachine;
 	}
 

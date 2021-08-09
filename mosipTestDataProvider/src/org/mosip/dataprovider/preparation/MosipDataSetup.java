@@ -93,9 +93,13 @@ public class MosipDataSetup {
 	public static List<MosipMachineModel> getMachineDetail(String machineId, String langCode) {
 		
 		List<MosipMachineModel> machines = null;
-		String url = VariableManager.getVariableValue("urlBase").toString() +
+		/* String url = VariableManager.getVariableValue("urlBase").toString() +
 		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinedetail").toString();
-		url = url + machineId + "/" + langCode;
+		url = url + machineId + "/" + langCode; */
+		String url = VariableManager.getVariableValue("urlBase").toString()
+				+ "/v1/masterdata/machines/";
+		
+		url = url + machineId + "/ ";
 		
 		Object o =getCache(url);
 		if(o != null)
@@ -319,6 +323,8 @@ public static void updateMachine(MosipMachineModel machine) {
 	  String url = VariableManager.getVariableValue("urlBase").toString() +
 	  VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"updateMachne"
 	  ).toString();
+
+	  
 	 
 		//String url="https://qa2.mosip.net/v1/masterdata/machines";
 		

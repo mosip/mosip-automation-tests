@@ -987,9 +987,14 @@ public class PacketTemplateProvider {
 					}
 					else
 					if(s.getInputRequired() && s.getId().contains("IdentityNumber") ) {
+						List<SchemaValidator> validators=s.getValidators();
+                        if(validators != null) {
+                            primaryValue =generateDefaultAttributes(s,resident,identity);
+                        }else {
+                            primaryValue = resident.getId();
+                        }
 
 					
-						primaryValue = resident.getId();
 						//int []r = CommonUtil.generateRandomNumbers(2, 99999, 11111);
 						
 						//primaryValue = String.format("%d%d", r[0],r[1]);
