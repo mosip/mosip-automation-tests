@@ -17,10 +17,17 @@ public class SendOtp extends BaseTestCaseUtil implements StepInterface {
 			for (String resDataPath : residentTemplatePaths.keySet()) {
 				packetUtility.requestOtp(resDataPath, contextInuse, emailOrPhone);
 			}
-		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
+		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 1
+				&& !step.getParameters().get(0).startsWith("$$")) { // used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
 			if (isForChildPacket && !generatedResidentData.isEmpty())
 				packetUtility.requestOtp(generatedResidentData.get(0), contextInuse, emailOrPhone);
+		} else {
+			String personaFilePath = step.getParameters().get(0);   //"$$var=e2e_sendOtp($$personaFilePath)"
+			if (personaFilePath.startsWith("$$")) {
+				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
+				packetUtility.requestOtp(personaFilePath, contextInuse, emailOrPhone);
+			}
 		}
 	}
 

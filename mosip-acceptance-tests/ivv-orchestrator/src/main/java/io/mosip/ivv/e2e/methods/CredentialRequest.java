@@ -1,11 +1,10 @@
 package io.mosip.ivv.e2e.methods;
 
-import static org.testng.Assert.assertFalse;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;
-
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
@@ -21,6 +20,16 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
     @SuppressWarnings("static-access")
 	@Override
     public void run() throws RigInternalError {
+    	if(!step.getParameters().isEmpty() && step.getParameters().size()==1) { //"$$requestId=e2e_credentialRequest($$uin)"
+    		String _uin=step.getParameters().get(0);
+    		if(_uin.startsWith("$$")) {
+				_uin = step.getScenario().getVariables().get(_uin);
+				if (uinReqIds == null)
+					uinReqIds = new HashMap<>();
+				uinReqIds.clear();
+				uinReqIds.put(_uin, "uin");
+    		}
+    	}
     	try {
 			Thread.sleep(30000);
 		} catch (InterruptedException e) {
@@ -51,6 +60,8 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 	    		{
 					JSONObject responseJson = new JSONObject(response.get("response").toString());
 						this.uinReqIds.put(uin, responseJson.get("requestId").toString());
+						if(step.getOutVarName()!=null)
+							 step.getScenario().getVariables().put(step.getOutVarName(), responseJson.get("requestId").toString());
 					}
 				}
 			}

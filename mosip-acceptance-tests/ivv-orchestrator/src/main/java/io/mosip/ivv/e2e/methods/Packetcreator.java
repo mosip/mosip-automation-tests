@@ -1,10 +1,8 @@
 package io.mosip.ivv.e2e.methods;
 
 import java.util.Properties;
-
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
@@ -19,34 +17,44 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
-			logger.warn("Arugemnt is  missing pass the argument (NEW/LOST/UPDATE) from DSL scenario sheet");
+		if (step.getParameters().isEmpty()) {
 			throw new RigInternalError(
 					"Arugemnt is  missing pass the argument (NEW/LOST/UPDATE) from DSL scenario sheet");
-		} else {
+		} else if(step.getParameters().size()==2 && !step.getParameters().get(1).startsWith("$$")) {
 			process = step.getParameters().get(0);
-		}
-		Properties personaIdValue = null;
-		if (step.getParameters().size() == 2) {
-			String personaId = step.getParameters().get(1);
-			personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
-			for (String id : personaIdValue.stringPropertyNames()) {
-				String value = personaIdValue.get(id).toString();
-				if (residentPersonaIdPro.get(value) == null)
-					throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
-				String personaPath = residentPersonaIdPro.get(value).toString();
-				residentTemplatePaths.put(personaPath, residentTemplatePaths.get(personaPath));
+			Properties personaIdValue = null;
+			String packetPath = null;
+			if (step.getParameters().size() == 2) {
+				String personaId = step.getParameters().get(1);
+				personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
+				for (String id : personaIdValue.stringPropertyNames()) {
+					String value = personaIdValue.get(id).toString();
+					if (residentPersonaIdPro.get(value) == null)
+						throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
+					String personaPath = residentPersonaIdPro.get(value).toString();
+					residentTemplatePaths.put(personaPath, residentTemplatePaths.get(personaPath));
+				}
+			}
+			for (String resDataPath : residentTemplatePaths.keySet()) {
+				String templatePath = residentTemplatePaths.get(resDataPath);
+				String idJosn = templatePath + "/REGISTRATION_CLIENT/" + process + "/rid_id/" + "ID.json";
+				packetPath = createPacket(idJosn, templatePath);
+				templatePacketPath.put(templatePath, packetPath);
+				// this is inserted for storing rid with resident data it will be deleted in RIDSync
+				ridPersonaPath.put(packetPath, resDataPath);
+			}
+		} else {
+			process = step.getParameters().get(0); // "$$zipPacketPath=e2e_packetcreator(NEW,$$templatePath)"
+			String _templatePath = step.getParameters().get(1);
+			if (_templatePath.startsWith("$$")) {
+				_templatePath = step.getScenario().getVariables().get(_templatePath);
+				String _idJosn = _templatePath + "/REGISTRATION_CLIENT/" + process + "/rid_id/" + "ID.json";
+				String _packetPath = createPacket(_idJosn, _templatePath);
+				if (step.getOutVarName() != null)
+					step.getScenario().getVariables().put(step.getOutVarName(), _packetPath);
 			}
 		}
-		String packetPath = null;
-		for (String resDataPath : residentTemplatePaths.keySet()) {
-			String templatePath = residentTemplatePaths.get(resDataPath);
-			String idJosn = templatePath + "/REGISTRATION_CLIENT/" + process + "/rid_id/" + "ID.json";
-			packetPath = createPacket(idJosn, templatePath);
-			templatePacketPath.put(templatePath, packetPath);
-			// this is inserted for storing rid with resident data it will be deleted in RIDSync
-			ridPersonaPath.put(packetPath, resDataPath);
-		}
+
 	}
 
 	private String createPacket(String idJsonPath, String templatePath) throws RigInternalError {

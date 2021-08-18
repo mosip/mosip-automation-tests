@@ -16,15 +16,30 @@ public class GenerateAndUploadPacket extends BaseTestCaseUtil implements StepInt
 				rid_updateResident=packetUtility.generateAndUploadPacket(prid_updateResident, templatPath_updateResident, contextInuse,
 						responseStatus);
 		} else {
-			for (String resDataPath : residentTemplatePaths.keySet()) {
-				String rid = packetUtility.generateAndUploadPacket(residentPathsPrid.get(resDataPath),
-						residentTemplatePaths.get(resDataPath), contextInuse, responseStatus);
-				if (rid != null) {
-					pridsAndRids.put(residentPathsPrid.get(resDataPath), rid);
-					ridPersonaPath.put(rid, resDataPath);
+			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {  // "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
+				String prid = step.getParameters().get(0);
+				String templatePath = step.getParameters().get(1);
+				if (prid.startsWith("$$") && templatePath.startsWith("$$")) {
+					prid = step.getScenario().getVariables().get(prid);
+					templatePath = step.getScenario().getVariables().get(templatePath);
+					String rid = packetUtility.generateAndUploadPacket(prid, templatePath, contextInuse, "success");
+					if (step.getOutVarName() != null)
+						step.getScenario().getVariables().put(step.getOutVarName(), rid);
+
+				}
+			} else {
+				for (String resDataPath : residentTemplatePaths.keySet()) {
+					String rid = packetUtility.generateAndUploadPacket(residentPathsPrid.get(resDataPath),
+							residentTemplatePaths.get(resDataPath), contextInuse, responseStatus);
+					if (rid != null) {
+						pridsAndRids.put(residentPathsPrid.get(resDataPath), rid);
+						ridPersonaPath.put(rid, resDataPath);
+					}
+
 				}
 
 			}
+
 		}
 	}
 }

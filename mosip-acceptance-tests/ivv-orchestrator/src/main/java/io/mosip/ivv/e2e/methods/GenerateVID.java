@@ -52,11 +52,18 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 			vidtype = step.getParameters().get(0); 
 
 		}
-		if (step.getParameters().size() == 2) {
+		if(step.getParameters().size() == 2 && step.getParameters().get(1).startsWith("$$")) { //"$$vid=e2e_GenerateVID(Perpetual,$$uin)"
+			uins = step.getParameters().get(1);
+			if (uins.startsWith("$$")) {
+				uins = step.getScenario().getVariables().get(uins);
+				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
+			}
+		}
+		else if (step.getParameters().size() == 2) {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else
+		}else
 			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
 		
 		
@@ -83,7 +90,9 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 			{
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 		        String vid = jsonResp.getJSONObject("response").getString("vid"); 
-		        vidPersonaProp.put(vid, uin);
+		        if (step.getOutVarName() != null)
+					step.getScenario().getVariables().put(step.getOutVarName(), vid);
+		        else vidPersonaProp.put(vid, uin);
 		        
 		        System.out.println(vidPersonaProp);
 			}

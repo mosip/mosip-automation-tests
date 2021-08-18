@@ -18,10 +18,17 @@ public class ValidateOtp extends BaseTestCaseUtil implements StepInterface {
 			for (String resDataPath : residentTemplatePaths.keySet()) {
 				packetUtility.verifyOtp(resDataPath,contextInuse,emailOrPhone);
 			}
-		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
+		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 1
+				&& !step.getParameters().get(0).startsWith("$$")) { // used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
 			if (isForChildPacket && !generatedResidentData.isEmpty())
 				packetUtility.verifyOtp(generatedResidentData.get(0), contextInuse, emailOrPhone);
+		}else {
+			String personaFilePath = step.getParameters().get(0);    //"$$var=e2e_validateOtp($$personaFilePath)"
+			if (personaFilePath.startsWith("$$")) {
+				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
+				packetUtility.verifyOtp(personaFilePath, contextInuse, emailOrPhone);
+			}
 		}
 	}
 }
