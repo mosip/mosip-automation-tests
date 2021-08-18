@@ -6,7 +6,6 @@ import org.json.JSONObject;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.service.BaseTestCase;
 import io.restassured.response.Response;
 
 public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
@@ -16,15 +15,22 @@ public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
 	public void run() throws RigInternalError {
 		String offset = null;
 		String dataToEncdoeInBase64 = null;
-		if (!step.getParameters().isEmpty() && step.getParameters().size() > 1) {
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {
 			offset = step.getParameters().get(0);
 			dataToEncdoeInBase64 = step.getParameters().get(1);
+			for (String packetPath : templatePacketPath.values()) {
+				corruptPacket(packetPath, offset, dataToEncdoeInBase64);
+			}
+		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 3) { // "$$var=e2e_corruptPacket(1024,Hello Auto,$$zipPacketPath)"
+			offset = step.getParameters().get(0);
+			dataToEncdoeInBase64 = step.getParameters().get(1);
+			String _zipPacketPath = step.getParameters().get(2);
+			if (_zipPacketPath.startsWith("$$")) {
+				_zipPacketPath = step.getScenario().getVariables().get(_zipPacketPath);
+				corruptPacket(_zipPacketPath, offset, dataToEncdoeInBase64);
+			}
 		} else {
-			throw new RigInternalError("parameter offset is missing");
-		}
-
-		for (String packetPath : templatePacketPath.values()) {
-			corruptPacket(packetPath, offset, dataToEncdoeInBase64);
+			throw new RigInternalError("Parameter is missing");
 		}
 	}
 

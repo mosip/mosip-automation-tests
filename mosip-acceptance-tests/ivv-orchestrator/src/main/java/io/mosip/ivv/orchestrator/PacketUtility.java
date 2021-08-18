@@ -422,14 +422,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String updateResidentWithGuardianSkippingPreReg(String residentFilePath, HashMap<String, String> contextKey)
+	public String updateResidentWithGuardianSkippingPreReg(String guardianPersonaFilePath,String childPersonaFilePath, HashMap<String, String> contextKey)
 			throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
-		residentAttrib.put("guardian", generatedResidentData.get(0));
-		residentAttrib.put("child", residentFilePath);
+		residentAttrib.put("guardian", guardianPersonaFilePath);
+		residentAttrib.put("child", (childPersonaFilePath!=null)?childPersonaFilePath:generatedResidentData.get(0));
 		jsonReq.put("PR_ResidentList", residentAttrib);
 		jsonwrapper.put("requests", jsonReq);
 		String url = baseUrl + props.getProperty("updateResidentUrl");
@@ -437,7 +437,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
 		Reporter.log(
-				"<b><u>Generated GuardianPacket with Rid: " + rid_updateResident + " And linked to child </u></b>");
+				"<b><u>Generated GuardianPacket And linked to child </u></b>");
 		return rid_updateResident;
 
 	}
@@ -581,7 +581,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 							throw new RigInternalError("LangCode is missing in paramter");
 						updateAttribute.put(arr[0].trim(), langcode + "=" + arr[1].trim());}
 					else
-						updateAttribute.put(arr[0].trim(), arr[1].trim());
+						updateAttribute.put(arr[0].trim(), (arr[0].trim().equalsIgnoreCase("email")?(arr[1].trim()+"@mosip.io"):arr[1].trim()));
 				}
 			}
 			jsonReqInner.put("updateAttributeList", updateAttribute);

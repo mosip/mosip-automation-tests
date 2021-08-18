@@ -16,9 +16,19 @@ public class UpdateResidentWithUIN extends BaseTestCaseUtil implements StepInter
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
 			if (isForChildPacket && !generatedResidentData.isEmpty()  && uin_updateResident!=null) 
 				packetUtility.updateResidentUIN(generatedResidentData.get(0), uin_updateResident);
-		}else {
-			for (String uin : uinPersonaProp.stringPropertyNames()) {
-				packetUtility.updateResidentUIN(uinPersonaProp.getProperty(uin), uin);
+		} else {
+			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {  //"e2e_updateResidentWithUIN($$personaFilePath,$$uin)"
+				String personaFilePath = step.getParameters().get(0);
+				String _uin = step.getParameters().get(1);
+				if (personaFilePath.startsWith("$$") && _uin.startsWith("$$")) {
+					personaFilePath = step.getScenario().getVariables().get(personaFilePath);
+					_uin = step.getScenario().getVariables().get(_uin);
+					packetUtility.updateResidentUIN(personaFilePath, _uin);
+				}
+			} else {
+				for (String uin : uinPersonaProp.stringPropertyNames()) {
+					packetUtility.updateResidentUIN(uinPersonaProp.getProperty(uin), uin);
+				}
 			}
 		}
 	}

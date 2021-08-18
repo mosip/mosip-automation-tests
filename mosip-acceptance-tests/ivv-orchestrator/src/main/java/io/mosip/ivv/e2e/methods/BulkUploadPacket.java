@@ -18,7 +18,7 @@ public class BulkUploadPacket extends BaseTestCaseUtil implements StepInterface 
 	public void run() throws RigInternalError {
 		JSONArray packetPathArray = new JSONArray();
 		Properties personaIdValue = null;
-		if (step.getParameters().size() == 1) { /// id1=878787877@@id2=8878787989
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { /// id1=878787877@@id2=8878787989
 			String personaId = step.getParameters().get(0);
 			personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
 			for (String id : personaIdValue.stringPropertyNames()) {
@@ -36,6 +36,16 @@ public class BulkUploadPacket extends BaseTestCaseUtil implements StepInterface 
 				if (packetPath != null && !packetPath.isEmpty())
 					packetPathArray.put(packetPath);
 			}
+		}else if(!step.getParameters().isEmpty() && step.getParameters().size()>1) {  // "e2e_bulkUploadPacket($$zipPacketPath,$$zipPacketPath2)"
+			String _zipPacketPath = null;
+			for (int i = 0; i < step.getParameters().size(); i++) {
+				_zipPacketPath = step.getParameters().get(i);
+				if (_zipPacketPath.startsWith("$$")) {
+					_zipPacketPath = step.getScenario().getVariables().get(_zipPacketPath);
+					packetPathArray.put(_zipPacketPath);
+				}
+			}
+
 		} else {
 			for (String packetPath : templatePacketPath.values())
 				packetPathArray.put(packetPath);
