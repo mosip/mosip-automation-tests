@@ -16,9 +16,20 @@ public class UpdateResidentWithRID extends BaseTestCaseUtil implements StepInter
 			if (isForChildPacket && !generatedResidentData.isEmpty() && rid_updateResident != null)
 				packetUtility.updateResidentRid(generatedResidentData.get(0), rid_updateResident);
 		} else {
-			for (String rid : ridPersonaPath.keySet()) {
-				packetUtility.updateResidentRid(ridPersonaPath.get(rid), rid);
+			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {
+				String personaFilePath = step.getParameters().get(0);
+				String _rid = step.getParameters().get(1);
+				if (personaFilePath.startsWith("$$") && _rid.startsWith("$$")) {
+					personaFilePath = step.getScenario().getVariables().get(personaFilePath);
+					_rid = step.getScenario().getVariables().get(_rid);
+					packetUtility.updateResidentRid(personaFilePath, _rid);
+				}
+			} else {
+				for (String rid : ridPersonaPath.keySet()) {
+					packetUtility.updateResidentRid(ridPersonaPath.get(rid), rid);
+				}
 			}
+			
 		}
 	}
 }

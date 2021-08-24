@@ -24,13 +24,18 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 	@Override
     public void run() throws RigInternalError {
     	//must call e2e_wait() before generating uin
-		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
+		if (!step.getParameters().isEmpty() && !(step.getParameters().get(0).startsWith("$$"))) { // used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
 			if (isForChildPacket && !StringUtils.isEmpty(rid_updateResident)) {
 				HashMap<String, String> rid = new HashMap<>();
 				rid.put("rid", rid_updateResident);
 				getIdentity(rid);
 			}
+		} else if (!step.getParameters().isEmpty() && step.getParameters().get(0).startsWith("$$")) {
+			String rid = step.getScenario().getVariables().get(step.getParameters().get(0));
+			HashMap<String, String> ridMap = new HashMap<>();
+			ridMap.put("0", rid);
+			getIdentity(ridMap);
 		} else
 			getIdentity(this.pridsAndRids);
 	}
@@ -53,7 +58,11 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 				logger.info("Response from get Identity for RID: "+rid+" "+response.asString());
     		
 				String uin = response.asString();
-				if (isForChildPacket && !StringUtils.isEmpty(uin) && !(uin.trim().contains("errorCode")))
+				
+				if (step.getOutVarName() != null && !StringUtils.isEmpty(uin) && !(uin.trim().contains("errorCode")))
+					step.getScenario().getVariables().put(step.getOutVarName(), uin);
+				
+				else if (isForChildPacket && !StringUtils.isEmpty(uin) && !(uin.trim().contains("errorCode")))
 					uin_updateResident = uin; // used for child packet processing
 				else if (!StringUtils.isEmpty(uin)  && !(uin.trim().contains("errorCode"))) {
 					uinReqIds.put(uin, null);

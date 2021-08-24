@@ -18,6 +18,7 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 	@Override
 	public void run() throws RigInternalError {
 		String process = null;
+		String personaPath=null;
 		Properties personaIdValue = null;
 		if (step.getParameters().isEmpty() && !generatedResidentData.isEmpty()) {  //  used to child packet processing
 			JSONArray jsonArray = packetUtility.getTemplate(new HashSet<String>(generatedResidentData), "NEW",
@@ -28,14 +29,20 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 			process = step.getParameters().get(0);
 			if (step.getParameters().size() > 1) {
 				String personaId = step.getParameters().get(1);
-				personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
-				for (String id : personaIdValue.stringPropertyNames()) {
-					String value = personaIdValue.get(id).toString();
-					if (residentPersonaIdPro.get(value) == null)
-						throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
-					String personaPath = residentPersonaIdPro.get(value).toString();
-					residentTemplatePaths.put(personaPath, null);
+				if(personaId.startsWith("$$")) {
+					personaPath=step.getScenario().getVariables().get(personaId);
+					residentTemplatePaths.clear();
+				}else {
+					personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
+					for (String id : personaIdValue.stringPropertyNames()) {
+						String value = personaIdValue.get(id).toString();
+						if (residentPersonaIdPro.get(value) == null)
+							throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
+						personaPath = residentPersonaIdPro.get(value).toString();
+					}
+					
 				}
+				residentTemplatePaths.put(personaPath, null);
 			}
 
 			JSONArray resp = packetUtility.getTemplate(residentTemplatePaths.keySet(), process, contextInuse);
@@ -44,6 +51,8 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 				JSONObject obj = resp.getJSONObject(i);
 				String id = obj.get("id").toString();
 				String tempFilePath = obj.get("path").toString();
+				if(step.getOutVarName()!=null)
+					 step.getScenario().getVariables().put(step.getOutVarName(), tempFilePath);
 				for (String residentPath : residentTemplatePaths.keySet()) {
 					if (residentPath.contains(id)) {
 						residentTemplatePaths.put(residentPath, tempFilePath);

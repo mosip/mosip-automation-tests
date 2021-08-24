@@ -28,7 +28,7 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		 AuthPartnerProcessor.startProcess();
-
+		 String _personFilePath = null;
 		 String deviceInfoFilePath = null;
 		String vids = null;
 		List<String> vidList = null;
@@ -48,12 +48,23 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 			vids = step.getParameters().get(1);
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
-		} else
+		}else if(step.getParameters().size()>2) {  //"e2e_EkycBio(faceDevice,$$vid,$$personaFilePath)"
+			vids = step.getParameters().get(1);
+			_personFilePath = step.getParameters().get(2);
+			if (vids.startsWith("$$") && _personFilePath.startsWith("$$")) {
+				vids = step.getScenario().getVariables().get(vids);
+				_personFilePath = step.getScenario().getVariables().get(_personFilePath);
+				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
+			}
+		}else
 			vidList = new ArrayList<>(vidPersonaProp.stringPropertyNames());
 
 		for (String vid : vidList) {
 			String personFilePathvalue = null;
-			if (vidPersonaProp.containsKey(vid))
+			if(step.getParameters().size()>2) {
+				personFilePathvalue=_personFilePath;
+			}
+			else if (vidPersonaProp.containsKey(vid))
 			{
 				String uin =vidPersonaProp.get(vid).toString();
 				personFilePathvalue= uinPersonaProp.get(uin).toString();

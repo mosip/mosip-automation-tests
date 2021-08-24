@@ -9,18 +9,20 @@ import lombok.Data;
 public class JWTTokenModel {
 
 	//Map<String, Object> jsonHeader; // = new HashMap<String, Object>();
-	JSONObject jwtPayload;
+	String jwtPayload;
 	String jwtSign;
 	JSONObject jwtHeader;
 	public static final String BIOMETRIC_SEPERATOR = "(?<=\\.)(.*)(?=\\.)";
 	
 	public JWTTokenModel(String jwtToken) {
+		System.out.println(jwtToken);
 		 java.util.Base64.Decoder decoder = java.util.Base64.getUrlDecoder();
          String[] parts = jwtToken.split("\\."); // split out the "parts" (header, payload and signature)
 
          String headerJson = new String(decoder.decode(parts[0]));
-         String payloadJson = new String(decoder.decode(parts[1]));
-         jwtPayload = new JSONObject(payloadJson);
+         jwtPayload= new String(decoder.decode(parts[1]));
+         
+        // jwtPayload = new JSONObject(payloadJson);
          String signatureJson = new String(decoder.decode(parts[2]));
          jwtHeader = new JSONObject(headerJson);
          //jwtSign = signatureJson;

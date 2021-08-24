@@ -14,8 +14,18 @@ public class UploadDocuments extends BaseTestCaseUtil implements StepInterface {
 			if (isForChildPacket && !generatedResidentData.isEmpty() && prid_updateResident != null)
 				packetUtility.uploadDocuments(generatedResidentData.get(0), prid_updateResident, contextInuse);
 		} else {
-			for (String resDataPath : residentPathsPrid.keySet()) {
-				packetUtility.uploadDocuments(resDataPath, residentPathsPrid.get(resDataPath), contextInuse);
+			if (!step.getParameters().isEmpty() && step.getParameters().size() > 1) { // "$$var=e2e_uploadDocuments($$personaFilePath,$$prid)"
+				String personaFilePath = step.getParameters().get(0);
+				String prid = step.getParameters().get(1);
+				if (personaFilePath.startsWith("$$") && prid.startsWith("$$")) {
+					personaFilePath = step.getScenario().getVariables().get(personaFilePath);
+					prid = step.getScenario().getVariables().get(prid);
+					packetUtility.uploadDocuments(personaFilePath, prid, contextInuse);
+				}
+			} else {
+				for (String resDataPath : residentPathsPrid.keySet()) {
+					packetUtility.uploadDocuments(resDataPath, residentPathsPrid.get(resDataPath), contextInuse);
+				}
 			}
 		}
 	}
