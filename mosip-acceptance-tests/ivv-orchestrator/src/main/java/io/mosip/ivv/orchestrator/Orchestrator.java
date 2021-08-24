@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.testng.Assert;
 import org.testng.ITestResult;
@@ -21,11 +22,13 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.dtos.ParserInputDTO;
 import io.mosip.ivv.core.dtos.RegistrationUser;
@@ -188,6 +191,7 @@ public class Orchestrator {
 				st.setup();
 				st.validateStep();
 				st.run();
+				
 				st.assertHttpStatus();
 				if (st.hasError()) {
 					extentTest.fail(identifier + " - failed");

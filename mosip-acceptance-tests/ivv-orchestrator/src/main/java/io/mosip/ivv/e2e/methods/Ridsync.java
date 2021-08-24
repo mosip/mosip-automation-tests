@@ -27,18 +27,29 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			assertTrue(false,"process paramter is  missing in step: "+step.getName());
-		} else {
+		} else if(step.getParameters().size() == 1){
 			process =step.getParameters().get(0);
+			pridsAndRids.clear();
+			String registrationId=null;
+			for (String packetPath : templatePacketPath.values()) {
+				registrationId=ridsync(packetPath, E2EConstants.APPROVED_SUPERVISOR_STATUS,process);
+				pridsAndRids.put(packetPath, registrationId);
+				ridPersonaPath.put(registrationId, ridPersonaPath.get(packetPath));
+				ridPersonaPath.remove(packetPath);
+			}
+			storeProp(pridsAndRids);
+		}else
+			if(step.getParameters().size()>1) { // "$$rid=e2e_ridSync(NEW,$$zipPacketPath)"
+			process =step.getParameters().get(0);
+			String _zipPacketPath=step.getParameters().get(1);
+			if(_zipPacketPath.startsWith("$$")) {
+				_zipPacketPath=step.getScenario().getVariables().get(_zipPacketPath);
+				String _rid=ridsync(_zipPacketPath, E2EConstants.APPROVED_SUPERVISOR_STATUS,process);
+				if(step.getOutVarName()!=null)
+					 step.getScenario().getVariables().put(step.getOutVarName(), _rid);
+			}
 		}
-		pridsAndRids.clear();
-		String registrationId=null;
-		for (String packetPath : templatePacketPath.values()) {
-			registrationId=ridsync(packetPath, E2EConstants.APPROVED_SUPERVISOR_STATUS,process);
-			pridsAndRids.put(packetPath, registrationId);
-			ridPersonaPath.put(registrationId, ridPersonaPath.get(packetPath));
-			ridPersonaPath.remove(packetPath);
-		}
-		storeProp(pridsAndRids);
+		
 	}
 
 	private String ridsync(String containerPath, String supervisorStatus,String process) throws RigInternalError {

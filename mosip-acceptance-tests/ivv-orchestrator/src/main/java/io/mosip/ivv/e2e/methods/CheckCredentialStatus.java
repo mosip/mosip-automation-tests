@@ -1,6 +1,9 @@
 package io.mosip.ivv.e2e.methods;
 
 import static org.testng.Assert.assertTrue;
+
+import java.util.HashMap;
+
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 import io.mosip.admin.fw.util.AdminTestException;
@@ -18,6 +21,16 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
     @SuppressWarnings("static-access")
 	@Override
     public void run() throws RigInternalError {
+    	if(!step.getParameters().isEmpty() && step.getParameters().size()==1) { //"$$var=e2e_credentialRequest($$requestId)"
+    		String _requestId=step.getParameters().get(0);
+    		if(_requestId.startsWith("$$")) {
+				_requestId = step.getScenario().getVariables().get(_requestId);
+				if (uinReqIds == null)
+					uinReqIds = new HashMap<>();
+				uinReqIds.clear();
+				uinReqIds.put("requestId", _requestId);
+    		}
+    	}
     	String fileName = check_status_YML;
     	GetWithParam getWithPathParam= new GetWithParam();
     	Object[] casesList = getWithPathParam.getYmlTestData(fileName);

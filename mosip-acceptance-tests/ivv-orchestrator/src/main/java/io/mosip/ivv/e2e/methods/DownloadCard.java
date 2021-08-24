@@ -6,6 +6,7 @@ import static org.testng.Assert.assertTrue;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
@@ -28,6 +29,16 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
     @SuppressWarnings("static-access")
 	@Override
     public void run() throws RigInternalError {
+    	if(!step.getParameters().isEmpty() && step.getParameters().size()==1) { //"$$var=e2e_downloadCard($$requestId)"
+    		String _requestId=step.getParameters().get(0);
+    		if(_requestId.startsWith("$$")) {
+				_requestId = step.getScenario().getVariables().get(_requestId);
+				if (uinReqIds == null)
+					uinReqIds = new HashMap<>();
+				uinReqIds.clear();
+				uinReqIds.put("requestId", _requestId);
+    		}
+    	}
     	String fileName = downLoadCard_YML;
     	GetWithParamForDownloadCard getWithPathParam= new GetWithParamForDownloadCard();
     	Object[] casesList = getWithPathParam.getYmlTestData(fileName);

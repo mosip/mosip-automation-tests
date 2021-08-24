@@ -158,7 +158,7 @@ public class MDSClient implements MDSClientInterface {
 			MDSRCaptureModel rCaptureModel,
 			String type,
 			String bioSubType, int reqScore,int deviceSubId) {
-		String mosipVersion=null;
+		String mosipVersion=null;;
 		try {
 	      mosipVersion=VariableManager.getVariableValue("mosip.version").toString();
 		}catch(Exception e) {
@@ -205,6 +205,7 @@ public class MDSClient implements MDSClientInterface {
 			HttpRCapture capture = new HttpRCapture(url);
 			capture.setMethod("RCAPTURE");
 			String response = RestClient.rawHttp(capture, jsonReq.toString());
+			System.out.println("MDS RESPONSE :"+  response);
 			JSONObject respObject = new JSONObject(response);
 			JSONArray bioArray = respObject.getJSONArray("biometrics");
 			List<MDSDeviceCaptureModel> lstBiometrics  = rCaptureModel.getLstBiometrics().get(type);
@@ -215,9 +216,10 @@ public class MDSClient implements MDSClientInterface {
 			for(int i=0; i < bioArray.length(); i++) {
 				JSONObject bioObject = bioArray.getJSONObject(i);
 				String data = bioObject.getString("data");
+				
 				String hash = bioObject.getString("hash");
 				JWTTokenModel jwtTok = new JWTTokenModel(data);
-				JSONObject jsonPayload = jwtTok.getJwtPayload();
+				JSONObject jsonPayload = new JSONObject(jwtTok.getJwtPayload());
 				String jwtSign = jwtTok.getJwtSign();
 				MDSDeviceCaptureModel model = new MDSDeviceCaptureModel();
 				model.setBioType( CommonUtil.getJSONObjectAttribute(jsonPayload, "bioType",""));
@@ -229,13 +231,15 @@ public class MDSClient implements MDSClientInterface {
 				model.setHash(hash);
 				if(mosipVersion!=null && mosipVersion.equalsIgnoreCase("1.2")) {
 				model.setSb(jwtSign); // SB is signature block (header..signature)
+				//String temp=jwtTok.getJwtPayload().replace(model.getBioValue(),);
+				
 				String BIOVALUE_KEY = "bioValue";
 				String BIOVALUE_PLACEHOLDER = "\"<bioValue>\"";
-				int bioValueKeyIndex = jsonPayload.toString().indexOf(BIOVALUE_KEY) + (BIOVALUE_KEY.length() + 1);
-				int bioValueStartIndex = jsonPayload.toString().indexOf('"', bioValueKeyIndex);
-				int bioValueEndIndex = jsonPayload.toString().indexOf('"', (bioValueStartIndex + 1));
-				String bioValue = jsonPayload.toString().substring(bioValueStartIndex, (bioValueEndIndex + 1));
-				String payload = jsonPayload.toString().replace(bioValue, BIOVALUE_PLACEHOLDER);
+				int bioValueKeyIndex = jwtTok.getJwtPayload().indexOf(BIOVALUE_KEY) + (BIOVALUE_KEY.length() + 1);
+				int bioValueStartIndex = jwtTok.getJwtPayload().indexOf('"', bioValueKeyIndex);
+				int bioValueEndIndex = jwtTok.getJwtPayload().indexOf('"', (bioValueStartIndex + 1));
+				String bioValue = jwtTok.getJwtPayload().substring(bioValueStartIndex, (bioValueEndIndex + 1));
+				String payload = jwtTok.getJwtPayload().replace(bioValue, BIOVALUE_PLACEHOLDER);
 				model.setPayload(payload);
 				}
 				lstBiometrics.add(model);
@@ -253,7 +257,8 @@ public class MDSClient implements MDSClientInterface {
 	public static void main(String[] args) {
 		
 		MDSClient client = new MDSClient(0);
-		client.setProfile("res643726437264372");
+		//client.setProfile("res643726437264372");
+		client.setProfile("Default");
 		List<MDSDevice> d= client.getRegDeviceInfo("Iris");
 		d.forEach( dv-> {
 			System.out.println(dv.toJSONString());	

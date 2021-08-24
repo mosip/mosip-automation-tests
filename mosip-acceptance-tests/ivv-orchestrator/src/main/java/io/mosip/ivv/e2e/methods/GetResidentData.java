@@ -47,6 +47,10 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 						JSONObject obj = resp.getJSONObject(i);
 						String resFilePath = obj.get("path").toString();
 						String id = obj.get("id").toString();
+						if(step.getOutVarName()!=null)
+						 step.getScenario().getVariables().put(step.getOutVarName(), resFilePath);
+						
+						
 						residentPaths.add(resFilePath);
 						//TODO : REMOVE AFTER TESTING
 						residentTemplatePaths.put(resFilePath, null);
