@@ -501,7 +501,7 @@ public class PacketTemplateProvider {
 						}
 					}
 				}
-				if(secVal.equals(""))
+				if(secVal == null || secVal.equals(""))
 					secVal = primVal;
 				CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
 						primVal,

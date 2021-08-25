@@ -82,7 +82,8 @@ public class CreatePersona {
 					String fValue = "";
 					if(s.getType().equals("simpleType")) {
 						JSONArray arr = identity.getJSONArray(s.getId());
-						fValue = arr.getJSONObject(0).get("value").toString();
+						if(!arr.isEmpty() && arr.getJSONObject(0).has("value") )
+							fValue = arr.getJSONObject(0).get("value").toString();
 					}
 					else
 					{
