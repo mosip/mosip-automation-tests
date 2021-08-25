@@ -321,7 +321,7 @@ public static void updateMachine(MosipMachineModel machine) {
 		
 	
 	  String url = VariableManager.getVariableValue("urlBase").toString() +
-	  VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"updateMachne"
+	  VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machine"
 	  ).toString();
 
 	  

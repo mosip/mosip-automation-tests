@@ -554,8 +554,12 @@ public class PacketTemplateProvider {
 			}
 			else
 			{
-				if(resident.getSecondaryLanguage() != null)
+				if(resident.getSecondaryLanguage() != null) {
 					addr_sec = resident.getAddress_seclang()[index];
+					if(addr_sec == null)
+						addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+				
+				}
 				
 			}
 			if(s.getMaximum() > 0 && addr.length() >= s.getMaximum() )
@@ -606,11 +610,12 @@ public class PacketTemplateProvider {
 						jsonO = new JSONArray(value);
 						identity.put(s.getId(), jsonO);
 					}catch(Exception e) {
-						e.printStackTrace();
+					//	e.printStackTrace();
 					}
 					if(jsonO == null) {
+						String secValue = Translator.translate(resident.getSecondaryLanguage(),value);
 						CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
-								value,null,true);
+								value,secValue,true);
 					}
 				}
 				else
