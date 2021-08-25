@@ -37,11 +37,12 @@ public class ContextController {
                 VariableManager.Init();
 
  
-
+/**
                 String generatePrivateKey = contextProperties.getProperty("generatePrivateKey");
                 boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
                 if (isRequired)
                     contextUtils.generateKeyAndUpdateMachineDetail(contextProperties, contextKey);
+ **/
 	    		bRet = contextUtils.createUpdateServerContext(contextProperties, contextKey);
 	    	 } catch (Exception ex){
 	              logger.error("createServerContext", ex);
