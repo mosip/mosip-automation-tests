@@ -210,9 +210,9 @@ public class ResidentDataProvider {
 		String[] langsRequired = getConfiguredLanguages();
 		if(langsRequired != null) {
 			primary_lang = langsRequired[0];
-			if(langsRequired.length > 0)
-				sec_lang = langsRequired[1];
 			if(langsRequired.length > 1)
+				sec_lang = langsRequired[1];
+			if(langsRequired.length > 2)
 				third_lang = langsRequired[2];
 			
 		}
