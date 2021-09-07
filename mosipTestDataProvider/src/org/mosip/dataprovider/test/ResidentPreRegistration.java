@@ -123,6 +123,26 @@ public class ResidentPreRegistration {
 		
 		VariableManager.setVariableValue( "email_otp", otp);
 	}
+	
+	public void fetchAdditionalInfoReqId(long waitTimeInMillis) {
+		String additionalInfoReqId = null;
+		Boolean bFound = false;
+		int nRepeat = 5;
+		while (!bFound && nRepeat >= 0) {
+			try {
+				Thread.sleep(waitTimeInMillis);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			List<String> additionalInfoReqIds = ReadEmail.getadditionalInfoReqIds();
+			// get last one
+			additionalInfoReqId = additionalInfoReqIds.get(additionalInfoReqIds.size() - 1);
+			nRepeat--;
+			if (additionalInfoReqId != null)
+				bFound = true;
+		}
+		VariableManager.setVariableValue("email_additionalInfoReqId", additionalInfoReqId);
+	}
 	@Then("^verify otp \"(.*)\"$") 
 	public String VerifyOtp(String otp)  {
 		if(otp == null || otp.equals(""))

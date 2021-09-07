@@ -1,6 +1,8 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.everit.json.schema.ValidationException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -59,7 +61,7 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -126,6 +128,14 @@ public class PacketSyncService {
 
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
+    
+    
+	@Value("${mosip.version:1.2}")
+	private String mosipVersion;
+
+	@Value("${packetmanager.zip.datetime.pattern:yyyyMMddHHmmss}")
+	private String zipDatetimePattern;
+	 
 
     void loadServerContextProperties(String contextKey) {
     	
@@ -152,7 +162,7 @@ public class PacketSyncService {
     public String generateResidentData(int count,PersonaRequestDto residentRequestDto, String contextKey) {
     	
     	loadServerContextProperties(contextKey);
-    	
+    	VariableManager.setVariableValue("process", "NEW");
     	Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
     	Gender enumGender = Gender.Any;
 		ResidentDataProvider provider = new ResidentDataProvider();
@@ -251,7 +261,7 @@ public class PacketSyncService {
     	return response.toString();
     			//"{\"status\":\"SUCCESS\"}";
     }
-    public JSONObject makePacketAndSync(String preregId, String templateLocation, String personaPath,String contextKey) throws Exception {
+    public JSONObject makePacketAndSync(String preregId, String templateLocation, String personaPath,String contextKey,String additionalInfoReqId) throws Exception {
     
     	logger.info("makePacketAndSync for PRID : {}", preregId);
 
@@ -286,12 +296,12 @@ public class PacketSyncService {
         if(templateLocation != null) {
         	process = ContextUtils.ProcessFromTemplate(src, templateLocation);
         }
-        String packetPath = packetMakerService.createContainer(idJsonPath.toString(),templateLocation,src,process,preregId, contextKey, true);
+        String packetPath = packetMakerService.createContainer(idJsonPath.toString(),templateLocation,src,process,preregId, contextKey, true,additionalInfoReqId);
 
         logger.info("Packet created : {}", packetPath);
 
         String response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED",
-                "dummy", null, contextKey);
+                "dummy", null, contextKey,additionalInfoReqId);
 
         logger.info("RID Sync response : {}", response);
     	JSONObject functionResponse = new JSONObject();
@@ -341,7 +351,7 @@ public class PacketSyncService {
     	
     }
     public String syncPacketRid(String containerFile, String name,
-                                String supervisorStatus, String supervisorComment, String proc,String contextKey) throws Exception {
+                                String supervisorStatus, String supervisorComment, String proc,String contextKey, String additionalInfoReqId) throws Exception {
         
     	if(contextKey != null && !contextKey.equals("")) {
     
@@ -362,15 +372,23 @@ public class PacketSyncService {
     			if(k.toString().equals("mosip.test.regclient.centerid")) {
         			centerId = v.toString();
         		}
-    			else
-        		if(k.toString().equals("mosip.test.baseurl")) {
-            		baseUrl = v.toString();
-            	}	
+				else if (k.toString().equals("mosip.test.baseurl")) {
+					baseUrl = v.toString();
+				} else if (k.toString().equals("mosip.version")) {
+					mosipVersion = v.toString();
+				}
     			
     		});
     	}
     	Path container = Path.of(containerFile);
-        String rid = container.getName(container.getNameCount()-1).toString().replace(".zip", "");
+    	String rid =null;
+    	if(container.getName(container.getNameCount()-1).toString().contains("-")) {
+    		rid =PacketMakerService.getRegIdFromPacketPath(containerFile);
+    	}else {
+    		rid = container.getName(container.getNameCount()-1).toString().replace(".zip", "");
+    	}
+       // String rid = container.getName(container.getNameCount()-1).toString().replace(".zip", "");
+    	//String rid =PacketMakerService.getRegIdFromPacketPath(containerFile);
         if(proc !=null && !proc.equals(""))
         	process = proc;
         logger.info("Syncing data for RID : {}", rid);
@@ -390,8 +408,21 @@ public class PacketSyncService {
         jsonObject.put("packetSize", fileBytes.length);
         jsonObject.put("supervisorStatus", supervisorStatus);
         jsonObject.put("supervisorComment", supervisorComment);
-        //jsonObject.put("packetId", rid+"-"+process);
-       // jsonObject.put("additionalInfoReqId", rid+"-"+process);
+        
+		if (mosipVersion != null && !mosipVersion.isEmpty() && mosipVersion.equals("1.2")) {
+			String id = StringUtils.isNotBlank(additionalInfoReqId) ? additionalInfoReqId: rid;
+		//	String refId = centerId + "_" + machineId;
+			/*
+			 * String packetId = new StringBuilder() .append(id) .append("-") .append(refId)
+			 * .append("-") .append(getcurrentTimeStamp()) .toString();
+			 */
+			String packetId =(container.getName(container.getNameCount()-1).toString()).replace(".zip", "");
+			
+			jsonObject.put("packetId", packetId);
+			jsonObject.put("additionalInfoReqId", id);
+			//syncapi=syncapi+"V2";
+		}
+        
         JSONArray list = new JSONArray();
         list.put(jsonObject);
 
@@ -414,7 +445,7 @@ public class PacketSyncService {
 
         return response.toString();
     }
-
+    
     public String uploadPacket(String path, String contextKey) throws Exception {
     	
     	if(contextKey != null && !contextKey.equals("")) {
@@ -707,7 +738,9 @@ public class PacketSyncService {
 
     	
     	loadServerContextProperties(contextKey);
-    	
+    	if(process != null) {
+    		VariableManager.setVariableValue("process", process);
+    	}
     	if(outDir == null || outDir.trim().equals("")) {
     		packetDir = Files.createTempDirectory("packets_");
     	}
@@ -738,9 +771,9 @@ public class PacketSyncService {
     	response.put("packets", packetPaths);
      	return response.toString();
     }
-    public String preRegToRegister( String templatePath, String preRegId,String personaPath, String contextKey) throws Exception {
+    public String preRegToRegister( String templatePath, String preRegId,String personaPath, String contextKey,String additionalInfoReqId) throws Exception {
   
-    	return makePacketAndSync(preRegId, templatePath, personaPath,contextKey).toString();
+    	return makePacketAndSync(preRegId, templatePath, personaPath,contextKey,additionalInfoReqId).toString();
   		
   	  
     }

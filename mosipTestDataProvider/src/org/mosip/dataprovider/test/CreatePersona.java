@@ -106,6 +106,7 @@ public class CreatePersona {
 	public static JSONObject crateIdentity(ResidentModel resident, DataCallback cb) {
 
 		tbl = MosipMasterData.getIDSchemaLatestVersion();
+		//tbl = MosipMasterData.getPreregIDSchemaLatestVersion();
 		Double schemaversion = tbl.keys().nextElement();
 		List<MosipIDSchema>  lstSchema =(List<MosipIDSchema>) tbl.get(schemaversion).get("schemaList");
 		List<String> requiredAttribs = (List<String>) tbl.get(schemaversion).get("requiredAttributes");
@@ -140,10 +141,6 @@ public class CreatePersona {
 					( schemaItem.getType().equals("documentType") || schemaItem.getType().equals("biometricsType"))) {
 				continue;
 			}
-			/*
-			 * if(!(schemaItem.getRequired() || schemaItem.getInputRequired())) { continue;
-			 * }
-			 */
 			if(!(schemaItem.getRequired())) {
 				continue;
 			}
@@ -159,32 +156,6 @@ public class CreatePersona {
 			
 			if(schemaItem.getFieldType().equals("dynamic")) {
 			
-				/*
-				boolean genderFound = PacketTemplateProvider.processGender(schemaItem, resident,identity, genderTypes,dynaFields);
-				if(genderFound)
-					continue;
-					
-				if(dynaFields != null) {
-					
-					
-					for(DynamicFieldModel dfm: dynaFields) {
-						if(dfm.getIsActive() && 
-									( dfm.getId().equals(schemaItem.getId()) || dfm.getName().equals(schemaItem.getId()))
-						) {
-
-							constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
-											dfm.getFieldVal().get(0).getValue(),
-											dfm.getFieldVal().get(0).getValue(),
-											schemaItem.getType().equals("simpleType") ? true: false
-											);
-							found = true;
-							break;
-						}
-					}
-					if(found)
-						continue;
-				}
-				*/
 				if(schemaItem.getId().toLowerCase().contains("residen")  ) {
 					String name = resident.getResidentStatus().getCode() ;
 
