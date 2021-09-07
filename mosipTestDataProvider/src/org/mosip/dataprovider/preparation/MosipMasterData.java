@@ -14,6 +14,7 @@ import java.util.ListIterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -529,6 +530,10 @@ public  class MosipMasterData {
 
 			JSONArray jsonArray = null;
 			if(schemaJson != null && !schemaJson.equals("")) {
+				//FIX: search and replace \" with "
+				
+				schemaJson =schemaJson.replaceAll(Pattern.quote("\\\""), "\"");
+				
 				JSONObject schemaObj = new JSONObject(schemaJson);
 				JSONObject identityObj = schemaObj.getJSONObject("properties").getJSONObject("identity");
 				JSONObject identityProps = identityObj.getJSONObject("properties");
@@ -544,6 +549,8 @@ public  class MosipMasterData {
 			JSONObject identityProps = null;
 		
 			if(schemaJson != null && !schemaJson.equals("")) {
+				schemaJson =schemaJson.replaceAll(Pattern.quote("\\\""), "\"");
+				
 				JSONObject schemaObj = new JSONObject(schemaJson);
 				JSONObject identityObj = schemaObj.getJSONObject("properties").getJSONObject("identity");
 				identityProps = identityObj.getJSONObject("properties");
@@ -1298,13 +1305,13 @@ public  class MosipMasterData {
 		VariableManager.setVariableValue("configpath","config/*/mz/1.1.5/registration-processor-mz.properties");
 
 	
-		MosipDataSetup.getConfig();
+//		MosipDataSetup.getConfig();
 	//	List<MosipDeviceModel> devices = MosipDataSetup.getDevices("10002");
-		test1();
+//		test1();
 		
 	//	List<DynamicFieldModel> lstDyn =  MosipMasterData.getAllDynamicFields();
-		List<MosipMachineModel> mach =  MosipDataSetup.getMachineDetail("10082", "eng");
-		MosipDataSetup.getMachineConfig(mach.get(0).getName()) ;
+//		List<MosipMachineModel> mach =  MosipDataSetup.getMachineDetail("10082", "eng");
+//		MosipDataSetup.getMachineConfig(mach.get(0).getName()) ;
 		
 		
 		Hashtable<Double,Properties> tbl1 = getIDSchemaLatestVersion();
