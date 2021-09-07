@@ -7,5 +7,6 @@ import lombok.Data;
 public class PreRegisterRequestDto {
 	
 	private List<String> personaFilePath;
+	private String additionalInfoReqId;
 
 }

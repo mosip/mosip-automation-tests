@@ -56,12 +56,12 @@ public class PacketJobService {
 
                     logger.info("Unzipped the prereg packet {}, ID.json exists : {}", prid, idJsonPath.toFile().exists());
 
-                    String packetPath = packetMakerService.createContainer(idJsonPath.toString(),null,null,null,prid,null, true);
+                    String packetPath = packetMakerService.createContainer(idJsonPath.toString(),null,null,null,prid,null, true,null);
 
                     logger.info("Packet created : {}", packetPath);
 
                     String response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED",
-                            "dummy", null,null);
+                            "dummy", null,null,null);
 
                     logger.info("RID Sync response : {}", response);
 

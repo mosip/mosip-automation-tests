@@ -12,4 +12,5 @@ public class SyncRidDto {
     private String supervisorStatus;
     private String supervisorComment;
     private String process;
+    private String additionalInfoReqId;
 }

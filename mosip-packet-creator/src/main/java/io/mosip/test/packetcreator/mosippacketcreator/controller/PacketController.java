@@ -47,7 +47,7 @@ public class PacketController {
 	    			DataProviderConstants.RESOURCE = personaConfigPath;
 	    		}
 
-	    		return packetMakerService.createPacketFromTemplate(requestDto.getPersonaFilePath().get(0),  requestDto.getPersonaFilePath().get(1), contextKey);
+	    		return packetMakerService.createPacketFromTemplate(requestDto.getPersonaFilePath().get(0),  requestDto.getPersonaFilePath().get(1), contextKey,requestDto.getAdditionalInfoReqId());
 	    		//return packetSyncService.createPackets(requestDto.,process,null, contextKey);
 	    		
 	    	
