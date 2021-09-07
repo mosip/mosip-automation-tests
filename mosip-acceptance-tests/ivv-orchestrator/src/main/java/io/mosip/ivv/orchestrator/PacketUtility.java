@@ -103,7 +103,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		//residentAttrib.put("SecondaryLanguage", "ara");
 		//residentAttrib.put("ThirdLanguage", "fra");
 		residentAttrib.put("Iris", true);
-		// added for face biometric related issue
 		residentAttrib.put("Finger", true);
 		residentAttrib.put("Face", true);
 		//
