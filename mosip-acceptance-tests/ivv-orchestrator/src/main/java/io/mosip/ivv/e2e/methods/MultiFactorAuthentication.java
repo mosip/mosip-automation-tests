@@ -136,7 +136,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 		
 		String personFilePathvalue = null;
 		if (step.getParameters().size() > 4) {
-			String _personFilePath = step.getParameters().get(5);
+			String _personFilePath = step.getParameters().get(4);
 			if (_personFilePath.startsWith("$$")) {
 				_personFilePath = step.getScenario().getVariables().get(_personFilePath);
 				personFilePathvalue = _personFilePath;
@@ -199,7 +199,7 @@ private TestCaseDTO bioAuthE2eTest(List<String> bioAuthList, String uin, TestCas
 			throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
 		String personFilePathvalue = null;
 			if (step.getParameters().size() > 4) {
-				String _personFilePath = step.getParameters().get(5);
+				String _personFilePath = step.getParameters().get(4);
 				if (_personFilePath.startsWith("$$")) {
 					_personFilePath = step.getScenario().getVariables().get(_personFilePath);
 					personFilePathvalue = _personFilePath;
