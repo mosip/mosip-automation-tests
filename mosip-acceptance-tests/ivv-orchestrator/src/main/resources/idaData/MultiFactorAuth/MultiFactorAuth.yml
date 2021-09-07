@@ -19,7 +19,7 @@ MultiFactorAuth:
   "individualId": "uinnumber",
   "individualIdType": "UIN",
   "sendOtpReqTemplate": "idaData/MultiFactorAuth/sendOtp",
-  "sendOtpEndPoint": "/idauthentication/v1/otp/$PartnerKey$
+  "sendOtpEndPoint": "/idauthentication/v1/otp/$PartnerKey$"
   },
     "identityRequest":{
           "bioSubType": "Left",

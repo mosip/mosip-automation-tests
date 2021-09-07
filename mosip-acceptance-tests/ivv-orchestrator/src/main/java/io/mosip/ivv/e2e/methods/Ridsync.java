@@ -39,7 +39,7 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 			}
 			storeProp(pridsAndRids);
 		}else
-			if(step.getParameters().size()>1) { // "$$rid=e2e_ridSync(NEW,$$zipPacketPath)"
+			if(step.getParameters().size()>1) { // "$$rid=e2e_ridsync(NEW,$$zipPacketPath)"
 			process =step.getParameters().get(0);
 			String _zipPacketPath=step.getParameters().get(1);
 			if(_zipPacketPath.startsWith("$$")) {
