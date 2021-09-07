@@ -15,6 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import variables.VariableManager;
+
 import java.security.SecureRandom;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -48,6 +51,7 @@ public class ContextUtils {
 	    	
 	    	Boolean bRet = true;
 	    	
+	    	
 	    	String filePath =  personaConfigPath + "/server.context."+  ctxName + ".properties";
 	    	
 	    	Properties p=new Properties();
@@ -74,6 +78,16 @@ public class ContextUtils {
 	    		logger.error("write:createUpdateServerContext " + e.getMessage());
 	    		bRet = false;
 			}
+	    	
+	    	Properties pp = loadServerContext(ctxName);
+	    	pp.forEach( (k,v)->{
+	    		VariableManager.setVariableValue(k.toString(), v.toString());
+	    	});
+	    	String generatePrivateKey = props.getProperty("generatePrivateKey");
+            boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
+            if (isRequired)
+                generateKeyAndUpdateMachineDetail(props, ctxName);
+            
 	    	return bRet;
 	    }
 	    public String createExecutionContext(String serverContextKey) {

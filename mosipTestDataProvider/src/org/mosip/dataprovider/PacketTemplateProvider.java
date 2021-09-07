@@ -424,106 +424,124 @@ public class PacketTemplateProvider {
 	/*
 	 * HashMap<FolderType, [(in)folderPath][(out)biofilename]> fileInfo
 	 */
-	public static boolean processGender(MosipIDSchema s, ResidentModel resident, JSONObject identity,
-			Hashtable<String, List<MosipGenderModel>> genderTypesLang,
-			Hashtable<String, List<DynamicFieldModel>> dynaFields) {
-
-		boolean processed = false;
-
-		if (s.getSubType().toLowerCase().equals("gender") || s.getId().toLowerCase().equals("gender")) {
-
-			String primLang = resident.getPrimaryLanguage();
-			String secLan = resident.getSecondaryLanguage();
-			// String thirdLan = resident.getThirdLanguage();
-
-			Gender resGen = resident.getGender();
-			String genderCode = null;
-			String primVal = "";
-			String secVal = "";
-
-			// context should set Male/Female code values
-			Object obj = VariableManager.getVariableValue(resGen.name());
-			if (obj != null) {
-				genderCode = obj.toString();
-				primVal = secVal = genderCode;
-			}
-			if (genderCode != null) {
-				if (genderTypesLang != null) {
-					List<MosipGenderModel> genderTypes = genderTypesLang.get(primLang);
-					if (genderTypes != null)
-						for (MosipGenderModel g : genderTypes) {
-							if (!g.getIsActive())
+	public static boolean processGender(MosipIDSchema s, ResidentModel resident,JSONObject identity, 
+			 Hashtable<String,List<MosipGenderModel>> genderTypesLang,
+			 Hashtable<String,List<DynamicFieldModel>> dynaFields) {
+			
+			boolean processed = false;
+			
+			if(s.getSubType().toLowerCase().equals("gender") || s.getId().toLowerCase().equals("gender")  ) {
+				
+				String primLang = resident.getPrimaryLanguage();
+				String secLan = resident.getSecondaryLanguage();
+				//String thirdLan = resident.getThirdLanguage();
+				
+				Gender resGen = resident.getGender();
+				String genderCode = null;
+				String primVal = "";
+				String secVal = "";
+				
+				//context should set Male/Female code values 
+				Object obj = VariableManager.getVariableValue(resGen.name());
+				if(obj != null) {
+					genderCode = obj.toString();
+					primVal = secVal = genderCode;
+				}
+				if(genderCode != null) {
+					if(genderTypesLang != null) {
+						List<MosipGenderModel> genderTypes = genderTypesLang.get(primLang);
+						if(genderTypes != null)
+						for(MosipGenderModel g: genderTypes) {
+							if(!g.getIsActive())
 								continue;
-							if (g.getCode().equals(genderCode)) {
+							if(g.getCode().equals(genderCode)) {
 								primVal = g.getValue();
 								break;
 							}
-
+						
 						}
-					if (secLan != null) {
-						genderTypes = genderTypesLang.get(secLan);
-						if (genderTypes != null)
-							for (MosipGenderModel g : genderTypes) {
-								if (!g.getIsActive())
+						if(secLan != null) {
+							genderTypes = genderTypesLang.get(secLan);
+							if(genderTypes != null)
+							for(MosipGenderModel g: genderTypes) {
+								if(!g.getIsActive())
 									continue;
-								if (g.getCode().equals(genderCode)) {
+								if(g.getCode().equals(genderCode)) {
 									secVal = g.getValue();
 									break;
 								}
-
+							
 							}
+						}
 					}
 				}
+				if(secVal == null || secVal.equals(""))
+					secVal = primVal;
+				CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
+						primVal,
+						secVal,
+						s.getType().equals("simpleType") ? true: false
+				);
+				processed = true;
+				
 			}
-			if (secVal.equals(""))
-				secVal = primVal;
-			CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(),
-					resident.getSecondaryLanguage(), primVal, secVal, s.getType().equals("simpleType") ? true : false);
-			processed = true;
-
-		}
-		return processed;
+			return processed;
 
 	}
 
 	public static Pair<String, String> processAddresslines(MosipIDSchema s, ResidentModel resident,
 			JSONObject identity) {
 		String addr = null;
-		String addr_sec = "";
-
-		if (s.getControlType().equals("checkbox")) {
+		String addr_sec="";
+			
+		if(s.getControlType().equals("checkbox")) {
 			addr = "Y";
-			addr_sec = "Y";
-		} else {
-			String[] addressLines = resident.getAddress();
-			int index = 0;
-			if (s.getId().toLowerCase().contains("line1"))
-				index = 0;
-			else if (s.getId().toLowerCase().contains("line2"))
-				index = 1;
-			else if (s.getId().toLowerCase().contains("line3"))
-				index = 2;
-			else if (s.getId().toLowerCase().contains("line4"))
-				index = 3;
-
-			if (index > -1)
-				addr = addressLines[index];
-			if (addr == null) {
-				Random rand = new Random();
-				addr = "#%d, %d Street, %d block";// + schemaItem.getId();
-				addr = String.format(addr, (100 + rand.nextInt(999)), (1 + rand.nextInt(99)), (1 + rand.nextInt(10)));
-
-				if (resident.getSecondaryLanguage() != null)
-					addr_sec = Translator.translate(resident.getSecondaryLanguage(), addr);
-			} else {
-				if (resident.getSecondaryLanguage() != null)
-					addr_sec = resident.getAddress_seclang()[index];
-
-			}
-			if (s.getMaximum() > 0 && addr.length() >= s.getMaximum())
-				addr = addr.substring(0, s.getMaximum() - 1);
+			addr_sec="Y";
 		}
-		Pair<String, String> retVal = new Pair<String, String>(addr, addr_sec);
+		else
+		{
+			String [] addressLines = resident.getAddress();
+			int index = 0;
+			if(s.getId().toLowerCase().contains("line1"))
+				index = 0;
+			else
+			if(s.getId().toLowerCase().contains("line2"))
+				index = 1;
+			else
+			if(s.getId().toLowerCase().contains("line3"))
+				index = 2;
+			else
+			if(s.getId().toLowerCase().contains("line4"))
+					index = 3;
+		
+	
+			if(index > -1)
+				addr = addressLines[index];
+			if(addr == null  ) {
+				Random rand = new Random();
+				addr = "#%d, %d Street, %d block" ;//+ schemaItem.getId();
+				addr = String.format(addr, (100+ rand.nextInt(999)),
+					(1 + rand.nextInt(99)),
+					(1 + rand.nextInt(10))
+					);
+			
+				if(resident.getSecondaryLanguage() != null)
+					addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+			}
+			else
+			{
+				if(resident.getSecondaryLanguage() != null) {
+					addr_sec = resident.getAddress_seclang()[index];
+					if(addr_sec == null)
+						addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+				
+				}
+				
+			}
+			if(s.getMaximum() > 0 && addr.length() >= s.getMaximum() )
+				addr = addr.substring(0,s.getMaximum() -1);
+		}
+		Pair<String,String> retVal = new Pair<String,String>(addr,addr_sec);
 		return retVal;
 
 	}
@@ -554,30 +572,32 @@ public class PacketTemplateProvider {
 
 	private static Boolean updateFromAdditionalAttribute(JSONObject identity, MosipIDSchema s, ResidentModel resident) {
 		Boolean bRet = false;
-		Hashtable<String, String> addtnAttr = resident.getAddtionalAttributes();
-		if (addtnAttr == null)
+		Hashtable<String,String> addtnAttr = resident.getAddtionalAttributes();
+		if(addtnAttr == null) 
 			return bRet;
-		Enumeration<String> keys = addtnAttr.keys();
-
-		while (keys.hasMoreElements()) {
+		Enumeration<String> keys =  addtnAttr.keys();
+		
+		while( keys.hasMoreElements()) {
 			String key = keys.nextElement();
 			String value = addtnAttr.get(key);
-
-			if (s.getId().equalsIgnoreCase(key)) {
-				if (s.getType().equals("simpleType")) {
-
-					JSONArray jsonO = null;
+			
+			if(s.getId().equalsIgnoreCase(key)) {
+				if(s.getType().equals("simpleType")) {
+					
+					JSONArray jsonO= null;
 					try {
 						jsonO = new JSONArray(value);
 						identity.put(s.getId(), jsonO);
-					} catch (Exception e) {
-						e.printStackTrace();
+					}catch(Exception e) {
+					//	e.printStackTrace();
 					}
-					if (jsonO == null) {
-						CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(),
-								resident.getSecondaryLanguage(), value, null, true);
+					if(jsonO == null) {
+						String secValue = Translator.translate(resident.getSecondaryLanguage(),value);
+						CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
+								value,secValue,true);
 					}
-				} else
+				}
+				else
 					identity.put(s.getId(), value);
 				bRet = true;
 				break;
