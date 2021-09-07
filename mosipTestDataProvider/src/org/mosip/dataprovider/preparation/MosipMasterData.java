@@ -597,6 +597,12 @@ public  class MosipMasterData {
 				//"individualtypes"
 				"idschemaapi"
 				).toString();
+		
+		String process=VariableManager.getVariableValue("process").toString();
+		if(process == null) {
+			process="NEW";
+		}
+		process = process.toLowerCase().trim() + "Process";
 	
 		Object o =getCache(url);
 		if(o != null)
@@ -607,16 +613,72 @@ public  class MosipMasterData {
 
 			
 			//int nSchema = resp.getInt("totalItems");
-			JSONArray idSchema = null;
+			JSONArray idSchema = new JSONArray();
 			double schemaVersion = 0.0;
 			String schemaTitle = "";
-			idSchema = resp.getJSONArray("schema"); //UISpec
+			//idSchema = resp.getJSONArray("schema"); //UISpec
+			
+			 //JSONArray screens = resp.getJSONObject("newProcess").getJSONArray("screens");
+			// JSONArray screens = resp.getJSONObject("updateProcess").getJSONArray("screens");
+			JSONArray screens = resp.getJSONObject(process).getJSONArray("screens");
+				for (int i = 0; i < screens.length(); i++) {
+					idSchema.putAll(screens.getJSONObject(i).getJSONArray("fields"));
+				}
+			 
 			System.out.println(idSchema.toString());
 			CommonUtil.saveToTemp(idSchema.toString(), "uispec.json");
 			CommonUtil.saveToTemp(resp.getString("schemaJson"), "schemaJson.json");
 			
 			schemaVersion=	resp.getDouble( "idVersion");
 			schemaTitle = resp.getString("title");
+			
+
+			
+			
+			JSONObject schemaVersionJson = new JSONObject();
+			schemaVersionJson.put("id", "IDSchemaVersion");
+			schemaVersionJson.put("inputRequired", false);
+			schemaVersionJson.put("type", "number");
+			schemaVersionJson.put("minimum", 0);
+			schemaVersionJson.put("maximum", 0);
+			schemaVersionJson.put("description", "ID Schema Version");
+			schemaVersionJson.put("controlType", "");
+			schemaVersionJson.put("fieldType", "default");
+			schemaVersionJson.put("format", "none");
+			schemaVersionJson.put("validators", new JSONArray());
+			schemaVersionJson.put("fieldCategory", "none");
+			schemaVersionJson.put("alignmentGroup", "");
+			schemaVersionJson.put("contactType", "");
+			schemaVersionJson.put("group", "");
+			schemaVersionJson.put("required", true);
+			schemaVersionJson.put("bioAttributes", new JSONArray());
+			schemaVersionJson.put("requiredOn",  new JSONArray());
+			schemaVersionJson.put("subType",  "IdSchemaVersion");
+			idSchema.put(schemaVersionJson);
+			
+			JSONObject uinschemaJosn = new JSONObject();
+			uinschemaJosn.put("id", "UIN");
+			uinschemaJosn.put("inputRequired", false);
+			uinschemaJosn.put("type", "string");
+			uinschemaJosn.put("minimum", 0);
+			uinschemaJosn.put("maximum", 0);
+			uinschemaJosn.put("description", "UIN");
+			uinschemaJosn.put("controlType", "textbox");
+			uinschemaJosn.put("fieldType", "default");
+			uinschemaJosn.put("format", "none");
+			uinschemaJosn.put("validators", new JSONArray());
+			uinschemaJosn.put("fieldCategory", "none");
+			uinschemaJosn.put("alignmentGroup", "");
+			uinschemaJosn.put("contactType", "");
+			uinschemaJosn.put("group", "");
+			uinschemaJosn.put("required", false);
+			uinschemaJosn.put("bioAttributes", new JSONArray());
+			uinschemaJosn.put("requiredOn",  new JSONArray());
+			uinschemaJosn.put("subType",  "UIN");
+			idSchema.put(uinschemaJosn);
+			 
+			 
+			 
 			
 			if(idSchema != null) {
 				JSONArray reqdFields = getRequiredFileds(resp); //FROM IDSchema
@@ -627,6 +689,8 @@ public  class MosipMasterData {
 
 				List<MosipIDSchema>  listSchema  = new ArrayList<MosipIDSchema>();
 				for(int i=0; i < idSchema.length(); i++) {
+					
+					
 					 MosipIDSchema schema = objectMapper.readValue(idSchema.get(i).toString(),
 							 MosipIDSchema.class);
 					 listSchema.add(schema);
@@ -661,6 +725,55 @@ public  class MosipMasterData {
 				prop.put("schemaList", listSchema);
 				prop.put("requiredAttributes",requiredAttributes);
 				tbl.put(schemaVersion, prop);
+				
+				setCache(url, tbl);
+			}
+					
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return tbl;
+	}
+	
+	public static Hashtable<Double,Properties>  getPreregIDSchemaLatestVersion() {
+		
+		Hashtable<Double,Properties> tbl = new Hashtable<Double,Properties> ();
+		
+		//Hashtable<Double,List<MosipIDSchema>> tbl = new Hashtable<Double,List<MosipIDSchema>> ();
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(
+				VariableManager.NS_MASTERDATA,
+				"idschemaapi"
+				).toString();
+		url="https://qa-double.mosip.net/preregistration/v1/uispec/latest?identitySchemaVersion=0&version=0";
+	
+		Object o =getCache(url);
+		if(o != null)
+			return( (Hashtable<Double,Properties>) o);
+
+        try {
+			JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject());
+
+				JSONArray identityArray = resp.getJSONObject("jsonSpec").getJSONObject("identity").getJSONArray("identity");
+			 
+			
+			if(identityArray != null) {
+				
+				ObjectMapper objectMapper = new ObjectMapper();
+				objectMapper.setSerializationInclusion(Include.NON_NULL);
+
+				List<MosipIDSchema>  identityArraylistSchema  = new ArrayList<MosipIDSchema>();
+				for(int i=0; i < identityArray.length(); i++) {
+					
+					 MosipIDSchema schema = objectMapper.readValue(identityArray.get(i).toString(),
+							 MosipIDSchema.class);
+					 identityArraylistSchema.add(schema);
+				}
+				
+				Properties prop = new Properties();
+				prop.put("schemaList", identityArraylistSchema);
+				tbl.put(0.2, prop);
 				
 				setCache(url, tbl);
 			}

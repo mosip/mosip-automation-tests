@@ -92,7 +92,7 @@ public class TestDataController {
     		@PathVariable("contextKey") String contextKey) {
         try{
             return pkm.createContainer(packetCreateDto.getIdJsonPath(), packetCreateDto.getTemplatePath(),
-            		packetCreateDto.getSource(), packetCreateDto.getProcess(), null,contextKey, true);
+            		packetCreateDto.getSource(), packetCreateDto.getProcess(), null,contextKey, true,packetCreateDto.getAdditionalInfoReqId());
         } catch (Exception ex){
              logger.error("", ex);
         }
@@ -145,7 +145,7 @@ public class TestDataController {
     		@RequestParam(name="contextKey",required = false) String contextKey) throws Exception {
     	
         return packetSyncService.syncPacketRid(syncRidDto.getContainerPath(), syncRidDto.getName(),
-                syncRidDto.getSupervisorStatus(), syncRidDto.getSupervisorComment(), syncRidDto.getProcess(), contextKey);
+                syncRidDto.getSupervisorStatus(), syncRidDto.getSupervisorComment(), syncRidDto.getProcess(), contextKey,syncRidDto.getAdditionalInfoReqId());
     }
 
     @PostMapping(value = "/packetsync")
@@ -169,7 +169,7 @@ public class TestDataController {
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
     			DataProviderConstants.RESOURCE = personaConfigPath;
     		}
-    		return packetSyncService.makePacketAndSync(preregId,null, null,contextKey).toString();
+    		return packetSyncService.makePacketAndSync(preregId,null, null,contextKey,null).toString();
     	
     	} catch (Exception ex){
              logger.error("makePacketAndSync", ex);
@@ -349,7 +349,7 @@ public class TestDataController {
     		logger.info("packet-Sync: personaPath="+ (personaPath == null ? "N/A": personaPath));
     		logger.info("packet-Sync: TemplatePath="+ preRegisterRequestDto.getPersonaFilePath().get(0));
     		
-    		return packetSyncService.preRegToRegister(preRegisterRequestDto.getPersonaFilePath().get(0),preregId, personaPath, contextKey);
+    		return packetSyncService.preRegToRegister(preRegisterRequestDto.getPersonaFilePath().get(0),preregId, personaPath, contextKey,preRegisterRequestDto.getAdditionalInfoReqId());
     	
     	} catch (Exception ex){
              logger.error("createPacket", ex);
