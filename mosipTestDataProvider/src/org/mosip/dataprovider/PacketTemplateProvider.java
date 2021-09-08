@@ -190,7 +190,7 @@ public class PacketTemplateProvider {
 					else
 						identity.put(s.getId(), resident.getUIN());
 					continue;
-				} else if ((s.getGroup().equals("GuardianDetails") || s.getGroup().equals("introducerDetails")) && 
+				} else if ((s.getGroup().toLowerCase().equals("guardiandetails") || s.getGroup().toLowerCase().equals("introducerdetails")) && 
 						(s.getSubType().toLowerCase().matches(".*guard.*uin") || s.getSubType().toLowerCase().equals("uin"))) {
 					if (resident.isMinor()) {
 						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
@@ -200,7 +200,7 @@ public class PacketTemplateProvider {
 							identity.put(s.getId(), resident.getGuardian().getUIN());
 					}
 					continue;
-				} else if ((s.getGroup().equals("GuardianDetails") || s.getGroup().equals("introducerDetails")) 
+				} else if ((s.getGroup().toLowerCase().equals("guardiandetails") || s.getGroup().toLowerCase().equals("introducerdetails")) 
 						&& (s.getId().toLowerCase().matches(".*guard.*rid") || s.getSubType().toLowerCase().equals("rid"))) {
 					if (resident.isMinor()) {
 						if (resident.getGuardian() != null && (resident.getGuardian().getRID() == null
@@ -211,8 +211,8 @@ public class PacketTemplateProvider {
 							identity.put(s.getId(), resident.getGuardian().getRID());
 					}
 					continue;
-				} else if ((s.getGroup().equals("GuardianDetails") || s.getGroup().equals("introducerDetails")) 
-						&& (s.getId().toLowerCase().matches(".*guard.*name") || s.getSubType().toLowerCase().equals("introducerName"))) {
+				} else if ((s.getGroup().toLowerCase().equals("guardiandetails") || s.getGroup().toLowerCase().equals("introducerdetails")) 
+						&& (s.getId().toLowerCase().matches(".*guard.*name") || s.getSubType().toLowerCase().equals("introducername"))) {
 					if (resident.isMinor()) {
 						String primValue = "";
 						String secValue = "";
