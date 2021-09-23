@@ -10,8 +10,9 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -20,13 +21,14 @@ import org.javatuples.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.models.BioModality;
+import org.mosip.dataprovider.models.DocumentDto;
 import org.mosip.dataprovider.models.DynamicFieldModel;
-
 import org.mosip.dataprovider.models.MosipDocument;
 import org.mosip.dataprovider.models.MosipGenderModel;
 import org.mosip.dataprovider.models.MosipIDSchema;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.models.SchemaRule;
 import org.mosip.dataprovider.models.SchemaValidator;
 import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
 import org.mosip.dataprovider.preparation.MosipMasterData;
@@ -109,6 +111,8 @@ public class PacketTemplateProvider {
 			Files.createDirectory(path);
 		}
 		String idJson = generateIDJson(resident, fileInfo);
+		JSONObject processMVEL = processMVEL(resident, idJson, schema, process);
+		idJson = processMVEL.toString();
 		Files.write(Paths.get(ridFolder + "/ID.json"), idJson.getBytes());
 		String metadataJson = generateMetaDataJson(resident, preregId, machineId, centerId, fileInfo);
 		Files.write(Paths.get(ridFolder + "/packet_meta_info.json"), metadataJson.getBytes());
@@ -131,6 +135,99 @@ public class PacketTemplateProvider {
 		idJson = genRID_PacketTypeJson(source, process, "optional");
 		Files.write(Paths.get(processFolder + File.separator + "/rid_optional.json"), idJson.getBytes());
 
+	}
+	private JSONObject processMVEL(ResidentModel resident,String idJson,List<MosipIDSchema> schema,String process) {
+		Map<String, Object> allIdentityDetails = new LinkedHashMap<String, Object>();
+		Map<String, DocumentDto> documents = getDocuments(resident,idJson,schema);
+		allIdentityDetails.putAll(documents);
+		 JSONObject json = new JSONObject(idJson);
+		 json=json.getJSONObject("identity");
+		 for (MosipIDSchema s : schema) {
+			 if (!CommonUtil.isExists(requiredAttribs, s.getId()))
+					continue;
+			 if(s.getType().equalsIgnoreCase("documentType") || s.getType().equalsIgnoreCase("biometricsType")) {
+				 continue;
+			 }
+			 if(json.has(s.getId()))
+			 allIdentityDetails.put(s.getId(),  json.get(s.getId()));
+		 }
+		 Map<String, Object> identityObject = getIdentityObject(schema,process,schemaVersion, resident);
+		 allIdentityDetails.putAll(identityObject);
+		 for(MosipIDSchema s : schema) {
+			 if (!CommonUtil.isExists(requiredAttribs, s.getId()))
+					continue;
+			 List<SchemaRule>  rule = s.getRequiredOn();
+				if(rule != null) {
+					for(SchemaRule sr: rule) {
+						System.out.println("rule:" + sr);
+						boolean bval = MosipMasterData.executeMVEL(sr.getExpr(),(Object)allIdentityDetails);
+						System.out.println("rule:result=" + bval);
+						if(!bval) {
+							json= new JSONObject(idJson);
+							json.put(s.getId(), Json.NULL);
+						}
+					}
+				}
+		 }
+		return json;
+	}
+	
+	private Map<String, DocumentDto> getDocuments(ResidentModel resident,String idJson,List<MosipIDSchema> schema){
+		 Map<String, DocumentDto> documents = new HashMap<>();	
+		JSONObject json = new JSONObject(idJson);
+		json=json.getJSONObject("identity");
+		for (MosipIDSchema s : schema) {
+			if (!CommonUtil.isExists(requiredAttribs, s.getId()))
+				continue;
+			for (MosipDocument doc : resident.getDocuments()) {
+				if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
+					DocumentDto documentDto = new DocumentDto();
+					if (json.has(s.getId())) {
+						JSONObject formateJson = json.getJSONObject(s.getId());
+						documentDto.setCategory(doc.getDocCategoryCode());
+						documentDto.setFormat(formateJson.get("format").toString());
+						documentDto.setType(formateJson.get("type").toString());
+						documentDto.setValue(formateJson.get("value").toString());
+						documents.put(s.getId(), documentDto);
+					}
+				}
+
+			}
+
+		}
+		return documents;
+	}
+	
+	static Map<String, Object> getIdentityObject(List<MosipIDSchema> schemas, String process, double schemaVersion,
+			ResidentModel resident) {
+		Map<String, Object> allIdentityDetails = new LinkedHashMap<String, Object>();
+
+		allIdentityDetails.put("IDSchemaVersion", schemaVersion);
+		allIdentityDetails.put("isNew", false);
+		if (process.equals("NEW")) {
+			allIdentityDetails.put("isNew", true);
+		}
+		allIdentityDetails.put("isUpdate", false);
+		if (process.equals("UPDATE")) {
+			allIdentityDetails.put("isUpdate", true);
+		}
+		allIdentityDetails.put("isLost", false);
+		if (process.equals("LOST")) {
+			allIdentityDetails.put("isLost", true);
+		}
+		allIdentityDetails.put("isCorrection", false);
+		if (process.equals("CORRECTION")) {
+			allIdentityDetails.put("isCorrection", true);
+		}
+
+		allIdentityDetails.put("langCodes", resident.getPrimaryLanguage());
+		if (process.equals("NEW")) {
+			allIdentityDetails.put("updatableFields", null);
+			allIdentityDetails.put("updatableFieldGroups", null);
+		}
+		
+
+		return allIdentityDetails;
 	}
 
 	String generateEvidenceJson(ResidentModel resident, HashMap<String, String[]> fileInfo) {

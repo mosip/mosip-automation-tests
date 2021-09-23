@@ -11,6 +11,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -47,6 +48,8 @@ import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
 import org.mosip.dataprovider.util.RestClient;
 import org.mvel2.MVEL;
+import org.mvel2.integration.VariableResolverFactory;
+import org.mvel2.integration.impl.MapVariableResolverFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1216,6 +1219,19 @@ public  class MosipMasterData {
 			return "{\"post failed\"}";
 		}
 
+	}
+	
+	public static boolean executeMVEL(String expression, Object json) {
+		try {
+			Map context = new HashMap();
+			context.put("identity", json);
+			VariableResolverFactory resolverFactory = new MapVariableResolverFactory(context);
+			return MVEL.evalToBoolean(expression, resolverFactory);
+		} catch (Throwable t) {
+			//LOGGER.error("Failed to evaluate mvel expr", t);
+			
+		}
+		return false;
 	}
 
 	static Boolean validateCondn(String cndnexpr, Object inputObject) {
