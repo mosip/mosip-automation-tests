@@ -34,6 +34,7 @@ import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
+import org.mosip.dataprovider.util.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

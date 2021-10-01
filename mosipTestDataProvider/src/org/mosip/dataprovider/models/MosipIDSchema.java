@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 @Data
-@JsonIgnoreProperties({"visible","label","changeAction","locationHierarchy","transliterate","fieldLayout","groupLabel","templateName","conditionalBioAttributes"})
+@JsonIgnoreProperties({"labelName","transliteration","visible","label","changeAction","locationHierarchy","transliterate","fieldLayout","groupLabel","templateName","conditionalBioAttributes"})
 public class MosipIDSchema  implements Serializable{
 
 	 private static final long serialVersionUID = 1L;
@@ -24,6 +24,7 @@ public class MosipIDSchema  implements Serializable{
 	Boolean required ;
 	Boolean inputRequired;
 	String fieldCategory ;
+	//List<List<String>> locationHierarchy;
 	//String bioAttributes;
 	String controlType;
 	int maximum;
