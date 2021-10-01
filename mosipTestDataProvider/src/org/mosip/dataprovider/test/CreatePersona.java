@@ -2,6 +2,7 @@ package org.mosip.dataprovider.test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
@@ -105,11 +106,12 @@ public class CreatePersona {
 	}
 	public static JSONObject crateIdentity(ResidentModel resident, DataCallback cb) {
 
-		tbl = MosipMasterData.getIDSchemaLatestVersion();
-		//tbl = MosipMasterData.getPreregIDSchemaLatestVersion();
+		Hashtable<Double,Properties>  tbl1 = MosipMasterData.getIDSchemaLatestVersion();
+		tbl = MosipMasterData.getPreregIDSchemaLatestVersion();
 		Double schemaversion = tbl.keys().nextElement();
 		List<MosipIDSchema>  lstSchema =(List<MosipIDSchema>) tbl.get(schemaversion).get("schemaList");
-		List<String> requiredAttribs = (List<String>) tbl.get(schemaversion).get("requiredAttributes");
+		List<String> requiredAttribs = (List<String>) tbl1.get(schemaversion).get("requiredAttributes");
+		JSONArray locaitonherirachyArray = (JSONArray)tbl.get(schemaversion).get("locaitonherirachy");
 		
 		JSONObject identity = new JSONObject();
 
@@ -130,8 +132,12 @@ public class CreatePersona {
 			if(cb != null) {
 				cb.logDebug(schemaItem.toJSONString());
 			}
-			if(!CommonUtil.isExists(requiredAttribs,schemaItem.getId()))
+			
+			
+			if (!CommonUtil.isExists(requiredAttribs, schemaItem.getId()))
 				continue;
+			 
+			 
 			if(lstMissedAttributes != null && lstMissedAttributes.stream().anyMatch( v -> v.equalsIgnoreCase(schemaItem.getId()))) {
 				continue;
 			}
@@ -169,20 +175,16 @@ public class CreatePersona {
 				}
 				else {
 					found = false;	
-					for(String locLevel: locationSet) {
-				
-						if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
-									
-							constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
-								resident.getSecondaryLanguage(),
-								locations.get(locLevel).getCode(),
-								locations.get(locLevel).getCode(),
-								schemaItem.getType().equals("simpleType") ? true: false
-								);
-							found = true;
-							break;
-						}
-					}
+					/*
+					 * for(String locLevel: locationSet) {
+					 * 
+					 * if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
+					 * 
+					 * constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+					 * resident.getSecondaryLanguage(), locations.get(locLevel).getCode(),
+					 * locations.get(locLevel).getCode(), schemaItem.getType().equals("simpleType")
+					 * ? true: false ); found = true; break; } }
+					 */
 					if(found)
 						continue;
 				}
@@ -212,6 +214,7 @@ public class CreatePersona {
 						name_sec,
 						schemaItem.getType().equals("simpleType") ? true: false
 					);
+					continue;
 			}
 			else
 			if(schemaItem.getId().toLowerCase().equals("firstname") ||
@@ -245,6 +248,7 @@ public class CreatePersona {
 							name_sec,
 							schemaItem.getType().equals("simpleType") ? true: false
 					);
+					continue;
 			}	
 			else
 			if(schemaItem.getId().toLowerCase().contains("address")) {
@@ -257,6 +261,7 @@ public class CreatePersona {
 							addrLines.getValue1(),
 							schemaItem.getType().equals("simpleType") ? true: false
 				);
+				continue;
 			}
 			else
 			if(schemaItem.getId().toLowerCase().equals("dateofbirth") ||schemaItem.getId().toLowerCase().equals("dob") || schemaItem.getId().toLowerCase().equals("birthdate") ) {
@@ -270,6 +275,7 @@ public class CreatePersona {
 								strDate,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
+						continue;
 			}
 		/*	else
 			if(schemaItem.getId().toLowerCase().contains("phone") || schemaItem.getId().toLowerCase().contains("mobile") ) {
@@ -292,6 +298,7 @@ public class CreatePersona {
 								emailId,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
+						continue;
 			}
 			else
 			if(schemaItem.getId().toLowerCase().contains("referenceidentity") ) {
@@ -303,6 +310,7 @@ public class CreatePersona {
 								id,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
+						continue;
 						
 			}
 			else
@@ -319,25 +327,47 @@ public class CreatePersona {
 								secValue,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
+						continue;
 				
 			}
 			else
 			{
 				found = false;
-				for(String locLevel: locationSet) {
-					
-					if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
-								
-						constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
-							resident.getSecondaryLanguage(),
-							locations.get(locLevel).getCode(),
-							locations.get(locLevel).getCode(),
-							schemaItem.getType().equals("simpleType") ? true: false
-							);
-						found = true;
-						break;
+
+				for (int i = 0; i < locaitonherirachyArray.length(); i++) {
+					JSONArray jsonArray = locaitonherirachyArray.getJSONArray(i);
+					for (int j = 0; j < jsonArray.length(); j++) {
+						String id = jsonArray.getString(j);
+						System.out.println(id);
+
+						if (schemaItem.getId().toLowerCase().equals(id.toLowerCase())) {
+							//String locLevel = (String) locationSet.toArray()[j];
+							String locLevel = getLocatonLevel(j+1,locations);
+							
+							constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+									resident.getSecondaryLanguage(), locations.get(locLevel).getCode(),
+									locations.get(locLevel).getCode(),
+									schemaItem.getType().equals("simpleType") ? true : false);
+							found = true;
+							break;
+						}
 					}
 				}
+
+			}
+			
+		
+				
+				/*
+				 * for(String locLevel: locationSet) {
+				 * 
+				 * if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
+				 * 
+				 * constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+				 * resident.getSecondaryLanguage(), locations.get(locLevel).getCode(),
+				 * locations.get(locLevel).getCode(), schemaItem.getType().equals("simpleType")
+				 * ? true: false ); found = true; break; } }
+				 */
 				if(found)
 					continue;
 
@@ -359,9 +389,10 @@ public class CreatePersona {
 				}
 				if(someVal == null)
 					someVal = CommonUtil.generateRandomString(schemaItem.getMaximum());
-				if(schemaItem.getId().equals("IDSchemaVersion"))
-					someVal = Double.toString(schemaversion);
-				
+				/*
+				 * if(schemaItem.getId().equals("IDSchemaVersion")) someVal =
+				 * Double.toString(schemaversion);
+				 */
 				constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 						resident.getSecondaryLanguage(),
 						someVal,
@@ -370,12 +401,24 @@ public class CreatePersona {
 				);
 		
 			}
-		}
+		//}
 		
 
 		return identity;
 		
 		
+	}
+	
+	private static String getLocatonLevel(int levelCode,Hashtable<String, MosipLocationModel> locations) {
+		Enumeration<String> e = locations.keys();
+		while (e.hasMoreElements()) {
+			String key = e.nextElement();
+			MosipLocationModel mLocModel = locations.get(key);
+			if (mLocModel.getHierarchyLevel() == levelCode) {
+				return key;
+			}
+		}
+		return null;
 	}
 		/*
 	public static JSONObject crateIdentityOld(ResidentModel resident) throws JSONException {
