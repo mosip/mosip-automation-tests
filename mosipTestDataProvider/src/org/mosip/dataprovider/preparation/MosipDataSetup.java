@@ -371,9 +371,9 @@ public static void updateMachine(MosipMachineModel machine) {
 				+ preregId + "?statusCode=" + statusCode;
 
 		try {
-			JSONObject resp = RestClient.put(url, new JSONObject());
+			JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject());
 			if (resp != null) {
-				response = resp.toString();
+				response = resp.getString("response");
 				System.out.println(response);
 			}
 		} catch (Exception e) {

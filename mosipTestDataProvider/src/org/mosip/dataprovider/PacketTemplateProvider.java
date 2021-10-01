@@ -527,7 +527,8 @@ public class PacketTemplateProvider {
 			
 			boolean processed = false;
 			
-			if(s.getSubType().toLowerCase().equals("gender") || s.getId().toLowerCase().equals("gender")  ) {
+			if((s.getSubType()!=null && s.getSubType().toLowerCase().equals("gender")) ||
+					s.getId().toLowerCase().equals("gender")  ) {
 				
 				String primLang = resident.getPrimaryLanguage();
 				String secLan = resident.getSecondaryLanguage();

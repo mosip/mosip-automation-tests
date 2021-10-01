@@ -747,9 +747,10 @@ public  class MosipMasterData {
 		String url = VariableManager.getVariableValue("urlBase").toString() +
 				VariableManager.getVariableValue(
 				VariableManager.NS_MASTERDATA,
-				"idschemaapi"
+				//"idschemaapi"
+				"uiSpec"
 				).toString();
-		url="https://qa-double.mosip.net/preregistration/v1/uispec/latest?identitySchemaVersion=0&version=0";
+		//url="https://qa-double.mosip.net/preregistration/v1/uispec/latest?identitySchemaVersion=0&version=0";
 	
 		Object o =getCache(url);
 		if(o != null)
@@ -759,9 +760,9 @@ public  class MosipMasterData {
 			JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject());
 
 				JSONArray identityArray = resp.getJSONObject("jsonSpec").getJSONObject("identity").getJSONArray("identity");
-			 
+				JSONArray locationHierarchyArray =resp.getJSONObject("jsonSpec").getJSONObject("identity").getJSONArray("locationHierarchy");
 			
-			if(identityArray != null) {
+				if(identityArray != null && locationHierarchyArray != null) {
 				
 				ObjectMapper objectMapper = new ObjectMapper();
 				objectMapper.setSerializationInclusion(Include.NON_NULL);
@@ -774,9 +775,21 @@ public  class MosipMasterData {
 					 identityArraylistSchema.add(schema);
 				}
 				
+				JSONArray array = new JSONArray();
+				for(int i=0;i<locationHierarchyArray.length();i++) {
+					if (locationHierarchyArray.get(i) instanceof JSONArray) {
+						array.put(locationHierarchyArray.get(i));
+					} 
+				}
+				if(array.length()==0) {
+					array.put(locationHierarchyArray);
+				}
+				
 				Properties prop = new Properties();
+				prop.put("locaitonherirachy", array);
 				prop.put("schemaList", identityArraylistSchema);
-				tbl.put(0.2, prop);
+				//tbl.put(0.2, prop);
+				tbl.put(resp.getDouble("idSchemaVersion"), prop);
 				
 				setCache(url, tbl);
 			}
@@ -1134,8 +1147,8 @@ public  class MosipMasterData {
 
 		int idx=0;
 		Stack<List<MosipLocationModel>> stk = new Stack<List<MosipLocationModel>>();
-		
-		while( isExists(locHirachyList, levelName) ) {
+		//while(isExists(locHirachyList, levelName))
+		while( true ) {
 				//MosipLocationModel lcParent = tbl.get(preLevel);
 			List<MosipLocationModel> rootLocs =  getImmedeateChildren(levelCode, langCode);
 			if(rootLocs == null) {
