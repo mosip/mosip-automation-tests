@@ -213,9 +213,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 	
 	public void updatePreRegStatus(String prid, String status, HashMap<String, String> contextKey) throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePreRegStatus")+prid+"?statusCode=" + status;
-		putRequestWithQueryParam(url,contextKey,"UpdatePreRegStatus");
-		Reporter.log("STATUS_UPDATED_SUCESSFULLY");
-		logger.info("STATUS_UPDATED_SUCESSFULLY");
+		Response response = putRequestWithQueryParam(url,contextKey,"UpdatePreRegStatus");
+		if (!response.getBody().asString().toLowerCase().contains("status_updated_sucessfully"))
+			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
+		else {
+			Reporter.log(response.getBody().asString());
+			logger.info(response.getBody().asString());
+		}
+		
 	}
 
 	public void bookAppointment(String prid, int nthSlot, HashMap<String, String> contextKey, boolean bookOnHolidays)
