@@ -1,7 +1,24 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.everit.json.schema.ValidationException;
 import org.json.JSONArray;
@@ -11,12 +28,10 @@ import org.mosip.dataprovider.BiometricDataProvider;
 import org.mosip.dataprovider.PacketTemplateProvider;
 import org.mosip.dataprovider.PhotoProvider;
 import org.mosip.dataprovider.ResidentDataProvider;
-import org.mosip.dataprovider.mds.ISOConverter;
 import org.mosip.dataprovider.models.AppointmentModel;
 import org.mosip.dataprovider.models.AppointmentTimeSlotModel;
 import org.mosip.dataprovider.models.BiometricDataModel;
 import org.mosip.dataprovider.models.CenterDetailsModel;
-
 import org.mosip.dataprovider.models.DynamicFieldValueModel;
 import org.mosip.dataprovider.models.IrisDataModel;
 import org.mosip.dataprovider.models.MosipDocTypeModel;
@@ -34,7 +49,6 @@ import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
-import org.mosip.dataprovider.util.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,31 +60,8 @@ import io.mosip.test.packetcreator.mosippacketcreator.dto.BioExceptionDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.MockABISExpectationsDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestType;
-import io.mosip.test.packetcreator.mosippacketcreator.dto.PreRegisterRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.UpdatePersonaDto;
 import variables.VariableManager;
-
-import java.io.File;
-
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
 
 
 @Service
@@ -136,6 +127,9 @@ public class PacketSyncService {
 
 	@Value("${packetmanager.zip.datetime.pattern:yyyyMMddHHmmss}")
 	private String zipDatetimePattern;
+	
+	@Value("${mosip.test.env.mapperpath}")
+	private String mapperFilePath;
 	 
 
     void loadServerContextProperties(String contextKey) {
@@ -715,7 +709,7 @@ public class PacketSyncService {
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
     		
     		
-    		packetTemplateProvider.generate("registration_client", process, resident, packetPath,preregId,machineId, centerId);
+    		packetTemplateProvider.generate("registration_client", process, resident, packetPath,preregId,machineId, centerId,contextKey);
     		JSONObject obj = new JSONObject();
     		obj.put("id",resident.getId());
     		obj.put("path", packetPath);
@@ -739,6 +733,7 @@ public class PacketSyncService {
 
     	
     	loadServerContextProperties(contextKey);
+    	VariableManager.setVariableValue("mosip.test.env.mapperpath", mapperFilePath);
     	if(process != null) {
     		VariableManager.setVariableValue("process", process);
     	}
@@ -759,7 +754,7 @@ public class PacketSyncService {
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
     		
     		
-    		packetTemplateProvider.generate("registration_client", process, resident, packetPath , preregId, machineId, centerId);
+    		packetTemplateProvider.generate("registration_client", process, resident, packetPath , preregId, machineId, centerId,contextKey);
     		JSONObject obj = new JSONObject();
     		obj.put("id",resident.getId());
     		obj.put("path", packetPath);
