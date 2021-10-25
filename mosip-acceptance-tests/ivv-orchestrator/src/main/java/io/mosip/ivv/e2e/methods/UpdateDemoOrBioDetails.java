@@ -29,13 +29,25 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 		List<String> regenAttributeList=(bioType!=null)?Arrays.asList(bioType.split("@@")):null;
 		List<String> missFieldsAttributeList=(missFields!=null)?Arrays.asList(missFields.split("@@")):null;
 		List<String> updateAttributeList=(updateAttribute!=null)?Arrays.asList(updateAttribute.split("@@")):null;
-		for (String resDataPath : residentTemplatePaths.keySet()) {
-			packetUtility.updateDemoOrBioDetail(resDataPath,
-					(regenAttributeList.get(0).equalsIgnoreCase("0")) ? null : regenAttributeList,
-					(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>() : missFieldsAttributeList,
-					updateAttributeList);
-			
-		}
+		
+		if (!step.getParameters().isEmpty() && step.getParameters().size() > 3) {   // "var1=e2e_updateDemoOrBioDetails(0,0,0,$$personaPath)"
+			String personaFilePath = step.getParameters().get(3);
+			if (personaFilePath.startsWith("$$")) {
+				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
+				packetUtility.updateDemoOrBioDetail(personaFilePath,
+						(regenAttributeList.get(0).equalsIgnoreCase("0")) ? null : regenAttributeList,
+						(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>(): missFieldsAttributeList,
+						(updateAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>() : updateAttributeList);
+			}
+		} else {
+			for (String resDataPath : residentTemplatePaths.keySet()) {
+				packetUtility.updateDemoOrBioDetail(resDataPath,
+						(regenAttributeList.get(0).equalsIgnoreCase("0")) ? null : regenAttributeList,
+						(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>()
+								: missFieldsAttributeList,
+						updateAttributeList);
 
+			}
+		}
 	}
 }

@@ -16,6 +16,7 @@ public class Scenario {
     private ArrayList<String> tags = new ArrayList();
     private String personaClass, groupName;
     private ArrayList<Step.modules> modules = new ArrayList();
+    private  HashMap<String,String> variables = new HashMap<String,String>();
 
     @Getter
     @Setter
@@ -33,6 +34,8 @@ public class Scenario {
         private boolean FailExpected = false; //default
         private ArrayList<String> parameters;
         private ArrayList<Integer> index;
+        private String outVarName=null;
+        private Scenario scenario=null;
 
         public static class Error{
             public String code;

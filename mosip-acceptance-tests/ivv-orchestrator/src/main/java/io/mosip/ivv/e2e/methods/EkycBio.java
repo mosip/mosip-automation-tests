@@ -41,8 +41,8 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 	public void run() throws RigInternalError {
 		 AuthPartnerProcessor.startProcess();
 		//uinPersonaProp.put("7209149850", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
-
-		 String deviceInfoFilePath = null;
+		String _personFilePath = null;
+		String deviceInfoFilePath = null;
 		String uins = null;
 		List<String> uinList = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
@@ -61,12 +61,23 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
+		} else if (step.getParameters().size() > 2) {   //  "e2e_EkycBio(faceDevice,$$uin,$$personaFilePath)"
+			uins = step.getParameters().get(1);
+			_personFilePath = step.getParameters().get(2);
+			if (uins.startsWith("$$") && _personFilePath.startsWith("$$")) {
+				uins = step.getScenario().getVariables().get(uins);
+				_personFilePath = step.getScenario().getVariables().get(_personFilePath);
+				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
+			}
 		} else
 			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
 
 		for (String uin : uinList) {
 			String personFilePathvalue = null;
-			if (uinPersonaProp.containsKey(uin))
+			if(step.getParameters().size()>2) {
+				personFilePathvalue=_personFilePath;
+			}
+			else if (uinPersonaProp.containsKey(uin))
 				personFilePathvalue = uinPersonaProp.getProperty(uin);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);

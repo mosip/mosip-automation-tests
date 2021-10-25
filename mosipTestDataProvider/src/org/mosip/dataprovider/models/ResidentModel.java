@@ -5,12 +5,14 @@ import java.io.Serializable;
 import java.nio.file.Files;
 
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
 import org.json.JSONObject;
 //import org.apache.commons.lang3.tuple.Pair;
 import org.mosip.dataprovider.util.CommonUtil;
+import org.mosip.dataprovider.util.Gender;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,13 +23,17 @@ import lombok.Data;
 @Data
 public class ResidentModel  implements Serializable {
 	
-	 private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 	private String id;
 	private String primaryLanguage;
 	private String secondaryLanguage;	
 	private String thirdLanguage;
-	private String gender;
-	private String gender_seclang;
+	//private String gender;
+	//private String gender_seclang;
+	//private MosipGenderModel gender;
+	//private MosipGenderModel gender_seclang;
+	//private MosipGenderModel gender_thirdlang;
+	private Gender gender;
 	private String dob;
 	private boolean minor;
 	private DynamicFieldValueModel bloodgroup;
@@ -55,12 +61,13 @@ public class ResidentModel  implements Serializable {
 	
 	private DynamicFieldValueModel maritalStatus;
 	
-	private List<DynamicFieldModel> dynaFields;
+	private Hashtable<String,List<DynamicFieldModel>> dynaFields;
 	private List<MosipDocument> documents;
 	private String UIN;
 	private String RID;
 	
-	private List<MosipGenderModel> genderTypes ;
+	//Language specific genderTypes
+	private Hashtable<String, List<MosipGenderModel>> genderTypes ;
 	
 	private List<String> missAttributes;
 	private List<String> invalidAttributes;
@@ -73,6 +80,11 @@ public class ResidentModel  implements Serializable {
 	//resident Metadata
 	//private double schemaVersion;
 	//private String targetCotext;
+	private Hashtable<String,String> addtionalAttributes;
+	
+	private Boolean skipFinger;
+	private Boolean skipFace;
+	private Boolean skipIris;
 	
 	public ResidentModel() {
 	
@@ -82,6 +94,8 @@ public class ResidentModel  implements Serializable {
 		int [] r = CommonUtil.generateRandomNumbers(2, 99999, 11111);
 		id = String.format("%d%d", r[0],r[1]);
 		docIndexes = new Hashtable<String,Integer>();
+		addtionalAttributes =new Hashtable<String,String>();
+		genderTypes = new Hashtable<String, List<MosipGenderModel>>(); 
 	}
 
 	public String toJSONString() {
@@ -158,4 +172,5 @@ public class ResidentModel  implements Serializable {
 		
 		return demodata;
 	}
+
 }

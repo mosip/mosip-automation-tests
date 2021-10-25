@@ -40,6 +40,29 @@ public class ReadEmail {
 		 }
 		return otps;
 	}
+	
+	public static List<String> getadditionalInfoReqIds(){
+		List<String> additionalInfoReqIds = new ArrayList<String>();
+		gmailPOPHost = "pop.gmail.com";
+		mailStoreType = "pop3";  
+		username= "alok.test.mosip@gmail.com";  
+		password= "alok@Mosip@123";//change accordingly  
+		regexpattern = "\\d+"; // TODO : needs to be updated
+		
+		List<String> mails =  receiveEmail(gmailPOPHost, mailStoreType, username, password);  
+		for(String s: mails) {
+			System.out.println("S==" +s);
+			 Pattern pattern = Pattern.compile(regexpattern);
+			 Matcher matcher = pattern.matcher(s);
+			 if (matcher.find())
+			 {
+				 System.out.println(matcher.group());
+				 additionalInfoReqIds.add(matcher.group());
+			 }
+		 }
+		return additionalInfoReqIds;
+	}
+	
 	 public static List<String> receiveEmail(String pop3Host, String storeType,  
 	  String user, String password) {  
 		 List<String> mailMessage = new ArrayList<String>();
@@ -74,7 +97,6 @@ public class ReadEmail {
 	    MimeMultipart content =  (MimeMultipart) message.getContent();
 	    String bodyMsg =  getTextFromMimeMultipart(content);
 	   
-	   
 	      if(message.getFrom()[0].toString().equals(FROM_MATH)) {
 	    	  mailMessage.add(bodyMsg);
 	    	  message.setFlag(Flags.Flag.DELETED, true);
@@ -92,7 +114,7 @@ public class ReadEmail {
 	 }  
 	  
 	 public static void main(String[] args) {  
-
+		 getadditionalInfoReqIds();
 		 List<String> otps = getOtps();
 		 for(String ss: otps) {
 			 System.out.println(ss);

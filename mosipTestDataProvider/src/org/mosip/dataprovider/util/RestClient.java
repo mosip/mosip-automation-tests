@@ -403,6 +403,152 @@ public class RestClient {
     		return new JSONObject("{\"status\":\""+ response.getBody().asString() + "\"}" );
     	}
     }
+	
+	public static JSONObject put(String url, JSONObject jsonRequest) throws Exception {
+		String role = "system";
+		if (!isValidToken(role)){
+            initToken();
+        }
+		boolean bDone = false;
+	    int nLoop  = 0;
+	    Response response =null;
+
+	  //Stict http validation errors - fix
+    	/*if(url.contains("//")) {
+    		url = url.replace("//", "/"); 		
+    	} */
+	    
+	    while(!bDone) {
+	    	String token = tokens.get(role);
+	    	
+	    	Cookie kukki = new Cookie.Builder("Authorization", token).build();
+	    	System.out.println("Request:"+ jsonRequest.toString());
+	    	response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+	    	if(response.getStatusCode() == 401 || response.getStatusCode() == 500 ) {
+    			if(nLoop >= 1)
+    				bDone = true;
+    			else {
+    				initToken();
+    				nLoop++;
+    			}
+    		}
+    		else
+    			bDone = true;
+	    
+	    }
+	    	
+	    String cookie = response.getHeader("set-cookie");
+    	if(cookie != null) {
+    		
+    		String token = cookie.split("=")[1];
+    		tokens.put(role, token);
+    	}
+    	if(response.getBody().asString().startsWith("{")) {
+    		System.out.println("Response:"+response.getBody().asString());
+    		checkErrorResponse(response.getBody().asString());
+    		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+    	}
+    	else {
+    		return new JSONObject("{\"status\":\""+ response.getBody().asString() + "\"}" );
+    	}
+    }
+	
+	public static JSONObject putPreRegStatus(String url, JSONObject jsonRequest) throws Exception {
+		String role = "system";
+		if (!isValidToken(role)){
+            initToken();
+        }
+		boolean bDone = false;
+	    int nLoop  = 0;
+	    Response response =null;
+
+	    
+	    while(!bDone) {
+	    	String token = tokens.get(role);
+	    	
+	    	Cookie kukki = new Cookie.Builder("Authorization", token).build();
+	    	System.out.println("Request:"+ jsonRequest.toString());
+	    	response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+	    	if(response.getStatusCode() == 401 || response.getStatusCode() == 500 ) {
+    			if(nLoop >= 1)
+    				bDone = true;
+    			else {
+    				initToken();
+    				nLoop++;
+    			}
+    		}
+    		else
+    			bDone = true;
+	    
+	    }
+	    	
+	    String cookie = response.getHeader("set-cookie");
+    	if(cookie != null) {
+    		
+    		String token = cookie.split("=")[1];
+    		tokens.put(role, token);
+    	}
+    	if(response.getBody().asString().startsWith("{")) {
+    		System.out.println("Response:"+response.getBody().asString());
+    		checkErrorResponse(response.getBody().asString());
+    		return new JSONObject(response.getBody().asString());
+    	}
+    	else {
+    		return new JSONObject("{\"status\":\""+ response.getBody().asString() + "\"}" );
+    	}
+    }
+
+	public static JSONObject patch(String url, JSONObject jsonRequest) throws Exception {
+		String role = "system";
+		if (!isValidToken(role)){
+            initToken();
+        }
+		boolean bDone = false;
+	    int nLoop  = 0;
+	    Response response =null;
+
+	  //Stict http validation errors - fix
+    	/*if(url.contains("//")) {
+    		url = url.replace("//", "/"); 		
+    	} */
+	    
+	    while(!bDone) {
+	    	String token = tokens.get(role);
+	    	
+	    	Cookie kukki = new Cookie.Builder("Authorization", token).build();
+	    	System.out.println("Request:"+ jsonRequest.toString());
+          
+	    	response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).patch(url);
+	    	if(response.getStatusCode() == 401 || response.getStatusCode() == 500 ) {
+    			if(nLoop >= 1)
+    				bDone = true;
+    			else {
+    				initToken();
+    				nLoop++;
+    			}
+    		}
+    		else
+    			bDone = true;
+	    
+	    }
+	    	
+	    String cookie = response.getHeader("set-cookie");
+    	if(cookie != null) {
+    		
+    		String token = cookie.split("=")[1];
+    		tokens.put(role, token);
+    	}
+    	if(response.getBody().asString().startsWith("{")) {
+    		System.out.println("Response:"+response.getBody().asString());
+    		checkErrorResponse(response.getBody().asString());
+    	
+    		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+    	}
+    	else {
+    		return new JSONObject("{\"status\":\""+ response.getBody().asString() + "\"}" );
+    	}
+    }
+
 	public  static boolean initToken(){
 	        try {		
 				JSONObject requestBody = new JSONObject();
@@ -507,6 +653,54 @@ public class RestClient {
 		}
 		return builder.toString();
 	}
+
+	public static JSONArray getJsonArray(String url, JSONObject requestParams, JSONObject pathParam) throws Exception {
+       
+		String role = "system";
+        if (!isValidToken(role)){
+        	initToken();
+        }
+    	boolean bDone = false;
+    	int nLoop  = 0;
+    	Response response =null;
+
+    	//Stict http validation errors - fix
+    	
+    	/*if(url.contains("//")) {
+    		url = url.replace("//", "/"); 		
+    	}*/
+    	while(!bDone) {
+
+    		String token = tokens.get(role);
+        	
+    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+    		Map<String,Object> mapParam = requestParams == null ? null: requestParams.toMap();
+        		//new Gson().fromJson(requestParams.toString(), HashMap.class);
+    		Map<String,Object> mapPathParam =pathParam == null ? null: pathParam.toMap();
+        
+        	//new Gson().fromJson(pathParam.toString(), HashMap.class);
+        
+    		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,mapPathParam );
+    		if(response.getStatusCode() == 401) {
+    			if(nLoop >= 1)
+    				bDone = true;
+    			else {
+    				initToken();
+    				nLoop++;
+    			}
+    		}
+    		else
+    			bDone = true;
+    	}
+
+        if(response != null) {
+        	System.out.println("hello");
+        	
+        }
+        checkErrorResponse(response.getBody().asString());
+
+        return new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
+    }
 
 	public static String rawHttp(HttpRCapture httpRCapture, String jsonBody) throws IOException {
 	

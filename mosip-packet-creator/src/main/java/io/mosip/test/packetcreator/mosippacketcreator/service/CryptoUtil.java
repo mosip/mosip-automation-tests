@@ -1,16 +1,26 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
-import java.io.ByteArrayInputStream;
+import static java.util.Arrays.copyOfRange;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import java.security.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.KeyStore.PasswordProtection;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore.ProtectionParameter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
+import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -20,20 +30,10 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Properties;
 
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
-import org.springframework.stereotype.Component;
-import tss.Tpm;
-import tss.TpmFactory;
-import tss.tpm.CreatePrimaryResponse;
-import tss.tpm.*;
-
 import javax.annotation.PostConstruct;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
@@ -41,8 +41,33 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource.PSpecified;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
-import static java.util.Arrays.copyOfRange;
-import java.security.KeyStore.PasswordProtection;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import tss.Tpm;
+import tss.TpmFactory;
+import tss.tpm.CreatePrimaryResponse;
+import tss.tpm.TPM2B_PUBLIC_KEY_RSA;
+import tss.tpm.TPMA_OBJECT;
+import tss.tpm.TPMS_NULL_SIG_SCHEME;
+import tss.tpm.TPMS_PCR_SELECTION;
+import tss.tpm.TPMS_RSA_PARMS;
+import tss.tpm.TPMS_SENSITIVE_CREATE;
+import tss.tpm.TPMS_SIGNATURE_RSASSA;
+import tss.tpm.TPMS_SIG_SCHEME_RSASSA;
+import tss.tpm.TPMT_HA;
+import tss.tpm.TPMT_PUBLIC;
+import tss.tpm.TPMT_SYM_DEF_OBJECT;
+import tss.tpm.TPMT_TK_HASHCHECK;
+import tss.tpm.TPMU_SIGNATURE;
+import tss.tpm.TPM_ALG_ID;
+import tss.tpm.TPM_HANDLE;
+import tss.tpm.TPM_RH;
 
 @Component
 public class CryptoUtil {
@@ -79,6 +104,12 @@ public class CryptoUtil {
 
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
+    
+    @Value("${mosip.test.regclient.machineid}")
+    private String machineid;
+    
+    @Value("${mosip.test.persona.configpath}")
+	private String personaConfigPath;
    
     @Autowired
     private ContextUtils contextUtils;
@@ -178,6 +209,7 @@ public class CryptoUtil {
         //test(org.apache.commons.codec.binary.Base64.encodeBase64String(mergeddata), referenceId, encryptObj);
         return mergeddata;
     }
+    
 
     public String decrypt(String data) throws Exception {
 		PrivateKeyEntry privateKeyEntry = loadP12();
@@ -347,7 +379,7 @@ public class CryptoUtil {
         }
     }
 
-    public byte[] sign(byte[] dataToSign) throws Exception {
+    public byte[] sign(byte[] dataToSign,String contextKey) throws Exception {
         try {
             if(tpmAvailable) {
                 CreatePrimaryResponse signingKey = createSigningKey();
@@ -357,9 +389,9 @@ public class CryptoUtil {
                 logger.info("Completed Signing data using TPM");
                 return ((TPMS_SIGNATURE_RSASSA) signedData).sig;
             }
-
+            
             Signature sign = Signature.getInstance(SIGN_ALGORITHM);
-            sign.initSign(getMachinePrivateKey());
+            sign.initSign(getMachinePrivateKey(contextKey));
 
             try(ByteArrayInputStream in = new ByteArrayInputStream(dataToSign)) {
                 byte[] buffer = new byte[2048];
@@ -375,8 +407,33 @@ public class CryptoUtil {
         }
     }
 
-    private PrivateKey getMachinePrivateKey() throws Exception {
-        byte[] key = Files.readAllBytes(Path.of(KEY_PATH ,KEYS_DIR ,PRIVATE_KEY));
+    private PrivateKey getMachinePrivateKey(String contextKey) throws Exception {
+    	String filePath=null;
+		if (contextKey != null && !contextKey.equals("")) {
+
+			Properties props = contextUtils.loadServerContext(contextKey);
+			props.forEach((k, v) -> {
+				if (k.toString().equals("mosip.test.regclient.machineid")) {
+					machineid = v.toString().trim();
+				}
+
+			});
+		}
+		File folder = new File(String.valueOf(personaConfigPath) + File.separator +"privatekeys"+File.separator);
+		File[] listOfFiles = folder.listFiles();
+		for (File file : listOfFiles) {
+		    if (file.isFile()) {
+				if (file.getName().contains(contextKey +"."+ machineid)) {
+					filePath = file.getAbsolutePath();
+					break;
+				}
+		    }
+		}
+    	//byte[] key = Files.readAllBytes(Path.of(KEY_PATH ,KEYS_DIR ,PRIVATE_KEY));
+		if(filePath==null ||filePath.isEmpty() )
+			throw new Exception("privatekey file not found"); 
+		System.out.println("PRIVATEKEY FILE PATH::"+filePath);
+    	byte[] key = Files.readAllBytes(Path.of(filePath));
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return kf.generatePrivate(keySpec);

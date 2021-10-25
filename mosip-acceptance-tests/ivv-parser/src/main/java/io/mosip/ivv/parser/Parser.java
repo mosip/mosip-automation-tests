@@ -266,6 +266,9 @@ public class Parser implements ParserInterface {
             scenario.setGroupName(data_map.get("group_name"));
             scenario.setTags(parseTags(data_map.get("tags")));
             scenario.setSteps(formatSteps(data_map));
+            for(Scenario.Step s :scenario.getSteps()) {
+            	s.setScenario(scenario);
+            }
             for(Scenario.Step stp: scenario.getSteps()){
                 if(!scenario.getModules().contains(stp.getModule())){
                     scenario.getModules().add(stp.getModule());
@@ -362,6 +365,7 @@ public class Parser implements ParserInterface {
                 }
             }
         }
+       
         return steps;
     }
 

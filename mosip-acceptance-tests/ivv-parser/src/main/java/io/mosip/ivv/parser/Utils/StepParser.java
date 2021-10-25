@@ -11,12 +11,21 @@ import java.util.regex.Pattern;
 public class StepParser {
 
     public static Scenario.Step parse(String cell){
+    	String varName=null;
         String[] errorKeys = new String[]{"Error", "error", "ERROR"};
         ArrayList<Scenario.Step.Assert> asserts = new ArrayList<>();
         ArrayList<Scenario.Step.Error> errors = new ArrayList<>();
         ArrayList<String> parameters = new ArrayList<>();
         ArrayList<Integer> indexes = new ArrayList<>();
+        
+        String[] cellFields = cell.split("=e2e_");
+        if(cellFields.length>1) {
+        	cell="e2e_"+cellFields[1];
+        	varName=cellFields[0].trim();
+        	
+        }
         Scenario.Step step = new Scenario.Step();
+        step.setOutVarName(varName);
         Pattern pattern = Pattern.compile("\\.");
         String[] str_split = pattern.split(cell);
         for( int i = 0; i < str_split.length; i++) {

@@ -2,6 +2,7 @@ package org.mosip.dataprovider.test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
@@ -82,7 +83,8 @@ public class CreatePersona {
 					String fValue = "";
 					if(s.getType().equals("simpleType")) {
 						JSONArray arr = identity.getJSONArray(s.getId());
-						fValue = arr.getJSONObject(0).get("value").toString();
+						if(!arr.isEmpty() && arr.getJSONObject(0).has("value") )
+							fValue = arr.getJSONObject(0).get("value").toString();
 					}
 					else
 					{
@@ -104,17 +106,19 @@ public class CreatePersona {
 	}
 	public static JSONObject crateIdentity(ResidentModel resident, DataCallback cb) {
 
-		tbl = MosipMasterData.getIDSchemaLatestVersion();
+		Hashtable<Double,Properties>  tbl1 = MosipMasterData.getIDSchemaLatestVersion();
+		tbl = MosipMasterData.getPreregIDSchemaLatestVersion();
 		Double schemaversion = tbl.keys().nextElement();
 		List<MosipIDSchema>  lstSchema =(List<MosipIDSchema>) tbl.get(schemaversion).get("schemaList");
-		List<String> requiredAttribs = (List<String>) tbl.get(schemaversion).get("requiredAttributes");
+		List<String> requiredAttribs = (List<String>) tbl1.get(schemaversion).get("requiredAttributes");
+		JSONArray locaitonherirachyArray = (JSONArray)tbl.get(schemaversion).get("locaitonherirachy");
 		
 		JSONObject identity = new JSONObject();
 
 		Hashtable<String, MosipLocationModel> locations =   resident.getLocation();
 		Set<String> locationSet =  locations.keySet();
-		List<DynamicFieldModel> dynaFields = resident.getDynaFields();
-		List<MosipGenderModel> genderTypes = resident.getGenderTypes();
+		Hashtable<String,List<DynamicFieldModel>> dynaFields = resident.getDynaFields();
+		Hashtable<String,List<MosipGenderModel>> genderTypes = resident.getGenderTypes();
 		
 		identity.put("IDSchemaVersion",schemaversion );
 		if(cb != null)
@@ -128,8 +132,12 @@ public class CreatePersona {
 			if(cb != null) {
 				cb.logDebug(schemaItem.toJSONString());
 			}
-			if(!CommonUtil.isExists(requiredAttribs,schemaItem.getId()))
+			
+			
+			if (!CommonUtil.isExists(requiredAttribs, schemaItem.getId()))
 				continue;
+			 
+			 
 			if(lstMissedAttributes != null && lstMissedAttributes.stream().anyMatch( v -> v.equalsIgnoreCase(schemaItem.getId()))) {
 				continue;
 			}
@@ -139,10 +147,6 @@ public class CreatePersona {
 					( schemaItem.getType().equals("documentType") || schemaItem.getType().equals("biometricsType"))) {
 				continue;
 			}
-			/*
-			 * if(!(schemaItem.getRequired() || schemaItem.getInputRequired())) { continue;
-			 * }
-			 */
 			if(!(schemaItem.getRequired())) {
 				continue;
 			}
@@ -152,32 +156,12 @@ public class CreatePersona {
 			if(schemaItem.getType() == null )
 				continue;
 			
+			if(PacketTemplateProvider.processDynamicFields(schemaItem, identity, resident))
+				continue;
+			
+			
 			if(schemaItem.getFieldType().equals("dynamic")) {
 			
-				boolean genderFound = PacketTemplateProvider.processGender(schemaItem, resident,identity, genderTypes,dynaFields);
-				if(genderFound)
-					continue;
-						
-				if(dynaFields != null) {
-					
-					
-					for(DynamicFieldModel dfm: dynaFields) {
-						if(dfm.getIsActive() && 
-									( dfm.getId().equals(schemaItem.getId()) || dfm.getName().equals(schemaItem.getId()))
-						) {
-
-							constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
-											dfm.getFieldVal().get(0).getValue(),
-											dfm.getFieldVal().get(0).getValue(),
-											schemaItem.getType().equals("simpleType") ? true: false
-											);
-							found = true;
-							break;
-						}
-					}
-					if(found)
-						continue;
-				}
 				if(schemaItem.getId().toLowerCase().contains("residen")  ) {
 					String name = resident.getResidentStatus().getCode() ;
 
@@ -191,20 +175,16 @@ public class CreatePersona {
 				}
 				else {
 					found = false;	
-					for(String locLevel: locationSet) {
-				
-						if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
-									
-							constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
-								resident.getSecondaryLanguage(),
-								locations.get(locLevel).getCode(),
-								locations.get(locLevel).getCode(),
-								schemaItem.getType().equals("simpleType") ? true: false
-								);
-							found = true;
-							break;
-						}
-					}
+					/*
+					 * for(String locLevel: locationSet) {
+					 * 
+					 * if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
+					 * 
+					 * constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+					 * resident.getSecondaryLanguage(), locations.get(locLevel).getCode(),
+					 * locations.get(locLevel).getCode(), schemaItem.getType().equals("simpleType")
+					 * ? true: false ); found = true; break; } }
+					 */
 					if(found)
 						continue;
 				}
@@ -234,6 +214,7 @@ public class CreatePersona {
 						name_sec,
 						schemaItem.getType().equals("simpleType") ? true: false
 					);
+					continue;
 			}
 			else
 			if(schemaItem.getId().toLowerCase().equals("firstname") ||
@@ -267,6 +248,7 @@ public class CreatePersona {
 							name_sec,
 							schemaItem.getType().equals("simpleType") ? true: false
 					);
+					continue;
 			}	
 			else
 			if(schemaItem.getId().toLowerCase().contains("address")) {
@@ -279,6 +261,7 @@ public class CreatePersona {
 							addrLines.getValue1(),
 							schemaItem.getType().equals("simpleType") ? true: false
 				);
+				continue;
 			}
 			else
 			if(schemaItem.getId().toLowerCase().equals("dateofbirth") ||schemaItem.getId().toLowerCase().equals("dob") || schemaItem.getId().toLowerCase().equals("birthdate") ) {
@@ -292,6 +275,7 @@ public class CreatePersona {
 								strDate,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
+						continue;
 			}
 		/*	else
 			if(schemaItem.getId().toLowerCase().contains("phone") || schemaItem.getId().toLowerCase().contains("mobile") ) {
@@ -314,6 +298,7 @@ public class CreatePersona {
 								emailId,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
+						continue;
 			}
 			else
 			if(schemaItem.getId().toLowerCase().contains("referenceidentity") ) {
@@ -325,6 +310,7 @@ public class CreatePersona {
 								id,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
+						continue;
 						
 			}
 			else
@@ -341,25 +327,47 @@ public class CreatePersona {
 								secValue,
 								schemaItem.getType().equals("simpleType") ? true: false
 						);
+						continue;
 				
 			}
 			else
 			{
 				found = false;
-				for(String locLevel: locationSet) {
-					
-					if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
-								
-						constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
-							resident.getSecondaryLanguage(),
-							locations.get(locLevel).getCode(),
-							locations.get(locLevel).getCode(),
-							schemaItem.getType().equals("simpleType") ? true: false
-							);
-						found = true;
-						break;
+
+				for (int i = 0; i < locaitonherirachyArray.length(); i++) {
+					JSONArray jsonArray = locaitonherirachyArray.getJSONArray(i);
+					for (int j = 0; j < jsonArray.length(); j++) {
+						String id = jsonArray.getString(j);
+						System.out.println(id);
+
+						if (schemaItem.getId().toLowerCase().equals(id.toLowerCase())) {
+							//String locLevel = (String) locationSet.toArray()[j];
+							String locLevel = getLocatonLevel(j+1,locations);
+							
+							constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+									resident.getSecondaryLanguage(), locations.get(locLevel).getCode(),
+									locations.get(locLevel).getCode(),
+									schemaItem.getType().equals("simpleType") ? true : false);
+							found = true;
+							break;
+						}
 					}
 				}
+
+			}
+			
+		
+				
+				/*
+				 * for(String locLevel: locationSet) {
+				 * 
+				 * if(schemaItem.getSubType().toLowerCase().contains(locLevel.toLowerCase())) {
+				 * 
+				 * constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+				 * resident.getSecondaryLanguage(), locations.get(locLevel).getCode(),
+				 * locations.get(locLevel).getCode(), schemaItem.getType().equals("simpleType")
+				 * ? true: false ); found = true; break; } }
+				 */
 				if(found)
 					continue;
 
@@ -381,9 +389,10 @@ public class CreatePersona {
 				}
 				if(someVal == null)
 					someVal = CommonUtil.generateRandomString(schemaItem.getMaximum());
-				if(schemaItem.getId().equals("IDSchemaVersion"))
-					someVal = Double.toString(schemaversion);
-				
+				/*
+				 * if(schemaItem.getId().equals("IDSchemaVersion")) someVal =
+				 * Double.toString(schemaversion);
+				 */
 				constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 						resident.getSecondaryLanguage(),
 						someVal,
@@ -392,12 +401,24 @@ public class CreatePersona {
 				);
 		
 			}
-		}
+		//}
 		
 
 		return identity;
 		
 		
+	}
+	
+	private static String getLocatonLevel(int levelCode,Hashtable<String, MosipLocationModel> locations) {
+		Enumeration<String> e = locations.keys();
+		while (e.hasMoreElements()) {
+			String key = e.nextElement();
+			MosipLocationModel mLocModel = locations.get(key);
+			if (mLocModel.getHierarchyLevel() == levelCode) {
+				return key;
+			}
+		}
+		return null;
 	}
 		/*
 	public static JSONObject crateIdentityOld(ResidentModel resident) throws JSONException {
@@ -595,7 +616,7 @@ public class CreatePersona {
 	 *    "version":"1.0","requesttime":"2020-12-05T10:01:50.763Z"
 	 *    }
 	 */
-	public static String sendOtpTo(String to) throws JSONException {
+	public static String sendOtpTo(String to, String langCode) throws JSONException {
 		//urlBase
 		//https://dev.mosip.net//preregistration/v1/login/sendOtp
 		String response ="";
@@ -604,10 +625,11 @@ public class CreatePersona {
 		obj.put("version", "1.0");
 		obj.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
 		JSONObject req = new JSONObject();
-		req.put("userId", to);	
+		req.put("userId", to);
+		req.put("langCode", langCode);
 		obj.put("request", req);
 		//RestClient client = annotation.getRestClient();
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"preregistration/v1/login/sendOtp";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"/preregistration/v1/login/sendOtp/langcode";
 	//	url = "https://dev.mosip.net/preregistration/v1/login/sendOtp";
 		try {
 			JSONObject resp = RestClient.postNoAuth(url, obj);
@@ -620,7 +642,7 @@ public class CreatePersona {
 	}
 	
 	public static String sendOtpToPhone(String mobile) throws JSONException {
-		return sendOtpTo(mobile);
+		return sendOtpTo(mobile, "");
 	}
 	/*
 	 * {"id":"mosip.pre-registration.login.useridotp",

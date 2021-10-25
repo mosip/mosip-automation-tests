@@ -93,9 +93,13 @@ public class MosipDataSetup {
 	public static List<MosipMachineModel> getMachineDetail(String machineId, String langCode) {
 		
 		List<MosipMachineModel> machines = null;
-		String url = VariableManager.getVariableValue("urlBase").toString() +
+		/* String url = VariableManager.getVariableValue("urlBase").toString() +
 		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinedetail").toString();
-		url = url + machineId + "/" + langCode;
+		url = url + machineId + "/" + langCode; */
+		String url = VariableManager.getVariableValue("urlBase").toString()
+				+ "/v1/masterdata/machines/";
+		
+		url = url + machineId + "/ ";
 		
 		Object o =getCache(url);
 		if(o != null)
@@ -118,6 +122,68 @@ public class MosipDataSetup {
 		}
 		return machines;
 	}
+	
+	// Get the inActive machine details by machineId (regcenter deactivate scenario) 
+public static List<MosipMachineModel> searchMachineDetail(String machineId, String langCode) {
+		
+		List<MosipMachineModel> machines = null;
+		String url = VariableManager.getVariableValue("urlBase").toString()
+				+ "/v1/masterdata/machines/search";
+		
+		Object o =getCache(url);
+		if(o != null)
+			return( (List<MosipMachineModel>) o);
+		
+		JSONObject pagination = new JSONObject();
+		pagination.put("pageStart",0);
+		pagination.put("pageFetch",11);
+
+		JSONArray filterArray = new JSONArray();
+		JSONObject filters = new JSONObject();
+		filters.put("type","equals");
+		filters.put("value",machineId);
+		filters.put("columnName","id");
+		filterArray.put(filters);
+
+		JSONArray sortArray = new JSONArray();
+		JSONObject sort = new JSONObject();
+		sort.put("sortType","ASC");
+		sort.put("sortField","id");
+		sortArray.put(sort);
+
+		JSONObject searchRequest = new JSONObject();
+		searchRequest.put("languageCode", "eng");
+		searchRequest.put("pagination",pagination);
+		searchRequest.put("filters",filterArray);
+		searchRequest.put("sort",sortArray);
+
+		JSONObject wrapper = new JSONObject();
+		wrapper.put("metadata", new JSONObject());
+		wrapper.put("version", "string");
+		wrapper.put("id", "string");
+		wrapper.put("requesttime",  CommonUtil.getUTCDateTime(null));
+		wrapper.put("request", searchRequest);
+		
+		try {
+			JSONObject resp = RestClient.post(url,wrapper);
+			if(resp != null) {
+				JSONArray typeArray = resp.getJSONArray("data");
+				ObjectMapper objectMapper = new ObjectMapper();
+				machines = objectMapper.readValue(typeArray.toString(), 
+						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
+				
+				setCache(url, machines);
+			
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return machines;
+	}
+	//
+	
+	
 	public static void createRegCenterType(MosipRegistrationCenterTypeModel type) {
 		String url = VariableManager.getVariableValue("urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"regcentertype").toString();
@@ -312,6 +378,74 @@ public class MosipDataSetup {
 		}
 
 	}
+	
+public static void updateMachine(MosipMachineModel machine) {
+		
+	
+	  String url = VariableManager.getVariableValue("urlBase").toString() +
+	  VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machine"
+	  ).toString();
+
+	  
+	 
+		//String url="https://qa2.mosip.net/v1/masterdata/machines";
+		
+		JSONObject jsonMachine = new JSONObject();
+		jsonMachine.put("id", machine.getId());
+		jsonMachine.put("ipAddress", machine.getIpAddress());
+		jsonMachine.put("isActive", machine.isActive());
+		jsonMachine.put("langCode", machine.getLangCode());
+		jsonMachine.put("macAddress", machine.getMacAddress());
+		jsonMachine.put("machineSpecId", machine.getMachineSpecId());
+		jsonMachine.put("name", machine.getName());
+		jsonMachine.put("publicKey", machine.getPublicKey());
+		jsonMachine.put("regCenterId", machine.getRegCenterId());
+		jsonMachine.put("serialNum", machine.getSerialNum());
+		jsonMachine.put("signPublicKey", machine.getSignPublicKey());
+		jsonMachine.put("validityDateTime", machine.getValidityDateTime());
+		jsonMachine.put("zoneCode", machine.getZoneCode());
+					
+		JSONObject jsonReqWrapper = new JSONObject();
+		jsonReqWrapper.put("request", jsonMachine);
+		jsonReqWrapper.put("requesttime", CommonUtil.getUTCDateTime(null));
+		jsonReqWrapper.put("version", "1.0");
+		jsonReqWrapper.put("id", "id.machine");
+		jsonReqWrapper.put("metadata", new JSONObject());
+
+	
+		
+		try {
+			JSONObject resp = RestClient.put(url,jsonReqWrapper);
+			if(resp != null) {
+				String r = resp.toString();
+				System.out.println(r);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	public static String updatePreRegStatus(String preregId, String statusCode) {
+		String response = null;
+		String url = VariableManager.getVariableValue("urlBase").toString() + "/preregistration/v1/applications/status/"
+				+ preregId + "?statusCode=" + statusCode;
+
+		try {
+			JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject());
+			if (resp != null) {
+				response = resp.getString("response");
+				System.out.println(response);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+
+	}
+
+
 	public static List<MosipDeviceModel> getDevices(String centerId) {
 		//GET /v1/masterdata/devices/mappeddevices/1001?direction=DESC&orderBy=createdDateTime&pageNumber=0&pageSize=100
 	

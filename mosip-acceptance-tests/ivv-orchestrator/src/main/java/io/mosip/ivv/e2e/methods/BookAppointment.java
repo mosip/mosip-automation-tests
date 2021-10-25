@@ -17,7 +17,15 @@ public class BookAppointment extends BaseTestCaseUtil implements StepInterface {
 			for (String resDataPath : residentPathsPrid.keySet()) {
 				packetUtility.bookAppointment(residentPathsPrid.get(resDataPath), 1, contextInuse, bookOnHolidays);
 			}
-		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { // used for child packet processing
+		}else if(!step.getParameters().isEmpty() && step.getParameters().size() == 2) {  //"$$var=e2e_bookAppointment(false,$$prid)"
+			bookOnHolidays = Boolean.parseBoolean(step.getParameters().get(0));
+			String prid = step.getParameters().get(1);
+			if (prid.startsWith("$$")) {
+				prid = step.getScenario().getVariables().get(prid);
+				packetUtility.bookAppointment(prid, 1, contextInuse, bookOnHolidays);
+			}
+		}
+		else if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { // used for child packet processing
 			bookOnHolidays = Boolean.parseBoolean(step.getParameters().get(0));
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(1));
 			if (isForChildPacket && prid_updateResident != null)

@@ -61,7 +61,18 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else
+		} else if (step.getParameters().size() == 3) {    //  e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+			uins = step.getParameters().get(1);
+			String _personaFilePath = step.getParameters().get(2);
+			if (uins.startsWith("$$") && _personaFilePath.startsWith("$$")) {
+				uins = step.getScenario().getVariables().get(uins);
+				_personaFilePath = step.getScenario().getVariables().get(_personaFilePath);
+				uinList = new ArrayList<>();
+				uinList.add(uins);
+				uinPersonaProp.put(uins, _personaFilePath);
+			}
+		}
+		else
 			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
 
 		for (String uin : uinList) {

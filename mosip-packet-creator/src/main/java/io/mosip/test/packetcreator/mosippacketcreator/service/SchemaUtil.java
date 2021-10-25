@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 @Component
 public class SchemaUtil {
@@ -103,6 +104,7 @@ public class SchemaUtil {
         JSONObject data = new JSONObject(dataFile);
         data = data.getJSONObject(IDENTITY);
 
+        schemaJson =schemaJson.replaceAll(Pattern.quote("\\\""), "\"");
         JSONObject schema = new JSONObject(schemaJson);
         schema = schema.getJSONObject(PROPERTIES);
         schema = schema.getJSONObject(IDENTITY);

@@ -41,8 +41,14 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 					break;
 				}
 			}
-		} else
+		} else if(!step.getParameters().isEmpty() && step.getParameters().size() == 3){ // "$$modalityHashValue=e2e_getBioModalityHash(-1,Right IndexFinger@@Left LittleFinger,$$personaFilePath)"
+			personaPath=step.getParameters().get(2);
+			if(personaPath.startsWith("$$")) {
+				personaPath=step.getScenario().getVariables().get(personaPath);
+			}
+		}else {
 			throw new RigInternalError("missing input param [personaid,List<String> modalitySubType]");
+		}
 		  inputList = PacketUtility.getParamsArg(step.getParameters().get(1), "@@"); // List<String> ModalitysubTypeList
 		   inputList.stream().forEach(key -> modalitySubTypeList.add(key));
 			
@@ -81,7 +87,11 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 					modalityHashValueMap.put(modalitysubType, hashValue);
 				}
 			}
-			hashtable.put(personaId, modalityHashValueMap);
+			if (step.getOutVarName() != null)
+				step.getScenario().getVariables().put(step.getOutVarName(), modalityHashValueMap.toString());
+			else {
+				hashtable.put(personaId, modalityHashValueMap);
+			}
 
 		}
 

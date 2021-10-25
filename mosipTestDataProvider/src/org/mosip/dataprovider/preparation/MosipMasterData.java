@@ -1,16 +1,21 @@
 package org.mosip.dataprovider.preparation;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +24,7 @@ import org.mosip.dataprovider.ResidentDataProvider;
 import org.mosip.dataprovider.models.ApplicationConfigIdSchema;
 
 import org.mosip.dataprovider.models.DynamicFieldModel;
+import org.mosip.dataprovider.models.DynamicFieldValueModel;
 import org.mosip.dataprovider.models.MosipIdentity;
 import org.mosip.dataprovider.models.LocationHierarchyModel;
 import org.mosip.dataprovider.models.MosipBiometricAttributeModel;
@@ -37,10 +43,13 @@ import org.mosip.dataprovider.models.setup.MosipDeviceModel;
 import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.util.CommonUtil;
+import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
 import org.mosip.dataprovider.util.RestClient;
 import org.mvel2.MVEL;
+import org.mvel2.integration.VariableResolverFactory;
+import org.mvel2.integration.impl.MapVariableResolverFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -154,34 +163,64 @@ public  class MosipMasterData {
 		
 	}
 	
-	public static List<DynamicFieldModel> getAllDynamicFields() {
+	public static Hashtable<String,List<DynamicFieldModel>> getAllDynamicFields() {
 		
-		List<DynamicFieldModel> lstDynamicFields = null;
+		Hashtable<String,List<DynamicFieldModel>> tblDynaFieldsLang = new Hashtable<String,List<DynamicFieldModel>>();
+		
+		//List<DynamicFieldModel> lstDynamicFields = null;
 		
 		String url = VariableManager.getVariableValue("urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"dynamicFields").toString();
 	
 		Object o =getCache(url);
 		if(o != null)
-			return( (List<DynamicFieldModel>) o);
+			return( (Hashtable<String,List<DynamicFieldModel>>) o);
 	
-		try {
-			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
-			if(resp != null) {
-				JSONArray dynaFields = resp.getJSONArray("data");
-				ObjectMapper objectMapper = new ObjectMapper();
+		int pageno = 0;
+		int nPages = 0;
+		do {
+			try {
+				List<DynamicFieldModel> lstDynamicFieldsPart = null;
+				String urlQuery = url + "?pageNumber="+ pageno;
+				JSONObject resp = RestClient.get(urlQuery,new JSONObject() , new JSONObject());
+				if(resp != null) {
+					// "pageNo":0,"totalPages":11
+					pageno = resp.getInt("pageNo");
+					nPages = resp.getInt("totalPages");
+					
+					JSONArray dynaFields = resp.getJSONArray("data");
+					ObjectMapper objectMapper = new ObjectMapper();
+					
+					lstDynamicFieldsPart = objectMapper.readValue(dynaFields.toString(), 
+							objectMapper.getTypeFactory().constructCollectionType(List.class, DynamicFieldModel.class));
+		/*			if(lstDynamicFields == null)
+						lstDynamicFields = lstDynamicFieldsPart;
+					else
+						lstDynamicFields.addAll(lstDynamicFieldsPart);
+		*/
+					if(lstDynamicFieldsPart.size() ==0)
+						break;
+					for(DynamicFieldModel m: lstDynamicFieldsPart) {
+						List<DynamicFieldModel> lst = tblDynaFieldsLang.get(m.getLangCode());
+						if(lst == null) {
+							lst = new ArrayList<DynamicFieldModel>();
+							tblDynaFieldsLang.put(m.getLangCode(), lst);
+						}
+						lst.add(m);
+						
+					}
+					setCache(url, tblDynaFieldsLang);
 				
-				lstDynamicFields = objectMapper.readValue(dynaFields.toString(), 
-						objectMapper.getTypeFactory().constructCollectionType(List.class, DynamicFieldModel.class));
-	
-				setCache(url, lstDynamicFields);
-				
+					pageno++;
+				}
+			} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return lstDynamicFields;
+		}while(pageno <= nPages);
+			
+		
+		return tblDynaFieldsLang;
 	}
 	public static HashMap<String,LocationHierarchyModel[]> getAllLocationHierarchies() {
 		
@@ -494,6 +533,10 @@ public  class MosipMasterData {
 
 			JSONArray jsonArray = null;
 			if(schemaJson != null && !schemaJson.equals("")) {
+				//FIX: search and replace \" with "
+				
+				schemaJson =schemaJson.replaceAll(Pattern.quote("\\\""), "\"");
+				
 				JSONObject schemaObj = new JSONObject(schemaJson);
 				JSONObject identityObj = schemaObj.getJSONObject("properties").getJSONObject("identity");
 				JSONObject identityProps = identityObj.getJSONObject("properties");
@@ -509,6 +552,8 @@ public  class MosipMasterData {
 			JSONObject identityProps = null;
 		
 			if(schemaJson != null && !schemaJson.equals("")) {
+				schemaJson =schemaJson.replaceAll(Pattern.quote("\\\""), "\"");
+				
 				JSONObject schemaObj = new JSONObject(schemaJson);
 				JSONObject identityObj = schemaObj.getJSONObject("properties").getJSONObject("identity");
 				identityProps = identityObj.getJSONObject("properties");
@@ -555,6 +600,12 @@ public  class MosipMasterData {
 				//"individualtypes"
 				"idschemaapi"
 				).toString();
+		
+		String process=VariableManager.getVariableValue("process").toString();
+		if(process == null) {
+			process="NEW";
+		}
+		process = process.toLowerCase().trim() + "Process";
 	
 		Object o =getCache(url);
 		if(o != null)
@@ -565,16 +616,72 @@ public  class MosipMasterData {
 
 			
 			//int nSchema = resp.getInt("totalItems");
-			JSONArray idSchema = null;
+			JSONArray idSchema = new JSONArray();
 			double schemaVersion = 0.0;
 			String schemaTitle = "";
-			idSchema = resp.getJSONArray("schema"); //UISpec
+			//idSchema = resp.getJSONArray("schema"); //UISpec
+			
+			 //JSONArray screens = resp.getJSONObject("newProcess").getJSONArray("screens");
+			// JSONArray screens = resp.getJSONObject("updateProcess").getJSONArray("screens");
+			JSONArray screens = resp.getJSONObject(process).getJSONArray("screens");
+				for (int i = 0; i < screens.length(); i++) {
+					idSchema.putAll(screens.getJSONObject(i).getJSONArray("fields"));
+				}
+			 
 			System.out.println(idSchema.toString());
 			CommonUtil.saveToTemp(idSchema.toString(), "uispec.json");
 			CommonUtil.saveToTemp(resp.getString("schemaJson"), "schemaJson.json");
 			
 			schemaVersion=	resp.getDouble( "idVersion");
 			schemaTitle = resp.getString("title");
+			
+
+			
+			
+			JSONObject schemaVersionJson = new JSONObject();
+			schemaVersionJson.put("id", "IDSchemaVersion");
+			schemaVersionJson.put("inputRequired", false);
+			schemaVersionJson.put("type", "number");
+			schemaVersionJson.put("minimum", 0);
+			schemaVersionJson.put("maximum", 0);
+			schemaVersionJson.put("description", "ID Schema Version");
+			schemaVersionJson.put("controlType", "");
+			schemaVersionJson.put("fieldType", "default");
+			schemaVersionJson.put("format", "none");
+			schemaVersionJson.put("validators", new JSONArray());
+			schemaVersionJson.put("fieldCategory", "none");
+			schemaVersionJson.put("alignmentGroup", "");
+			schemaVersionJson.put("contactType", "");
+			schemaVersionJson.put("group", "");
+			schemaVersionJson.put("required", true);
+			schemaVersionJson.put("bioAttributes", new JSONArray());
+			schemaVersionJson.put("requiredOn",  new JSONArray());
+			schemaVersionJson.put("subType",  "IdSchemaVersion");
+			idSchema.put(schemaVersionJson);
+			
+			JSONObject uinschemaJosn = new JSONObject();
+			uinschemaJosn.put("id", "UIN");
+			uinschemaJosn.put("inputRequired", false);
+			uinschemaJosn.put("type", "string");
+			uinschemaJosn.put("minimum", 0);
+			uinschemaJosn.put("maximum", 0);
+			uinschemaJosn.put("description", "UIN");
+			uinschemaJosn.put("controlType", "textbox");
+			uinschemaJosn.put("fieldType", "default");
+			uinschemaJosn.put("format", "none");
+			uinschemaJosn.put("validators", new JSONArray());
+			uinschemaJosn.put("fieldCategory", "none");
+			uinschemaJosn.put("alignmentGroup", "");
+			uinschemaJosn.put("contactType", "");
+			uinschemaJosn.put("group", "");
+			uinschemaJosn.put("required", false);
+			uinschemaJosn.put("bioAttributes", new JSONArray());
+			uinschemaJosn.put("requiredOn",  new JSONArray());
+			uinschemaJosn.put("subType",  "UIN");
+			idSchema.put(uinschemaJosn);
+			 
+			 
+			 
 			
 			if(idSchema != null) {
 				JSONArray reqdFields = getRequiredFileds(resp); //FROM IDSchema
@@ -585,6 +692,8 @@ public  class MosipMasterData {
 
 				List<MosipIDSchema>  listSchema  = new ArrayList<MosipIDSchema>();
 				for(int i=0; i < idSchema.length(); i++) {
+					
+					
 					 MosipIDSchema schema = objectMapper.readValue(idSchema.get(i).toString(),
 							 MosipIDSchema.class);
 					 listSchema.add(schema);
@@ -619,6 +728,68 @@ public  class MosipMasterData {
 				prop.put("schemaList", listSchema);
 				prop.put("requiredAttributes",requiredAttributes);
 				tbl.put(schemaVersion, prop);
+				
+				setCache(url, tbl);
+			}
+					
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return tbl;
+	}
+	
+	public static Hashtable<Double,Properties>  getPreregIDSchemaLatestVersion() {
+		
+		Hashtable<Double,Properties> tbl = new Hashtable<Double,Properties> ();
+		
+		//Hashtable<Double,List<MosipIDSchema>> tbl = new Hashtable<Double,List<MosipIDSchema>> ();
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(
+				VariableManager.NS_MASTERDATA,
+				//"idschemaapi"
+				"uiSpec"
+				).toString();
+		//url="https://qa-double.mosip.net/preregistration/v1/uispec/latest?identitySchemaVersion=0&version=0";
+	
+		Object o =getCache(url);
+		if(o != null)
+			return( (Hashtable<Double,Properties>) o);
+
+        try {
+			JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject());
+
+				JSONArray identityArray = resp.getJSONObject("jsonSpec").getJSONObject("identity").getJSONArray("identity");
+				JSONArray locationHierarchyArray =resp.getJSONObject("jsonSpec").getJSONObject("identity").getJSONArray("locationHierarchy");
+			
+				if(identityArray != null && locationHierarchyArray != null) {
+				
+				ObjectMapper objectMapper = new ObjectMapper();
+				objectMapper.setSerializationInclusion(Include.NON_NULL);
+
+				List<MosipIDSchema>  identityArraylistSchema  = new ArrayList<MosipIDSchema>();
+				for(int i=0; i < identityArray.length(); i++) {
+					
+					 MosipIDSchema schema = objectMapper.readValue(identityArray.get(i).toString(),
+							 MosipIDSchema.class);
+					 identityArraylistSchema.add(schema);
+				}
+				
+				JSONArray array = new JSONArray();
+				for(int i=0;i<locationHierarchyArray.length();i++) {
+					if (locationHierarchyArray.get(i) instanceof JSONArray) {
+						array.put(locationHierarchyArray.get(i));
+					} 
+				}
+				if(array.length()==0) {
+					array.put(locationHierarchyArray);
+				}
+				
+				Properties prop = new Properties();
+				prop.put("locaitonherirachy", array);
+				prop.put("schemaList", identityArraylistSchema);
+				//tbl.put(0.2, prop);
+				tbl.put(resp.getDouble("idSchemaVersion"), prop);
 				
 				setCache(url, tbl);
 			}
@@ -699,8 +870,49 @@ public  class MosipMasterData {
 		}
 		return docTypeList;
 	}
-	
+	public static Hashtable<String, List<MosipIndividualTypeModel>> getIndividualTypesFromDynamicFields() {
+		Hashtable<String, List<MosipIndividualTypeModel>> tbl = new Hashtable<String, List<MosipIndividualTypeModel>>();
+		Hashtable<String, List<DynamicFieldModel>> tblDyn = MosipMasterData.getAllDynamicFields();
+		Iterator<String> it = tblDyn.keys().asIterator();
+		while(it.hasNext()) {
+			String key = it.next();
+			List<DynamicFieldModel> dynaFields = tblDyn.get(key);
+			for(DynamicFieldModel dfm: dynaFields) {
+				if(dfm.getIsActive() && dfm.getName().equals(DataProviderConstants.INDIVIDUAL_TYPE)) {
+					for(DynamicFieldValueModel dfmv: dfm.getFieldVal()) {
+						MosipIndividualTypeModel im = new MosipIndividualTypeModel();
+						im.setCode(dfmv.getCode());
+						im.setIsActive(true);
+						im.setLangCode(key);
+						
+						im.setName(dfmv.getValue());
+						
+						List<MosipIndividualTypeModel> indList = tbl.get(key);
+						if(indList == null) {
+							indList = new ArrayList<MosipIndividualTypeModel>();
+							
+							tbl.put(key, indList);
+						}
+						indList.add(im);
+					}
+							
+				}
+			}
+		}
+		return tbl;
+	}
 	public static Hashtable<String, List<MosipIndividualTypeModel>> getIndividualTypes() {
+	
+		String mosipVersion = "legacy";
+		Object obj = VariableManager.getVariableValue("mosip.version");
+		if(obj != null)
+			mosipVersion = obj.toString();
+		if(mosipVersion.equals("1.2")) {
+			return getIndividualTypesFromDynamicFields();
+		}
+		return getIndividualTypes_legacy();
+	}
+	public static Hashtable<String, List<MosipIndividualTypeModel>> getIndividualTypes_legacy() {
 		
 		Hashtable<String, List<MosipIndividualTypeModel>> tbl = new Hashtable<String, List<MosipIndividualTypeModel>>();
 		
@@ -745,35 +957,107 @@ public  class MosipMasterData {
 		return tbl;
 
 	}
-	public static List<MosipGenderModel> getGenderTypes() {
+	public static List<MosipGenderModel> getGenderTypes(String lang) {
 		List<MosipGenderModel> genderTypeList = null;
 
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"gendertypes").toString();
-				
-				Object o =getCache(url);
-				if(o != null)
-					return( (List<MosipGenderModel>) o);
+		String mosipVersion = "legacy";
+		Object obj = VariableManager.getVariableValue("mosip.version");
+		if(obj != null)
+			mosipVersion = obj.toString();
+		if(mosipVersion.equals("1.2")) {
+			genderTypeList = getGenderTypesLTS(lang);
+		}else {
+			String url = VariableManager.getVariableValue("urlBase").toString() +
+					VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"gendertypes").toString();
+							
+							Object o =getCache(url);
+							if(o != null)
+								return( (List<MosipGenderModel>) o);
 
-				try {
-					JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
-					JSONArray docCatArray = resp.getJSONArray("genderType");
-					
-					if(docCatArray != null) {
-						ObjectMapper objectMapper = new ObjectMapper();
-						genderTypeList = objectMapper.readValue(docCatArray.toString(), 
-							objectMapper.getTypeFactory().constructCollectionType(List.class, MosipGenderModel.class));
-			
-						setCache(url, genderTypeList);
-						return genderTypeList;
+							try {
+								JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+								JSONArray docCatArray = resp.getJSONArray("genderType");
 								
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return genderTypeList;
+								if(docCatArray != null) {
+									ObjectMapper objectMapper = new ObjectMapper();
+									genderTypeList = objectMapper.readValue(docCatArray.toString(), 
+										objectMapper.getTypeFactory().constructCollectionType(List.class, MosipGenderModel.class));
+						
+									setCache(url, genderTypeList);
+									return genderTypeList;
+											
+								}
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							return genderTypeList;
+		}
+		return genderTypeList;
 
+		
+
+	}
+	private static List<MosipGenderModel> getGenderTypesLTS(String lang) {
+		List<MosipGenderModel> genderTypeList = new ArrayList<>();
+		
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"genderTypesByDynamicField").toString();
+		
+		Object o =getCache(url +"_"+lang);
+		if(o != null)
+			return( (List<MosipGenderModel>) o);
+		
+		JSONArray filters= new JSONArray();
+		JSONObject jsonFilters= new JSONObject();
+		jsonFilters.put("columnName", "name");
+		jsonFilters.put("type", "contains");
+		jsonFilters.put("value", "gender");
+		filters.put(jsonFilters);
+		JSONArray sort= new JSONArray();
+		JSONObject jsonSort= new JSONObject();
+		jsonSort.put("sortType", "desc");
+		jsonSort.put("sortField", "createdDateTime");
+		sort.put(jsonSort);
+		JSONObject jsonDynamicField = new JSONObject();
+		jsonDynamicField.put("filters", filters);
+		jsonDynamicField.put("sort", sort);
+		jsonDynamicField.put("languageCode", lang);
+					
+		JSONObject jsonReqWrapper = new JSONObject();
+		jsonReqWrapper.put("request", jsonDynamicField);
+		jsonReqWrapper.put("requesttime", CommonUtil.getUTCDateTime(null));
+		jsonReqWrapper.put("version", "1.0");
+		jsonReqWrapper.put("id", JSONObject.NULL);
+		jsonReqWrapper.put("metadata", JSONObject.NULL);
+		try {
+			JSONObject resp = RestClient.post(url,jsonReqWrapper);
+			if(resp!=null) {
+				JSONArray genderArray =resp.getJSONArray("data");
+				for (int i=0; i<genderArray.length(); i++) {
+				    JSONObject genderDataItem = genderArray.getJSONObject(i);
+				    String genderName = genderDataItem.getString("name");
+				    String langCode = genderDataItem.getString("langCode");
+				    Boolean isActive = genderDataItem.getBoolean("isActive");
+				    JSONObject fieldValItem =genderDataItem.getJSONObject("fieldVal");
+				    String code = fieldValItem.getString("code");
+				    String value =fieldValItem.getString("value");
+				    MosipGenderModel mgm= new MosipGenderModel();
+				    mgm.setGenderName(genderName);
+				    mgm.setCode(code);
+				    mgm.setIsActive(isActive);
+				    mgm.setLangCode(langCode);
+				    mgm.setValue(value);
+				    genderTypeList.add(mgm);
+				}
+				setCache(url +"_"+lang, genderTypeList);
+				return genderTypeList;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return genderTypeList;
+		
 	}
 	public static Boolean isExists(List<MosipIDSchema> lst, String val) {
 		for(MosipIDSchema s: lst) {
@@ -863,8 +1147,8 @@ public  class MosipMasterData {
 
 		int idx=0;
 		Stack<List<MosipLocationModel>> stk = new Stack<List<MosipLocationModel>>();
-		
-		while( isExists(locHirachyList, levelName) ) {
+		//while(isExists(locHirachyList, levelName))
+		while( true ) {
 				//MosipLocationModel lcParent = tbl.get(preLevel);
 			List<MosipLocationModel> rootLocs =  getImmedeateChildren(levelCode, langCode);
 			if(rootLocs == null) {
@@ -889,6 +1173,80 @@ public  class MosipMasterData {
 			
 		
 	}
+
+	public static String getIDschemaStringLatest(){
+
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(
+				VariableManager.NS_MASTERDATA,
+				//"individualtypes"
+				"idschemaapi"
+				).toString();
+
+		
+
+		try {
+			JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject());
+
+			return resp.toString();
+
+		
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "{\"Failed\"}";
+		
+	}
+
+	public static String postSchema(String id, int version,  JSONArray schema){
+
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"idschema").toString();
+	
+
+		JSONObject request = new JSONObject();
+		request.put("description", "new ID schema post");
+		request.put("effectiveFrom", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+		request.put("schema", schema);
+		request.put("schemaVersion", version);
+		request.put("title", "test");
+
+
+		JSONObject obj = new JSONObject();
+		obj.put("id", id);
+		obj.put("metadata", new JSONObject());
+		obj.put("request", request);
+		obj.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+		obj.put("version", "1.0");
+
+
+
+		JSONObject resp;
+		try{
+			resp = RestClient.post(url, obj);
+			return resp.toString();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return "{\"post failed\"}";
+		}
+
+	}
+	
+	public static boolean executeMVEL(String expression, Object json) {
+		try {
+			Map context = new HashMap();
+			context.put("identity", json);
+			VariableResolverFactory resolverFactory = new MapVariableResolverFactory(context);
+			return MVEL.evalToBoolean(expression, resolverFactory);
+		} catch (Throwable t) {
+			//LOGGER.error("Failed to evaluate mvel expr", t);
+			
+		}
+		return false;
+	}
+
 	static Boolean validateCondn(String cndnexpr, Object inputObject) {
 		return MVEL.evalToBoolean(cndnexpr,inputObject);
 	}
@@ -935,19 +1293,54 @@ public  class MosipMasterData {
 				
 		}
 	}
-	public static void main(String[] args) {
 	
+	public static JSONArray getUiSpecId() {
+		JSONArray array= new JSONArray();
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"preregistration/v1/uispec/latest?identitySchemaVersion=0&version=0";
+		//String url = VariableManager.getVariableValue("urlBase").toString() +VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"uiSpec").toString();
+
+		Object o =getCache(url);
+		if(o != null)
+			return( (JSONArray) o);
+		
+		try {
+			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			if(resp != null) {
+				JSONArray identityArray = resp.getJSONObject("jsonSpec").getJSONObject("identity").getJSONArray("identity");
+				Iterator<Object> iterator = identityArray.iterator();
+				while (iterator.hasNext()) {
+					JSONObject identityJson=(JSONObject)iterator.next();
+					if(identityJson.getBoolean("required") && !identityJson.getString("id").toLowerCase().contains("proof")) {
+						array.put(identityJson.getString("id"));
+					}
+				}
+				System.out.println("printing Array : "+ array);
+				
+				
+				setCache(url, array);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return array;
+	}
+	
+	
+	
+	
+	public static void main(String[] args) {
 		VariableManager.setVariableValue("urlBase","https://sandbox.mosip.net/");
 		VariableManager.setVariableValue("configpath","config/*/mz/1.1.5/registration-processor-mz.properties");
 
 	
-		MosipDataSetup.getConfig();
+//		MosipDataSetup.getConfig();
 	//	List<MosipDeviceModel> devices = MosipDataSetup.getDevices("10002");
-		test1();
+//		test1();
 		
 	//	List<DynamicFieldModel> lstDyn =  MosipMasterData.getAllDynamicFields();
-		List<MosipMachineModel> mach =  MosipDataSetup.getMachineDetail("10082", "eng");
-		MosipDataSetup.getMachineConfig(mach.get(0).getName()) ;
+//		List<MosipMachineModel> mach =  MosipDataSetup.getMachineDetail("10082", "eng");
+//		MosipDataSetup.getMachineConfig(mach.get(0).getName()) ;
 		
 		
 		Hashtable<Double,Properties> tbl1 = getIDSchemaLatestVersion();
@@ -957,7 +1350,7 @@ public  class MosipMasterData {
 		 List<String> reqdFields = (List<String>) tbl1.get(schemaId).get("requiredAttributes");
 					
 		
-		List<MosipGenderModel> allg = MosipMasterData.getGenderTypes();
+		List<MosipGenderModel> allg = MosipMasterData.getGenderTypes("eng");
 		allg.forEach( g-> {
 			System.out.println(g.getCode() +"\t" + g.getGenderName());
 		});
@@ -986,7 +1379,7 @@ public  class MosipMasterData {
 			
 		HashMap<String,LocationHierarchyModel[]> locHi = getAllLocationHierarchies();
 		
-		List<MosipGenderModel> genderTypes = MosipMasterData.getGenderTypes();
+		List<MosipGenderModel> genderTypes = MosipMasterData.getGenderTypes("hin");
 		
 		List<MosipBiometricTypeModel> bioTypes = getBiometricTypes();
 		for(MosipBiometricTypeModel bt: bioTypes) {
@@ -1005,14 +1398,18 @@ public  class MosipMasterData {
 			 
 			//test dynamic fields fields;
 		
-			List<DynamicFieldModel> lstDynF =  getAllDynamicFields() ;
-			for(DynamicFieldModel dm: lstDynF) {
-	
-				System.out.println(dm.getName() );
-				
+			Hashtable<String,List<DynamicFieldModel>> lstDynF =  getAllDynamicFields() ;
+			lstDynF.forEach( (k,v)->{
 			
-			}
+				for(DynamicFieldModel dm: v) {
+					
+					System.out.println(dm.getName() );
+					
 				
+				}
+		
+			});
+						
 			Hashtable<Double,Properties> tbl = getIDSchemaLatestVersion();
 			List<MosipIDSchema> lst = null;
 			if(tbl != null)

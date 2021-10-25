@@ -3,7 +3,7 @@ package io.mosip.test.packetcreator.mosippacketcreator.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -11,6 +11,10 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -25,19 +29,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.kubernetes.client.util.ClientBuilder;
+//import io.kubernetes.client.util.ClientBuilder;
 
 
-import io.kubernetes.client.util.KubeConfig;
+// import io.kubernetes.client.util.KubeConfig;
 
-import io.kubernetes.client.openapi.ApiClient;
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1PodList;
+// import io.kubernetes.client.openapi.ApiClient;
+// import io.kubernetes.client.openapi.ApiException;
+// import io.kubernetes.client.openapi.Configuration;
+// import io.kubernetes.client.openapi.apis.CoreV1Api;
+// import io.kubernetes.client.openapi.models.V1Pod;
+// import io.kubernetes.client.openapi.models.V1PodList;
 import java.io.FileReader;
 
 @Service
@@ -54,6 +60,9 @@ public class CommandsService {
    
     @Value("${mosip.test.pinglistfile:../deploy/pinglist.txt}")
     private String pinglistfile;
+   
+    @Value("${mosip.test.persona.configpath}")
+	private String personaConfigPath;
    
     @Autowired
     private ContextUtils contextUtils;
@@ -132,34 +141,34 @@ public class CommandsService {
 		accessor.close();
 		return filePath;
 	}
-	public String getAllPods(String contextKey) throws ApiException, IOException {
- 		Properties props = contextUtils.loadServerContext(contextKey);
- 		if(props.contains("mosip.test.baseurl")) {
+	// public String getAllPods(String contextKey) throws ApiException, IOException {
+ 	// 	Properties props = contextUtils.loadServerContext(contextKey);
+ 	// 	if(props.contains("mosip.test.baseurl")) {
  			
- 			baseUrl = props.getProperty("mosip.test.baseUrl");
+ 	// 		baseUrl = props.getProperty("mosip.test.baseUrl");
  			
- 		}
- 		 String kubeConfigPath =  "../deploy/kube/mzcluster.config";
+ 	// 	}
+ 	// 	 String kubeConfigPath =  "../deploy/kube/mzcluster.config";
 
- 		Reader reader = new FileReader(kubeConfigPath);
+ 	// 	Reader reader = new FileReader(kubeConfigPath);
 
 
- 	    // loading the out-of-cluster config, a kubeconfig from file-system
- 	    ApiClient client =
- 	        ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(reader)).build();
+ 	//     // loading the out-of-cluster config, a kubeconfig from file-system
+ 	//     ApiClient client =
+ 	//         ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(reader)).build();
 
- 	    // set the global default api-client to the in-cluster one from above
- 	    Configuration.setDefaultApiClient(client);
+ 	//     // set the global default api-client to the in-cluster one from above
+ 	//     Configuration.setDefaultApiClient(client);
 
- 	    // the CoreV1Api loads default api-client from global configuration.
- 	    CoreV1Api api = new CoreV1Api();
+ 	//     // the CoreV1Api loads default api-client from global configuration.
+ 	//     CoreV1Api api = new CoreV1Api();
 
-        V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
-        for (V1Pod item : list.getItems()) {
-            System.out.println(item.getMetadata().getName());
-        }
-        return "";
-	}
+    //     V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
+    //     for (V1Pod item : list.getItems()) {
+    //         System.out.println(item.getMetadata().getName());
+    //     }
+    //     return "";
+	// }
 	public String execute(String testcaseId, boolean bSync) {
 		String result = "Success";
 		Properties props = new Properties();
@@ -210,4 +219,49 @@ public class CommandsService {
 		 Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 		 return targetLocation.toString();
 	}
+	
+	public String generatekey(String machineId) {
+		 KeyPairGenerator keyGenerator=null;
+			try {
+				keyGenerator = KeyPairGenerator.getInstance("RSA");
+				keyGenerator.initialize(2048, new SecureRandom());
+				final KeyPair keypair = keyGenerator.generateKeyPair();
+				createKeyFile(String.valueOf(personaConfigPath) + File.separator +"privatekeys//"+ machineId+".reg.key",
+						keypair.getPrivate().getEncoded());
+				final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
+				return publicKey;
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			}
+			return null;
+		 
+	 }
+	 private static void createKeyFile(final String fileName, final byte[] key) {
+			System.out.println("Creating file : " + fileName);
+			try {
+				Throwable t = null;
+				try {
+					final FileOutputStream os = new FileOutputStream(fileName);
+					try {
+						os.write(key);
+					} finally {
+						if (os != null) {
+							os.close();
+						}
+					}
+				} finally {
+					if (t == null) {
+						final Throwable exception = null;
+						t = exception;
+					} else {
+						final Throwable exception = null;
+						if (t != exception) {
+							t.addSuppressed(exception);
+						}
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 }

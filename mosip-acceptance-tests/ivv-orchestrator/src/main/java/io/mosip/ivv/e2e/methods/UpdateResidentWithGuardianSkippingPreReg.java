@@ -13,31 +13,26 @@ public class UpdateResidentWithGuardianSkippingPreReg extends BaseTestCaseUtil i
 	Logger logger = Logger.getLogger(UpdateResidentWithGuardianSkippingPreReg.class);
 	@Override
 	public void run() throws RigInternalError {
-		/*
-		 * String withRidOrUin = null; String missingFields = null;
-		 */
-		String gaurdianStatus="processed";
-		/*
-		 * if (step.getParameters() == null || step.getParameters().isEmpty()
-		 * ||step.getParameters().size()<1) { logger.
-		 * warn("UpdateResidentWithGuardian Arugemnt is  Missing : Please pass the argument from DSL sheet, default value is true"
-		 * ); } else { withRidOrUin = step.getParameters().get(0); if
-		 * (step.getParameters().size() > 1) { missingFields =
-		 * step.getParameters().get(1); gaurdianStatus= step.getParameters().get(2);
-		 * 
-		 * } }
-		 */
-		residentPathGuardianRid= new LinkedHashMap<String, String>();
-		CheckStatus checkStatus= new CheckStatus();
-		for(String path:residentTemplatePaths.keySet()) {
-			//residentPathGuardianRid.put(path, packetUtility.updateResidentWithGuardianSkippingPreReg(path,contextInuse,withRidOrUin,missingFields));
-			residentPathGuardianRid.put(path, packetUtility.updateResidentWithGuardianSkippingPreReg(path,contextInuse));
-			Reporter.log("<b><u>Checking Status Of Created Guardians</u></b>");
-			checkStatus.tempPridAndRid=residentPathGuardianRid;
-			checkStatus.checkStatus(gaurdianStatus);
+		
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {
+			String guardianPersonaFilePath = step.getParameters().get(0);
+			String childPersonaFilePath = step.getParameters().get(1);
+			if (guardianPersonaFilePath.startsWith("$$") && childPersonaFilePath.startsWith("$$")) {
+				guardianPersonaFilePath = step.getScenario().getVariables().get(guardianPersonaFilePath);
+				childPersonaFilePath = step.getScenario().getVariables().get(childPersonaFilePath);
+				packetUtility.updateResidentWithGuardianSkippingPreReg(guardianPersonaFilePath, childPersonaFilePath,contextInuse);
+			}
+		} else {
+			residentPathGuardianRid = new LinkedHashMap<String, String>();
+			for (String path : residentTemplatePaths.keySet()) {
+				residentPathGuardianRid.put(path,
+						packetUtility.updateResidentWithGuardianSkippingPreReg(path,null, contextInuse));
+				Reporter.log("<b><u>Checking Status Of Created Guardians</u></b>");
+				CheckStatus checkStatus = new CheckStatus();
+				checkStatus.tempPridAndRid = residentPathGuardianRid;
+				// checkStatus.checkStatus("processed");
+			}
 		}
-		
-		
 	}
 	
 

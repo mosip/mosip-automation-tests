@@ -17,7 +17,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.DatatypeConverter;
@@ -92,6 +96,13 @@ public class PacketMakerService {
     
     private String newRegId;
     
+    
+	@Value("${mosip.version:1.2}")
+	private String mosipVersion;
+	
+	@Value("${packetmanager.zip.datetime.pattern:yyyyMMddHHmmss}")
+	private String zipDatetimePattern;
+    
     @PostConstruct
     public void initService(){
         if (workDirectory != null) return;
@@ -114,9 +125,13 @@ public class PacketMakerService {
     public String getWorkDirectory() {
         return workDirectory;
     }
-    String getRegIdFromPacketPath(String packetPath) {
+    public static String getRegIdFromPacketPath(String packetPath) {
     	//leaf node of packet path is regid
-    	return Path.of(packetPath).getFileName().toString();
+    	
+    	//return Path.of(packetPath).getFileName().toString();
+    	Path container = Path.of(packetPath);
+    	String rid = container.getName(container.getNameCount()-1).toString().split("-")[0];
+    	return rid;
     }
     public String packPacketContainer(String packetPath,String source,String proc, String contextKey, boolean isValidChecksum) throws Exception {
 
@@ -176,7 +191,7 @@ public class PacketMakerService {
         return retPath;
 
     }
-    public String createPacketFromTemplate(String templatePath, String personaPath, String contextKey) throws Exception {
+    public String createPacketFromTemplate(String templatePath, String personaPath, String contextKey,String additionalInfoReqId) throws Exception {
 
     	logger.info("createPacketFromTemplate" );
     	
@@ -192,7 +207,7 @@ public class PacketMakerService {
      	
     	String packetPath = createContainer( 
     			(idJsonPath == null ? null: idJsonPath.toString()),
-    			templatePath,src,process, null,contextKey,false);
+    			templatePath,src,process, null,contextKey,false,additionalInfoReqId);
 
     	logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
     	//newRegId
@@ -207,7 +222,7 @@ public class PacketMakerService {
     /*
      * Create packet with our without Encryption
      */
-    public String createContainer(String dataFile, String templatePacketLocation, String source, String processArg, String preregId, String contextKey, boolean bZip) throws Exception{
+    public String createContainer(String dataFile, String templatePacketLocation, String source, String processArg, String preregId, String contextKey, boolean bZip,String additionalInfoReqId) throws Exception{
     	
     	String retPath = "";
     	if(contextKey != null && !contextKey.equals("")) {
@@ -236,12 +251,16 @@ public class PacketMakerService {
             		else if (k.toString().equals("mosip.test.regclient.userid")) {
                         officerId = v.toString();
                     }
-    			
+					else if (k.toString().equals("mosip.version")) {
+					mosipVersion = v.toString();
+				}
     		});
     	}
     	
         String templateLocation = (null == templatePacketLocation)?defaultTemplateLocation: templatePacketLocation;
+       
         String regId = generateRegId();
+        String appId = ( additionalInfoReqId == null) ? regId: additionalInfoReqId;
         newRegId = regId;
         if(source != null && !source.equals(""))
         	src = source;
@@ -253,7 +272,7 @@ public class PacketMakerService {
         		process = tprocess;
         }
         logger.info("src="+ src + ",process=" + process);
-        String tempPacketRootFolder = createTempTemplate(templateLocation, regId);
+        String tempPacketRootFolder = createTempTemplate(templateLocation, appId);
         createPacket(tempPacketRootFolder, regId, dataFile, "id",preregId,contextKey);
         if(bZip)
         	packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id",contextKey);
@@ -321,7 +340,7 @@ public class PacketMakerService {
         	logger.info("mergedjson:" + result.toString());
         	
         	return result;
-    
+        	
         }
     }
 
@@ -430,6 +449,17 @@ public class PacketMakerService {
         	dataToMerge = Files.readString(Path.of(dataFilePath));
         
         JSONObject jb = new JSONObject(dataToMerge).getJSONObject("identity");
+       
+        // workaround for MOSIP-18123
+		
+		JSONObject jb1 = new JSONObject(dataToMerge);
+		List<String> jsonList = jb.keySet().stream().filter(j -> j.startsWith("proof")).collect(Collectors.toList());
+		jsonList.forEach(o -> jb1.getJSONObject("identity").getJSONObject(o).put("value", o));
+
+		dataToMerge = jb1.toString();
+		System.out.println(jb1);
+		 
+        //
         
         String schemaVersion = jb.optString("IDSchemaVersion", "0");
         String schemaJson = schemaUtil.getAndSaveSchema(schemaVersion, workDirectory, contextKey);
@@ -499,7 +529,7 @@ public class PacketMakerService {
         String encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(messageDigest.
                 digest(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
 
-        String signature = Base64.getEncoder().encodeToString(cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + "_unenc.zip"))));
+        String signature = Base64.getEncoder().encodeToString(cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + "_unenc.zip")),contextKey));
 
         Path src = Path.of(containerRootFolder + "_unenc.zip");
         Files.copy(src, Path.of(tempLogPath + src.getFileName()),StandardCopyOption.REPLACE_EXISTING );
@@ -570,12 +600,15 @@ public class PacketMakerService {
 
     private String createTempTemplate(String templatePacket, String rid) throws IOException, SecurityException{
         Path sourceDirectory = Paths.get(templatePacket);
-        String tempDir = workDirectory + File.separator + rid;
+        String tempDir = workDirectory + File.separator + rid+ "-"+  centerId+ "_"+ machineId +"-"+getcurrentTimeStamp();
         Path targetDirectory = Paths.get(tempDir);
         FileSystemUtils.copyRecursively(sourceDirectory, targetDirectory);
-        setupTemplateName(tempDir, rid);
+		// addtionrequestId!=null ==> addtionrequestId- center_machine-timestamp.zip
+		// addtionrequestId==null ==> rid-center_machine-timestamp.zip
+		setupTemplateName(tempDir, rid);
         return targetDirectory.toString();    
     }
+   
     
     private void setupTemplateName(String templateRootPath, String regId) throws SecurityException{
         String finalPath = templateRootPath + File.separator+ src + File.separator + process;
@@ -589,6 +622,11 @@ public class PacketMakerService {
         }
         }
     }
+    
+    private String getcurrentTimeStamp() {
+		DateTimeFormatter format = DateTimeFormatter.ofPattern(zipDatetimePattern);
+		return LocalDateTime.now(ZoneId.of("UTC")).format(format);
+	}
 
     private boolean fixContainerMetaData(String fileToFix,String rid, String type, String encryptedHash, String signature ) throws IOException, Exception{
       //  JSONObject metadata = new JSONObject();
@@ -655,7 +693,7 @@ public class PacketMakerService {
 	            merge((JSONObject)valueToBeUpdatedO,(JSONObject) updatedValueO);
 	        } else {
 	            if (mainNode instanceof JSONObject) {
-	                mainNode.put(updatedFieldName,updatedValueO);
+	            	 mainNode.put(updatedFieldName,updatedValueO);
 	            }
 	        }
 	    }
