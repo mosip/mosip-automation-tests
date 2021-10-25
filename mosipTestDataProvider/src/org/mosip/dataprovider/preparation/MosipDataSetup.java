@@ -122,6 +122,68 @@ public class MosipDataSetup {
 		}
 		return machines;
 	}
+	
+	// Get the inActive machine details by machineId (regcenter deactivate scenario) 
+public static List<MosipMachineModel> searchMachineDetail(String machineId, String langCode) {
+		
+		List<MosipMachineModel> machines = null;
+		String url = VariableManager.getVariableValue("urlBase").toString()
+				+ "/v1/masterdata/machines/search";
+		
+		Object o =getCache(url);
+		if(o != null)
+			return( (List<MosipMachineModel>) o);
+		
+		JSONObject pagination = new JSONObject();
+		pagination.put("pageStart",0);
+		pagination.put("pageFetch",11);
+
+		JSONArray filterArray = new JSONArray();
+		JSONObject filters = new JSONObject();
+		filters.put("type","equals");
+		filters.put("value",machineId);
+		filters.put("columnName","id");
+		filterArray.put(filters);
+
+		JSONArray sortArray = new JSONArray();
+		JSONObject sort = new JSONObject();
+		sort.put("sortType","ASC");
+		sort.put("sortField","id");
+		sortArray.put(sort);
+
+		JSONObject searchRequest = new JSONObject();
+		searchRequest.put("languageCode", "eng");
+		searchRequest.put("pagination",pagination);
+		searchRequest.put("filters",filterArray);
+		searchRequest.put("sort",sortArray);
+
+		JSONObject wrapper = new JSONObject();
+		wrapper.put("metadata", new JSONObject());
+		wrapper.put("version", "string");
+		wrapper.put("id", "string");
+		wrapper.put("requesttime",  CommonUtil.getUTCDateTime(null));
+		wrapper.put("request", searchRequest);
+		
+		try {
+			JSONObject resp = RestClient.post(url,wrapper);
+			if(resp != null) {
+				JSONArray typeArray = resp.getJSONArray("data");
+				ObjectMapper objectMapper = new ObjectMapper();
+				machines = objectMapper.readValue(typeArray.toString(), 
+						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
+				
+				setCache(url, machines);
+			
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return machines;
+	}
+	//
+	
+	
 	public static void createRegCenterType(MosipRegistrationCenterTypeModel type) {
 		String url = VariableManager.getVariableValue("urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"regcentertype").toString();

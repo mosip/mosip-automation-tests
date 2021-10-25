@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.DatatypeConverter;
@@ -448,6 +449,17 @@ public class PacketMakerService {
         	dataToMerge = Files.readString(Path.of(dataFilePath));
         
         JSONObject jb = new JSONObject(dataToMerge).getJSONObject("identity");
+       
+        // workaround for MOSIP-18123
+		
+		JSONObject jb1 = new JSONObject(dataToMerge);
+		List<String> jsonList = jb.keySet().stream().filter(j -> j.startsWith("proof")).collect(Collectors.toList());
+		jsonList.forEach(o -> jb1.getJSONObject("identity").getJSONObject(o).put("value", o));
+
+		dataToMerge = jb1.toString();
+		System.out.println(jb1);
+		 
+        //
         
         String schemaVersion = jb.optString("IDSchemaVersion", "0");
         String schemaJson = schemaUtil.getAndSaveSchema(schemaVersion, workDirectory, contextKey);
