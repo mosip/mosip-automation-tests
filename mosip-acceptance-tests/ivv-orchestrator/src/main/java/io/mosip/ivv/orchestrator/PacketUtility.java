@@ -2,10 +2,6 @@ package io.mosip.ivv.orchestrator;
 
 import static io.restassured.RestAssured.given;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -16,6 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
+
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.simple.JSONValue;
 import org.testng.Reporter;
+
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
@@ -214,8 +212,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public void updatePreRegStatus(String prid, String status, HashMap<String, String> contextKey) throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePreRegStatus")+prid+"?statusCode=" + status;
 		Response response = putRequestWithQueryParam(url,contextKey,"UpdatePreRegStatus");
-		if (!response.getBody().asString().toLowerCase().contains("status_updated_sucessfully"))
+		if (!response.getBody().asString().toLowerCase().contains("status_updated_sucessfully")) {
+			Reporter.log("STATUS_NOT_UPDATED_SUCESSFULLY");
 			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
+		}
 		else {
 			Reporter.log(response.getBody().asString());
 			logger.info(response.getBody().asString());
@@ -391,7 +391,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextKey);
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
-		String rid = generateAndUploadPacketSkippingPrereg(templatePath, generatedResidentData.get(0), contextKey,"success");
+		String rid = generateAndUploadPacketSkippingPrereg(templatePath, generatedResidentData.get(0),  null,contextKey,"success");
 
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 
@@ -446,7 +446,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
+	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath, String additionalInfoReqId,
 			HashMap<String, String> contextKey,String responseStatus) throws RigInternalError {
 		String rid = null;
 		String url = baseUrl + "/packet/sync/0";
@@ -455,6 +455,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		arr.put(0, packetPath);
 		arr.put(1, residentPath);
 		jsonReq.put("personaFilePath", arr);
+		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey,
 				"Generate And UploadPacket");
 		if(!(response.getBody().asString().toLowerCase().contains("failed"))) {
@@ -491,7 +492,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 	
 	
-	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,Boolean generatePrivateKey,String baseUrl) throws RigInternalError {
+	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,Boolean generatePrivateKey,String status,String baseUrl) throws RigInternalError {
 		//String url = this.baseUrl + "/servercontext/" + key;
 		String url = this.baseUrl + "/context/server/"+key;
 		Map<String,String> map= new HashMap<String,String>();
@@ -522,6 +523,8 @@ public class PacketUtility extends BaseTestCaseUtil {
         jsonReq.put("Female", "FLE");
         jsonReq.put("Other", "OTH");
         jsonReq.put("generatePrivateKey", generatePrivateKey);
+        if(status !=null && !status.isBlank())
+        jsonReq.put("machineStatus", status);
         if(mosipVersion!=null && !mosipVersion.isEmpty())
 			jsonReq.put("mosip.version", mosipVersion);
 		
@@ -584,8 +587,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 						if(StringUtils.isEmpty(langcode))
 							throw new RigInternalError("LangCode is missing in paramter");
 						updateAttribute.put(arr[0].trim(), langcode + "=" + arr[1].trim());}
-					else
-						updateAttribute.put(arr[0].trim(), (arr[0].trim().equalsIgnoreCase("email")?(arr[1].trim()+"@mosip.io"):arr[1].trim()));
+					else 
+						// updateAttribute.put(arr[0].trim(), (arr[0].trim().equalsIgnoreCase("email")?(arr[1].trim()+"@mosip.io"):arr[1].trim()));
+						updateAttribute.put(arr[0].trim(), (arr[0].trim().equalsIgnoreCase("email")?
+								(arr[1].trim().equalsIgnoreCase("testmosip")?"alok.test.mosip@gmail.com":arr[1].trim()+"@mosip.io"):
+									arr[1].trim()));
 				}
 			}
 			jsonReqInner.put("updateAttributeList", updateAttribute);
