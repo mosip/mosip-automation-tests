@@ -16,6 +16,7 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.DemoAuth;
 
 public class DemoAuthentication extends BaseTestCaseUtil implements StepInterface {
@@ -135,21 +136,21 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 				JSONArray addressLine1Array=new JSONArray();
 				JSONObject addressLine1Obj=new JSONObject();
-				addressLine1Obj.put("language", "eng");
+				addressLine1Obj.put("language", BaseTestCase.languageList.get(0));
 				addressLine1Obj.put("value", addLine1);
 				addressLine1Array.put(addressLine1Obj);
 				identityReqJson.put(E2EConstants.DEMOADDRESSLINE1, addressLine1Array);
 
 				JSONArray addressLine2Array=new JSONArray();
 				JSONObject addressLine2Obj=new JSONObject();
-				addressLine2Obj.put("language", "eng");
+				addressLine2Obj.put("language",  BaseTestCase.languageList.get(0));
 				addressLine2Obj.put("value", addLine2);
 				addressLine2Array.put(addressLine2Obj);
 				identityReqJson.put(E2EConstants.DEMOADDRESSLINE2, addressLine2Array);
 
 				JSONArray addressLine3Array=new JSONArray();
 				JSONObject addressLine3Obj=new JSONObject();
-				addressLine3Obj.put("language", "eng");
+				addressLine3Obj.put("language",  BaseTestCase.languageList.get(0));
 				addressLine3Obj.put("value", addLine3);
 				addressLine3Array.put(addressLine3Obj);
 				identityReqJson.put(E2EConstants.DEMOADDRESSLINE3, addressLine3Array);
@@ -165,7 +166,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				fullname=firstNm +" "+ midNm + " "+ lastNm ;
 				JSONArray nameArray=new JSONArray();
 				JSONObject nameObj=new JSONObject();
-				nameObj.put("language", "eng");
+				nameObj.put("language",  BaseTestCase.languageList.get(0));
 				nameObj.put("value", fullname);
 				nameArray.put(nameObj);
 				identityReqJson.put(demoField, nameArray);
@@ -176,7 +177,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey); //array fill all the values
 				JSONArray genArray=new JSONArray();
 				JSONObject genderObj=new JSONObject();
-				genderObj.put("language", "eng");
+				genderObj.put("language", BaseTestCase.languageList.get(0));
 				genderObj.put("value", demoValue);
 				genArray.put(genderObj);
 				if(demoValue==null)

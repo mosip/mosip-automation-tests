@@ -30,7 +30,7 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 				}
 				if (step.getParameters().size() > 3)  // true/false  (want to generate privatekey)
 					generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(3));
-				packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion,generatePrivateKey,BaseTestCase.ApplnURI + "/");
+				packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/");
 				contextKey.put(contextKeyValue, "true");
 			} else {
 				if (!contextKey.containsKey(contextKeyValue))
