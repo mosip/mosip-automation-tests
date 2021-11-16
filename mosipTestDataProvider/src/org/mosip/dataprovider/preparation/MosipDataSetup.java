@@ -538,8 +538,8 @@ public static void updateMachine(MosipMachineModel machine) {
 
 		JSONObject req = new JSONObject();
 		req.put("category","packet");
-		req.put("tableName","packet");
-		req.put("operation","");
+		req.put("tableName","");
+		req.put("operation","insert");
 		
 		
 		try {
