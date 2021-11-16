@@ -113,7 +113,7 @@ public class RegistrationSteps {
 		reqWrapper.put("request", req);
 
 
-		JSONObject response =RestClient.post(url,reqWrapper);
+		JSONObject response =RestClient.post(url,reqWrapper,true);
 		return response.get("ridStatus").toString();
 		
 	}
