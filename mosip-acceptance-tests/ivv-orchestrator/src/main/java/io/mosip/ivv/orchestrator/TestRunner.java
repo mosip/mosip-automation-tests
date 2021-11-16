@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -25,6 +26,7 @@ public class TestRunner {
 		BaseTestCase.environment=System.getProperty("env.user");
 		BaseTestCase.ApplnURI=System.getProperty("env.endpoint");
 		BaseTestCase.testLevel=System.getProperty("env.testLevel");
+		BaseTestCase.languageList=Arrays.asList(System.getProperty("env.langcode").split(","));
 		BaseTestCase.initialize();
 		
 		startTestRunner();

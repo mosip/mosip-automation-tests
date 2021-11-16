@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.everit.json.schema.ValidationException;
 import org.json.JSONArray;
@@ -261,6 +263,7 @@ public class PacketSyncService {
     	logger.info("makePacketAndSync for PRID : {}", preregId);
 
     	Path idJsonPath = null;
+    	Path docPath = null;
     	preregId = preregId.trim();
     	if(!preregId.equals("0")) {
     		String location = preregSyncService.downloadPreregPacket( preregId, contextKey);
@@ -273,6 +276,23 @@ public class PacketSyncService {
     			throw new Exception("Failed to unzip pre-reg packet >> " + preregId);
 
     		idJsonPath = Path.of(targetDirectory.getAbsolutePath(), "ID.json");
+    		
+    		
+			/*
+			 * String idJsonContent = new String(Files.readAllBytes(idJsonPath)); JSONObject
+			 * json = new JSONObject(idJsonContent); json=json.getJSONObject("identity");
+			 * 
+			 * String path = targetDirectory.getAbsolutePath(); docPath =
+			 * Files.createDirectories(Paths.get(path + "tempDir")); try {
+			 * FileUtils.copyDirectory(new File(path), docPath.toFile()); //
+			 * Files.delete(Paths.get(docPath+"/ID.json")); for (File f :
+			 * docPath.toFile().listFiles()) { if (f.getName().startsWith("POE_Passport") ||
+			 * f.getName().startsWith("ID.json")) f.delete(); } } catch (IOException e) {
+			 * e.printStackTrace(); }
+			 */
+			
+			
+			
 
             logger.info("Unzipped the prereg packet {}, ID.json exists : {}", preregId, idJsonPath.toFile().exists());
 
@@ -291,7 +311,7 @@ public class PacketSyncService {
         if(templateLocation != null) {
         	process = ContextUtils.ProcessFromTemplate(src, templateLocation);
         }
-        String packetPath = packetMakerService.createContainer(idJsonPath.toString(),templateLocation,src,process,preregId, contextKey, true,additionalInfoReqId);
+        String packetPath = packetMakerService.createContainer(docPath,idJsonPath.toString(),templateLocation,src,process,preregId, contextKey, true,additionalInfoReqId);
 
         logger.info("Packet created : {}", packetPath);
 
@@ -329,6 +349,7 @@ public class PacketSyncService {
         return functionResponse;
     	
     }
+    
     public  Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
     	
     	loadServerContextProperties(contextKey);

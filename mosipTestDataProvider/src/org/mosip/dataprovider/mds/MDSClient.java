@@ -253,6 +253,39 @@ public class MDSClient implements MDSClientInterface {
 		
 		return rCaptureModel;
 	}
+	
+	
+	public void setThresholdValue(String qualityScore) {
+
+		String url = MDSURL + port + "/admin/score";
+		JSONObject body = new JSONObject();
+		body.put("type", "Biometric Device");
+		body.put("qualityScore", qualityScore);
+		body.put("fromIso", false);
+
+		try {
+			/*
+			 * HttpRCapture capture = new HttpRCapture(url);
+			 * capture.setMethod("SETTHRESHOLVALUE"); String response =
+			 * RestClient.rawHttp(capture, body.toString()); JSONObject respObject = new
+			 * JSONObject(response);
+			 */
+			
+			Response response = given()
+					.contentType(ContentType.JSON)
+					.body(body.toString())
+					.post(url );
+			String resp = response.getBody().asString();
+			System.out.println(resp);
+
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+			ex.printStackTrace();
+		}
+
+	}
+	
+	
 		
 	public static void main(String[] args) {
 		

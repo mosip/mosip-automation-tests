@@ -91,7 +91,7 @@ public class TestDataController {
     public @ResponseBody String createPacket(@RequestBody PacketCreateDto packetCreateDto, 
     		@PathVariable("contextKey") String contextKey) {
         try{
-            return pkm.createContainer(packetCreateDto.getIdJsonPath(), packetCreateDto.getTemplatePath(),
+            return pkm.createContainer(null,packetCreateDto.getIdJsonPath(), packetCreateDto.getTemplatePath(),
             		packetCreateDto.getSource(), packetCreateDto.getProcess(), null,contextKey, true,packetCreateDto.getAdditionalInfoReqId());
         } catch (Exception ex){
              logger.error("", ex);

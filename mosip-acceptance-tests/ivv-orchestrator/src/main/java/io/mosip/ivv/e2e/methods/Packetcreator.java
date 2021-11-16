@@ -38,18 +38,26 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 			for (String resDataPath : residentTemplatePaths.keySet()) {
 				String templatePath = residentTemplatePaths.get(resDataPath);
 				String idJosn = templatePath + "/REGISTRATION_CLIENT/" + process + "/rid_id/" + "ID.json";
-				packetPath = createPacket(idJosn, templatePath);
+				packetPath = createPacket(idJosn, templatePath,null);  //    3rd argument is _additionalInfoReqId here pass null
 				templatePacketPath.put(templatePath, packetPath);
 				// this is inserted for storing rid with resident data it will be deleted in RIDSync
 				ridPersonaPath.put(packetPath, resDataPath);
 			}
 		} else {
-			process = step.getParameters().get(0); // "$$zipPacketPath=e2e_packetcreator(NEW,$$templatePath)"
+			process = step.getParameters().get(0); // "$$zipPacketPath=e2e_packetcreator(NEW,$$templatePath)"  --> now  "$$zipPacketPath=e2e_packetcreator(NEW,$$templatePath,$$additionalInfoReqId)" 
 			String _templatePath = step.getParameters().get(1);
+
+			String _additionalInfoReqId=null;
+			if (step.getParameters().size() > 2) {
+				_additionalInfoReqId = step.getParameters().get(2);
+				if (!_additionalInfoReqId.isEmpty() && _additionalInfoReqId.startsWith("$$"))
+					_additionalInfoReqId = step.getScenario().getVariables().get(_additionalInfoReqId);
+			}
+			
 			if (_templatePath.startsWith("$$")) {
 				_templatePath = step.getScenario().getVariables().get(_templatePath);
 				String _idJosn = _templatePath + "/REGISTRATION_CLIENT/" + process + "/rid_id/" + "ID.json";
-				String _packetPath = createPacket(_idJosn, _templatePath);
+				String _packetPath = createPacket(_idJosn, _templatePath,_additionalInfoReqId);
 				if (step.getOutVarName() != null)
 					step.getScenario().getVariables().put(step.getOutVarName(), _packetPath);
 			}
@@ -57,13 +65,14 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 
 	}
 
-	private String createPacket(String idJsonPath, String templatePath) throws RigInternalError {
+	private String createPacket(String idJsonPath, String templatePath,String additionalInfoReqId) throws RigInternalError {
 		String url = baseUrl + props.getProperty("packetCretorUrl");
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("idJsonPath", idJsonPath);
 		jsonReq.put("process", process);
 		jsonReq.put("source", E2EConstants.SOURCE);
 		jsonReq.put("templatePath", templatePath);
+		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
 		Response response = postRequestWithPathParamAndBody(url, jsonReq.toString(), contextInuse, "CreatePacket");
 		if (!response.getBody().asString().toLowerCase().contains("zip"))
 			throw new RigInternalError("Unable to get packet from packet utility");

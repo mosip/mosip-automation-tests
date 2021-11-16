@@ -21,10 +21,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.test.CreatePersona;
@@ -204,7 +206,7 @@ public class PacketMakerService {
     	 else
     		 idJsonPath = packetSyncService.createIDJsonFromPersona(personaPath, contextKey);
      	
-    	String packetPath = createContainer( 
+    	String packetPath = createContainer( null,
     			(idJsonPath == null ? null: idJsonPath.toString()),
     			templatePath,src,process, null,contextKey,false,additionalInfoReqId);
 
@@ -221,7 +223,7 @@ public class PacketMakerService {
     /*
      * Create packet with our without Encryption
      */
-    public String createContainer(String dataFile, String templatePacketLocation, String source, String processArg, String preregId, String contextKey, boolean bZip,String additionalInfoReqId) throws Exception{
+    public String createContainer(Path docPath, String dataFile, String templatePacketLocation, String source, String processArg, String preregId, String contextKey, boolean bZip,String additionalInfoReqId) throws Exception{
     	
     	String retPath = "";
     	if(contextKey != null && !contextKey.equals("")) {
@@ -272,6 +274,17 @@ public class PacketMakerService {
         }
         logger.info("src="+ src + ",process=" + process);
         String tempPacketRootFolder = createTempTemplate(templateLocation, appId);
+      
+        // tempPacketRootFolder=C:\Users\ALOK~1.KUM\AppData\Local\Temp\pktcreator14605878540379887785\10001100771000120211108051810-10001_10077-20211108051810
+		/*
+		 * if (docPath != null) { String newloc = tempPacketRootFolder + File.separator
+		 * + src + File.separator + process + File.separator + appId + "_id"; for (File
+		 * f : new File(newloc).listFiles()) { if (f.getName().endsWith(".pdf"))
+		 * f.delete(); } try { FileUtils.copyDirectory(docPath.toFile(), new
+		 * File(newloc)); } catch (IOException e) { e.printStackTrace(); } }
+		 */
+        
+        //update document file here
         createPacket(tempPacketRootFolder, regId, dataFile, "id",preregId,contextKey);
         if(bZip)
         	packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id",contextKey);
@@ -448,6 +461,21 @@ public class PacketMakerService {
         	dataToMerge = Files.readString(Path.of(dataFilePath));
         
         JSONObject jb = new JSONObject(dataToMerge).getJSONObject("identity");
+       
+        // workaround for MOSIP-18123
+		
+		
+		
+		  JSONObject jb1 = new JSONObject(dataToMerge); List<String> jsonList =
+		  jb.keySet().stream().filter(j ->
+		  j.startsWith("proof")).collect(Collectors.toList()); jsonList.forEach(o ->
+		  jb1.getJSONObject("identity").getJSONObject(o).put("value", o));
+		  
+		  dataToMerge = jb1.toString(); System.out.println(jb1);
+		 
+		 
+		 
+        //
         
         String schemaVersion = jb.optString("IDSchemaVersion", "0");
         String schemaJson = schemaUtil.getAndSaveSchema(schemaVersion, workDirectory, contextKey);

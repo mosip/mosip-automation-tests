@@ -3,7 +3,9 @@ package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 import java.util.List;
 
+import org.mosip.dataprovider.mds.MDSClient;
 import org.mosip.dataprovider.util.DataProviderConstants;
+import org.mosip.dataprovider.util.ReadEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,5 +112,38 @@ public class ResidentController {
 		  */
 		 
 	  }
+	  
+		@GetMapping(value = "/resident/additionalReqId")
+		public @ResponseBody String getAdditionalInfoReqId() {
+
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+			try {
+				List<String> getadditionalInfoReqIds = ReadEmail.getadditionalInfoReqIds();
+				if (!getadditionalInfoReqIds.isEmpty() && getadditionalInfoReqIds.size() > 0)
+					return getadditionalInfoReqIds.get(0);
+			} catch (Exception e) {
+				logger.error("AdditionalRequestId", e);
+			}
+			return "{Failed}";
+		}
+
+		@GetMapping(value = "/resident/setThresholdValue/{qualityScore}")
+		public @ResponseBody String setThresholdValue(@PathVariable("qualityScore") String qualityScore) {
+
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+			try {
+				MDSClient client = new MDSClient(0);
+				client.setProfile("Default");
+				client.setThresholdValue(qualityScore);
+				return "qualityScore :" + qualityScore + " is updated";
+			} catch (Exception e) {
+				logger.error("ThresholdValue", e);
+			}
+			return "{Failed}";
+		}
 		
 }

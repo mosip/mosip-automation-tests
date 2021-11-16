@@ -56,7 +56,7 @@ public class PacketJobService {
 
                     logger.info("Unzipped the prereg packet {}, ID.json exists : {}", prid, idJsonPath.toFile().exists());
 
-                    String packetPath = packetMakerService.createContainer(idJsonPath.toString(),null,null,null,prid,null, true,null);
+                    String packetPath = packetMakerService.createContainer(null,idJsonPath.toString(),null,null,null,prid,null, true,null);
 
                     logger.info("Packet created : {}", packetPath);
 

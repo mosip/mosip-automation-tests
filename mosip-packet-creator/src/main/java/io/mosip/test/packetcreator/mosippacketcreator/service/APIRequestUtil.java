@@ -148,7 +148,8 @@ public class APIRequestUtil {
     	
     	if(preregToken == null) {
     	
-            initPreregToken();
+            //initPreregToken();
+    		initToken_prereg();
         }
     	boolean bDone = false;
     	int nLoop  = 0;
@@ -162,7 +163,8 @@ public class APIRequestUtil {
     			if(nLoop >= 1)
     				bDone = true;
     			else {
-    				initPreregToken();
+    				//initPreregToken();
+    				initToken_prereg();
     				nLoop++;
     			}
     		}
@@ -349,6 +351,62 @@ public class APIRequestUtil {
 		}
 
     }
+    
+    public boolean initToken_prereg(){
+        try {	
+        	if(VariableManager.isInit()) {
+	        	Object o =VariableManager.getVariableValue("operatorId");
+	        	if(o != null)
+	        		operatorId = o.toString();
+	        	
+	        	o =VariableManager.getVariableValue("password");
+	        	
+	        	if(o != null)
+	        		password = o.toString();
+	        }
+        	
+			JSONObject requestBody = new JSONObject();
+			JSONObject nestedRequest = new JSONObject();
+			nestedRequest.put("userName", operatorId);
+			nestedRequest.put("password", password);
+            nestedRequest.put("appId", "admin");
+			requestBody.put("metadata", "");
+			requestBody.put("version", "string");
+			requestBody.put("id", "string");
+			requestBody.put("requesttime", getUTCDateTime(LocalDateTime.now()));
+			requestBody.put("request", nestedRequest);
+
+            //authManagerURL
+            //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
+            Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
+			logger.info("Authtoken generation request response: {}", response.asString());
+			if(response.getStatusCode() == 401) {
+				throw new Exception("401 - Unauthorized");
+				
+			}
+            if (response.getStatusCode() != 200 ||  response.toString().contains("errorCode")) {
+            	if(bSlackit)
+            		SlackIt.postMessage(null,
+            				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+            	
+            	return false;
+            }
+            //token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
+            //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
+            preregToken=response.getCookie("Authorization");
+            
+			return true;	
+		}
+		catch(Exception  ex){
+            logger.error("",ex);
+            if(bSlackit)
+        		SlackIt.postMessage(null,
+        				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+        	
+            return false;
+		}
+    }
+    
    // @PostConstruct
     public boolean initToken(){
         try {	
