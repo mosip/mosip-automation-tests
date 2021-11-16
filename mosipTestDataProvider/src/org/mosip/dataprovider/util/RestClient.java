@@ -118,6 +118,7 @@ public class RestClient {
 		String role = "system";
         if (!isValidToken(role)){
         	initToken();
+        	
         }
     	boolean bDone = false;
     	int nLoop  = 0;
@@ -222,7 +223,7 @@ public class RestClient {
 		String role = "system";
 	
 		if (!isValidToken(role)){
-            initToken();
+           initToken();
         }
 
 
@@ -352,11 +353,16 @@ public class RestClient {
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
 
-
 	public static JSONObject post(String url, JSONObject jsonRequest) throws Exception {
+		return post(url,jsonRequest,false);
+	}
+	public static JSONObject post(String url, JSONObject jsonRequest,boolean usedResidentToken) throws Exception {
 		String role = "system";
 		if (!isValidToken(role)){
-            initToken();
+			if (usedResidentToken)
+				initToken_Resident();
+			else
+				initToken();
         }
 		boolean bDone = false;
 	    int nLoop  = 0;
@@ -378,7 +384,10 @@ public class RestClient {
     			if(nLoop >= 1)
     				bDone = true;
     			else {
-    				initToken();
+					if (usedResidentToken)
+						initToken_Resident();
+					else
+						initToken();
     				nLoop++;
     			}
     		}
@@ -456,7 +465,7 @@ public class RestClient {
 	public static JSONObject putPreRegStatus(String url, JSONObject jsonRequest) throws Exception {
 		String role = "system";
 		if (!isValidToken(role)){
-            initToken();
+           initToken();
         }
 		boolean bDone = false;
 	    int nLoop  = 0;
@@ -501,7 +510,7 @@ public class RestClient {
 	public static JSONObject patch(String url, JSONObject jsonRequest) throws Exception {
 		String role = "system";
 		if (!isValidToken(role)){
-            initToken();
+           initToken();
         }
 		boolean bDone = false;
 	    int nLoop  = 0;
@@ -603,6 +612,61 @@ public class RestClient {
 	  		
 	        //https://dev.mosip.net/v1/authmanager/authenticate/internal/useridPwd
 	    }
+	public  static boolean initToken_Resident(){
+        try {		
+			JSONObject requestBody = new JSONObject();
+			JSONObject nestedRequest = new JSONObject();
+			//nestedRequest.put("userName", VariableManager.getVariableValue("operatorId"));
+			//nestedRequest.put("password",  VariableManager.getVariableValue("password"));
+            nestedRequest.put("appId", VariableManager.getVariableValue("appId"));
+            nestedRequest.put("clientId",  VariableManager.getVariableValue("clientId"));
+            nestedRequest.put("secretKey",  VariableManager.getVariableValue("secretKey"));
+			requestBody.put("metadata",new JSONObject());
+			requestBody.put("version", "string");
+			requestBody.put("id", "string");
+			requestBody.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
+			requestBody.put("request", nestedRequest);
+
+            //authManagerURL
+            //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
+			String authUrl = VariableManager.getVariableValue("urlBase").toString().trim() +"/v1/authmanager/authenticate/clientidsecretkey";
+			
+			//String authUrl = VariableManager.getVariableValue("urlBase").toString().trim() + VariableManager.getVariableValue("authManagerURL").toString().trim();
+			String jsonBody = requestBody.toString(); 
+			
+			Response response =null;
+			try {
+				response = given()
+            		.contentType("application/json")
+            		.body(jsonBody)
+            		.post(authUrl);
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+				
+            if (response.getStatusCode() != 200 || response.toString().contains("errorCode")) {
+            	boolean bSlackit = VariableManager.getVariableValue("post2slack") == null ? false : Boolean.parseBoolean(VariableManager.getVariableValue("post2slack").toString()) ;
+            	if(bSlackit)
+            		SlackIt.postMessage(null,
+            				authUrl  + " Failed to authenticate, Is " +  VariableManager.getVariableValue("urlBase").toString() + " down ?");
+            	
+            	return false;
+            }
+           // String responseBody = response.getBody().asString();
+            //token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
+            //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
+            String token=response.getCookie("Authorization");
+            tokens.put("system", token);
+			return true;	
+		}
+		catch(Exception  ex){
+			
+		}
+        return false;
+  		
+        //https://dev.mosip.net/v1/authmanager/authenticate/internal/useridPwd
+    }
 	 private static void checkErrorResponse(String response) throws Exception {
 	        //TODO: Handle 401 or token expiry
 	        JSONObject jsonObject =  new JSONObject(response);

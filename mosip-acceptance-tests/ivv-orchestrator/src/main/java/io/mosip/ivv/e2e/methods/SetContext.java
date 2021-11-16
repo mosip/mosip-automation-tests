@@ -24,6 +24,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String userAndMachineDetailParam = null;
 		String mosipVersion = null;
 		boolean generatePrivateKey =Boolean.FALSE;
+		String status=null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("SetContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else {
@@ -44,9 +45,12 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			}
 			if (step.getParameters().size() > 3)  // true/false  (want to generate privatekey)
 				generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(3));
+			
+			if (step.getParameters().size() > 4)  // deactivate
+				status = step.getParameters().get(4);
 			}
 			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion,
-					generatePrivateKey, BaseTestCase.ApplnURI + "/");
+					generatePrivateKey,status, BaseTestCase.ApplnURI + "/");
 
 		}
 }

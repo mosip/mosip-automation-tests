@@ -152,14 +152,19 @@ public class ContextUtils {
 				final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
 				System.out.println("publicKey: "+publicKey);
 				if (publicKey != null && !publicKey.isEmpty()) {
-					
-					List<MosipMachineModel> machines = MosipDataSetup.getMachineDetail(machineId, " ");
+					List<MosipMachineModel> machines =null;
+					String status = contextProperties.getProperty("machineStatus");
+					if(status != null && status.equalsIgnoreCase("deactive"))
+						machines =MosipDataSetup.searchMachineDetail(machineId, "eng");
+					else
+					 machines = MosipDataSetup.getMachineDetail(machineId, " ");
 					if (machines != null && !machines.isEmpty()) {
 						for(MosipMachineModel mosipMachineModel:machines) {
-							if(mosipMachineModel!=null && mosipMachineModel.isActive() && mosipMachineModel.getId().equalsIgnoreCase(machineId)) {
+							//if(mosipMachineModel!=null && mosipMachineModel.isActive() && mosipMachineModel.getId().equalsIgnoreCase(machineId)) {
+								if(mosipMachineModel!=null && mosipMachineModel.getId().equalsIgnoreCase(machineId)) {  //  removed isActive check so, that inactive machine can also be updated (required due to deactive regcenter scenario)
 								mosipMachineModel.setSignPublicKey(publicKey);
 								mosipMachineModel.setPublicKey(publicKey);
-								mosipMachineModel.setZoneCode("NTH");
+							//	mosipMachineModel.setZoneCode("NTH");
 								MosipDataSetup.updateMachine(mosipMachineModel);
 								isMachineDetailFound=true;
 								break;

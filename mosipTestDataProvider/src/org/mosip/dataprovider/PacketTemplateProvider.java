@@ -1289,6 +1289,13 @@ public class PacketTemplateProvider {
 				continue;
 			}
 
+			if (prop.getProperty("uin") != null && s.getId().equals(prop.getProperty("uin"))) {
+				String uin = resident.getUIN();
+				if (uin != null && !uin.trim().equals("")) {
+					identity.put(s.getId(), uin.trim());
+				}
+				continue;
+			}
 			if (!s.getRequired() && !s.getInputRequired()) {
 				continue;
 			}
@@ -1301,13 +1308,6 @@ public class PacketTemplateProvider {
 				continue;
 			}
 
-			if (prop.getProperty("uin") != null && s.getId().equals(prop.getProperty("uin"))) {
-				String uin = resident.getUIN();
-				if (uin != null && !uin.trim().equals("")) {
-					identity.put(s.getId(), uin.trim());
-				}
-				continue;
-			}
 
 			if (updateFromAdditionalAttribute(identity, s, resident)) {
 				continue;
