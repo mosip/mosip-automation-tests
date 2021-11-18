@@ -836,8 +836,8 @@ public class PacketSyncService {
     			case "photo":
     				bioData =persona.getBiometric();
     				byte[][] faceData = PhotoProvider.loadPhoto(value );
-    				bioData.setEncodedPhoto(
-    					Base64.encodeBase64String(faceData[0]));
+    				//bioData.setEncodedPhoto(Base64.encodeBase64String(faceData[0]));
+    				bioData.setEncodedPhoto(Base64.encodeBase64URLSafeString(faceData[0]));
     				bioData.setRawFaceData(faceData[1]);
     				
     				try {

@@ -285,7 +285,7 @@ public  class MosipMasterData {
 		List<MosipLocationModel> locList = null;
 		
 		String url = VariableManager.getVariableValue("urlBase").toString() +
-		"/v1/masterdata/locations/immediatechildren/";
+		"v1/masterdata/locations/immediatechildren/";
 		url = url+ locCode + "/" + langCode ;
 
 		Object o =getCache(url);
