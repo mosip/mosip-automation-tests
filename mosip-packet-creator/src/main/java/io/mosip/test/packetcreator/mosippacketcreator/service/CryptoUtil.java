@@ -147,7 +147,8 @@ public class CryptoUtil {
         
         encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
         encryptObj.put("applicationId", encryptionAppId);
-        encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64String(data));
+       // encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64String(data));
+        encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(data));
         encryptObj.put("prependThumbprint", prependthumbprint);
         encryptObj.put("referenceId", referenceId);
         encryptObj.put("salt", getRandomBytes(GCM_NONCE_LENGTH));
@@ -189,7 +190,8 @@ public class CryptoUtil {
     	}
         encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
         encryptObj.put("applicationId", encryptionAppId);
-        encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64String(data));
+      //  encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64String(data));
+          encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(data));
         encryptObj.put("prependThumbprint", prependthumbprint);
         encryptObj.put("referenceId", referenceId);
         encryptObj.put("salt", getRandomBytes(GCM_NONCE_LENGTH));
@@ -447,7 +449,8 @@ public class CryptoUtil {
     private String getRandomBytes(int length){
         byte[] rand = new byte[length];
         sr.nextBytes(rand);
-        return org.apache.commons.codec.binary.Base64.encodeBase64String(rand);
+       // return org.apache.commons.codec.binary.Base64.encodeBase64String(rand);
+        return org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(rand);
     }
 
     private byte[] mergeEncryptedData(byte[] encryptedData, byte[] nonce, byte[] aad) {

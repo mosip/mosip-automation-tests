@@ -97,7 +97,7 @@ public class MosipDataSetup {
 		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinedetail").toString();
 		url = url + machineId + "/" + langCode; */
 		String url = VariableManager.getVariableValue("urlBase").toString()
-				+ "/v1/masterdata/machines/";
+				+ "v1/masterdata/machines/";
 		
 		url = url + machineId + "/ ";
 		
@@ -128,7 +128,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		
 		List<MosipMachineModel> machines = null;
 		String url = VariableManager.getVariableValue("urlBase").toString()
-				+ "/v1/masterdata/machines/search";
+				+ "v1/masterdata/machines/search";
 		
 		Object o =getCache(url);
 		if(o != null)
@@ -429,7 +429,7 @@ public static void updateMachine(MosipMachineModel machine) {
 
 	public static String updatePreRegStatus(String preregId, String statusCode) {
 		String response = null;
-		String url = VariableManager.getVariableValue("urlBase").toString() + "/preregistration/v1/applications/status/"
+		String url = VariableManager.getVariableValue("urlBase").toString() + "preregistration/v1/applications/status/"
 				+ preregId + "?statusCode=" + statusCode;
 
 		try {

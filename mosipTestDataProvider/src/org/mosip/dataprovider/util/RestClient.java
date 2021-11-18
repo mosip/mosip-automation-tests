@@ -629,7 +629,7 @@ public class RestClient {
 
             //authManagerURL
             //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
-			String authUrl = VariableManager.getVariableValue("urlBase").toString().trim() +"/v1/authmanager/authenticate/clientidsecretkey";
+			String authUrl = VariableManager.getVariableValue("urlBase").toString().trim() +"v1/authmanager/authenticate/clientidsecretkey";
 			
 			//String authUrl = VariableManager.getVariableValue("urlBase").toString().trim() + VariableManager.getVariableValue("authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString(); 
