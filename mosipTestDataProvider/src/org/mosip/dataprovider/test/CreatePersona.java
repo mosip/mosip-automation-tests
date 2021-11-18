@@ -629,7 +629,7 @@ public class CreatePersona {
 		req.put("langCode", langCode);
 		obj.put("request", req);
 		//RestClient client = annotation.getRestClient();
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"/preregistration/v1/login/sendOtp/langcode";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"preregistration/v1/login/sendOtp/langcode";
 	//	url = "https://dev.mosip.net/preregistration/v1/login/sendOtp";
 		try {
 			JSONObject resp = RestClient.postNoAuth(url, obj);
@@ -654,7 +654,7 @@ public class CreatePersona {
 	 *   }
 	 */
 	public static String validateOTP(String otp, String mobileOrEmailId) throws JSONException {
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"/preregistration/v1/login/validateOtp";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"preregistration/v1/login/validateOtp";
 		String response ="";
 		JSONObject obj = new JSONObject();
 		obj.put("id", "mosip.pre-registration.login.useridotp");
