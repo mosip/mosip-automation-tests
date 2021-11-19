@@ -429,9 +429,13 @@ public static void updateMachine(MosipMachineModel machine) {
 
 	public static String updatePreRegStatus(String preregId, String statusCode) {
 		String response = null;
-		String url = VariableManager.getVariableValue("urlBase").toString() + "preregistration/v1/applications/status/"
+		/*
+		 * String url = VariableManager.getVariableValue("urlBase").toString() +
+		 * "preregistration/v1/applications/prereg/status/" + preregId + "?statusCode="
+		 * + statusCode;
+		 */
+		String url = VariableManager.getVariableValue("urlBase").toString() + VariableManager.getVariableValue("updatePreRegStatus").toString()
 				+ preregId + "?statusCode=" + statusCode;
-
 		try {
 			JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject());
 			if (resp != null) {
