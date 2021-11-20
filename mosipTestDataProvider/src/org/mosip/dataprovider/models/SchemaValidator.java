@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Data;
 @Data
-@JsonIgnoreProperties({"arguments","errorCode"})
+@JsonIgnoreProperties({"arguments","errorCode","errorMessageCode"})
 public class SchemaValidator implements Serializable {
 
 	 private static final long serialVersionUID = 1L;

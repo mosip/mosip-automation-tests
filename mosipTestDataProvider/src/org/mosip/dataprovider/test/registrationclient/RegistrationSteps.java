@@ -100,7 +100,7 @@ public class RegistrationSteps {
 
 	public String getRIDStatus(String rid) throws Exception {
 	
-		String uri =  "/resident/v1/rid/check-status";
+		String uri =  "resident/v1/rid/check-status";
 		String url = VariableManager.getVariableValue("urlBase").toString().trim() + uri ;
 
 		JSONObject req = new JSONObject();
@@ -119,7 +119,7 @@ public class RegistrationSteps {
 	}
 	public String getUINByRID(String rid) throws Exception {
 		
-		String uri =  "/idrepository/v1/identity/idvid/" + rid;
+		String uri =  "idrepository/v1/identity/idvid/" + rid;
 		String url = VariableManager.getVariableValue("urlBase").toString().trim() + uri ;
 
 		/*JSONObject req = new JSONObject();
