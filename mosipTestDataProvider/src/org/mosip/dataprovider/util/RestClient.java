@@ -79,6 +79,7 @@ public class RestClient {
 	public static void clearToken() {
 		tokens.remove("system");
 		tokens.remove("resident");
+		tokens.remove("admin");
 		//token = null;
 		refreshToken = null;
 	}
@@ -220,10 +221,11 @@ public class RestClient {
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
 	public static JSONObject uploadFiles(String url, List<String> filePaths, JSONObject requestData) throws Exception {
-		String role = "system";
+		String role = "admin";
 	
 		if (!isValidToken(role)){
-           initToken();
+          // initToken();
+           initToken_admin();
         }
 
 
@@ -354,16 +356,24 @@ public class RestClient {
     }
 
 	public static JSONObject post(String url, JSONObject jsonRequest) throws Exception {
-		return post(url,jsonRequest,false);
+		return post(url,jsonRequest,"system");
 	}
-	public static JSONObject post(String url, JSONObject jsonRequest,boolean usedResidentToken) throws Exception {
-		String role = "system";
-		if (!isValidToken(role)){
-			if (usedResidentToken)
-				initToken_Resident();
-			else
-				initToken();
-        }
+	public static JSONObject post(String url, JSONObject jsonRequest,String role) throws Exception {
+		//String role = "system";
+		if (!isValidToken(role)) {
+		if(role.equalsIgnoreCase("resident")) {
+			initToken_Resident();
+		}
+		else if(role.equalsIgnoreCase("admin")) {
+			initToken_admin();
+		}else {
+			initToken();
+		}
+		}
+		/*
+		 * if (!isValidToken(role)){ if (usedResidentToken) initToken_Resident(); else
+		 * initToken(); }
+		 */
 		boolean bDone = false;
 	    int nLoop  = 0;
 	    Response response =null;
@@ -384,10 +394,14 @@ public class RestClient {
     			if(nLoop >= 1)
     				bDone = true;
     			else {
-					if (usedResidentToken)
-						initToken_Resident();
-					else
-						initToken();
+    				if(role.equalsIgnoreCase("resident")) {
+    					initToken_Resident();
+    				}
+    				else if(role.equalsIgnoreCase("admin")) {
+    					initToken_admin();
+    				}else {
+    					initToken();
+    				}
     				nLoop++;
     			}
     		}
@@ -598,11 +612,13 @@ public class RestClient {
 	            	
 	            	return false;
 	            }
-	           // String responseBody = response.getBody().asString();
-	            //token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
+				String responseBody = response.getBody().asString();
+				String token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
 	            //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
-	            String token=response.getCookie("Authorization");
+	           
+	          // String token=response.getCookie("Authorization");
 	            tokens.put("system", token);
+	            //tokens.put("admin", token);
 				return true;	
 			}
 			catch(Exception  ex){
@@ -612,15 +628,70 @@ public class RestClient {
 	  		
 	        //https://dev.mosip.net/v1/authmanager/authenticate/internal/useridPwd
 	    }
+	public  static boolean initToken_admin(){
+        try {		
+			JSONObject requestBody = new JSONObject();
+			JSONObject nestedRequest = new JSONObject();
+			nestedRequest.put("userName", VariableManager.getVariableValue("operatorId"));
+			nestedRequest.put("password",  VariableManager.getVariableValue("password"));
+            nestedRequest.put("appId", VariableManager.getVariableValue("admin_appId"));
+            nestedRequest.put("clientId",  VariableManager.getVariableValue("admin_clientId"));
+            nestedRequest.put("clientSecret",  VariableManager.getVariableValue("admin_secretKey"));
+			requestBody.put("metadata",new JSONObject());
+			requestBody.put("version", "1.0");
+			requestBody.put("id", "mosip.authentication.useridPwd");
+			requestBody.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
+			requestBody.put("request", nestedRequest);
+
+            //authManagerURL
+            //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
+			
+			String authUrl = VariableManager.getVariableValue("urlBase").toString().trim() + VariableManager.getVariableValue("authManagerURL").toString().trim();
+			String jsonBody = requestBody.toString(); 
+			
+			Response response =null;
+			try {
+				response = given()
+            		.contentType("application/json")
+            		.body(jsonBody)
+            		.post(authUrl);
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+				
+            if (response.getStatusCode() != 200 || response.toString().contains("errorCode")) {
+            	boolean bSlackit = VariableManager.getVariableValue("post2slack") == null ? false : Boolean.parseBoolean(VariableManager.getVariableValue("post2slack").toString()) ;
+            	if(bSlackit)
+            		SlackIt.postMessage(null,
+            				authUrl  + " Failed to authenticate, Is " +  VariableManager.getVariableValue("urlBase").toString() + " down ?");
+            	
+            	return false;
+            }
+           String responseBody = response.getBody().asString();
+           String token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
+            //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
+           
+            //String token=response.getCookie("Authorization");
+            tokens.put("admin", token);
+			return true;	
+		}
+		catch(Exception  ex){
+			
+		}
+        return false;
+  		
+        //https://dev.mosip.net/v1/authmanager/authenticate/internal/useridPwd
+    }
 	public  static boolean initToken_Resident(){
         try {		
 			JSONObject requestBody = new JSONObject();
 			JSONObject nestedRequest = new JSONObject();
-			//nestedRequest.put("userName", VariableManager.getVariableValue("operatorId"));
-			//nestedRequest.put("password",  VariableManager.getVariableValue("password"));
-            nestedRequest.put("appId", VariableManager.getVariableValue("appId"));
-            nestedRequest.put("clientId",  VariableManager.getVariableValue("clientId"));
-            nestedRequest.put("secretKey",  VariableManager.getVariableValue("secretKey"));
+			nestedRequest.put("userName", VariableManager.getVariableValue("operatorId"));
+			nestedRequest.put("password",  VariableManager.getVariableValue("password"));
+			nestedRequest.put("appId", VariableManager.getVariableValue("resident_appId"));
+			nestedRequest.put("clientId", VariableManager.getVariableValue("resident_clientId"));
+			nestedRequest.put("secretKey", VariableManager.getVariableValue("resident_secretKey"));
 			requestBody.put("metadata",new JSONObject());
 			requestBody.put("version", "string");
 			requestBody.put("id", "string");
@@ -657,7 +728,7 @@ public class RestClient {
             //token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
             //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
             String token=response.getCookie("Authorization");
-            tokens.put("system", token);
+            tokens.put("resident", token);
 			return true;	
 		}
 		catch(Exception  ex){

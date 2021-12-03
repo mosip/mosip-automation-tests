@@ -703,7 +703,8 @@ public class PacketTemplateProvider {
 
 					for (DynamicFieldModel dfm : dynaFields.get(primLang)) {
 						if (dfm.getIsActive() && dfm.getName().equals(s.getId())) {
-							primaryValue = dfm.getFieldVal().get(0).getValue();
+							//primaryValue = dfm.getFieldVal().get(0).getValue();
+							primaryValue = dfm.getFieldVal().get(0).getCode();
 							dfmPrim = dfm;
 							break;
 						}
@@ -713,7 +714,8 @@ public class PacketTemplateProvider {
 					if (secLan != null)
 						for (DynamicFieldModel dfm1 : dynaFields.get(secLan)) {
 							if (dfm1.getIsActive() && dfm1.getName().equals(s.getId())) {
-								secValue = dfm1.getFieldVal().get(0).getValue();
+								//secValue = dfm1.getFieldVal().get(0).getValue();
+								secValue = dfm1.getFieldVal().get(0).getCode();
 								break;
 							}
 						}
@@ -869,7 +871,8 @@ public class PacketTemplateProvider {
 
 				for (DynamicFieldModel dfm : dynaFields.get(primaryLanguage)) {
 					if (dfm.getIsActive() && dfm.getName().equals(s.getId())) {
-						primaryValue = dfm.getFieldVal().get(0).getValue();
+						//primaryValue = dfm.getFieldVal().get(0).getValue();
+						primaryValue = dfm.getFieldVal().get(0).getCode();
 						dfmPrim = dfm;
 						break;
 					}
@@ -879,7 +882,8 @@ public class PacketTemplateProvider {
 				if (secLanguage != null)
 					for (DynamicFieldModel dfm1 : dynaFields.get(secLanguage)) {
 						if (dfm1.getIsActive() && dfm1.getName().equals(s.getId())) {
-							secValue = dfm1.getFieldVal().get(0).getValue();
+							//secValue = dfm1.getFieldVal().get(0).getValue();
+							secValue = dfm1.getFieldVal().get(0).getCode();
 							break;
 						}
 					}
