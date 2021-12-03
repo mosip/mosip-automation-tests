@@ -1031,7 +1031,7 @@ public  class MosipMasterData {
 		jsonReqWrapper.put("id", JSONObject.NULL);
 		jsonReqWrapper.put("metadata", JSONObject.NULL);
 		try {
-			JSONObject resp = RestClient.post(url,jsonReqWrapper);
+			JSONObject resp = RestClient.post(url,jsonReqWrapper,"admin");
 			if(resp!=null) {
 				JSONArray genderArray =resp.getJSONArray("data");
 				for (int i=0; i<genderArray.length(); i++) {

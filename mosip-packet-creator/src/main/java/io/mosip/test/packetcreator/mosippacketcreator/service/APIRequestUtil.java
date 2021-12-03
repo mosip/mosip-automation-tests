@@ -369,10 +369,12 @@ public class APIRequestUtil {
 			JSONObject nestedRequest = new JSONObject();
 			nestedRequest.put("userName", operatorId);
 			nestedRequest.put("password", password);
-            nestedRequest.put("appId", "admin");
-			requestBody.put("metadata", "");
-			requestBody.put("version", "string");
-			requestBody.put("id", "string");
+			nestedRequest.put("appId", VariableManager.getVariableValue("appId"));
+			nestedRequest.put("clientId", VariableManager.getVariableValue("clientId"));
+			nestedRequest.put("clientSecret", VariableManager.getVariableValue("secretKey"));
+			requestBody.put("metadata", new JSONObject());
+			requestBody.put("version", "1.0");
+			requestBody.put("id", "mosip.authentication.useridPwd");
 			requestBody.put("requesttime", getUTCDateTime(LocalDateTime.now()));
 			requestBody.put("request", nestedRequest);
 
@@ -391,9 +393,10 @@ public class APIRequestUtil {
             	
             	return false;
             }
-            //token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
+           token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
             //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
-            preregToken=response.getCookie("Authorization");
+            //preregToken=response.getCookie("Authorization");
+            preregToken=token;
             
 			return true;	
 		}
@@ -449,9 +452,9 @@ public class APIRequestUtil {
             	
             	return false;
             }
-            //token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
+             token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
             //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
-            token=response.getCookie("Authorization");
+            //token=response.getCookie("Authorization");
             
 			return true;	
 		}
