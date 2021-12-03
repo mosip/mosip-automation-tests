@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.UUID;
 import java.security.KeyPairGenerator;
+
+import org.apache.commons.lang.RandomStringUtils;
 import org.mosip.dataprovider.models.ExecContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,6 +166,7 @@ public class ContextUtils {
 								if(mosipMachineModel!=null && mosipMachineModel.getId().equalsIgnoreCase(machineId)) {  //  removed isActive check so, that inactive machine can also be updated (required due to deactive regcenter scenario)
 								mosipMachineModel.setSignPublicKey(publicKey);
 								mosipMachineModel.setPublicKey(publicKey);
+								mosipMachineModel.setName(RandomStringUtils.randomAlphanumeric(10).toUpperCase());
 							//	mosipMachineModel.setZoneCode("NTH");
 								MosipDataSetup.updateMachine(mosipMachineModel);
 								isMachineDetailFound=true;
