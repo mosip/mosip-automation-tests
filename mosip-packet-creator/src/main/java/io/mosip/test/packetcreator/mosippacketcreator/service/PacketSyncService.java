@@ -692,7 +692,8 @@ public class PacketSyncService {
    	 
     	for(MosipDocument a: resident.getDocuments()) {
     		JSONObject respObject = PreRegistrationSteps.UploadDocument(a.getDocCategoryCode(),
-				 a.getType().get(0).getCode(),
+				// a.getType().get(0).getCode(),
+    				a.getType().get(0).getDocTypeCode(),
 				 a.getDocCategoryLang(), a.getDocs().get(0) ,preregId);
     		if(respObject != null)
     			response = response + respObject.toString();
