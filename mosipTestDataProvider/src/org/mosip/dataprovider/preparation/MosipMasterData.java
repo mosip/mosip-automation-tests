@@ -870,6 +870,42 @@ public  class MosipMasterData {
 		}
 		return docTypeList;
 	}
+	public static List<MosipDocTypeModel> getMappedDocumentTypes(String categoryCode,String langCode) {
+		
+		List<MosipDocTypeModel> docTypeList = null;
+		
+		String url = VariableManager.getVariableValue("urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"documentTypes").toString();
+		url = url + categoryCode +"/"+ langCode;
+		
+		Object o =getCache(url);
+		if(o != null)
+			return( (List<MosipDocTypeModel>) o);
+
+		try {
+			JSONArray docCatArray = RestClient.getDoc(url,new JSONObject() , new JSONObject());
+			
+			if(docCatArray != null) {
+				ObjectMapper objectMapper = new ObjectMapper();
+				docTypeList = objectMapper.readValue(docCatArray.toString(), 
+					objectMapper.getTypeFactory().constructCollectionType(List.class, MosipDocTypeModel.class));
+	
+				List<MosipDocTypeModel> newDocTypeList = new ArrayList<MosipDocTypeModel>();
+				for(MosipDocTypeModel m: docTypeList) {
+					if(m.getIsActive() )
+						newDocTypeList.add(m);
+				}
+				setCache(url, newDocTypeList);
+				return newDocTypeList;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return docTypeList;
+	}
+	
+	
 	public static Hashtable<String, List<MosipIndividualTypeModel>> getIndividualTypesFromDynamicFields() {
 		Hashtable<String, List<MosipIndividualTypeModel>> tbl = new Hashtable<String, List<MosipIndividualTypeModel>>();
 		Hashtable<String, List<DynamicFieldModel>> tblDyn = MosipMasterData.getAllDynamicFields();
@@ -1341,7 +1377,7 @@ public  class MosipMasterData {
 	//	List<DynamicFieldModel> lstDyn =  MosipMasterData.getAllDynamicFields();
 //		List<MosipMachineModel> mach =  MosipDataSetup.getMachineDetail("10082", "eng");
 //		MosipDataSetup.getMachineConfig(mach.get(0).getName()) ;
-		
+		getMappedDocumentTypes("POA","eng");
 		
 		Hashtable<Double,Properties> tbl1 = getIDSchemaLatestVersion();
 		 double schemaId = tbl1.keys().nextElement();
