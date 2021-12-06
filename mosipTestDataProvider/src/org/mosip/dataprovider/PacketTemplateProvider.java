@@ -394,7 +394,8 @@ public class PacketTemplateProvider {
 
 							JSONObject o = new JSONObject();
 							o.put("format", "pdf");
-							o.put("type", doc.getType().get(index).getCode());
+							//o.put("type", doc.getType().get(index).getCode());
+							o.put("type", doc.getType().get(index).getDocTypeCode());
 							String[] v = fileInfo.get(RID_EVIDENCE);
 							v[1] = s.getId() + ".pdf";
 							fileInfo.put(RID_EVIDENCE, v);
@@ -1451,14 +1452,15 @@ public class PacketTemplateProvider {
 						index = 0;
 						if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
 
-							index = resident.getDocIndexes().get(doc.getDocCategoryCode());
+ 							index = resident.getDocIndexes().get(doc.getDocCategoryCode());
 
 							String docFile = doc.getDocs().get(0);
 							System.out.println("docFIle=" + docFile + " dType=" + s.getSubType() + " cat=" + s.getId());
 
 							JSONObject o = new JSONObject();
 							o.put("format", "pdf");
-							o.put("type", doc.getType().get(0).getCode());
+							//o.put("type", doc.getType().get(0).getCode());
+							o.put("type", doc.getType().get(0).getDocTypeCode());
 							String[] v = fileInfo.get(RID_FOLDER);
 							v[1] = s.getId() + ".pdf";
 							fileInfo.put(RID_FOLDER, v);

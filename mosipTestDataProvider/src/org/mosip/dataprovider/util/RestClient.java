@@ -162,6 +162,58 @@ public class RestClient {
 
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
+	
+	//method used with system role
+		public static JSONArray getDoc(String url, JSONObject requestParams, JSONObject pathParam) throws Exception {
+	       
+			String role = "system";
+	        if (!isValidToken(role)){
+	        	initToken();
+	        	
+	        }
+	    	boolean bDone = false;
+	    	int nLoop  = 0;
+	    	Response response =null;
+
+	    	//Stict http validation errors - fix
+	    	
+	    	/*if(url.contains("//")) {
+	    		url = url.replace("//", "/"); 		
+	    	}*/
+	    	while(!bDone) {
+
+	    		String token = tokens.get(role);
+	        	
+	    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+	    		Map<String,Object> mapParam = requestParams == null ? null: requestParams.toMap();
+	        		//new Gson().fromJson(requestParams.toString(), HashMap.class);
+	    		Map<String,Object> mapPathParam =pathParam == null ? null: pathParam.toMap();
+	        
+	        	//new Gson().fromJson(pathParam.toString(), HashMap.class);
+	        
+	    		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,mapPathParam );
+	    		if(response.getStatusCode() == 401) {
+	    			if(nLoop >= 1)
+	    				bDone = true;
+	    			else {
+	    				initToken();
+	    				nLoop++;
+	    			}
+	    		}
+	    		else
+	    			bDone = true;
+	    	}
+
+	        if(response != null) {
+	        	System.out.println(response.getBody().asString());
+	        	
+	        }
+	        checkErrorResponse(response.getBody().asString());
+
+	        return new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
+	    }
+	
+	
 	public static JSONObject getNoAuth(String url, JSONObject requestParams, JSONObject pathParam) throws Exception {
 	       
 		String token = tokens.get("resident");

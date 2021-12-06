@@ -369,9 +369,19 @@ public class APIRequestUtil {
 			JSONObject nestedRequest = new JSONObject();
 			nestedRequest.put("userName", operatorId);
 			nestedRequest.put("password", password);
+			
 			nestedRequest.put("appId", VariableManager.getVariableValue("appId"));
 			nestedRequest.put("clientId", VariableManager.getVariableValue("clientId"));
 			nestedRequest.put("clientSecret", VariableManager.getVariableValue("secretKey"));
+
+			/*
+			 * nestedRequest.put("appId", VariableManager.getVariableValue("prereg_appId"));
+			 * nestedRequest.put("clientId",
+			 * VariableManager.getVariableValue("prereg_clientId"));
+			 * nestedRequest.put("secretKey",
+			 * VariableManager.getVariableValue("prereg_secretKey"));
+			 */
+			
 			requestBody.put("metadata", new JSONObject());
 			requestBody.put("version", "1.0");
 			requestBody.put("id", "mosip.authentication.useridPwd");
@@ -381,6 +391,7 @@ public class APIRequestUtil {
             //authManagerURL
             //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
             Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
+           // Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + preregAuthManagerURL);
 			logger.info("Authtoken generation request response: {}", response.asString());
 			if(response.getStatusCode() == 401) {
 				throw new Exception("401 - Unauthorized");
@@ -395,7 +406,7 @@ public class APIRequestUtil {
             }
            token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
             //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
-            //preregToken=response.getCookie("Authorization");
+           // preregToken=response.getCookie("Authorization");
             preregToken=token;
             
 			return true;	
