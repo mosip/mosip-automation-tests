@@ -19,6 +19,31 @@ public class MosipDocTypeModel  implements Serializable{
 	String createdDateTime;
 	String updatedDateTime;
 	String deletedDateTime;
+	
+	String docTypeCode;
+	String docCategoryCode;
+	String docTypeName;
+	public String getDocTypeCode() {
+		return docTypeCode;
+	}
+	public void setDocTypeCode(String docTypeCode) {
+		this.docTypeCode = docTypeCode;
+	}
+	public String getDocCategoryCode() {
+		return docCategoryCode;
+	}
+	public void setDocCategoryCode(String docCategoryCode) {
+		this.docCategoryCode = docCategoryCode;
+	}
+	public String getDocTypeName() {
+		return docTypeName;
+	}
+	public void setDocTypeName(String docTypeName) {
+		this.docTypeName = docTypeName;
+	}
+	
+	
+	
 	public String getCreatedDateTime() {
 		return createdDateTime;
 	}
