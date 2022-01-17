@@ -140,14 +140,16 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return resp;
 	}
 
-	public void requestOtp(String resFilePath, HashMap<String, String> contextKey, String emailOrPhone) {
+	public void requestOtp(String resFilePath, HashMap<String, String> contextKey, String emailOrPhone) throws RigInternalError {
 		String url = baseUrl + props.getProperty("sendOtpUrl") + emailOrPhone;
 		JSONObject jsonReq = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put("personaFilePath", jsonArray);
 		// postReqest(url,jsonReq.toString(),"Send Otp");
-		postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "Send Otp");
+		Response response =postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "Send Otp");
+		if (!response.getBody().asString().toLowerCase().contains("email request submitted"))
+			throw new RigInternalError("Unable to Send OTP");
 
 	}
 
