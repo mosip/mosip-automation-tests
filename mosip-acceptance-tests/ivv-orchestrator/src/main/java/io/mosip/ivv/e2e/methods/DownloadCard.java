@@ -69,6 +69,11 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 						//assertFalse(true, "Failed at downloading card");
 						throw new RigInternalError("Failed at downloading card");
 					} 
+						catch (Exception e) {
+							logger.error("Failed at downloading card: "+e.getMessage());
+							//assertFalse(true, "Failed at downloading card");
+							throw new RigInternalError("Failed at downloading card");
+						} 
 			}
 		}
 		

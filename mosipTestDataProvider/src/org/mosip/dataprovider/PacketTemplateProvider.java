@@ -378,6 +378,7 @@ public class PacketTemplateProvider {
 			if (s.getFieldCategory().equals("evidence") && (s.getInputRequired() || s.getRequired())) {
 
 				if (!(!s.getRequired()) && (s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
+					
 					continue;
 				}
 
@@ -1304,9 +1305,17 @@ public class PacketTemplateProvider {
 			if (!s.getRequired() && !s.getInputRequired()) {
 				continue;
 			}
+			
+			// DEV2
 			if (!s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
 				continue;
 			}
+			
+			/*QA-Double
+			if (s.getRequired() && (s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
+				continue;
+			}*/
+	
 
 			if (prop.getProperty("idschemaversion") != null && s.getId().equals(prop.getProperty("idschemaversion"))) {
 				identity.put(s.getId(), schemaVersion);
