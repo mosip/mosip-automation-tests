@@ -93,12 +93,19 @@ public class BiometricDataProvider {
 		if(jtwSign!=null && payload!=null ) {
 			jtwSign= Base64.getEncoder().encodeToString(jtwSign.getBytes());
 			builder.e("SB").t(jtwSign).up().
-			e("Others").e("Key").t("EXCEPTION").up().e("Value").t("false").up().up().
-			e("Others").e("Key").t("RETRIES").up().e("Value").t("1").up().up().
-			e("Others").e("Key").t("SDK_SCORE").up().e("Value").t("0.0").up().up().
-			e("Others").e("Key").t("FORCE_CAPTURED").up().e("Value").t("false").up().up().
-			e("Others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
-			e("Others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up();
+			//e("others").e("Key").t("EXCEPTION").up().e("Value").t("false").up().up().
+			//e("others").e("Key").t("RETRIES").up().e("Value").t("1").up().up().
+			//e("others").e("Key").t("SDK_SCORE").up().e("Value").t("0.0").up().up().
+			//e("others").e("Key").t("FORCE_CAPTURED").up().e("Value").t("false").up().up().
+			//e("others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
+			//e("others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up().
+
+			e("others").e("entry").a("key", "EXCEPTION").t("false").up().
+			e("entry").a("key", "RETRIES").t("1").up().
+			e("entry").a("key", "SDK_SCORE").t("0.0").up().
+			e("entry").a("key", "FORCE_CAPTURED").t("false").up().
+			e("entry").a("key", "PAYLOAD").t(payload).up().
+			e("entry").a("key", "SPEC_VERSION").t("0.9.5").up().up();
 		}
 					
 		//PrintWriter writer = new PrintWriter(new FileOutputStream("cbeffout-finger"+ fingerName+ ".xml"));
@@ -125,12 +132,19 @@ public class BiometricDataProvider {
 		if(jtwSign!=null && payload!=null ) {
 			jtwSign= Base64.getEncoder().encodeToString(jtwSign.getBytes());
 			builder.e("SB").t(jtwSign).up().
-			e("Others").e("Key").t("EXCEPTION").up().e("Value").t("false").up().up().
-			e("Others").e("Key").t("RETRIES").up().e("Value").t("1").up().up().
-			e("Others").e("Key").t("SDK_SCORE").up().e("Value").t("0.0").up().up().
-			e("Others").e("Key").t("FORCE_CAPTURED").up().e("Value").t("false").up().up().
-			e("Others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
-			e("Others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up();
+//			e("others").e("Key").t("EXCEPTION").up().e("Value").t("false").up().up().
+//			e("others").e("Key").t("RETRIES").up().e("Value").t("1").up().up().
+//			e("others").e("Key").t("SDK_SCORE").up().e("Value").t("0.0").up().up().
+//			e("others").e("Key").t("FORCE_CAPTURED").up().e("Value").t("false").up().up().
+//			e("others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
+//			e("others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up();
+
+			e("others").e("entry").a("key", "EXCEPTION").t("false").up().
+			e("entry").a("key", "RETRIES").t("1").up().
+			e("entry").a("key", "SDK_SCORE").t("0.0").up().
+			e("entry").a("key", "FORCE_CAPTURED").t("false").up().
+			e("entry").a("key", "PAYLOAD").t(payload).up().
+			e("entry").a("key", "SPEC_VERSION").t("0.9.5").up().up();
 		}
 					
 		//PrintWriter writer = new PrintWriter(new FileOutputStream("cbeffout-finger"+ fingerName+ ".xml"));
@@ -156,12 +170,30 @@ public class BiometricDataProvider {
 		if(jtwSign!=null && payload!=null ) {
 			jtwSign= Base64.getEncoder().encodeToString(jtwSign.getBytes());
 			builder.e("SB").t(jtwSign).up().
-			e("Others").e("Key").t("EXCEPTION").up().e("Value").t("false").up().up().
-			e("Others").e("Key").t("RETRIES").up().e("Value").t("1").up().up().
-			e("Others").e("Key").t("SDK_SCORE").up().e("Value").t("0.0").up().up().
-			e("Others").e("Key").t("FORCE_CAPTURED").up().e("Value").t("false").up().up().
-			e("Others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
-			e("Others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up();
+			
+//			<Others>
+//			<Key>EXCEPTION</Key>
+//			<Value>false</Value>
+//			</Others>
+//			e("others").e("Key").t("EXCEPTION").up().e("Value").t("false").up().up().
+//			e("others").e("Key").t("RETRIES").up().e("Value").t("1").up().up().
+//			e("others").e("Key").t("SDK_SCORE").up().e("Value").t("0.0").up().up().
+//			e("others").e("Key").t("FORCE_CAPTURED").up().e("Value").t("false").up().up().
+//			e("others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
+//			e("others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up();
+			
+
+			e("others").e("entry").a("key", "EXCEPTION").t("false").up().
+			e("entry").a("key", "RETRIES").t("1").up().
+			e("entry").a("key", "SDK_SCORE").t("0.0").up().
+			e("entry").a("key", "FORCE_CAPTURED").t("false").up().
+			e("entry").a("key", "PAYLOAD").t(payload).up().
+			e("entry").a("key", "SPEC_VERSION").t("0.9.5").up().up();
+			
+			
+			
+			
+			
 		}
 					
 		/*
