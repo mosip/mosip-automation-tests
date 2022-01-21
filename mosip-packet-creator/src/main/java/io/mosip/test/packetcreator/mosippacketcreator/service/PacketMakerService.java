@@ -468,8 +468,10 @@ public class PacketMakerService {
 		
 		  JSONObject jb1 = new JSONObject(dataToMerge); List<String> jsonList =
 		  jb.keySet().stream().filter(j ->
-		  j.startsWith("proof")).collect(Collectors.toList()); jsonList.forEach(o ->
-		  jb1.getJSONObject("identity").getJSONObject(o).put("value", o));
+		  j.startsWith("proof")).collect(Collectors.toList()); jsonList.forEach(o ->{
+		  jb1.getJSONObject("identity").getJSONObject(o).put("value", o);
+		 
+		  jb1.getJSONObject("identity").getJSONObject(o).remove("refNumber");});
 		  
 		  dataToMerge = jb1.toString(); System.out.println(jb1);
 		 
