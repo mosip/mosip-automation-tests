@@ -77,7 +77,7 @@ Below are repository details of various modules used for the automation.
 2. Take the config folder from the mosip-acceptance test project (mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\config) 
 3. Take the local folder from the mosip-acceptance test project (mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\local) 
 4. End to End folder structure looks like below.
-![](docs/e2efolder-structure)
+![](docs/e2efolder-structure.png)
 1. Command to execute the e2e Automation (ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar) utility with below vm arguments
      * java `-Denv.user`=environment name `-Denv.endpoint`=baseURL `-Denv.testLevel`=smoke `-DscenarioSheet`=<Scenario Sheet Name> `-Denv.langcode`=eng -jar ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar
      * `env.user`  =  environment name example qa, qa2, dev
