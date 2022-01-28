@@ -71,7 +71,7 @@ Below are repository details of various modules used for the automation
 1.	For any failure in the packet utility verify the logs location: deploy\runlog.txt
 1. Deploy folder structure looks like
 
-  ![](docs/deploy-folder-structure1.png)
+  ![](docs/deploy-folder-structure1.PNG)
 
 
 ## Configuration - DSL Orchestrator
