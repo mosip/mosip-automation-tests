@@ -23,7 +23,7 @@ This repo contains test framework for end2end testing of MOSIP functionality.  T
    * Git bash
    
 ## Repository details
-Below are repository details of various modules used for the automation.
+Below are repository details of various modules used for the automation
 
 ### DSL Orchestrator
 * Authentication Demo Service: `https://github.com/mosip/mosip-functional-tests/tree/develop/authentication-demo-service `
