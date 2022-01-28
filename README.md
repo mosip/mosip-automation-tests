@@ -39,13 +39,13 @@ Below are repository details of various modules used for the automation.
 ### To build End to End Automation Project Sequence:
 * Authentication Demo Service `mvn clean install`
 * Automation Tests `mvn clean install`
-* Acceptance Tests(Location: mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator) `mvn clean install`
-    - After Successful build will get the JAR (ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar)
+* Acceptance Tests(location: mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator) `mvn clean install`
+    - After Successful build will get the jar (ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar)
 
 ### To build Packet Utility Project Sequence:
 * Mosip Test Data Provider `mvn clean install`
 * Mosip-Packet-Creator `mvn clean install`
-    - After successful build will get the JAR (mosip-packet-creator-0.0.1-SNAPSHOT.jar)
+    - After successful build will get the jar (mosip-packet-creator-0.0.1-SNAPSHOT.jar)
     - Packet Utility is used to create and uploads the packet which is used by the e2e automation.
 
 
@@ -67,7 +67,8 @@ Below are repository details of various modules used for the automation.
 1.	Execute run.bat
 1.	Verify if the Packet utility is running by hitting :  `http://localhost:8080/swagger-ui.html#/ `
 1.	For any failure in the packet utility verify the logs Location: deploy\runlog.txt
-1. Deloy folder structure looks like
+1. Deploy folder structure looks like
+
   ![](docs/deploy-folder-structure.png)
 
 
@@ -75,7 +76,7 @@ Below are repository details of various modules used for the automation.
 1. Build the E2E_Automation acceptance test project and get the jar  `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\target`
 2. Take the config folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\config`
 3. Take the local folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\local`
-4. End to End folder structure looks like below.
+4. End to end folder structure looks like below.
 ![](docs/e2efolder-structure.png)
 1. Command to execute the e2e automation (ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar) utility with below vm arguments
      * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl `-Denv.testLevel`=smoke `-DscenarioSheet`=<scenariosheetname> `-Denv.langcode`=eng -jar ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar
