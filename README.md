@@ -1,7 +1,7 @@
 # Automation Tests
 
 ## Overview
-This repo contains test framework for end2end testing of MOSIP functionality.  The following functionality is covered:
+This repo contains test framework for end2end testing of MOSIP functionality.  The following functionality is covered
 1. Registration 
 1. Pre-registration + registration 
 1. Authentication
@@ -22,7 +22,7 @@ This repo contains test framework for end2end testing of MOSIP functionality.  T
    * Java (11) and Maven  software should be installed on the machine from where the automation tests will be executed
    * Git bash
    
-## Repository Details
+## Repository details
 Below are repository details of various modules used for the automation.
 
 ### DSL Orchestrator
@@ -36,17 +36,17 @@ Below are repository details of various modules used for the automation.
 
 
 ## Build and run
-### To build End to End Automation Project Sequence:
+### To build end to end automation 
 * Authentication Demo Service `mvn clean install`
 * Automation Tests `mvn clean install`
 * Acceptance Tests(location: mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator) `mvn clean install`
     - After Successful build will get the jar (ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar)
 
-### To build Packet Utility Project Sequence:
+### To build Packet Utility
 * Mosip Test Data Provider `mvn clean install`
 * Mosip-Packet-Creator `mvn clean install`
     - After successful build will get the jar (mosip-packet-creator-0.0.1-SNAPSHOT.jar)
-    - Packet Utility is used to create and uploads the packet which is used by the e2e automation.
+    - Packet Utility is used to create and uploads the packet which is used by the e2e automation
 
 
 ## Configuration - Packet Utility
@@ -67,7 +67,7 @@ Below are repository details of various modules used for the automation.
 	`spring.config.location` should have the absolute path of application.properties, e.g.
     `-Dspring.config.location=..\deploy\config\application.properties`
 1.	Execute run.bat
-1.	Verify if the Packet utility is running by hitting :  `http://localhost:8080/swagger-ui.html#/ `
+1.	Verify if the Packet utility is running by hitting `http://localhost:8080/swagger-ui.html#/ `
 1.	For any failure in the packet utility verify the logs location: deploy\runlog.txt
 1. Deploy folder structure looks like
 
@@ -78,7 +78,7 @@ Below are repository details of various modules used for the automation.
 1. Build the E2E_Automation acceptance test project and get the jar  `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\target`
 2. Take the config folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\config`
 3. Take the local folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\local`
-4. End to end folder structure looks like below.
+4. End to end folder structure looks like below
 ![](docs/e2efolder-structure.png)
 1. Command to execute the e2e automation (ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar) utility with below vm arguments
      * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl `-Denv.testLevel`=smoke `-DscenarioSheet`=<scenariosheetname> `-Denv.langcode`=eng -jar ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar
@@ -86,7 +86,7 @@ Below are repository details of various modules used for the automation.
      * `env.endpoint` = base environment
      * `scenarioSheet` = scenariosheet.csv ( which we want to execute)
      * `env.testLevel` = smoke
-     * `env.langcode`= eng (default language of the target environment).
+     * `env.langcode`= eng (default language of the target environment)
 1. After the execution completes, the test report can be found in the path `..\testng-report\emailable-report.html`
 
 ## DSL execution logs
