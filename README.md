@@ -53,8 +53,8 @@ Below are repository details of various modules used for the automation
 1. Iris database take permission from IIT Delhi to use IRIS Database from `https://www4.comp.polyu.edu.hk/~csajaykr/IITD/Database_Iris.htm` 
 1. Download vcredist_x86.exe `https://www.microsoft.com/en-us/download/details.aspx?id=48145`
   ( Note : one time activity it will be installed as a service , no need to do it again for any further update)
-1. Download and build MockMDS https://github.com/mosip/mosip-mock-services/tree/master/MockMDS
-1. Set device certificates as per the environment and keep certificate under each modality keys https://github.com/mosip/mosip-infra/blob/1.2.0-rc2/deployment/sandbox-v2/docs/MDSdevicecert.md
+1. Download and build MockMDS from [mosip-mock-services](https://github.com/mosip/mosip-mock-services/).
+1. Set device certificates as per the environment and keep certificate under each modality keys. See[MDSdevicecert.md](https://github.com/mosip/mosip-infra/blob/1.2.0-rc2/deployment/sandbox-v2/docs/MDSdevicecert.md).
 1. Start Mock mds by executing batch file (location: deploy\mockmds\run.bat) and verify its running on port 4501(default port)
 1. Update `..\config\application.properties` with the following details
       * `mosip.test.baseurl`=https://qa.mosip.net
