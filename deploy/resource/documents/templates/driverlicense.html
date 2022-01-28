@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <title>Driving license</title>
+        <meta name="description" content=" Driving license" />
+    </head>
+    <body>
+        
+        <img th:src="@{'data:image/jpeg;base64,'+${myphoto}}" width="120px" align="right"/>
+        
+        <h1>Drving License</h1>
+        <p>Valid until: <span th:text="${date}">13 February 2011</span></p>
+       	<p>Name: <span th:text="${name}"> no name            </span></p>
+        <p>Address: <span th:text="${address}"> no address       </span></p>
+     </body>
+</html>

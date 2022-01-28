@@ -1,0 +1,243 @@
+{
+ "identity" : {
+  "proofOfAddress" : "DOC005",
+  "documents" : [ {
+    "documentType" : "DOC004",
+    "refNumber" : null,
+    "documentCategory" : "POI",
+    "documentOwner" : "Applicant",
+    "documentName" : "POI_DOC004"
+  }, {
+    "documentType" : "DOC005",
+    "refNumber" : null,
+    "documentCategory" : "POA",
+    "documentOwner" : "Applicant",
+    "documentName" : "POA_DOC005"
+  }, {
+    "documentType" : "EOP",
+    "refNumber" : null,
+    "documentCategory" : "POE",
+    "documentOwner" : "Applicant",
+    "documentName" : "POE_EOP"
+  } ],
+  "operationsData" : [ {
+    "label" : "officerId",
+    "value" : ""
+  }, {
+    "label" : "officerBiometricFileName",
+    "value" : null
+  }, {
+    "label" : "supervisorId",
+    "value" : null
+  }, {
+    "label" : "supervisorBiometricFileName",
+    "value" : null
+  }, {
+    "label" : "supervisorPassword",
+    "value" : "true"
+  }, {
+    "label" : "officerPassword",
+    "value" : "true"
+  }, {
+    "label" : "supervisorPIN",
+    "value" : null
+  }, {
+    "label" : "officerPIN",
+    "value" : null
+  }, {
+    "label" : "supervisorOTPAuthentication",
+    "value" : "false"
+  }, {
+    "label" : "officerOTPAuthentication",
+    "value" : "false"
+  } ],
+  "creationDate" : "2021-02-19T16:09:30.183Z",
+  "hashSequence2" : [ {
+    "label" : "otherFiles",
+    "value" : [ "audit" ]
+  } ],
+  "hashSequence1" : [ {
+    "label" : "biometricSequence",
+    "value" : [ "individualBiometrics_bio_CBEFF" ]
+  }, {
+    "label" : "demographicSequence",
+    "value" : [ "proofOfAddress", "proofOfIdentity", "ID" ]
+  } ],
+  "exceptionBiometrics" : {
+    "introducer" : { },
+    "applicant-auth" : { },
+    "applicant" : {
+      "leftEye" : {
+        "type" : "Iris",
+        "missingBiometric" : "leftEye",
+        "reason" : "Temporary",
+        "exceptionType" : "Temporary",
+        "individualType" : "applicant"
+      },
+      "leftRing" : {
+        "type" : "Finger",
+        "missingBiometric" : "leftRing",
+        "reason" : "Temporary",
+        "exceptionType" : "Temporary",
+        "individualType" : "applicant"
+      },
+      "leftMiddle" : {
+        "type" : "Finger",
+        "missingBiometric" : "leftMiddle",
+        "reason" : "Temporary",
+        "exceptionType" : "Temporary",
+        "individualType" : "applicant"
+      }
+    }
+  },
+  "biometrics" : {
+    "introducer" : { },
+    "applicant-auth" : { },
+    "applicant" : {
+      "rightEye" : {
+        "numRetry" : 1,
+        "forceCaptured" : false,
+        "birindex" : "4c099c1f-4fb2-4de3-8a2f-928f79430e9b"
+      },
+      "rightIndex" : {
+        "numRetry" : 1,
+        "forceCaptured" : false,
+        "birindex" : "12fcb123-62f9-4115-88ff-7717b49c7ecf"
+      },
+      "rightLittle" : {
+        "numRetry" : 1,
+        "forceCaptured" : false,
+        "birindex" : "4ae6d6d5-6208-4267-b993-10645e0926b8"
+      },
+      "rightRing" : {
+        "numRetry" : 1,
+        "forceCaptured" : false,
+        "birindex" : "96838d68-d34a-4ed4-979c-af178896bf93"
+      },
+      "rightMiddle" : {
+        "numRetry" : 1,
+        "forceCaptured" : false,
+        "birindex" : "a3c216ea-7c99-415c-b35b-0c0ce6216e2b"
+      },
+      "leftIndex" : {
+        "numRetry" : 1,
+        "forceCaptured" : false,
+        "birindex" : "e02128c1-8885-4cf2-8dc0-6347019c8940"
+      },
+      "leftLittle" : {
+        "numRetry" : 1,
+        "forceCaptured" : false,
+        "birindex" : "8626d593-d2c9-42d1-941f-627ab1a23b83"
+      },
+      "leftThumb" : {
+        "numRetry" : 1,
+        "forceCaptured" : false,
+        "birindex" : "d2621fd8-f358-45d5-a4e8-740093daf92e"
+      },
+      "rightThumb" : {
+        "numRetry" : 1,
+        "forceCaptured" : false,
+        "birindex" : "aacd7021-bca2-4f57-b657-9f3cf3675c82"
+      },
+      "face" : {
+        "numRetry" : 1,
+        "forceCaptured" : false,
+        "birindex" : "07e16ae2-f8fa-452d-8303-d1b9a6b64552"
+      }
+    }
+  },
+  "metaData" : [ {
+    "label" : "registrationId",
+    "value" : "10003100240000420210219103615"
+  }, {
+    "label" : "creationDate",
+    "value" : "2021-02-19T16:09:30.236Z"
+  }, {
+    "label" : "Registration Client Version Number",
+    "value" : "1.1.3-rc2"
+  }, {
+    "label" : "registrationType",
+    "value" : "New"
+  }, {
+    "label" : "preRegistrationId",
+    "value" : null
+  }, {
+    "label" : "machineId",
+    "value" : "10024"
+  }, {
+    "label" : "centerId",
+    "value" : "10003"
+  }, {
+    "label" : "dongleId",
+    "value" : null
+  }, {
+    "label" : "keyIndex",
+    "value" : "bd:11:54:33:44:f9:5a:0b:b5:a6:b3:c1:f7:a8:28:47:0e:aa:20:21:01:16:37:89:d1:9c:8d:ec:96:5d:f5:a6"
+  }, {
+    "label" : "consentOfApplicant",
+    "value" : "Yes"
+  } ],
+  "proofOfIdentity" : "DOC004",
+  "proofOfException" : "EOP",
+  "registrationId" : "10003100240000420210219103615",
+  "capturedRegisteredDevices" : [ {
+    "deviceServiceVersion" : "0.9.5",
+    "digitalId" : {
+      "dateTime" : "2021-02-19T10:30:58.926Z",
+      "deviceSubType" : "Slap",
+      "model" : "SLAP01",
+      "type" : "Finger",
+      "make" : "MOSIP",
+      "serialNo" : "1234567890",
+      "deviceProviderId" : "MOSIP.PROXY.SBI",
+      "deviceProvider" : "MOSIP"
+    },
+    "deviceCode" : "b692b595-3523-slap-99fc-bd76e35f190f"
+  },
+  {
+    "deviceServiceVersion" : "0.9.5",
+    "digitalId" : {
+      "dateTime" : "2021-02-19T10:30:59.110Z",
+      "deviceSubType" : "Finger",
+      "model" : "FINGER01",
+      "type" : "Finger",
+      "make" : "MOSIP",
+      "serialNo" : "2345678901",
+      "deviceProviderId" : "MOSIP.PROXY.SBI",
+      "deviceProvider" : "MOSIP"
+    },
+    "deviceCode" : "b692b595-3523-finger-99fc-bd76e35f190f"
+  },  
+  {
+    "deviceServiceVersion" : "0.9.5",
+    "digitalId" : {
+      "dateTime" : "2021-02-19T10:30:59.110Z",
+      "deviceSubType" : "Full face",
+      "model" : "FACE01",
+      "type" : "Face",
+      "make" : "MOSIP",
+      "serialNo" : "2345678901",
+      "deviceProviderId" : "MOSIP.PROXY.SBI",
+      "deviceProvider" : "MOSIP"
+    },
+    "deviceCode" : "b692b595-3523-face-99fc-bd76e35f190f"
+  },
+  {
+    "deviceServiceVersion" : "0.9.5",
+    "digitalId" : {
+      "dateTime" : "2021-02-19T10:30:59.290Z",
+      "deviceSubType" : "Double",
+      "model" : "IRIS01",
+      "type" : "Iris",
+      "make" : "MOSIP",
+      "serialNo" : "3456789012",
+      "deviceProviderId" : "MOSIP.PROXY.SBI",
+      "deviceProvider" : "MOSIP"
+    },
+    "deviceCode" : "b692b595-3523-iris-99fc-bd76e35f190f"
+  } ],
+  "checkSum" : {
+    "mosip-client.jar" : "F47DBBAE39931F5994D485C91D0F2BA7B740E6CA91725BD887342037DDE01D09",
+    "mosip-services.jar" : "C15D79608B44D13D155E3EA36AB069A0C0BAD97BB6E2975C6E8223EDC768A106"
+  }
+} }
