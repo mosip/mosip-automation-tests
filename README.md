@@ -50,7 +50,7 @@ Below are repository details of various modules used for the automation.
 
 
 ## Configuration - Packet Utility
-1. Download (deploy folder)[https://github.com/mosip/mosip-automation-tests/tree/1.2.0-rc2/deploy]
+1. Download (deployfolder)[https://github.com/mosip/mosip-automation-tests/tree/1.2.0-rc2/deploy]
 1. Download (vcredist_x86.exe)[https://www.microsoft.com/en-us/download/details.aspx?id=48145]
   ( Note : one time activity it will be installed as a service , no need to do it again for any further update)
 1. Download and build (MockMDS)[https://github.com/mosip/mosip-mock-services/tree/master/MockMDS]
@@ -63,10 +63,10 @@ Below are repository details of various modules used for the automation.
       * `urlBase`=https://qa.mosip.net -is the base url of the target MOSIP server.
 1.	Update ..\run.bat as mentioned below
 	`spring.config.location` should have the absolute path of application.properties, e.g.
-    `-Dspring.config.location=C:\Users\Downloads\deploy\config\application.properties`
+    `-Dspring.config.location=..\deploy\config\application.properties`
 1.	Execute run.bat
 1.	Verify if the Packet utility is running by hitting :  `http://localhost:8080/swagger-ui.html#/ `
-1.	For any failure in the packet utility verify the logs Location: deploy\runlog.txt
+1.	For any failure in the packet utility verify the logs location: deploy\runlog.txt
 1. Deploy folder structure looks like
 
   ![](docs/deploy-folder-structure.png)
