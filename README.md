@@ -66,7 +66,7 @@ Below are repository details of various modules used for the automation
 1.	Update ..\run.bat as mentioned below
 	`spring.config.location` should have the absolute path of application.properties, e.g.
     `-Dspring.config.location=..\deploy\config\application.properties`
-1.	Execute run.bat
+1.	Keep mosip-packet-creator-0.0.1-SNAPSHOT.jar and execute run.bat
 1.	Verify if the Packet utility is running by hitting `http://localhost:8080/swagger-ui.html#/ `
 1.	For any failure in the packet utility verify the logs location: deploy\runlog.txt
 1. Deploy folder structure looks like
