@@ -8,32 +8,31 @@ This repo contains test framework for end2end testing of MOSIP functionality.  T
 
 ## Components
 
-1. API automation (mosip-functional-tests)
-     `https://github.com/mosip/mosip-functional-tests/blob/1.2.0-rc2/README.md`
-1. E2E automation (mosip-automation-tests)
-1. Packet Generation tool (mosip-automation-tests)
+1. API automation [mosip-functional-tests](https://github.com/mosip/mosip-functional-tests/)
+1. E2E automation (this repo)
+1. Packet Generation tool (this repo)
 
 ## Execution flow	
 ![](docs/test-orchestrator.png)
 
 ## Prerequisites
 
-1. For Windows
-   * Java (11) and Maven  software should be installed on the machine from where the automation tests will be executed
-   * Git bash
+For Windows
+
+* Java (11) and Maven  software should be installed on the machine from where the automation tests will be executed
+* Git bash
    
 ## Repository details
 Below are repository details of various modules used for the automation
 
 ### DSL Orchestrator
-* Authentication Demo Service: `https://github.com/mosip/mosip-functional-tests/tree/develop/authentication-demo-service `
-* Automation Tests: `https://github.com/mosip/mosip-functional-tests/tree/develop/automationtests`
-* IVV Orchestrator: `https://github.com/mosip/mosip-automation-tests/tree/1.2.0-rc2/mosip-acceptance-tests/ivv-orchestrator`
+* Authentication Demo Service in [mosip-functional-tests](https://github.com/mosip/mosip-functional-tests/).
+* Automation tests in [mosip-functional-tests](https://github.com/mosip/mosip-functional-tests/).
+* [IVV Orchestrator](mosip-acceptance-tests/ivv-orchestrator/)
 
 ### Packet Utility(Packet Generation tool)
-* Mosip Test Data Provider: `https://github.com/mosip/mosip-automation-tests/tree/main/mosipTestDataProvider`
-* Mosip-Packet-Creator: `https://github.com/mosip/mosip-automation-tests/tree/main/mosip-packet-creator`
-
+* [Mosip Test Data Provider](mosipTestDataProvider)
+* [Mosip-Packet-Creator](mosip-packet-creator)
 
 ## Build and run
 ### To build end to end automation 
@@ -48,9 +47,8 @@ Below are repository details of various modules used for the automation
     - After successful build will get the jar (mosip-packet-creator-0.0.1-SNAPSHOT.jar)
     - Packet Utility is used to create and uploads the packet which is used by the e2e automation
 
-
 ## Configuration - Packet Utility
-1. Download deployfolder `https://github.com/mosip/mosip-automation-tests/tree/1.2.0-rc2/deploy`
+1. Download [deploy folder](deploy)
 1. Download Anguli from `https://dsl.cds.iisc.ac.in/projects/Anguli/` 
 1. Iris database take permission from IIT Delhi to use IRIS Database from `https://www4.comp.polyu.edu.hk/~csajaykr/IITD/Database_Iris.htm` 
 1. Download vcredist_x86.exe `https://www.microsoft.com/en-us/download/details.aspx?id=48145`
@@ -93,6 +91,5 @@ Below are repository details of various modules used for the automation
 ## DSL execution logs
 1. We can verify the failure in the logs `mosip-acceptance-tests\ivv-orchestrator\src\logs\mosip-api-test.log`
 
-
 ## License
-This project is licensed under the terms of [Mozilla Public License 2.0]
+This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
