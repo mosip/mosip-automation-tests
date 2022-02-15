@@ -268,13 +268,13 @@ public class Orchestrator {
 
 	@AfterClass
 	public void publishResult() {
-		messageBuilder.append("Execution Target: " + BaseTestCase.ApplnURI.split("//")[1]);
+/*		messageBuilder.append("Execution Target: " + BaseTestCase.ApplnURI.split("//")[1]);
 		messageBuilder.append("\n").append("Total scenarios ran: " + totalScenario).append(" ")
 				.append("Failed: " + (totalScenario - countScenarioPassed)).append(" ")
 				.append("Passed : " + countScenarioPassed);
 		messageBuilder.append("\n").append("Find the report: " + SlackChannelIntegration.reportUrl);
 		SlackChannelIntegration.postMessage(SlackChannelIntegration.defaultChannel, messageBuilder.toString());
-
+*/
 	}
 
 	@SuppressWarnings("deprecation")
