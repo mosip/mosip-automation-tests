@@ -1,0 +1,112 @@
+package io.mosip.ivv.e2e.methods;
+
+import static io.restassured.RestAssured.given;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.testng.Reporter;
+
+import io.mosip.admin.fw.util.AdminTestException;
+import io.mosip.admin.fw.util.AdminTestUtil;
+import io.mosip.admin.fw.util.TestCaseDTO;
+import io.mosip.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.authentication.fw.util.AuthPartnerProcessor;
+import io.mosip.authentication.fw.util.AuthenticationTestException;
+import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.ivv.e2e.constant.E2EConstants;
+import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.ivv.orchestrator.TestRunner;
+import io.mosip.testscripts.BioAuth;
+import io.mosip.testscripts.DemoAuth;
+import io.mosip.testscripts.OtpAuth;
+import io.mosip.testscripts.PostWithBodyWithOtpGenerate;
+import io.mosip.testscripts.SimplePost;
+import io.restassured.response.Response;
+
+public class Center extends BaseTestCaseUtil implements StepInterface {
+	static Logger logger = Logger.getLogger(Center.class);
+	private static final String CreateCenter = "masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
+	Properties uinResidentDataPathFinalProps = new Properties();
+	SimplePost createcenter=new SimplePost() ;
+	
+
+	@Override
+	public void run() throws RigInternalError {
+		//uinPersonaProp.put("6471974360", "C:\\\\Users\\\\Sohan.Dey\\\\AppData\\\\Local\\\\Temp\\\\residents_1250718917110156783\\\\101681016810168.json");
+		vidPersonaProp.clear();
+		String uins = null;
+		String calltype = null;
+		List<String> uinList = null;
+		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
+			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
+			throw new RigInternalError("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step: " + step.getName());
+		} else {
+			calltype = step.getParameters().get(0); 
+
+		}
+		/*if(step.getParameters().size() == 2 && step.getParameters().get(1).startsWith("$$")) { //"$$vid=e2e_GenerateVID(Perpetual,$$uin)"
+			uins = step.getParameters().get(1);
+			if (uins.startsWith("$$")) {
+				uins = step.getScenario().getVariables().get(uins);
+				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
+			}
+		}
+		else if (step.getParameters().size() == 2) {
+			uins = step.getParameters().get(1);
+			if (!StringUtils.isBlank(uins))
+				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
+		}else
+			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
+		*/
+		
+		Object[] testObj=createcenter.getYmlTestData(CreateCenter);
+
+		TestCaseDTO test=(TestCaseDTO)testObj[0];
+		
+	
+	/*for (String uin : uinList) {
+		String input=test.getInput();
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					uin, "individualId");
+		// input = JsonPrecondtion.parseAndReturnJsonContent(input, vidtype, "vidType");
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					uin, "sendOtp.individualId");
+		test.setInput(input);
+		*/
+		
+		
+		try {
+			createcenter.test(test);
+			Response response= createcenter.response;
+			
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+		        String name = jsonResp.getJSONObject("response").getString("name"); 
+		        if (step.getOutVarName() != null)
+					step.getScenario().getVariables().put(step.getOutVarName(), name);
+		      //  else vidPersonaProp.put(vid, uin);
+		        
+		        System.out.println(vidPersonaProp);
+			}
+			
+		} catch (AuthenticationTestException | AdminTestException e) {
+			throw new RigInternalError(e.getMessage());
+
+		}
+	}
+
+	}
+//}
+		
+		
