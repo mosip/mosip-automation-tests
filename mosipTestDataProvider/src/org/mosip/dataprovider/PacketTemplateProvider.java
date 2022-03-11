@@ -1302,9 +1302,11 @@ public class PacketTemplateProvider {
 				}
 				continue;
 			}
-			if (!s.getRequired() && !s.getInputRequired()) {
-				continue;
-			}
+//			if (!s.getRequired() && !s.getInputRequired()) { 
+//				continue;
+//			}
+			
+			if(!s.getInputRequired()) continue;
 			
 			// DEV2
 			if (!s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
@@ -1606,7 +1608,7 @@ public class PacketTemplateProvider {
 		JSONArray docArray = new JSONArray();
 
 		for (MosipIDSchema s : schema) {
-			if (s.getType().equals("documentType")) {
+			if (s.getType().equals("documentType") && s.getRequired()) {
 				int index = 0;
 				for (MosipDocument doc : resident.getDocuments()) {
 					index = 0;
