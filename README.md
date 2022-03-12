@@ -39,7 +39,7 @@ Below are repository details of various modules used for the automation
 * Authentication Demo Service `mvn clean install`
 * Automation Tests `mvn clean install`
 * Acceptance Tests(location: mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator) `mvn clean install`
-    - After Successful build will get the jar (ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar)
+    - After Successful build will get the jar (ivv-orchestrator-1.2.0.1-SNAPSHOT-jar-with-dependencies.jar)
 
 ### To build Packet Utility
 * Mosip Test Data Provider `mvn clean install`
@@ -79,8 +79,8 @@ Below are repository details of various modules used for the automation
 3. Take the local folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\local`
 4. End to end folder structure looks like below
 ![](docs/e2efolder-structure.png)
-1. Command to execute the e2e automation (ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar) utility with below vm arguments
-     * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl `-Denv.testLevel`=smoke `-DscenarioSheet`=<scenariosheetname> `-Denv.langcode`=eng -jar ivv-orchestrator-0.1.1-SNAPSHOT-jar-with-dependencies.jar
+1. Command to execute the e2e automation (ivv-orchestrator-1.2.0.1-SNAPSHOT-jar-with-dependencies.jar) utility with below vm arguments
+     * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl `-Denv.testLevel`=smoke `-DscenarioSheet`=<scenariosheetname> `-Denv.langcode`=eng -jar ivv-orchestrator-1.2.0.1-SNAPSHOT-jar-with-dependencies.jar
      * `env.user`  =  environment name example qa, qa2, dev
      * `env.endpoint` = base environment
      * `scenarioSheet` = scenariosheet.csv ( which we want to execute)
