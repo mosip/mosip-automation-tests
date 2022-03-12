@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ivv-parent</artifactId>
         <groupId>io.mosip.ivv</groupId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>1.2.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,12 +16,12 @@
         <dependency>
             <groupId>io.mosip.ivv.core</groupId>
             <artifactId>ivv-core</artifactId>
-            <version>0.1.1-SNAPSHOT</version>
+            <version>1.2.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.mosip.ivv.parser</groupId>
             <artifactId>ivv-parser</artifactId>
-            <version>0.1.1-SNAPSHOT</version>
+            <version>1.2.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
