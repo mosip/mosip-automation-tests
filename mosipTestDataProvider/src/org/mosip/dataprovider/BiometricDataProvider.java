@@ -215,7 +215,7 @@ public class BiometricDataProvider {
 		}
 		return lst;
 	}
-	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident) {
+	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident) throws Exception {
 	
 		BiometricDataModel biodata = resident.getBiometric();
 		MDSClientInterface mds = null;

@@ -22,7 +22,7 @@
 * from Deploy:
   * run:    
     * ```sh
-        java -Dfile.encoding=UTF-8  -jar mosip-packet-creator-0.0.1-SNAPSHOT.jar --spring.config.location=./config/application.properties
+        java -Dfile.encoding=UTF-8  -jar mosip-packet-creator-1.2.0.1-SNAPSHOT.jar --spring.config.location=./config/application.properties
       ```
   * wait for initialization to complete, no error is expected here.
 * After the spring app startup is complete, go to a browser and go to "http://localhost:8080/swagger-ui.html". You should be able to see the swagger ui.
