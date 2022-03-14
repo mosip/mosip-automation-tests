@@ -590,7 +590,7 @@ public class ResidentDataProvider {
 		return residents;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
 		ResidentDataProvider residentProvider = new ResidentDataProvider();
 		residentProvider.addCondition(ResidentAttribute.RA_Count, 1)
