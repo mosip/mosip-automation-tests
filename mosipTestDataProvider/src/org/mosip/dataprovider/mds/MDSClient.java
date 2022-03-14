@@ -41,7 +41,7 @@ public class MDSClient implements MDSClientInterface {
 	}
 	//create profile folder and create all ISO images as per resident data
 	
-	public void createProfile(String profilePath,String profile, ResidentModel resident) {
+	public void createProfile(String profilePath,String profile, ResidentModel resident) throws Exception {
 		File profDir = new File(profilePath + "/"+ profile);
 		if(!profDir.exists())
 			profDir.mkdir();

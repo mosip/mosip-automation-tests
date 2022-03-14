@@ -11,68 +11,68 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import org.mosip.iso.face.EyeColour;
-import org.mosip.iso.face.FaceCaptureDeviceTechnology;
-import org.mosip.iso.face.FaceCaptureDeviceType;
-import org.mosip.iso.face.FaceCaptureDeviceVendor;
-import org.mosip.iso.face.FaceCertificationFlag;
-import org.mosip.iso.face.FaceEncoder;
-import org.mosip.iso.face.FaceFormatIdentifier;
-import org.mosip.iso.face.FaceImageType;
-import org.mosip.iso.face.FaceQualityAlgorithmIdentifier;
-import org.mosip.iso.face.FaceQualityAlgorithmVendorIdentifier;
-import org.mosip.iso.face.FaceQualityBlock;
-import org.mosip.iso.face.FaceVersionNumber;
-import org.mosip.iso.face.Features;
-import org.mosip.iso.face.Gender;
-import org.mosip.iso.face.HairColour;
-import org.mosip.iso.face.HeightCodes;
-import org.mosip.iso.face.ImageColourSpace;
-import org.mosip.iso.face.ImageDataType;
-import org.mosip.iso.face.LandmarkPoints;
-import org.mosip.iso.face.PostAcquisitionProcessing;
-import org.mosip.iso.face.SpatialSamplingRateLevel;
-import org.mosip.iso.face.TemporalSequenceFlags;
-import org.mosip.iso.finger.AnnotationBlock;
-import org.mosip.iso.finger.CommentBlock;
-import org.mosip.iso.finger.FingerCaptureDeviceTechnology;
-import org.mosip.iso.finger.FingerCaptureDeviceType;
-import org.mosip.iso.finger.FingerCaptureDeviceVendor;
-import org.mosip.iso.finger.FingerCertificationBlock;
-import org.mosip.iso.finger.FingerCertificationFlag;
-import org.mosip.iso.finger.FingerEncoder;
-import org.mosip.iso.finger.FingerFormatIdentifier;
-import org.mosip.iso.finger.FingerImageBitDepth;
-import org.mosip.iso.finger.FingerImageCompressionType;
-import org.mosip.iso.finger.FingerImpressionType;
-import org.mosip.iso.finger.FingerPosition;
-import org.mosip.iso.finger.FingerQualityAlgorithmIdentifier;
-import org.mosip.iso.finger.FingerQualityAlgorithmVendorIdentifier;
-import org.mosip.iso.finger.FingerQualityBlock;
-import org.mosip.iso.finger.FingerScaleUnitType;
-import org.mosip.iso.finger.FingerVersionNumber;
-import org.mosip.iso.finger.SegmentationBlock;
-import org.mosip.iso.iris.EyeLabel;
-import org.mosip.iso.iris.ImageFormat;
-import org.mosip.iso.iris.ImageType;
-import org.mosip.iso.iris.IrisCaptureDeviceTechnology;
-import org.mosip.iso.iris.IrisCaptureDeviceType;
-import org.mosip.iso.iris.IrisCaptureDeviceVendor;
-import org.mosip.iso.iris.IrisCertificationFlag;
-import org.mosip.iso.iris.IrisEncoder;
-import org.mosip.iso.iris.IrisFormatIdentifier;
-import org.mosip.iso.iris.IrisImageBitDepth;
-import org.mosip.iso.iris.IrisImageCompressionType;
-import org.mosip.iso.iris.IrisQualityAlgorithmIdentifier;
-import org.mosip.iso.iris.IrisQualityAlgorithmVendorIdentifier;
-import org.mosip.iso.iris.IrisQualityBlock;
-import org.mosip.iso.iris.IrisVersionNumber;
-import org.mosip.iso.iris.Orientation;
+import io.mosip.biometrics.util.face.EyeColour;
+import io.mosip.biometrics.util.face.FaceCaptureDeviceTechnology;
+import io.mosip.biometrics.util.face.FaceCaptureDeviceType;
+import io.mosip.biometrics.util.face.FaceCaptureDeviceVendor;
+import io.mosip.biometrics.util.face.FaceCertificationFlag;
+import io.mosip.biometrics.util.face.FaceEncoder;
+import io.mosip.biometrics.util.face.FaceFormatIdentifier;
+import io.mosip.biometrics.util.face.FaceImageType;
+import io.mosip.biometrics.util.face.FaceQualityAlgorithmIdentifier;
+import io.mosip.biometrics.util.face.FaceQualityAlgorithmVendorIdentifier;
+import io.mosip.biometrics.util.face.FaceQualityBlock;
+import io.mosip.biometrics.util.face.FaceVersionNumber;
+import io.mosip.biometrics.util.face.Features;
+import io.mosip.biometrics.util.face.Gender;
+import io.mosip.biometrics.util.face.HairColour;
+import io.mosip.biometrics.util.face.HeightCodes;
+import io.mosip.biometrics.util.face.ImageColourSpace;
+import io.mosip.biometrics.util.face.ImageDataType;
+import io.mosip.biometrics.util.face.LandmarkPoints;
+import io.mosip.biometrics.util.face.PostAcquisitionProcessing;
+import io.mosip.biometrics.util.face.SpatialSamplingRateLevel;
+import io.mosip.biometrics.util.face.TemporalSequenceFlags;
+import io.mosip.biometrics.util.finger.AnnotationBlock;
+import io.mosip.biometrics.util.finger.CommentBlock;
+import io.mosip.biometrics.util.finger.FingerCaptureDeviceTechnology;
+import io.mosip.biometrics.util.finger.FingerCaptureDeviceType;
+import io.mosip.biometrics.util.finger.FingerCaptureDeviceVendor;
+import io.mosip.biometrics.util.finger.FingerCertificationBlock;
+import io.mosip.biometrics.util.finger.FingerCertificationFlag;
+import io.mosip.biometrics.util.finger.FingerEncoder;
+import io.mosip.biometrics.util.finger.FingerFormatIdentifier;
+import io.mosip.biometrics.util.finger.FingerImageBitDepth;
+import io.mosip.biometrics.util.finger.FingerImageCompressionType;
+import io.mosip.biometrics.util.finger.FingerImpressionType;
+import io.mosip.biometrics.util.finger.FingerPosition;
+import io.mosip.biometrics.util.finger.FingerQualityAlgorithmIdentifier;
+import io.mosip.biometrics.util.finger.FingerQualityAlgorithmVendorIdentifier;
+import io.mosip.biometrics.util.finger.FingerQualityBlock;
+import io.mosip.biometrics.util.finger.FingerScaleUnitType;
+import io.mosip.biometrics.util.finger.FingerVersionNumber;
+import io.mosip.biometrics.util.finger.SegmentationBlock;
+import io.mosip.biometrics.util.iris.EyeLabel;
+import io.mosip.biometrics.util.iris.ImageFormat;
+import io.mosip.biometrics.util.iris.ImageType;
+import io.mosip.biometrics.util.iris.IrisCaptureDeviceTechnology;
+import io.mosip.biometrics.util.iris.IrisCaptureDeviceType;
+import io.mosip.biometrics.util.iris.IrisCaptureDeviceVendor;
+import io.mosip.biometrics.util.iris.IrisCertificationFlag;
+import io.mosip.biometrics.util.iris.IrisEncoder;
+import io.mosip.biometrics.util.iris.IrisFormatIdentifier;
+import io.mosip.biometrics.util.iris.IrisImageBitDepth;
+import io.mosip.biometrics.util.iris.IrisImageCompressionType;
+import io.mosip.biometrics.util.iris.IrisQualityAlgorithmIdentifier;
+import io.mosip.biometrics.util.iris.IrisQualityAlgorithmVendorIdentifier;
+import io.mosip.biometrics.util.iris.IrisQualityBlock;
+import io.mosip.biometrics.util.iris.IrisVersionNumber;
+import io.mosip.biometrics.util.iris.Orientation;
 
 import io.cucumber.messages.internal.com.google.common.io.Files;
-
-import org.mosip.iso.face.CrossReference;
-import org.mosip.iso.face.Expression;
+import io.mosip.biometrics.util.ConvertRequestDto;
+import io.mosip.biometrics.util.face.CrossReference;
+import io.mosip.biometrics.util.face.Expression;
 
 public class ISOConverter {
 	
@@ -94,7 +94,7 @@ public class ISOConverter {
 		FingerPosition fingerPosition = mapFingerPos.get(bioSubType);
 		return fingerPosition.ordinal();
 	}
-	public byte [] convertFinger(byte[] inStream, String outFile, String biometricSubType) throws IOException {
+	public byte [] convertFinger(byte[] inStream, String outFile, String biometricSubType) throws Exception {
 		
 		byte[] imageData = inStream;// Base64.getDecoder().decode(inStream);
 		
@@ -137,21 +137,28 @@ public class ISOConverter {
 		AnnotationBlock annotationBlock = null;
 		CommentBlock commentBlock = null;
 		FingerImageCompressionType compressionType = FingerImageCompressionType.JPEG_2000_LOSS_LESS;
-		
-		byte [] isoData = FingerEncoder.convertFingerImageToISO19794_4_2011 
-				(
-						formatIdentifier, versionNumber, certificationFlag, 
-						sourceType, deviceVendor, deviceType,
-						captureDate, noOfRepresentations,
-						qualityBlocks, certificationBlocks, 
-						fingerPosition, representationNo, scaleUnitType, 
-						captureDeviceSpatialSamplingRateHorizontal, captureDeviceSpatialSamplingRateVertical, 
-						imageSpatialSamplingRateHorizontal, imageSpatialSamplingRateVertical,
-						bitDepth, compressionType,
-						impressionType, lineLengthHorizontal, lineLengthVertical,
-						noOfFingerPresent, imageData, 
-						segmentationBlock, annotationBlock, commentBlock
-				);
+		ConvertRequestDto convertRequestDto=new ConvertRequestDto();
+		convertRequestDto.setBiometricSubType("imageData");
+		convertRequestDto.setImageType(0);
+		convertRequestDto.setInputBytes(imageData);
+		convertRequestDto.setModality("Finger");
+		convertRequestDto.setPurpose("Registration");
+		convertRequestDto.setVersion("ISO19794_4_2011");
+//		byte [] isoData = FingerEncoder.convertFingerImageToISO19794_4_2011 
+//				(
+//						formatIdentifier, versionNumber, certificationFlag, 
+//						sourceType, deviceVendor, deviceType,
+//						captureDate, noOfRepresentations,
+//						qualityBlocks, certificationBlocks, 
+//						fingerPosition, representationNo, scaleUnitType, 
+//						captureDeviceSpatialSamplingRateHorizontal, captureDeviceSpatialSamplingRateVertical, 
+//						imageSpatialSamplingRateHorizontal, imageSpatialSamplingRateVertical,
+//						bitDepth, compressionType,
+//						impressionType, lineLengthHorizontal, lineLengthVertical,
+//						noOfFingerPresent, imageData, 
+//						segmentationBlock, annotationBlock, commentBlock
+//				);
+		byte [] isoData = FingerEncoder.convertFingerImageToISO(convertRequestDto);
 		if (isoData != null && outFile != null)
 		{
 			Files.write(isoData,new File(outFile));
@@ -159,7 +166,7 @@ public class ISOConverter {
 		}
     	return isoData;		
 	}
-	public byte [] convertIris(byte[] inStream, String outFile, String biometricSubType) throws IOException {
+	public byte [] convertIris(byte[] inStream, String outFile, String biometricSubType) throws Exception {
 		
 		byte[] imageData =  inStream;//Base64.getDecoder().decode(inStream);
 		
@@ -193,7 +200,7 @@ public class ISOConverter {
 		int irisDiameterSmallest = 0x0000; 	//COORDINATE_UNDEFINED 
 		int irisDiameterLargest = 0x0000; 	//COORDINATE_UNDEFINED
 		ImageType imageType = ImageType.CROPPED;
-		ImageFormat imageFormat = ImageFormat.MONO_JPEG_LOSS_LESS;//0A
+		ImageFormat imageFormat = ImageFormat.MONO_JPEG2000_LOSS_LESS;//0A
 		Orientation horizontalOrientation = Orientation.UNDEFINED;
 		Orientation verticalOrientation = Orientation.UNDEFINED;
 		IrisImageCompressionType compressionType = IrisImageCompressionType.UNDEFINED;
@@ -206,21 +213,28 @@ public class ISOConverter {
 		IrisCaptureDeviceType deviceType = IrisCaptureDeviceType.UNSPECIFIED;
 		int quality = 80; 
 		IrisQualityBlock [] qualityBlocks = new IrisQualityBlock [] { new IrisQualityBlock ((byte)quality , algorithmVendorIdentifier, qualityAlgorithmIdentifier)};
-		
-		byte [] isoData = IrisEncoder.convertIrisImageToISO19794_6_2011 
-			(
-				formatIdentifier, versionNumber,
-				certificationFlag, captureDate, 
-				noOfRepresentations, representationNo, noOfEyesPresent,
-				eyeLabel, imageType, imageFormat,
-				horizontalOrientation, verticalOrientation, compressionType,
-				imageWidth, imageHeight, bitDepth, range, rollAngleOfEye, rollAngleUncertainty, 
-				irisCenterSmallestX, irisCenterLargestX, irisCenterSmallestY, irisCenterLargestY, 
-				irisDiameterSmallest, irisDiameterLargest,
-				sourceType, deviceVendor, deviceType, 
-				qualityBlocks, 
-				imageData, imageWidth, imageHeight
-			);
+		ConvertRequestDto convertRequestDto=new ConvertRequestDto();
+		convertRequestDto.setBiometricSubType("imageData");
+		convertRequestDto.setImageType(0);
+		convertRequestDto.setInputBytes(imageData);
+		convertRequestDto.setModality("Iris");
+		convertRequestDto.setPurpose("Registration");
+		convertRequestDto.setVersion("ISO19794_4_2011");
+//		byte [] isoData = IrisEncoder.convertIrisImageToISO19794_6_2011 
+//			(
+//				formatIdentifier, versionNumber,
+//				certificationFlag, captureDate, 
+//				noOfRepresentations, representationNo, noOfEyesPresent,
+//				eyeLabel, imageType, imageFormat,
+//				horizontalOrientation, verticalOrientation, compressionType,
+//				imageWidth, imageHeight, bitDepth, range, rollAngleOfEye, rollAngleUncertainty, 
+//				irisCenterSmallestX, irisCenterLargestX, irisCenterSmallestY, irisCenterLargestY, 
+//				irisDiameterSmallest, irisDiameterLargest,
+//				sourceType, deviceVendor, deviceType, 
+//				qualityBlocks, 
+//				imageData, imageWidth, imageHeight
+//			);
+		byte [] isoData = IrisEncoder.convertIrisImageToISO(convertRequestDto); 
 		if (isoData != null && outFile != null)
 		{
 			Files.write(isoData,new File(outFile));
@@ -229,7 +243,7 @@ public class ISOConverter {
 		return isoData;
 	}
 
-	public byte [] convertFace(byte[] inStream, String outFile) throws IOException {
+	public byte [] convertFace(byte[] inStream, String outFile) throws Exception {
 		
 		FaceFormatIdentifier formatIdentifier = FaceFormatIdentifier.FORMAT_FAC;
 		FaceVersionNumber versionNumber = FaceVersionNumber.VERSION_030;
@@ -272,21 +286,29 @@ public class ISOConverter {
 		BufferedImage buffImg  = ImageIO.read(bis);
 		int imageWidth = buffImg.getWidth();
 		int imageHeight = buffImg.getHeight();
-		
-		byte [] isoData = FaceEncoder.convertFaceImageToISO19794_5_2011 
-				(
-					formatIdentifier, versionNumber, 
-					certificationFlag, temporalSequenceFlags, 
-					captureDate, noOfRepresentations, noOfLandMarkPoints, 
-					gender, eyeColour, featureMask, 
-					hairColour, subjectHeight, expression, 
-					features, poseAngle, poseAngleUncertainty, 
-					faceImageType, sourceType, deviceVendor, deviceType, 
-					qualityBlock, imageData, imageWidth, imageHeight, 
-					imageDataType, spatialSamplingRateLevel, 
-					postAcquisitionProcessing, crossReference, 
-					imageColourSpace, landmarkPoints
-				); 
+		ConvertRequestDto convertRequestDto=new ConvertRequestDto();
+		convertRequestDto.setBiometricSubType("imageData");
+		convertRequestDto.setImageType(0);
+		convertRequestDto.setInputBytes(imageData);
+		convertRequestDto.setModality("Face");
+		convertRequestDto.setPurpose("Registration");
+		convertRequestDto.setVersion("ISO19794_4_2011");
+//		byte [] isoData = FaceEncoder.convertFaceImageToISO19794_5_2011 
+//				(
+//					formatIdentifier, versionNumber, 
+//					certificationFlag, temporalSequenceFlags, 
+//					captureDate, noOfRepresentations, noOfLandMarkPoints, 
+//					gender, eyeColour, featureMask, 
+//					hairColour, subjectHeight, expression, 
+//					features, poseAngle, poseAngleUncertainty, 
+//					faceImageType, sourceType, deviceVendor, deviceType, 
+//					qualityBlock, imageData, imageWidth, imageHeight, 
+//					imageDataType, spatialSamplingRateLevel, 
+//					postAcquisitionProcessing, crossReference, 
+//					imageColourSpace, landmarkPoints
+//				); 
+//		
+		byte [] isoData = FaceEncoder.convertFaceImageToISO(convertRequestDto);
 		
 		if (isoData != null && outFile != null)
 		{
