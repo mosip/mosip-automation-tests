@@ -1302,11 +1302,10 @@ public class PacketTemplateProvider {
 				}
 				continue;
 			}
-//			if (!s.getRequired() && !s.getInputRequired()) { 
-//				continue;
-//			}
+			if (!s.getRequired() && !s.getInputRequired()) { 
+				continue;
+			}
 			
-			if(!s.getInputRequired()) continue;
 			
 			// DEV2
 			if (!s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
