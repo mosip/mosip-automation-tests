@@ -138,9 +138,9 @@ public class ISOConverter {
 		CommentBlock commentBlock = null;
 		FingerImageCompressionType compressionType = FingerImageCompressionType.JPEG_2000_LOSS_LESS;
 		ConvertRequestDto convertRequestDto=new ConvertRequestDto();
-		convertRequestDto.setBiometricSubType("imageData");
+		convertRequestDto.setBiometricSubType(biometricSubType);
 		convertRequestDto.setImageType(0);
-		convertRequestDto.setInputBytes(imageData);
+		convertRequestDto.setInputBytes(inStream);
 		convertRequestDto.setModality("Finger");
 		convertRequestDto.setPurpose("Registration");
 		convertRequestDto.setVersion("ISO19794_4_2011");
@@ -214,12 +214,12 @@ public class ISOConverter {
 		int quality = 80; 
 		IrisQualityBlock [] qualityBlocks = new IrisQualityBlock [] { new IrisQualityBlock ((byte)quality , algorithmVendorIdentifier, qualityAlgorithmIdentifier)};
 		ConvertRequestDto convertRequestDto=new ConvertRequestDto();
-		convertRequestDto.setBiometricSubType("imageData");
+		convertRequestDto.setBiometricSubType(biometricSubType);
 		convertRequestDto.setImageType(0);
-		convertRequestDto.setInputBytes(imageData);
+		convertRequestDto.setInputBytes(inStream);
 		convertRequestDto.setModality("Iris");
 		convertRequestDto.setPurpose("Registration");
-		convertRequestDto.setVersion("ISO19794_4_2011");
+		convertRequestDto.setVersion("ISO19794_6_2011");
 //		byte [] isoData = IrisEncoder.convertIrisImageToISO19794_6_2011 
 //			(
 //				formatIdentifier, versionNumber,
@@ -287,12 +287,12 @@ public class ISOConverter {
 		int imageWidth = buffImg.getWidth();
 		int imageHeight = buffImg.getHeight();
 		ConvertRequestDto convertRequestDto=new ConvertRequestDto();
-		convertRequestDto.setBiometricSubType("imageData");
+		convertRequestDto.setBiometricSubType("");
 		convertRequestDto.setImageType(0);
-		convertRequestDto.setInputBytes(imageData);
+		convertRequestDto.setInputBytes(inStream);
 		convertRequestDto.setModality("Face");
 		convertRequestDto.setPurpose("Registration");
-		convertRequestDto.setVersion("ISO19794_4_2011");
+		convertRequestDto.setVersion("ISO19794_5_2011");
 //		byte [] isoData = FaceEncoder.convertFaceImageToISO19794_5_2011 
 //				(
 //					formatIdentifier, versionNumber, 
