@@ -15,7 +15,7 @@ public class TestResources {
 			File source = new File(TestResources.getGlobalResourcePaths() + "/preReg");
 			File source3 = new File(TestResources.getGlobalResourcePaths() + "/idaData");
 
-			File source4 = new File(TestResources.getGlobalResourcePaths() + "/ida");
+			//File source4 = new File(TestResources.getGlobalResourcePaths() + "/ida");
 			File source5 = new File(TestResources.getGlobalResourcePaths()+"/masterdata");
 			File destination = new File(TestResources.getGlobalResourcePaths() + "/"+TestResources.resourceFolderName);
 			FileUtils.copyDirectoryToDirectory(source, destination);
@@ -25,7 +25,7 @@ public class TestResources {
 			FileUtils.copyDirectoryToDirectory(source2, destination2);
 			FileUtils.copyDirectoryToDirectory(source, destination2);
 			FileUtils.copyDirectoryToDirectory(source3, destination2);
-			FileUtils.copyDirectoryToDirectory(source4, destination2);
+			//FileUtils.copyDirectoryToDirectory(source4, destination2);
 			FileUtils.copyDirectoryToDirectory(source5, destination2);
 			FileUtils.copyDirectoryToDirectory(source5, destination);
 			logger.info("Copied the preReg test resource successfully");
