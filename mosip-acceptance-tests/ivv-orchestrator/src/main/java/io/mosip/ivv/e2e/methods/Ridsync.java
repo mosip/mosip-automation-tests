@@ -20,10 +20,11 @@ import io.restassured.response.Response;
 
 public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(Ridsync.class);
-	
+	public static String _additionalInfo=null;
 	@Override
 	public void run() throws RigInternalError {
 		String process=null;
+		
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			assertTrue(false,"process paramter is  missing in step: "+step.getName());
@@ -40,23 +41,27 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 			storeProp(pridsAndRids);
 		}else
 			if(step.getParameters().size()>1) { // "$$rid=e2e_ridsync(NEW,$$zipPacketPath)"
-			process =step.getParameters().get(0);
-			String _zipPacketPath=step.getParameters().get(1);
-			if(_zipPacketPath.startsWith("$$")) {
-				_zipPacketPath=step.getScenario().getVariables().get(_zipPacketPath);
-				String _rid=ridsync(_zipPacketPath, E2EConstants.APPROVED_SUPERVISOR_STATUS,process);
-				if(step.getOutVarName()!=null)
-					 step.getScenario().getVariables().put(step.getOutVarName(), _rid);
-			}
-		}
-		
+				process =step.getParameters().get(0);
+				String _zipPacketPath=step.getParameters().get(1);
+				if(step.getParameters().size()==3) {
+					_additionalInfo=step.getParameters().get(2);
+					if(_additionalInfo.startsWith("$$")) {
+						_additionalInfo=step.getScenario().getVariables().get(_additionalInfo);}}
+					if(_zipPacketPath.startsWith("$$")) {
+						_zipPacketPath=step.getScenario().getVariables().get(_zipPacketPath);
+						String _rid=ridsync(_zipPacketPath, E2EConstants.APPROVED_SUPERVISOR_STATUS,process);
+						if(step.getOutVarName()!=null)
+							step.getScenario().getVariables().put(step.getOutVarName(), _rid);
+					}
+				}
+
 	}
 
 	private String ridsync(String containerPath, String supervisorStatus,String process) throws RigInternalError {
 		String url = baseUrl + props.getProperty("ridsyncUrl");
 		JSONObject jsonReq = buildRequest(containerPath, supervisorStatus,process);
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),contextInuse, "Ridsync");
-		
+
 		JSONArray jsonArray = new JSONArray(response.asString());
 		JSONObject responseJson = new JSONObject(jsonArray.get(0).toString());
 		//assertTrue(response.getBody().asString().contains("SUCCESS"),"Unable to do RID sync from packet utility");
@@ -75,9 +80,12 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 		jsonReq.put("process", process);
 		jsonReq.put("supervisorComment", "supervisorComment");
 		jsonReq.put("supervisorStatus", supervisorStatus);
+		jsonReq.put("supervisorStatus", supervisorStatus);
+		jsonReq.put("additionalInfoReqId", _additionalInfo);
+
 		return jsonReq;
 	}
-	
+
 	private static void storeProp(HashMap<String,String> map) {
 		Properties prop= new Properties();
 		for(String key: map.keySet())

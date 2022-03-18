@@ -225,7 +225,7 @@ public class PacketTemplateProvider {
 			allIdentityDetails.put("isLost", true);
 		}
 		allIdentityDetails.put("isCorrection", false);
-		if (process.equals("CORRECTION")) {
+		if (process.equals("BIOMETRIC_CORRECTION")) {
 			allIdentityDetails.put("isCorrection", true);
 		}
 

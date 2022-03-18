@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.mds.HttpRCapture;
 
+import ch.qos.logback.classic.Logger;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import variables.VariableManager;
@@ -130,6 +132,7 @@ public class RestClient {
     	/*if(url.contains("//")) {
     		url = url.replace("//", "/"); 		
     	}*/
+    	try {
     	while(!bDone) {
 
     		String token = tokens.get(role);
@@ -160,7 +163,12 @@ public class RestClient {
         }
         checkErrorResponse(response.getBody().asString());
 
-        return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+       }
+    	catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
+    	 return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
 	
 	//method used with system role
