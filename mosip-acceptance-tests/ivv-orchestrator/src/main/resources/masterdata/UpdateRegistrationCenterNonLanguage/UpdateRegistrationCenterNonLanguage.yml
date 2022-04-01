@@ -8,13 +8,14 @@ UpdateRegistrationCenterNonLanguage:
       outputTemplate: masterdata/UpdateRegistrationCenterNonLanguage/updateRegistrationCenterResult
       input: '{
     "contactPerson": "sudeep",
-    
+     "zoneCode": "CSB",
     "id": "$id$",
     "requesttime": "$TIMESTAMP$"
 }'
       output: '{
     "id": "$id$",
     "contactPhone": "9663089998",
-    "centerTypeCode": "REG"
+    "centerTypeCode": "REG",
+     "zoneCode": "CSB"
 }'
    
