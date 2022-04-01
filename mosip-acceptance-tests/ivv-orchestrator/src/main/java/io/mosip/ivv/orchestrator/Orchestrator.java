@@ -150,6 +150,7 @@ public class Orchestrator {
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException {
 		String tags = System.getProperty("ivv.tags");
+		String identifier =null;
 		if (tags == null || tags.isEmpty()) {
 			Utils.auditLog.info("Running Scenario #" + scenario.getId());
 		} else if (!matchTags(tags, scenario.getTags())) {
@@ -176,7 +177,8 @@ public class Orchestrator {
 		Reporter.log("<b><u>" + "Scenario_" + scenario.getId() + ": " + scenario.getDescription() + "</u></b>");
 		for (Scenario.Step step : scenario.getSteps()) {
 			Utils.auditLog.info("");
-			String identifier = "> #[Test Step: " + step.getName() + "] [module: " + step.getModule() + "] [variant: "
+		
+			 identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters() + "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
 					+ step.getVariant() + "]";
 			Utils.auditLog.info(identifier);
 

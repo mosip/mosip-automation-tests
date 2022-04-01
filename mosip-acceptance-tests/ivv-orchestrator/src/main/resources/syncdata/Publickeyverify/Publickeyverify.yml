@@ -1,0 +1,18 @@
+Publickeyverify:
+   Syncdata_Publickeyverify_All_Valid_Smoke_sid:
+      endPoint: /v1/syncdata/tpm/publickey/verify
+      role: admin
+      templateFields: ["name"]
+      restMethod: post
+      inputTemplate: syncdata/Publickeyverify/publickeyverify
+      outputTemplate: syncdata/Publickeyverify/publickeyverifyResult
+      input: '{
+   "machineName": "string",
+   "publicKey": "string",
+   "signPublicKey": "string",
+   "requesttime": "$TIMESTAMP$"
+ 
+  }'
+      output: '{
+    "keyIndex": "string"
+}'

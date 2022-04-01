@@ -1,0 +1,17 @@
+GetMachines:
+   Admin_GetMachines_allValid_smoke:
+      endPoint: /v1/syncdata/v2/clientsettings?keyindex=change
+      role: admin
+      restMethod: get
+      inputTemplate: syncdata/clientsettings/getClientSettings
+      outputTemplate: syncdata/clientsettings/getClientSettingsResult
+      input: '{
+     }'
+      output: '{
+     "dataToSync": [
+     {
+        "entityName": "$IGNORE$",
+        "entityType": "$IGNORE$",
+        "data": "$IGNORE$"    
+    }]
+}'  

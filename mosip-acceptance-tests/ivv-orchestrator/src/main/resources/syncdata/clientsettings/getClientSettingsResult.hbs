@@ -1,0 +1,20 @@
+{
+  "id": null,
+  "version": null,
+  "responsetime": "$IGNORE$",
+  "metadata": null,
+  "response": {
+      "lastSyncTime": "$IGNORE$",
+    "dataToSync": [	
+    {{#each dataToSync}}
+      {
+        "entityName": "{{entityName}}",
+        "entityType": "{{entityType}}",
+        "data": "{{data}}"
+      }
+      {{#unless @last}},{{/unless}}
+      	{{/each}}
+    ]
+  },
+  "errors": null
+}

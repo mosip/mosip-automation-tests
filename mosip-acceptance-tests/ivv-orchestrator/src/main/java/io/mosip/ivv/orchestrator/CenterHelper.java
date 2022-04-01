@@ -36,7 +36,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 
 
 
-	public void centerUpdate(String id) throws RigInternalError {
+	public void centerUpdate(String centerId,String zone) throws RigInternalError {
 		try {
 			Object[] testObjPut=simpleput.getYmlTestData(UpdateRegistrationCenterNonLanguage);
 
@@ -44,11 +44,19 @@ public class CenterHelper extends BaseTestCaseUtil {
 			
 			String input=testPut.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					id, "id");
+					centerId, "id");
+			//input = JsonPrecondtion.parseAndReturnJsonContent(input,
+				//	"MOSIP_DSL", "name");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					"MOSIP_DSL", "name");
+					zone,"zoneCode");
 			testPut.setInput(input);
 
+		
+			
+			String output=testPut.getOutput();
+			output = JsonPrecondtion.parseAndReturnJsonContent(output,
+					zone,"zoneCode");
+			testPut.setOutput(output);
 			simpleput.test(testPut);
 			Response response= simpleput.response;
 
@@ -120,7 +128,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 
 	}
 
-	public String centerCreate() throws RigInternalError {
+	public String centerCreate(String zone) throws RigInternalError {
 		try {
 			String id =null;
 			Object[] testObjPost=simplepost.getYmlTestData(CreateRegistrationCenter);
@@ -129,7 +137,15 @@ public class CenterHelper extends BaseTestCaseUtil {
 			String input=testPost.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					appendDate, "name");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					zone,"zoneCode");
 			testPost.setInput(input);
+			
+			String output=testPost.getOutput();
+			output = JsonPrecondtion.parseAndReturnJsonContent(output,
+					zone,"zoneCode");
+			testPost.setOutput(output);
+			
 			simplepost.test(testPost);
 			Response response= simplepost.response;
 

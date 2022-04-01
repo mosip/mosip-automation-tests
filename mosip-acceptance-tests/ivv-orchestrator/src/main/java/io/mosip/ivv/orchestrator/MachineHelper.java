@@ -2,6 +2,8 @@ package io.mosip.ivv.orchestrator;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -9,6 +11,7 @@ import org.json.JSONObject;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.PatchWithPathParam;
 import io.mosip.testscripts.PatchWithPathParamsAndBody;
 import io.mosip.testscripts.PatchWithQueryParam;
@@ -193,7 +196,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 
 	}
 
-	public String createMachine(String machineSpecId,String regCenterId) throws RigInternalError {
+	public String createMachineId(String machineSpecId,String regCenterId) throws RigInternalError {
 		try {
 			String id =null;
 			Object[] testObjPost=simplepost.getYmlTestData(CreateMachine);
@@ -228,20 +231,61 @@ public class MachineHelper extends BaseTestCaseUtil {
 
 	}
 	
+	public HashMap createMachine(String machineSpecId,HashMap<String, String> map) throws RigInternalError {
+		try {
+			String id =null;
+			HashMap<String, String> machineDetailsmap=new LinkedHashMap();
+			Object[] testObjPost=simplepost.getYmlTestData(CreateMachine);
+		
+			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
+
+			String input=testPost.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					machineSpecId, "machineSpecId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, appendDate, "id");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, appendDate, "name");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("centerId"), "regCenterId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("zoneCode"), "zoneCode");
+			
+			testPost.setInput(input);
+			
+				simplepost.test(testPost);
+				Response response= simplepost.response;
+
+				if (response!= null)
+				{
+					JSONObject jsonResp = new JSONObject(response.getBody().asString());
+					logger.info( jsonResp.getJSONObject("response"));
+					String name = jsonResp.getJSONObject("response").getString("name"); 
+					 id = jsonResp.getJSONObject("response").getString("id"); 
+					 machineDetailsmap.put("machineid", id);
+					 machineDetailsmap.put("machineName", name);
+					 machineDetailsmap.put("publicKey",BaseTestCase.publickey.replace("\"","" ));
+					 machineDetailsmap.put("signPublicKey",BaseTestCase.publickey.replace("\"","" ));
+					 machineDetailsmap.putAll(map);
+				}logger.info("id -"+ id);
+				return machineDetailsmap;
+			} catch (Exception e) {
+				throw new RigInternalError(e.getMessage());
+
+			}
+		
+
+	}
 	
 
 	public String activateMachine(String machineId, String activecheck) throws RigInternalError {
 		try {
-			Boolean activeFlag = false;
+			String activeFlag = "false";
 			Object[] testObjPost = patchWithQueryParam.getYmlTestData(UpdateMachineStatus);
 			TestCaseDTO testPost = (TestCaseDTO) testObjPost[0];
 			if (activecheck.contains("t") || activecheck.contains("T"))
-				activeFlag = true;
+				activeFlag = "true";
 
 			String input = testPost.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, machineId, "id");
 
-			input = JsonPrecondtion.parseAndReturnJsonContent(input, activeFlag.toString(), "isActive");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, activeFlag, "isActive");
 			testPost.setInput(input);
 
 			String status = null;
