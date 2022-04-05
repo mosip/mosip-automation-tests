@@ -109,8 +109,8 @@ public class ReadEmail {
 					System.out.println("From: " + message.getFrom()[0]);
 					MimeMultipart content = (MimeMultipart) message.getContent();
 					String bodyMsg = getTextFromMimeMultipart(content);
-
-					if (message.getFrom()[0].toString().equals(FROM_MATH)) {
+					System.out.println("Body Message: " + bodyMsg);
+					if (message.getFrom()[0].toString().toLowerCase().contains("mosip")) {
 						mailMessage.add(bodyMsg);
 						message.setFlag(Flags.Flag.DELETED, true);
 					}

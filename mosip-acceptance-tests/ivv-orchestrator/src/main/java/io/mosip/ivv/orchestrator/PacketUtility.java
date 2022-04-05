@@ -492,7 +492,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return response.getBody().asString();
 
 	}
-	
+
 	
 	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,Boolean generatePrivateKey,String status,String baseUrl) throws RigInternalError {
 		//String url = this.baseUrl + "/servercontext/" + key;
@@ -543,6 +543,40 @@ public class PacketUtility extends BaseTestCaseUtil {
 		 * jsonMachine.toString(),contextInuse, "updateMachine"); }
 		 */
 		Response response = postReqest(url, jsonReq.toString(), "SetContext");
+		if (!response.getBody().asString().toLowerCase().contains("true"))
+			throw new RigInternalError("Unable to set context from packet utility");
+		return response.getBody().asString();
+
+	}
+	
+
+	public String createContexts(String key, HashMap<String, String> map, String mosipVersion,Boolean generatePrivateKey,String status,String baseUrl) throws RigInternalError {
+		//String url = this.baseUrl + "/servercontext/" + key;
+		String url = this.baseUrl + "/context/server/"+key;
+		
+	//  machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
+		JSONObject jsonReq = new JSONObject();
+		jsonReq.put("urlBase", baseUrl);
+		jsonReq.put("mosip.test.baseurl", baseUrl);
+		jsonReq.put("mosip.test.regclient.machineid", (map.get("machineid")!=null)?map.get("machineid"):E2EConstants.MACHINE_ID);
+		jsonReq.put("mosip.test.regclient.centerid", (map.get("centerId")!=null)?map.get("centerId"):E2EConstants.CENTER_ID);
+		jsonReq.put("regclient.centerid", (map.get("centerId")!=null)?map.get("centerId"):E2EConstants.CENTER_ID);
+		jsonReq.put("mosip.test.regclient.userid", (map.get("userid")!=null)?map.get("userid"):E2EConstants.USER_ID);
+		jsonReq.put("prereg.operatorId", (map.get("userid")!=null)?map.get("userid"):E2EConstants.USER_ID);
+		jsonReq.put("mosip.test.regclient.password", (map.get("userpassword")!=null)?map.get("userpassword"):E2EConstants.USER_PASSWD);
+		jsonReq.put("prereg.password", (map.get("userpassword")!=null)?map.get("userpassword"):E2EConstants.USER_PASSWD);
+		jsonReq.put("mosip.test.regclient.supervisorid", (map.get("userid")!=null)?map.get("userid"):E2EConstants.SUPERVISOR_ID);
+		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
+		jsonReq.put("Male", "MLE");
+        jsonReq.put("Female", "FLE");
+        jsonReq.put("Other", "OTH");
+        jsonReq.put("generatePrivateKey", generatePrivateKey);
+        if(status !=null && !status.isBlank())
+        jsonReq.put("machineStatus", status);
+        if(mosipVersion!=null && !mosipVersion.isEmpty())
+			jsonReq.put("mosip.version", mosipVersion);
+		
+			Response response = postReqest(url, jsonReq.toString(), "SetContext");
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
 		return response.getBody().asString();

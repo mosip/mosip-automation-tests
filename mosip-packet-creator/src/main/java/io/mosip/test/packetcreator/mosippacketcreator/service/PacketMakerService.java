@@ -261,7 +261,8 @@ public class PacketMakerService {
         String templateLocation = (null == templatePacketLocation)?defaultTemplateLocation: templatePacketLocation;
        
         String regId = generateRegId();
-        String appId = ( additionalInfoReqId == null) ? regId: additionalInfoReqId;
+        String appId = ( additionalInfoReqId == null) ? regId: additionalInfoReqId.replace("-BIOMETRIC_CORRECTION-1", "");
+        if(additionalInfoReqId != null) regId=appId;
         newRegId = regId;
         if(source != null && !source.equals(""))
         	src = source;
@@ -609,8 +610,15 @@ public class PacketMakerService {
     }
 
     private String getPacketRoot(String processRootFolder, String rid, String type){
-        return Path.of(processRootFolder, rid+ UNDERSCORE + type.toLowerCase()).toString();
+       if(process.equals("BIOMETRIC_CORRECTION")) {
+    	//return Path.of(processRootFolder, rid+ "-BIOMETRIC_CORRECTION-1"+UNDERSCORE + type.toLowerCase()).toString();
+
+       	return Path.of(processRootFolder, rid+ UNDERSCORE + type.toLowerCase()).toString();
+    }else
+    {
+    	return Path.of(processRootFolder, rid+ UNDERSCORE + type.toLowerCase()).toString();
     }
+       }
 
     private String getContainerMetadataJSONFileLocation(String processRootFolder, String rid, String type){
         return Path.of(processRootFolder, rid+ UNDERSCORE + type.toLowerCase()+".json").toString();

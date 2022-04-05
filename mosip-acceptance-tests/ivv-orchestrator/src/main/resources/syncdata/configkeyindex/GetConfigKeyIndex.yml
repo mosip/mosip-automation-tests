@@ -1,0 +1,13 @@
+GetMachines:
+   Admin_GetMachines_allValid_smoke:
+      endPoint: /v1/syncdata/configs/change
+      role: admin
+      restMethod: get
+      inputTemplate: syncdata/configkeyindex/getConfigKeyIndex
+      outputTemplate: syncdata/configkeyindex/getConfigKeyIndexResult
+      input: '{
+     }'
+      output: '{
+      "registrationConfiguration": "$IGNORE$",
+      "globalConfiguration": "$IGNORE$"
+    }'  
