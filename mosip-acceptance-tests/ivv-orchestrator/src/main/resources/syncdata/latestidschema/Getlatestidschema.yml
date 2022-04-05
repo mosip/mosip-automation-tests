@@ -1,0 +1,17 @@
+GetMachines:
+   Admin_GetMachines_allValid_smoke:
+      endPoint: /v1/syncdata/latestidschema?schemaVersion=0
+      role: admin
+      restMethod: get
+      inputTemplate: syncdata/latestidschema/getlatestidschema
+      outputTemplate: syncdata/latestidschema/getlatestidschemaResult
+      input: '{
+     }'
+      output: '{
+     "dataToSync": [
+     {
+        "id": "$IGNORE$",
+        "inputRequired": "$IGNORE$",
+        "required": "$IGNORE$"    
+    }]
+}'  

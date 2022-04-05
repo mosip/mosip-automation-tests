@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.log4j.Logger;
+import org.testng.Reporter;
 import org.testng.TestNG;
 
 import io.mosip.service.BaseTestCase;
@@ -55,6 +56,7 @@ public class TestRunner {
 		runner.setTestSuites(suitefiles);
 		runner.setOutputDirectory("testng-report");
 		runner.run();
+		
 		System.exit(0);
 	}
 
@@ -94,9 +96,9 @@ public class TestRunner {
 		getListOfFilesFromJarAndCopyToExternalResource("local/");
 		getListOfFilesFromJarAndCopyToExternalResource("preReg/");
 		getListOfFilesFromJarAndCopyToExternalResource("kernel/");
-		getListOfFilesFromJarAndCopyToExternalResource("ida/");
 		getListOfFilesFromJarAndCopyToExternalResource("idaData/");
 		getListOfFilesFromJarAndCopyToExternalResource("masterdata/");
+		getListOfFilesFromJarAndCopyToExternalResource("syncdata/");
 	}
 	
 	public static void getListOfFilesFromJarAndCopyToExternalResource(String key) {
@@ -158,9 +160,9 @@ public class TestRunner {
 		TestResources.copyTestResource("/preReg");
 		TestResources.copyTestResource("/config");
 		TestResources.copyTestResource("/kernel");
-		TestResources.copyTestResource("/ida");
 		TestResources.copyTestResource("/idaData");
 		TestResources.copyTestResource("/masterdata");
+		TestResources.copyTestResource("/syncdata");
 	}
 	
 	public static String getExeternalResourcePath() {

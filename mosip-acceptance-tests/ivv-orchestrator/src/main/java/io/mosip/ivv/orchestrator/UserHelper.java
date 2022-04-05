@@ -1,0 +1,201 @@
+package io.mosip.ivv.orchestrator;
+
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+import org.json.JSONObject;
+
+import io.mosip.admin.fw.util.TestCaseDTO;
+import io.mosip.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.testscripts.DeleteWithParam;
+import io.mosip.testscripts.PatchWithPathParam;
+import io.mosip.testscripts.PutWithPathParam;
+import io.mosip.testscripts.SimplePost;
+import io.mosip.testscripts.SimplePut;
+import io.restassured.response.Response;
+
+public class UserHelper extends BaseTestCaseUtil {
+	public Logger logger = Logger.getLogger(MachineHelper.class);
+	
+
+	private static final String DeleteCenterMapping = "masterdata/DeleteCenterMapping/DeleteCenterMapping.yml";
+	private static final String DeleteZoneMapping = "masterdata/DeleteZoneMapping/DeleteZoneMapping.yml";
+	private static final String UserCenterMapping = "masterdata/UserCenterMapping/UserCenterMapping.yml";
+	private static final String CreateZoneUser = "masterdata/ZoneUser/CreateZoneUser.yml";	
+	private static final String UpdateZoneUserStatus = "masterdata/UpdateZoneUserStatus/UpdateZoneUserStatus.yml";
+	private static final String UpdateUserCenterMappingStatus = "masterdata/UpdateUserCenterMappingStatus/UpdateUserCenterMappingStatus.yml";
+	
+	DeleteWithParam DeleteWithParam=new DeleteWithParam(); 
+	SimplePost simplepost=new SimplePost();
+	PatchWithPathParam patchWithPathParam=new PatchWithPathParam();
+
+	public void deleteCenterMapping(String user) throws RigInternalError {
+		try {
+			Object[] testObjPutDcom=DeleteWithParam.getYmlTestData(DeleteCenterMapping);
+
+			TestCaseDTO testPutDcom=(TestCaseDTO)testObjPutDcom[0];
+			String input=testPutDcom.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					user, "id");
+
+			testPutDcom.setInput(input);
+
+			DeleteWithParam.test(testPutDcom);
+			Response response= DeleteWithParam.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				logger.info( jsonResp.getJSONObject("response"));}
+
+		} catch (Exception e) {
+			//throw new RigInternalError(e.getMessage());
+
+		}
+
+	}
+	
+	public void deleteZoneMapping(String user,HashMap<String,String> map,String zoneCode) throws RigInternalError {
+		try {
+			Object[] testObjPutDcom=DeleteWithParam.getYmlTestData(DeleteZoneMapping);
+
+			TestCaseDTO testPutDcom=(TestCaseDTO)testObjPutDcom[0];
+			String input=testPutDcom.getInput();
+			testPutDcom.setEndPoint(testPutDcom.getEndPoint().replace("changeid", user));
+
+			testPutDcom.setEndPoint(testPutDcom.getEndPoint().replace("changezone",zoneCode));
+			
+			testPutDcom.setInput(input);
+			DeleteWithParam.test(testPutDcom);
+			Response response= DeleteWithParam.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				logger.info( jsonResp.getJSONObject("response"));}
+
+		} catch (Exception e) {
+			//throw new RigInternalError(e.getMessage());
+
+		}
+
+	}
+
+	public void createCenterMapping(String user, HashMap<String, String> map) throws RigInternalError {
+		
+		try {
+			Object[] testObjPutDcom=simplepost.getYmlTestData(UserCenterMapping);
+
+			TestCaseDTO testPutDcom=(TestCaseDTO)testObjPutDcom[0];
+			String input=testPutDcom.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					user, "id");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					map.get("centerId"), "regCenterId");
+			testPutDcom.setInput(input);
+			simplepost.test(testPutDcom);
+			Response response= simplepost.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				logger.info( jsonResp.getJSONObject("response"));}
+
+		} catch (Exception e) {
+			throw new RigInternalError(e.getMessage());
+
+		}
+
+	}
+
+	public void createZoneMapping(HashMap<String, String> map, String user) throws RigInternalError {
+
+		try {
+			Object[] testObjPutDcom=simplepost.getYmlTestData(CreateZoneUser);
+
+			TestCaseDTO testPutDcom=(TestCaseDTO)testObjPutDcom[0];
+			String input=testPutDcom.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					user, "userId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					map.get("zonecode"), "zoneCode");
+						testPutDcom.setInput(input);
+						
+						String output=testPutDcom.getOutput();
+						output = JsonPrecondtion.parseAndReturnJsonContent(input,
+								user, "userId");
+						output = JsonPrecondtion.parseAndReturnJsonContent(input,
+								map.get("zonecode"), "zoneCode");
+									testPutDcom.setOutput(output);
+						
+			simplepost.test(testPutDcom);
+			Response response= simplepost.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				logger.info( jsonResp.getJSONObject("response"));}
+
+		} catch (Exception e) {
+			throw new RigInternalError(e.getMessage());
+
+		}
+	}
+
+	public void activateZoneMapping(String user, String flag) throws RigInternalError {
+	  
+
+		try {
+			Object[] testObjPutDcom=patchWithPathParam.getYmlTestData(UpdateZoneUserStatus);
+
+			TestCaseDTO testPutDcom=(TestCaseDTO)testObjPutDcom[0];
+			String input=testPutDcom.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					user, "userId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					(flag.contains("t")||flag.contains("T")?"true":"false"), "isActive");
+			testPutDcom.setInput(input);
+			patchWithPathParam.test(testPutDcom);
+			Response response= patchWithPathParam.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				logger.info( jsonResp.getJSONObject("response"));}
+
+		} catch (Exception e) {
+			throw new RigInternalError(e.getMessage());
+
+		}
+	}
+
+	public void activateCenterMapping(String user, String flag) throws RigInternalError {
+		  
+
+		try {
+			Object[] testObjPutDcom=patchWithPathParam.getYmlTestData(UpdateUserCenterMappingStatus);
+
+			TestCaseDTO testPutDcom=(TestCaseDTO)testObjPutDcom[0];
+			String input=testPutDcom.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					user, "id");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					(flag.contains("t")||flag.contains("T")?"true":"false"), "isActive");
+			testPutDcom.setInput(input);
+			patchWithPathParam.test(testPutDcom);
+			Response response= patchWithPathParam.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				logger.info( jsonResp.getJSONObject("response"));}
+
+		} catch (Exception e) {
+			throw new RigInternalError(e.getMessage());
+
+		}
+	}
+}
+
+	
