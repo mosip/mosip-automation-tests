@@ -69,7 +69,7 @@ public class BaseTestCaseUtil extends BaseStep{
 	public BaseTestCaseUtil() {}
 	
 	public String getDateTime() {
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMddHHmmss");
 		LocalDateTime now = LocalDateTime.now();
 		return dtf.format(now);
 	}
