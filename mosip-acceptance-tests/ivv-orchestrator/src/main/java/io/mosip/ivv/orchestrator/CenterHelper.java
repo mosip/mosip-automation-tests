@@ -11,13 +11,7 @@ import io.mosip.testscripts.PutWithPathParam;
 import io.mosip.testscripts.SimplePost;
 import io.mosip.testscripts.SimplePut;
 import io.restassured.response.Response;
-/*
- * TO perform center CRUD operations below is the fllow
- *          String centerId=centerHelper.centerCreate();
-			centerHelper.centerUpdate(centerId);
-			centerHelper.centerStatusUpdate(centerId,activeFlag);
-			//centerHelper.centerDcom(centerId);
- */
+
 public class CenterHelper extends BaseTestCaseUtil {
 	public Logger logger = Logger.getLogger(MachineHelper.class);
 	
@@ -45,8 +39,6 @@ public class CenterHelper extends BaseTestCaseUtil {
 			String input=testPut.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					centerId, "id");
-			//input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				//	"MOSIP_DSL", "name");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					zone,"zoneCode");
 			testPut.setInput(input);

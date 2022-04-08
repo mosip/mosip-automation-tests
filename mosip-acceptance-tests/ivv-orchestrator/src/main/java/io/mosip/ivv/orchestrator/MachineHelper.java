@@ -22,19 +22,6 @@ import io.mosip.testscripts.SimplePostForAutoGenId;
 import io.mosip.testscripts.SimplePut;
 import io.restassured.response.Response;
 
-/**
- * 
- * @author Neeharika.Garg
- * MachineHelper : Here handled CRUD operations
- * To create machine below are the steps to be followed
- *          String machinetypecode=machineHelper.createMachineType();
-			String machinetypestatus=machineHelper.activateMachineType(machinetypecode,activecheck);
-				System.out.println(machinetypecode + " " + machinetypestatus);
-				String machinespecId=machineHelper.createMachineSpecification(machinetypecode);
-			    String machinespecstatus=machineHelper.activateMachineSpecification(machinespecId,activecheck);
-				String machineId=machineHelper.createMachine(machinespecId,id);
-				String machineStatus=machineHelper.activateMachine(machineId,activecheck);
- */
 public class MachineHelper extends BaseTestCaseUtil {
 	public Logger logger = Logger.getLogger(MachineHelper.class);
 	private final String CreateMachine = "masterdata/Machine/CreateMachine.yml";
@@ -45,6 +32,8 @@ public class MachineHelper extends BaseTestCaseUtil {
 	private final String CreateMachineType = "masterdata/MachineType/CreateMachineType.yml";
 	private final String UpdateMachineTypeStatus = "masterdata/UpdateMachineTypeStatus/UpdateMachineTypeStatus.yml";
 	private final String UpdateMachineSpecificationStatus = "masterdata/UpdateMachineSpecificationStatus/UpdateMachineSpecificationStatus.yml";
+	private final String UpdateMachine="masterdata/Machine/UpdateMachine.yml";
+	private final String DcomMachine="masterdata/DecommisionMachine/DecommisionMachine.yml";
 	SimplePost sp = new SimplePost();
 	SimplePostForAutoGenId simplepost = new SimplePostForAutoGenId();
 	PatchWithPathParam patchwithpathparam = new PatchWithPathParam();
@@ -231,7 +220,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 
 	}
 	
-	public HashMap createMachine(String machineSpecId,HashMap<String, String> map) throws RigInternalError {
+	public HashMap createMachine(String machineSpecId,HashMap<String, String> map,int centerCount) throws RigInternalError {
 		try {
 			String id =null;
 			HashMap<String, String> machineDetailsmap=new LinkedHashMap();
@@ -244,9 +233,9 @@ public class MachineHelper extends BaseTestCaseUtil {
 					machineSpecId, "machineSpecId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, appendDate, "id");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, appendDate, "name");
-			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("centerId"), "regCenterId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("centerId"+centerCount), "regCenterId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("zoneCode"), "zoneCode");
-			
+			map.put("machineSpecId", machineSpecId);
 			testPost.setInput(input);
 			
 				simplepost.test(testPost);
@@ -308,4 +297,64 @@ public class MachineHelper extends BaseTestCaseUtil {
 
 	}
 
+	public HashMap<String, String>  updateMachine(HashMap<String, String> map,int centerCount)throws RigInternalError {
+		try {
+			String id =null;
+			Object[] testObj=simpleput.getYmlTestData(UpdateMachine);
+			TestCaseDTO testdto=(TestCaseDTO)testObj[0];
+
+			String input=testdto.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					map.get("machineSpecId"), "machineSpecId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("machineid"), "id");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("machineName"), "name");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("centerId"+centerCount), "regCenterId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("zoneCode"), "zoneCode");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("publicKey"), "publicKey");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("signPublicKey"), "signPublicKey");
+			testdto.setInput(input);
+			
+			simpleput.test(testdto);
+				Response response= simpleput.response;
+
+				if (response!= null)
+				{
+					JSONObject jsonResp = new JSONObject(response.getBody().asString());
+					logger.info( jsonResp.getJSONObject("response"));
+					
+				}logger.info("id -"+ id);
+				return map;
+			} catch (Exception e) {
+				throw new RigInternalError(e.getMessage());
+
+			}
+		
+
+	}
+
+	public void dcomMachine(String id) throws RigInternalError {
+		try {
+			Object[] testObjPutDcom=simpleput.getYmlTestData(DcomMachine);
+
+			TestCaseDTO testPutDcom=(TestCaseDTO)testObjPutDcom[0];
+			String endPoint=testPutDcom.getEndPoint();
+			endPoint=endPoint.replace("id", id);
+
+			testPutDcom.setEndPoint(endPoint);
+
+			putwithpathparam.test(testPutDcom);
+			Response response= putwithpathparam.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				logger.info( jsonResp.getJSONObject("response"));}
+
+		} catch (Exception e) {
+			throw new RigInternalError(e.getMessage());
+
+		}
+
+	}
+	
 }

@@ -3,29 +3,17 @@ package io.mosip.ivv.e2e.methods;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
-import io.mosip.admin.fw.util.TestCaseDTO;
-import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.CenterHelper;
-import io.mosip.testscripts.DeleteWithParam;
-import io.mosip.testscripts.GetWithParam;
-import io.mosip.testscripts.GetWithQueryParam;
 import io.mosip.testscripts.PatchWithPathParam;
 import io.mosip.testscripts.PutWithPathParam;
 import io.mosip.testscripts.SimplePost;
 import io.mosip.testscripts.SimplePut;
-import io.restassured.response.Response;
 
 public class Center extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(Center.class);
-	private static final String PostCenter = "masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
-	private static final String PatchCenter = "masterdata/UpdateRegCentStatus/UpdateRegCentStatus.yml";
-	private static final String PutCenterNonLang = "masterdata/UpdateRegistrationCenterNonLanguage/UpdateRegistrationCenterNonLanguage.yml";
-	private static final String PutCenterLang = "masterdata/UpdateRegistrationCenterLang/UpdateRegistrationCenterLang.yml";
-	private static final String PutCenterDecom = "masterdata/DecommissionRegCenter/DecommissionRegCenter.yml";
 	
 	SimplePost simplepost=new SimplePost() ;
 	PatchWithPathParam patchwithpathparam=new PatchWithPathParam();
@@ -36,6 +24,7 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		String id = null;
+		int centerCount=0;
 		Boolean activeFlag=false;
 		String calltype = null;
 		HashMap<String, String> map=new HashMap<String, String>();
@@ -47,25 +36,33 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 
 		}
 		if(step.getParameters().size() >= 2) { 
-			String activecheck = step.getParameters().get(1);
-			if (activecheck.contains("t") || activecheck.contains("T")) 
-				activeFlag=true;
-		}		
+			 id = step.getParameters().get(1);
+			 if (id.startsWith("$$")) {
+					map = step.getScenario().getVariables();
+				}}
+
 		if(step.getParameters().size() >= 3) { 
-			 id = step.getParameters().get(2);}
+			centerCount = Integer.parseInt(step.getParameters().get(2));
+		}		
+		
+		if(step.getParameters().size() >= 4) { 
+			String activecheck = step.getParameters().get(3);
+			if (activecheck.contains("t") || activecheck.contains("T")) 
+				activeFlag=true;	
+		}
 		switch (calltype) {
 		case "CREATE":
 		
 			String centerId=centerHelper.centerCreate(id);
 			centerHelper.centerUpdate(centerId,id);
 			centerHelper.centerStatusUpdate(centerId,activeFlag);
-			map.put("centerId", centerId);
+			map.put("centerId"+centerCount, centerId);
 			map.put("zoneCode", id);
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().putAll(map);
 			break;
 		case "ACTIVE_FLAG":
-			
+			centerHelper.centerStatusUpdate(map.get("centerId"+centerCount),activeFlag);
 			break;
 		case "UPDATE_NONLANG":
 			
@@ -75,7 +72,7 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 		
 			break;
 		case "DCOM":
-			centerHelper.centerDcom(id);
+			centerHelper.centerDcom(map.get("centerId"+centerCount));
 			break;
 	
 		default:

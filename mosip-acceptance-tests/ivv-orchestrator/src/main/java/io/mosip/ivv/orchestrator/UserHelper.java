@@ -3,6 +3,7 @@ package io.mosip.ivv.orchestrator;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.admin.fw.util.TestCaseDTO;
@@ -25,6 +26,7 @@ public class UserHelper extends BaseTestCaseUtil {
 	private static final String CreateZoneUser = "masterdata/ZoneUser/CreateZoneUser.yml";	
 	private static final String UpdateZoneUserStatus = "masterdata/UpdateZoneUserStatus/UpdateZoneUserStatus.yml";
 	private static final String UpdateUserCenterMappingStatus = "masterdata/UpdateUserCenterMappingStatus/UpdateUserCenterMappingStatus.yml";
+	private static final String ZoneUserSearch = "masterdata/ZoneUser/ZoneUserSearch.yml";
 	
 	DeleteWithParam DeleteWithParam=new DeleteWithParam(); 
 	SimplePost simplepost=new SimplePost();
@@ -56,7 +58,7 @@ public class UserHelper extends BaseTestCaseUtil {
 
 	}
 	
-	public void deleteZoneMapping(String user,HashMap<String,String> map,String zoneCode) throws RigInternalError {
+	public void deleteZoneMapping(String user,HashMap<String,String> map) throws RigInternalError {
 		try {
 			Object[] testObjPutDcom=DeleteWithParam.getYmlTestData(DeleteZoneMapping);
 
@@ -64,7 +66,7 @@ public class UserHelper extends BaseTestCaseUtil {
 			String input=testPutDcom.getInput();
 			testPutDcom.setEndPoint(testPutDcom.getEndPoint().replace("changeid", user));
 
-			testPutDcom.setEndPoint(testPutDcom.getEndPoint().replace("changezone",zoneCode));
+			testPutDcom.setEndPoint(testPutDcom.getEndPoint().replace("changezone",map.get("userzonecode")));
 			
 			testPutDcom.setInput(input);
 			DeleteWithParam.test(testPutDcom);
@@ -82,7 +84,7 @@ public class UserHelper extends BaseTestCaseUtil {
 
 	}
 
-	public void createCenterMapping(String user, HashMap<String, String> map) throws RigInternalError {
+	public void createCenterMapping(String user, HashMap<String, String> map,int centerNum) throws RigInternalError {
 		
 		try {
 			Object[] testObjPutDcom=simplepost.getYmlTestData(UserCenterMapping);
@@ -92,7 +94,7 @@ public class UserHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					user, "id");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					map.get("centerId"), "regCenterId");
+					map.get("centerId"+centerNum), "regCenterId");
 			testPutDcom.setInput(input);
 			simplepost.test(testPutDcom);
 			Response response= simplepost.response;
@@ -119,14 +121,14 @@ public class UserHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					user, "userId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					map.get("zonecode"), "zoneCode");
+					map.get("zoneCode"), "zoneCode");
 						testPutDcom.setInput(input);
 						
 						String output=testPutDcom.getOutput();
 						output = JsonPrecondtion.parseAndReturnJsonContent(input,
 								user, "userId");
 						output = JsonPrecondtion.parseAndReturnJsonContent(input,
-								map.get("zonecode"), "zoneCode");
+								map.get("zoneCode"), "zoneCode");
 									testPutDcom.setOutput(output);
 						
 			simplepost.test(testPutDcom);
@@ -138,8 +140,7 @@ public class UserHelper extends BaseTestCaseUtil {
 				logger.info( jsonResp.getJSONObject("response"));}
 
 		} catch (Exception e) {
-			throw new RigInternalError(e.getMessage());
-
+			
 		}
 	}
 
@@ -195,6 +196,47 @@ public class UserHelper extends BaseTestCaseUtil {
 			throw new RigInternalError(e.getMessage());
 
 		}
+	}
+
+	public HashMap<String, String> createZoneSearch(String user, HashMap<String, String> map) throws RigInternalError {
+		
+
+		try {
+			String zoneCode=null;
+			Object[] testObjPutDcom=simplepost.getYmlTestData(ZoneUserSearch);
+
+			TestCaseDTO testPutDcom=(TestCaseDTO)testObjPutDcom[0];
+			String input=testPutDcom.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					user, "value");
+			testPutDcom.setInput(input);
+			
+			
+			simplepost.test(testPutDcom);
+			
+			
+			
+			
+			Response response= simplepost.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				JSONObject JO_resp=jsonResp.getJSONObject("response");
+				JSONArray JA_data=JO_resp.getJSONArray("data");
+				for(int i = 0; i < JA_data .length(); i++)
+				{
+				   JSONObject obj = JA_data.getJSONObject(i);
+				   if(obj.getString("userId").equals(user))
+				    zoneCode = obj.getString("zoneCode");
+				}
+				logger.info( JA_data);
+				map.put("userzonecode", zoneCode);}
+			
+		} catch (Exception e) {
+
+		}
+		return map;	
 	}
 }
 
