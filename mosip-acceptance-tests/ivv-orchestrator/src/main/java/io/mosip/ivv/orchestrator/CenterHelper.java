@@ -16,11 +16,11 @@ public class CenterHelper extends BaseTestCaseUtil {
 	public Logger logger = Logger.getLogger(MachineHelper.class);
 	
 
-	private static final String CreateRegistrationCenter = "masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
-	private static final String UpdateRegCentStatus = "masterdata/UpdateRegCentStatus/UpdateRegCentStatus.yml";
-	private static final String UpdateRegistrationCenterNonLanguage = "masterdata/UpdateRegistrationCenterNonLanguage/UpdateRegistrationCenterNonLanguage.yml";
-	private static final String UpdateRegistrationCenterLang = "masterdata/UpdateRegistrationCenterLang/UpdateRegistrationCenterLang.yml";
-	private static final String DecommissionRegCenter = "masterdata/DecommissionRegCenter/DecommissionRegCenter.yml";
+	private static final String CreateRegistrationCenter = "masterdata1/RegistrationCenter/CreateRegistrationCenter.yml";
+	private static final String UpdateRegCentStatus = "masterdata1/UpdateRegCentStatus/UpdateRegCentStatus.yml";
+	private static final String UpdateRegistrationCenterNonLanguage = "masterdata1/UpdateRegistrationCenterNonLanguage/UpdateRegistrationCenterNonLanguage.yml";
+	private static final String UpdateRegistrationCenterLang = "masterdata1/UpdateRegistrationCenterLang/UpdateRegistrationCenterLang.yml";
+	private static final String DecommissionRegCenter = "masterdata1/DecommissionRegCenter/DecommissionRegCenter.yml";
 	
 	SimplePost simplepost=new SimplePost() ;
 	PatchWithPathParam patchwithpathparam=new PatchWithPathParam();
@@ -128,7 +128,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
 			String input=testPost.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					appendDate, "name");
+					getDateTime(), "name");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					zone,"zoneCode");
 			testPost.setInput(input);

@@ -65,13 +65,12 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static String rid_updateResident=null;
 	public static String uin_updateResident=null;
 	public static String prid_updateResident=null;
-	public String appendDate = "DSL" + getDateTime();
 	public BaseTestCaseUtil() {}
 	
 	public String getDateTime() {
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMddHHmmss");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMddHHmmssSSS");
 		LocalDateTime now = LocalDateTime.now();
-		return dtf.format(now);
+		return "DSL"+dtf.format(now);
 	}
 	public String encoder(String text) {
 		return Base64.getEncoder().encodeToString(text.getBytes());
