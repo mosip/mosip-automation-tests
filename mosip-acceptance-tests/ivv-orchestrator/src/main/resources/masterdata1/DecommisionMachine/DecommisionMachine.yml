@@ -1,0 +1,13 @@
+DecommisionMachine:
+   MasterData_DecommisionMachine_valid_smoke_ID: 
+      endPoint: /v1/masterdata/machines/decommission/id
+      role: admin
+      restMethod: put
+      inputTemplate: masterdata1/DecommisionMachine/decommisionMachine
+      outputTemplate: masterdata1/DecommisionMachine/decommisionMachineResult
+      input: '{
+      
+	}'
+      output: '{
+   "id": "$IGNORE$"
+}'

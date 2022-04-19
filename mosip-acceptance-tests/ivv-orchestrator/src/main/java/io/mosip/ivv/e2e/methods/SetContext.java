@@ -24,9 +24,9 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String contextKeyValue = "dev_context";
 		String userAndMachineDetailParam = null;
 		String mosipVersion = null;
-		boolean generatePrivateKey =Boolean.FALSE;
-		String status=null;
-		HashMap<String, String> map=null;
+		boolean generatePrivateKey = Boolean.FALSE;
+		String status = null;
+		HashMap<String, String> map = new HashMap<String, String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("SetContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else {
@@ -35,30 +35,30 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			contextKey.put(contextKeyValue, "true");
 			contextInuse.clear();
 			contextInuse.put("contextKey", contextKeyValue);
-			if (step.getParameters().size() > 1) {   // machineid=112121@@.......
+			if (step.getParameters().size() > 1) { // machineid=112121@@.......
 				String value = step.getParameters().get(1);
 				if (!(value.equalsIgnoreCase("-1")) && value.contains("@@"))
 					userAndMachineDetailParam = value;
-				else
-					 if (value.startsWith("$$")) {
-						 map = step.getScenario().getVariables();
-			}}
-			if (step.getParameters().size() > 2) {   // 1@@2(mosip.version)
+				else if (value.startsWith("$$")) {
+					map = step.getScenario().getVariables();
+				}
+			}
+			if (step.getParameters().size() > 2) { // 1@@2(mosip.version)
 				List<String> version = PacketUtility.getParamsArg(step.getParameters().get(2), "@@");
 				if (!(version.contains("-1")))
 					mosipVersion = version.get(0) + "." + version.get(1);
 			}
-			if (step.getParameters().size() > 3)  // true/false  (want to generate privatekey)
+			if (step.getParameters().size() > 3) // true/false (want to generate privatekey)
 				generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(3));
-			
-			if (step.getParameters().size() > 4)  // deactivate
+
+			if (step.getParameters().size() > 4) // deactivate
 				status = step.getParameters().get(4);
-			}
-		if(map==null)
-			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion,
-					generatePrivateKey,status, BaseTestCase.ApplnURI + "/");
-		else
-		packetUtility.createContexts(contextKeyValue, map, mosipVersion,
-			generatePrivateKey,status, BaseTestCase.ApplnURI + "/");
 		}
+		if (userAndMachineDetailParam != null)
+			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion, generatePrivateKey,
+					status, BaseTestCase.ApplnURI + "/");
+		else if(map != null)
+			packetUtility.createContexts(contextKeyValue, map, mosipVersion, generatePrivateKey, status,
+					BaseTestCase.ApplnURI + "/");
+	}
 }

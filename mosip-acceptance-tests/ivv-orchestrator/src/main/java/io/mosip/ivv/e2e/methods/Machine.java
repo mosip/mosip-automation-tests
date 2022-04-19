@@ -34,7 +34,7 @@ public class Machine extends BaseTestCaseUtil implements StepInterface {
 		String activecheck="T";
 		String calltype = null;
 		int centerCount=0;
-		HashMap<String, String> machineDetailsmap=null;
+		HashMap<String, String> machineDetailsmap=new HashMap<String, String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
 			throw new RigInternalError("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step: " + step.getName());
@@ -79,6 +79,8 @@ public class Machine extends BaseTestCaseUtil implements StepInterface {
 			break;
 			
 		case "DCOM":
+
+			machineDetailsmap=machineHelper.updateMachine(machineDetailsmap,0);
 			machineHelper.dcomMachine(machineDetailsmap.get("machineid")); 
 			break;
 		
