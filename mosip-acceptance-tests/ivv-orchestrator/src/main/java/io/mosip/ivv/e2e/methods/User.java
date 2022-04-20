@@ -24,7 +24,7 @@ import io.restassured.response.Response;
 
 public class User extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(User.class);
-	private static final String PostCenter = "masterdata1/RegistrationCenter/CreateRegistrationCenter.yml";
+	private static final String PostCenter = "ivv_masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
 	
 	UserHelper userHelper=new UserHelper();
 	

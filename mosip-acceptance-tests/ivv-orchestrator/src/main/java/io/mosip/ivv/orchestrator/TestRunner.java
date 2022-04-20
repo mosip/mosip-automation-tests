@@ -97,7 +97,7 @@ public class TestRunner {
 		getListOfFilesFromJarAndCopyToExternalResource("preReg/");
 		getListOfFilesFromJarAndCopyToExternalResource("kernel/");
 		getListOfFilesFromJarAndCopyToExternalResource("idaData/");
-		getListOfFilesFromJarAndCopyToExternalResource("masterdata1/");getListOfFilesFromJarAndCopyToExternalResource("masterdata1/");
+		getListOfFilesFromJarAndCopyToExternalResource("ivv_masterdata/");
 		getListOfFilesFromJarAndCopyToExternalResource("syncdata/");
 	}
 	
@@ -161,8 +161,7 @@ public class TestRunner {
 		TestResources.copyTestResource("/config");
 		TestResources.copyTestResource("/kernel");
 		TestResources.copyTestResource("/idaData");
-		TestResources.copyTestResource("/masterdata");
-		TestResources.copyTestResource("/masterdata1");
+		TestResources.copyTestResource("/ivv_masterdata");
 		TestResources.copyTestResource("/syncdata");
 	}
 	

@@ -20,13 +20,13 @@ public class UserHelper extends BaseTestCaseUtil {
 	public Logger logger = Logger.getLogger(MachineHelper.class);
 	
 
-	private static final String DeleteCenterMapping = "masterdata1/DeleteCenterMapping/DeleteCenterMapping.yml";
-	private static final String DeleteZoneMapping = "masterdata1/DeleteZoneMapping/DeleteZoneMapping.yml";
-	private static final String UserCenterMapping = "masterdata1/UserCenterMapping/UserCenterMapping.yml";
-	private static final String CreateZoneUser = "masterdata1/ZoneUser/CreateZoneUser.yml";	
-	private static final String UpdateZoneUserStatus = "masterdata1/UpdateZoneUserStatus/UpdateZoneUserStatus.yml";
-	private static final String UpdateUserCenterMappingStatus = "masterdata1/UpdateUserCenterMappingStatus/UpdateUserCenterMappingStatus.yml";
-	private static final String ZoneUserSearch = "masterdata1/ZoneUser/ZoneUserSearch.yml";
+	private static final String DeleteCenterMapping = "ivv_masterdata/DeleteCenterMapping/DeleteCenterMapping.yml";
+	private static final String DeleteZoneMapping = "ivv_masterdata/DeleteZoneMapping/DeleteZoneMapping.yml";
+	private static final String UserCenterMapping = "ivv_masterdata/UserCenterMapping/UserCenterMapping.yml";
+	private static final String CreateZoneUser = "ivv_masterdata/ZoneUser/CreateZoneUser.yml";	
+	private static final String UpdateZoneUserStatus = "ivv_masterdata/UpdateZoneUserStatus/UpdateZoneUserStatus.yml";
+	private static final String UpdateUserCenterMappingStatus = "ivv_masterdata/UpdateUserCenterMappingStatus/UpdateUserCenterMappingStatus.yml";
+	private static final String ZoneUserSearch = "ivv_masterdata/ZoneUser/ZoneUserSearch.yml";
 	
 	DeleteWithParam DeleteWithParam=new DeleteWithParam(); 
 	SimplePost simplepost=new SimplePost();

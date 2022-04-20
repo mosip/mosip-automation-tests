@@ -24,16 +24,16 @@ import io.restassured.response.Response;
 
 public class MachineHelper extends BaseTestCaseUtil {
 	public Logger logger = Logger.getLogger(MachineHelper.class);
-	private final String CreateMachine = "masterdata1/Machine/CreateMachine.yml";
-	private final String UpdateMachineStatus = "masterdata1/UpdateMachineStatus/UpdateMachineStatus.yml";
+	private final String CreateMachine = "ivv_masterdata/Machine/CreateMachine.yml";
+	private final String UpdateMachineStatus = "ivv_masterdata/UpdateMachineStatus/UpdateMachineStatus.yml";
 	
 	
-	private final String CreateMachineSpecification = "masterdata1/MachineSpecification/CreateMachineSpecification.yml";
-	private final String CreateMachineType = "masterdata1/MachineType/CreateMachineType.yml";
-	private final String UpdateMachineTypeStatus = "masterdata1/UpdateMachineTypeStatus/UpdateMachineTypeStatus.yml";
-	private final String UpdateMachineSpecificationStatus = "masterdata1/UpdateMachineSpecificationStatus/UpdateMachineSpecificationStatus.yml";
-	private final String UpdateMachine="masterdata1/Machine/UpdateMachine.yml";
-	private final String DcomMachine="masterdata1/DecommisionMachine/DecommisionMachine.yml";
+	private final String CreateMachineSpecification = "ivv_masterdata/MachineSpecification/CreateMachineSpecification.yml";
+	private final String CreateMachineType = "ivv_masterdata/MachineType/CreateMachineType.yml";
+	private final String UpdateMachineTypeStatus = "ivv_masterdata/UpdateMachineTypeStatus/UpdateMachineTypeStatus.yml";
+	private final String UpdateMachineSpecificationStatus = "ivv_masterdata/UpdateMachineSpecificationStatus/UpdateMachineSpecificationStatus.yml";
+	private final String UpdateMachine="ivv_masterdata/Machine/UpdateMachine.yml";
+	private final String DcomMachine="ivv_masterdata/DecommisionMachine/DecommisionMachine.yml";
 	SimplePost sp = new SimplePost();
 	SimplePostForAutoGenId simplepost = new SimplePostForAutoGenId();
 	PatchWithPathParam patchwithpathparam = new PatchWithPathParam();
