@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.testng.Reporter;
+
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.base.StepInterface;
@@ -31,7 +33,8 @@ public class Machine extends BaseTestCaseUtil implements StepInterface {
 		String id = null;
 		String activecheck="T";
 		String calltype = null;
-		HashMap<String, String> machineDetailsmap=null;
+		int centerCount=0;
+		HashMap<String, String> machineDetailsmap=new HashMap<String, String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
 			throw new RigInternalError("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step: " + step.getName());
@@ -39,40 +42,46 @@ public class Machine extends BaseTestCaseUtil implements StepInterface {
 			calltype = step.getParameters().get(0); 
 
 		}
-		if(step.getParameters().size() == 2 && step.getParameters().get(1).startsWith("$$")) { 
+		if(step.getParameters().size() >= 2 && step.getParameters().get(1).startsWith("$$")) { 
 			id = step.getParameters().get(1);
 			if (id.startsWith("$$")) {
 				machineDetailsmap = step.getScenario().getVariables();
 			}
-		}
-		 if(step.getParameters().size() == 3) {
-				 activecheck = step.getParameters().get(2);
-			
-			}
-
+		} if(step.getParameters().size() >= 3) {
+			 centerCount = Integer.parseInt(step.getParameters().get(2));}
+		 if(step.getParameters().size() >= 4) {
+			 activecheck = step.getParameters().get(3);}
 		switch (calltype) {
 		case "CREATE":
+			logger.info("Usage of this step :   $$machineDetails=e2e_Machine(CREATE,$$centerId1,T)");
 			String machinetypecode=machineHelper.createMachineType();
 			String machinetypestatus=machineHelper.activateMachineType(machinetypecode,activecheck);
 				System.out.println(machinetypecode + " " + machinetypestatus);
 				String machinespecId=machineHelper.createMachineSpecification(machinetypecode);
 			    machineHelper.activateMachineSpecification(machinespecId,activecheck);
-			   
-			   machineDetailsmap=machineHelper.createMachine(machinespecId,machineDetailsmap);
+			    
+			   machineDetailsmap=machineHelper.createMachine(machinespecId,machineDetailsmap,centerCount);
 				machineHelper.activateMachine(machineDetailsmap.get("machineid"),activecheck);
 				
 				if (step.getOutVarName() != null)
 					step.getScenario().getVariables().putAll(machineDetailsmap);
+				Reporter.log(machineDetailsmap.toString(), true);
 			break;
 		case "ACTIVE_FLAG":
-			
+			machineHelper.activateMachine(machineDetailsmap.get("machineid"),activecheck);
 			break;
 
 		case "UPDATE":
-			
+			machineDetailsmap=machineHelper.updateMachine(machineDetailsmap,centerCount);
+			if (step.getOutVarName() != null)
+				step.getScenario().getVariables().putAll(machineDetailsmap);
+			Reporter.log(machineDetailsmap.toString(), true);
 			break;
-		case "DCOM":
 			
+		case "DCOM":
+
+			machineDetailsmap=machineHelper.updateMachine(machineDetailsmap,0);
+			machineHelper.dcomMachine(machineDetailsmap.get("machineid")); 
 			break;
 		
 		default:

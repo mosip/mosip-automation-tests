@@ -1,0 +1,41 @@
+CreateRegistrationCenter:
+   MasterData_CreateRegCenter_allValid_smoke_sid:
+      endPoint: /v1/masterdata/registrationcenters
+      role: admin
+      templateFields: ["name","addressLine1","addressLine2","addressLine3","timeZone","langCode"]
+      restMethod: post
+      inputTemplate: ivv_masterdata/RegistrationCenter/registrationCenter
+      outputTemplate: ivv_masterdata/RegistrationCenter/registrationCenterResult
+      input: '{
+   "addressLine1":"sdfg",
+   "addressLine2":"",
+   "addressLine3":"",
+   "centerEndTime":"03:30:00",
+   "centerStartTime":"00:00:00",
+   "centerTypeCode":"REG",
+   "contactPerson":"rtestsd",
+   "contactPhone":"",
+   "holidayLocationCode":"RSK",
+   "langCode":"hin",
+   "latitude":"78.5478",
+   "locationCode":"14080",
+   "longitude":"45.2456",
+   "lunchEndTime":"00:00:00",
+   "lunchStartTime":"00:00:00",
+   "name":"Test123",
+   "perKioskProcessTime":"00:30:00",
+   "timeZone":"(GTM+01:00) CENTRAL EUROPEAN TIME",
+   "workingHours":3.5,
+   "zoneCode":"CSB",
+   "id":"",
+   "isActive":"false",
+   "numberOfKiosks":0,
+   "exceptionHolidayDate":"2021-11-12",
+   "exceptionHolidayName":"",
+   "exceptionHolidayReson":"",
+   "version":"1.0",
+   "requesttime":"$TIMESTAMP$"
+}'
+      output: '{
+   "zoneCode":"CSB"
+}'   

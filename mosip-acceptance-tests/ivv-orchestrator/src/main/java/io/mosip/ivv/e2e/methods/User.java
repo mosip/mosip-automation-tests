@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.testng.Reporter;
+
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.base.StepInterface;
@@ -22,7 +24,7 @@ import io.restassured.response.Response;
 
 public class User extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(User.class);
-	private static final String PostCenter = "masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
+	private static final String PostCenter = "ivv_masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
 	
 	UserHelper userHelper=new UserHelper();
 	
@@ -33,8 +35,12 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		String user=null;
 		String pwd=null;
 		String calltype = null;
-		String userZone=null;
-		HashMap<String, String> map=new HashMap<String, String>();
+		int centerNum=0;
+		
+		HashMap<String, String> map =new HashMap<String, String>();
+
+		HashMap<String, String> map2=new HashMap<String, String>();
+		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
 			throw new RigInternalError("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step: " + step.getName());
@@ -56,29 +62,31 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				}
 		}		
 		if(step.getParameters().size() >= 3) { 
+			//here holding activate deeacrivate flag 
 			 id = step.getParameters().get(2);
 			 if (id.startsWith("$$")) {
-					map = step.getScenario().getVariables();
-
+				 map2 = step.getScenario().getVariables();
+				 map.putAll(map2);
+				 map.put("userid",user);
+				 map.put("userpassword", pwd);
 				}
-		}	
-		if(step.getParameters().size() >= 4) { 
-			userZone = step.getParameters().get(3);
-		}
+					}	
+		
 		switch (calltype) {
 		case "DELETE_CENTERMAPPING":
-			map.put("userid",user);
-			map.put("userpassword", pwd);
+			
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().putAll(map);
 			userHelper.deleteCenterMapping(user);
 			
+			Reporter.log(map.toString(), true);
 			break;
 		case "DELETE_ZONEMAPPING":
-			userHelper.deleteZoneMapping(user,map,userZone);
+			userHelper.deleteZoneMapping(user,map);
 			break;
 		case "CREATE_CENTERMAPPING":
-			userHelper.createCenterMapping(user,map);
+			centerNum=Integer.parseInt(id);
+			userHelper.createCenterMapping(user,map,centerNum);
 			break;
 
 		case "CREATE_ZONEMAPPING":
@@ -89,6 +97,11 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			break;
 		case "ACTIVATE_ZONEMAPPING":
 			userHelper.activateZoneMapping(user,id);
+			break;
+		case "CREATE_ZONESEARCH":
+			map=userHelper.createZoneSearch(user,map);
+			step.getScenario().getVariables().putAll(map);
+			Reporter.log(map.toString(), true);
 			break;
 		default:
 			break;

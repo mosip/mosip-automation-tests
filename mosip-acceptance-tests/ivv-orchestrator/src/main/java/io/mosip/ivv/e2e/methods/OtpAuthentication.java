@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.authentication.fw.util.AuthPartnerProcessor;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
@@ -23,7 +24,7 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 	@Override
 	public void run() throws RigInternalError {
-		 //AuthPartnerProcessor.startProcess();
+		 AuthPartnerProcessor.startProcess();
 		//uinPersonaProp.put("6471974360", "C:\\Users\\Sohan.Dey\\AppData\\Local\\Temp\\residents_1250718917110156783\\101681016810168.json");
 
 		String uins = null;

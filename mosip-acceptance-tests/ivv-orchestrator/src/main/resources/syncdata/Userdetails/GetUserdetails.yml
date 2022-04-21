@@ -1,0 +1,15 @@
+GetMachines:
+   Admin_GetMachines_allValid_smoke:
+      endPoint: /v1/syncdata/v2/userdetails?keyindex=change
+      role: admin
+      restMethod: get
+      inputTemplate: syncdata/Userdetails/getUserdetails
+      outputTemplate: syncdata/Userdetails/getUserdetailsResult
+      input: '{
+     }'
+      output: '{
+     "response": 
+     {
+        "userDetails": "$IGNORE$"    
+    }
+}'  

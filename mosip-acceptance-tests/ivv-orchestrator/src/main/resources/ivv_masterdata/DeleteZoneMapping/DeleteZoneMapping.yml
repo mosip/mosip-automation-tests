@@ -1,0 +1,13 @@
+DeleteMachine:
+   MasterData_DeleteMachine_All_Valid_Smoke_sid:  
+      endPoint: /v1/admin/masterdata/zoneuser/changeid/changezone
+      role: admin
+      templateFields: []
+      restMethod: delete
+      inputTemplate: ivv_masterdata/DeleteZoneMapping/deleteZoneMapping
+      outputTemplate: ivv_masterdata/DeleteZoneMapping/deleteZoneMappingResult
+      input: '{
+	}'
+      output: '{
+    "id": "$IGNORE$"
+}'
