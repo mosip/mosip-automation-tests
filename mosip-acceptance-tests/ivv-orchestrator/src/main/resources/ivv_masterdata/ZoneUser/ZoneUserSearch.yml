@@ -1,0 +1,27 @@
+GetMachines:
+   Admin_GetMachines_allValid_smoke:
+      endPoint: /v1/masterdata/zoneuser/search
+      role: admin
+      restMethod: post
+      inputTemplate: ivv_masterdata/ZoneUser/zoneUserSearch
+      outputTemplate: ivv_masterdata/ZoneUser/zoneUserSearchResult
+      input: '{
+      "value":"string",
+       "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+"data": [{
+        "isActive": "$IGNORE$",
+        "createdBy": "$IGNORE$",
+        "createdDateTime": "$IGNORE$",
+        "updatedBy": "$IGNORE$",
+        "updatedDateTime": "$IGNORE$",
+        "isDeleted": "$IGNORE$",
+        "deletedDateTime": "$IGNORE$",
+        "zoneCode": "$IGNORE$",
+        "userId":  "$IGNORE$",
+        "langCode": "$IGNORE$",
+        "userName": "$IGNORE$",
+        "zoneName": "$IGNORE$"
+    }]
+}'  

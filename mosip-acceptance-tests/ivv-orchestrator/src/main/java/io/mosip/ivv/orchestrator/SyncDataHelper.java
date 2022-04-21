@@ -1,9 +1,14 @@
 package io.mosip.ivv.orchestrator;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.Assert;
 import org.testng.Reporter;
 
 import io.mosip.admin.fw.util.TestCaseDTO;
@@ -26,6 +31,8 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 	private static final String GetClientSettings = "syncdata/clientsettings/GetClientSettings.yml";
 	private static final String GetLatestIdSchema = "syncdata/latestidschema/Getlatestidschema.yml";
 	private static final String GetConfigKeyIndex="syncdata/configkeyindex/GetConfigKeyIndex.yml";
+
+	private static final String GetUserdetails="syncdata/Userdetails/GetUserdetails.yml";
 	
 	SimplePost simplepost=new SimplePost() ;
 	PatchWithPathParam patchwithpathparam=new PatchWithPathParam();
@@ -72,7 +79,7 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 
 
 
-		public void getClientsettings(HashMap<String, String> machineDetailsmap) throws RigInternalError {
+		public void getClientsettingsValid(HashMap<String, String> machineDetailsmap,int centerCount) throws RigInternalError {
 			try {	String lastSyncTime =null;
 			Object[] testObjPost=getWithParam.getYmlTestData(GetClientSettings);
 
@@ -80,18 +87,18 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 			String input=testPost.getInput();
 			
 			String keystring=machineDetailsmap.get("keyindex");
-			testPost.setEndPoint(testPost.getEndPoint().replace("change", keystring));
+			testPost.setEndPoint(testPost.getEndPoint().replace("changekeyindex", keystring));
+			testPost.setEndPoint(testPost.getEndPoint().replace("changeregcenterId", machineDetailsmap.get("centerId"+centerCount)));
+			
 			getWithParam.test(testPost);
 			Response response= getWithParam.response;
 
 			if (response!= null)
 			{
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
-				
 				lastSyncTime = jsonResp.getJSONObject("response").getString("lastSyncTime"); 
 				logger.info(lastSyncTime);
-			
-			
+				
 			}
 			
 		} catch (Exception e) {
@@ -100,6 +107,78 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 		}
 		}
 
+
+		public void getClientsettingsInvalid(HashMap<String, String> machineDetailsmap,int centerCount) throws RigInternalError {
+			try {	String lastSyncTime =null;
+			Object[] testObjPost=getWithParam.getYmlTestData(GetClientSettings);
+
+			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
+			String input=testPost.getInput();
+			
+			String keystring=machineDetailsmap.get("keyindex");
+			testPost.setEndPoint(testPost.getEndPoint().replace("changekeyindex", keystring));
+			testPost.setEndPoint(testPost.getEndPoint().replace("changeregcenterId", machineDetailsmap.get("centerId"+centerCount)));
+			
+			getWithParam.test(testPost);
+			Response response= getWithParam.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+					JSONArray JA_data=jsonResp.getJSONArray("errors");
+					for(int i = 0; i < JA_data .length(); i++)
+					{
+				     	   JSONObject obj = JA_data.getJSONObject(i);
+						   Assert.assertTrue(obj.getString("errorCode").contains("KER-SNC-149"));
+						   
+					}
+				}
+			
+			
+			
+		} catch (Exception e) {
+			throw new RigInternalError(e.getMessage());
+
+		}
+		}
+
+		public void getClientsettings_tbd(HashMap<String, String> machineDetailsmap,int centerCount) throws RigInternalError {
+			try {	String lastSyncTime =null;
+			Object[] testObjPost=getWithParam.getYmlTestData(GetClientSettings);
+
+			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
+			String input=testPost.getInput();
+			
+			String keystring=machineDetailsmap.get("keyindex");
+			testPost.setEndPoint(testPost.getEndPoint().replace("changekeyindex", keystring));
+			testPost.setEndPoint(testPost.getEndPoint().replace("changeregcenterId", machineDetailsmap.get("centerId"+centerCount)));
+			
+			getWithParam.test(testPost);
+			Response response= getWithParam.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				try {
+				lastSyncTime = jsonResp.getJSONObject("response").getString("lastSyncTime"); 
+				logger.info(lastSyncTime);
+				}catch(Exception e)
+				{	JSONArray JA_data=jsonResp.getJSONArray("errors");
+					for(int i = 0; i < JA_data .length(); i++)
+					{
+				     	   JSONObject obj = JA_data.getJSONObject(i);
+						   Assert.assertTrue(obj.getString("errorCode").contains("KER-SNC-149"));
+						   
+					}
+				}
+			
+			}
+			
+		} catch (Exception e) {
+			throw new RigInternalError(e.getMessage());
+
+		}
+		}
 
 
 		public void getlatestidschema() throws RigInternalError {
@@ -154,5 +233,30 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 		}
 		}
 
-	
+
+
+		public void getUserdetails(HashMap<String, String> machineDetailsmap) throws RigInternalError {
+		
+			try {	String lastSyncTime =null;
+			Object[] testObjPost=getWithParam.getYmlTestData(GetUserdetails);
+
+			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
+			String keystring=machineDetailsmap.get("keyindex");
+			testPost.setEndPoint(testPost.getEndPoint().replace("change", keystring));
+			getWithParam.test(testPost);
+			Response response= getWithParam.response;
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+			  logger.info(jsonResp.getJSONObject("response").getString("userDetails"));
+			  logger.info(machineDetailsmap);
+			   
+			}
+			
+		} catch (Exception e) {
+			throw new RigInternalError(e.getMessage());
+
+		}
+		}
+
 }

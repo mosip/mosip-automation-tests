@@ -11,22 +11,16 @@ import io.mosip.testscripts.PutWithPathParam;
 import io.mosip.testscripts.SimplePost;
 import io.mosip.testscripts.SimplePut;
 import io.restassured.response.Response;
-/*
- * TO perform center CRUD operations below is the fllow
- *          String centerId=centerHelper.centerCreate();
-			centerHelper.centerUpdate(centerId);
-			centerHelper.centerStatusUpdate(centerId,activeFlag);
-			//centerHelper.centerDcom(centerId);
- */
+
 public class CenterHelper extends BaseTestCaseUtil {
 	public Logger logger = Logger.getLogger(MachineHelper.class);
 	
 
-	private static final String CreateRegistrationCenter = "masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
-	private static final String UpdateRegCentStatus = "masterdata/UpdateRegCentStatus/UpdateRegCentStatus.yml";
-	private static final String UpdateRegistrationCenterNonLanguage = "masterdata/UpdateRegistrationCenterNonLanguage/UpdateRegistrationCenterNonLanguage.yml";
-	private static final String UpdateRegistrationCenterLang = "masterdata/UpdateRegistrationCenterLang/UpdateRegistrationCenterLang.yml";
-	private static final String DecommissionRegCenter = "masterdata/DecommissionRegCenter/DecommissionRegCenter.yml";
+	private static final String CreateRegistrationCenter = "ivv_masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
+	private static final String UpdateRegCentStatus = "ivv_masterdata/UpdateRegCentStatus/UpdateRegCentStatus.yml";
+	private static final String UpdateRegistrationCenterNonLanguage = "ivv_masterdata/UpdateRegistrationCenterNonLanguage/UpdateRegistrationCenterNonLanguage.yml";
+	private static final String UpdateRegistrationCenterLang = "ivv_masterdata/UpdateRegistrationCenterLang/UpdateRegistrationCenterLang.yml";
+	private static final String DecommissionRegCenter = "ivv_masterdata/DecommissionRegCenter/DecommissionRegCenter.yml";
 	
 	SimplePost simplepost=new SimplePost() ;
 	PatchWithPathParam patchwithpathparam=new PatchWithPathParam();
@@ -45,8 +39,6 @@ public class CenterHelper extends BaseTestCaseUtil {
 			String input=testPut.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					centerId, "id");
-			//input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				//	"MOSIP_DSL", "name");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					zone,"zoneCode");
 			testPut.setInput(input);
@@ -136,7 +128,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
 			String input=testPost.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					appendDate, "name");
+					getDateTime(), "name");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					zone,"zoneCode");
 			testPost.setInput(input);

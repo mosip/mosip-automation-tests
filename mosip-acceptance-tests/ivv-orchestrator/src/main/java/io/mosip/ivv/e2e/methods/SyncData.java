@@ -33,6 +33,7 @@ public class SyncData extends BaseTestCaseUtil implements StepInterface {
 		HashMap<String, String> machineDetailsmap=null;
 	 String keycase=null;
 		String calltype = null;
+		int centerCount=1;
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
@@ -50,7 +51,6 @@ public class SyncData extends BaseTestCaseUtil implements StepInterface {
 		}
 		if(step.getParameters().size() >=3) { 
 			keycase = step.getParameters().get(2);}
-
 		switch (calltype) {
 		case "TPM_VERIFY":
 			String keyindex=syncDataHelper.verifyPublicKey(machineDetailsmap);
@@ -63,17 +63,23 @@ public class SyncData extends BaseTestCaseUtil implements StepInterface {
 				 step.getScenario().getVariables().putAll(machineDetailsmap);
 			}
 			break;
-		case "CLIENT_SETTINGS":
-			syncDataHelper.getClientsettings(machineDetailsmap);
+		case "CLIENT_SETTINGS_VALID":
+			centerCount= Integer.parseInt(keycase);
+			syncDataHelper.getClientsettingsValid(machineDetailsmap, centerCount);
 			break;
-
+		case "CLIENT_SETTINGS_INVALID":
+			centerCount= Integer.parseInt(keycase);
+			syncDataHelper.getClientsettingsInvalid(machineDetailsmap, centerCount);
+			break;
 		case "LATEST_ID_SCHEMA":
 			syncDataHelper.getlatestidschema();
 			break;
 		case "CONFIGS_KEYINDEX":
 			syncDataHelper.getConfigsKeyindex(machineDetailsmap);
 			break;
-		
+		case "USER_DETAILS":
+			syncDataHelper.getUserdetails(machineDetailsmap);
+			break;
 		default:
 			break;
 		}
