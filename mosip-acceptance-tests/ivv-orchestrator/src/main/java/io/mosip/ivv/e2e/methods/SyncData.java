@@ -63,6 +63,11 @@ public class SyncData extends BaseTestCaseUtil implements StepInterface {
 				 step.getScenario().getVariables().putAll(machineDetailsmap);
 			}
 			break;
+		case "TPM_VERIFY_INVALID":
+			 syncDataHelper.verifyPublicKeyInvalid(machineDetailsmap);
+			
+			break;
+		
 		case "CLIENT_SETTINGS_VALID":
 			centerCount= Integer.parseInt(keycase);
 			syncDataHelper.getClientsettingsValid(machineDetailsmap, centerCount);
@@ -79,6 +84,9 @@ public class SyncData extends BaseTestCaseUtil implements StepInterface {
 			break;
 		case "USER_DETAILS":
 			syncDataHelper.getUserdetails(machineDetailsmap);
+			break;
+		case "USER_DETAILS_INVALID":
+			syncDataHelper.getUserdetailsInvalid(machineDetailsmap);
 			break;
 		default:
 			break;
