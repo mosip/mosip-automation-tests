@@ -77,6 +77,47 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 
 	}
 
+		public String verifyPublicKeyInvalid(HashMap<String, String> machineDetailsmap) throws RigInternalError {
+			try {
+				String errcodemsg =null;
+				Object[] testObjPost=simplepost.getYmlTestData(Publickeyverify);
+
+				TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
+				String input=testPost.getInput();
+				input = JsonPrecondtion.parseAndReturnJsonContent(input,
+						machineDetailsmap.get("machineName"), "machineName");
+				input = JsonPrecondtion.parseAndReturnJsonContent(input,
+						machineDetailsmap.get("publicKey"), "publicKey");
+				input = JsonPrecondtion.parseAndReturnJsonContent(input,
+						machineDetailsmap.get("signPublicKey"), "signPublicKey");
+				testPost.setInput(input);
+				simplepost.test(testPost);
+				Response response= simplepost.response;
+
+				if (response!= null)
+				{
+					JSONObject jsonResp = new JSONObject(response.getBody().asString());
+					logger.info( jsonResp.getJSONArray("errors"));
+					JSONArray array=jsonResp.getJSONArray("errors");
+					errcodemsg=array.toString();
+					
+//					for(int arrseq=0;arrseq<array.length();arrseq++)
+//					{		
+//					//  = jsonResp.getJSONObject("response").getString("keyIndex"); 
+//					System.out.println(array.getJSONObject(arrseq).getString("errorCode"));
+//					System.out.println(array.getJSONObject(arrseq).getString("message"));
+//				}
+//					}
+//				logger.info("errcodemsg="+array.getJSONObject(arrseq).getString("errorCode") + array.getJSONObject(arrseq).getString("message"));
+//
+//				
+				}return errcodemsg;
+			} catch (Exception e) {
+				throw new RigInternalError(e.getMessage());
+
+			}
+
+		}
 
 
 		public void getClientsettingsValid(HashMap<String, String> machineDetailsmap,int centerCount) throws RigInternalError {
@@ -142,44 +183,6 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 		}
 		}
 
-		public void getClientsettings_tbd(HashMap<String, String> machineDetailsmap,int centerCount) throws RigInternalError {
-			try {	String lastSyncTime =null;
-			Object[] testObjPost=getWithParam.getYmlTestData(GetClientSettings);
-
-			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
-			String input=testPost.getInput();
-			
-			String keystring=machineDetailsmap.get("keyindex");
-			testPost.setEndPoint(testPost.getEndPoint().replace("changekeyindex", keystring));
-			testPost.setEndPoint(testPost.getEndPoint().replace("changeregcenterId", machineDetailsmap.get("centerId"+centerCount)));
-			
-			getWithParam.test(testPost);
-			Response response= getWithParam.response;
-
-			if (response!= null)
-			{
-				JSONObject jsonResp = new JSONObject(response.getBody().asString());
-				try {
-				lastSyncTime = jsonResp.getJSONObject("response").getString("lastSyncTime"); 
-				logger.info(lastSyncTime);
-				}catch(Exception e)
-				{	JSONArray JA_data=jsonResp.getJSONArray("errors");
-					for(int i = 0; i < JA_data .length(); i++)
-					{
-				     	   JSONObject obj = JA_data.getJSONObject(i);
-						   Assert.assertTrue(obj.getString("errorCode").contains("KER-SNC-149"));
-						   
-					}
-				}
-			
-			}
-			
-		} catch (Exception e) {
-			throw new RigInternalError(e.getMessage());
-
-		}
-		}
-
 
 		public void getlatestidschema() throws RigInternalError {
 			try {
@@ -233,8 +236,32 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 		}
 		}
 
+		
 
+		public void getUserdetailsInvalid(HashMap<String, String> machineDetailsmap) throws RigInternalError {
+			
+			try {	String lastSyncTime =null;
+			Object[] testObjPost=getWithParam.getYmlTestData(GetUserdetails);
 
+			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
+			String keystring=machineDetailsmap.get("keyindex");
+			testPost.setEndPoint(testPost.getEndPoint().replace("change", keystring));
+			getWithParam.test(testPost);
+			Response response= getWithParam.response;
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+					JSONArray JA_data=jsonResp.getJSONArray("errors");
+					logger.info(JA_data.toString());
+				}
+			
+		} catch (Exception e) {
+			throw new RigInternalError(e.getMessage());
+
+		}
+		}
+
+		
 		public void getUserdetails(HashMap<String, String> machineDetailsmap) throws RigInternalError {
 		
 			try {	String lastSyncTime =null;

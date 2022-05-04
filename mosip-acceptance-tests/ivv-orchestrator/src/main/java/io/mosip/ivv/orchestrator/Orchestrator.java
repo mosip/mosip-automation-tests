@@ -149,6 +149,7 @@ public class Orchestrator {
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException {
+		extent.flush();
 		String tags = System.getProperty("ivv.tags");
 		String identifier =null;
 		if (tags == null || tags.isEmpty()) {
@@ -158,11 +159,11 @@ public class Orchestrator {
 			throw new SkipException("Skipping Scenario #" + scenario.getId());
 		}
 		ObjectMapper mapper = new ObjectMapper();
-		try {
-			String stepsAsString = mapper.writeValueAsString(scenario.getSteps());
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			String stepsAsString = mapper.writeValueAsString(scenario.getSteps());
+//		} catch (JsonProcessingException e) {
+//			e.printStackTrace();
+//		}
 		Utils.auditLog.info("");
 		message = "Scenario_" + scenario.getId() + ": " + scenario.getDescription();
 		Utils.auditLog.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
