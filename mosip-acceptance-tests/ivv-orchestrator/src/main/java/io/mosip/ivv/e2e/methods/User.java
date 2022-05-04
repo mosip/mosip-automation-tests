@@ -13,6 +13,7 @@ import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.CenterHelper;
 import io.mosip.ivv.orchestrator.UserHelper;
+import io.mosip.kernel.util.KeycloakUserManager;
 import io.mosip.testscripts.DeleteWithParam;
 import io.mosip.testscripts.GetWithParam;
 import io.mosip.testscripts.GetWithQueryParam;
@@ -103,7 +104,15 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			step.getScenario().getVariables().putAll(map);
 			Reporter.log(map.toString(), true);
 			break;
-		default:
+			
+		case "ADD_User":
+			
+			KeycloakUserManager.createUsers();
+		break;
+		case "REMOVE_User":
+			
+			KeycloakUserManager.createUsers();
+		
 			break;
 		}
 
