@@ -193,6 +193,7 @@ public class Orchestrator {
 				st.setStep(step);
 				st.setup();
 				st.validateStep();
+				Reporter.log("\n\n\n\n=============="+ "[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters() + "] " + "================ \n\n\n\n\n", true);
 				st.run();
 				
 				st.assertHttpStatus();
