@@ -192,7 +192,7 @@ private TestCaseDTO bioAuthE2eTest(List<String> bioAuthList, String uin, TestCas
 	for(String bioAuth:bioAuthList) {
 		deviceInfoFilePath = bioAuth;
 		if (!StringUtils.isBlank(deviceInfoFilePath)) {
-			deviceInfoFilePath = TestRunner.getExeternalResourcePath()
+			deviceInfoFilePath = TestRunner.getExternalResourcePath()
 					+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 			deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 		} else

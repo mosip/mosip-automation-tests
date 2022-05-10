@@ -69,7 +69,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 	}
 	
 	private static void storeProp(Properties prop) {
-		String filePath=TestRunner.getExeternalResourcePath()
+		String filePath=TestRunner.getExternalResourcePath()
 				+ props.getProperty("ivv.path.deviceinfo.folder") +"residentPersonaIdPro.properties";
 		OutputStream output = null;
 		try {
