@@ -1,6 +1,7 @@
 package io.mosip.ivv.e2e.methods;
 
 import org.apache.log4j.Logger;
+import org.testng.Reporter;
 
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
@@ -19,8 +20,10 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 			waitTime = TIME_IN_MILLISEC * Integer.parseInt(step.getParameters().get(0));
 		}
 		try {
-			logger.info("waiting for: " + waitTime / 1000 + " Sec");
+			Reporter.log("Total waiting for: " + waitTime / 1000 + " Sec", true);
+			Reporter.log("Starting Waiting: " + getDateTime(), true);
 			Thread.sleep(waitTime);
+			Reporter.log("Waiting Done: " + getDateTime(), true);
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {

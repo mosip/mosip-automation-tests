@@ -51,7 +51,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 		} else {
 			deviceInfoFilePath = step.getParameters().get(0);
 			if (!StringUtils.isBlank(deviceInfoFilePath)) {
-				deviceInfoFilePath = TestRunner.getExeternalResourcePath()
+				deviceInfoFilePath = TestRunner.getExternalResourcePath()
 						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 			} else

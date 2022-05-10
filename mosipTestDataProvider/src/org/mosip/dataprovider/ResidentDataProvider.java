@@ -447,7 +447,7 @@ public class ResidentDataProvider {
 				res.setName_seclang(names_sec.get(i));
 			}
 		
-			if(bloodGroups != null)
+			if(bloodGroups != null && !bloodGroups.isEmpty())
 				res.setBloodgroup(bloodGroups.get(res.getPrimaryLanguage()).get(i));
 			res.setContact(contacts.get(i));
 			res.setDob( DateOfBirthProvider.generate((ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age)));

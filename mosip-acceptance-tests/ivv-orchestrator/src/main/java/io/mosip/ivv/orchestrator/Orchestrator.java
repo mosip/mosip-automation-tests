@@ -56,7 +56,7 @@ public class Orchestrator {
 
 	@BeforeSuite
 	public void beforeSuite() {
-		this.properties = Utils.getProperties(TestRunner.getExeternalResourcePath() + "/config/config.properties");
+		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
 		this.configToSystemProperties();
 		Utils.setupLogger(System.getProperty("user.dir") + this.properties.getProperty("ivv._path.auditlog"));
 		/* setting exentreport */
@@ -82,7 +82,7 @@ public class Orchestrator {
 	@DataProvider(name = "ScenarioDataProvider", parallel = false)
 	public static Object[][] dataProvider() throws RigInternalError {
 		String scenarioSheet = null;
-		String configFile = TestRunner.getExeternalResourcePath() + "/config/config.properties";
+		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
 		Properties properties = Utils.getProperties(configFile);
 		scenarioSheet = System.getProperty("scenarioSheet");
 		if (scenarioSheet == null || scenarioSheet.isEmpty())
@@ -96,7 +96,7 @@ public class Orchestrator {
 				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.biometrics.folder"));
 		parserInputDTO.setPersonaSheet(
 				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.persona.sheet"));
-		parserInputDTO.setScenarioSheet(TestRunner.getExeternalResourcePath()
+		parserInputDTO.setScenarioSheet(TestRunner.getExternalResourcePath()
 				+ properties.getProperty("ivv.path.scenario.sheet.folder") + scenarioSheet);
 		parserInputDTO.setRcSheet(
 				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.rcpersona.sheet"));

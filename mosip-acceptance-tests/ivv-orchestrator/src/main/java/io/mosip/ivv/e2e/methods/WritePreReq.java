@@ -46,10 +46,9 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		Properties props = new Properties();
 		// Populating the properties file
 		props.putAll(map);
-		Reporter.log(props.toString(), true);
 		// Instantiating the FileInputStream for output file
 		try {
-			String path = (TestRunner.getExeternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
+			String path = (TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
 					+ appendedkey + ".properties");
 			  File file = new File(path);
 			 if (file.createNewFile()) {
@@ -65,7 +64,8 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 			// Storing the properties file
 
 			props.store(outputStrem, "This is path where file is created" + path);
-
+			Reporter.log(props.toString(), true);
+			
 			Reporter.log("This is path where file is created" + path, true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

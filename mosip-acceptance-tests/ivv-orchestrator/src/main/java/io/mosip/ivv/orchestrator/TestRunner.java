@@ -165,7 +165,7 @@ public class TestRunner {
 		TestResources.copyTestResource("/syncdata");
 	}
 	
-	public static String getExeternalResourcePath() {
+	public static String getExternalResourcePath() {
 		if (checkRunType().equalsIgnoreCase("JAR")) {
 			return new File(jarUrl).getParentFile().getAbsolutePath();
 		} else if (checkRunType().equalsIgnoreCase("IDE")) {
