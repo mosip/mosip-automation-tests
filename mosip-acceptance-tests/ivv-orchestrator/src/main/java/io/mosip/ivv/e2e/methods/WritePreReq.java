@@ -1,5 +1,6 @@
 package io.mosip.ivv.e2e.methods;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,6 +29,7 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		String value = null;
 		String appendedkey = null;
 		HashMap<String, String> map = new HashMap<String, String>();
+		Reporter.log("==========STEP ====== WritePreReq ", true);
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("PreRequisite Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else if(step.getParameters().size() >= 1) {
@@ -46,13 +48,24 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		props.putAll(map);
 		// Instantiating the FileInputStream for output file
 		try {
-			String path = (TestRunner.getExeternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
+			String path = (TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
 					+ appendedkey + ".properties");
+			  File file = new File(path);
+			 if (file.createNewFile()) {
+		            
+				 Reporter.log("File has been created at this path : " +path,true);
+		        } else {
+		        
+		        	Reporter.log("File already exists at the path : " + path,true);
+		        }
+			
+			
 			FileOutputStream outputStrem = new FileOutputStream(path);
 			// Storing the properties file
 
 			props.store(outputStrem, "This is path where file is created" + path);
-
+			Reporter.log(props.toString(), true);
+			
 			Reporter.log("This is path where file is created" + path, true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
