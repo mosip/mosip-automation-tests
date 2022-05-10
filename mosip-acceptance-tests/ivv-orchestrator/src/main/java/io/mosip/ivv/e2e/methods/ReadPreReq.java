@@ -35,7 +35,7 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 		} else 
 		if(step.getParameters().size() >= 1) {appendedkey=step.getParameters().get(0);
 		}
-		String path = (TestRunner.getExeternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
+		String path = (TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
 				+ appendedkey + ".properties");
 				
 		try {
@@ -49,7 +49,7 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 			}
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().putAll(map);
-			
+			Reporter.log(propertylist.toString(), true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

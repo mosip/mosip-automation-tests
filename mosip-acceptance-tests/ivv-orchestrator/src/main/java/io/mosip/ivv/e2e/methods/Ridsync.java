@@ -90,7 +90,7 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 		Properties prop= new Properties();
 		for(String key: map.keySet())
 			prop.put(key, map.get(key));
-		String filePath=TestRunner.getExeternalResourcePath()
+		String filePath=TestRunner.getExternalResourcePath()
 				+ props.getProperty("ivv.path.deviceinfo.folder") +"ridPersonaPathProp.properties";
 		OutputStream output = null;
 		try {
