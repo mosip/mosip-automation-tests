@@ -1,6 +1,8 @@
 package io.mosip.ivv.e2e.methods;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -104,10 +106,19 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			step.getScenario().getVariables().putAll(map);
 			Reporter.log(map.toString(), true);
 			break;
-			
 		case "ADD_User":
+			HashMap<String, List<String>> attrmap=new HashMap<String, List<String>>();
+			List<String> list=new ArrayList<String>();
+			list.add("11000000");
+			attrmap.put("individualid", list);
+			KeycloakUserManager.removeUser(user);
+			KeycloakUserManager.createUsers(user, pwd,"roles", attrmap);
+			HashMap<String, String> userdetails=new HashMap<String, String>();
+			userdetails.put("user", user);
+			userdetails.put("pwd",pwd);
+			step.getScenario().getVariables().putAll(userdetails);
 			
-			KeycloakUserManager.createUsers();
+		
 		break;
 		case "REMOVE_User":
 			
