@@ -12,6 +12,8 @@ import org.apache.log4j.Logger;
 import org.testng.Reporter;
 import org.testng.TestNG;
 
+import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.ivv.e2e.methods.OperatorOnboardAuthentication;
 import io.mosip.service.BaseTestCase;
 
 public class TestRunner {
@@ -19,6 +21,7 @@ public class TestRunner {
 	public static String jarUrl = TestRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
 	public static void main(String[] args) {
+		
 		if (checkRunType().equalsIgnoreCase("JAR")) {
 			removeOldMosipTestTestResource();
 			extractResourceFromJar();
@@ -99,6 +102,8 @@ public class TestRunner {
 		getListOfFilesFromJarAndCopyToExternalResource("idaData/");
 		getListOfFilesFromJarAndCopyToExternalResource("ivv_masterdata/");
 		getListOfFilesFromJarAndCopyToExternalResource("syncdata/");
+
+		getListOfFilesFromJarAndCopyToExternalResource("regproc/");
 	}
 	
 	public static void getListOfFilesFromJarAndCopyToExternalResource(String key) {
@@ -163,6 +168,8 @@ public class TestRunner {
 		TestResources.copyTestResource("/idaData");
 		TestResources.copyTestResource("/ivv_masterdata");
 		TestResources.copyTestResource("/syncdata");
+
+		TestResources.copyTestResource("/regproc");
 	}
 	
 	public static String getExternalResourcePath() {

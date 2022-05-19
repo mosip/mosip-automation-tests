@@ -724,6 +724,52 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 	}
 
+	public void operatorOnboardAuth(String modility, String bioValue, String user, Properties deviceProps, TestCaseDTO test,
+			BioAuth bioAuth, String individualIdType ) throws RigInternalError {
+
+		//test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", deviceProps.getProperty("partnerKey")));
+		String input = test.getInput();
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, user, "individualId");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioSubType"),
+				"identityRequest.bioSubType");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioType"),
+				"identityRequest.bioType");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceCode"),
+				"identityRequest.deviceCode");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceProviderID"),
+				"identityRequest.deviceProviderID");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceServiceID"),
+				"identityRequest.deviceServiceID");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceServiceVersion"),
+				"identityRequest.deviceServiceVersion");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceProvider"),
+				"identityRequest.deviceProvider");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceSubType"),
+				"identityRequest.deviceSubType");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("make"),
+				"identityRequest.make");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("model"),
+				"identityRequest.model");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("serialNo"),
+				"identityRequest.serialNo");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"),
+				"identityRequest.type");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, individualIdType,
+				"individualIdType");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
+		test.setInput(input);
+		Reporter.log("<b><u>" + test.getTestCaseName() + "_" + modility + "</u></b>");
+
+		try {
+			bioAuth.test(test);
+		} catch (AuthenticationTestException | AdminTestException e) {
+			throw new RigInternalError(e.getMessage());
+		} finally {
+			AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+
+		}
+	}
+
 	public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList) throws RigInternalError {
 		String url = baseUrl + props.getProperty("getPersonaData");
 		JSONObject jsonReqInner = new JSONObject();

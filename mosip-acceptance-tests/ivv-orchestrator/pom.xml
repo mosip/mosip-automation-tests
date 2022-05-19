@@ -127,6 +127,8 @@
 			<groupId>io.mosip.automationtests</groupId>
 			<artifactId>automationtests</artifactId>
 			<version>1.2.0.1-SNAPSHOT</version>
+			</dependency>
+			<!-- 
 			<exclusions>
             <exclusion>
                 <groupId>javax.ws.rs</groupId>
@@ -138,25 +140,37 @@
             </exclusion>
             
         </exclusions>
+		</dependency>  
+
+<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.9.10.4</version>
 		</dependency>
-	
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.9.5</version>
+		</dependency>
+		-->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.9.10.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.9.5</version>
+		</dependency>
+		
+		
+		
 	<dependency>
 		<groupId>com.slack.api</groupId>
 		<artifactId>slack-api-client</artifactId>
 		<version>1.6.1-RC1</version>
 	</dependency>
     
-<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.10.5</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>2.10.1</version>
-		</dependency>
-		
-	
     </dependencies>
 </project>
