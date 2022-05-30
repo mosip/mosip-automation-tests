@@ -265,7 +265,7 @@ public class PacketSyncService {
     	Path idJsonPath = null;
     	Path docPath = null;
     	preregId = preregId.trim();
-    	if(!preregId.equals("0")) {
+    	if(!preregId.equals("0") && !preregId.equals("01")  ) {
     		String location = preregSyncService.downloadPreregPacket( preregId, contextKey);
     		logger.info("Downloaded the prereg packet in {} ", location);
     		File targetDirectory = Path.of(preregSyncService.getWorkDirectory(), preregId).toFile();
