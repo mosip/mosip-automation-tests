@@ -4,7 +4,7 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 
-public class GenerateAndUploadInvalidHash extends BaseTestCaseUtil implements StepInterface {
+public class UploadPacketWithInvalidHash extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
