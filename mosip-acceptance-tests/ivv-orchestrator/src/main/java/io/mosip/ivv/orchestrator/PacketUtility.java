@@ -454,12 +454,27 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return rid_updateResident;
 
 	}
-
+	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath,
+			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus)
+			throws RigInternalError {
+		String rid=null;
+		String url = baseUrl + "/packet/sync/01"; //01 -- to generate wrong hash
+		return rid=getRID(url, packetPath, residentPath,
+			additionalInfoReqId,  contextKey,  responseStatus);
+	}
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
 			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus)
 			throws RigInternalError {
+		String rid=null;
+		String url = baseUrl + "/packet/sync/0"; // 0 -- to skip prereg
+		return rid=getRID(url, packetPath, residentPath,
+			additionalInfoReqId,  contextKey,  responseStatus);
+	}
+	public String getRID(String url,String packetPath, String residentPath,
+			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus)
+			throws RigInternalError {
 		String rid = null;
-		String url = baseUrl + "/packet/sync/0";
+		
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
 		arr.put(0, packetPath);
@@ -476,7 +491,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
 		return rid;
 	}
-
+	
 	public String createContext(String key, String baseUrl) throws RigInternalError {
 		String url = this.baseUrl + "/servercontext/" + key;
 

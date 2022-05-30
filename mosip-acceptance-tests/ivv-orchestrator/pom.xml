@@ -123,22 +123,11 @@
             <version>3.0.7</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
+          <dependency>
 			<groupId>io.mosip.automationtests</groupId>
 			<artifactId>automationtests</artifactId>
 			<version>1.2.0.1-SNAPSHOT</version>
-			<exclusions>
-            <exclusion>
-                <groupId>javax.ws.rs</groupId>
-                <artifactId>jsr311-api</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>javax.ws.rs</groupId>
-                <artifactId>javax.ws.rs-api</artifactId>
-            </exclusion>
-            
-        </exclusions>
-		</dependency>
+			</dependency>
 	
 	<dependency>
 		<groupId>com.slack.api</groupId>
@@ -146,15 +135,15 @@
 		<version>1.6.1-RC1</version>
 	</dependency>
     
-<dependency>
+	<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.10.5</version>
+			<version>2.9.10.4</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>2.10.1</version>
+			<version>2.9.5</version>
 		</dependency>
 		
 	
