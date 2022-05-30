@@ -532,8 +532,16 @@ public class PacketMakerService {
 
         LinkedList<String> sequence = updateHashSequence1(packetRootFolder);
         LinkedList<String> operations_seq = updateHashSequence2(packetRootFolder);
-        updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME);
-        updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME);
+        if(preregId.equals("01"))  //to generte invalid hash data
+        {
+        	   Files.write(Path.of(packetRootFolder, PACKET_DATA_HASH_FILENAME), "PACKET_DATA_HASH_INVALID_DATA".getBytes());
+        	   Files.write(Path.of(packetRootFolder, PACKET_OPERATION_HASH_FILENAME), "PACKET_OPERATION_HASH_INVALID_DATA".getBytes());
+        }
+        else
+        {
+            updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME);
+            updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME);
+        }
         return true;
     }
 
