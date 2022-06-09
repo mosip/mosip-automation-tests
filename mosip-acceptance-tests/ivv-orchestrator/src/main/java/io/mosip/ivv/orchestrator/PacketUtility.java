@@ -214,7 +214,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "Upload Documents");
 	}
 
-	public void updatePreRegStatus(String prid, String status, HashMap<String, String> contextKey)
+	public void updatePreRegStatusTBD(String prid, String status, HashMap<String, String> contextKey)
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePreRegStatus") + prid + "?statusCode=" + status;
 		Response response = putRequestWithQueryParam(url, contextKey, "UpdatePreRegStatus");
@@ -226,6 +226,35 @@ public class PacketUtility extends BaseTestCaseUtil {
 			logger.info(response.getBody().asString());
 		}
 
+	}
+
+	public String updatePreRegStatus(String prid, String status, HashMap<String, String> contextKey)
+			throws RigInternalError {
+		String url = baseUrl + props.getProperty("updatePreRegStatus") + prid + "?statusCode=" + status;
+		Response response = putRequestWithQueryParam(url, contextKey, "UpdatePreRegStatus");
+		return (response.getBody().asString());
+
+	}
+
+	public void preRegStatusInValidResponse(String response) throws RigInternalError {
+		if (response!="") {
+			
+			throw new RigInternalError("Expectations :  Empty response");
+		} else {
+			Reporter.log(response);
+			logger.info(response);
+		}
+	}
+	
+	
+	public void preRegStatusValidResponse(String response) throws RigInternalError {
+		if (!response.toLowerCase().contains("status_updated_sucessfully")) {
+			Reporter.log("STATUS_NOT_UPDATED_SUCESSFULLY");
+			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
+		} else {
+			Reporter.log(response);
+			logger.info(response);
+		}
 	}
 
 	public void bookAppointment(String prid, int nthSlot, HashMap<String, String> contextKey, boolean bookOnHolidays)
