@@ -40,7 +40,7 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 				if (userAndMachineDetailParam != null)
 				packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/");
 				if (map != null)
-				packetUtility.createContexts(contextKeyValue, map, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/");
+				packetUtility.createContexts("",contextKeyValue, map, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/");
 				
 				
 				

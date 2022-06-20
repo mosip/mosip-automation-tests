@@ -582,6 +582,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("Female", "FLE");
 		jsonReq.put("Other", "OTH");
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
+		jsonReq.put("mosip.test.regclient.supervisorpwd", 
+				(map.get("userpassword") != null) ? map.get("userpassword") : E2EConstants.USER_PASSWD);
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
 		if (mosipVersion != null && !mosipVersion.isEmpty())
@@ -606,7 +608,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String createContexts(String key, HashMap<String, String> map, String mosipVersion,
+	public String createContexts(String negative,String key, HashMap<String, String> map, String mosipVersion,
 			Boolean generatePrivateKey, String status, String baseUrl) throws RigInternalError {
 		String url = this.baseUrl + "/context/server/" + key;
 		String  centerId= "centerId"+map.get("appendedkey");
@@ -622,26 +624,72 @@ public class PacketUtility extends BaseTestCaseUtil {
 		
 		jsonReq.put("regclient.centerid", (map.get(centerId) != null) ? map.get(centerId) : E2EConstants.CENTER_ID);
 		
-		
-		jsonReq.put("mosip.test.regclient.userid",
-				(map.get("userid") != null) ? map.get("userid") : E2EConstants.USER_ID);
-		jsonReq.put("prereg.operatorId", (map.get("userid") != null) ? map.get("userid") : E2EConstants.USER_ID);
-		jsonReq.put("mosip.test.regclient.password",
-				(map.get("userpassword") != null) ? map.get("userpassword") : E2EConstants.USER_PASSWD);
-		jsonReq.put("prereg.password",
-				(map.get("userpassword") != null) ? map.get("userpassword") : E2EConstants.USER_PASSWD);
-		jsonReq.put("mosip.test.regclient.supervisorid",
-				(map.get("userid") != null) ? map.get("userid") : E2EConstants.SUPERVISOR_ID);
 		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
 		jsonReq.put("Male", "MLE");
 		jsonReq.put("Female", "FLE");
 		jsonReq.put("Other", "OTH");
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
+		
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
 		if (mosipVersion != null && !mosipVersion.isEmpty())
+		
 			jsonReq.put("mosip.version", mosipVersion);
 
+		if(!negative.contains("@@")) // This is to null supervisor,operator details
+		{
+			jsonReq.put("mosip.test.regclient.supervisorid",
+					(map.get("userid") != null) ? map.get("userid") : E2EConstants.SUPERVISOR_ID);
+			jsonReq.put("mosip.test.regclient.userid",
+					(map.get("userid") != null) ? map.get("userid") : E2EConstants.USER_ID);
+			
+			jsonReq.put("mosip.test.regclient.password",
+					(map.get("userpassword") != null) ? map.get("userpassword") : E2EConstants.USER_PASSWD);
+			
+			jsonReq.put("prereg.operatorId", (map.get("userid") != null) ? map.get("userid") : E2EConstants.USER_ID);
+			
+			jsonReq.put("prereg.password",
+					(map.get("userpassword") != null) ? map.get("userpassword") : E2EConstants.USER_PASSWD);
+			jsonReq.put("mosip.test.regclient.supervisorpwd", 
+					(map.get("userpassword") != null) ? map.get("userpassword") : E2EConstants.USER_PASSWD);
+		}
+		else if(negative.contains("@@")){ // to verify Invalid sceanrios
+			String supervOpertoDetails[]=negative.split("@@");
+			//For supervisorid
+			if(supervOpertoDetails[0].equalsIgnoreCase("null")) {}
+			else if(supervOpertoDetails[0].equalsIgnoreCase("valid")) 
+				jsonReq.put("mosip.test.regclient.supervisorid", (map.get("userid") != null) ? map.get("userid") : E2EConstants.USER_ID);
+			else if(supervOpertoDetails[0].equalsIgnoreCase("invalid")) 
+				jsonReq.put("mosip.test.regclient.supervisorid", supervOpertoDetails[0]);
+			
+			//For supervisorpwd
+			if(supervOpertoDetails[1].equalsIgnoreCase("null")) //Don't add to the map
+				{}
+			else if(supervOpertoDetails[1].equalsIgnoreCase("valid"))	
+				jsonReq.put("mosip.test.regclient.supervisorpwd",	(map.get("userpassword") != null) ? map.get("userpassword") : E2EConstants.USER_PASSWD);
+			else if(supervOpertoDetails[1].equalsIgnoreCase("invalid"))	
+				jsonReq.put("mosip.test.regclient.supervisorpwd", supervOpertoDetails[1]);
+			
+			
+			//For operatorid
+			if(supervOpertoDetails[2].equalsIgnoreCase("null")) //Don't add to the map
+			{}
+			else if(supervOpertoDetails[2].equalsIgnoreCase("valid")) 
+				jsonReq.put("mosip.test.regclient.userid", (map.get("userid") != null) ? map.get("userid") : E2EConstants.USER_ID);
+			else if(supervOpertoDetails[2].equalsIgnoreCase("invalid")) 
+				jsonReq.put("mosip.test.regclient.userid", supervOpertoDetails[2]);
+			
+			//For operatorpwd
+			if(supervOpertoDetails[3].equalsIgnoreCase("null")) //Don't add to the map
+			{}
+			else if(supervOpertoDetails[3].equalsIgnoreCase("valid"))	
+				jsonReq.put("mosip.test.regclient.password",	(map.get("userpassword") != null) ? map.get("userpassword") : E2EConstants.USER_PASSWD);
+			else if(supervOpertoDetails[3].equalsIgnoreCase("invalid"))	
+				jsonReq.put("mosip.test.regclient.password", supervOpertoDetails[3]);
+		
+		
+		}
+		
 		Response response = postReqest(url, jsonReq.toString(), "SetContext");
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
