@@ -6,7 +6,9 @@ import java.io.FileWriter;
 import java.io.FileOutputStream;
 import java.util.*;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.UUID;
 import java.security.KeyPairGenerator;
@@ -52,16 +54,27 @@ public class ContextUtils {
 	    public Boolean  createUpdateServerContext(Properties props, String ctxName) {
 	    	
 	    	Boolean bRet = true;
-	    	
-	    	
-	    	String filePath =  personaConfigPath + "/server.context."+  ctxName + ".properties";
-	    	
+	    	  	String filePath =  personaConfigPath + "/server.context."+  ctxName + ".properties";
+	    	  	
+	    	  
 	    	Properties p=new Properties();
 	    	Properties mergedProperties = new Properties();
 	    	try {
 	    		FileReader reader=new FileReader(filePath);  
-	    		p.load(reader);
 	    		
+	    			try {
+	    				if (props.getProperty("generatePrivateKey").equals("true")) {	// empty context file if true else use older context data
+	    					p.load(reader);
+	    					p.clear();
+	    				}
+	    				else
+	    				{
+	    					p.load(reader);
+	    				}
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}  
 	    		reader.close();
 	    		
 	    	}catch (IOException e) {
