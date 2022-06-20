@@ -22,10 +22,12 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 	public void run() throws RigInternalError {
 		constantIntializer();
 		String contextKeyValue = "dev_context";
+	
 		String userAndMachineDetailParam = null;
 		String mosipVersion = null;
 		boolean generatePrivateKey = Boolean.FALSE;
 		String status = null;
+		String negative="valid";
 		HashMap<String, String> map = new HashMap<String, String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("SetContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
@@ -40,6 +42,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 				if (!(value.equalsIgnoreCase("-1")) && value.contains("@@"))
 					userAndMachineDetailParam = value;
 				else if (value.startsWith("$$")) {
+					
 					map = step.getScenario().getVariables();
 				}
 			}
@@ -53,12 +56,14 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 
 			if (step.getParameters().size() > 4) // deactivate
 				status = step.getParameters().get(4);
+			if (step.getParameters().size() > 5) //  for negative operator and supervisor 
+				negative = step.getParameters().get(5);
 		}
 		if (userAndMachineDetailParam != null)
 			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion, generatePrivateKey,
 					status, BaseTestCase.ApplnURI + "/");
 		else if(map != null)
-			packetUtility.createContexts(contextKeyValue, map, mosipVersion, generatePrivateKey, status,
+			packetUtility.createContexts(negative,contextKeyValue, map, mosipVersion, generatePrivateKey, status,
 					BaseTestCase.ApplnURI + "/");
 	}
 }
