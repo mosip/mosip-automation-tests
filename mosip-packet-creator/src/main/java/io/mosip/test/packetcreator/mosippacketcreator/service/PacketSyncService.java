@@ -730,8 +730,9 @@ public class PacketSyncService {
     		ResidentModel resident = ResidentModel.readPersona(path);
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
     		
+    		Properties props = contextUtils.loadServerContext(contextKey);
+    		packetTemplateProvider.generate("registration_client", process, resident, packetPath,preregId,machineId, centerId,contextKey,props);
     		
-    		packetTemplateProvider.generate("registration_client", process, resident, packetPath,preregId,machineId, centerId,contextKey);
     		JSONObject obj = new JSONObject();
     		obj.put("id",resident.getId());
     		obj.put("path", packetPath);
@@ -774,9 +775,9 @@ public class PacketSyncService {
     	for(String path: personaFilePaths) {
     		ResidentModel resident = ResidentModel.readPersona(path);
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
+    		Properties props = contextUtils.loadServerContext(contextKey);
     		
-    		
-    		packetTemplateProvider.generate("registration_client", process, resident, packetPath , preregId, machineId, centerId,contextKey);
+    		packetTemplateProvider.generate("registration_client", process, resident, packetPath , preregId, machineId, centerId,contextKey,props);
     		JSONObject obj = new JSONObject();
     		obj.put("id",resident.getId());
     		obj.put("path", packetPath);

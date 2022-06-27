@@ -74,7 +74,7 @@ public class PacketTemplateProvider {
 
 	// generate un encrypted template
 	public void generate(String source, String process, ResidentModel resident, String packetFilePath, String preregId,
-			String machineId, String centerId,String contextKey) throws IOException {
+			String machineId, String centerId,String contextKey,Properties props) throws IOException {
 
 		String rootFolder = packetFilePath;
 		String ridFolder = "";
@@ -118,7 +118,7 @@ public class PacketTemplateProvider {
 			Files.createDirectory(path);
 		}
 		//String idJson = generateIDJson(resident, fileInfo);
-		String idJson = generateIDJsonV2(resident, fileInfo,contextKey);
+		String idJson = generateIDJsonV2(resident, fileInfo,contextKey,props);
 		JSONObject processMVEL = processMVEL(resident, idJson, schema, process);
 		idJson = processMVEL.toString();
 		Files.write(Paths.get(ridFolder + "/ID.json"), idJson.getBytes());
@@ -1264,7 +1264,7 @@ public class PacketTemplateProvider {
 	}
 	
 	
-	String generateIDJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey) {
+	String generateIDJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,Properties props) {
 
 		String idjson = "";
 
@@ -1405,7 +1405,17 @@ public class PacketTemplateProvider {
 							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
 						}
 						generateCBEFF(resident, bioAttrib, outFile);
-
+						/*
+						 * Adding to set cbeff filefor officer and supervisor
+						 */
+						if(props.containsKey("mosip.test.regclient.officerBiometricFileName")) {
+							generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] + "/"+props.get("mosip.test.regclient.officerBiometricFileName")+".xml");
+						}
+							if(props.containsKey("mosip.test.regclient.supervisorBiometricFileName")) {
+						generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] +"/"+props.get("mosip.test.regclient.supervisorBiometricFileName")+".xml");
+							}
+						
+						
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -1734,7 +1744,7 @@ public class PacketTemplateProvider {
 		List<ResidentModel> residents = provider.generate();
 		try {
 			new PacketTemplateProvider().generate("registration_client", "new", residents.get(0), "/temp//newpacket",
-					null, null, null,null);
+					null, null, null,null,null);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
