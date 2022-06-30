@@ -2,8 +2,6 @@ package io.mosip.ivv.orchestrator;
 
 import static io.restassured.RestAssured.given;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -483,19 +481,23 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath, String additionalInfoReqId,
-			HashMap<String, String> contextKey, String responseStatus) throws RigInternalError {
-		String rid = null;
-		String url = baseUrl + "/packet/sync/01"; // 01 -- to generate wrong hash
-		return rid = getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus);
+	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath,
+			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus)
+			throws RigInternalError {
+		
+		String url = baseUrl + "/packet/sync/01"; //01 -- to generate wrong hash
+		return getRID(url, packetPath, residentPath,
+			additionalInfoReqId,  contextKey,  responseStatus);
 	}
 
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
 			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus)
 			throws RigInternalError {
-		String rid = null;
+
 		String url = baseUrl + "/packet/sync/0"; // 0 -- to skip prereg
-		return rid = getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus);
+		return getRID(url, packetPath, residentPath,
+			additionalInfoReqId,  contextKey,  responseStatus);
+
 	}
 
 	public String getRID(String url, String packetPath, String residentPath, String additionalInfoReqId,
@@ -545,7 +547,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,
 			Boolean generatePrivateKey, String status, String baseUrl) throws RigInternalError {
-		// String url = this.baseUrl + "/servercontext/" + key;
 		String url = this.baseUrl + "/context/server/" + key;
 		Map<String, String> map = new HashMap<String, String>();
 		if (userAndMachineDetailParam != null && !userAndMachineDetailParam.isEmpty()) {
@@ -559,7 +560,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		}
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
-		JSONObject jsonReq = new JSONObject();
+		JSONObject jsonReq = new JSONObject();		
+		jsonReq.put("scenario", scenario);
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
 		jsonReq.put("mosip.test.regclient.machineid",
@@ -582,23 +584,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
 		jsonReq.put("mosip.test.regclient.supervisorpwd",
 				(map.get("userpassword") != null) ? map.get("userpassword") : E2EConstants.USER_PASSWD);
-		if (status != null && !status.isBlank())
+		if (status != null && !status.isBlank()) {
 			jsonReq.put("machineStatus", status);
-		if (mosipVersion != null && !mosipVersion.isEmpty())
+		}
+		if (mosipVersion != null && !mosipVersion.isEmpty()) {
 			jsonReq.put("mosip.version", mosipVersion);
-
-		/*
-		 * if (generatePrivateKey) { String machineId=map.get("machineid"); String
-		 * generateKeyUrl=this.baseUrl+"/generatekey/"+machineId; Response getResponse
-		 * =getRequest(generateKeyUrl,"Generate publicKey"); String
-		 * publicKey=getResponse.getBody().asString(); //update MachineId against public
-		 * key HashMap<String,String> contextInuse= new HashMap<String,String>();
-		 * contextInuse.put("contextKey", key); String
-		 * machineUrl=this.baseUrl+"/updateMachine"; JSONObject
-		 * jsonMachine=createPayload(publicKey,machineId);
-		 * putRequestWithQueryParamAndBody(machineUrl,
-		 * jsonMachine.toString(),contextInuse, "updateMachine"); }
-		 */
+		}
 		Response response = postReqest(url, jsonReq.toString(), "SetContext");
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
@@ -613,6 +604,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
 		JSONObject jsonReq = new JSONObject();
+		jsonReq.put("scenario", scenario);
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
 		jsonReq.put("mosip.test.regclient.machineid",
@@ -712,6 +704,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
+	@SuppressWarnings("unused")
 	private JSONObject createPayload(String publicKey, String machineId) {
 		JSONObject jsonMachine = new JSONObject();
 		jsonMachine.put("id", machineId);
