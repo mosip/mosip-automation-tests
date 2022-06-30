@@ -24,13 +24,16 @@ public class ContextController {
     ContextUtils contextUtils;
 	@Value("${mosip.test.persona.configpath}")
     private String personaConfigPath;
-	private static final Logger logger = LoggerFactory.getLogger(TestDataController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContextController.class);
 	 
 	  @PostMapping(value = "/context/server/{contextKey}")
 	    public @ResponseBody String createServerContext(
 	    		@RequestBody Properties contextProperties,
 	    		@PathVariable("contextKey") String contextKey) {
-	    	Boolean bRet = false;
+		 
+		  logger.info("--------------------Scenario : " + contextProperties.getProperty("scenario") + "---------------------------------------");
+	    	
+		  Boolean bRet = false;
 	    	try{
 	    		if (personaConfigPath != null && !personaConfigPath.equals(""))
                     DataProviderConstants.RESOURCE = personaConfigPath;
