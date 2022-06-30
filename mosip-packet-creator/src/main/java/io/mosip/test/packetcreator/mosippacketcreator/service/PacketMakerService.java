@@ -82,7 +82,12 @@ public class PacketMakerService {
 	@Value("${mosip.test.regclient.password}")
 	private String officerPwd;
 
-	
+	@Value("${mosip.test.regclient.supervisorBiometricFileName}")
+	private String supervisorBiometricFileName;
+
+	@Value("${mosip.test.regclient.officerBiometricFileName}")
+	private String officerBiometricFileName;
+
 	@Autowired
 	private CryptoUtil cryptoUtil;
 
@@ -550,7 +555,9 @@ public class PacketMakerService {
 //        if(officerId.equals("null"))officerId=null;
 //        else if(officerId.equals("invalid"))officerId="invalid";
 //        else officerId="true";
-        updatePacketMetaInfo(packetRootFolder, "operationsData", "officerId", officerId, false);
+	    	
+	    updatePacketMetaInfo(packetRootFolder, "operationsData", "officerId", officerId, false);
+	    			
         
 	    			supervisorId=p.getProperty("mosip.test.regclient.supervisorid");
 //        if(supervisorId.equals("null"))supervisorId=null;
@@ -558,19 +565,32 @@ public class PacketMakerService {
 //        else supervisorId="true";
         updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorId", supervisorId, false);
         
+        //officerPwd
         officerPwd=p.getProperty("mosip.test.regclient.password");
         if(officerPwd != null && officerPwd.equals("invalid"))officerPwd="false"; //invalid
         else if(officerPwd != null && !officerPwd.equals(""))officerPwd="true";  //valid
         else officerPwd="false";  //null
         updatePacketMetaInfo(packetRootFolder,  "operationsData","officerPassword",  officerPwd, false);
         
+        //supervisorPwd
         supervisorPwd=p.getProperty("mosip.test.regclient.supervisorpwd");
         if(supervisorPwd != null && supervisorPwd.equals("invalid"))supervisorPwd="false"; //invalid
         else if(supervisorPwd != null && !supervisorPwd.equals(""))supervisorPwd="true";  //valid
         else supervisorPwd="false";  //null
         updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorPassword",  supervisorPwd, false);
 
-      
+        //officerBiometricFileName
+        officerBiometricFileName=p.getProperty("mosip.test.regclient.officerBiometricFileName");
+        if(officerBiometricFileName != null && officerBiometricFileName.length()>1)officerBiometricFileName=officerBiometricFileName+".xml"; 
+        else officerBiometricFileName=null;
+        updatePacketMetaInfo(packetRootFolder, "operationsData", "officerBiometricFileName",  officerBiometricFileName, false);
+
+        //supervisorBiometricFileName
+        supervisorBiometricFileName=p.getProperty("mosip.test.regclient.supervisorBiometricFileName");
+        if(supervisorBiometricFileName != null  && supervisorBiometricFileName.length()>1)supervisorBiometricFileName=supervisorBiometricFileName+".xml"; 
+        else supervisorBiometricFileName=null;
+        updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorBiometricFileName",  supervisorBiometricFileName, false);
+
         
 		updateAudit(packetRootFolder, regId);
 
