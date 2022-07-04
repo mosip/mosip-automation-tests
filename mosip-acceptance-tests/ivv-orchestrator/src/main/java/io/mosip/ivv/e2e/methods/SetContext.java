@@ -2,17 +2,12 @@ package io.mosip.ivv.e2e.methods;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import io.mosip.admin.fw.util.AdminTestUtil;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.PacketUtility;
-import io.mosip.ivv.orchestrator.TestRunner;
 import io.mosip.service.BaseTestCase;
 
 public class SetContext extends BaseTestCaseUtil implements StepInterface {
@@ -28,12 +23,13 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		boolean generatePrivateKey = Boolean.FALSE;
 		String status = null;
 		String negative="valid";
+		scenario = step.getScenario().getId() + ":" + step.getScenario().getDescription();
 		HashMap<String, String> map = new HashMap<String, String>();
 		HashMap<String, String> dummyholder = new HashMap<String, String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("SetContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else {
-			contextKeyValue = step.getParameters().get(0);
+			contextKeyValue = step.getParameters().get(0); 
 			// contextKey.put("contextKey",contextKeyValue );
 			contextKey.put(contextKeyValue, "true");
 			contextInuse.clear();
