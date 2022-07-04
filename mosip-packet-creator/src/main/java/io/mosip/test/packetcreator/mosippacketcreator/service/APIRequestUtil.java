@@ -114,7 +114,7 @@ public class APIRequestUtil {
     }
     public JSONObject get(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam) throws Exception {
     	this.baseUrl = baseUrl;
-    	
+    	System.out.println(url);
     	if (!isValidToken()){
             initToken();
         }
@@ -142,7 +142,36 @@ public class APIRequestUtil {
 
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
+    public JSONObject getJsonObject(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam) throws Exception {
+    	this.baseUrl = baseUrl;
+    	System.out.println(url);
+    	if (!isValidToken()){
+            initToken();
+        }
+    	boolean bDone = false;
+    	int nLoop  = 0;
+    	Response response =null;
 
+    	while(!bDone) {
+
+    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+    		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(requestParams.toMap()).get(url,pathParam.toMap());
+    		if(response.getStatusCode() == 401) {
+    			if(nLoop >= 1)
+    				bDone = true;
+    			else {
+    				initToken();
+    				nLoop++;
+    			}
+    		}
+    		else
+    			bDone = true;
+    	}
+
+        checkErrorResponse(response.getBody().asString());
+
+        return new JSONObject(response.getBody().asString());
+    }
     public JSONObject getPreReg(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam) throws Exception {
     	this.baseUrl = baseUrl;
     	
@@ -512,10 +541,12 @@ public class APIRequestUtil {
 	private void checkErrorResponse(String response) throws Exception {
         //TODO: Handle 401 or token expiry
         JSONObject jsonObject =  new JSONObject(response);
+        if(jsonObject.get(errorKey) != JSONObject.NULL) {
+        JSONArray arr=(JSONArray) jsonObject.get(errorKey);
 
-        if(jsonObject.has(errorKey) && jsonObject.get(errorKey) != JSONObject.NULL) {
+        if(jsonObject.has(errorKey)  && !arr.isEmpty()) {
             throw new Exception(String.valueOf(jsonObject.get(errorKey)));
-        }
+        }}
     }
     
 }
