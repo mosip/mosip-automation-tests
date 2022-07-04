@@ -629,6 +629,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("Other", "OTH");
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
 
+		jsonReq.put("validUIN", (map.get("$$uin")!=null) ? map.get("$$uin") : "create new");
+
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
 		if (mosipVersion != null && !mosipVersion.isEmpty())
