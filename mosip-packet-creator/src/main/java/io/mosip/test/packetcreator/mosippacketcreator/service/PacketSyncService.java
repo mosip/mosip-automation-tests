@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,9 +15,11 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
@@ -62,6 +65,8 @@ import io.mosip.test.packetcreator.mosippacketcreator.dto.BioExceptionDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.MockABISExpectationsDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestType;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.RidSyncReqResponseDTO;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.RidSyncRequestData;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.UpdatePersonaDto;
 import variables.VariableManager;
 
@@ -134,6 +139,19 @@ public class PacketSyncService {
 	private String mapperFilePath;
 	 
 
+	 void loadContext(String context) {
+	    	Properties props = contextUtils.loadServerContext(context);
+	    	props.forEach( (k,v) ->{
+	    		
+	    		if(k.equals("mosip.test.regclient.centerid"))
+	    			centerId = v.toString();
+	    		else
+	        	if(k.equals("mosip.test.regclient.machineid"))
+	        		machineId = v.toString();        			
+	    	});
+	    	
+	    }
+	 
     void loadServerContextProperties(String contextKey) {
     	
     	if(contextKey != null && !contextKey.equals("")) {
@@ -369,8 +387,29 @@ public class PacketSyncService {
     public String syncPacketRid(String containerFile, String name,
                                 String supervisorStatus, String supervisorComment, String proc,String contextKey, String additionalInfoReqId) throws Exception {
         
-    	if(contextKey != null && !contextKey.equals("")) {
+    	RidSyncRequestData ridSyncRequestData = prepareRidSyncRequest(containerFile, name, supervisorStatus, supervisorComment, proc, contextKey, additionalInfoReqId);
+        JSONArray response = apiRequestUtil.syncRid(baseUrl,baseUrl+syncapi, ridSyncRequestData.getRequestBody(), APIRequestUtil.getUTCDateTime(ridSyncRequestData.getTimestamp()),contextKey);
+
+        return response.toString();
+    };
     
+    public RidSyncReqResponseDTO syncPacketRidRequest(String containerFile, String name, String supervisorStatus, String supervisorComment,
+			String proc, String contextKey, String additionalInfoReqId) throws Exception {
+
+    	RidSyncRequestData ridSyncRequestData = prepareRidSyncRequest(containerFile, name, supervisorStatus, supervisorComment, proc, contextKey, additionalInfoReqId);
+		loadContext(contextKey);
+		Map<String,String> headers = new HashMap<>();
+		headers.put("timestamp",APIRequestUtil.getUTCDateTime(ridSyncRequestData.getTimestamp()));
+		headers.put("Center-Machine-RefId", centerId + UNDERSCORE + machineId);
+		 
+		return new RidSyncReqResponseDTO(headers, ridSyncRequestData.getRequestBody());
+		
+	}
+    
+    private RidSyncRequestData prepareRidSyncRequest(String containerFile, String name,
+            String supervisorStatus, String supervisorComment, String proc,String contextKey, String additionalInfoReqId) throws Exception, Exception {
+    	if(contextKey != null && !contextKey.equals("")) {
+    	    
     		Properties props = contextUtils.loadServerContext(contextKey);
     		props.forEach((k,v)->{
     			if(k.toString().equals("mosip.test.packet.syncapi")) {
@@ -456,11 +495,10 @@ public class PacketSyncService {
         String requestBody = Base64.encodeBase64URLSafeString(
                 cryptoUtil.encrypt(wrapper.toString().getBytes("UTF-8"),
                 centerId + UNDERSCORE + machineId, timestamp, contextKey) );
-
-        JSONArray response = apiRequestUtil.syncRid(baseUrl,baseUrl+syncapi, requestBody, APIRequestUtil.getUTCDateTime(timestamp),contextKey);
-
-        return response.toString();
+        return new RidSyncRequestData(requestBody,timestamp);
     }
+    
+    
     
     public String uploadPacket(String path, String contextKey) throws Exception {
     	
@@ -483,6 +521,10 @@ public class PacketSyncService {
         JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl+uploadapi, path, contextKey);
         return response.toString();
     }
+    
+    
+    
+    
 
     public String preRegisterResident(List<String> personaFilePath, String contextKey) throws IOException {
     	StringBuilder builder = new StringBuilder();

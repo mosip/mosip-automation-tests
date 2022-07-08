@@ -3,25 +3,36 @@ package io.mosip.test.packetcreator.mosippacketcreator.controller;
 import java.util.Base64;
 import java.util.Properties;
 
-import io.mosip.test.packetcreator.mosippacketcreator.dto.PacketCreateDto;
-import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
-import io.mosip.test.packetcreator.mosippacketcreator.dto.PreRegisterRequestDto;
-
-
-import io.mosip.test.packetcreator.mosippacketcreator.dto.SyncRidDto;
-import io.mosip.test.packetcreator.mosippacketcreator.service.*;
-import variables.VariableManager;
-
 import org.jobrunr.scheduling.JobScheduler;
 import org.jobrunr.scheduling.cron.Cron;
-import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.web.bind.annotation.*;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.PacketCreateDto;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.PreRegisterRequestDto;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.RidSyncReqRequestDto;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.RidSyncReqResponseDTO;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.SyncRidDto;
+import io.mosip.test.packetcreator.mosippacketcreator.service.APIRequestUtil;
+import io.mosip.test.packetcreator.mosippacketcreator.service.CommandsService;
+import io.mosip.test.packetcreator.mosippacketcreator.service.ContextUtils;
+import io.mosip.test.packetcreator.mosippacketcreator.service.CryptoUtil;
+import io.mosip.test.packetcreator.mosippacketcreator.service.PacketJobService;
+import io.mosip.test.packetcreator.mosippacketcreator.service.PacketMakerService;
+import io.mosip.test.packetcreator.mosippacketcreator.service.PacketSyncService;
+import io.mosip.test.packetcreator.mosippacketcreator.service.PreregSyncService;
+import variables.VariableManager;
 
 @RestController
 public class TestDataController {
@@ -147,6 +158,15 @@ public class TestDataController {
         return packetSyncService.syncPacketRid(syncRidDto.getContainerPath(), syncRidDto.getName(),
                 syncRidDto.getSupervisorStatus(), syncRidDto.getSupervisorComment(), syncRidDto.getProcess(), contextKey,syncRidDto.getAdditionalInfoReqId());
     }
+    
+    @PostMapping(value = "/ridsyncreq")
+    public @ResponseBody RidSyncReqResponseDTO syncRidRequest(@RequestBody RidSyncReqRequestDto syncRidDto,
+    		@RequestParam(name="contextKey",required = false) String contextKey) throws Exception {
+    	
+        return packetSyncService.syncPacketRidRequest(syncRidDto.getContainerPath(), syncRidDto.getName(),
+                syncRidDto.getSupervisorStatus(), syncRidDto.getSupervisorComment(), syncRidDto.getProcess(), contextKey,syncRidDto.getAdditionalInfoReqId());
+    }
+
 
     @PostMapping(value = "/packetsync")
     public @ResponseBody String packetsync(@RequestBody PreRegisterRequestDto path, 
