@@ -22,11 +22,12 @@ public class CancelAppointment extends BaseTestCaseUtil implements StepInterface
 			assertTrue(false,"Paramter is  missing in step: "+step.getName());
 		} else {
 			cancelStatus =step.getParameters().get(0);
+			String prid1 = step.getParameters().get(1);
+			if (prid1.startsWith("$$")) {
+				prid1 = step.getScenario().getVariables().get(prid1);
 		}
-		for (String resDataPath : residentPathsPrid.keySet()) {
-			String prid = residentPathsPrid.get(resDataPath);
-			if (!StringUtils.isEmpty(prid))
-				cancelAppointment(prid,cancelStatus);
+			if(prid1!=null)
+				cancelAppointment(prid1,cancelStatus);
 			else
 				throw new RigInternalError("PRID cannot be null or empty");
 		}
@@ -45,7 +46,10 @@ public class CancelAppointment extends BaseTestCaseUtil implements StepInterface
 		default:
 			logger.error("Parameter not supported");
 		}
-		String url = BaseTestCase.ApplnURI + props.getProperty("cancelAppointment") + prid;
+		//String url = BaseTestCase.ApplnURI + props.getProperty("cancelAppointment") + prid;
+		String url = baseUrl+ props.getProperty("cancelAppointment") + prid;
+		
+		
 		Response response = putReqest(url, "CancelAppointment");
 		if (!response.getBody().asString().toLowerCase()
 				.contains(message))

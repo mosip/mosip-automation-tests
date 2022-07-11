@@ -6,9 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -40,7 +42,12 @@ import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.Translator;
 
+import com.google.gson.JsonObject;
+
 import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import variables.VariableManager;
 
 /*
@@ -74,7 +81,7 @@ public class PacketTemplateProvider {
 
 	// generate un encrypted template
 	public void generate(String source, String process, ResidentModel resident, String packetFilePath, String preregId,
-			String machineId, String centerId,String contextKey,Properties props) throws IOException {
+			String machineId, String centerId,String contextKey,Properties props,JSONObject preregResponse) throws IOException {
 
 		String rootFolder = packetFilePath;
 		String ridFolder = "";
@@ -118,7 +125,8 @@ public class PacketTemplateProvider {
 			Files.createDirectory(path);
 		}
 		//String idJson = generateIDJson(resident, fileInfo);
-		String idJson = generateIDJsonV2(resident, fileInfo,contextKey,props);
+		
+		String idJson = generateIDJsonV2(resident, fileInfo,contextKey,props,preregResponse);
 		JSONObject processMVEL = processMVEL(resident, idJson, schema, process);
 		idJson = processMVEL.toString();
 		Files.write(Paths.get(ridFolder + "/ID.json"), idJson.getBytes());
@@ -1264,7 +1272,7 @@ public class PacketTemplateProvider {
 	}
 	
 	
-	String generateIDJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,Properties props) {
+	String generateIDJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,Properties props,JSONObject preregResponse) {
 
 		String idjson = "";
 
@@ -1409,6 +1417,22 @@ public class PacketTemplateProvider {
 						 * Adding to set cbeff filefor officer and supervisor
 						 */
 						if(props.containsKey("mosip.test.regclient.officerBiometricFileName")) {
+//							Response response = RestAssured.given()
+//					                .contentType(ContentType.JSON)
+//					                .when()
+//					                .get("https://api-internal.qa4.mosip.net/idrepository/v1/identity/idvid/8130420350?type=bio")
+//					                .then()
+//					                .extract().response();
+//							
+					        System.out.println(preregResponse.toString());
+					        System.out.println();
+					        JSONArray getArray=preregResponse.getJSONObject("response").getJSONArray("documents");
+					        JSONObject objects = getArray.getJSONObject(0);
+					        String value = (String) objects.get("value");
+					      //  byte[] decoded = Base64.getDecoder().decode(value);
+					        byte[] decoded =Base64.getUrlDecoder().decode(value);
+					        String decodedcbeff = new String(decoded, StandardCharsets.UTF_8);
+					        resident.getBiometric().setCbeff(decodedcbeff);
 							generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] + "/"+props.get("mosip.test.regclient.officerBiometricFileName")+".xml");
 						}
 							if(props.containsKey("mosip.test.regclient.supervisorBiometricFileName")) {
@@ -1744,7 +1768,7 @@ public class PacketTemplateProvider {
 		List<ResidentModel> residents = provider.generate();
 		try {
 			new PacketTemplateProvider().generate("registration_client", "new", residents.get(0), "/temp//newpacket",
-					null, null, null,null,null);
+					null, null, null,null,null,null);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

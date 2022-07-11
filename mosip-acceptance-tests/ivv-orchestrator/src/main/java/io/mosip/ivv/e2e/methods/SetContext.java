@@ -25,6 +25,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String negative="valid";
 		scenario = step.getScenario().getId() + ":" + step.getScenario().getDescription();
 		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> dummyholder = new HashMap<String, String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("SetContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else {
@@ -54,7 +55,10 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 				status = step.getParameters().get(4);
 			if (step.getParameters().size() > 5) //  for negative operator and supervisor 
 				negative = step.getParameters().get(5);
+			
 		}
+		
+		
 		if (userAndMachineDetailParam != null)
 			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion, generatePrivateKey,
 					status, BaseTestCase.ApplnURI + "/");
