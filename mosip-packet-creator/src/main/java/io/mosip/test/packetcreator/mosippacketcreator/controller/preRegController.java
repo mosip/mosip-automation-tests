@@ -2,6 +2,8 @@ package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 
 
+import java.util.HashMap;
+
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -275,6 +277,9 @@ public class preRegController {
     	return packetSyncService.deleteApplication(preregId, contextKey);
     	
     }
+	
+	
+	
 	
 	@ApiOperation(value = "Update applications status for a given pre-registration-Id", response = String.class)
 	@PutMapping(value = "/application/status/{preregid}")

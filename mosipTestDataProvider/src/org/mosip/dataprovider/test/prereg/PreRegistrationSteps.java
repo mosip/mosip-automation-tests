@@ -1,7 +1,7 @@
 package org.mosip.dataprovider.test.prereg;
 
 import java.time.LocalDateTime;
-
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -193,7 +193,53 @@ public class PreRegistrationSteps {
 		}
 		return response;
 	}
+
+	public static String discardBooking(HashMap<String, String> map) {
 		
+	String response = "";
+		String url = VariableManager.getVariableValue("urlBase").toString().trim()+
+		VariableManager.getVariableValue( "postappointment").toString().trim();
+		url = url + "?preRegistrationId=" + map.get("preRegistrationId");
+		try {
+			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject());
+			//JSONObject resp = RestClient.deleteNoAuthWithQueryParam(url, new JSONObject().put("map", map));
+			response = resp.toString();
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			response = e.getMessage();
+		}
+		
+		return response;
+	}
+	
+	public static String updatePreRegAppointment(String prid) {
+		
+		String response = "";
+			String url = VariableManager.getVariableValue("urlBase").toString().trim()+
+			VariableManager.getVariableValue( "postappointment").toString().trim();
+		url = url + "/" + prid;
+			try {
+				JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject());
+				//JSONObject resp = RestClient.deleteNoAuthWithQueryParam(url, new JSONObject().put("map", map));
+				response = resp.toString();
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+				response = e.getMessage();
+			}
+			
+			return response;
+		}
+		
+		
+		
+		
+	
+	
+	
+	
+	
 	public static String bookAppointment(String preRegId, String appointmentDate, int centerId, AppointmentTimeSlotModel slot) throws JSONException {
 
 		String result ="";

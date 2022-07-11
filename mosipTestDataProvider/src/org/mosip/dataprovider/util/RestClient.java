@@ -398,8 +398,34 @@ public class RestClient {
 	    System.out.println("Request:"+ jsonRequest.toString());
 	    Cookie kukki = new Cookie.Builder("Authorization", token).build();
         
-	    response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
+	   response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
+	    
+	    String cookie = response.getHeader("Set-Cookie");
+    	/*if(cookie == null) {
+    		cookie = response.getHeader("Cookies");
+    	}*/
+    	if(cookie != null) {
+    		token = cookie.split("=")[1];
+    		tokens.put(role,token);
+    	}
+    	System.out.println(token);
+        System.out.println("Response:"+response.getBody().asString());
+        checkErrorResponse(response.getBody().asString());
 
+        return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+    }
+
+	public static JSONObject deleteNoAuthWithQueryParam(String url, JSONObject jsonRequest) throws Exception {
+
+		String role = "resident";
+		String token = tokens.get(role);
+		Response response =null;
+
+	    System.out.println("Request:"+ jsonRequest.toString());
+	    Cookie kukki = new Cookie.Builder("Authorization", token).build();
+        
+	    response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(jsonRequest.toMap()).delete(url);
+	    
 	    String cookie = response.getHeader("Set-Cookie");
     	/*if(cookie == null) {
     		cookie = response.getHeader("Cookies");
@@ -537,7 +563,7 @@ public class RestClient {
     }
 	
 	public static JSONObject putPreRegStatus(String url, JSONObject jsonRequest) throws Exception {
-		String role = "system";
+		String role = "resident";// //system
 		if (!isValidToken(role)){
            initToken();
         }
