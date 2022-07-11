@@ -14,6 +14,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -51,6 +52,7 @@ import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
+import org.mosip.dataprovider.util.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -682,12 +684,19 @@ public class PacketSyncService {
     	loadServerContextProperties(contextKey);
     	return PreRegistrationSteps.deleteApplication(preregId); 	
     }
-    public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
     
-    	String response = "";
+    public String discardBooking(
+    		HashMap<String, String> map) {
+    	
+    	return PreRegistrationSteps.discardBooking(map); 	
+    }
+    
+    
+    public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
+        
+String response = "";
     	
     	loadServerContextProperties(contextKey);
-    	
     	ResidentModel resident = ResidentModel.readPersona(personaFilePath);
     	 
     	//System.out.println("uploadProof " + docCategory);
@@ -1415,6 +1424,12 @@ public class PacketSyncService {
 		String status=MosipDataSetup.updatePreRegStatus(preregId,statusCode);
 		return status;
 	}
-   
+
+	public String updatePreRegAppointment(String preregId) {
+		String status=PreRegistrationSteps.updatePreRegAppointment(preregId);
+		return status;
+	}
+
+
  
 }
