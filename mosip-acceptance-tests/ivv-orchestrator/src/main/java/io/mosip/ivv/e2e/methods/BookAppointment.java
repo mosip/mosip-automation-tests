@@ -14,22 +14,25 @@ public class BookAppointment extends BaseTestCaseUtil implements StepInterface {
 		Boolean isForChildPacket = false;
 		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) {
 			bookOnHolidays = Boolean.parseBoolean(step.getParameters().get(0));
+			
 			for (String resDataPath : residentPathsPrid.keySet()) {
 				packetUtility.bookAppointment(residentPathsPrid.get(resDataPath), 1, contextInuse, bookOnHolidays);
 			}
-		}else if(!step.getParameters().isEmpty() && step.getParameters().size() == 2) {  //"$$var=e2e_bookAppointment(false,$$prid)"
+		}else if(!step.getParameters().isEmpty() && step.getParameters().size() >= 2) {  //"$$var=e2e_bookAppointment(false,$$prid)"
 			bookOnHolidays = Boolean.parseBoolean(step.getParameters().get(0));
 			String prid = step.getParameters().get(1);
+			int slotNumber= Integer.parseInt(step.getParameters().get(2));
 			if (prid.startsWith("$$")) {
 				prid = step.getScenario().getVariables().get(prid);
-				packetUtility.bookAppointment(prid, 1, contextInuse, bookOnHolidays);
+				packetUtility.bookAppointment(prid, slotNumber, contextInuse, bookOnHolidays);
 			}
 		}
 		else if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { // used for child packet processing
 			bookOnHolidays = Boolean.parseBoolean(step.getParameters().get(0));
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(1));
+			int slotNumber= Integer.parseInt(step.getParameters().get(2));
 			if (isForChildPacket && prid_updateResident != null)
-				packetUtility.bookAppointment(prid_updateResident, 1, contextInuse, bookOnHolidays);
+				packetUtility.bookAppointment(prid_updateResident, slotNumber, contextInuse, bookOnHolidays);
 		} else {
 			throw new RigInternalError("Input parmeter is missiing [true/false]");
 		}
