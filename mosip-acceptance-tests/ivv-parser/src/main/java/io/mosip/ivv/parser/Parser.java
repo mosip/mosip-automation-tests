@@ -256,7 +256,7 @@ public class Parser implements ParserInterface {
         Iterator iter = data.iterator();
         while (iter.hasNext()) {
             Object obj = iter.next();
-            HashMap<String, String> data_map = oMapper.convertValue(obj, HashMap.class);
+            HashMap<String, String> data_map = oMapper.convertValue(obj, LinkedHashMap.class);
             Scenario scenario = new Scenario();
             String tc_no=data_map.get("tc_no");
             if(!(tc_no!=null && tc_no.contains("#"))){
