@@ -54,6 +54,7 @@ import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
+import org.mosip.dataprovider.util.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,6 +140,7 @@ public class PacketSyncService {
 	private String mapperFilePath;
 	 
 
+
 	 void loadContext(String context) {
 	    	Properties props = contextUtils.loadServerContext(context);
 	    	props.forEach( (k,v) ->{
@@ -152,6 +154,11 @@ public class PacketSyncService {
 	    	
 	    }
 	 
+
+	@Value("${mosip.test.idrepo.idvidpath}")
+	private String idvid;
+	
+
     void loadServerContextProperties(String contextKey) {
     	
     	if(contextKey != null && !contextKey.equals("")) {
@@ -716,12 +723,19 @@ public class PacketSyncService {
     	loadServerContextProperties(contextKey);
     	return PreRegistrationSteps.deleteApplication(preregId); 	
     }
-    public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
     
-    	String response = "";
+    public String discardBooking(
+    		HashMap<String, String> map) {
+    	
+    	return PreRegistrationSteps.discardBooking(map); 	
+    }
+    
+    
+    public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
+        
+String response = "";
     	
     	loadServerContextProperties(contextKey);
-    	
     	ResidentModel resident = ResidentModel.readPersona(personaFilePath);
     	 
     	//System.out.println("uploadProof " + docCategory);
@@ -765,9 +779,9 @@ public class PacketSyncService {
     	for(String path: personaFilePaths) {
     		ResidentModel resident = ResidentModel.readPersona(path);
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
-    		
+			
     		Properties props = contextUtils.loadServerContext(contextKey);
-    		packetTemplateProvider.generate("registration_client", process, resident, packetPath,preregId,machineId, centerId,contextKey,props);
+    		packetTemplateProvider.generate("registration_client", process, resident, packetPath,preregId,machineId, centerId,contextKey,props,new JSONObject());
     		
     		JSONObject obj = new JSONObject();
     		obj.put("id",resident.getId());
@@ -779,9 +793,11 @@ public class PacketSyncService {
     	}
     	JSONObject response = new JSONObject();
     	response.put("packets", packetPaths);
-     	return response.toString();
+    	return response.toString();
+    	
+     	
 
-    }
+    	}
     public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir,String preregId, String contextKey) throws IOException {
 
 
@@ -807,13 +823,22 @@ public class PacketSyncService {
     		packetDir.toFile().createNewFile();
     	}
     	PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
-    	
+    	//Added By Neeharika
+    	try {
+    		JSONObject preregResponse=new JSONObject();
+    	JSONObject queryparam=new JSONObject();
+    	Properties props = contextUtils.loadServerContext(contextKey);
+    	if(props.containsKey("mosip.test.regclient.officerBiometricFileName")) {
+		queryparam.put("type", "bio");
+		String uin=props.getProperty("validUIN");
+		baseUrl=props.getProperty("urlBase");
+		 preregResponse = apiRequestUtil.getJsonObject(baseUrl,baseUrl + idvid+uin,queryparam,new JSONObject());
+    	}
     	for(String path: personaFilePaths) {
     		ResidentModel resident = ResidentModel.readPersona(path);
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
-    		Properties props = contextUtils.loadServerContext(contextKey);
     		
-    		packetTemplateProvider.generate("registration_client", process, resident, packetPath , preregId, machineId, centerId,contextKey,props);
+    		packetTemplateProvider.generate("registration_client", process, resident, packetPath , preregId, machineId, centerId,contextKey,props,preregResponse);
     		JSONObject obj = new JSONObject();
     		obj.put("id",resident.getId());
     		obj.put("path", packetPath);
@@ -822,9 +847,17 @@ public class PacketSyncService {
     		
     		
     	}
+    	} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+     	
     	JSONObject response = new JSONObject();
     	response.put("packets", packetPaths);
      	return response.toString();
+    	
+
+    	
     }
     public String preRegToRegister( String templatePath, String preRegId,String personaPath, String contextKey,String additionalInfoReqId) throws Exception {
   
@@ -1430,6 +1463,12 @@ public class PacketSyncService {
 		String status=MosipDataSetup.updatePreRegStatus(preregId,statusCode);
 		return status;
 	}
-   
+
+	public String updatePreRegAppointment(String preregId) {
+		String status=PreRegistrationSteps.updatePreRegAppointment(preregId);
+		return status;
+	}
+
+
  
 }

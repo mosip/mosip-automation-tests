@@ -580,14 +580,14 @@ public class PacketMakerService {
         updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorPassword",  supervisorPwd, false);
 
         //officerBiometricFileName
-        officerBiometricFileName=p.getProperty("mosip.test.regclient.officerBiometricFileName");
-        if(officerBiometricFileName != null && officerBiometricFileName.length()>1)officerBiometricFileName=officerBiometricFileName+".xml"; 
+        officerBiometricFileName=p.getProperty("mosip.test.regclient.officerBiometricFileName"); 
+        if(officerBiometricFileName != null && officerBiometricFileName.length()>1) {}
         else officerBiometricFileName=null;
         updatePacketMetaInfo(packetRootFolder, "operationsData", "officerBiometricFileName",  officerBiometricFileName, false);
 
         //supervisorBiometricFileName
         supervisorBiometricFileName=p.getProperty("mosip.test.regclient.supervisorBiometricFileName");
-        if(supervisorBiometricFileName != null  && supervisorBiometricFileName.length()>1)supervisorBiometricFileName=supervisorBiometricFileName+".xml"; 
+        if(supervisorBiometricFileName != null  && supervisorBiometricFileName.length()>1) {}
         else supervisorBiometricFileName=null;
         updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorBiometricFileName",  supervisorBiometricFileName, false);
 

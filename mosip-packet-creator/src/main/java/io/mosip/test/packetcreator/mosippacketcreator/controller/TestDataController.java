@@ -1,7 +1,18 @@
 package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Properties;
+
+import io.mosip.test.packetcreator.mosippacketcreator.dto.PacketCreateDto;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.PreRegisterRequestDto;
+
+
+import io.mosip.test.packetcreator.mosippacketcreator.dto.SyncRidDto;
+import io.mosip.test.packetcreator.mosippacketcreator.service.*;
+import io.swagger.annotations.ApiOperation;
+import variables.VariableManager;
 
 import org.jobrunr.scheduling.JobScheduler;
 import org.jobrunr.scheduling.cron.Cron;
@@ -377,4 +388,29 @@ public class TestDataController {
     	return "{\"Failed\"}";
     }
     
+    @ApiOperation(value = "Delete Booking appointment for a given pre-registration-Id", response = String.class)
+
+    @DeleteMapping(value = "/preregistration/v1/applications/appointment")
+    public @ResponseBody String deleteAppointment(
+    		@RequestParam(name="preRegistrationId") String preregId) {
+    	HashMap<String, String> map=new HashMap<String, String>();
+    	map.put("preRegistrationId",preregId);
+    	return packetSyncService.discardBooking(map);
+    	
+    }
+    
+	@ApiOperation(value = "Update appointment for a given PreRegID ", response = String.class)
+	@PutMapping(value = "/preregistration/v1/applications/appointment/{preregid}")
+    public @ResponseBody String updateAppointment(
+    		@PathVariable("preregid") String preregid) {
+    	try{    	
+    		
+    		return packetSyncService.updatePreRegAppointment(preregid);
+    	
+    	} catch (Exception ex){
+             logger.error("registerResident", ex);
+    	}
+    	return "{Failed}";
+    }
+
 }

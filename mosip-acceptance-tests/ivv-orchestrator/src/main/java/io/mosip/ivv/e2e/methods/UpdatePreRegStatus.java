@@ -17,7 +17,7 @@ String response=null;
 			String validFlag = step.getParameters().get(2);
 			if(validFlag.equalsIgnoreCase("valid")) {  //VALID Scenario
 			response=packetUtility.updatePreRegStatus(prid, status, contextInuse);
-			packetUtility.preRegStatusValidResponse(response);
+			packetUtility.preRegStatusValidResponse(response);//VALID
 			}
 			else {
 				 status = "Pending_Appointment";  //INVALID Scenario
@@ -28,7 +28,7 @@ String response=null;
 			status = (step.getParameters().size() > 0) ? step.getParameters().get(0) : this.status;
 			for (String resDataPath : residentPathsPrid.keySet()) {
 				response=packetUtility.updatePreRegStatus(residentPathsPrid.get(resDataPath), status, contextInuse);
-				packetUtility.preRegStatusValidResponse(response);
+				packetUtility.preRegStatusValidResponse(response); //Valid
 			}
 		}
 	}
