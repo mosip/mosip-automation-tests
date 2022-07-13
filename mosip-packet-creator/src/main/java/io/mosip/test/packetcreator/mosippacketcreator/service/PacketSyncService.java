@@ -498,8 +498,6 @@ public class PacketSyncService {
         return new RidSyncRequestData(requestBody,timestamp);
     }
     
-    
-    
     public String uploadPacket(String path, String contextKey) throws Exception {
     	
     	if(contextKey != null && !contextKey.equals("")) {
@@ -522,10 +520,6 @@ public class PacketSyncService {
         return response.toString();
     }
     
-    
-    
-    
-
     public String preRegisterResident(List<String> personaFilePath, String contextKey) throws IOException {
     	StringBuilder builder = new StringBuilder();
     	
