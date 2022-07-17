@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -18,10 +17,11 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.everit.json.schema.ValidationException;
 import org.json.JSONArray;
@@ -52,7 +52,6 @@ import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
-import org.mosip.dataprovider.util.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +63,8 @@ import io.mosip.test.packetcreator.mosippacketcreator.dto.BioExceptionDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.MockABISExpectationsDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.PersonaRequestType;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.RidSyncReqResponseDTO;
+import io.mosip.test.packetcreator.mosippacketcreator.dto.RidSyncRequestData;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.UpdatePersonaDto;
 import variables.VariableManager;
 
@@ -370,101 +371,127 @@ public class PacketSyncService {
     	return tempPath;
     	
     }
-    public String syncPacketRid(String containerFile, String name,
-                                String supervisorStatus, String supervisorComment, String proc,String contextKey, String additionalInfoReqId) throws Exception {
-        
-    	if(contextKey != null && !contextKey.equals("")) {
-    
-    		Properties props = contextUtils.loadServerContext(contextKey);
-    		props.forEach((k,v)->{
-    			if(k.toString().equals("mosip.test.packet.syncapi")) {
-    				syncapi = v.toString();
-    			}
-    			else
-    			if(k.toString().equals("mosip.test.regclient.machineid")) {
-    				machineId = v.toString();
-    			}
-    			else
-    			if(k.toString().equals("mosip.test.primary.langcode")) {
-        			primaryLangCode = v.toString();
-        		}
-    			else
-    			if(k.toString().equals("mosip.test.regclient.centerid")) {
-        			centerId = v.toString();
-        		}
-				else if (k.toString().equals("mosip.test.baseurl")) {
+    public String syncPacketRid(String containerFile, String name, String supervisorStatus, String supervisorComment,
+			String proc, String contextKey, String additionalInfoReqId) throws Exception {
+
+		RidSyncRequestData ridSyncRequestData = prepareRidSyncRequest(containerFile, name, supervisorStatus,
+				supervisorComment, proc, contextKey, additionalInfoReqId);
+		JSONArray response = apiRequestUtil.syncRid(baseUrl, baseUrl + syncapi, ridSyncRequestData.getRequestBody(),
+				APIRequestUtil.getUTCDateTime(ridSyncRequestData.getTimestamp()), contextKey);
+
+		return response.toString();
+	};
+
+	public RidSyncReqResponseDTO syncPacketRidRequest(String containerFile, String name, String supervisorStatus,
+			String supervisorComment, String proc, String contextKey, String additionalInfoReqId) throws Exception {
+
+		RidSyncRequestData ridSyncRequestData = prepareRidSyncRequest(containerFile, name, supervisorStatus,
+				supervisorComment, proc, contextKey, additionalInfoReqId);
+		String centerId = null;
+		String machineId = null;
+
+		Properties props = contextUtils.loadServerContext(contextKey);
+		for(Entry<Object, Object> entrySet:props.entrySet()) {
+			if (entrySet.getKey().equals("mosip.test.regclient.centerid"))
+				centerId = entrySet.getValue().toString();
+			else if (entrySet.getKey().equals("mosip.test.regclient.machineid"))
+				machineId = entrySet.getValue().toString();
+		}
+
+		// loadContext(contextKey);
+		Map<String, String> headers = new HashMap<>();
+		headers.put("timestamp", APIRequestUtil.getUTCDateTime(ridSyncRequestData.getTimestamp()));
+		headers.put("Center-Machine-RefId", centerId + UNDERSCORE + machineId);
+
+		return new RidSyncReqResponseDTO(headers, ridSyncRequestData.getRequestBody());
+
+	}
+
+	private RidSyncRequestData prepareRidSyncRequest(String containerFile, String name, String supervisorStatus,
+			String supervisorComment, String proc, String contextKey, String additionalInfoReqId)
+			throws Exception, Exception {
+		if (contextKey != null && !contextKey.equals("")) {
+
+			Properties props = contextUtils.loadServerContext(contextKey);
+			props.forEach((k, v) -> {
+				if (k.toString().equals("mosip.test.packet.syncapi")) {
+					syncapi = v.toString();
+				} else if (k.toString().equals("mosip.test.regclient.machineid")) {
+					machineId = v.toString();
+				} else if (k.toString().equals("mosip.test.primary.langcode")) {
+					primaryLangCode = v.toString();
+				} else if (k.toString().equals("mosip.test.regclient.centerid")) {
+					centerId = v.toString();
+				} else if (k.toString().equals("mosip.test.baseurl")) {
 					baseUrl = v.toString();
 				} else if (k.toString().equals("mosip.version")) {
 					mosipVersion = v.toString();
 				}
-    			
-    		});
-    	}
-    	Path container = Path.of(containerFile);
-    	String rid =null;
-    	if(container.getName(container.getNameCount()-1).toString().contains("-")) {
-    		rid =PacketMakerService.getRegIdFromPacketPath(containerFile);
-    	}else {
-    		rid = container.getName(container.getNameCount()-1).toString().replace(".zip", "");
-    	}
-       // String rid = container.getName(container.getNameCount()-1).toString().replace(".zip", "");
-    	//String rid =PacketMakerService.getRegIdFromPacketPath(containerFile);
-        if(proc !=null && !proc.equals(""))
-        	process = proc;
-        logger.info("Syncing data for RID : {}", rid);
-        logger.info("Syncing data: process:", process);
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("registrationId", rid);
-        jsonObject.put("langCode", primaryLangCode);
-        jsonObject.put("name", name);
-        jsonObject.put("email", "");
-        jsonObject.put("phone", "");
-        jsonObject.put("registrationType", process);
+			});
+		}
+		Path container = Path.of(containerFile);
+		String rid = null;
+		if (container.getName(container.getNameCount() - 1).toString().contains("-")) {
+			rid = PacketMakerService.getRegIdFromPacketPath(containerFile);
+		} else {
+			rid = container.getName(container.getNameCount() - 1).toString().replace(".zip", "");
+		}
+		// String rid =
+		// container.getName(container.getNameCount()-1).toString().replace(".zip", "");
+		// String rid =PacketMakerService.getRegIdFromPacketPath(containerFile);
+		if (proc != null && !proc.equals(""))
+			process = proc;
+		logger.info("Syncing data for RID : {}", rid);
+		logger.info("Syncing data: process:", process);
 
-        byte[] fileBytes = Files.readAllBytes(container);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("registrationId", rid);
+		jsonObject.put("langCode", primaryLangCode);
+		jsonObject.put("name", name);
+		jsonObject.put("email", "");
+		jsonObject.put("phone", "");
+		jsonObject.put("registrationType", process);
 
-        jsonObject.put("packetHashValue", cryptoUtil.getHexEncodedHash(fileBytes));
-        jsonObject.put("packetSize", fileBytes.length);
-        jsonObject.put("supervisorStatus", supervisorStatus);
-        jsonObject.put("supervisorComment", supervisorComment);
-        
+		byte[] fileBytes = Files.readAllBytes(container);
+
+		jsonObject.put("packetHashValue", cryptoUtil.getHexEncodedHash(fileBytes));
+		jsonObject.put("packetSize", fileBytes.length);
+		jsonObject.put("supervisorStatus", supervisorStatus);
+		jsonObject.put("supervisorComment", supervisorComment);
+
 		if (mosipVersion != null && !mosipVersion.isEmpty() && mosipVersion.equals("1.2")) {
-			String id = StringUtils.isNotBlank(additionalInfoReqId) ? additionalInfoReqId: rid;
-		//	String refId = centerId + "_" + machineId;
+			String id = StringUtils.isNotBlank(additionalInfoReqId) ? additionalInfoReqId : rid;
+			// String refId = centerId + "_" + machineId;
 			/*
 			 * String packetId = new StringBuilder() .append(id) .append("-") .append(refId)
 			 * .append("-") .append(getcurrentTimeStamp()) .toString();
 			 */
-			String packetId =(container.getName(container.getNameCount()-1).toString()).replace(".zip", "");
-			
+			String packetId = (container.getName(container.getNameCount() - 1).toString()).replace(".zip", "");
+
 			jsonObject.put("packetId", packetId);
 			jsonObject.put("additionalInfoReqId", id);
-			//syncapi=syncapi+"V2";
+			// syncapi=syncapi+"V2";
 		}
-        
-        JSONArray list = new JSONArray();
-        list.put(jsonObject);
 
-        JSONObject wrapper = new JSONObject();
-        wrapper.put("id", "mosip.registration.sync");
-        wrapper.put("requesttime", APIRequestUtil.getUTCDateTime(LocalDateTime.now(ZoneOffset.UTC)));
-        wrapper.put("version", "1.0");
-        wrapper.put("request", list);
+		JSONArray list = new JSONArray();
+		list.put(jsonObject);
 
-        String packetCreatedDateTime = rid.substring(rid.length() - 14);
-        String formattedDate = packetCreatedDateTime.substring(0, 8) + "T"
-                + packetCreatedDateTime.substring(packetCreatedDateTime.length() - 6);
-        LocalDateTime timestamp = LocalDateTime.parse(formattedDate, DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"));
+		JSONObject wrapper = new JSONObject();
+		wrapper.put("id", "mosip.registration.sync");
+		wrapper.put("requesttime", APIRequestUtil.getUTCDateTime(LocalDateTime.now(ZoneOffset.UTC)));
+		wrapper.put("version", "1.0");
+		wrapper.put("request", list);
 
-        String requestBody = Base64.encodeBase64URLSafeString(
-                cryptoUtil.encrypt(wrapper.toString().getBytes("UTF-8"),
-                centerId + UNDERSCORE + machineId, timestamp, contextKey) );
+		String packetCreatedDateTime = rid.substring(rid.length() - 14);
+		String formattedDate = packetCreatedDateTime.substring(0, 8) + "T"
+				+ packetCreatedDateTime.substring(packetCreatedDateTime.length() - 6);
+		LocalDateTime timestamp = LocalDateTime.parse(formattedDate, DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"));
 
-        JSONArray response = apiRequestUtil.syncRid(baseUrl,baseUrl+syncapi, requestBody, APIRequestUtil.getUTCDateTime(timestamp),contextKey);
-
-        return response.toString();
-    }
+		String requestBody = Base64.encodeBase64URLSafeString(cryptoUtil.encrypt(wrapper.toString().getBytes("UTF-8"),
+				centerId + UNDERSCORE + machineId, timestamp, contextKey));
+		return new RidSyncRequestData(requestBody, timestamp);
+	}
     
     public String uploadPacket(String path, String contextKey) throws Exception {
     	
