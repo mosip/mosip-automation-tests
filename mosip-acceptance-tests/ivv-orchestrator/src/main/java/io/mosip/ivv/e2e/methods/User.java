@@ -109,8 +109,9 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		case "ADD_User":
 			HashMap<String, List<String>> attrmap=new HashMap<String, List<String>>();
 			List<String> list=new ArrayList<String>();
-			list.add("11000000");
-			attrmap.put("individualid", list);
+			String val=map.get("$$uin")!=null ?map.get("$$uin") : "11000000";
+			list.add(val);
+			attrmap.put("individualid",list);
 			KeycloakUserManager.removeUser(user);
 			KeycloakUserManager.createUsers(user, pwd,"roles", attrmap);
 			HashMap<String, String> userdetails=new HashMap<String, String>();

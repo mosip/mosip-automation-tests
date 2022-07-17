@@ -1,0 +1,39 @@
+OperatorOnboardAuth:
+  RegProc_OperatorOnboardAuth_Biometric_Valid_Smoke_Pos:
+      endPoint: /registrationprocessor/v1/registrationstatus/auth
+      role: admin
+      restMethod: post
+      inputTemplate: regproc/OperatorOnboardAuth/operatorOnboardAuth
+      outputTemplate: regproc/OperatorOnboardAuth/operatorOnboardAuthResult
+      input: '{
+		"requestTime": "$TIMESTAMP$",
+		"individualId": "dsl1",
+		"transactionId": "1234567890",
+	    "individualIdType": "USERID",
+        "bio": true,
+        "demo": false,
+        "otp": false,
+		"identityRequest":{
+          "bioSubType": "UNKNOWN",
+          "bioType": "FACE",
+          "bioValue": "BioValue",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Full face",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+    "transactionId": "1234567890",
+	"identityRequestTemplate": "regproc/OperatorOnboardAuth/operatorOnboardAuthIdentityEncrypt",
+	"identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+	}
+	}'
+      output: '{
+  "authStatus": "true"
+}'
