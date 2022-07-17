@@ -13,14 +13,15 @@ public class TestResources {
 	public static void copyPreRegTestResource() {
 		try {
 			File source = new File(TestResources.getGlobalResourcePaths() + "/preReg");
+			File source2 = new File(TestResources.getGlobalResourcePaths()+"/config");
 			File source3 = new File(TestResources.getGlobalResourcePaths() + "/idaData");
-
+			File source4 = new File(TestResources.getGlobalResourcePaths() + "/regproc");
 			File source6 = new File(TestResources.getGlobalResourcePaths()+"/syncdata");
 			File source7 = new File(TestResources.getGlobalResourcePaths()+"/ivv_masterdata");
 			File destination = new File(TestResources.getGlobalResourcePaths() + "/"+TestResources.resourceFolderName);
 			FileUtils.copyDirectoryToDirectory(source, destination);
 			String path=TestResources.getGlobalResourcePaths().replace("classes", "test-classes");
-			File source2 = new File(TestResources.getGlobalResourcePaths()+"/config");
+			
 			File destination2 = new File(path);
 			FileUtils.copyDirectoryToDirectory(source2, destination2);
 			FileUtils.copyDirectoryToDirectory(source, destination2);
@@ -29,6 +30,8 @@ public class TestResources {
 			FileUtils.copyDirectoryToDirectory(source6, destination);
 			FileUtils.copyDirectoryToDirectory(source7, destination2);
 			FileUtils.copyDirectoryToDirectory(source7, destination);
+			FileUtils.copyDirectoryToDirectory(source4, destination2);
+			FileUtils.copyDirectoryToDirectory(source4, destination);
 			logger.info("Copied the preReg test resource successfully");
 		} catch (Exception e) {
 			logger.error("Exception occured while copying the file: "+e.getMessage());
