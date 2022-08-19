@@ -660,13 +660,14 @@ public class RestClient {
 
 	public  static boolean initToken(){
 	        try {		
+	        
 				JSONObject requestBody = new JSONObject();
 				JSONObject nestedRequest = new JSONObject();
-				nestedRequest.put("userName", VariableManager.getVariableValue("operatorId"));
-				nestedRequest.put("password",  VariableManager.getVariableValue("password"));
-	            nestedRequest.put("appId", VariableManager.getVariableValue("appId"));
-	            nestedRequest.put("clientId",  VariableManager.getVariableValue("clientId"));
-	            nestedRequest.put("clientSecret",  VariableManager.getVariableValue("secretKey"));
+				nestedRequest.put("userName", VariableManager.getVariableValue("admin_userName"));
+				nestedRequest.put("password",  VariableManager.getVariableValue("admin_password"));
+	            nestedRequest.put("appId", VariableManager.getVariableValue("mosip_admin_app_id"));
+	            nestedRequest.put("clientId",  VariableManager.getVariableValue("mosip_admin_client_id"));
+	            nestedRequest.put("clientSecret",  VariableManager.getVariableValue("mosip_admin_client_secret"));
 				requestBody.put("metadata",new JSONObject());
 				requestBody.put("version", "1.0");
 				requestBody.put("id", "mosip.authentication.useridPwd");
@@ -720,9 +721,9 @@ public class RestClient {
 			JSONObject nestedRequest = new JSONObject();
 			nestedRequest.put("userName", VariableManager.getVariableValue("operatorId"));
 			nestedRequest.put("password",  VariableManager.getVariableValue("password"));
-            nestedRequest.put("appId", VariableManager.getVariableValue("admin_appId"));
-            nestedRequest.put("clientId",  VariableManager.getVariableValue("admin_clientId"));
-            nestedRequest.put("clientSecret",  VariableManager.getVariableValue("admin_secretKey"));
+            nestedRequest.put("appId", VariableManager.getVariableValue("mosip_admin_app_id"));
+            nestedRequest.put("clientId",  VariableManager.getVariableValue("mosip_admin_client_id"));
+            nestedRequest.put("clientSecret",  VariableManager.getVariableValue("mosip_admin_client_secret"));
 			requestBody.put("metadata",new JSONObject());
 			requestBody.put("version", "1.0");
 			requestBody.put("id", "mosip.authentication.useridPwd");
@@ -775,9 +776,9 @@ public class RestClient {
 			JSONObject nestedRequest = new JSONObject();
 			nestedRequest.put("userName", VariableManager.getVariableValue("operatorId"));
 			nestedRequest.put("password",  VariableManager.getVariableValue("password"));
-			nestedRequest.put("appId", VariableManager.getVariableValue("resident_appId"));
-			nestedRequest.put("clientId", VariableManager.getVariableValue("resident_clientId"));
-			nestedRequest.put("secretKey", VariableManager.getVariableValue("resident_secretKey"));
+			nestedRequest.put("appId", VariableManager.getVariableValue("mosip_resident_app_id"));
+			nestedRequest.put("clientId", VariableManager.getVariableValue("mosip_resident_client_id"));
+			nestedRequest.put("secretKey", VariableManager.getVariableValue("mosip_resident_client_secret"));
 			requestBody.put("metadata",new JSONObject());
 			requestBody.put("version", "string");
 			requestBody.put("id", "string");

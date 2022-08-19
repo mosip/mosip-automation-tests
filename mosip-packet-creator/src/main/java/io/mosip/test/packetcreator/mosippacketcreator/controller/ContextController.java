@@ -34,6 +34,7 @@ public class ContextController {
 		  logger.info("--------------------Scenario : " + contextProperties.getProperty("scenario") + "---------------------------------------");
 	    	
 		  Boolean bRet = false;
+		  
 	    	try{
 	    		if (personaConfigPath != null && !personaConfigPath.equals(""))
                     DataProviderConstants.RESOURCE = personaConfigPath;
