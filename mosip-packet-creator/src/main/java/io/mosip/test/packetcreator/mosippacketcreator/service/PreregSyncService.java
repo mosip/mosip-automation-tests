@@ -3,6 +3,7 @@ package io.mosip.test.packetcreator.mosippacketcreator.service;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
@@ -104,7 +105,10 @@ public class PreregSyncService {
 		JSONObject preregResponse = apiUtil.getPreReg(baseUrl,baseUrl + syncapi+"/"+preregId, new JSONObject(), new JSONObject());
 		logger.info("Downloaded data for prereg id {} ", preregResponse.getString("pre-registration-id"));
 		Path temPath = Path.of(workDirectory, preregId+".zip");
-		Files.write(temPath, Base64.getDecoder().decode(preregResponse.getString("zip-bytes")));
+		byte[] bytes=Base64.getDecoder().decode(preregResponse.getString("zip-bytes"));
+		
+		Files.write(temPath, bytes ,StandardOpenOption.CREATE);
+
 		logger.info("Wrote prereg id {} to {} ", preregResponse.getString("pre-registration-id"), temPath.toString());
         return temPath.toString();
 	}

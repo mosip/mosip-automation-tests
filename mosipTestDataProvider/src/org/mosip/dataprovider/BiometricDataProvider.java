@@ -656,6 +656,8 @@ public class BiometricDataProvider {
 								//else case
 				try {
 					tmpDir = Files.createTempDirectory("fps").toFile();
+					String dirPath = DataProviderConstants.RESOURCE +"/fingerprints/";
+					System.out.println("dirPath "+ dirPath);//../deploy/resource//fingerprints/
 					Hashtable<Integer, List<File>> prints = generateFingerprint(tmpDir.getAbsolutePath(), 10, 2, 4, FPClassDistribution.arch );
 					List<File> firstSet = prints.get(1);
 			
@@ -692,6 +694,7 @@ public class BiometricDataProvider {
 					data.setFingerRaw(fingerPrintRaw);
 					tmpDir.deleteOnExit();
 					
+					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -701,6 +704,7 @@ public class BiometricDataProvider {
 			{
 				//reach cached finger prints from folder 
 				String dirPath = DataProviderConstants.RESOURCE +"/fingerprints/";
+			System.out.println("dirPath " + dirPath);
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				for(int i=1; i <= 2; i++) {
 					
@@ -710,7 +714,7 @@ public class BiometricDataProvider {
 				}
 				String [] fingerPrints = new String[10];
 				String [] fingerPrintHash = new String[10];
-				
+				byte[][] fingerPrintRaw = new byte[10][1];
 				List<File> firstSet = tblFiles.get(1);
 				
 				int index = 0;
@@ -721,6 +725,7 @@ public class BiometricDataProvider {
 					 byte[] fdata;
 					try {
 						fdata = Files.readAllBytes(path);
+fingerPrintRaw[index] = fdata;
 						fingerPrints[index]= Base64.getEncoder().encodeToString(fdata);
 
 						fingerPrintHash[index] =CommonUtil.getHexEncodedHash(fdata);
@@ -734,6 +739,8 @@ public class BiometricDataProvider {
 				}
 				data.setFingerPrint(fingerPrints);
 				data.setFingerHash(fingerPrintHash);
+	data.setFingerRaw(fingerPrintRaw);
+					
 				
 			}
 		}
@@ -752,7 +759,7 @@ public class BiometricDataProvider {
 				"-outdir" , outDir, "-numT",String.format("%d", nThreads),"-num",
 				String.format("%d", nFingerPrints) ,"-ni",
 				String.format("%d", nImpressionsPerPrints),"-cdist", classDist.name() };
-
+System.out.println("Anguli commands" + commands);
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(new File(DataProviderConstants.ANGULI_PATH));
 		 

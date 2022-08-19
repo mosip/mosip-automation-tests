@@ -1,0 +1,14 @@
+OperatorOnboardAuth:
+  RegProc_OperatorOnboardAuth_Biometric_Valid_Smoke_Pos:
+      endPoint: /registrationprocessor/v1/registrationstatus/auth
+      role: admin
+      restMethod: post
+      inputTemplate: regproc/OperatorOnboard/operatorOnboard
+      outputTemplate: regproc/OperatorOnboard/operatorOnboardResult
+      input: '{
+ "requestTime": "$TIMESTAMP$",
+ "thumbprint": "{{thumbprint}}"
+	}'
+      output: '{
+ 
+}'
