@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.JSONValue;
 import org.testng.Reporter;
@@ -604,6 +605,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
 		JSONObject jsonReq = new JSONObject();
+		
 		jsonReq.put("scenario", scenario);
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
@@ -621,6 +623,89 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("Other", "OTH");
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
 
+		/**
+		 * More Keys add here
+		 * #Things from deploy packet utility
+#FROM APPLICATION
+#Move below property to IVV application properties
+mosip.test.regclient.machineid= 10000  
+mosip.test.baseurl=https://api-internal.cellbox-e2e.mosip.net
+mosip.test.regclient.centerid = 10002
+mosip.test.regclient.userid = 110123
+mosip.test.regclient.password = Techno@123
+mosip.test.regclient.supervisorid = 110123
+mosip.test.regclient.supervisorpwd = Techno@123
+# Ref ID is centerid_machineid 10012_10011
+mosip.test.regclient.clientid = mosip-reg-client
+mosip.test.regclient.secretkey=sgSNDz2NeL0PMVFh
+mosip.test.regclient.appId = registrationclient
+mosip.test.primary.langcode=eng
+
+#FROM DEFAULT
+#Move below property to IVV application properties
+urlBase=https://api-internal.cellbox-e2e.mosip.net
+# COMMON FOR ALL MODULES
+operatorId=110126
+password=Techno@123
+
+#DEFAULT
+appId=admin
+clientId=mosip-admin-client
+secretKey=GgrDINTwOpGGLWcr
+
+#RESIDENT
+resident_appId=resident
+resident_clientId=mosip-resident-client
+resident_secretKey=uIiOZwMfdOB42J3O
+
+#ADMIN
+admin_appId=admin
+admin_clientId=mosip-admin-client
+admin_secretKey=GgrDINTwOpGGLWcr
+
+userid = 110126
+supervisorid = 110126
+centerId=10010
+preconfiguredOtp=111111
+usemds=true
+mdsport=4501
+mdsbypass=false
+#Move above property to IVV application properties
+
+#Move above property to IVV application properties
+#FROM PRE REG deploy
+#Move below property to IVV application properties
+operatorId=110123
+password=mosip
+appId=registrationclient
+clientId=mosip-reg-client
+secretKey=sgSNDz2NeL0PMVFh
+userid = 110123
+supervisorid = 110123
+preconfiguredOtp=111111
+usePreConfiguredOtp=true
+otpTargetEmail=sanath.test.mosip@gmail.com
+usePreConfiguredEmail=sanath.test.mosip@gmail.com
+#Move above property to IVV application properties
+#FROM REG CLIENT
+#Move below property to IVV application properties
+operatorId=110123
+password=Techno@123
+appId=registrationclient
+clientId=mosip-reg-client
+secretKey=Mebm5nrsfNER03b6
+
+userid = 110123
+supervisorid = 110123
+centerId=10002
+
+#Done
+		 * 
+		 * 
+		 */
+		
+		
+		
 		jsonReq.put("validUIN", (map.get("$$uin")!=null) ? map.get("$$uin") : "create new");
 
 		if (status != null && !status.isBlank())
@@ -697,15 +782,34 @@ public class PacketUtility extends BaseTestCaseUtil {
 				else
 					jsonReq.put("mosip.test.regclient.supervisorBiometricFileName", supervOpertoDetails[5]);
 			}
-		}
-
-		Response response = postReqest(url, jsonReq.toString(), "SetContext");
+		}		
+		
+		
+		JSONObject JO=new JSONObject(map);
+		
+		Response response = postReqest(url, mergeJSONObjects(JO, jsonReq).toString(), "SetContext");
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
 		return response.getBody().asString();
 
 	}
 
+	public static JSONObject mergeJSONObjects(JSONObject json1, JSONObject json2) {
+        JSONObject mergedJSON = new JSONObject();
+        try {
+            // getNames(): Get an array of field names from a JSONObject.
+            mergedJSON = new JSONObject(json1, JSONObject.getNames(json1));
+            for (String crunchifyKey : JSONObject.getNames(json2)) {
+                // get(): Get the value object associated with a key.
+                mergedJSON.put(crunchifyKey, json2.get(crunchifyKey));
+            }
+        } catch (JSONException e) {
+            // RunttimeException: Constructs a new runtime exception with the specified detail message.
+            // The cause is not initialized, and may subsequently be initialized by a call to initCause.
+            throw new RuntimeException("JSON Exception" + e);
+        }
+        return mergedJSON;
+    }
 	@SuppressWarnings("unused")
 	private JSONObject createPayload(String publicKey, String machineId) {
 		JSONObject jsonMachine = new JSONObject();
@@ -835,6 +939,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
 		Response response = getReqest(url, jsonReq.toString(), "Retrive BiometricData");
+		
 		if (response.getBody().asString().equals(""))
 			throw new RigInternalError(
 					"Unable to retrive BiometricData " + retriveAttributeList + " from packet utility");

@@ -103,7 +103,22 @@ public class APIRequestUtil {
         	else
             if(k.equals("mosip.test.regclient.password"))
             	password = v.toString();
-                			
+          	else
+                if(k.equals("mosip.test.authmanager.url"))
+                	authManagerURL = v.toString();
+            	else
+                    if(k.equals("mosip.test.regclient.clientid"))
+                    	clientId = v.toString();
+                	else
+                        if(k.equals("mosip.test.regclient.appId"))
+                        	appId = v.toString();
+                    	else
+                            if(k.equals("mosip.test.regclient.secretkey"))
+                            	secretKey = v.toString();
+                            else
+                                if(k.equals("mosip.test.baseurl"))
+                                	baseUrl = v.toString();
+    		
     	});
     	
     }
@@ -453,6 +468,7 @@ public class APIRequestUtil {
    // @PostConstruct
     public boolean initToken(){
         try {	
+        	
         	if(VariableManager.isInit()) {
 	        	Object o =VariableManager.getVariableValue("operatorId");
 	        	if(o != null)
@@ -466,11 +482,11 @@ public class APIRequestUtil {
         	
 			JSONObject requestBody = new JSONObject();
 			JSONObject nestedRequest = new JSONObject();
-			nestedRequest.put("userName", operatorId);
-			nestedRequest.put("password", password);
-            nestedRequest.put("appId", appId);
-            nestedRequest.put("clientId", clientId);
-            nestedRequest.put("clientSecret", secretKey);
+			nestedRequest.put("userName", VariableManager.getVariableValue("admin_userName").toString() );
+			nestedRequest.put("password", VariableManager.getVariableValue("admin_password").toString() );
+            nestedRequest.put("appId", VariableManager.getVariableValue("mosip_admin_app_id").toString());
+            nestedRequest.put("clientId", VariableManager.getVariableValue("mosip_admin_client_id").toString());
+            nestedRequest.put("clientSecret", VariableManager.getVariableValue("mosip_admin_client_secret").toString());
 			requestBody.put("metadata", "");
 			requestBody.put("version", "1.0");
 			requestBody.put("id", "test");

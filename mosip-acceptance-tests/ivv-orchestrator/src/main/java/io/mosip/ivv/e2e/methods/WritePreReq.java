@@ -1,6 +1,7 @@
 package io.mosip.ivv.e2e.methods;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,9 +46,29 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		// Instantiating the properties file
 		Properties props = new Properties();
 		// Populating the properties file
-		props.putAll(map);
+		
+		//take all properties from application .properties add to map2 props.putAll(map2);
+		//Application.properties start
+		String fileName = (TestRunner.getExternalResourcePath() + "/config/kernel.properties");
+		
+		FileInputStream fis = null;
+	      Properties prop = null;
+	      try {
+	         fis = new FileInputStream(fileName);
+	         prop = new Properties();
+	         prop.load(fis);
+	      } catch(FileNotFoundException fnfe) {
+	         fnfe.printStackTrace();
+	      } catch(IOException ioe) {
+	         ioe.printStackTrace();
+	      } 
+	      
+	      props.putAll(prop);
+	      props.putAll(map);
+			//Application.properties start
 		// Instantiating the FileInputStream for output file
 		try {
+			
 			String path = (TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
 					+ appendedkey + ".properties");
 			  File file = new File(path);
