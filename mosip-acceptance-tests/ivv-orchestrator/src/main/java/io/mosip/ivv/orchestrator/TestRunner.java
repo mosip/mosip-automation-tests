@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.testng.Reporter;
 import org.testng.TestNG;
 
+import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
 
 public class TestRunner {
@@ -29,6 +30,8 @@ public class TestRunner {
 		BaseTestCase.testLevel=System.getProperty("env.testLevel");
 		BaseTestCase.languageList=Arrays.asList(System.getProperty("env.langcode").split(","));
 		BaseTestCase.initialize();
+		// Initializing or setting up execution
+		ConfigManager.init();
 		
 		startTestRunner();
 	}

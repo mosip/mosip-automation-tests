@@ -1,0 +1,12 @@
+GetTemplates:
+   Admin_GetTemplates_allValid_smoke:
+      endPoint: /registrationprocessor/v1/registrationstatus/getCertificate?applicationId=IDA&referenceId=INTERNAL
+      role: admin
+      restMethod: get
+      inputTemplate: regproc/GetCertificate/getCert
+      outputTemplate: regproc/GetCertificate/getCertResult
+      input: '{
+  
+}'
+      output: '{
+}'
