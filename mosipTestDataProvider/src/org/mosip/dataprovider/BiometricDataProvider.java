@@ -656,8 +656,8 @@ public class BiometricDataProvider {
 								//else case
 				try {
 					tmpDir = Files.createTempDirectory("fps").toFile();
-					String dirPath = DataProviderConstants.RESOURCE +"/fingerprints/";
-					System.out.println("dirPath "+ dirPath);//../deploy/resource//fingerprints/
+				//Siva	//String dirPath = DataProviderConstants.RESOURCE +"/fingerprints/";
+				//Siva //System.out.println("dirPath "+ dirPath);//../deploy/resource//fingerprints/
 					Hashtable<Integer, List<File>> prints = generateFingerprint(tmpDir.getAbsolutePath(), 10, 2, 4, FPClassDistribution.arch );
 					List<File> firstSet = prints.get(1);
 			
@@ -706,7 +706,11 @@ public class BiometricDataProvider {
 				String dirPath = DataProviderConstants.RESOURCE +"/fingerprints/";
 			System.out.println("dirPath " + dirPath);
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
-				for(int i=1; i <= 2; i++) {
+				int min=1;
+						int max=2;
+				int randomNumber = (int) (Math.random()*(max-min)) + min;
+				
+				for(int i=min; i <= max; i++) {
 					
 					List<File> lst = CommonUtil.listFiles(dirPath +
 							String.format("/Impression_%d/fp_1/", i));
@@ -715,7 +719,8 @@ public class BiometricDataProvider {
 				String [] fingerPrints = new String[10];
 				String [] fingerPrintHash = new String[10];
 				byte[][] fingerPrintRaw = new byte[10][1];
-				List<File> firstSet = tblFiles.get(1);
+				List<File> firstSet = tblFiles.get(randomNumber);
+				System.out.println("Random Numer used "+ randomNumber);
 				
 				int index = 0;
 				for(File f: firstSet) {
@@ -725,7 +730,7 @@ public class BiometricDataProvider {
 					 byte[] fdata;
 					try {
 						fdata = Files.readAllBytes(path);
-fingerPrintRaw[index] = fdata;
+						fingerPrintRaw[index] = fdata;
 						fingerPrints[index]= Base64.getEncoder().encodeToString(fdata);
 
 						fingerPrintHash[index] =CommonUtil.getHexEncodedHash(fdata);

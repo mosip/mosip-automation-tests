@@ -5,6 +5,8 @@ import java.io.File;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 
@@ -38,9 +40,9 @@ public class APIRequestUtil {
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
 
    // private ConfigurableJWTProcessor<SecurityContext> jwtProcessor = null;
-
-    String token;
-    String preregToken;
+	static Map<String, String> tokens = new HashMap<String,String>();
+    //String token;
+  //  String preregToken;
     
     String refreshToken;
 
@@ -124,8 +126,8 @@ public class APIRequestUtil {
     }
 
     public void clearToken() {
-    	token =null;
-    	preregToken = null;
+    	tokens.clear();
+    	//preregToken = null;
     }
     public JSONObject get(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam) throws Exception {
     	this.baseUrl = baseUrl;
@@ -139,7 +141,7 @@ public class APIRequestUtil {
 
     	while(!bDone) {
 
-    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+    		Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+"system")).build();
     		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(requestParams.toMap()).get(url,pathParam.toMap());
     		if(response.getStatusCode() == 401) {
     			if(nLoop >= 1)
@@ -169,7 +171,7 @@ public class APIRequestUtil {
 
     	while(!bDone) {
 
-    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+    		Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+"system")).build();
     		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(requestParams.toMap()).get(url,pathParam.toMap());
     		if(response.getStatusCode() == 401) {
     			if(nLoop >= 1)
@@ -189,19 +191,20 @@ public class APIRequestUtil {
     }
     public JSONObject getPreReg(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam) throws Exception {
     	this.baseUrl = baseUrl;
-    	
-    	if(preregToken == null) {
-    	
-            //initPreregToken();
-    		initToken_prereg();
+    	if (!isValidToken()){
+            	
+                //initPreregToken();
+        		initToken_prereg();
+            
         }
+    	
     	boolean bDone = false;
     	int nLoop  = 0;
     	Response response =null;
 
     	while(!bDone) {
 
-    		Cookie kukki = new Cookie.Builder("Authorization",preregToken).build();
+    		Cookie kukki = new Cookie.Builder("Authorization",tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+"system")).build();
     		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(requestParams.toMap()).get(url,pathParam.toMap());
     		if(response.getStatusCode() == 401) {
     			if(nLoop >= 1)
@@ -234,7 +237,7 @@ public class APIRequestUtil {
     	Response response =null;
     	//implement a retry if token is invalud/unauthorized
     	while(!bDone) {
-    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+    		Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+"system")).build();
     		response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
     		if(response.getStatusCode() == 401) {
     			if(nLoop >= 1)
@@ -257,8 +260,7 @@ public class APIRequestUtil {
     	this.baseUrl = baseUrl;
     
     	loadContext(contextKey);
-    	token=null;
-    
+    	 tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+"system",null);
     	if (!isValidToken()){
             initToken();
         }
@@ -274,7 +276,7 @@ public class APIRequestUtil {
     		objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     		String outputJson = objectMapper.writeValueAsString(requestBody);
 
-    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+    		Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+"system")).build();
     		response = given().cookie(kukki)
                 .header("timestamp", timestamp)
                 .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
@@ -301,13 +303,16 @@ public class APIRequestUtil {
     	
     	//load context
     	loadContext(contextKey);
-    	token=null;
+    	tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+"system",null);
+    	
+    	//token=null;
     	if (!isValidToken()){
             initToken();
         }
     	File f = new File(filePath);
     	
-        Cookie kukki = new Cookie.Builder("Authorization", token).build();
+        Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+"system")
+            	).build();
         Response response = given().cookie(kukki).multiPart("file", f.getCanonicalFile()).post(url);
         checkErrorResponse(response.getBody().asString());
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -318,9 +323,12 @@ public class APIRequestUtil {
     	if(obj != null) {
     		Boolean bClear = Boolean.valueOf(obj.toString());
     		if(bClear)
+    			
     			return false;
     	}
-    	return !(token == null); 
+    	String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+"system");
+    	return  !(null == token);
+    
     	/*
         if(jwtProcessor == null) {
             jwtProcessor = new DefaultJWTProcessor<>();
@@ -350,7 +358,7 @@ public class APIRequestUtil {
     }
 
    // @PostConstruct
-    public boolean initPreregToken() {
+  /*  public boolean initPreregToken() {
     	try {		
 			JSONObject requestBody = new JSONObject();
 			JSONObject nestedRequest = new JSONObject();
@@ -395,29 +403,23 @@ public class APIRequestUtil {
 		}
 
     }
+ */
     
     public boolean initToken_prereg(){
         try {	
-        	if(VariableManager.isInit()) {
-	        	Object o =VariableManager.getVariableValue("operatorId");
-	        	if(o != null)
-	        		operatorId = o.toString();
-	        	
-	        	o =VariableManager.getVariableValue("password");
-	        	
-	        	if(o != null)
-	        		password = o.toString();
-	        }
+        	
         	
 			JSONObject requestBody = new JSONObject();
 			JSONObject nestedRequest = new JSONObject();
-			nestedRequest.put("userName", operatorId);
-			nestedRequest.put("password", password);
+			nestedRequest.put("userName",  VariableManager.getVariableValue("admin_userName").toString());
+			nestedRequest.put("password",  VariableManager.getVariableValue("admin_password").toString());
 			
-			nestedRequest.put("appId", VariableManager.getVariableValue("appId"));
-			nestedRequest.put("clientId", VariableManager.getVariableValue("clientId"));
-			nestedRequest.put("clientSecret", VariableManager.getVariableValue("secretKey"));
+			nestedRequest.put("appId", VariableManager.getVariableValue("mosip_admin_app_id").toString());
+			nestedRequest.put("clientId", VariableManager.getVariableValue("mosip_admin_client_id").toString());
+			nestedRequest.put("clientSecret", VariableManager.getVariableValue("mosip_admin_client_secret").toString());
 
+		
+			
 			/*
 			 * nestedRequest.put("appId", VariableManager.getVariableValue("prereg_appId"));
 			 * nestedRequest.put("clientId",
@@ -448,10 +450,11 @@ public class APIRequestUtil {
             	
             	return false;
             }
-           token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
+           String token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
+           
+           tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+"system",token);
             //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
            // preregToken=response.getCookie("Authorization");
-            preregToken=token;
             
 			return true;	
 		}
@@ -468,6 +471,7 @@ public class APIRequestUtil {
    // @PostConstruct
     public boolean initToken(){
         try {	
+        	
         	
         	if(VariableManager.isInit()) {
 	        	Object o =VariableManager.getVariableValue("operatorId");
@@ -492,7 +496,7 @@ public class APIRequestUtil {
 			requestBody.put("id", "test");
 			requestBody.put("requesttime", getUTCDateTime(LocalDateTime.now()));
 			requestBody.put("request", nestedRequest);
-
+			
             //authManagerURL
             //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
             Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
@@ -508,10 +512,14 @@ public class APIRequestUtil {
             	
             	return false;
             }
-             token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
+            String token=null;
+        token= new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
             //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
             //token=response.getCookie("Authorization");
-            
+          
+        		
+        	//String	token=  post(baseUrl,authManagerURL,requestBody).getString("token");
+            tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+"system",token);
 			return true;	
 		}
 		catch(Exception  ex){

@@ -31,6 +31,7 @@ import org.json.JSONArray;
 //import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.mds.HttpRCapture;
+import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
 import io.restassured.response.Response;
@@ -38,7 +39,6 @@ import io.restassured.specification.RequestSpecification;
 import variables.VariableManager;
 
 import static io.restassured.RestAssured.given;
-
 
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -48,7 +48,8 @@ import io.restassured.http.Cookie;
 import io.restassured.http.Header;
 
 public class RestClient {
-
+	private static final org.slf4j.Logger logger= org.slf4j.LoggerFactory.getLogger(RestClient.class);
+	
 	static String dataKey = "response";
     static String errorKey = "errors";
 	//static String token;
@@ -73,15 +74,17 @@ public class RestClient {
     			return false;
     	}
     	
-    	String token = tokens.get(role);
-    	
+    	//String token = tokens.get(role);
+    	String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
     	return  !(null == token);
     	
 	}
+	
 	public static void clearToken() {
-		tokens.remove("system");
-		tokens.remove("resident");
-		tokens.remove("admin");
+//		tokens.remove("system");
+//		tokens.remove("resident");
+//		tokens.remove("admin");
+		tokens.clear();
 		//token = null;
 		refreshToken = null;
 	}
@@ -135,8 +138,8 @@ public class RestClient {
     	try {
     	while(!bDone) {
 
-    		String token = tokens.get(role);
-        	
+    	//	String token = tokens.get(role);
+    		String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
     		Cookie kukki = new Cookie.Builder("Authorization", token).build();
     		Map<String,Object> mapParam = requestParams == null ? null: requestParams.toMap();
         		//new Gson().fromJson(requestParams.toString(), HashMap.class);
@@ -190,8 +193,9 @@ public class RestClient {
 	    	}*/
 	    	while(!bDone) {
 
-	    		String token = tokens.get(role);
-	        	
+	    		//String token = tokens.get(role);
+	    		String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+	    		    	
 	    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
 	    		Map<String,Object> mapParam = requestParams == null ? null: requestParams.toMap();
 	        		//new Gson().fromJson(requestParams.toString(), HashMap.class);
@@ -223,8 +227,11 @@ public class RestClient {
 	
 	
 	public static JSONObject getNoAuth(String url, JSONObject requestParams, JSONObject pathParam) throws Exception {
-	       
-		String token = tokens.get("resident");
+		if (!isValidToken("resident")){
+	           initToken_Resident();
+	        }
+		String token = tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+"resident");
+	
 		Response response =null;
 
 
@@ -259,7 +266,9 @@ public class RestClient {
 	    		url = url.replace("//", "/"); 		
 	    	}
 	*/
-	    String token = tokens.get(role);
+	   // String token = tokens.get(role);
+	    String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+		
 	    Cookie kukki = new Cookie.Builder("Authorization", token).build();
         
 	    if(requestData != null) {
@@ -297,7 +306,9 @@ public class RestClient {
 	    		url = url.replace("//", "/"); 		
 	    	}
 	*/
-	    String token = tokens.get(role);
+	   // String token = tokens.get(role);
+	    String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+		
 	    Cookie kukki = new Cookie.Builder("Authorization", token).build();
         
 	    RequestSpecification spec = given().cookie(kukki);
@@ -338,7 +349,14 @@ public class RestClient {
 	public static JSONObject postNoAuth(String url, JSONObject jsonRequest) throws Exception {
 
 		String role = "resident";
-		String token = tokens.get(role);
+		if (!isValidToken(role)){
+	           initToken_Resident();
+	        }
+	
+		
+		//String token = tokens.get(role);
+		String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+		
 		Response response =null;
 
 	    System.out.println("Request:"+ jsonRequest.toString());
@@ -354,7 +372,7 @@ public class RestClient {
     	}*/
     	if(cookie != null) {
     		token = cookie.split("=")[1];
-    		tokens.put(role,token);
+    		 tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+role,token);
     	}
     	System.out.println(token);
         System.out.println("Response:"+response.getBody().asString());
@@ -366,7 +384,12 @@ public class RestClient {
 	public static JSONObject putNoAuth(String url, JSONObject jsonRequest) throws Exception {
 
 		String role = "resident";
-		String token = tokens.get(role);
+		if (!isValidToken(role)){
+	           initToken_Resident();
+	        }
+		//String token = tokens.get(role);
+		String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+		
 		Response response =null;
 
 	    System.out.println("Request:"+ jsonRequest.toString());
@@ -381,7 +404,7 @@ public class RestClient {
     	}*/
     	if(cookie != null) {
     		token = cookie.split("=")[1];
-    		tokens.put(role,token);
+    		 tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+role,token);
     	}
     	System.out.println(token);
         System.out.println("Response:"+response.getBody().asString());
@@ -392,7 +415,12 @@ public class RestClient {
 	public static JSONObject deleteNoAuth(String url, JSONObject jsonRequest) throws Exception {
 
 		String role = "resident";
-		String token = tokens.get(role);
+		if (!isValidToken(role)){
+	           initToken_Resident();
+	        }
+		//String token = tokens.get(role);
+		String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+		
 		Response response =null;
 
 	    System.out.println("Request:"+ jsonRequest.toString());
@@ -406,7 +434,7 @@ public class RestClient {
     	}*/
     	if(cookie != null) {
     		token = cookie.split("=")[1];
-    		tokens.put(role,token);
+    		 tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+role,token);
     	}
     	System.out.println(token);
         System.out.println("Response:"+response.getBody().asString());
@@ -418,7 +446,12 @@ public class RestClient {
 	public static JSONObject deleteNoAuthWithQueryParam(String url, JSONObject jsonRequest) throws Exception {
 
 		String role = "resident";
-		String token = tokens.get(role);
+		if (!isValidToken(role)){
+	           initToken_Resident();
+	        }
+	//	String token = tokens.get(role);
+		String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+		
 		Response response =null;
 
 	    System.out.println("Request:"+ jsonRequest.toString());
@@ -432,7 +465,7 @@ public class RestClient {
     	}*/
     	if(cookie != null) {
     		token = cookie.split("=")[1];
-    		tokens.put(role,token);
+    		 tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+role,token);
     	}
     	System.out.println(token);
         System.out.println("Response:"+response.getBody().asString());
@@ -470,8 +503,9 @@ public class RestClient {
     	} */
 	    
 	    while(!bDone) {
-	    	String token = tokens.get(role);
-	    	
+	    	//String token = tokens.get(role);
+	    	String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+    		
 	    	Cookie kukki = new Cookie.Builder("Authorization", token).build();
 	    	System.out.println("Request:"+ jsonRequest.toString());
           
@@ -500,7 +534,8 @@ public class RestClient {
     	if(cookie != null) {
     		
     		String token = cookie.split("=")[1];
-    		tokens.put(role, token);
+    	
+    		  tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+role, token);
     	}
     	if(response.getBody().asString().startsWith("{")) {
     		System.out.println("Response:"+response.getBody().asString());
@@ -528,8 +563,9 @@ public class RestClient {
     	} */
 	    
 	    while(!bDone) {
-	    	String token = tokens.get(role);
-	    	
+	    	//String token = tokens.get(role);
+	    	String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+    		
 	    	Cookie kukki = new Cookie.Builder("Authorization", token).build();
 	    	System.out.println("Request:"+ jsonRequest.toString());
 	    	response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
@@ -550,7 +586,8 @@ public class RestClient {
     	if(cookie != null) {
     		
     		String token = cookie.split("=")[1];
-    		tokens.put(role, token);
+    		  tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+role, token);
+    		
     	}
     	if(response.getBody().asString().startsWith("{")) {
     		System.out.println("Response:"+response.getBody().asString());
@@ -573,8 +610,9 @@ public class RestClient {
 
 	    
 	    while(!bDone) {
-	    	String token = tokens.get(role);
-	    	
+	    	//String token = tokens.get(role);
+	    	String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+    		
 	    	Cookie kukki = new Cookie.Builder("Authorization", token).build();
 	    	System.out.println("Request:"+ jsonRequest.toString());
 	    	response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
@@ -595,7 +633,8 @@ public class RestClient {
     	if(cookie != null) {
     		
     		String token = cookie.split("=")[1];
-    		tokens.put(role, token);
+    		
+    		  tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+role, token);
     	}
     	if(response.getBody().asString().startsWith("{")) {
     		System.out.println("Response:"+response.getBody().asString());
@@ -622,8 +661,9 @@ public class RestClient {
     	} */
 	    
 	    while(!bDone) {
-	    	String token = tokens.get(role);
-	    	
+	    //	String token = tokens.get(role);
+	    	String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+    		
 	    	Cookie kukki = new Cookie.Builder("Authorization", token).build();
 	    	System.out.println("Request:"+ jsonRequest.toString());
           
@@ -645,7 +685,8 @@ public class RestClient {
     	if(cookie != null) {
     		
     		String token = cookie.split("=")[1];
-    		tokens.put(role, token);
+    		
+    		  tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+role, token);
     	}
     	if(response.getBody().asString().startsWith("{")) {
     		System.out.println("Response:"+response.getBody().asString());
@@ -663,11 +704,11 @@ public class RestClient {
 	        
 				JSONObject requestBody = new JSONObject();
 				JSONObject nestedRequest = new JSONObject();
-				nestedRequest.put("userName", VariableManager.getVariableValue("admin_userName"));
-				nestedRequest.put("password",  VariableManager.getVariableValue("admin_password"));
-	            nestedRequest.put("appId", VariableManager.getVariableValue("mosip_admin_app_id"));
-	            nestedRequest.put("clientId",  VariableManager.getVariableValue("mosip_admin_client_id"));
-	            nestedRequest.put("clientSecret",  VariableManager.getVariableValue("mosip_admin_client_secret"));
+				nestedRequest.put("userName", VariableManager.getVariableValue("admin_userName").toString());
+				nestedRequest.put("password",  VariableManager.getVariableValue("admin_password").toString());
+	            nestedRequest.put("appId", VariableManager.getVariableValue("mosip_admin_app_id").toString());
+	            nestedRequest.put("clientId",  VariableManager.getVariableValue("mosip_admin_client_id").toString());
+	            nestedRequest.put("clientSecret",  VariableManager.getVariableValue("mosip_admin_client_secret").toString());
 				requestBody.put("metadata",new JSONObject());
 				requestBody.put("version", "1.0");
 				requestBody.put("id", "mosip.authentication.useridPwd");
@@ -679,7 +720,8 @@ public class RestClient {
 				
 				String authUrl = VariableManager.getVariableValue("urlBase").toString().trim() + VariableManager.getVariableValue("authManagerURL").toString().trim();
 				String jsonBody = requestBody.toString(); 
-				
+				logger.info("Neeharika initToken logger " + authUrl + " Auth URL"+  jsonBody);
+				//System.out.println("Neeharika Syso " + authUrl + " Auth URL"+  jsonBody);
 				Response response =null;
 				try {
 					response = given()
@@ -704,7 +746,7 @@ public class RestClient {
 	            //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
 	           
 	          // String token=response.getCookie("Authorization");
-	            tokens.put("system", token);
+	            tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+"system", token);
 	            //tokens.put("admin", token);
 				return true;	
 			}
@@ -717,13 +759,14 @@ public class RestClient {
 	    }
 	public  static boolean initToken_admin(){
         try {		
+        	
 			JSONObject requestBody = new JSONObject();
 			JSONObject nestedRequest = new JSONObject();
-			nestedRequest.put("userName", VariableManager.getVariableValue("operatorId"));
-			nestedRequest.put("password",  VariableManager.getVariableValue("password"));
-            nestedRequest.put("appId", VariableManager.getVariableValue("mosip_admin_app_id"));
-            nestedRequest.put("clientId",  VariableManager.getVariableValue("mosip_admin_client_id"));
-            nestedRequest.put("clientSecret",  VariableManager.getVariableValue("mosip_admin_client_secret"));
+			nestedRequest.put("userName", VariableManager.getVariableValue("admin_userName").toString());
+			nestedRequest.put("password",  VariableManager.getVariableValue("admin_password").toString());
+            nestedRequest.put("appId", VariableManager.getVariableValue("mosip_admin_app_id").toString());
+            nestedRequest.put("clientId",  VariableManager.getVariableValue("mosip_admin_client_id").toString());
+            nestedRequest.put("clientSecret",  VariableManager.getVariableValue("mosip_admin_client_secret").toString());
 			requestBody.put("metadata",new JSONObject());
 			requestBody.put("version", "1.0");
 			requestBody.put("id", "mosip.authentication.useridPwd");
@@ -735,7 +778,7 @@ public class RestClient {
 			
 			String authUrl = VariableManager.getVariableValue("urlBase").toString().trim() + VariableManager.getVariableValue("authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString(); 
-			
+			logger.info("Neeharika initToken_admin logger " + authUrl + " Auth URL"+  jsonBody);
 			Response response =null;
 			try {
 				response = given()
@@ -760,7 +803,9 @@ public class RestClient {
             //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
            
             //String token=response.getCookie("Authorization");
-            tokens.put("admin", token);
+            
+            tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+"admin", token);
+          
 			return true;	
 		}
 		catch(Exception  ex){
@@ -791,6 +836,7 @@ public class RestClient {
 			
 			//String authUrl = VariableManager.getVariableValue("urlBase").toString().trim() + VariableManager.getVariableValue("authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString(); 
+			logger.info("Neeharika initToken_Resident logger " + authUrl + " Auth URL"+  jsonBody);
 			
 			Response response =null;
 			try {
@@ -815,7 +861,8 @@ public class RestClient {
             //token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
             //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
             String token=response.getCookie("Authorization");
-            tokens.put("resident", token);
+            tokens.put(VariableManager.getVariableValue("urlBase").toString().trim()+"resident", token);
+            
 			return true;	
 		}
 		catch(Exception  ex){
@@ -893,8 +940,9 @@ public class RestClient {
     	}*/
     	while(!bDone) {
 
-    		String token = tokens.get(role);
-        	
+    		//String token = tokens.get(role);
+    		String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+    		
     		Cookie kukki = new Cookie.Builder("Authorization", token).build();
     		Map<String,Object> mapParam = requestParams == null ? null: requestParams.toMap();
         		//new Gson().fromJson(requestParams.toString(), HashMap.class);
@@ -993,8 +1041,9 @@ public class RestClient {
     	}*/
     	while(!bDone) {
 
-    		String token = tokens.get(role);
-        	
+    		//String token = tokens.get(role);
+    		String token= tokens.get(VariableManager.getVariableValue("urlBase").toString().trim()+role);
+    		
     		Cookie kukki = new Cookie.Builder("Authorization", token).build();
 
     		response = given().cookie(kukki).contentType(ContentType.JSON).get(url);

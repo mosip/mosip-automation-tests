@@ -629,8 +629,9 @@ public  class MosipMasterData {
 				}
 			 
 			System.out.println(idSchema.toString());
-			CommonUtil.saveToTemp(idSchema.toString(), "uispec.json");
-			CommonUtil.saveToTemp(resp.getString("schemaJson"), "schemaJson.json");
+		
+//			CommonUtil.saveToTemp(idSchema.toString(), "uispec.json");
+//			CommonUtil.saveToTemp(resp.getString("schemaJson"), "schemaJson.json");
 			
 			schemaVersion=	resp.getDouble( "idVersion");
 			schemaTitle = resp.getString("title");

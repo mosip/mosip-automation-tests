@@ -92,6 +92,7 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+String inputJson=null;
+							
 	}
 }
