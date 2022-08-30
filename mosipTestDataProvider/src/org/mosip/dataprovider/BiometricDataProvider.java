@@ -224,12 +224,12 @@ public class BiometricDataProvider {
 		String mdsprofilePath = null;
 		String profileName = null;
 		
-		val =  VariableManager.getVariableValue("mdsbypass").toString();
+		val =  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsbypass").toString();
 		if(val == null || val.equals("") || val.equals("false")) {
 	
-			val =  VariableManager.getVariableValue("mdsport").toString();
+			val =  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsport").toString();
 			int port = Integer.parseInt(val);
-			mdsprofilePath = VariableManager.getVariableValue("mdsprofilepath").toString();
+			mdsprofilePath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsprofilepath").toString();
 		
 			port = (port ==0 ? 4501: port);
 	
@@ -376,7 +376,7 @@ public class BiometricDataProvider {
 		
 		String mosipVersion=null;
 		try {
-	      mosipVersion=VariableManager.getVariableValue("mosip.version").toString();
+	      mosipVersion=VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.version").toString();
 		}catch(Exception e) {
 			
 		}
@@ -613,14 +613,14 @@ public class BiometricDataProvider {
 	
 		if(bFinger) {
 			
-			Object val = VariableManager.getVariableValue("enableExternalBiometricSource");
+			Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"enableExternalBiometricSource");
 			boolean bExternalSrc = false;
 			if(val != null )
 				bExternalSrc = Boolean.valueOf(val.toString());
 			
 			if(bExternalSrc) {
 				//folder where all bio input available
-				String bioSrc = VariableManager.getVariableValue("externalBiometricsource").toString();
+				String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"externalBiometricsource").toString();
 
 				String [] fingerPrints = new String[10];
 				String [] fingerPrintHash = new String[10];
@@ -650,7 +650,7 @@ public class BiometricDataProvider {
 				return data;
 			}
 
-			Boolean bAnguli = Boolean.parseBoolean( VariableManager.getVariableValue("enableAnguli").toString());
+			Boolean bAnguli = Boolean.parseBoolean( VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"enableAnguli").toString());
 			if(bAnguli) {
 
 								//else case
@@ -822,7 +822,7 @@ System.out.println("Anguli commands" + commands);
 		
 		IrisDataModel m = new IrisDataModel();
 		
-		Object val = VariableManager.getVariableValue("enableExternalBiometricSource");
+		Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"enableExternalBiometricSource");
 		boolean bExternalSrc = false;
 		//BufferedImage img = null;
 
@@ -832,7 +832,7 @@ System.out.println("Anguli commands" + commands);
 		
 		if(bExternalSrc) {
 			//folder where all bio input available
-			String bioSrc = VariableManager.getVariableValue("externalBiometricsource").toString();
+			String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"externalBiometricsource").toString();
 
 			String fPathL = bioSrc + "Left Iris.jp2";
 			String fPathR = bioSrc + "Right Iris.jp2";

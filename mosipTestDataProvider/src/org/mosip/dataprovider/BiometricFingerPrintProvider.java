@@ -240,7 +240,7 @@ public class BiometricFingerPrintProvider {
 		File tmpDir;
 	
 		if(bFinger) {
-			Boolean bAnguli = Boolean.parseBoolean( VariableManager.getVariableValue("enableAnguli").toString());
+			Boolean bAnguli = Boolean.parseBoolean( VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"enableAnguli").toString());
 			if(bAnguli) {
 			
 				try {

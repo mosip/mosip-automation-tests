@@ -49,7 +49,7 @@ public class ResidentService {
 			loadServerContextProperties(context);
 			ResidentModel resident = ResidentModel.readPersona(personaPath);
 			RegistrationSteps steps = new RegistrationSteps();
-			String resp = steps.downloadCard(resident, uin);
+			String resp = steps.downloadCard(resident, uin,context);
 			  
 			return resp;
 	  }
@@ -59,7 +59,7 @@ public class ResidentService {
 		 
 		  RegistrationSteps steps = new RegistrationSteps();
 		  try {
-			  return steps.getRIDStatus(rid);
+			  return steps.getRIDStatus(rid,context);
 		  } catch (Exception e) {
 			  logger.error("getRIDStatus", e);
 		  }
@@ -71,7 +71,7 @@ public class ResidentService {
 		  loadServerContextProperties(context);
 		  RegistrationSteps steps = new RegistrationSteps();
 		//  try {
-			 return steps.getUINByRID(rid);
+			 return steps.getUINByRID(rid,context);
 		 // } catch (Exception e) {
 		//	  logger.error("getUINByRID", e);
 		  //}

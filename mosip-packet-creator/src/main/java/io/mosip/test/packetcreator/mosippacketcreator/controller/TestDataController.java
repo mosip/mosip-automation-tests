@@ -83,7 +83,10 @@ public class TestDataController {
     private String baseUrl;
 
     @PostMapping(value = "/servercontext/{contextKey}")
-    public @ResponseBody String createServerContext(@RequestBody Properties contextProperties, @PathVariable("contextKey") String contextKey) {
+    public @ResponseBody String createServerContext(
+    		@RequestBody Properties contextProperties, 
+    		@PathVariable("contextKey") String contextKey
+    		) {
     	Boolean bRet = false;
     	try{
     		bRet = contextUtils.createUpdateServerContext(contextProperties, contextKey);
@@ -93,7 +96,9 @@ public class TestDataController {
     	return bRet.toString();
     }
     @GetMapping(value = "/servercontext/{contextKey}")
-    public @ResponseBody Properties getServerContext( @PathVariable("contextKey") String contextKey) {
+    public @ResponseBody Properties getServerContext( 
+    		@PathVariable("contextKey") String contextKey
+    		) {
     	Properties bRet = null;
     	try{
     		bRet = contextUtils.loadServerContext( contextKey);
@@ -104,7 +109,8 @@ public class TestDataController {
     }
     @PostMapping(value = "/packetcreator/{contextKey}")
     public @ResponseBody String createPacket(@RequestBody PacketCreateDto packetCreateDto, 
-    		@PathVariable("contextKey") String contextKey) {
+    		@PathVariable("contextKey") String contextKey) 
+    {
         try{
             return pkm.createContainer(null,packetCreateDto.getIdJsonPath(), packetCreateDto.getTemplatePath(),
             		packetCreateDto.getSource(), packetCreateDto.getProcess(), null,contextKey, true,packetCreateDto.getAdditionalInfoReqId());
@@ -114,23 +120,29 @@ public class TestDataController {
         return "Failed!";
     }
 
-    @GetMapping(value = "/auth")
-    public @ResponseBody String getAPITestData() {
-        return String.valueOf(apiUtil.initToken());
+    @GetMapping(value = "/auth/{contextKey}")
+    public @ResponseBody String getAPITestData(
+    		@PathVariable("contextKey") String contextKey
+    		) {
+        return String.valueOf(apiUtil.initToken(contextKey));
     }
 
-    @GetMapping(value = "/clearToken")
-    public @ResponseBody String ClearToken() {
-    	VariableManager.setVariableValue("urlSwitched",true);
+    @GetMapping(value = "/clearToken/{contextKey}")
+    public @ResponseBody String ClearToken(
+    		@PathVariable("contextKey") String contextKey
+    		) {
+    	VariableManager.setVariableValue(contextKey,"urlSwitched",true);
     	return "Success";
     	//return String.valueOf(apiUtil.initToken());
     }
     
     
-    @GetMapping(value = "/sync")
-    public @ResponseBody String syncPreregData() {
+    @GetMapping(value = "/sync/{contextKey}")
+    public @ResponseBody String syncPreregData(
+    		@PathVariable("contextKey") String contextKey
+    		) {
         try {
-            pss.syncPrereg();
+            pss.syncPrereg(contextKey);
             return "All Done!";
         } catch (Exception exception) {
             logger.error("", exception);
@@ -138,9 +150,11 @@ public class TestDataController {
         }
     }
         
-    @GetMapping(value = "/sync/{preregId}")
-    public @ResponseBody String getPreregData(@PathVariable("preregId") String preregId,
-    		@RequestParam(name="contextKey",required = false) String contextKey){
+    @GetMapping(value = "/sync/{preregId}/{contextKey}")
+    public @ResponseBody String getPreregData(
+    		@PathVariable("preregId") String preregId,
+    		@PathVariable("contextKey") String contextKey
+    		){
         try{
             return pss.downloadPreregPacket(preregId, contextKey);
         } catch(Exception exception){
@@ -149,44 +163,48 @@ public class TestDataController {
         }
     }
 
-    @GetMapping(value = "/encrypt")
+    @GetMapping(value = "/encrypt/{contextKey}")
     public @ResponseBody String encryptData(
-    		@RequestParam(name="contextKey",required = false) String contextKey) throws Exception {
+    		@PathVariable("contextKey") String contextKey
+    		) throws Exception {
         return Base64.getUrlEncoder().encodeToString(cryptoUtil.encrypt("test".getBytes(), "referenceId", contextKey));
     }
 
-    @PostMapping(value = "/ridsync")
+    @PostMapping(value = "/ridsync/{contextKey}")
     public @ResponseBody String syncRid(@RequestBody SyncRidDto syncRidDto,
-    		@RequestParam(name="contextKey",required = false) String contextKey) throws Exception {
+    		@PathVariable("contextKey") String contextKey) throws Exception {
     	
         return packetSyncService.syncPacketRid(syncRidDto.getContainerPath(), syncRidDto.getName(),
                 syncRidDto.getSupervisorStatus(), syncRidDto.getSupervisorComment(), syncRidDto.getProcess(), contextKey,syncRidDto.getAdditionalInfoReqId());
     }
 
-	@PostMapping(value = "/ridsyncreq")
+	@PostMapping(value = "/ridsyncreq/{contextKey}")
     public @ResponseBody RidSyncReqResponseDTO syncRidRequest(@RequestBody RidSyncReqRequestDto syncRidDto,
-    		@RequestParam(name="contextKey",required = false) String contextKey) throws Exception {
+    		@PathVariable("contextKey") String contextKey) throws Exception {
 
         return packetSyncService.syncPacketRidRequest(syncRidDto.getContainerPath(), syncRidDto.getName(),
                 syncRidDto.getSupervisorStatus(), syncRidDto.getSupervisorComment(), syncRidDto.getProcess(), contextKey,syncRidDto.getAdditionalInfoReqId());
     }
 
-    @PostMapping(value = "/packetsync")
+    @PostMapping(value = "/packetsync/{contextKey}")
     public @ResponseBody String packetsync(@RequestBody PreRegisterRequestDto path, 
-    		@RequestParam(name="contextKey",required = false) String contextKey) throws Exception {
+    		@PathVariable("contextKey") String contextKey) throws Exception {
         return packetSyncService.uploadPacket(path.getPersonaFilePath().get(0), contextKey);
     }
 
-    @GetMapping(value = "/startjob")
-    public @ResponseBody String startJob() {
-        String response = jobScheduler.scheduleRecurrently(()->packetJobService.execute(),
+    @GetMapping(value = "/startjob/{contextKey}")
+    public @ResponseBody String startJob(
+    		@PathVariable("contextKey") String contextKey
+    		) {
+        String response = jobScheduler.scheduleRecurrently(()->packetJobService.execute(contextKey),
                 Cron.every5minutes());
         return response;
     }
     
-    @GetMapping(value = "/makepacketandsync/{preregId}")
+    @GetMapping(value = "/makepacketandsync/{preregId}/{contextKey}")
     public @ResponseBody String makePacketAndSync(@PathVariable("preregId") String preregId,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey
+    		) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -199,10 +217,10 @@ public class TestDataController {
     	}
     	return "{Failed}";
     }
-    @PostMapping(value = "/resident/{count}")
+    @PostMapping(value = "/resident/{count}/{contextKey}")
     public @ResponseBody String generateResidentData(@RequestBody PersonaRequestDto residentRequestDto,
     		@PathVariable("count") int count,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{
     		logger.info("Persona Config Path="+ personaConfigPath );
@@ -227,11 +245,12 @@ public class TestDataController {
     	}
     	return "{Failed}";
     }    
-    @PostMapping(value = "/updateresident")
+    @PostMapping(value = "/updateresident/{contextKey}")
     public @ResponseBody String updateResidentData(@RequestBody PersonaRequestDto personaRequestDto ,
     		//@PathVariable("id") int id,
     		@RequestParam(name = "UIN", required = false) String uin,
-    		@RequestParam(name = "RID", required = false) String rid
+    		@RequestParam(name = "RID", required = false) String rid,
+    		@PathVariable("contextKey") String contextKey
     		) {
     	
     	try{    	
@@ -248,9 +267,9 @@ public class TestDataController {
     	return "{Failed}";
     	
     }
-    @PostMapping(value = "/preregister/")
+    @PostMapping(value = "/preregister//{contextKey}")
     public @ResponseBody String preRegisterResident(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -266,9 +285,9 @@ public class TestDataController {
     /*
      * to : email | mobile
      */
-    @PostMapping(value = "/requestotp/{to}") 
+    @PostMapping(value = "/requestotp/{to}/{contextKey}") 
     public @ResponseBody String requestOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto, @PathVariable("to") String to,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -282,9 +301,9 @@ public class TestDataController {
     	return "{Failed}";
     }
     
-    @PostMapping(value = "/verifyotp/{to}")
+    @PostMapping(value = "/verifyotp/{to}/{contextKey}")
     public @ResponseBody String verifyOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto,@PathVariable("to") String to,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -300,9 +319,9 @@ public class TestDataController {
     /*
      * Book first nn th available slot
      */
-    @PostMapping(value = "/bookappointment/{preregid}/{nthSlot}")
+    @PostMapping(value = "/bookappointment/{preregid}/{nthSlot}/{contextKey}")
     public @ResponseBody String bookAppointment(@PathVariable("preregid") String preregId,@PathVariable("nthSlot") int  nthSlot,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -316,9 +335,9 @@ public class TestDataController {
     	return "{\"Failed\"}";
     }
     
-    @PostMapping(value = "/documents/{preregid}")
+    @PostMapping(value = "/documents/{preregid}/{contextKey}")
     public @ResponseBody String uploadDocuments(@RequestBody PreRegisterRequestDto preRegisterRequestDto,@PathVariable("preregid") String preregId,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -332,11 +351,11 @@ public class TestDataController {
     	return "{\"Failed\"}";
     }
     
-    @PostMapping(value = "/packet/{process}/{outFolderPath}")
+    @PostMapping(value = "/packet/{process}/{outFolderPath}/{contextKey}")
     public @ResponseBody String createPackets(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
     		@PathVariable("process") String process,
     		@PathVariable("outFolderPath") String outFolderPath,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -353,10 +372,10 @@ public class TestDataController {
     /*
      * Download from pre-reg, merge with the given packet template and upload to register
      */
-    @PostMapping(value = "/packet/sync/{preregId}")
+    @PostMapping(value = "/packet/sync/{preregId}/{contextKey}")
     public @ResponseBody String preRegToRegister(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
     		@PathVariable("preregId") String preregId,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -382,22 +401,25 @@ public class TestDataController {
     
     @ApiOperation(value = "Delete Booking appointment for a given pre-registration-Id", response = String.class)
 
-    @DeleteMapping(value = "/preregistration/v1/applications/appointment")
+    @DeleteMapping(value = "/preregistration/v1/applications/appointment/{contextKey}")
     public @ResponseBody String deleteAppointment(
-    		@RequestParam(name="preRegistrationId") String preregId) {
+    		@RequestParam(name="preRegistrationId") String preregId,
+    		@PathVariable("contextKey") String contextKey
+    		) {
     	HashMap<String, String> map=new HashMap<String, String>();
     	map.put("preRegistrationId",preregId);
-    	return packetSyncService.discardBooking(map);
+    	return packetSyncService.discardBooking(map,contextKey);
     	
     }
     
 	@ApiOperation(value = "Update appointment for a given PreRegID ", response = String.class)
-	@PutMapping(value = "/preregistration/v1/applications/appointment/{preregid}")
+	@PutMapping(value = "/preregistration/v1/applications/appointment/{preregid}/{contextKey}")
     public @ResponseBody String updateAppointment(
-    		@PathVariable("preregid") String preregid) {
+    		@PathVariable("preregid") String preregid,
+    		@PathVariable("contextKey") String contextKey) {
     	try{    	
     		
-    		return packetSyncService.updatePreRegAppointment(preregid);
+    		return packetSyncService.updatePreRegAppointment(preregid,contextKey);
     	
     	} catch (Exception ex){
              logger.error("registerResident", ex);

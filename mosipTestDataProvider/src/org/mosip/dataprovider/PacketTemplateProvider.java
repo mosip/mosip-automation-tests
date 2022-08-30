@@ -62,7 +62,7 @@ public class PacketTemplateProvider {
 	public static String RID_EVIDENCE = "rid_evidence";
 	public static String RID_OPTIONAL = "rid_optional";
 
-	Hashtable<Double, Properties> allSchema = MosipMasterData.getIDSchemaLatestVersion();
+	Hashtable<Double, Properties> allSchema = MosipMasterData.getIDSchemaLatestVersion("contextKey");//Neeha need to fix
 
 	Double schemaVersion = allSchema.keys().nextElement();
 	
@@ -72,8 +72,8 @@ public class PacketTemplateProvider {
 	private static final String DOMAIN_NAME = ".mosip.net";
 	Properties prop = new Properties();
 
-	public void getSchema() {
-		allSchema = MosipMasterData.getIDSchemaLatestVersion();
+	public void getSchema(String contextKey) {
+		allSchema = MosipMasterData.getIDSchemaLatestVersion(contextKey);
 		schemaVersion = allSchema.keys().nextElement();
 		schema = (List<MosipIDSchema>) allSchema.get(schemaVersion).get("schemaList");
 		requiredAttribs = (List<String>) allSchema.get(schemaVersion).get("requiredAttributes");
@@ -87,7 +87,7 @@ public class PacketTemplateProvider {
 		String ridFolder = "";
 		Path path = Paths.get(rootFolder);
 
-		getSchema();
+		getSchema(contextKey);
 
 		if (!Files.exists(path)) {
 			Files.createDirectory(path);
@@ -627,7 +627,7 @@ public class PacketTemplateProvider {
 
 	Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile) throws Exception {
 
-		String strVal = VariableManager.getVariableValue("usemds").toString();
+		String strVal = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"usemds").toString();
 		boolean bMDS = Boolean.valueOf(strVal);
 		String cbeff = resident.getBiometric().getCbeff();
 		if (bMDS) {
@@ -682,7 +682,7 @@ public class PacketTemplateProvider {
 				String secVal = "";
 				
 				//context should set Male/Female code values 
-				Object obj = VariableManager.getVariableValue(resGen.name());
+				Object obj = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,resGen.name());
 				if(obj != null) {
 					genderCode = obj.toString();
 					primVal = secVal = genderCode;
@@ -1606,7 +1606,7 @@ public class PacketTemplateProvider {
 		else
 			throw new RuntimeException("ContextKey not found !!");
 		
-		String propPath = VariableManager.getVariableValue("mosip.test.env.mapperpath").toString();
+		String propPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.env.mapperpath").toString();
 		System.out.println(propPath);
 		try {
 			File folder = new File(String.valueOf(propPath) + File.separator);
@@ -1633,7 +1633,7 @@ public class PacketTemplateProvider {
 	String generateMetaDataJson(ResidentModel resident, String preRegistrationId, String machineId, String centerId,
 			HashMap<String, String[]> fileInfo) {
 
-		String templateMetaJsonPath = VariableManager.getVariableValue("templateIDMeta").toString().trim();
+		String templateMetaJsonPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"templateIDMeta").toString().trim();
 
 		String templateIdentityStr = CommonUtil.readFromJSONFile(templateMetaJsonPath);
 		JSONObject templateIdentity = new JSONObject(templateIdentityStr).getJSONObject("identity");
@@ -1765,7 +1765,7 @@ public class PacketTemplateProvider {
 	public static void main(String[] args) {
 
 		ResidentDataProvider provider = new ResidentDataProvider();
-		List<ResidentModel> residents = provider.generate();
+		List<ResidentModel> residents = provider.generate("contextKey");
 		try {
 			new PacketTemplateProvider().generate("registration_client", "new", residents.get(0), "/temp//newpacket",
 					null, null, null,null,null,null);

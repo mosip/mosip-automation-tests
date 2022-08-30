@@ -40,7 +40,7 @@ public class ResidentPreRegistration {
 	}*/
 	
 	@Given("^Adult \"(.*)\" from \"(.*)\"$")
-	public void createPersonaAdult(String gender, String country) {
+	public void createPersonaAdult(String gender, String country,String contextKey) {
 	
 		System.out.println(String.format("createPersonaAdult %s from %s", gender, country));
 		ResidentDataProvider provider = new ResidentDataProvider();
@@ -48,14 +48,14 @@ public class ResidentPreRegistration {
 		
 		provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
 		provider.addCondition(ResidentAttribute.RA_Gender, enumGender);
-		List<MosipLanguage> langs = MosipMasterData.getConfiguredLanguages();
+		List<MosipLanguage> langs = MosipMasterData.getConfiguredLanguages(contextKey);
 		if(langs != null ) {
 			provider.addCondition(ResidentAttribute.RA_PRIMARAY_LANG, langs.get(0).getCode());
 			if(langs.size() > 1)
 			provider.addCondition(ResidentAttribute.RA_SECONDARY_LANG, langs.get(1).getCode());
 			
 		}
-		List<ResidentModel> lst = provider.generate();
+		List<ResidentModel> lst = provider.generate(contextKey);
 		if(lst != null && !lst.isEmpty())
 			person  = lst.get(0);
 		
@@ -64,12 +64,12 @@ public class ResidentPreRegistration {
 	}
 	
 	@When("^request otp for his/her \"(phone|email)\"$")
-	public void sendOtp(String to)  {
+	public void sendOtp(String to, String contextKey)  {
 		
-		sendOtpTo(to); 
+		sendOtpTo(to,contextKey); 
 		
 	}
-	public String sendOtpTo(String to) {
+	public String sendOtpTo(String to,String contextKey) {
 
 		System.out.println(String.format("sendOtp %s ",to));
 		
@@ -79,26 +79,26 @@ public class ResidentPreRegistration {
 			otpTarget = person.getContact().getEmailId();
 		
 		//Override to otp email
-		String bRet  = VariableManager.getVariableValue( "usePreConfiguredOtp").toString();
+		String bRet  = VariableManager.getVariableValue(contextKey, "usePreConfiguredOtp").toString();
 		
 		if(bRet.contains("false")){
 		
-			otpTarget = VariableManager.getVariableValue( "otpTargetEmail").toString();
+			otpTarget = VariableManager.getVariableValue(contextKey, "otpTargetEmail").toString();
 		}
-		String emailTo  = VariableManager.getVariableValue( "usePreConfiguredEmail").toString();
+		String emailTo  = VariableManager.getVariableValue(contextKey, "usePreConfiguredEmail").toString();
 		if(emailTo != null && !emailTo.equals(""))
 			otpTarget = emailTo;
 		
-		String result = CreatePersona.sendOtpTo(otpTarget,person.getPrimaryLanguage());
+		String result = CreatePersona.sendOtpTo(otpTarget,person.getPrimaryLanguage(),contextKey);
 		System.out.println(String.format("sendOtp Result %s ",result));
 		return result;
 	}
 	@And("^fetch otp$")
-	public void fetchOtp() {
+	public void fetchOtp(String contextKey) {
 		
 		String otp ="111111";
 		
-		String bRet  = VariableManager.getVariableValue( "usePreConfiguredOtp").toString();
+		String bRet  = VariableManager.getVariableValue(contextKey, "usePreConfiguredOtp").toString();
 		
 		if(bRet.contains("false")){
 			//do a wait
@@ -119,12 +119,12 @@ public class ResidentPreRegistration {
 			}
 		}
 		else
-			otp = VariableManager.getVariableValue( "preconfiguredOtp").toString();
+			otp = VariableManager.getVariableValue(contextKey, "preconfiguredOtp").toString();
 		
-		VariableManager.setVariableValue( "email_otp", otp);
+		VariableManager.setVariableValue( "email_otp", otp,contextKey);
 	}
 	
-	public void fetchAdditionalInfoReqId(long waitTimeInMillis) {
+	public void fetchAdditionalInfoReqId(long waitTimeInMillis,String contextKey) {
 		String additionalInfoReqId = null;
 		Boolean bFound = false;
 		int nRepeat = 5;
@@ -141,75 +141,75 @@ public class ResidentPreRegistration {
 			if (additionalInfoReqId != null)
 				bFound = true;
 		}
-		VariableManager.setVariableValue("email_additionalInfoReqId", additionalInfoReqId);
+		VariableManager.setVariableValue("email_additionalInfoReqId", additionalInfoReqId,contextKey);
 	}
 	@Then("^verify otp \"(.*)\"$") 
-	public String VerifyOtp(String otp)  {
+	public String VerifyOtp(String otp, String contextKey)  {
 		if(otp == null || otp.equals(""))
-			otp =VariableManager.getVariableValue( "email_otp").toString();
+			otp =VariableManager.getVariableValue(contextKey, "email_otp").toString();
 	
 	
-		return CreatePersona.validateOTP(otp, otpTarget);
+		return CreatePersona.validateOTP(otp, otpTarget,contextKey);
 	}
-	public String verifyOtp(String to, String otp) {
+	public String verifyOtp(String to, String otp, String contextKey) {
 
 		if(otp == null || otp.equals(""))
-			otp =VariableManager.getVariableValue( "email_otp").toString();
+			otp =VariableManager.getVariableValue(contextKey, "email_otp").toString();
 
 		if(to.equals("phone"))
 			otpTarget = person.getContact().getMobileNumber();
 		else
 			otpTarget = person.getContact().getEmailId();
 		
-		String emailTo  = VariableManager.getVariableValue( "usePreConfiguredEmail").toString();
+		String emailTo  = VariableManager.getVariableValue(contextKey, "usePreConfiguredEmail").toString();
 		if(emailTo != null && !emailTo.equals(""))
 			otpTarget = emailTo;
 		
 		//Override to otp email
-		String bRet  = VariableManager.getVariableValue( "usePreConfiguredOtp").toString();
+		String bRet  = VariableManager.getVariableValue( contextKey,"usePreConfiguredOtp").toString();
 		
 		if(bRet.contains("false")){
 		
-			otpTarget = VariableManager.getVariableValue( "otpTargetEmail").toString();
+			otpTarget = VariableManager.getVariableValue(contextKey, "otpTargetEmail").toString();
 		}
-		return CreatePersona.validateOTP(otp, otpTarget);
+		return CreatePersona.validateOTP(otp, otpTarget,contextKey);
 	}
 	@And("^PreRegister him$") 
-	public void PreRegisterAdultMale() throws JSONException { 
+	public void PreRegisterAdultMale(String contextKey) throws JSONException { 
 		System.out.println("PreRegisterAdultMale");
 	
-		String result = PreRegistrationSteps.postApplication(person,null);
+		String result = PreRegistrationSteps.postApplication(person,null,contextKey);
 		preRegID = result;
 		System.out.println(String.format("PreRegisterAdultMale Result %s ",result));
 		
 		//assert(1 == 2);
 	} 
 	 @Then("^upload \"(POI|POD)\" document$") 
-	 public void uploadProof(String docCategory) throws JSONException {
+	 public void uploadProof(String docCategory, String contextKey) throws JSONException {
 		
 		 System.out.println("uploadProof " + docCategory);
 		 int i=0;
 		 for(MosipDocument a:person.getDocuments()) {
 			 PreRegistrationSteps.UploadDocument(a.getDocCategoryCode(),
 					 a.getType().get(i).getCode(),
-					 a.getDocCategoryLang(), a.getDocs().get(i) ,preRegID);
+					 a.getDocCategoryLang(), a.getDocs().get(i) ,preRegID,contextKey);
 			 break;
 		 }
 		 
 	 }
 
 	 @And("^book first available appointment$") 
-	 public void bookAppointment() throws JSONException {
+	 public void bookAppointment(String contextKey) throws JSONException {
 		 Boolean bBooked = false;
-		 AppointmentModel res = PreRegistrationSteps.getAppointments();
+		 AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
 			
 			for( CenterDetailsModel a: res.getAvailableDates()) {
 				if(!a.getHoliday()) {
 					for(AppointmentTimeSlotModel ts: a.getTimeslots()) {
 						if(ts.getAvailability() > 0) {
-							PreRegistrationSteps.bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts);
+							PreRegistrationSteps.bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts,contextKey);
 							bBooked = true;
-							VariableManager.setVariableValue("PRID",preRegID);
+							VariableManager.setVariableValue(contextKey,"PRID",preRegID);
 							break;
 						}
 					}

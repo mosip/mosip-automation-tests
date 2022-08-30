@@ -160,7 +160,7 @@ public class MDSClient implements MDSClientInterface {
 			String bioSubType, int reqScore,int deviceSubId) {
 		String mosipVersion=null;;
 		try {
-	      mosipVersion=VariableManager.getVariableValue("mosip.version").toString();
+	      mosipVersion=VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.version").toString();
 		}catch(Exception e) {
 			
 		}
@@ -313,5 +313,11 @@ public class MDSClient implements MDSClientInterface {
 		//r = client.captureFromRegDevice(d.get(0),r, "Face",null,60,1);
 		
 		//System.out.println( r.toJSONString());
+	}
+
+	@Override
+	public List<MDSDevice> getRegDeviceInfo(String type, String contextKey) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

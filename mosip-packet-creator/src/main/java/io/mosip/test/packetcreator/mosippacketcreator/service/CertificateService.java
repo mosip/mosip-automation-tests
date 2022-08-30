@@ -39,12 +39,12 @@ public class CertificateService {
     
     private static final Logger logger = LoggerFactory.getLogger(CertificateService.class);
 
-    public String uploadCACertificate(String certificateData){
+    public String uploadCACertificate(String certificateData,String contextKey){
 
         String resp;
         try{
             // String certificateData = readCertificate(certificateFile);
-            resp = CertificateUploader.uploadCACertificate(certificateData, "Auth");
+            resp = CertificateUploader.uploadCACertificate(certificateData, "Auth",contextKey);
             return resp;
         }
         // catch(IOException e){
@@ -57,21 +57,21 @@ public class CertificateService {
         
     }
 
-    public String uploadStoredCACertificate(String certificateFile){
+    public String uploadStoredCACertificate(String certificateFile,String contextKey){
 
         String certificateData;
         try{
-            certificateData = readCertificate(certificateFile);
+            certificateData = readCertificate(certificateFile,contextKey);
         }
         catch(IOException e){
             return "certificate file not found";
         }
 
-        return CertificateUploader.uploadCACertificate(certificateData, "Auth");
+        return CertificateUploader.uploadCACertificate(certificateData, "Auth",contextKey);
 
     }
 
-    public String generateAndUploadRootCertificate(String issuer, String alias, int validYears){
+    public String generateAndUploadRootCertificate(String issuer, String alias, int validYears,String contextKey){
 
         KeyPairGenerator kpg;
         try{
@@ -103,7 +103,7 @@ public class CertificateService {
             keyStore.load(null, null);
             keyStore.setKeyEntry(alias, privateKey, alias.toCharArray(), new Certificate []{certificate});
 
-            String file_path = VariableManager.getVariableValue("certificatePath").toString() + "CA/" + alias + ".p12";
+            String file_path = VariableManager.getVariableValue(contextKey,"certificatePath").toString() + "CA/" + alias + ".p12";
 
             FileOutputStream fOut = new FileOutputStream(file_path);
 		 
@@ -115,12 +115,12 @@ public class CertificateService {
         }
 
 
-        return uploadCACertificate(certificateString);
+        return uploadCACertificate(certificateString,contextKey);
         // return "done";
         
     }
 
-    public String generateAndUploadIntCertificate(String issuer, String alias, int validYears, String rootAlias){
+    public String generateAndUploadIntCertificate(String issuer, String alias, int validYears, String rootAlias,String contextKey){
 
         PrivateKey rootPrivateKey;
         X509Certificate rootCertificate; 
@@ -129,7 +129,7 @@ public class CertificateService {
         try{
             KeyStore keyStore = KeyStore.getInstance("PKCS12");
             
-            String file_path = VariableManager.getVariableValue("certificatePath").toString() + "CA/" + rootAlias + ".p12";
+            String file_path = VariableManager.getVariableValue(contextKey,"certificatePath").toString() + "CA/" + rootAlias + ".p12";
             FileInputStream fIn = new FileInputStream(file_path);
 
             keyStore.load(fIn, rootAlias.toCharArray());
@@ -179,7 +179,7 @@ public class CertificateService {
             
             keyStore.setKeyEntry(alias, privateKey, alias.toCharArray(), new Certificate []{certificate});
 
-            String file_path = VariableManager.getVariableValue("certificatePath").toString() + "CA/" + alias + ".p12";
+            String file_path = VariableManager.getVariableValue(contextKey,"certificatePath").toString() + "CA/" + alias + ".p12";
 
             FileOutputStream fOut = new FileOutputStream(file_path);
 		 
@@ -191,12 +191,12 @@ public class CertificateService {
         }
         
 
-        return uploadCACertificate(certificateString);
+        return uploadCACertificate(certificateString,contextKey);
         // return "done";
 
     }
 
-    public String generateAndUploadPartnerCertificate(String issuer, String alias, int validYears, String rootAlias, String PartnerID){
+    public String generateAndUploadPartnerCertificate(String issuer, String alias, int validYears, String rootAlias, String PartnerID,String contextKey){
 
         PrivateKey rootPrivateKey;
         X509Certificate rootCertificate; 
@@ -205,7 +205,7 @@ public class CertificateService {
         try{
             KeyStore keyStore = KeyStore.getInstance("PKCS12");
             
-            String file_path = VariableManager.getVariableValue("certificatePath").toString() + "CA/" + rootAlias + ".p12";
+            String file_path = VariableManager.getVariableValue(contextKey,"certificatePath").toString() + "CA/" + rootAlias + ".p12";
             FileInputStream fIn = new FileInputStream(file_path);
 
             keyStore.load(fIn, rootAlias.toCharArray());
@@ -255,7 +255,7 @@ public class CertificateService {
             keyStore.load(null, null);
             keyStore.setKeyEntry(alias, privateKey, alias.toCharArray(), new Certificate []{certificate});
 
-            String file_path = VariableManager.getVariableValue("certificatePath").toString() + "partner/" + alias + ".p12";
+            String file_path = VariableManager.getVariableValue(contextKey,"certificatePath").toString() + "partner/" + alias + ".p12";
 
             FileOutputStream fOut = new FileOutputStream(file_path);
 		 
@@ -266,18 +266,18 @@ public class CertificateService {
             return "local keyStore failure " + ex.getMessage();
         }
 
-        return uploadPartnerCertificate(certificateString, alias, PartnerID);
+        return uploadPartnerCertificate(certificateString, alias, PartnerID,contextKey);
         // return "done";
         
 
 
     }
 
-    public String uploadPartnerCertificate(String certificateData, String orgName, String partnerID){
+    public String uploadPartnerCertificate(String certificateData, String orgName, String partnerID,String contextKey){
         
         String resp;
         try{
-            resp = CertificateUploader.uploadPartnerString(certificateData, orgName, partnerID, "Auth");
+            resp = CertificateUploader.uploadPartnerString(certificateData, orgName, partnerID, "Auth",contextKey);
             return resp;
         }
         catch(Exception e){
@@ -319,9 +319,9 @@ public class CertificateService {
         return IOUtils.toString(fileStream, StandardCharsets.UTF_8);
     }
 
-    public String readCertificate(String name) throws IOException{
+    public String readCertificate(String name,String contextKey) throws IOException{
 
-        String path = VariableManager.getVariableValue("certificatePath") + name;
+        String path = VariableManager.getVariableValue(contextKey,"certificatePath") + name;
         String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
         return content;
         

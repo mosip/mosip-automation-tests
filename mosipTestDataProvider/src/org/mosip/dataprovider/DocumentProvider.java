@@ -85,10 +85,10 @@ public class DocumentProvider {
 
 	    outputStream.close();
 	}
-	 public static List<MosipIDSchema> getDocTypesFromSchema(){
+	 public static List<MosipIDSchema> getDocTypesFromSchema(String contextKey){
 		List<MosipIDSchema> docSchema = new ArrayList<MosipIDSchema>();
 		 
-		 Hashtable<Double, Properties>  schema = MosipMasterData.getIDSchemaLatestVersion();
+		 Hashtable<Double, Properties>  schema = MosipMasterData.getIDSchemaLatestVersion(contextKey);
 		// List<MosipIDSchema> lstSchema = (List<MosipIDSchema>) tbl1.get(schemaId).get("schemaList");
 		// List<String> reqdFields = (List<String>) tbl1.get(schemaId).get("requiredAttributes");
 		
@@ -111,7 +111,7 @@ public class DocumentProvider {
 		 }
 		 return null;
 	 }
-	public static List<MosipDocument>  generateDocuments(ResidentModel res) throws DocumentException, IOException, ParseException{
+	public static List<MosipDocument>  generateDocuments(ResidentModel res, String contextKey) throws DocumentException, IOException, ParseException{
 		List<String> docs = new ArrayList<String>();
 		
 		String locAddr = "";
@@ -154,8 +154,8 @@ public class DocumentProvider {
 		 * docs as per template
 		 */
 		List<MosipDocument> lstDocs = new ArrayList<MosipDocument>();
-		List<MosipDocCategoryModel> docCats =MosipMasterData.getDocumentCategories();
-		List<MosipIDSchema> lstSchema =getDocTypesFromSchema();
+		List<MosipDocCategoryModel> docCats =MosipMasterData.getDocumentCategories(contextKey);
+		List<MosipIDSchema> lstSchema =getDocTypesFromSchema(contextKey);
 			
 		for(MosipIDSchema schema: lstSchema) {
 			
@@ -164,7 +164,7 @@ public class DocumentProvider {
 				continue;
 			List<MosipDocTypeModel> docTypes =null;
 			//List<MosipDocTypeModel> allDocTypes= MosipMasterData.getDocumentTypes(catModel.getCode(), catModel.getLangCode());
-			List<MosipDocTypeModel> allDocTypes= MosipMasterData.getMappedDocumentTypes(catModel.getCode(), catModel.getLangCode());
+			List<MosipDocTypeModel> allDocTypes= MosipMasterData.getMappedDocumentTypes(catModel.getCode(), catModel.getLangCode(), contextKey);
 			List<String> catDocs = null;
 			if(allDocTypes != null && !allDocTypes.isEmpty()) {
 				MosipDocument doc = new MosipDocument();

@@ -90,26 +90,26 @@ public final class VariableManager {
 			bInit = bret;
 		
 	}
-	static Cache<String, Object> createNameSpace(String namespaceName) {
+	static Cache<String, Object> createNameSpace(String contextKey) {
 		Cache<String,Object> ht = null;
 		try {
-			ht = varNameSpaces.get(namespaceName);
+			ht = varNameSpaces.get(contextKey);
 		}catch(Exception e) {}
 		if(ht == null) {
-			ht  = cacheManager.createCache(namespaceName, cacheConfig);
-			varNameSpaces.put(namespaceName, ht);
+			ht  = cacheManager.createCache(contextKey, cacheConfig);
+			varNameSpaces.put(contextKey, ht);
 		}
 		return ht;
 	}
-	public static Object setVariableValue(String namespaceName, String varName, Object value) {
-		Cache<String,Object> ht = createNameSpace(namespaceName);
+	public static Object setVariableValue(String contextKey, String varName, Object value) {
+		Cache<String,Object> ht = createNameSpace(contextKey);
 		ht.put(varName, value);
 		return value;
 	}
-	public static Object setVariableValue(String varName, Object value) {
-
-		return setVariableValue(NS_DEFAULT, varName, value);
-	}
+//	public static Object setVariableValue(String varName, Object value) {
+//
+//		return setVariableValue(NS_DEFAULT, varName, value);
+//	}
 	public static String[] findVariables(String text) {
 
 		HashSet<String> set = new HashSet<String>();
@@ -130,32 +130,42 @@ public final class VariableManager {
 		String[] a= new String[set.size()];
 		return  set.toArray(a);
 	}
-	public static Object getVariableValue(String namespaceName, String varName) {
+	public static Object getVariableValue(String contextKey, String varName) {
 		
 		if(!bInit) Init();
 		
 		Cache<String,?> ht = null;
 		Object ret = null;
 		try {
-			ht =  varNameSpaces.get(namespaceName);
-		}catch(Exception e) {}
+			ht =  varNameSpaces.get(contextKey);
+		
 		if(ht != null) {
 			ret =  ht.get(varName);
+			return ret;
+		}
+		if(ret==null) {
+			ret=getVariableValue(NS_DEFAULT,varName); 
+		}
+		}catch(Exception e) {
+			
+			e.printStackTrace();
 		}
 		return ret;
-	}
-	public static Object getVariableValue(String varName) {
-		return getVariableValue(NS_DEFAULT, varName);
-	}
-	public static Boolean loadNamespaceFromPropertyFile(String propFile, String nameSpaceName) {
+		}
+		
+	
+//	public static Object getVariableValue(String varName) {
+//		return getVariableValue(NS_DEFAULT, varName);
+//	}
+	public static Boolean loadNamespaceFromPropertyFile(String propFile, String contextKey) {
 		Boolean bRet = false;
 		Properties props = new Properties();
 		try {
 			props.load( new FileInputStream(propFile));
 			
 			props.forEach( (key,value) -> {
-				setVariableValue(nameSpaceName, key.toString(), value);
-				System.out.println(nameSpaceName+"."+ key.toString()+"="+ value.toString());
+				setVariableValue(contextKey, key.toString(), value);
+				System.out.println(contextKey+"."+ key.toString()+"="+ value.toString());
 			});
 			bRet = true;
 			
@@ -179,26 +189,26 @@ public final class VariableManager {
 	 * if no namespace specified then 'default' is assumed
 	 * Get value for that variable and substitute the value for all instance of variable in the text
 	 */
-	public static String substituteVariables(String text) {
-		String [] vars = findVariables(text);
-		for(String v: vars) {
-			String [] parts = v.split("\\.");
-			String nameSpace = null;
-			String value =null;
-			String varName = v.trim();
-			if(parts.length > 1) {
-				nameSpace = parts[0].trim();
-				varName = parts[1].trim();
-				value = (String) getVariableValue(nameSpace, varName);
-			}
-			else
-				value = (String) getVariableValue(varName);
-			value = value ==null ? "": value;
-			text = substituteVaraiable(text, v, value);
-			
-		}
-		return text;
-	}
+//	public static String substituteVariables(String text) {
+//		String [] vars = findVariables(text);
+//		for(String v: vars) {
+//			String [] parts = v.split("\\.");
+//			String nameSpace = null;
+//			String value =null;
+//			String varName = v.trim();
+//			if(parts.length > 1) {
+//				nameSpace = parts[0].trim();
+//				varName = parts[1].trim();
+//				value = (String) getVariableValue(nameSpace, varName);
+//			}
+//			else
+//				value = (String) getVariableValue(nameSpace,varName);
+//			value = value ==null ? "": value;
+//			text = substituteVaraiable(text, v, value);
+//			
+//		}
+//		return text;
+//	}
 	public static void main(String[] args) {
 		
 	//	loadNamespaceFromPropertyFile("resource/default.properties", "default");
@@ -211,8 +221,7 @@ public final class VariableManager {
 			System.out.println(v);
 		}
 		//String v1 = (String) getVariableValue("default","country");
-		String t1 = substituteVariables(text);
-		System.out.println(t1);
+		//String t1 = substituteVariables(text);
 		
 	
 	}

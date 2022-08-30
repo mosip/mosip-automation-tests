@@ -62,7 +62,7 @@ public class PreregSyncService {
 		return workDirectory;
 	}
 
-    public JSONObject syncPrereg() throws Exception {
+    public JSONObject syncPrereg(String contextKey) throws Exception {
 		if(lastSyncTime == null) {
 			lastSyncTime = LocalDateTime.now();
 			lastSyncTime = lastSyncTime.minus(6, ChronoUnit.DAYS);
@@ -82,7 +82,7 @@ public class PreregSyncService {
 
 		logger.info("pre-reg sync request {}", wrapper);
 
-		JSONObject preregResponse = apiUtil.post(baseUrl,baseUrl + syncapi, wrapper);
+		JSONObject preregResponse = apiUtil.post(baseUrl,baseUrl + syncapi, wrapper,contextKey);
 		logger.info("sync responded with {} pre-reg ids", preregResponse.get("countOfPreRegIds"));
 		lastSyncTime = currentSyncTime;		
        return (JSONObject) preregResponse.get("preRegistrationIds");
@@ -102,7 +102,7 @@ public class PreregSyncService {
     	}
     	//Fix:MOSIP-13932- Auth API signature changed
     	logger.info("Before getPreReg");
-		JSONObject preregResponse = apiUtil.getPreReg(baseUrl,baseUrl + syncapi+"/"+preregId, new JSONObject(), new JSONObject());
+		JSONObject preregResponse = apiUtil.getPreReg(baseUrl,baseUrl + syncapi+"/"+preregId, new JSONObject(), new JSONObject(),contextKey);
 		logger.info("Downloaded data for prereg id {} ", preregResponse.getString("pre-registration-id"));
 		Path temPath = Path.of(workDirectory, preregId+".zip");
 		byte[] bytes=Base64.getDecoder().decode(preregResponse.getString("zip-bytes"));

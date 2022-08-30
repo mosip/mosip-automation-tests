@@ -154,11 +154,13 @@ public class BaseTestCaseUtil extends BaseStep{
 		return filteredCases.toArray();
 	}
 	
-	
+	private static String addContextToUrl(String url) {
+		return url + "/" + System.getProperty("env.user");
+	}
 	public static Response getRequest(String url, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract().response();
+				.accept(MediaType.APPLICATION_JSON).log().all().when().get(addContextToUrl(url)).then().log().all().extract().response();
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ getResponse.getBody().asString() + "</pre>");
 		return getResponse;
@@ -175,7 +177,7 @@ public class BaseTestCaseUtil extends BaseStep{
 	
 	public Response postReqest(String url,String body,String opsToLog) {
 		Reporter.log("<pre> <b>"+opsToLog+": </b> <br/>"+body + "</pre>");
-		Response apiResponse = RestClient.postRequest(url, body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+		Response apiResponse = RestClient.postRequest(addContextToUrl(url), body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"+ apiResponse.getBody().asString() + "</pre>");
 		return apiResponse;
 	}

@@ -512,7 +512,7 @@ public class PacketMakerService {
 		JSONObject mergedJsonMap = mergeJSONObject(templateFile, jbToMerge);
 
 		if (type.equals("id")) {
-			List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap);
+			List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap,contextKey);
 			Files.write(Path.of(tempLogPath + regId + "_invalidIds.json"), invalidIds.toString().getBytes());
 		}
 

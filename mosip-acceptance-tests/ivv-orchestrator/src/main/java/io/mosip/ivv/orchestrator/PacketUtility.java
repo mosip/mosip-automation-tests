@@ -548,7 +548,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,
 			Boolean generatePrivateKey, String status, String baseUrl) throws RigInternalError {
-		String url = this.baseUrl + "/context/server/" + key;
+		//String url = this.baseUrl + "/context/server/" + key;
+		String url = this.baseUrl + "/context/server/" ;
 		Map<String, String> map = new HashMap<String, String>();
 		if (userAndMachineDetailParam != null && !userAndMachineDetailParam.isEmpty()) {
 			String[] details = userAndMachineDetailParam.split("@@");
@@ -600,7 +601,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
 			Boolean generatePrivateKey, String status, String baseUrl) throws RigInternalError {
-		String url = this.baseUrl + "/context/server/" + key;
+		String url = this.baseUrl + "/context/server/" + key; //this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		String centerId = "centerId" + map.get("appendedkey");
 
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126

@@ -11,16 +11,16 @@ import variables.VariableManager;
 public class ResidentRegistration {
 
 	@Then("^register$")
-	public static void register() {
+	public static void register(String contextKey) {
 		String retVal="";
-		String url = VariableManager.getVariableValue("packetutilURLBase") +
-				VariableManager.getVariableValue( "makeandsyncpacket").toString();
-		String preRegID = VariableManager.getVariableValue("PRID").toString();
+		String url = VariableManager.getVariableValue(contextKey,"packetutilURLBase") +
+				VariableManager.getVariableValue(contextKey, "makeandsyncpacket").toString();
+		String preRegID = VariableManager.getVariableValue(contextKey,"PRID").toString();
 		String rid ="";
 		try {
-			JSONObject response = RestClient.get(url + preRegID,new JSONObject(),new JSONObject());
+			JSONObject response = RestClient.get(url + preRegID,new JSONObject(),new JSONObject(),contextKey);
 			rid = response.get("registrationId").toString();
-			VariableManager.setVariableValue("RID", rid);
+			VariableManager.setVariableValue("RID", rid,contextKey);
 			retVal = response.toString();
 			
 		} catch (Exception e) {
@@ -30,10 +30,10 @@ public class ResidentRegistration {
 		System.out.println(rid);
 	}
 	@Then("^check registration status$")
-	public static void checkRegistrationStatus() {
-		String RegID = VariableManager.getVariableValue("RID").toString();
-		String url = VariableManager.getVariableValue("packetutilURLBase") +
-				VariableManager.getVariableValue( "makeandsyncpacket").toString();
+	public static void checkRegistrationStatus(String contextKey) {
+		String RegID = VariableManager.getVariableValue(contextKey,"RID").toString();
+		String url = VariableManager.getVariableValue(contextKey,"packetutilURLBase") +
+				VariableManager.getVariableValue( contextKey,"makeandsyncpacket").toString();
 		
 	}
 }
