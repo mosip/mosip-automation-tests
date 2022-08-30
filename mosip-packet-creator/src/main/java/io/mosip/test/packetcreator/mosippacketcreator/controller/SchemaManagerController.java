@@ -32,8 +32,10 @@ public class SchemaManagerController {
 
     
 
-    @PutMapping(value = "/schema/{id}")
-    public @ResponseBody String modifySchema( @PathVariable("id") String id, @RequestParam(value = "version", defaultValue = "1") String version){
+    @PutMapping(value = "/schema/{id}/{contextKey}")
+    public @ResponseBody String modifySchema( @PathVariable("id") String id, @RequestParam(value = "version", defaultValue = "1") String version,
+    		@PathVariable("contextKey") String contextKey
+    		){
 
 
     
@@ -41,7 +43,7 @@ public class SchemaManagerController {
             if(personaConfigPath != null && !personaConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = personaConfigPath;
             }
-            return schemaManagerService.modifySchema(1,id);
+            return schemaManagerService.modifySchema(1,id,contextKey);
         }
         catch (Exception ex){
             logger.error("modifySchema", ex);
@@ -50,8 +52,10 @@ public class SchemaManagerController {
         return "{\"Failed\"}";
     }
 
-    @GetMapping(value = "/schema")
-    public @ResponseBody String getSchema(){
+    @GetMapping(value = "/schema/{contextKey}")
+    public @ResponseBody String getSchema(
+    		@PathVariable("contextKey") String contextKey
+    		){
 
         int i;
         String schema;
@@ -60,7 +64,7 @@ public class SchemaManagerController {
                 DataProviderConstants.RESOURCE = personaConfigPath;
             }
 
-            schema = schemaManagerService.getSchema();
+            schema = schemaManagerService.getSchema(contextKey);
             return schema;
 
         }

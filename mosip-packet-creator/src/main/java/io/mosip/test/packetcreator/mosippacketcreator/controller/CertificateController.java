@@ -2,6 +2,7 @@ package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,55 +29,19 @@ public class CertificateController {
 
     private static final Logger logger = LoggerFactory.getLogger(CertificateController.class);
 
-    // @PostMapping(value = "/certificate/CA")
-    // public @ResponseBody String uploadCACertificate(@RequestParam(value = "certificate", defaultValue = "root_tiger_ca.cer") String certificateFile){
-        
-    //     try{
-    //         if(personaConfigPath != null && !personaConfigPath.equals("")){
-    //             DataProviderConstants.RESOURCE = personaConfigPath;
-    //         }
-    //         return certificateService.uploadStoredCACertificate(certificateFile);
-    //     }
-    //     catch (Exception ex){
-    //         logger.error("uploadCACertificate", ex);
-    //     }
-
-    //     return "failed";
-    // }
-
-    // @PostMapping(value = "/certificate/partner")
-    // public @ResponseBody String uploadPartnerCertificate(
-    //     @RequestParam("certificate") MultipartFile certificateFile, 
-    //     @RequestParam(value="name", defaultValue="ABC Bank") String orgName, 
-    //     @RequestParam(value = "id", defaultValue = "9876") String partnerID
-    // ){
-
-    //     try{
-    //         if(personaConfigPath != null && !personaConfigPath.equals("")){
-    //             DataProviderConstants.RESOURCE = personaConfigPath;
-    //         }
-
-    //         return certificateService.uploadPartnerCertificate(certificateFile, orgName, partnerID);
-    //     }
-    //     catch (Exception ex){
-    //         logger.error("uploadPartnerCertificate", ex);
-    //     }
-
-    //     return "failed";
-    // }
-
-    @PutMapping(value = "/certificate/generate/root")
+    @PutMapping(value = "/certificate/generate/root/{contextKey}")
     public @ResponseBody String generateAndUploadRootCertificate(
         @RequestParam(value = "issuer", defaultValue = "C=AU, O=The Legion of the Bouncy Castle, OU=Bouncy Primary Certificate") String issuer,
         @RequestParam(value = "alias", defaultValue = "Root CA") String alias,
-        @RequestParam(value = "validYears", defaultValue = "3") int validYears
-    ){
+        @RequestParam(value = "validYears", defaultValue = "3") int validYears,
+        @PathVariable("contextKey") String contextKey) 
+    {
 
         try{
             if(personaConfigPath != null && !personaConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = personaConfigPath;
             }
-            return certificateService.generateAndUploadRootCertificate(issuer, alias, validYears);
+            return certificateService.generateAndUploadRootCertificate(issuer, alias, validYears,contextKey);
         }
         catch (Exception ex){
             logger.error("generateAndUploadCACertificate", ex);
@@ -86,19 +51,20 @@ public class CertificateController {
 
     }
 
-    @PutMapping(value = "/certificate/generate/int")
+    @PutMapping(value = "/certificate/generate/int/{contextKey}")
     public @ResponseBody String generateAndUploadIntCertificate(
         @RequestParam(value = "issuer", defaultValue = "C=IN, O=EFG Company, OU=Certificate, E=abc@efg.com") String issuer,
         @RequestParam(value = "alias", defaultValue = "Int CA") String alias,
         @RequestParam(value = "validYears", defaultValue = "3") int validYears,
-        @RequestParam(value = "RootAlias", defaultValue = "Root CA") String rootAlias
+        @RequestParam(value = "RootAlias", defaultValue = "Root CA") String rootAlias,
+        @PathVariable("contextKey") String contextKey 
     ){
 
         try{
             if(personaConfigPath != null && !personaConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = personaConfigPath;
             }
-            return certificateService.generateAndUploadIntCertificate(issuer, alias, validYears, rootAlias);
+            return certificateService.generateAndUploadIntCertificate(issuer, alias, validYears, rootAlias,contextKey);
         }
         catch (Exception ex){
             logger.error("generateAndUploadCACertificate", ex);
@@ -108,20 +74,21 @@ public class CertificateController {
 
     }
 
-    @PutMapping(value = "/certificate/generate/partner")
+    @PutMapping(value = "/certificate/generate/partner/{contextKey}")
     public @ResponseBody String generateAndUploadPartnerCertificate(
         @RequestParam(value = "issuer", defaultValue = "C=IN, O=ABC Bank,L=Bangalore,CN=ABC Bank, OU=Account Opening,E=bank@efg.com") String issuer,
         @RequestParam(value = "alias", defaultValue = "ABC Bank") String alias,
         @RequestParam(value = "validYears", defaultValue = "3") int validYears,
         @RequestParam(value = "RootAlias", defaultValue = "Int CA") String rootAlias,
-        @RequestParam(value = "PartnerID", defaultValue = "9876") String partnerID
+        @RequestParam(value = "PartnerID", defaultValue = "9876") String partnerID,
+        @PathVariable("contextKey") String contextKey 
     ){
 
         try{
             if(personaConfigPath != null && !personaConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = personaConfigPath;
             }
-            return certificateService.generateAndUploadPartnerCertificate(issuer, alias, validYears, rootAlias, partnerID);
+            return certificateService.generateAndUploadPartnerCertificate(issuer, alias, validYears, rootAlias, partnerID,contextKey);
         }
         catch (Exception ex){
             logger.error("generateAndUploadCACertificate", ex);
@@ -131,6 +98,4 @@ public class CertificateController {
 
     }
 
-    
-    
 }

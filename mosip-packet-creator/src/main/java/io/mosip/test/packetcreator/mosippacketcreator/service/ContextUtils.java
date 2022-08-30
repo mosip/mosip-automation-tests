@@ -96,7 +96,7 @@ public class ContextUtils {
 	    	
 	    	Properties pp = loadServerContext(ctxName);
 	    	pp.forEach( (k,v)->{
-	    		VariableManager.setVariableValue(k.toString(), v.toString());
+	    		VariableManager.setVariableValue(ctxName,k.toString(), v.toString());
 	    	});
 	    	String generatePrivateKey = props.getProperty("generatePrivateKey");
             boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
@@ -170,9 +170,9 @@ public class ContextUtils {
 					List<MosipMachineModel> machines =null;
 					String status = contextProperties.getProperty("machineStatus");
 					if(status != null && status.equalsIgnoreCase("deactive"))
-						machines =MosipDataSetup.searchMachineDetail(machineId, "eng");
+						machines =MosipDataSetup.searchMachineDetail(machineId, "eng",contextKey);
 					else
-					 machines = MosipDataSetup.getMachineDetail(machineId, " ");
+					 machines = MosipDataSetup.getMachineDetail(machineId, " ",contextKey);
 					if (machines != null && !machines.isEmpty()) {
 						for(MosipMachineModel mosipMachineModel:machines) {
 							//if(mosipMachineModel!=null && mosipMachineModel.isActive() && mosipMachineModel.getId().equalsIgnoreCase(machineId)) {
@@ -181,7 +181,7 @@ public class ContextUtils {
 								mosipMachineModel.setPublicKey(publicKey);
 								mosipMachineModel.setName(RandomStringUtils.randomAlphanumeric(10).toUpperCase());
 							//	mosipMachineModel.setZoneCode("NTH");
-								MosipDataSetup.updateMachine(mosipMachineModel);
+								MosipDataSetup.updateMachine(mosipMachineModel,contextKey);
 								isMachineDetailFound=true;
 								break;
 							}

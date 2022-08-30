@@ -30,62 +30,67 @@ public class PartnerManagerController {
 
     private static final Logger logger = LoggerFactory.getLogger(PartnerManagerController.class);
 
-    @PostMapping(value = "/partners")
+    @PostMapping(value = "/partners/{contextKey}")
     public @ResponseBody String selfRegisterPartner(
-        @RequestBody SelfRegisterDto selfRegister
+        @RequestBody SelfRegisterDto selfRegister,
+        @PathVariable("contextKey") String contextKey
     ){
         try {
             if(partnerConfigPath != null && !partnerConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = partnerConfigPath;
             }
-            return partnerService.selfRegister(selfRegister);
+            return partnerService.selfRegister(selfRegister,contextKey);
         } catch (Exception e) {
             logger.error("selfRegisterPartner", e);
             return "{\"falied\"}";
         }
     }
 
-    @PostMapping(value = "/partners/{partnerId}")
+    @PostMapping(value = "/partners/{partnerId}/{contextKey}")
     public @ResponseBody String updatePartnerStatus(
         @PathVariable(value = "partnerId") String partnerId,
-        @RequestParam(value = "status") String status
+        @RequestParam(value = "status") String status,
+        @PathVariable("contextKey") String contextKey
     ){
         try {
             if(partnerConfigPath != null && !partnerConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = partnerConfigPath;
             }
-            return partnerService.updatePartnerStatus(partnerId, status);
+            return partnerService.updatePartnerStatus(contextKey,partnerId, status);
         } catch (Exception e) {
             logger.error("updatePartnerStatus", e);
             return "{\"falied\"}";
         }
     }
 
-    @PostMapping(value = "/partner/APIRequest/submit")
+    @PostMapping(value = "/partner/APIRequest/submit/{contextKey}")
     public @ResponseBody String submitAPIRequest(
         @RequestParam(value = "PartnerID") String partnerID,
         @RequestParam(value = "PolicyName")String policyName,
-        @RequestParam(value = "useCaseDescription") String useCaseDesc
+        @RequestParam(value = "useCaseDescription") String useCaseDesc,
+        @PathVariable("contextKey") String contextKey
     ){
         try {
             if(partnerConfigPath != null && !partnerConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = partnerConfigPath;
             }
-            return partnerService.submitPartnerAPIKeyRequest(partnerID, policyName, useCaseDesc);
+            return partnerService.submitPartnerAPIKeyRequest(contextKey,partnerID, policyName, useCaseDesc);
         } catch (Exception e) {
             logger.error("submitApiRequest", e);
             return "{\"falied\"}";
         }
     }
 
-    @PostMapping(value = "/partner/APIRequest/approve")
-    public @ResponseBody String approveAPIRequest(@RequestParam(value = "APIReqeustID") String ID){
+    @PostMapping(value = "/partner/APIRequest/approve/{contextKey}")
+    public @ResponseBody String approveAPIRequest(@RequestParam(value = "APIReqeustID") String ID,
+    		 @PathVariable("contextKey") String contextKey
+    		){
         
         try {
             if(partnerConfigPath != null && !partnerConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = partnerConfigPath;
             }
-            return partnerService.approvePartnerAPIKeyRequest(ID);
+            return partnerService.approvePartnerAPIKeyRequest(contextKey,ID);
         } catch (Exception e) {
             logger.error("approveAPIRequest", e);
             return "{\"falied\"}";

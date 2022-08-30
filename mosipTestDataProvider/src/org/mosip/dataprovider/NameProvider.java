@@ -72,7 +72,7 @@ public class NameProvider {
 				syntheticmidnamelen=50
 				syntheticlastnamelen=50
 		 */
-		Object objAttr = VariableManager.getVariableValue("syntheticnames");
+		Object objAttr = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"syntheticnames");
 		boolean bValue = objAttr == null ? false :  Boolean.parseBoolean(objAttr.toString());
 		if(bValue) {
 		
@@ -96,16 +96,16 @@ public class NameProvider {
 	static List<Name> generateSynthNames(Gender gender, int count){
 		String lang ="en"; 
 		List<Name> names = new ArrayList<Name>();
-		Object objAttr = VariableManager.getVariableValue("syntheticmidname");
+		Object objAttr = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"syntheticmidname");
 		boolean bValue = objAttr == null ? false : Boolean.parseBoolean(objAttr.toString());
-		objAttr = VariableManager.getVariableValue("syntheticfirstnamelen");
+		objAttr = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"syntheticfirstnamelen");
 		int fNameLen = objAttr == null ? 30: Integer.parseInt(objAttr.toString());
 	
-		objAttr = VariableManager.getVariableValue("syntheticmidnamelen");
+		objAttr = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"syntheticmidnamelen");
 		
 		int mNameLen = objAttr == null ? 30: Integer.parseInt(objAttr.toString());
 		
-		objAttr = VariableManager.getVariableValue("syntheticlastnamelen");
+		objAttr = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"syntheticlastnamelen");
 		int lNameLen = objAttr == null ? 30: Integer.parseInt(objAttr.toString());
 		
 		for(int i=0; i < count; i++) {

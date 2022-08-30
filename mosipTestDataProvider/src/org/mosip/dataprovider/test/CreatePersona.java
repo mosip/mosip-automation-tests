@@ -66,8 +66,8 @@ public class CreatePersona {
 	 static Boolean validateCondn(String cndnexpr, Object inputObject) {
 		return MVEL.evalToBoolean(cndnexpr,inputObject);
 	}
-	public static List<String> validateIDObject(JSONObject mergedJsonMap){
-		Hashtable<Double, Properties> tblschema  = MosipMasterData.getIDSchemaLatestVersion();
+	public static List<String> validateIDObject(JSONObject mergedJsonMap,String contextKey){
+		Hashtable<Double, Properties> tblschema  = MosipMasterData.getIDSchemaLatestVersion(contextKey);
 		List<MosipIDSchema> schema = (List<MosipIDSchema>) tblschema.get( tblschema.keys().nextElement() ).get("schemaList");
 		JSONObject identity = mergedJsonMap.getJSONObject("identity");
 		List<String> failedSchemaIds = new ArrayList<String>();
@@ -104,10 +104,10 @@ public class CreatePersona {
 		}
 		return failedSchemaIds;
 	}
-	public static JSONObject crateIdentity(ResidentModel resident, DataCallback cb) {
+	public static JSONObject createIdentity(ResidentModel resident, DataCallback cb,String contextKey) {
 
-		Hashtable<Double,Properties>  tbl1 = MosipMasterData.getIDSchemaLatestVersion();
-		tbl = MosipMasterData.getPreregIDSchemaLatestVersion();
+		Hashtable<Double,Properties>  tbl1 = MosipMasterData.getIDSchemaLatestVersion(contextKey);
+		tbl = MosipMasterData.getPreregIDSchemaLatestVersion(contextKey);
 		Double schemaversion = tbl.keys().nextElement();
 		List<MosipIDSchema>  lstSchema =(List<MosipIDSchema>) tbl.get(schemaversion).get("schemaList");
 		List<String> requiredAttribs = (List<String>) tbl1.get(schemaversion).get("requiredAttributes");
@@ -616,7 +616,7 @@ public class CreatePersona {
 	 *    "version":"1.0","requesttime":"2020-12-05T10:01:50.763Z"
 	 *    }
 	 */
-	public static String sendOtpTo(String to, String langCode) throws JSONException {
+	public static String sendOtpTo(String to, String langCode, String contextKey) throws JSONException {
 		//urlBase
 		//https://dev.mosip.net//preregistration/v1/login/sendOtp
 		String response ="";
@@ -629,10 +629,10 @@ public class CreatePersona {
 		req.put("langCode", langCode);
 		obj.put("request", req);
 		//RestClient client = annotation.getRestClient();
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"preregistration/v1/login/sendOtp/langcode";
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +"preregistration/v1/login/sendOtp/langcode";
 	//	url = "https://dev.mosip.net/preregistration/v1/login/sendOtp";
 		try {
-			JSONObject resp = RestClient.postNoAuth(url, obj);
+			JSONObject resp = RestClient.postNoAuth(url, obj, contextKey);
 			response = resp.toString();
 		} catch (Exception e) {
 			
@@ -641,8 +641,8 @@ public class CreatePersona {
 		return response;
 	}
 	
-	public static String sendOtpToPhone(String mobile) throws JSONException {
-		return sendOtpTo(mobile, "");
+	public static String sendOtpToPhone(String mobile,String contextKey) throws JSONException {
+		return sendOtpTo(mobile, "",contextKey);
 	}
 	/*
 	 * {"id":"mosip.pre-registration.login.useridotp",
@@ -653,8 +653,8 @@ public class CreatePersona {
 	 *        "requesttime":"2020-12-05T10:32:52.541Z"
 	 *   }
 	 */
-	public static String validateOTP(String otp, String mobileOrEmailId) throws JSONException {
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() +"preregistration/v1/login/validateOtp";
+	public static String validateOTP(String otp, String mobileOrEmailId,String contextKey) throws JSONException {
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +"preregistration/v1/login/validateOtp";
 		String response ="";
 		JSONObject obj = new JSONObject();
 		obj.put("id", "mosip.pre-registration.login.useridotp");
@@ -670,7 +670,7 @@ public class CreatePersona {
 
 		
 		try {
-			JSONObject resp = RestClient.postNoAuth (url, obj);
+			JSONObject resp = RestClient.postNoAuth (url, obj,contextKey);
 			response = resp.toString();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

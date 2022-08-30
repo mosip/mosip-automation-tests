@@ -80,12 +80,12 @@ public class MDSClientNoMDS implements MDSClientInterface {
 	}
 
 	@Override
-	public List<MDSDevice> getRegDeviceInfo(String type) {
+	public List<MDSDevice> getRegDeviceInfo(String type,String contextKey) {
 		// TODO Auto-generated method stub
 		//get configured Center ID  the devices belonging to that center
-		String centerId = VariableManager.getVariableValue("centerId").toString();
+		String centerId = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"centerId").toString();
 		
-		List<MosipDeviceModel> deviceModels = MosipDataSetup.getDevices(centerId);
+		List<MosipDeviceModel> deviceModels = MosipDataSetup.getDevices(centerId,contextKey);
 		List<MDSDevice> lstRet = new ArrayList<MDSDevice>();
 		
 		for(MosipDeviceModel dm: deviceModels) {
@@ -235,6 +235,11 @@ public class MDSClientNoMDS implements MDSClientInterface {
 			}
 		}
 		return segmentsToCapture;
+	}
+	@Override
+	public List<MDSDevice> getRegDeviceInfo(String type) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }	

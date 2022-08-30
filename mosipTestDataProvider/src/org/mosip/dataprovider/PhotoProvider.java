@@ -28,7 +28,7 @@ public class PhotoProvider {
 		try {
 			//JPEG2000
 			String photoFile = String.format(Photo_File_Format, idx);
-			Object val = VariableManager.getVariableValue("enableExternalBiometricSource");
+			Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"enableExternalBiometricSource");
 			boolean bExternalSrc = false;
 			BufferedImage img = null;
 			
@@ -37,7 +37,7 @@ public class PhotoProvider {
 			
 			if(bExternalSrc) {
 				//folder where all bio input available
-				String bioSrc = VariableManager.getVariableValue("externalBiometricsource").toString();
+				String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"externalBiometricsource").toString();
 				
 				//String srcpath = "C:\\Mosip.io\\external-data\\CBEFF Validated\\jp2\\Face.jp2";
 				img = ImageIO.read(new File(bioSrc +"Face.jp2" ));

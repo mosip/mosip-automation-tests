@@ -41,9 +41,9 @@ public class preRegController {
 	   
 	@ApiOperation(value = "Request for OTP for the given Persona and channel {mail | phone}", response = String.class)
 		
-	@PostMapping(value = "/otp/request/{to}") 
+	@PostMapping(value = "/otp/request/{to}/{contextKey}") 
     public @ResponseBody String requestOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto, @PathVariable("to") String to,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -59,9 +59,9 @@ public class preRegController {
     
 	@ApiOperation(value = "Verify the sent OTP for the given Persona and channel {mail | phone}", response = String.class)
 	
-    @PostMapping(value = "/otp/verify/{to}")
+    @PostMapping(value = "/otp/verify/{to}/{contextKey}")
     public @ResponseBody String verifyOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto,@PathVariable("to") String to,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -77,9 +77,9 @@ public class preRegController {
 
 	@ApiOperation(value = "Post Application for a given Persona", response = String.class)
 
-    @PostMapping(value = "/application/")
+    @PostMapping(value = "/application/{contextKey}")
     public @ResponseBody String preRegisterResident(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -93,11 +93,11 @@ public class preRegController {
     	return "{Failed}";
     }
 	@ApiOperation(value = "Update Application for a given PreRegID with updated Persona", response = String.class)
-	@PutMapping(value = "/application/{preregid}")
+	@PutMapping(value = "/application/{preregid}/{contextKey}")
     public @ResponseBody String updateResidentApplication(
     		@RequestBody PreRegisterRequestDto preRegisterRequestDto,
     		@PathVariable("preregid") String preregId,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -114,10 +114,10 @@ public class preRegController {
 	
 	@ApiOperation(value = "Retrive all Applications for the logged in user or for a given pre-registraion-Id", response = String.class)
 
-	@GetMapping(value = "/application/all/")
+	@GetMapping(value = "/application/all//{contextKey}")
     public @ResponseBody String preRegisterGetApplications(
     		@RequestParam(name="preregId",required = false) String preregId,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey    		) {
 
     	//28602756053278
     	try{    	
@@ -133,10 +133,10 @@ public class preRegController {
     }
 	@ApiOperation(value = "Retrive all Booked Applications for the logged in user or for a given pre-registraion-Id", response = String.class)
 
-    @GetMapping(value = "/application/booked/")
+    @GetMapping(value = "/application/booked//{contextKey}")
     public @ResponseBody String preRegisterGetApplicationsBooked(
     		@RequestParam(name="preregId",required = false) String preregId,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -155,9 +155,10 @@ public class preRegController {
      */
 	@ApiOperation(value = "Book n'th Available slot for a given pre-registraion-Id", response = String.class)
 
-    @PostMapping(value = "/appointment/available/{preregid}/{nthSlot}")
+    @PostMapping(value = "/appointment/available/{preregid}/{nthSlot}/{contextKey}")
     public @ResponseBody String bookAppointment(@PathVariable("preregid") String preregId,@PathVariable("nthSlot") int  nthSlot,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey
+    		) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -173,10 +174,11 @@ public class preRegController {
 
 	@ApiOperation(value = "Book Specific slot (by date & time slot) for a given pre-registraion-Id", response = String.class)
 
-    @PostMapping(value = "/appointment/{preregid}")
+    @PostMapping(value = "/appointment/{preregid}/{contextKey}")
     public @ResponseBody String bookSpecificAppointment(@PathVariable("preregid") String preregId,
     		@RequestBody AppointmentDto appointmentDto,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey
+    		) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -192,8 +194,9 @@ public class preRegController {
 
 	@ApiOperation(value = "Get All Available slots", response = String.class)
 
-    @GetMapping(value = "/appointment/available/")
-    public @ResponseBody String getAvailableAppointments(@RequestParam(name="contextKey",required = true) String contextKey) {
+    @GetMapping(value = "/appointment/available/{contextKey}")
+    public @ResponseBody String getAvailableAppointments(
+    		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -212,11 +215,11 @@ public class preRegController {
      */
 	@ApiOperation(value = "Book n'th slot for a given pre-registraion-Id. If bookOnHoliday -> true ? then dont skip holidays", response = String.class)
 
-	@PostMapping(value = "/appointment/{preregid}/{nthSlot}/{bookOnHolidays}")
+	@PostMapping(value = "/appointment/{preregid}/{nthSlot}/{bookOnHolidays}/{contextKey}")
     public @ResponseBody String bookAppointmentSpecified(@PathVariable("preregid") String preregId,
     		@PathVariable("nthSlot") int  nthSlot,
     		@PathVariable("bookOnHolidays") boolean bookOnHolidays,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -232,9 +235,9 @@ public class preRegController {
 
 	@ApiOperation(value = "Upload documents for a given pre-registration-Id from specified persona", response = String.class)
 
-    @PostMapping(value = "/documents/{preregid}")
+    @PostMapping(value = "/documents/{preregid}/{contextKey}")
     public @ResponseBody String uploadDocuments(@RequestBody PreRegisterRequestDto preRegisterRequestDto,@PathVariable("preregid") String preregId,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -250,11 +253,11 @@ public class preRegController {
     
 	@ApiOperation(value = "Cancel appointment for a given pre-registration-Id", response = String.class)
 
-    @PostMapping(value = "/appointment/cancel/{preregid}")
+    @PostMapping(value = "/appointment/cancel/{preregid}/{contextKey}")
     public @ResponseBody String cancelAppointment(
     		@RequestBody AppointmentDto appointmentDto,
     		@PathVariable("preregid") String preregId,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -269,10 +272,10 @@ public class preRegController {
     }
 	@ApiOperation(value = "Delete Applications for a given pre-registration-Id", response = String.class)
 
-    @DeleteMapping(value = "/application/{preregid}")
+    @DeleteMapping(value = "/application/{preregid}/{contextKey}")
     public @ResponseBody String deleteApplication(
     		@PathVariable("preregid") String preregId,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+    		@PathVariable("contextKey") String contextKey) {
     	
     	return packetSyncService.deleteApplication(preregId, contextKey);
     	
@@ -282,10 +285,10 @@ public class preRegController {
 	
 	
 	@ApiOperation(value = "Update applications status for a given pre-registration-Id", response = String.class)
-	@PutMapping(value = "/application/status/{preregid}")
+	@PutMapping(value = "/application/status/{preregid}/{contextKey}")
 	public @ResponseBody String updatePreRegStatus(@PathVariable("preregid") String preregId,
 			@RequestParam(name = "statusCode") String statusCode,
-			@RequestParam(name = "contextKey", required = false) String contextKey) {
+			@PathVariable("contextKey") String contextKey) {
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {

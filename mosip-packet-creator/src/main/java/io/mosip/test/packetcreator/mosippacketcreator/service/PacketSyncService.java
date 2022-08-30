@@ -164,7 +164,7 @@ public class PacketSyncService {
     public String generateResidentData(int count,PersonaRequestDto residentRequestDto, String contextKey) {
     	
     	loadServerContextProperties(contextKey);
-    	VariableManager.setVariableValue("process", "NEW");
+    	VariableManager.setVariableValue(contextKey,"process", "NEW");
     	Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
     	Gender enumGender = Gender.Any;
 		ResidentDataProvider provider = new ResidentDataProvider();
@@ -228,7 +228,7 @@ public class PacketSyncService {
 		}
 	
 		logger.info("before Genrate");
-		List<ResidentModel> lst = provider.generate();
+		List<ResidentModel> lst = provider.generate(contextKey);
 		logger.info("After Genrate");
 		
 		//ObjectMapper Obj = new ObjectMapper();
@@ -359,7 +359,7 @@ public class PacketSyncService {
     	
     	loadServerContextProperties(contextKey);
     	ResidentModel resident = ResidentModel.readPersona(personaFile);
-    	JSONObject jsonIdentity = CreatePersona.crateIdentity(resident,null);
+    	JSONObject jsonIdentity = CreatePersona.createIdentity(resident,null,contextKey);
     	JSONObject jsonWrapper = new JSONObject();
     	jsonWrapper.put("identity", jsonIdentity);
     	
@@ -522,7 +522,7 @@ public class PacketSyncService {
     	
     	for(String path: personaFilePath) {
     		ResidentModel resident = ResidentModel.readPersona(path);
-    		String response = PreRegistrationSteps.postApplication(resident , null);
+    		String response = PreRegistrationSteps.postApplication(resident , null,contextKey);
     		//preregid
     		saveRegIDMap(response, path);
     		builder.append(response);
@@ -533,7 +533,7 @@ public class PacketSyncService {
 
     	loadServerContextProperties(contextKey);
 		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
-		return PreRegistrationSteps.putApplication(resident,preregId);
+		return PreRegistrationSteps.putApplication(resident,preregId,contextKey);
 
 
     }
@@ -541,7 +541,7 @@ public class PacketSyncService {
     public String preRegisterGetApplications(String status,String preregId,String contextKey) {
     	loadServerContextProperties(contextKey);
     	logger.debug("preRegisterGetApplications preregId=" + preregId);
-    	return PreRegistrationSteps.getApplications(status,preregId);
+    	return PreRegistrationSteps.getApplications(status,preregId,contextKey);
     }
     void saveRegIDMap(String preRegId, String personaFilePath) {
     	
@@ -581,7 +581,7 @@ public class PacketSyncService {
     	for(String path: personaFilePath) {
     		ResidentModel resident = ResidentModel.readPersona(path);
     		ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
-    		builder.append(preReg.sendOtpTo(to));
+    		builder.append(preReg.sendOtpTo(to,contextKey));
     		
     	}
     	return builder.toString();
@@ -592,13 +592,13 @@ public class PacketSyncService {
     	ResidentModel resident = ResidentModel.readPersona(personaFilePath);
     	ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
     	
-    	preReg.fetchOtp();
-    	return preReg.verifyOtp(to,otp);
+    	preReg.fetchOtp(contextKey);
+    	return preReg.verifyOtp(to,otp,contextKey);
     		
     }
     public String getAvailableAppointments(String contextKey) {
     	 loadServerContextProperties(contextKey);
-    	 AppointmentModel res = PreRegistrationSteps.getAppointments();
+    	 AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
     	 return res.toJSONString();
     }
     public String bookSpecificAppointment(String preregId,AppointmentDto appointmentDto, String contextKey) {
@@ -609,7 +609,7 @@ public class PacketSyncService {
     	
     	return PreRegistrationSteps.bookAppointment(preregId,appointmentDto.getAppointment_date(),
     			Integer.parseInt(appointmentDto.getRegistration_center_id()),
-    			ts);
+    			ts,contextKey);
     	
     }
     
@@ -620,12 +620,12 @@ public class PacketSyncService {
     
     loadServerContextProperties(contextKey);
     
-    String base = VariableManager.getVariableValue("urlBase").toString().trim();
-	String api = VariableManager.getVariableValue("appointmentslots").toString().trim();
-	String centerId = VariableManager.getVariableValue( "centerId").toString().trim();
+    String base = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
+	String api = VariableManager.getVariableValue(contextKey,"appointmentslots").toString().trim();
+	String centerId = VariableManager.getVariableValue( contextKey,"centerId").toString().trim();
 	logger.info("BookAppointment:" + base +","+ api + ","+centerId);
 	
-   	 AppointmentModel res = PreRegistrationSteps.getAppointments();
+   	 AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
 		
 		for( CenterDetailsModel a: res.getAvailableDates()) {
 			if(!a.getHoliday()) {
@@ -633,7 +633,7 @@ public class PacketSyncService {
 					if(ts.getAvailability() > 0) {
 						nthSlot--;
 						if(nthSlot ==0) {
-							retVal =PreRegistrationSteps.bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts);
+							retVal =PreRegistrationSteps.bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts, contextKey);
 							bBooked = true;
 							
 							break;
@@ -657,7 +657,7 @@ public class PacketSyncService {
         loadServerContextProperties(contextKey);
         
      	
-       	 AppointmentModel res = PreRegistrationSteps.getAppointments();
+       	 AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
     		
     		for( CenterDetailsModel a: res.getAvailableDates()) {
     			//if specified book on a holiday
@@ -667,7 +667,7 @@ public class PacketSyncService {
     	    				
     						nthSlot--;
     						if(nthSlot ==0) {
-    							retVal =PreRegistrationSteps.bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts);
+    							retVal =PreRegistrationSteps.bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts,contextKey);
     							bBooked = true;
     							break;
     						}
@@ -684,7 +684,7 @@ public class PacketSyncService {
     					
     					nthSlot--;
     					if(nthSlot ==0) {
-    						retVal =PreRegistrationSteps.bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts);
+    						retVal =PreRegistrationSteps.bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts,contextKey);
     						bBooked = true;
     						break;
     						
@@ -702,20 +702,20 @@ public class PacketSyncService {
     			appointmentDto.getTime_slot_from(),
     			appointmentDto.getTime_slot_to(),
     			appointmentDto.getAppointment_date(),
-    			appointmentDto.getRegistration_center_id()
+    			appointmentDto.getRegistration_center_id(),contextKey
     	);
 
 
     }
     public String deleteApplication(String preregId, String contextKey) {
     	loadServerContextProperties(contextKey);
-    	return PreRegistrationSteps.deleteApplication(preregId); 	
+    	return PreRegistrationSteps.deleteApplication(preregId,contextKey); 	
     }
     
     public String discardBooking(
-    		HashMap<String, String> map) {
+    		HashMap<String, String> map,String contextKey) {
     	
-    	return PreRegistrationSteps.discardBooking(map); 	
+    	return PreRegistrationSteps.discardBooking(map,contextKey); 	
     }
     
     
@@ -732,7 +732,7 @@ String response = "";
     		JSONObject respObject = PreRegistrationSteps.UploadDocument(a.getDocCategoryCode(),
 				// a.getType().get(0).getCode(),
     				a.getType().get(0).getDocTypeCode(),
-				 a.getDocCategoryLang(), a.getDocs().get(0) ,preregId);
+				 a.getDocCategoryLang(), a.getDocs().get(0) ,preregId,contextKey);
     		if(respObject != null)
     			response = response + respObject.toString();
     	}
@@ -796,9 +796,9 @@ String response = "";
 
     	
     	loadServerContextProperties(contextKey);
-    	VariableManager.setVariableValue("mosip.test.env.mapperpath", mapperFilePath);
+    	VariableManager.setVariableValue(contextKey,"mosip.test.env.mapperpath", mapperFilePath);
     	if(process != null) {
-    		VariableManager.setVariableValue("process", process);
+    		VariableManager.setVariableValue(contextKey,"process", process);
     	}
     	if(outDir == null || outDir.trim().equals("")) {
     		packetDir = Files.createTempDirectory("packets_");
@@ -820,7 +820,7 @@ String response = "";
 		queryparam.put("type", "bio");
 		String uin=props.getProperty("validUIN");
 		baseUrl=props.getProperty("urlBase");
-		 preregResponse = apiRequestUtil.getJsonObject(baseUrl,baseUrl + idvid+uin,queryparam,new JSONObject());
+		 preregResponse = apiRequestUtil.getJsonObject(baseUrl,baseUrl + idvid+uin,queryparam,new JSONObject(),contextKey);
     	}
     	for(String path: personaFilePaths) {
     		ResidentModel resident = ResidentModel.readPersona(path);
@@ -1015,7 +1015,7 @@ String response = "";
     		}
 	    }
     }
-    public String getPersonaData(List<UpdatePersonaDto> getPersonaRequest) throws Exception {
+    public String getPersonaData(List<UpdatePersonaDto> getPersonaRequest,String contextKey) throws Exception {
 
 
     	Properties retProp = new Properties();
@@ -1183,7 +1183,7 @@ String response = "";
     	//return "";
     }
     
-    public String updatePersonaData(List<UpdatePersonaDto> updatePersonaRequest) throws Exception {
+    public String updatePersonaData(List<UpdatePersonaDto> updatePersonaRequest,String contextKey) throws Exception {
     	String ret ="{Sucess}";
     	for(UpdatePersonaDto req: updatePersonaRequest) {
     		try {
@@ -1275,7 +1275,7 @@ String response = "";
 
 		loadServerContextProperties(contextKey);
 	
-		return MosipDataSetup.uploadPackets( packetPaths);
+		return MosipDataSetup.uploadPackets( packetPaths,contextKey);
 
 
 	}
@@ -1313,7 +1313,7 @@ String response = "";
 			}
 			else
 				duplicateBdbs= null;
-			MosipDataSetup.configureMockABISBiometric(bdbString, bDuplicate,duplicateBdbs, DataProviderConstants.DEFAULT_ABIS_DELAY, null );
+			MosipDataSetup.configureMockABISBiometric(bdbString, bDuplicate,duplicateBdbs, DataProviderConstants.DEFAULT_ABIS_DELAY, null ,contextKey);
 		}
 		return "{\"status\":\"Success\"}";
 	}
@@ -1329,7 +1329,7 @@ String response = "";
 		loadServerContextProperties(contextKey);
 		String regId = getRegIdFromPacketPath(packetPath);
     	String tempPacketRootFolder = Path.of(packetPath).toString();
-    	String jsonSchema = MosipMasterData.getIDSchemaSchemaLatestVersion();
+    	String jsonSchema = MosipMasterData.getIDSchemaSchemaLatestVersion(contextKey);
     	String processRoot =  Path.of(tempPacketRootFolder, src, process).toString();
     	String packetRoot = Path.of(processRoot, "rid_id").toString();
     	String identityJson = CommonUtil.readFromJSONFile(packetRoot + "/ID.json");
@@ -1431,7 +1431,7 @@ String response = "";
 			for(String b:subTypeBdbStr ) {
 				String responseStr=MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
 						(expct.getDelaySec() <= 0 ?  DataProviderConstants.DEFAULT_ABIS_DELAY : expct.getDelaySec()),
-						expct.getOperation());
+						expct.getOperation(),contextKey);
 				reponse.add(responseStr);
 			}
 			System.out.println(String.join(", ", reponse));
@@ -1442,18 +1442,18 @@ String response = "";
 	
 	public String updateMachine(MosipMachineModel machine,String contextKey) {
 		loadServerContextProperties(contextKey);
-		MosipDataSetup.updateMachine(machine);
+		MosipDataSetup.updateMachine(machine,contextKey);
 		return "{\"status\":\"Success\"}";
 	}
 	
 	public String updatePreRegistrationStatus(String preregId,String statusCode,String contextKey) {
 		loadServerContextProperties(contextKey);
-		String status=MosipDataSetup.updatePreRegStatus(preregId,statusCode);
+		String status=MosipDataSetup.updatePreRegStatus(preregId,statusCode,contextKey);
 		return status;
 	}
 
-	public String updatePreRegAppointment(String preregId) {
-		String status=PreRegistrationSteps.updatePreRegAppointment(preregId);
+	public String updatePreRegAppointment(String preregId,String contextKey) {
+		String status=PreRegistrationSteps.updatePreRegAppointment(preregId,contextKey);
 		return status;
 	}
 

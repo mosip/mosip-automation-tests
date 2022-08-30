@@ -22,7 +22,7 @@ public class RegistrationSteps {
 		try {
 			workDirectory = Files.createTempDirectory("prereg").toFile().getAbsolutePath();
 			workPacketDirectory = Files.createTempDirectory("pktcreator").toFile().getAbsolutePath();
-			templateFolder = VariableManager.getVariableValue( "packetTemplateLocation").toString();
+			templateFolder = VariableManager.getVariableValue( "","packetTemplateLocation").toString().trim();
 			
             File folder = new File(templateFolder);
             if(folder.listFiles() != null) {
@@ -37,9 +37,9 @@ public class RegistrationSteps {
 		
 	}
 
-	public String downloadCard(ResidentModel resident, String uin) throws Exception {
-		 String url =  VariableManager.getVariableValue("urlBase").toString().trim() +
-					VariableManager.getVariableValue( "residentCredentialAPI").toString().trim() + uin;
+	public String downloadCard(ResidentModel resident, String uin,String contextKey) throws Exception {
+		 String url =  VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +
+					VariableManager.getVariableValue( contextKey,"residentCredentialAPI").toString().trim() + uin;
 		 JSONObject wrapperJson = new JSONObject();
 		 JSONObject reqJson = new JSONObject();
 		 
@@ -63,25 +63,25 @@ public class RegistrationSteps {
       "string"
     ],
 		 */
-		JSONObject apiResponse = RestClient.post(url, wrapperJson);
+		JSONObject apiResponse = RestClient.post(url, wrapperJson,contextKey);
 
 		return  apiResponse.toString();
 		
 	}
 
-	public JSONObject syncPrereg() throws Exception {
+	public JSONObject syncPrereg(String contextKey) throws Exception {
 
 		 LocalDateTime currentSyncTime = LocalDateTime.now();
 		 if(lastSyncTime == null) {
 			 lastSyncTime = LocalDateTime.now().minusMinutes(10) ;
 			 
 		 }
-		 String url =  VariableManager.getVariableValue("urlBase").toString().trim() +
-					VariableManager.getVariableValue( "preRegSyncURL").toString().trim();
+		 String url =  VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +
+					VariableManager.getVariableValue( contextKey,"preRegSyncURL").toString().trim();
 			
 		 JSONObject syncRequest = new JSONObject();
 		 syncRequest.put("registrationCenterId", 
-				 VariableManager.getVariableValue( "centerId"));
+				 VariableManager.getVariableValue( "centerId",contextKey));
 		 syncRequest.put("fromDate",CommonUtil.getUTCDateTime(lastSyncTime));
 		 syncRequest.put("toDate",CommonUtil.getUTCDateTime(currentSyncTime ));
 
@@ -92,16 +92,16 @@ public class RegistrationSteps {
 		wrapper.put("requesttime", CommonUtil.getUTCDateTime(null));
 		wrapper.put("request", syncRequest);
 
-		JSONObject preregResponse = RestClient.post(url, wrapper);
+		JSONObject preregResponse = RestClient.post(url, wrapper,contextKey);
 
 		lastSyncTime = currentSyncTime;		
 	    return (JSONObject) preregResponse.get("preRegistrationIds");
 	 }
 
-	public String getRIDStatus(String rid) throws Exception {
+	public String getRIDStatus(String rid,String contextKey) throws Exception {
 	
 		String uri =  "resident/v1/rid/check-status";
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() + uri ;
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + uri ;
 
 		JSONObject req = new JSONObject();
 		JSONObject reqWrapper = new JSONObject();
@@ -117,10 +117,10 @@ public class RegistrationSteps {
 		return response.get("ridStatus").toString();
 		
 	}
-	public String getUINByRID(String rid) throws Exception {
+	public String getUINByRID(String rid, String contextKey) throws Exception {
 		
 		String uri =  "idrepository/v1/identity/idvid/" + rid;
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() + uri ;
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + uri ;
 
 		/*JSONObject req = new JSONObject();
 		JSONObject reqWrapper = new JSONObject();
@@ -132,7 +132,7 @@ public class RegistrationSteps {
 		reqWrapper.put("request", req);
 		 */
 
-		JSONObject response =RestClient.get(url,new JSONObject(),new JSONObject());
+		JSONObject response =RestClient.get(url,new JSONObject(),new JSONObject(),contextKey);
 		return response.getJSONObject("identity").getString("UIN");
 		
 	}

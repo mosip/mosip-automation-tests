@@ -13,10 +13,10 @@ public class PolicyManagerService {
     
     private static final Logger logger = LoggerFactory.getLogger(PolicyManagerService.class);
 
-    public String createPolicyGroup(String name, String desc){
+    public String createPolicyGroup(String name, String desc,String contextKey){
 
         try{
-            return PolicyManagement.createNewPolicyGroup(name, desc);
+            return PolicyManagement.createNewPolicyGroup(name, desc,contextKey);
         }
         catch(Exception e){
 
@@ -27,10 +27,10 @@ public class PolicyManagerService {
     }
 
 
-    public String getPolicyGroupID(String groupname){
+    public String getPolicyGroupID(String groupname,String contextKey){
 
         try{
-            return PolicyManagement.getPolicyGroupIDByName(groupname);
+            return PolicyManagement.getPolicyGroupIDByName(groupname,contextKey);
         }
         catch(Exception e){
 
@@ -40,10 +40,10 @@ public class PolicyManagerService {
         
     }
 
-    public String createPolicyUnderGroup(String groupname, String policyname, String policydesc, String policytype, JSONObject policyJson){
+    public String createPolicyUnderGroup(String groupname, String policyname, String policydesc, String policytype, JSONObject policyJson,String contextKey){
 
         try{
-            return PolicyManagement.createPolicyUnderGroup(groupname, policyname, policydesc, policytype, policyJson);
+            return PolicyManagement.createPolicyUnderGroup(groupname, policyname, policydesc, policytype, policyJson,contextKey);
         }
         catch(Exception e){
 
@@ -53,10 +53,10 @@ public class PolicyManagerService {
     }
 
    
-    public String publishPolicy(String policyId, String policygroupId){
+    public String publishPolicy(String policyId, String policygroupId,String contextKey){
 
         try{
-            return PolicyManagement.publishPolicy(policyId, policygroupId);
+            return PolicyManagement.publishPolicy(policyId, policygroupId,contextKey);
         }
         catch(Exception e){
 

@@ -38,9 +38,9 @@ public class PacketController {
 	   * Create a packet from Resident data for the target context
 	   * requestDto may contain PersonaRequestType.PR_Options
 	   */
-	  @PostMapping(value = "/packet/create/")
+	  @PostMapping(value = "/packet/create/{contextKey}")
 	  public @ResponseBody String createPacket(@RequestBody PreRegisterRequestDto requestDto,
-	    	@RequestParam(name="contextKey",required = false) String contextKey) {
+			  @PathVariable("contextKey") String contextKey) {
 
 			try{    	
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -56,9 +56,9 @@ public class PacketController {
 	    	}
 	    	return "{\"Failed\"}";
 	  }
-	  @PostMapping(value = "/packet/pack/")
+	  @PostMapping(value = "/packet/pack/{contextKey}")
 	  public @ResponseBody String packPacket(@RequestBody PreRegisterRequestDto requestDto,
-	    	@RequestParam(name="contextKey",required = false) String contextKey
+			  @PathVariable("contextKey") String contextKey
 	    	//@RequestParam(name="isValidChecksum",required = false) Boolean isValidcs
 			  ) {
 
@@ -80,10 +80,11 @@ public class PacketController {
 	    	return "{\"Failed\"}";
 	  }
 
-	  @PostMapping(value = "/packet/template/{process}")
+	  @PostMapping(value = "/packet/template/{process}/{contextKey}")
 	  public @ResponseBody String createTemplate(@RequestBody PreRegisterRequestDto requestDto,
 			@PathVariable("process") String process,
-	    	@RequestParam(name="contextKey",required = false) String contextKey) {
+			 @PathVariable("contextKey") String contextKey
+			 ) {
 
 			try{    	
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -99,9 +100,9 @@ public class PacketController {
 	    	return "{\"Failed\"}";
 	  }
 
-	  @PostMapping(value = "/packet/bulkupload")
+	  @PostMapping(value = "/packet/bulkupload/{contextKey}")
 	  public @ResponseBody String bulkUploadPackets(@RequestBody List<String> packetPaths,
-		    	@RequestParam(name="contextKey",required = false) String contextKey) {
+			  @PathVariable("contextKey") String contextKey) {
 
 		  try{    	
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -120,10 +121,11 @@ public class PacketController {
 	 
 	  @ApiOperation(value = "Validate Identity Object as per ID Schema", response = String.class)
 		
-	  @PostMapping(value = "/packet/validate/{process}")
+	  @PostMapping(value = "/packet/validate/{process}/{contextKey}")
 	  public @ResponseBody String validatePacket(@RequestBody PreRegisterRequestDto requestDto,
 			  @PathVariable("process") String process,
-			  @RequestParam(name="contextKey",required = false) String contextKey) {
+			  @PathVariable("contextKey") String contextKey
+){
 
 		  try{    	
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
