@@ -204,7 +204,7 @@ public class ResidentDataProvider {
 		
 		Object oAttr = attributeList.get(ResidentAttribute.RA_SCHEMA_VERSION);
 		double schemaVersion = (oAttr == null) ? 0: (double)oAttr;
-		VariableManager.setVariableValue(VariableManager.NS_DEFAULT,"schemaVersion", schemaVersion);
+		VariableManager.setVariableValue(contextKey,"schemaVersion", schemaVersion);
 
 
 		String[] langsRequired = getConfiguredLanguages(contextKey);

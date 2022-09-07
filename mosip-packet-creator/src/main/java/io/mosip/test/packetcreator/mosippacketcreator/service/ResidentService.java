@@ -54,7 +54,7 @@ public class ResidentService {
 			return resp;
 	  }
 	  public String getRIDStatus(String rid, String context) {
-		  VariableManager.Init(); 
+		  VariableManager.Init(context); 
 		  loadServerContextProperties(context);
 		 
 		  RegistrationSteps steps = new RegistrationSteps();
@@ -67,7 +67,7 @@ public class ResidentService {
 	  }
 	  public String getUINByRID(String rid, String context) throws Exception {
 		  
-		  VariableManager.Init();
+		  VariableManager.Init(context);
 		  loadServerContextProperties(context);
 		  RegistrationSteps steps = new RegistrationSteps();
 		//  try {

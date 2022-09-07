@@ -3,6 +3,7 @@ package org.mosip.dataprovider.test.prereg;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 
+import org.apache.commons.validator.Var;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,7 +80,7 @@ public class PreRegistrationSteps {
 	public static String postApplication(ResidentModel resident, DataCallback cb,String contextKey) throws JSONException {
 		String result = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +
-		VariableManager.getVariableValue(contextKey, "postapplication").toString().trim();
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "postapplication").toString().trim();
 		
 		JSONArray requiredFieldsArray=MosipMasterData.getUiSpecId(contextKey);
 		JSONObject identity = CreatePersona.createIdentity(resident,cb,contextKey);
@@ -129,7 +130,7 @@ public class PreRegistrationSteps {
 		AppointmentModel appointmentSlot = new AppointmentModel();
 
 		String base = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
-		String api = VariableManager.getVariableValue(contextKey, "appointmentslots").toString().trim();
+		String api = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "appointmentslots").toString().trim();
 		String centerId = VariableManager.getVariableValue(contextKey, "centerId").toString().trim();
 		String url =  base + api + centerId;
 
@@ -151,7 +152,7 @@ public class PreRegistrationSteps {
 	public static String cancelAppointment(String preregId, String startTime, String toTime, String appointmentDate, String centerId,String contextKey) {
 		String response = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
-		VariableManager.getVariableValue(contextKey, "postappointment").toString().trim();
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "postappointment").toString().trim();
 		JSONObject obj = new JSONObject();
 		JSONObject requestObject = new JSONObject();
 
@@ -198,7 +199,7 @@ public class PreRegistrationSteps {
 		
 	String response = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
-		VariableManager.getVariableValue( contextKey,"postappointment").toString().trim();
+		VariableManager.getVariableValue( VariableManager.NS_DEFAULT,"postappointment").toString().trim();
 		url = url + "?preRegistrationId=" + map.get("preRegistrationId");
 		try {
 			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject(),contextKey);
@@ -217,7 +218,7 @@ public class PreRegistrationSteps {
 		
 		String response = "";
 			String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
-			VariableManager.getVariableValue(contextKey, "postappointment").toString().trim();
+			VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "postappointment").toString().trim();
 		url = url + "/" + prid;
 			try {
 				JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject(),contextKey);
@@ -244,7 +245,7 @@ public class PreRegistrationSteps {
 
 		String result ="";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
-		VariableManager.getVariableValue(contextKey, "postappointment").toString().trim();
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "postappointment").toString().trim();
 
 			JSONObject obj = new JSONObject();
 			JSONObject requestObject = new JSONObject();

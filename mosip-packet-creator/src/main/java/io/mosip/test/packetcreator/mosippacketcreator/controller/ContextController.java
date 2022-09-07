@@ -38,7 +38,7 @@ public class ContextController {
 	    	try{
 	    		if (personaConfigPath != null && !personaConfigPath.equals(""))
                     DataProviderConstants.RESOURCE = personaConfigPath;
-                VariableManager.Init();
+                VariableManager.Init(contextKey);
 
  
 /**

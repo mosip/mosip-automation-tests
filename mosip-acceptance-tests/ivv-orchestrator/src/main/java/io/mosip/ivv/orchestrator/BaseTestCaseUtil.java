@@ -155,7 +155,7 @@ public class BaseTestCaseUtil extends BaseStep{
 	}
 	
 	private static String addContextToUrl(String url) {
-		return url + "/" + System.getProperty("env.user");
+		return url + "/" + System.getProperty("env.user")+"_context";
 	}
 	public static Response getRequest(String url, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
@@ -175,7 +175,7 @@ public class BaseTestCaseUtil extends BaseStep{
 		return getResponse;
 	}
 	
-	public Response postReqest(String url,String body,String opsToLog) {
+	public Response postRequest(String url,String body,String opsToLog) {
 		Reporter.log("<pre> <b>"+opsToLog+": </b> <br/>"+body + "</pre>");
 		Response apiResponse = RestClient.postRequest(addContextToUrl(url), body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"+ apiResponse.getBody().asString() + "</pre>");
@@ -226,6 +226,7 @@ public class BaseTestCaseUtil extends BaseStep{
 	}
 	
 	public Response postRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
+		url=addContextToUrl(url);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response apiResponse = RestClient.postRequestWithQueryParamAndBody(url, body, contextKey,MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);

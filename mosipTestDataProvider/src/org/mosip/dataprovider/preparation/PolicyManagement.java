@@ -41,7 +41,7 @@ public class PolicyManagement {
 		//System.out.println(VariableManager.getVariableValue(VariableManager.NS_POLICIES,"policymanagement").toString());
         //System.out.print(VariableManager.getVariableValue("urlBase").toString());
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"policymanagement").toString() + "group/new";
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"policymanagement").toString() + "group/new";
 
 		try {
 			JSONObject policyGroupDetails = new JSONObject();
@@ -68,7 +68,7 @@ public class PolicyManagement {
 	public static String getPolicyGroupIDByName(String policygrpname,String contextKey){
 
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() + 
-			VariableManager.getVariableValue(VariableManager.NS_MASTERDATA, "policymanagement").toString() + "group/all";
+			VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "policymanagement").toString() + "group/all";
 		String groupID = "{\"groupName Does not exist\"}";
 		try {
 			JSONArray resp = RestClient.getJsonArray(url, new JSONObject(), new JSONObject(),contextKey);
@@ -96,7 +96,7 @@ public class PolicyManagement {
 	public static String createPolicyUnderGroup(String grpname, String policyname, String policydesc, String policyType,  JSONObject policiesDefnJson,String contextKey){
 
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() + 
-			VariableManager.getVariableValue(VariableManager.NS_MASTERDATA, "policymanagement").toString();
+			VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "policymanagement").toString();
 		try {
 
 			JSONObject policyDefn = new JSONObject();
@@ -132,7 +132,7 @@ public class PolicyManagement {
 	public static String publishPolicy(String policyId, String groupId,String contextKey){
 
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() + 
-			VariableManager.getVariableValue(VariableManager.NS_MASTERDATA, "policymanagement").toString() + policyId + "/group/" + groupId + "/publish";
+			VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "policymanagement").toString() + policyId + "/group/" + groupId + "/publish";
 		try {
 			JSONObject resp = RestClient.post(url, new JSONObject(),contextKey);
 			return resp.toString();

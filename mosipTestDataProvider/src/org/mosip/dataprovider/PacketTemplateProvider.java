@@ -21,6 +21,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.tools.ant.property.GetProperty;
 import org.javatuples.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,6 +42,7 @@ import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.Translator;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.google.gson.JsonObject;
 
@@ -53,6 +55,7 @@ import variables.VariableManager;
 /*
  * Generate Packet structure for a given Resident record
  */
+
 @SuppressWarnings("unchecked")
 public class PacketTemplateProvider {
 
@@ -62,17 +65,24 @@ public class PacketTemplateProvider {
 	public static String RID_EVIDENCE = "rid_evidence";
 	public static String RID_OPTIONAL = "rid_optional";
 
-	Hashtable<Double, Properties> allSchema = MosipMasterData.getIDSchemaLatestVersion("contextKey");//Neeha need to fix
-
-	Double schemaVersion = allSchema.keys().nextElement();
+//	Hashtable<Double, Properties> allSchema = MosipMasterData.getIDSchemaLatestVersion("contextKey");
+//
+//	Double schemaVersion = allSchema.keys().nextElement();
+//	
+//	List<MosipIDSchema> schema = (List<MosipIDSchema>) allSchema.get(schemaVersion).get("schemaList");
+//	List<String> requiredAttribs = (List<String>) allSchema.get(schemaVersion).get("requiredAttributes");
+//	
+	Hashtable<Double, Properties> allSchema = null ;
+	Double schemaVersion = 0.0;
+	List<MosipIDSchema> schema = null;
+	List<String> requiredAttribs = null;
 	
-	List<MosipIDSchema> schema = (List<MosipIDSchema>) allSchema.get(schemaVersion).get("schemaList");
-	List<String> requiredAttribs = (List<String>) allSchema.get(schemaVersion).get("requiredAttributes");
 	
 	private static final String DOMAIN_NAME = ".mosip.net";
 	Properties prop = new Properties();
 
 	public void getSchema(String contextKey) {
+		
 		allSchema = MosipMasterData.getIDSchemaLatestVersion(contextKey);
 		schemaVersion = allSchema.keys().nextElement();
 		schema = (List<MosipIDSchema>) allSchema.get(schemaVersion).get("schemaList");

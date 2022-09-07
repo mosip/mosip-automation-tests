@@ -51,13 +51,13 @@ public class ContextUtils {
 		
 			return p;
 	    }
-	    public Boolean  createUpdateServerContext(Properties props, String ctxName) {
+	   public Boolean  createUpdateServerContext(Properties props, String ctxName) {
 	    	
 	    	Boolean bRet = true;
 	    	  	String filePath =  personaConfigPath + "/server.context."+  ctxName + ".properties";
 	    	  	
 	    	  
-	    	Properties p=new Properties();
+	  /*  	Properties p=new Properties();
 	    	Properties mergedProperties = new Properties();
 	    	try {
 	    		FileReader reader=new FileReader(filePath);  
@@ -82,27 +82,32 @@ public class ContextUtils {
 	    		logger.error("read:createUpdateServerContext " + e.getMessage());
 	    		bRet = false;
 			}
-	    	
+	    */	
 	    	try {
-	    		mergedProperties.putAll(p);
-	    		mergedProperties.putAll(props);
-	    		
-	    		mergedProperties.store(new FileWriter(filePath),"Server Context Attributes");  
+//	    		mergedProperties.putAll(p);
+//	    		mergedProperties.putAll(props);
+//	    		
+	    		//FileReader reader=new FileReader(filePath);  
+	    		props.store(new FileWriter(filePath),"Server Context Attributes");  
 	    		bRet = true;
-	    	}catch (IOException e) {
-	    		logger.error("write:createUpdateServerContext " + e.getMessage());
-	    		bRet = false;
-			}
+	    	
+	    	
 	    	
 	    	Properties pp = loadServerContext(ctxName);
 	    	pp.forEach( (k,v)->{
 	    		VariableManager.setVariableValue(ctxName,k.toString(), v.toString());
 	    	});
-	    	String generatePrivateKey = props.getProperty("generatePrivateKey");
+	    	
+	    	
+	    	String generatePrivateKey = VariableManager.getVariableValue(ctxName, "generatePrivateKey").toString();//pp.getProperty("generatePrivateKey");
+	    	
             boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
             if (isRequired)
-                generateKeyAndUpdateMachineDetail(props, ctxName);
-            
+                generateKeyAndUpdateMachineDetail(pp, ctxName);
+	    	}catch (IOException e) {
+	    		logger.error("write:createUpdateServerContext " + e.getMessage());
+	    		bRet = false;
+			}
 	    	return bRet;
 	    }
 	    public String createExecutionContext(String serverContextKey) {

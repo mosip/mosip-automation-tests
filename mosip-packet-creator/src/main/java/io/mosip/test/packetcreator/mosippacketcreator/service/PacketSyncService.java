@@ -133,8 +133,8 @@ public class PacketSyncService {
 	@Value("${packetmanager.zip.datetime.pattern:yyyyMMddHHmmss}")
 	private String zipDatetimePattern;
 	
-	@Value("${mosip.test.env.mapperpath}")
-	private String mapperFilePath;
+//	@Value("${mosip.test.env.mapperpath}")
+//	private String mapperFilePath;
 	 
 	@Value("${mosip.test.idrepo.idvidpath}")
 	private String idvid;
@@ -151,7 +151,7 @@ public class PacketSyncService {
     			if(!key.startsWith("mosip.test")) {
     	
 					
-    				VariableManager.setVariableValue(ns,key, v);
+    				VariableManager.setVariableValue(contextKey,key, v);
     			}
     			
     		});
@@ -621,7 +621,7 @@ public class PacketSyncService {
     loadServerContextProperties(contextKey);
     
     String base = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
-	String api = VariableManager.getVariableValue(contextKey,"appointmentslots").toString().trim();
+	String api = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"appointmentslots").toString().trim();
 	String centerId = VariableManager.getVariableValue( contextKey,"centerId").toString().trim();
 	logger.info("BookAppointment:" + base +","+ api + ","+centerId);
 	
@@ -745,7 +745,7 @@ String response = "";
     	Path packetDir = null;
     	JSONArray packetPaths = new JSONArray();
     	
-    	loadServerContextProperties(contextKey);
+    	//loadServerContextProperties(contextKey);
  
     	packetDir = Files.createTempDirectory("packets_");
     	Properties personaFiles = personaRequest.getRequests().get(PersonaRequestType.PR_ResidentList);
@@ -796,7 +796,7 @@ String response = "";
 
     	
     	loadServerContextProperties(contextKey);
-    	VariableManager.setVariableValue(contextKey,"mosip.test.env.mapperpath", mapperFilePath);
+    	//VariableManager.setVariableValue(contextKey,"mosip.test.env.mapperpath", mapperFilePath);
     	if(process != null) {
     		VariableManager.setVariableValue(contextKey,"process", process);
     	}
@@ -811,7 +811,7 @@ String response = "";
     		packetDir.toFile().createNewFile();
     	}
     	PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
-    	//Added By Neeharika
+    	
     	try {
     		JSONObject preregResponse=new JSONObject();
     	JSONObject queryparam=new JSONObject();
@@ -826,13 +826,16 @@ String response = "";
     		ResidentModel resident = ResidentModel.readPersona(path);
     		String packetPath = packetDir.toString()+File.separator + resident.getId();
     		
+    		machineId=VariableManager.getVariableValue(contextKey,"mosip.test.regclient.machineid").toString();
+
+    		centerId=VariableManager.getVariableValue(contextKey,"mosip.test.regclient.centerid").toString();
+    		
     		packetTemplateProvider.generate("registration_client", process, resident, packetPath , preregId, machineId, centerId,contextKey,props,preregResponse);
     		JSONObject obj = new JSONObject();
     		obj.put("id",resident.getId());
     		obj.put("path", packetPath);
     		logger.info("createPacket:" + packetPath);
     		packetPaths.put(obj);
-    		
     		
     	}
     	} catch (Exception e) {
