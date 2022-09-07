@@ -717,8 +717,9 @@ public class RestClient {
 
 	            //authManagerURL
 	            //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
-				
-				String authUrl = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + VariableManager.getVariableValue(contextKey,"authManagerURL").toString().trim();
+				//VariableManager.NS_DEFAULT
+				//VariableManager.NS_DEFAULT
+				String authUrl = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"authManagerURL").toString().trim();
 				String jsonBody = requestBody.toString(); 
 				logger.info("Neeharika initToken logger " + authUrl + " Auth URL"+  jsonBody);
 				//System.out.println("Neeharika Syso " + authUrl + " Auth URL"+  jsonBody);
@@ -776,7 +777,7 @@ public class RestClient {
             //authManagerURL
             //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
 			
-			String authUrl = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + VariableManager.getVariableValue(contextKey,"authManagerURL").toString().trim();
+			String authUrl = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString(); 
 			logger.info("Neeharika initToken_admin logger " + authUrl + " Auth URL"+  jsonBody);
 			Response response =null;

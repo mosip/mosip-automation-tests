@@ -26,9 +26,9 @@ public final class VariableManager {
 //	public static String NS_PREREG = "prereg";
 //	public static String NS_REGCLIENT = "regclient";
 	
-	public static String NS_MASTERDATA = "masterdata";
-	public static String NS_POLICYMANAGEMENT = "policymanagement";
-	public static String NS_PARTNERMANAGEMENT = "partnermanagement";
+	//public static String NS_MASTERDATA = "masterdata";
+	//public static String NS_POLICYMANAGEMENT = "policymanagement";
+	//public static String NS_PARTNERMANAGEMENT = "partnermanagement";
 
 	private static String VAR_SUBSTITUE_PATTERN = "\\{\\{%s\\}\\}";
 	private static String VAR_FIND_PATTERN = "\\{\\{[_a-zA-Z]+[0-9]*[\\.]?[_a-zA-Z]+[0-9]*\\}\\}";
@@ -42,12 +42,12 @@ public final class VariableManager {
 	static boolean bInit= false;
 	
 	static {
-		Init();				
+		Init(NS_DEFAULT);				
 	}
 	public static boolean isInit() {
 		return bInit;
 	}
-	public static void Init() {
+	public static void Init(String contextKey) {
 		
 		if(bInit) return;
 		 //resolve a cache manager
@@ -66,26 +66,26 @@ public final class VariableManager {
 			varNameSpaces = new Hashtable<String, Cache<String,Object>>();
 			//load predefined variables
 			
-			Cache<String,Object> cache = cacheManager.createCache ( NS_DEFAULT, cacheConfig);
-			varNameSpaces.put(NS_DEFAULT, cache);
+			Cache<String,Object> cache = cacheManager.createCache ( contextKey, cacheConfig);
+			varNameSpaces.put(contextKey, cache);
 			
 		//	cache = cacheManager.createCache(NS_PREREG, cacheConfig);
 		//	varNameSpaces.put(NS_PREREG, cache);
 			
-			cache = cacheManager.createCache(NS_MASTERDATA, cacheConfig);
-			varNameSpaces.put(NS_MASTERDATA, cache);
-
-			
-			cache = cacheManager.createCache(NS_PARTNERMANAGEMENT, cacheConfig);
-			varNameSpaces.put(NS_PARTNERMANAGEMENT, cache);
+//			cache = cacheManager.createCache(NS_MASTERDATA, cacheConfig);
+//			varNameSpaces.put(NS_MASTERDATA, cache);
+//
+//			
+//			cache = cacheManager.createCache(NS_PARTNERMANAGEMENT, cacheConfig);
+//			varNameSpaces.put(NS_PARTNERMANAGEMENT, cache);
 		}
 		//	cache = cacheManager.createCache(NS_REGCLIENT, cacheConfig);
 		//	varNameSpaces.put(NS_REGCLIENT, cache);
 		CONFIG_PATH = DataProviderConstants.RESOURCE+"config/";
 		//	loadNamespaceFromPropertyFile(CONFIG_PATH+"prereg.properties", NS_PREREG);
 			Boolean bret = loadNamespaceFromPropertyFile(CONFIG_PATH+"default.properties", NS_DEFAULT);
-			loadNamespaceFromPropertyFile(CONFIG_PATH+"masterdata.properties", NS_MASTERDATA);
-			loadNamespaceFromPropertyFile(CONFIG_PATH+"partnermanagement.properties", NS_PARTNERMANAGEMENT);
+//			loadNamespaceFromPropertyFile(CONFIG_PATH+"masterdata.properties", NS_MASTERDATA);
+//			loadNamespaceFromPropertyFile(CONFIG_PATH+"partnermanagement.properties", NS_PARTNERMANAGEMENT);
 		//	loadNamespaceFromPropertyFile(CONFIG_PATH+"regclient.properties", NS_REGCLIENT);
 			bInit = bret;
 		
@@ -131,8 +131,8 @@ public final class VariableManager {
 		return  set.toArray(a);
 	}
 	public static Object getVariableValue(String contextKey, String varName) {
-		
-		if(!bInit) Init();
+	
+		if(!bInit) Init(contextKey);
 		
 		Cache<String,?> ht = null;
 		Object ret = null;
@@ -141,11 +141,12 @@ public final class VariableManager {
 		
 		if(ht != null) {
 			ret =  ht.get(varName);
-			return ret;
+		return ret;
 		}
-		if(ret==null) {
-			ret=getVariableValue(NS_DEFAULT,varName); 
-		}
+//		if(ret==null) {
+//			ret=getVariableValue(NS_DEFAULT,varName); 
+//			return ret;
+//		}
 		}catch(Exception e) {
 			
 			e.printStackTrace();

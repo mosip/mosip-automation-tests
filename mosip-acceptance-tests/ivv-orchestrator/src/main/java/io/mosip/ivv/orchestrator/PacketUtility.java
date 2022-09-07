@@ -64,8 +64,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		// Response response = postReqest(url, jsonwrapper.toString(),
 		// "GENERATE_RESIDENTS_DATA");
-		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), contextKey,
+//Docker change//		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), contextKey,
+//				"GENERATE_RESIDENTS_DATA");
+		
+		Response response = postRequest(url, jsonwrapper.toString(),
 				"GENERATE_RESIDENTS_DATA");
+		
 		// assertTrue(response.getBody().asString().contains("SUCCESS"),"Unable to get
 		// residentData from packet utility");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
@@ -113,8 +117,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		// Response response = postReqest(url, jsonwrapper.toString(),
 		// "GENERATE_RESIDENTS_DATA");
-		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), contextKey,
+		//Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), contextKey,
+			//	"GENERATE_RESIDENTS_DATA");
+		Response response = postRequest(url, jsonwrapper.toString(),
 				"GENERATE_RESIDENTS_DATA");
+		
 		return response;
 
 	}
@@ -132,7 +139,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + props.getProperty("getTemplateUrl") + process;
 		// Response templateResponse = postReqest(url, jsonReq.toString(),
 		// "GET-TEMPLATE");
-		Response templateResponse = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey,
+		Response templateResponse = postRequest(url, jsonReq.toString(),
 				"GET-TEMPLATE");
 		JSONObject jsonResponse = new JSONObject(templateResponse.asString());
 		JSONArray resp = jsonResponse.getJSONArray("packets");
@@ -162,8 +169,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put("personaFilePath", jsonArray);
-		// Response response =postReqest(url,jsonReq.toString(),"Verify Otp");
-		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "Verify Otp");
+		 Response response =postRequest(url,jsonReq.toString(),"Verify Otp");
+		//Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "Verify Otp"); //docker comment
 		// assertTrue(response.getBody().asString().contains("VALIDATION_SUCCESSFUL"),"Unable
 		// to Verify Otp from packet utility");
 		if (!response.getBody().asString().toLowerCase().contains("validation_successful"))
@@ -177,8 +184,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put("personaFilePath", jsonArray);
-		// Response response =postReqest(url,jsonReq.toString(),"AddApplication");
-		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "AddApplication");
+		 Response response =postRequest(url,jsonReq.toString(),"AddApplication");
+		//Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "AddApplication");
 		String prid = response.getBody().asString();
 		// assertTrue((int)prid.charAt(0)>47 && (int)prid.charAt(0)<58 ,"Unable to
 		// pre-register from packet utility");
@@ -213,19 +220,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "Upload Documents");
 	}
 
-	public void updatePreRegStatusTBD(String prid, String status, HashMap<String, String> contextKey)
-			throws RigInternalError {
-		String url = baseUrl + props.getProperty("updatePreRegStatus") + prid + "?statusCode=" + status;
-		Response response = putRequestWithQueryParam(url, contextKey, "UpdatePreRegStatus");
-		if (!response.getBody().asString().toLowerCase().contains("status_updated_sucessfully")) {
-			Reporter.log("STATUS_NOT_UPDATED_SUCESSFULLY");
-			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
-		} else {
-			Reporter.log(response.getBody().asString());
-			logger.info(response.getBody().asString());
-		}
 
-	}
 
 	public String updatePreRegStatus(String prid, String status, HashMap<String, String> contextKey)
 			throws RigInternalError {
@@ -305,7 +300,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		jsonwrapper.put("requests", jsonReq);
 
-		Response response = postReqest(url, jsonwrapper.toString(), "link Resident data with RID");
+		Response response = postRequest(url, jsonwrapper.toString(), "link Resident data with RID");
 
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to add Resident RID in resident data");
@@ -327,7 +322,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		jsonwrapper.put("requests", jsonReq);
 
-		Response response = postReqest(url, jsonwrapper.toString(), "link Resident data with UIN");
+		Response response = postRequest(url, jsonwrapper.toString(), "link Resident data with UIN");
 
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to add UIN in resident data");
@@ -381,7 +376,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		residentAttrib.put("child", residentFilePath);
 		jsonReq.put("PR_ResidentList", residentAttrib);
 		jsonwrapper.put("requests", jsonReq);
-		Response response = postReqest(url, jsonwrapper.toString(), "Update Resident Guardian");
+		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian");
 		// assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to
 		// update Resident Guardian from packet utility");
 		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + rid + " And linked to child </u></b>");
@@ -401,7 +396,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("PR_ResidentList", residentAttrib);
 		jsonwrapper.put("requests", jsonReq);
 		String url = baseUrl + props.getProperty("updateResidentUrl");
-		Response response = postReqest(url, jsonwrapper.toString(), "Update Resident Guardian");
+		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian");
 		Reporter.log(
 				"<b><u>Generated GuardianPacket with Rid: " + rid_updateResident + " And linked to child </u></b>");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
@@ -452,7 +447,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		residentAttrib.put("child", residentFilePath);
 		jsonReq.put("PR_ResidentList", residentAttrib);
 		jsonwrapper.put("requests", jsonReq);
-		Response response = postReqest(url, jsonwrapper.toString(), "Update Resident Guardian");
+		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian");
 		// assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to
 		// update Resident Guardian from packet utility");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
@@ -474,7 +469,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("PR_ResidentList", residentAttrib);
 		jsonwrapper.put("requests", jsonReq);
 		String url = baseUrl + props.getProperty("updateResidentUrl");
-		Response response = postReqest(url, jsonwrapper.toString(), "Update Resident Guardian");
+		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
 		Reporter.log("<b><u>Generated GuardianPacket And linked to child </u></b>");
@@ -511,7 +506,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		arr.put(1, residentPath);
 		jsonReq.put("personaFilePath", arr);
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
-		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey,
+		Response response = postRequest(url, jsonReq.toString(),
 				"Generate And UploadPacket");
 		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
@@ -537,7 +532,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("prereg.password", E2EConstants.USER_PASSWD);
 		jsonReq.put("mosip.test.regclient.supervisorid", E2EConstants.SUPERVISOR_ID);
 		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
-		Response response = postReqest(url, jsonReq.toString(), "SetContext");
+		Response response = postRequest(url, jsonReq.toString(), "SetContext");
 		// Response response =
 		// given().contentType(ContentType.JSON).body(jsonReq.toString()).post(url);
 		if (!response.getBody().asString().toLowerCase().contains("true"))
@@ -592,7 +587,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (mosipVersion != null && !mosipVersion.isEmpty()) {
 			jsonReq.put("mosip.version", mosipVersion);
 		}
-		Response response = postReqest(url, jsonReq.toString(), "SetContext");
+		Response response = postRequest(url, jsonReq.toString(), "SetContext");
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
 		return response.getBody().asString();
@@ -601,7 +596,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
 			Boolean generatePrivateKey, String status, String baseUrl) throws RigInternalError {
-		String url = this.baseUrl + "/context/server/" + key; //this.baseUrl + "/context/server/" + key?contextKey=Ckey
+		//OLD //String url = this.baseUrl + "/context/server/" + key; //this.baseUrl + "/context/server/" + key?contextKey=Ckey
+		String url = this.baseUrl + "/context/server" ; //this.baseUrl + "/context/server/" + key?contextKey=Ckey
+		
 		String centerId = "centerId" + map.get("appendedkey");
 
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
@@ -788,7 +785,7 @@ centerId=10002
 		
 		JSONObject JO=new JSONObject(map);
 		
-		Response response = postReqest(url, mergeJSONObjects(JO, jsonReq).toString(), "SetContext");
+		Response response = postRequest(url, mergeJSONObjects(JO, jsonReq).toString(), "SetContext");
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
 		return response.getBody().asString();

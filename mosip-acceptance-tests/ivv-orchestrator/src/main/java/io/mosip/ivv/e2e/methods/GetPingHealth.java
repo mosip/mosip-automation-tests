@@ -15,7 +15,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 
-		String modules = null;
+		String modules = null,uri=null;
 		HashMap<String, String> context=null;
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			context = contextInuse;
@@ -27,7 +27,12 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 			else
 				modules = "";
 		}
-		String uri=baseUrl + "/ping?contextKey="+context.get(E2EConstants.CONTEXTKEY)+"&module="+modules;
+		//String uri=baseUrl + "/ping?contextKey="+context.get(E2EConstants.CONTEXTKEY)+"&module="+modules;
+		if(modules.length()>0)
+		uri=baseUrl + "/ping&module="+modules;
+		else
+		uri=baseUrl + "/ping";
+		
 		Response response = getRequest(uri, "Health Check");
 		JSONObject res = new JSONObject(response.asString());
 		logger.info(res.toString());

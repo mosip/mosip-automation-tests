@@ -94,7 +94,7 @@ public class MosipDataSetup {
 		
 		List<MosipMachineModel> machines = null;
 		/* String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinedetail").toString();
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinedetail").toString();
 		url = url + machineId + "/" + langCode; */
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()
 				+ "v1/masterdata/machines/";
@@ -188,7 +188,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 	
 	public static void createRegCenterType(MosipRegistrationCenterTypeModel type,String contextKey) {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"regcentertype").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"regcentertype").toString();
 		
 		JSONObject jsonType = new JSONObject();
 		jsonType.put("code", type.getCode());
@@ -219,7 +219,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 
 	public static void createMachineType(MosipMachineTypeModel type,String contextKey) {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinetype").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinetype").toString();
 		
 		JSONObject jsonType = new JSONObject();
 		jsonType.put("code", type.getCode());
@@ -251,7 +251,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		List<MosipMachineTypeModel> machineTypes = null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinetype").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinetype").toString();
 		url = url + "all";
 		
 		Object o =getCache(url,contextKey);
@@ -279,7 +279,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		List<MosipRegistrationCenterTypeModel> machineTypes = null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"regcentertype").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"regcentertype").toString();
 		url = url + "all";
 		
 		Object o =getCache(url,contextKey);
@@ -307,7 +307,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		
 	public static void createMachineSpec(MosipMachineSpecModel spec,String contextKey) {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinespec").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinespec").toString();
 		JSONObject jsonSpec = new JSONObject();
 		jsonSpec.put("id", spec.getId());
 		jsonSpec.put("name", spec.getName());
@@ -342,7 +342,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 	public static void createMachine(MosipMachineModel machine,String contextKey) {
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"createmachine").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"createmachine").toString();
 		
 		JSONObject jsonMachine = new JSONObject();
 		jsonMachine.put("id", machine.getId());
@@ -385,7 +385,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		
 	
 	  String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-	  VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machine"
+	  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machine"
 	  ).toString();
 
 	  
@@ -458,7 +458,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 	
 		List<MosipDeviceModel> devices = null;
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"mappeddevices").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mappeddevices").toString();
 	
 		url = url +centerId;
 		

@@ -82,7 +82,7 @@ public  class MosipMasterData {
 		List<MosipBiometricAttributeModel> biotypes =null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"biometricAttributes").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"biometricAttributes").toString();
 		url = url + lang + "/" + bioType;
 		
 		Object o =getCache(url,contextKey);
@@ -114,7 +114,7 @@ public  class MosipMasterData {
 		List<MosipBiometricTypeModel> biotypes =null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"biometricTypes").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"biometricTypes").toString();
 		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (List<MosipBiometricTypeModel>) o);
@@ -140,7 +140,7 @@ public  class MosipMasterData {
 	public static List<MosipLanguage> getConfiguredLanguages(String contextKey) {
 		List<MosipLanguage> langs =null;
 			
-		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"languages").toString();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"languages").toString();
 
 		Object o =getCache(url,contextKey);
 		if(o != null)
@@ -172,7 +172,7 @@ public  class MosipMasterData {
 		//List<DynamicFieldModel> lstDynamicFields = null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"dynamicFields").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"dynamicFields").toString();
 	
 		Object o =getCache(url,contextKey);
 		if(o != null)
@@ -246,7 +246,7 @@ public  class MosipMasterData {
 		List<LocationHierarchyModel> locHierarchy =null;
 			
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"locationhierarchy").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"locationhierarchy").toString();
 		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (LocationHierarchyModel[]) o);
@@ -322,7 +322,7 @@ public  class MosipMasterData {
 	public static MosipPreRegLoginConfig getPreregLoginConfig(String contextKey) {
 		MosipPreRegLoginConfig config = new MosipPreRegLoginConfig();
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(contextKey,"loginconfig").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"loginconfig").toString();
 		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (MosipPreRegLoginConfig) o);
@@ -414,7 +414,7 @@ public  class MosipMasterData {
 		List<MosipLocationModel> locList = null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"locationbylevel").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"locationbylevel").toString();
 		url = url+ level ;
 
 		Object o =getCache(url,contextKey);
@@ -461,7 +461,7 @@ public  class MosipMasterData {
 		Hashtable<Double,List<MosipIDSchema>> tbl = new Hashtable<Double,List<MosipIDSchema>> ();
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(
-				VariableManager.NS_MASTERDATA,
+				VariableManager.NS_DEFAULT,
 					//"individualtypes"
 				"idschemaapi"
 				).toString();
@@ -570,7 +570,7 @@ public  class MosipMasterData {
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(
-				VariableManager.NS_MASTERDATA,
+				VariableManager.NS_DEFAULT,
 				//"individualtypes"
 				"idschemaapi"
 				).toString();
@@ -598,7 +598,7 @@ public  class MosipMasterData {
 		//Hashtable<Double,List<MosipIDSchema>> tbl = new Hashtable<Double,List<MosipIDSchema>> ();
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(
-				VariableManager.NS_MASTERDATA,
+				VariableManager.NS_DEFAULT,
 				//"individualtypes"
 				"idschemaapi"
 				).toString();
@@ -749,7 +749,7 @@ public  class MosipMasterData {
 		//Hashtable<Double,List<MosipIDSchema>> tbl = new Hashtable<Double,List<MosipIDSchema>> ();
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(
-				VariableManager.NS_MASTERDATA,
+				VariableManager.NS_DEFAULT,
 				//"idschemaapi"
 				"uiSpec"
 				).toString();
@@ -807,7 +807,7 @@ public  class MosipMasterData {
 	List<MosipDocCategoryModel> docCatList = null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"documentCategories").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"documentCategories").toString();
 		
 		Object o =getCache(url,contextKey);
 		if(o != null)
@@ -843,7 +843,7 @@ public  class MosipMasterData {
 		List<MosipDocTypeModel> docTypeList = null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"documentTypes").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"documentTypes").toString();
 		url = url + categoryCode +"/"+ langCode;
 		
 		Object o =getCache(url,contextKey);
@@ -878,7 +878,7 @@ public  class MosipMasterData {
 		List<MosipDocTypeModel> docTypeList = null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"documentTypes").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"documentTypes").toString();
 		url = url + categoryCode +"/"+ langCode;
 		
 		Object o =getCache(url,contextKey);
@@ -958,7 +958,7 @@ public  class MosipMasterData {
 		List<MosipIndividualTypeModel> indTypeList = null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"individualtypes").toString();
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"individualtypes").toString();
 		
 		Object o =getCache(url,contextKey);
 		if(o != null)
@@ -1007,7 +1007,7 @@ public  class MosipMasterData {
 			genderTypeList = getGenderTypesLTS(lang,contextKey);
 		}else {
 			String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-					VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"gendertypes").toString();
+					VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"gendertypes").toString();
 							
 							Object o =getCache(url,contextKey);
 							if(o != null)
@@ -1041,7 +1041,7 @@ public  class MosipMasterData {
 		List<MosipGenderModel> genderTypeList = new ArrayList<>();
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"genderTypesByDynamicField").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"genderTypesByDynamicField").toString();
 		
 		Object o =getCache(url +"_"+lang,contextKey);
 		if(o != null)
@@ -1217,7 +1217,7 @@ public  class MosipMasterData {
 
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(
-				VariableManager.NS_MASTERDATA,
+				VariableManager.NS_DEFAULT,
 				//"individualtypes"
 				"idschemaapi"
 				).toString();
@@ -1241,7 +1241,7 @@ public  class MosipMasterData {
 	public static String postSchema(String id, int version,  JSONArray schema,String contextKey){
 
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"idschema").toString();
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"idschema").toString();
 	
 
 		JSONObject request = new JSONObject();
@@ -1336,7 +1336,7 @@ public  class MosipMasterData {
 	public static JSONArray getUiSpecId(String contextKey) {
 		JSONArray array= new JSONArray();
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +"preregistration/v1/uispec/latest?identitySchemaVersion=0&version=0";
-		//String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"uiSpec").toString();
+		//String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"uiSpec").toString();
 
 		Object o =getCache(url,contextKey);
 		if(o != null)
