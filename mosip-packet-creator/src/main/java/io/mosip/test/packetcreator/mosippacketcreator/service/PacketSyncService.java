@@ -862,34 +862,67 @@ String response = "";
     		String value  = updateAttrs.getProperty(key);
     		key = key.toLowerCase().trim();
     		
+//    		//first check whether it is document being updated?
+//    	
+//    		MosipDocument doc = null;
+//    		for(MosipDocument md: persona.getDocuments()) {
+//    			if(md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
+//    				doc = md;
+//    				break;
+//    			}
+//    			
+//    		}
+//    		if(doc != null) {
+//    			JSONObject jsonDoc = new JSONObject(value);
+//    			String typeName = jsonDoc.has("typeName") ? jsonDoc.get("typeName").toString() : "";
+//    			String typeCode = jsonDoc.has("typeCode") ? jsonDoc.get("typeCode").toString() : "";
+//    			int indx = -1;
+//    			for(MosipDocTypeModel tm: doc.getType()) {
+//    				indx++;
+//    				if(tm.getCode().equals(typeCode) || tm.getName().equals(typeName))
+//    					break;
+//    			}
+//    			if(indx >=0 && indx < doc.getType().size()) {
+//    				String docFilePath = jsonDoc.has("docPath") ? jsonDoc.getString("docPath").toString() : null;
+//    				if(docFilePath != null)
+//    					doc.getDocs().set(indx, docFilePath);
+//    			}
+//    			continue;
+//
+//    		}
+    		
+    		
+    		
     		//first check whether it is document being updated?
-    	
-    		MosipDocument doc = null;
-    		for(MosipDocument md: persona.getDocuments()) {
-    			if(md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
-    				doc = md;
-    				break;
-    			}
-    			
-    		}
-    		if(doc != null) {
-    			JSONObject jsonDoc = new JSONObject(value);
-    			String typeName = jsonDoc.has("typeName") ? jsonDoc.get("typeName").toString() : "";
-    			String typeCode = jsonDoc.has("typeCode") ? jsonDoc.get("typeCode").toString() : "";
-    			int indx = -1;
-    			for(MosipDocTypeModel tm: doc.getType()) {
-    				indx++;
-    				if(tm.getCode().equals(typeCode) || tm.getName().equals(typeName))
-    					break;
-    			}
-    			if(indx >=0 && indx < doc.getType().size()) {
-    				String docFilePath = jsonDoc.has("docPath") ? jsonDoc.getString("docPath").toString() : null;
-    				if(docFilePath != null)
-    					doc.getDocs().set(indx, docFilePath);
-    			}
-    			continue;
 
-    		}
+			MosipDocument doc = null;
+			for(MosipDocument md: persona.getDocuments()) {
+				if(md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
+					doc = md;
+					break;
+				}
+
+			}
+			if(doc != null) {
+				JSONObject jsonDoc = new JSONObject(value);
+				String typeName = jsonDoc.has("typeName") ? jsonDoc.get("typeName").toString() : "";
+				String typeCode = jsonDoc.has("typeCode") ? jsonDoc.get("typeCode").toString() : "";
+				int indx = -1;
+				for(MosipDocTypeModel tm: doc.getType()) {
+					indx++;
+					if( (tm.getDocTypeCode()!=null && tm.getDocTypeCode().equals(typeCode)) || (tm.getDocTypeName()!=null && tm.getDocTypeName().equals(typeName)) )
+						break;
+				}
+				if(indx >=0 && indx < doc.getType().size()) {
+					String docFilePath = jsonDoc.has("docPath") ? jsonDoc.getString("docPath").toString() : null;
+					if(docFilePath != null)
+						doc.getDocs().set(indx, docFilePath);
+				}
+				continue;
+
+			}
+			
+			
     		switch(key) {
     			case "face":
     			case "photo":
