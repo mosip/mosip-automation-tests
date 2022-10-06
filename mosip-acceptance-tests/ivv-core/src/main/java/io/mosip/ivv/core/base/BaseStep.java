@@ -5,6 +5,8 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
 import io.mosip.ivv.core.dtos.CallRecord;
+import io.mosip.ivv.core.dtos.RequestDataDTO;
+import io.mosip.ivv.core.dtos.ResponseDataDTO;
 import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.core.dtos.Store;
 import io.mosip.ivv.core.exceptions.RigInternalError;
@@ -138,5 +140,15 @@ public class BaseStep {
             logInfo("Assert [passed]: Response object - error object is null and response object is not null");
         }
     }
+
+	public void process(ResponseDataDTO res) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public RequestDataDTO prepare() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

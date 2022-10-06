@@ -8,14 +8,15 @@ import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.Translator;
+import org.springframework.beans.factory.annotation.Value;
 
 import variables.VariableManager;
 
 public class NameProvider {
 
-	private static String resourceName_male = DataProviderConstants.RESOURCE+"Names/%s/boy_names.csv";
-	private static String resourceName_female = DataProviderConstants.RESOURCE+ "Names/%s/girl_names.csv";
-	private static String resourceName_surname =DataProviderConstants.RESOURCE+ "Names/%s/surnames.csv";
+	private static String resourceName_male = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.namesdatapath").toString()+"/%s/boy_names.csv";
+	private static String resourceName_female = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.namesdatapath").toString()+"/%s/girl_names.csv";
+	private static String resourceName_surname =VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.namesdatapath").toString()+"/%s/surnames.csv";
 	
 	static String[] getSurNames(String lang, int count) {
 		String resPath = String.format(resourceName_surname, lang);
@@ -72,7 +73,7 @@ public class NameProvider {
 				syntheticmidnamelen=50
 				syntheticlastnamelen=50
 		 */
-		Object objAttr = VariableManager.getVariableValue("syntheticnames");
+		Object objAttr = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"syntheticnames");
 		boolean bValue = objAttr == null ? false :  Boolean.parseBoolean(objAttr.toString());
 		if(bValue) {
 		
@@ -96,16 +97,16 @@ public class NameProvider {
 	static List<Name> generateSynthNames(Gender gender, int count){
 		String lang ="en"; 
 		List<Name> names = new ArrayList<Name>();
-		Object objAttr = VariableManager.getVariableValue("syntheticmidname");
+		Object objAttr = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"syntheticmidname");
 		boolean bValue = objAttr == null ? false : Boolean.parseBoolean(objAttr.toString());
-		objAttr = VariableManager.getVariableValue("syntheticfirstnamelen");
+		objAttr = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"syntheticfirstnamelen");
 		int fNameLen = objAttr == null ? 30: Integer.parseInt(objAttr.toString());
 	
-		objAttr = VariableManager.getVariableValue("syntheticmidnamelen");
+		objAttr = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"syntheticmidnamelen");
 		
 		int mNameLen = objAttr == null ? 30: Integer.parseInt(objAttr.toString());
 		
-		objAttr = VariableManager.getVariableValue("syntheticlastnamelen");
+		objAttr = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"syntheticlastnamelen");
 		int lNameLen = objAttr == null ? 30: Integer.parseInt(objAttr.toString());
 		
 		for(int i=0; i < count; i++) {

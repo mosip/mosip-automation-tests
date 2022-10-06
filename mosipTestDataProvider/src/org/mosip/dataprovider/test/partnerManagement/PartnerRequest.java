@@ -10,12 +10,12 @@ import variables.VariableManager;
 
 public class PartnerRequest {
     
-    public static String submitAPIKeyRequest(String partnerID, String policyName, String useCaseDesc){
+    public static String submitAPIKeyRequest(String partnerID, String policyName, String useCaseDesc,String contextKey){
 
-        String url = VariableManager.getVariableValue("urlBase").toString() +
-        VariableManager.getVariableValue("partner").toString() +
+        String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+        VariableManager.getVariableValue(contextKey,"partner").toString() +
         partnerID +
-        VariableManager.getVariableValue("apiKeyRequest").toString();
+        VariableManager.getVariableValue(contextKey,"apiKeyRequest").toString();
         
 
         JSONObject request = new JSONObject();
@@ -34,7 +34,7 @@ public class PartnerRequest {
         JSONObject resp;
 
         try{
-            resp = RestClient.patch(url, payload);
+            resp = RestClient.patch(url, payload,contextKey);
             return resp.toString();
         }
         catch(Exception ex){
@@ -43,10 +43,10 @@ public class PartnerRequest {
         }
     }
 
-    public static String approvePartnerAPIKeyRequest(String apiKeyRequestID){
+    public static String approvePartnerAPIKeyRequest(String contextKey,String apiKeyRequestID){
 
-        String url = VariableManager.getVariableValue("urlBase").toString() +
-        VariableManager.getVariableValue("partner").toString() +
+        String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+        VariableManager.getVariableValue(contextKey,"partner").toString() +
         "apikey/" + apiKeyRequestID;
 
         JSONObject request = new JSONObject();
@@ -65,7 +65,7 @@ public class PartnerRequest {
 
         JSONObject resp;
         try{
-            resp = RestClient.patch(url, payload);
+            resp = RestClient.patch(url, payload,contextKey);
             return resp.toString();
         }
         catch(Exception ex){
@@ -76,18 +76,18 @@ public class PartnerRequest {
 
     }
 
-    public static String selfRegister(JSONObject selfRegisterRequest){
+    public static String selfRegister(JSONObject selfRegisterRequest,String contextKey){
 
         selfRegisterRequest.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
 		selfRegisterRequest.put("version", "v1.0");
 
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-		            VariableManager.getVariableValue("partner").toString();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+		            VariableManager.getVariableValue(contextKey,"partner").toString();
 
 
 		try {
 
-			JSONObject resp = RestClient.post(url, selfRegisterRequest);
+			JSONObject resp = RestClient.post(url, selfRegisterRequest,contextKey);
 			return resp.toString();
 		}
 		catch(Exception ex){
@@ -97,10 +97,10 @@ public class PartnerRequest {
 
     }
 
-    public static String updatePartnerStatus(String partnerId, String status){
+    public static String updatePartnerStatus(String contextKey,String partnerId, String status){
 
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-		VariableManager.getVariableValue("partner").toString() + partnerId; 
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+		VariableManager.getVariableValue(contextKey,"partner").toString() + partnerId; 
 
         JSONObject request = new JSONObject();
         request.put("status", status);
@@ -116,7 +116,7 @@ public class PartnerRequest {
 
 		try {
 
-			JSONObject resp = RestClient.patch(url, updateStatusReq);
+			JSONObject resp = RestClient.patch(url, updateStatusReq,contextKey);
 			return resp.toString();
 		}
 		catch(Exception ex){

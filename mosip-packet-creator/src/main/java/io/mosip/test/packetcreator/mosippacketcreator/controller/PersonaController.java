@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,16 +44,18 @@ public class PersonaController {
 	private static final Logger logger = LoggerFactory.getLogger(PersonaController.class);
 
 	@ApiOperation(value = "Update given persona record with the given list of attribute values", response = String.class)
-	@PutMapping(value = "/persona/{id}")
+	@PutMapping(value = "/persona/{id}/{contextKey}")
 	public @ResponseBody String updatePersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto ,
-			@PathVariable("id") String id ) {
+			@PathVariable("id") String id,
+			@PathVariable("contextKey") String contextKey
+			) {
 	    	try{    	
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
 	    			DataProviderConstants.RESOURCE = personaConfigPath;
 	    		}
-	    		 VariableManager.Init();
+	    		 VariableManager.Init(contextKey);
 	    			
-	    		return packetSyncService.updatePersonaData(personaRequestDto);
+	    		return packetSyncService.updatePersonaData(personaRequestDto,contextKey);
 	    	
 	    	} catch (Exception ex){
 	             logger.error("updatePersonaData", ex);
@@ -61,9 +64,9 @@ public class PersonaController {
 	    	
 	}
 	@ApiOperation(value = "Update given persona record with the given list of biometric exceptions", response = String.class)
-	@PutMapping(value = "/persona/bioexceptions/{id}")
+	@PutMapping(value = "/persona/bioexceptions/{id}/{contextKey}")
 	public @ResponseBody String updatePersonaBioExceptions(@RequestBody BioExceptionDto personaBERequestDto , @PathVariable("id") String id,
-			@RequestParam(name="contextKey",required = false) String contextKey) {
+			@PathVariable("contextKey") String contextKey) {
 	    	try{    	
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
 	    			DataProviderConstants.RESOURCE = personaConfigPath;
@@ -77,10 +80,10 @@ public class PersonaController {
 	    	
 	}
 	@ApiOperation(value = "Create persona record as per the given specification", response = String.class)
-	@PostMapping(value = "/persona/{count}")
+	@PostMapping(value = "/persona/{count}/{contextKey}")
 	public @ResponseBody String generateResidentData(@RequestBody PersonaRequestDto residentRequestDto,
 	    		@PathVariable("count") int count,
-	    		@RequestParam(name="contextKey",required = false) String contextKey) {
+	    		@PathVariable("contextKey") String contextKey) {
 
 	    	try{
 	    		logger.info("Persona Config Path="+ personaConfigPath );
@@ -106,13 +109,15 @@ public class PersonaController {
 	    	return "{Failed}";
 	}    
 	@ApiOperation(value = "Return from the given persona record , list of specified attribute values", response = String.class)
-	@GetMapping(value = "/persona/")
-	public @ResponseBody String getPersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto ) {
+	@GetMapping(value = "/persona/{contextKey}")
+	public @ResponseBody String getPersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto,
+			@PathVariable("contextKey") String contextKey
+			) {
 	    	try{    	
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
 	    			DataProviderConstants.RESOURCE = personaConfigPath;
 	    		}
-	    		return packetSyncService.getPersonaData(personaRequestDto);
+	    		return packetSyncService.getPersonaData(personaRequestDto,contextKey);
 	    	
 	    	} catch (Exception ex){
 	             logger.error("getPersonaData", ex);
@@ -122,10 +127,10 @@ public class PersonaController {
 	}
 	
 	@ApiOperation(value = "Set Persona specific expectations in mock ABIS, Duplicate -> True/False", response = String.class)
-	@PostMapping(value = "/persona/mockabis/expectaions/{duplicate}")
+	@PostMapping(value = "/persona/mockabis/expectaions/{duplicate}/{contextKey}")
 	public @ResponseBody String setPersonaMockABISExpectation(@RequestBody List<String>  personaFilePath,
 			@PathVariable("duplicate") boolean bDuplicate,
-			@RequestParam(name="contextKey",required = false) String contextKey
+			@PathVariable("contextKey") String contextKey
 			) {
 	    	
 		try{    	
@@ -143,10 +148,9 @@ public class PersonaController {
 	
 
 	@ApiOperation(value = "Extended API to set Persona specific expectations in mock ABIS ", response = String.class)
-	@PostMapping(value = "/persona/mockabis/v2/expectaions")
+	@PostMapping(value = "/persona/mockabis/v2/expectations/{contextKey}")
 	public @ResponseBody String setPersonaMockABISExpectationV2(@RequestBody List<MockABISExpectationsDto>  expectations,
-			@RequestParam(name="contextKey",required = false) String contextKey
-			) {
+			@PathVariable("contextKey") String contextKey			) {
 	    	
 		try{    	
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -161,11 +165,24 @@ public class PersonaController {
 	    	
 	 }
 	
-	@ApiOperation(value = "Update the machine details ", response = String.class)
-	@PutMapping(value = "/updateMachine") 
-    public @ResponseBody String updateMachine(@RequestBody MosipMachineModel machine,
-    		@RequestParam(name="contextKey",required = false) String contextKey) {
+	@ApiOperation(value = "Delete expectation for a given Id", response = String.class)
 
+    @DeleteMapping(value = "/persona/mockabis/deleteV2/expectations/{id}/{contextKey}")
+    public @ResponseBody String deleteApplication(
+    		@PathVariable("id") String id,
+    		@PathVariable("contextKey") String contextKey) {
+    	
+    	return packetSyncService.deleteMockAbisExpectations(id, contextKey);
+    	
+    }
+	
+	
+	
+	
+	@ApiOperation(value = "Update the machine details ", response = String.class)
+	@PutMapping(value = "/updateMachine/{contextKey}") 
+    public @ResponseBody String updateMachine(@RequestBody MosipMachineModel machine,
+    		@PathVariable("contextKey") String contextKey) {
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
     			DataProviderConstants.RESOURCE = personaConfigPath;

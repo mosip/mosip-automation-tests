@@ -51,13 +51,13 @@ public class ContextUtils {
 		
 			return p;
 	    }
-	    public Boolean  createUpdateServerContext(Properties props, String ctxName) {
+	   public Boolean  createUpdateServerContext(Properties props, String ctxName) {
 	    	
 	    	Boolean bRet = true;
 	    	  	String filePath =  personaConfigPath + "/server.context."+  ctxName + ".properties";
 	    	  	
 	    	  
-	    	Properties p=new Properties();
+	  /*  	Properties p=new Properties();
 	    	Properties mergedProperties = new Properties();
 	    	try {
 	    		FileReader reader=new FileReader(filePath);  
@@ -82,27 +82,32 @@ public class ContextUtils {
 	    		logger.error("read:createUpdateServerContext " + e.getMessage());
 	    		bRet = false;
 			}
-	    	
+	    */	
 	    	try {
-	    		mergedProperties.putAll(p);
-	    		mergedProperties.putAll(props);
-	    		
-	    		mergedProperties.store(new FileWriter(filePath),"Server Context Attributes");  
+//	    		mergedProperties.putAll(p);
+//	    		mergedProperties.putAll(props);
+//	    		
+	    		//FileReader reader=new FileReader(filePath);  
+	    		props.store(new FileWriter(filePath),"Server Context Attributes");  
 	    		bRet = true;
+	    	
+	    	
+	    	
+	    	Properties pp = loadServerContext(ctxName);
+	    	pp.forEach( (k,v)->{
+	    		VariableManager.setVariableValue(ctxName,k.toString(), v.toString());
+	    	});
+	    	
+	    	
+	    	String generatePrivateKey = VariableManager.getVariableValue(ctxName, "generatePrivateKey").toString();//pp.getProperty("generatePrivateKey");
+	    	
+            boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
+            if (isRequired)
+                generateKeyAndUpdateMachineDetail(pp, ctxName);
 	    	}catch (IOException e) {
 	    		logger.error("write:createUpdateServerContext " + e.getMessage());
 	    		bRet = false;
 			}
-	    	
-	    	Properties pp = loadServerContext(ctxName);
-	    	pp.forEach( (k,v)->{
-	    		VariableManager.setVariableValue(k.toString(), v.toString());
-	    	});
-	    	String generatePrivateKey = props.getProperty("generatePrivateKey");
-            boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
-            if (isRequired)
-                generateKeyAndUpdateMachineDetail(props, ctxName);
-            
 	    	return bRet;
 	    }
 	    public String createExecutionContext(String serverContextKey) {
@@ -170,9 +175,9 @@ public class ContextUtils {
 					List<MosipMachineModel> machines =null;
 					String status = contextProperties.getProperty("machineStatus");
 					if(status != null && status.equalsIgnoreCase("deactive"))
-						machines =MosipDataSetup.searchMachineDetail(machineId, "eng");
+						machines =MosipDataSetup.searchMachineDetail(machineId, "eng",contextKey);
 					else
-					 machines = MosipDataSetup.getMachineDetail(machineId, " ");
+					 machines = MosipDataSetup.getMachineDetail(machineId, " ",contextKey);
 					if (machines != null && !machines.isEmpty()) {
 						for(MosipMachineModel mosipMachineModel:machines) {
 							//if(mosipMachineModel!=null && mosipMachineModel.isActive() && mosipMachineModel.getId().equalsIgnoreCase(machineId)) {
@@ -181,7 +186,7 @@ public class ContextUtils {
 								mosipMachineModel.setPublicKey(publicKey);
 								mosipMachineModel.setName(RandomStringUtils.randomAlphanumeric(10).toUpperCase());
 							//	mosipMachineModel.setZoneCode("NTH");
-								MosipDataSetup.updateMachine(mosipMachineModel);
+								MosipDataSetup.updateMachine(mosipMachineModel,contextKey);
 								isMachineDetailFound=true;
 								break;
 							}

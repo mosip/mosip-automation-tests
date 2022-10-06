@@ -32,14 +32,14 @@ public class PolicyManagerController {
 
     private static final Logger logger = LoggerFactory.getLogger(PolicyManagerController.class);
 
-    @PostMapping("policies/group/new")
-    public @ResponseBody String createPolicyGroup(@RequestParam(value="name") String name, @RequestParam(value="desc") String desc){
+    @PostMapping("policies/group/new/{contextKey}")
+    public @ResponseBody String createPolicyGroup(@RequestParam(value="name") String name, @RequestParam(value="desc") String desc,@PathVariable("contextKey") String contextKey){
 
         try {
             if(policyManagerConfigPath != null && !policyManagerConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = policyManagerConfigPath;
             }
-            return policyManagerService.createPolicyGroup(name, desc);
+            return policyManagerService.createPolicyGroup(name, desc,contextKey);
         } catch (Exception e) {
             //TODO: handle exception
             logger.error("createPolicyGroup", e);
@@ -48,14 +48,14 @@ public class PolicyManagerController {
 
     }
 
-    @GetMapping("policies/group/")
-    public @ResponseBody String getPolicyGroup(@RequestParam(value="grpname") String groupname){
+    @GetMapping("policies/group/{contextKey}")
+    public @ResponseBody String getPolicyGroup(@RequestParam(value="grpname") String groupname,@PathVariable("contextKey") String contextKey){
 
         try {
             if(policyManagerConfigPath != null && !policyManagerConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = policyManagerConfigPath;
             }
-            return policyManagerService.getPolicyGroupID(groupname);
+            return policyManagerService.getPolicyGroupID(groupname,contextKey);
         } catch (Exception e) {
             //TODO: handle exception
             logger.error("createPolicyGroup", e);
@@ -65,8 +65,8 @@ public class PolicyManagerController {
     }
 
 
-    @PostMapping("policies/")
-    public @ResponseBody String createPolicyUnderGroup(@RequestBody PolicyCreateDto policyDetails){
+    @PostMapping("policies/{contextKey}")
+    public @ResponseBody String createPolicyUnderGroup(@RequestBody PolicyCreateDto policyDetails,@PathVariable("contextKey") String contextKey){
 
         try {
             if(policyManagerConfigPath != null && !policyManagerConfigPath.equals("")){
@@ -76,7 +76,8 @@ public class PolicyManagerController {
             policiesJson.put("allowedAuthTypes", policyDetails.getPolicies().getAllowedAuthTypes());
             policiesJson.put("allowedKycAttributes", policyDetails.getPolicies().getAllowedKycAttributes());
             policiesJson.put("authTokenType", policyDetails.getPolicies().getAuthTokenType());
-            return policyManagerService.createPolicyUnderGroup(policyDetails.getPolicyGroupName(), policyDetails.getName(), policyDetails.getDesc(), policyDetails.getPolicyType(), policiesJson);
+            return policyManagerService.createPolicyUnderGroup(policyDetails.getPolicyGroupName(), 
+            		policyDetails.getName(), policyDetails.getDesc(), policyDetails.getPolicyType(), policiesJson,contextKey);
         } catch (Exception e) {
             //TODO: handle exception
             logger.error("createPolicyUnderGroup", e);
@@ -85,14 +86,15 @@ public class PolicyManagerController {
 
     }
 
-    @PostMapping("/policies/{policyId}/group/{policygroupId}/publish")
-    public @ResponseBody String publishPolicy(@PathVariable("policyId") String policyId, @PathVariable("policygroupId") String policygroupId){
+    @PostMapping("/policies/{policyId}/group/{policygroupId}/publish/{contextKey}")
+    public @ResponseBody String publishPolicy(@PathVariable("policyId") String policyId, @PathVariable("policygroupId") String policygroupId,
+    		@PathVariable("contextKey") String contextKey){
 
         try {
             if(policyManagerConfigPath != null && !policyManagerConfigPath.equals("")){
                 DataProviderConstants.RESOURCE = policyManagerConfigPath;
             }
-            return policyManagerService.publishPolicy(policyId, policygroupId);
+            return policyManagerService.publishPolicy(policyId, policygroupId,contextKey);
         } catch (Exception e) {
             //TODO: handle exception
             logger.error("createPolicyUnderGroup", e);

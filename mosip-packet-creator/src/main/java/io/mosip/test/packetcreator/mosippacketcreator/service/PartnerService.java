@@ -14,7 +14,7 @@ public class PartnerService {
     
     private static Logger logger = LoggerFactory.getLogger(PartnerService.class);
 
-    public String selfRegister(SelfRegisterDto selfRegister){
+    public String selfRegister(SelfRegisterDto selfRegister,String contextKey){
         JSONObject request = new JSONObject();
         request.put("address", selfRegister.getAddress());
         request.put("contactNumber", selfRegister.getContactNumber());
@@ -29,19 +29,19 @@ public class PartnerService {
         selfRegisterRequest.put("metadata", new JSONObject());
         selfRegisterRequest.put("request", request);
         
-        return PartnerRequest.selfRegister(selfRegisterRequest);
+        return PartnerRequest.selfRegister(selfRegisterRequest,contextKey);
     }
 
-    public String updatePartnerStatus(String partnerId, String status){
-        return PartnerRequest.updatePartnerStatus(partnerId, status);
+    public String updatePartnerStatus(String contextKey,String partnerId, String status){
+        return PartnerRequest.updatePartnerStatus(contextKey,partnerId, status);
     }
     
-    public String submitPartnerAPIKeyRequest(String partnerID, String policyName, String useCaseDesc){
-        return PartnerRequest.submitAPIKeyRequest(partnerID, policyName, useCaseDesc);
+    public String submitPartnerAPIKeyRequest(String partnerID, String policyName, String useCaseDesc,String contextKey){
+        return PartnerRequest.submitAPIKeyRequest(partnerID, policyName, useCaseDesc,contextKey);
     }
 
-    public String approvePartnerAPIKeyRequest(String apiKeyRequestID){
-        return PartnerRequest.approvePartnerAPIKeyRequest(apiKeyRequestID);
+    public String approvePartnerAPIKeyRequest(String contextKey,String apiKeyRequestID){
+        return PartnerRequest.approvePartnerAPIKeyRequest(contextKey,apiKeyRequestID);
     }
 
 }

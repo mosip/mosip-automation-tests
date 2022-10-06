@@ -13,15 +13,15 @@ public class SchemaManagerService {
     
     private static final Logger logger = LoggerFactory.getLogger(SchemaManagerService.class);
 
-    public String modifySchema(int version, String id){
+    public String modifySchema(int version, String id,String contextKey){
 
         JSONObject wrapper;
         JSONArray schema;
         try{
             
-            wrapper = new JSONObject(getSchema());
+            wrapper = new JSONObject(getSchema(contextKey));
             schema = wrapper.getJSONArray("schema");
-            return MosipMasterData.postSchema(id, version, schema);
+            return MosipMasterData.postSchema(id, version, schema,contextKey);
 
             
         }
@@ -33,12 +33,12 @@ public class SchemaManagerService {
         
     }
 
-    public String getSchema(){
+    public String getSchema(String contextKey){
 
         String schema_str;
 
         try{
-            schema_str = MosipMasterData.getIDschemaStringLatest();
+            schema_str = MosipMasterData.getIDschemaStringLatest(contextKey);
             return schema_str;
         }
         catch(Exception e){

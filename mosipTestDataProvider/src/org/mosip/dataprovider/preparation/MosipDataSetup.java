@@ -33,17 +33,17 @@ import variables.VariableManager;
 
 public class MosipDataSetup {
 
-	public static Properties getConfig() {
+	public static Properties getConfig(String contextKey) {
 		Properties props = new Properties();
 		//https://sandbox.mosip.net/config/*/mz/1.1.4/print-mz.properties
 		//https://dev.mosip.net/config/*/mz/develop/registration-processor-mz.properties
 		String configPath = "config/*/mz/develop/pre-registration-mz.properties";
 		
 		try {
-			configPath = VariableManager.getVariableValue("configpath").toString();
+			configPath = VariableManager.getVariableValue(contextKey,"configpath").toString();
 		}catch(Exception e) {}
 		
-		String url = VariableManager.getVariableValue("urlBase").toString() + configPath;
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() + configPath;
 		
 		try {
 			Response response = given().contentType(ContentType.TEXT).get(url );
@@ -56,29 +56,29 @@ public class MosipDataSetup {
 		}
 		return props;
 	}
-	public static Object getCache(String key) {
+	public static Object getCache(String key,String contextKey) {
 	
 		try {
-			return VariableManager.getVariableValue(key);
+			return VariableManager.getVariableValue(contextKey,key);
 		}catch(Exception e) {
 			
 		}
 		return null;
 	}
-	public static void setCache(String key, Object value) {
+	public static void setCache(String key, Object value,String contextKey) {
 		
-		VariableManager.setVariableValue(key,  value);
+		VariableManager.setVariableValue(contextKey,key,  value);
 	}
 	
 	//GET "https://dev.mosip.net/v1/syncdata/configs/<machine_name>" - machine config
-	public static void getMachineConfig(String machineName) {
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue("syncdata").toString();
+	public static void getMachineConfig(String machineName,String contextKey) {
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+				VariableManager.getVariableValue(contextKey,"syncdata").toString();
 				
 		url = url + machineName;
 		JSONObject resp;
 		try {
-			resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
 			if(resp != null) {
 				JSONArray typeArray = resp.getJSONArray("machines");
 		
@@ -90,30 +90,30 @@ public class MosipDataSetup {
 		
 	}
 	// get all machines
-	public static List<MosipMachineModel> getMachineDetail(String machineId, String langCode) {
+	public static List<MosipMachineModel> getMachineDetail(String machineId, String langCode,String contextKey) {
 		
 		List<MosipMachineModel> machines = null;
-		/* String url = VariableManager.getVariableValue("urlBase").toString() +
-		VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinedetail").toString();
+		/* String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinedetail").toString();
 		url = url + machineId + "/" + langCode; */
-		String url = VariableManager.getVariableValue("urlBase").toString()
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()
 				+ "v1/masterdata/machines/";
 		
 		url = url + machineId + "/ ";
 		
-		Object o =getCache(url);
+		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (List<MosipMachineModel>) o);
 		
 		try {
-			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
 			if(resp != null) {
 				JSONArray typeArray = resp.getJSONArray("machines");
 				ObjectMapper objectMapper = new ObjectMapper();
 				machines = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
 				
-				setCache(url, machines);
+				setCache(url, machines,contextKey);
 			
 			}
 			
@@ -124,13 +124,15 @@ public class MosipDataSetup {
 	}
 	
 	// Get the inActive machine details by machineId (regcenter deactivate scenario) 
-public static List<MosipMachineModel> searchMachineDetail(String machineId, String langCode) {
+public static List<MosipMachineModel> searchMachineDetail(String machineId, String langCode,String contextKey) {
 		
 		List<MosipMachineModel> machines = null;
-		String url = VariableManager.getVariableValue("urlBase").toString()
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()
 				+ "v1/masterdata/machines/search";
 		
-		Object o =getCache(url);
+		
+		
+		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (List<MosipMachineModel>) o);
 		
@@ -165,14 +167,14 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		wrapper.put("request", searchRequest);
 		
 		try {
-			JSONObject resp = RestClient.post(url,wrapper);
+			JSONObject resp = RestClient.post(url,wrapper,contextKey);
 			if(resp != null) {
 				JSONArray typeArray = resp.getJSONArray("data");
 				ObjectMapper objectMapper = new ObjectMapper();
 				machines = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
 				
-				setCache(url, machines);
+				setCache(url, machines,contextKey);
 			
 			}
 			
@@ -184,9 +186,9 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 	//
 	
 	
-	public static void createRegCenterType(MosipRegistrationCenterTypeModel type) {
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"regcentertype").toString();
+	public static void createRegCenterType(MosipRegistrationCenterTypeModel type,String contextKey) {
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"regcentertype").toString();
 		
 		JSONObject jsonType = new JSONObject();
 		jsonType.put("code", type.getCode());
@@ -203,7 +205,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		jsonReqWrapper.put("metadata", new JSONObject());
 
 		try {
-			JSONObject resp = RestClient.post(url,jsonReqWrapper);
+			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
 				System.out.println(r);
@@ -215,9 +217,9 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 
 	}
 
-	public static void createMachineType(MosipMachineTypeModel type) {
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinetype").toString();
+	public static void createMachineType(MosipMachineTypeModel type,String contextKey) {
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinetype").toString();
 		
 		JSONObject jsonType = new JSONObject();
 		jsonType.put("code", type.getCode());
@@ -234,7 +236,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		jsonReqWrapper.put("metadata", new JSONObject());
 
 		try {
-			JSONObject resp = RestClient.post(url,jsonReqWrapper);
+			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
 				System.out.println(r);
@@ -245,19 +247,19 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		}
 
 	}
-	public static List<MosipMachineTypeModel> getMachineTypes() {
+	public static List<MosipMachineTypeModel> getMachineTypes(String contextKey) {
 		List<MosipMachineTypeModel> machineTypes = null;
 		
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinetype").toString();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinetype").toString();
 		url = url + "all";
 		
-		Object o =getCache(url);
+		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (List<MosipMachineTypeModel>) o);
 		
 		try {
-			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
 			if(resp != null) {
 				JSONArray typeArray = resp.getJSONArray("data");
 				ObjectMapper objectMapper = new ObjectMapper();
@@ -265,7 +267,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				machineTypes = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineTypeModel.class));
 				
-				setCache(url, machineTypes);
+				setCache(url, machineTypes,contextKey);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -273,19 +275,19 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		}
 		return machineTypes;
 	}
-	public static List<MosipRegistrationCenterTypeModel> getRegCenterTypes() {
+	public static List<MosipRegistrationCenterTypeModel> getRegCenterTypes(String contextKey) {
 		List<MosipRegistrationCenterTypeModel> machineTypes = null;
 		
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"regcentertype").toString();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"regcentertype").toString();
 		url = url + "all";
 		
-		Object o =getCache(url);
+		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (List<MosipRegistrationCenterTypeModel>) o);
 		
 		try {
-			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
 			if(resp != null) {
 				JSONArray typeArray = resp.getJSONArray("data");
 				ObjectMapper objectMapper = new ObjectMapper();
@@ -293,7 +295,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				machineTypes = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipRegistrationCenterTypeModel.class));
 				
-				setCache(url, machineTypes);
+				setCache(url, machineTypes,contextKey);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -303,9 +305,9 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 	}
 		
 		
-	public static void createMachineSpec(MosipMachineSpecModel spec) {
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machinespec").toString();
+	public static void createMachineSpec(MosipMachineSpecModel spec,String contextKey) {
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinespec").toString();
 		JSONObject jsonSpec = new JSONObject();
 		jsonSpec.put("id", spec.getId());
 		jsonSpec.put("name", spec.getName());
@@ -325,7 +327,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		jsonReqWrapper.put("metadata", new JSONObject());
 
 		try {
-			JSONObject resp = RestClient.post(url,jsonReqWrapper);
+			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
 				System.out.println(r);
@@ -337,10 +339,10 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 
 		
 	}
-	public static void createMachine(MosipMachineModel machine) {
+	public static void createMachine(MosipMachineModel machine,String contextKey) {
 		
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"createmachine").toString();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"createmachine").toString();
 		
 		JSONObject jsonMachine = new JSONObject();
 		jsonMachine.put("id", machine.getId());
@@ -367,7 +369,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 	
 		
 		try {
-			JSONObject resp = RestClient.post(url,jsonReqWrapper);
+			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
 				System.out.println(r);
@@ -379,11 +381,11 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 
 	}
 	
-public static void updateMachine(MosipMachineModel machine) {
+public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		
 	
-	  String url = VariableManager.getVariableValue("urlBase").toString() +
-	  VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"machine"
+	  String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+	  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machine"
 	  ).toString();
 
 	  
@@ -415,7 +417,7 @@ public static void updateMachine(MosipMachineModel machine) {
 	
 		
 		try {
-			JSONObject resp = RestClient.put(url,jsonReqWrapper);
+			JSONObject resp = RestClient.put(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
 				System.out.println(r);
@@ -427,17 +429,17 @@ public static void updateMachine(MosipMachineModel machine) {
 
 	}
 
-	public static String updatePreRegStatus(String preregId, String statusCode) {
+	public static String updatePreRegStatus(String preregId, String statusCode,String contextKey) {
 		String response = null;
 		/*
-		 * String url = VariableManager.getVariableValue("urlBase").toString() +
+		 * String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 		 * "preregistration/v1/applications/prereg/status/" + preregId + "?statusCode="
 		 * + statusCode;
 		 */
-		String url = VariableManager.getVariableValue("urlBase").toString() + VariableManager.getVariableValue("updatePreRegStatus").toString()
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() + VariableManager.getVariableValue(contextKey,"updatePreRegStatus").toString()
 				+ preregId + "?statusCode=" + statusCode;
 		try {
-			JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject());
+			JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject(),contextKey);
 			//JSONObject resp = RestClient.putNoAuth(url, new JSONObject());
 			if (resp != null) {
 				response = resp.getString("response");
@@ -451,21 +453,21 @@ public static void updateMachine(MosipMachineModel machine) {
 	}
 
 
-	public static List<MosipDeviceModel> getDevices(String centerId) {
+	public static List<MosipDeviceModel> getDevices(String centerId,String contextKey) {
 		//GET /v1/masterdata/devices/mappeddevices/1001?direction=DESC&orderBy=createdDateTime&pageNumber=0&pageSize=100
 	
 		List<MosipDeviceModel> devices = null;
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_MASTERDATA,"mappeddevices").toString();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mappeddevices").toString();
 	
 		url = url +centerId;
 		
-		Object o =getCache(url);
+		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (List<MosipDeviceModel>) o);
 		
 		try {
-			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject());
+			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
 			if(resp != null) {
 				JSONArray typeArray = resp.getJSONArray("data");
 				ObjectMapper objectMapper = new ObjectMapper();
@@ -473,7 +475,7 @@ public static void updateMachine(MosipMachineModel machine) {
 				devices = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipDeviceModel.class));
 				
-				setCache(url, devices);
+				setCache(url, devices,contextKey);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -482,7 +484,7 @@ public static void updateMachine(MosipMachineModel machine) {
 	
 		return devices;
 	}
-	public static String configureMockABISBiometric(String bdbString, boolean bDuplicate, String[] duplicateBdbs, int delay, String operation) 
+	public static String configureMockABISBiometric(String bdbString, boolean bDuplicate, String[] duplicateBdbs, int delay, String operation,String contextKey) 
 			throws JSONException, NoSuchAlgorithmException {
 		
 
@@ -490,8 +492,8 @@ public static void updateMachine(MosipMachineModel machine) {
 			operation = "Indentify";
 		
 		String responseStr = "";
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue("mockABISsetExpectaion").toString();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mockABISsetExpectaion").toString();
 
 		JSONObject req = new JSONObject();
 		//req.put("id", CommonUtil.getSHA(bdbString));
@@ -521,7 +523,7 @@ public static void updateMachine(MosipMachineModel machine) {
 		}
 				
 		try {
-			JSONObject resp = RestClient.post(url, req);
+			JSONObject resp = RestClient.post(url, req,contextKey);
 			if(resp != null) {
 				responseStr = resp.toString();
 			}
@@ -535,11 +537,11 @@ public static void updateMachine(MosipMachineModel machine) {
 	}
 	
 	
-	public static String uploadPackets( List<String> packetPaths) {
+	public static String uploadPackets( List<String> packetPaths,String contextKey) {
 
 		String responseStr = "";
-		String url = VariableManager.getVariableValue("urlBase").toString() +
-				VariableManager.getVariableValue("bulkupload").toString();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+				VariableManager.getVariableValue(contextKey,"bulkupload").toString();
 
 		JSONObject req = new JSONObject();
 		req.put("category","packet");
@@ -548,7 +550,7 @@ public static void updateMachine(MosipMachineModel machine) {
 		
 		
 		try {
-			JSONObject resp = RestClient.uploadFiles(url, packetPaths, req);
+			JSONObject resp = RestClient.uploadFiles(url, packetPaths, req,contextKey);
 			if(resp != null) {
 				responseStr = resp.toString();
 			}
@@ -558,6 +560,23 @@ public static void updateMachine(MosipMachineModel machine) {
 			responseStr = e.getMessage();
 		}
 		return responseStr;
+	}
+
+	public static String deleteMockAbisExpectations(String id,String contextKey) {
+		
+		String response = "";
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "deleteMockAbisExpectations").toString().trim();
+		url = url + "/" + contextKey;		
+		try {
+			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject(),contextKey);
+			response = resp.toString();
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			response = e.getMessage();
+		}
+		return response;
 	}
 
 

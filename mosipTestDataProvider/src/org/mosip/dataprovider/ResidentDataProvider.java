@@ -82,7 +82,7 @@ public class ResidentDataProvider {
 		attributeList.put(attributeName, attributeValue);
 		return this;
 	}
-	public static ResidentModel genGuardian(Properties attributes) {
+	public static ResidentModel genGuardian(Properties attributes,String contextKey) {
 		Properties attributeList = new Properties();
 		attributes.forEach( (k,v) ->{
 			attributeList.put(k, v);
@@ -93,7 +93,7 @@ public class ResidentDataProvider {
 		
 		ResidentDataProvider provider = new ResidentDataProvider();
 		provider.attributeList = attributeList;
-		ResidentModel guardian = provider.generate().get(0);
+		ResidentModel guardian = provider.generate(contextKey).get(0);
 		return guardian;
 	}
 	public static ResidentModel updateBiometric(ResidentModel model,String bioType) throws Exception {
@@ -129,17 +129,17 @@ public class ResidentDataProvider {
 			 
 		return model;
 	}
-	private static String[] getConfiguredLanguages() {
+	private static String[] getConfiguredLanguages(String contextKey) {
 		String [] lang_arr = null;
 		List<String> langs= new ArrayList<String>();
 		List<MosipLanguage> allLang = null;
 		try {
-			allLang = MosipMasterData.getConfiguredLanguages();
+			allLang = MosipMasterData.getConfiguredLanguages(contextKey);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-		MosipPreRegLoginConfig  preregconfig = MosipMasterData.getPreregLoginConfig();
+		MosipPreRegLoginConfig  preregconfig = MosipMasterData.getPreregLoginConfig(contextKey);
 		if(preregconfig == null) {
 
 			try {
@@ -190,7 +190,7 @@ public class ResidentDataProvider {
 		lang_arr = new String [ minLanguages > 0 ? minLanguages : langs.size()];
 		return langs.toArray(lang_arr);
 	}
-	public List<ResidentModel> generate() {
+	public List<ResidentModel> generate(String contextKey) {
 		
 		List<ResidentModel> residents = new ArrayList<ResidentModel>();
 		
@@ -204,10 +204,10 @@ public class ResidentDataProvider {
 		
 		Object oAttr = attributeList.get(ResidentAttribute.RA_SCHEMA_VERSION);
 		double schemaVersion = (oAttr == null) ? 0: (double)oAttr;
-		VariableManager.setVariableValue("schemaVersion", schemaVersion);
+		VariableManager.setVariableValue(contextKey,"schemaVersion", schemaVersion);
 
 
-		String[] langsRequired = getConfiguredLanguages();
+		String[] langsRequired = getConfiguredLanguages(contextKey);
 		if(langsRequired != null) {
 			primary_lang = langsRequired[0];
 			if(langsRequired.length > 1)
@@ -314,17 +314,17 @@ public class ResidentDataProvider {
 		List<Name> names_sec = null;
 		List<Name> names_primary =null;
 		
-		Hashtable<String,List<DynamicFieldModel>> dynaFields = MosipMasterData.getAllDynamicFields();
+		Hashtable<String,List<DynamicFieldModel>> dynaFields = MosipMasterData.getAllDynamicFields(contextKey);
 		 
-		List<MosipGenderModel> genderTypes_primary = MosipMasterData.getGenderTypes(primary_lang);
+		List<MosipGenderModel> genderTypes_primary = MosipMasterData.getGenderTypes(primary_lang,contextKey);
 		List<MosipGenderModel> genderTypes_sec = null;
 		List<MosipGenderModel> genderTypes_third = null;
 		
 		if(sec_lang != null)
-			genderTypes_sec = MosipMasterData.getGenderTypes(sec_lang);
+			genderTypes_sec = MosipMasterData.getGenderTypes(sec_lang,contextKey);
 
 		if(third_lang != null)
-			genderTypes_third = MosipMasterData.getGenderTypes(third_lang);
+			genderTypes_third = MosipMasterData.getGenderTypes(third_lang,contextKey);
 
 		//generate mix of both genders
 		int maleCount =0,femaleCount = 0;
@@ -387,16 +387,16 @@ public class ResidentDataProvider {
 		//List<Location> locations = LocationProvider.generate(DataProviderConstants.COUNTRY_CODE, count);
 		//Hashtable<String, List<MosipLocationModel>> locations =  LocationProvider.generate( count, country);
 		
-		ApplicationConfigIdSchema locations = LocationProvider.generate(primary_lang, count);
+		ApplicationConfigIdSchema locations = LocationProvider.generate(primary_lang, count,contextKey);
 		ApplicationConfigIdSchema locations_secLang  = null;
 		if(sec_lang != null)
-			locations_secLang = LocationProvider.generate(sec_lang, count);
+			locations_secLang = LocationProvider.generate(sec_lang, count, contextKey);
 		
 		Hashtable<String,List<DynamicFieldValueModel>> bloodGroups = null;
 		if(dynaFields != null && !dynaFields.isEmpty())
 			 bloodGroups = BloodGroupProvider.generate(count, dynaFields);
 
-		Hashtable<String, List<MosipIndividualTypeModel>> resStatusList =  MosipMasterData.getIndividualTypes();
+		Hashtable<String, List<MosipIndividualTypeModel>> resStatusList =  MosipMasterData.getIndividualTypes(contextKey);
 		
 		int [] idxes = CommonUtil.generateRandomNumbers(count,DataProviderConstants.MAX_PHOTOS,0);
 
@@ -458,7 +458,7 @@ public class ResidentDataProvider {
 				if(attributeList.containsKey(ResidentAttribute.RA_SKipGaurdian))
 					skipGaurdian =   Boolean.valueOf(attributeList.get(ResidentAttribute.RA_SKipGaurdian).toString());
 				if(!skipGaurdian)
-					res.setGuardian( genGuardian(attributeList));
+					res.setGuardian( genGuardian(attributeList, contextKey));
 			}
 			res.setAppConfigIdSchema( locations);
 			res.setAppConfigIdSchema_secLang(locations_secLang);
@@ -573,7 +573,7 @@ public class ResidentDataProvider {
 			
 			if(bDocRequired) {
 				try {
-					res.setDocuments(DocumentProvider.generateDocuments(res));
+					res.setDocuments(DocumentProvider.generateDocuments(res,contextKey));
 				} catch (DocumentException | IOException  | ParseException e) {
 					
 					e.printStackTrace();
@@ -598,7 +598,7 @@ public class ResidentDataProvider {
 		.addCondition(ResidentAttribute.RA_Gender, Gender.Any)
 		.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
 		
-		List<ResidentModel> lst =  residentProvider.generate();
+		List<ResidentModel> lst =  residentProvider.generate("contextKey");
 		MDSClient cli = new MDSClient(0);
 		
 		for(ResidentModel r: lst) {

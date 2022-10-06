@@ -85,6 +85,7 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 				if (hashResponse != null && !hashResponse.isEmpty() && modalityKeyTogetHashValue != null) {
 					String hashValue = JsonPrecondtion.getValueFromJson(hashResponse, modalityKeyTogetHashValue);
 					modalityHashValueMap.put(modalitysubType, hashValue);
+					logger.info("modalityHashValueMap" + modalityHashValueMap);
 				}
 			}
 			if (step.getOutVarName() != null)
