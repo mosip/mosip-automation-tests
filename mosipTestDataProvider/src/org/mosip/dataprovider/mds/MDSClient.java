@@ -157,7 +157,7 @@ public class MDSClient implements MDSClientInterface {
 	public  MDSRCaptureModel captureFromRegDevice(MDSDevice device, 
 			MDSRCaptureModel rCaptureModel,
 			String type,
-			String bioSubType, int reqScore,int deviceSubId) {
+			String bioSubType, int reqScore,String deviceSubId) {
 		String mosipVersion=null;;
 		try {
 	      mosipVersion=VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.version").toString();
@@ -167,7 +167,6 @@ public class MDSClient implements MDSClientInterface {
 
 		if(rCaptureModel == null)
 			rCaptureModel = new MDSRCaptureModel();
-
 
 		String url =  MDSURL +port + "/capture";
 		JSONObject jsonReq = new JSONObject();
@@ -180,18 +179,36 @@ public class MDSClient implements MDSClientInterface {
 		jsonReq.put("transactionId", "123456789123");
 		JSONObject bio = new JSONObject();
 		bio.put("type", type);
-		List<String> lstSubtype = null;
+	
 		
-		if(bioSubType != null)
-			lstSubtype = Arrays.asList(bioSubType.split("\\s*,\\s*"));
 		
-		bio.put("bioSubType", lstSubtype);
-		int count = lstSubtype == null ? 0 : lstSubtype.size();
-		
-		bio.put("count", count);
-		bio.put("requestedScore", reqScore);
-		bio.put("deviceId", Integer.valueOf(device.getDeviceId()));
+		bio.put("count", 1);
 		bio.put("deviceSubId", deviceSubId);
+	
+		if(type.equalsIgnoreCase("finger")) {
+
+			switch(deviceSubId)
+			{
+				case "1":
+					bio.put("count", 4);
+					
+					break;
+				case "2":
+					bio.put("count", 4);
+				
+					break;
+				case "3": 
+						bio.put("count", 2);
+						break;
+			}
+			
+		}
+	
+		bio.put("requestedScore", reqScore);
+		//bio.put("deviceId", Integer.valueOf(device.getDeviceId()));
+		bio.put("deviceId", device.getDeviceId());
+		
+	
 		JSONArray arr = new JSONArray();
 		arr.put(bio);
 		jsonReq.put("bio", arr);
@@ -303,7 +320,8 @@ public class MDSClient implements MDSClientInterface {
 
 		f.forEach( dv-> {
 			System.out.println(dv.toJSONString());	
-			MDSRCaptureModel r =  client.captureFromRegDevice(dv, null, "Finger",null,60,1);
+			
+			MDSRCaptureModel r =  client.captureFromRegDevice(dv, null, "Finger",null,60,"1");
 			//MDSRCaptureModel r =  client.captureFromRegDevice(d.get(0),null, "Iris",null,60,2);
 		
 			System.out.println( r.toJSONString());
@@ -320,4 +338,8 @@ public class MDSClient implements MDSClientInterface {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
+	
+	
 }

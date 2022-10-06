@@ -4,11 +4,14 @@ import java.io.IOException;
 
 import org.mosip.dataprovider.CSVHelper;
 import org.mosip.dataprovider.models.Name;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.ibm.icu.text.Transliterator;
 
+import variables.VariableManager;
+
 public class Translator {
-	static String IDlookupFile =DataProviderConstants.RESOURCE+"Address/lang-isocode-transid.csv";
+	static String IDlookupFile =VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.datapath").toString()+"Address/lang-isocode-transid.csv";
 	
 	public static void main(String[] args) {
 	        String text = "Mohandas Karamchand Ghandhi";

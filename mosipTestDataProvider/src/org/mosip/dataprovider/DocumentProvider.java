@@ -23,6 +23,7 @@ import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.DataProviderConstants;
+import org.springframework.beans.factory.annotation.Value;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -31,6 +32,8 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import com.lowagie.text.DocumentException;
 
+import variables.VariableManager;
+
 public class DocumentProvider {
 
 	//public static String parseThymeleafTemplate(String photo,  String name,String date, String address) {
@@ -38,7 +41,7 @@ public class DocumentProvider {
 	 static String parseThymeleafTemplateDriverLicense(String photo,  String name,String date, String address) {
 		  
 		FileTemplateResolver templateResolver = new FileTemplateResolver();//ClassLoaderTemplateResolver();
-		templateResolver.setPrefix(DataProviderConstants.RESOURCE+DataProviderConstants.DOC_TEMPLATE_PATH);
+		templateResolver.setPrefix(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.documentsdatapath").toString());
 	    templateResolver.setSuffix(".html");
 	    templateResolver.setTemplateMode(TemplateMode.HTML);
 
@@ -57,7 +60,7 @@ public class DocumentProvider {
 	 static String parseThymeleafTemplatePassport(String photo,  String name,String date, String address) {
 		  
 		FileTemplateResolver templateResolver = new FileTemplateResolver();//ClassLoaderTemplateResolver();
-		templateResolver.setPrefix(DataProviderConstants.RESOURCE+DataProviderConstants.DOC_TEMPLATE_PATH);
+		templateResolver.setPrefix(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.documentsdatapath").toString());
 	    templateResolver.setSuffix(".html");
 	    templateResolver.setTemplateMode(TemplateMode.HTML);
 

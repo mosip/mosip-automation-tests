@@ -16,6 +16,7 @@ import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.CenterHelper;
 import io.mosip.ivv.orchestrator.UserHelper;
 import io.mosip.kernel.util.KeycloakUserManager;
+import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.DeleteWithParam;
 import io.mosip.testscripts.GetWithParam;
 import io.mosip.testscripts.GetWithQueryParam;
@@ -114,6 +115,8 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			attrmap.put("individualid",list);
 			KeycloakUserManager.removeUser(user);
 			KeycloakUserManager.createUsers(user, pwd,"roles", attrmap);
+			BaseTestCase.mapUserToZone(user,"CSB");
+			BaseTestCase.mapZone(user);
 			HashMap<String, String> userdetails=new HashMap<String, String>();
 			userdetails.put("user", user);
 			userdetails.put("pwd",pwd);

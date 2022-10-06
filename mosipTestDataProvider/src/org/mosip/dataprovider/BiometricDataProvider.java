@@ -48,33 +48,20 @@ import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.FPClassDistribution;
-
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import com.jamesmurty.utils.XMLBuilder;
 //import java.util.Date;
 
+import io.mosip.mock.sbi.test.CentralizedMockSBI;
 import variables.VariableManager;
 
 
-/*
-import io.mosip.kernel.cbeffutil.container.impl.CbeffContainerImpl;
 
-import io.mosip.kernel.cbeffutil.impl.CbeffImpl;
-import io.mosip.kernel.core.cbeffutil.common.CbeffValidator;
-import io.mosip.kernel.core.cbeffutil.entity.BDBInfo;
-import io.mosip.kernel.core.cbeffutil.entity.BIR;
-import io.mosip.kernel.core.cbeffutil.entity.BIRInfo;
-import io.mosip.kernel.core.cbeffutil.entity.BIRVersion;
-import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
-import io.mosip.kernel.core.cbeffutil.jaxbclasses.ProcessedLevelType;
-import io.mosip.kernel.core.cbeffutil.jaxbclasses.PurposeType;
-import io.mosip.kernel.core.cbeffutil.jaxbclasses.QualityType;
-import io.mosip.kernel.core.cbeffutil.jaxbclasses.RegistryIDType;
-import io.mosip.kernel.core.cbeffutil.jaxbclasses.SingleType;
-*/
 public class BiometricDataProvider {
 
-	
+
 	
 	static String buildBirIris(String irisInfo, String irisName,String jtwSign,String payload,String qualityScore) throws ParserConfigurationException, FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
@@ -108,8 +95,8 @@ public class BiometricDataProvider {
 			e("entry").a("key", "SPEC_VERSION").t("0.9.5").up().up();
 		}
 					
-		//PrintWriter writer = new PrintWriter(new FileOutputStream("cbeffout-finger"+ fingerName+ ".xml"));
-		//builder.toWriter(true, writer, null);
+//		PrintWriter writer = new PrintWriter(new FileOutputStream("cbeffout-Iris"+irisName+".xml"));
+//		builder.toWriter(true, writer, null);
 				
 				
 		return builder.asString(null);
@@ -147,8 +134,8 @@ public class BiometricDataProvider {
 			e("entry").a("key", "SPEC_VERSION").t("0.9.5").up().up();
 		}
 					
-		//PrintWriter writer = new PrintWriter(new FileOutputStream("cbeffout-finger"+ fingerName+ ".xml"));
-		//builder.toWriter(true, writer, null);
+//		PrintWriter writer = new PrintWriter(new FileOutputStream("cbeffout-finger"+ fingerName+ ".xml"));
+//		builder.toWriter(true, writer, null);
 				
 				
 		return builder.asString(null);
@@ -195,12 +182,10 @@ public class BiometricDataProvider {
 			
 			
 		}
-					
-		/*
-		 * PrintWriter writer = new PrintWriter(new
-		 * FileOutputStream("cbeffout-finger"+".xml")); builder.toWriter(true, writer,
-		 * null);
-		 */
+//			PrintWriter writer = new PrintWriter(new
+//		 FileOutputStream("cbeffout-face"+".xml")); builder.toWriter(true, writer,
+//		  null);
+		 
 				
 				
 		return builder.asString(null);
@@ -215,7 +200,7 @@ public class BiometricDataProvider {
 		}
 		return lst;
 	}
-	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident) throws Exception {
+	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey) throws Exception {
 	
 		BiometricDataModel biodata = resident.getBiometric();
 		MDSClientInterface mds = null;
@@ -231,8 +216,12 @@ public class BiometricDataProvider {
 			int port = Integer.parseInt(val);
 			mdsprofilePath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsprofilepath").toString();
 		
-			port = (port ==0 ? 4501: port);
-	
+		//	port = (port ==0 ? 4501: port);
+			
+			String p12path =  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.mockmds.p12.path").toString(); 
+			
+		port= CentralizedMockSBI.startSBI(contextKey, "Registration",  "Biometric Device",Paths.get(p12path, contextKey).toString()) ;
+		//CentralizedMockSBI.stopSBI(context);
 			mds =new MDSClient(port);
 			profileName = "res"+ resident.getId();
 			mds.createProfile(mdsprofilePath, profileName , resident);
@@ -263,8 +252,9 @@ public class BiometricDataProvider {
 				List<MDSDevice> faceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
 				MDSDevice faceDevice = faceDevices.get(0);
 				// client.captureFromRegDevice(d.get(0),r, "Face",null,60,1,1);
+				
 				capture =  mds.captureFromRegDevice(faceDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_FACE,
-					null, 60, faceDevice.getDeviceSubId().get(0));
+						null, 60, faceDevice.getDeviceSubId().get(0));
 			}
 		}
 		if( biodata.getIris() != null) {
@@ -273,16 +263,16 @@ public class BiometricDataProvider {
 				irisExceptions = getModalitiesByType(bioExceptions, "Iris");
 			List<MDSDevice> irisDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
 			MDSDevice irisDevice = irisDevices.get(0);
-				
+			
 			if(irisExceptions == null || irisExceptions.isEmpty() ) {
 				if(filteredAttribs != null && filteredAttribs.contains("leftEye")) {
 					capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
-						null, 60, irisDevice.getDeviceSubId().get(0));
+							null, 60, irisDevice.getDeviceSubId().get(0));
 				}
 			
 				if(irisDevice.getDeviceSubId().size() > 1) {
 					if(filteredAttribs != null && filteredAttribs.contains("rightEye")) {
-						
+					
 						capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
 								null, 60, irisDevice.getDeviceSubId().get(1));
 					}
@@ -296,15 +286,17 @@ public class BiometricDataProvider {
 					i++;
 				}
 				for(String f: irisSubTypes) {
+				
 					if(f.equalsIgnoreCase("right") && (filteredAttribs != null && filteredAttribs.contains("leftEye"))) {
 						capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
 								null, 60, irisDevice.getDeviceSubId().get(0));	
 					}
 					else
 					if(f.equalsIgnoreCase("left") && (filteredAttribs != null && filteredAttribs.contains("rightEye"))) {
+						
 						if(irisDevice.getDeviceSubId().size() > 1)
 							capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
-								null, 60, irisDevice.getDeviceSubId().get(1));
+									null, 60, irisDevice.getDeviceSubId().get(1));
 					}
 				}
 			}
@@ -318,9 +310,10 @@ public class BiometricDataProvider {
 
 			List<MDSDevice> fingerDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 			MDSDevice fingerDevice = fingerDevices.get(0);
+		
 			for(int i = 0; i < fingerDevice.getDeviceSubId().size(); i++) {
 				capture =  mds.captureFromRegDevice(fingerDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_FINGER,
-					null, 60, fingerDevice.getDeviceSubId().get(i));
+						null, 60, fingerDevice.getDeviceSubId().get(i));
 			}
 			List<MDSDeviceCaptureModel> lstFingers= capture.getLstBiometrics().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 			if(fingerExceptions != null  && !fingerExceptions.isEmpty()) {
@@ -466,8 +459,8 @@ public class BiometricDataProvider {
 		
 		
 		retXml = builder.asString(null);
-		PrintWriter writer = new PrintWriter(new FileOutputStream("cbeffout-cbeff"+ ".xml"));
-		builder.toWriter(true, writer, null);
+//		PrintWriter writer = new PrintWriter(new FileOutputStream("cbeffout-cbeff-ALL"+ ".xml"));
+//		builder.toWriter(true, writer, null);
 		return retXml;
 	}
 		
@@ -656,9 +649,7 @@ public class BiometricDataProvider {
 								//else case
 				try {
 					tmpDir = Files.createTempDirectory("fps").toFile();
-				//Siva	//String dirPath = DataProviderConstants.RESOURCE +"/fingerprints/";
-				//Siva //System.out.println("dirPath "+ dirPath);//../deploy/resource//fingerprints/
-					Hashtable<Integer, List<File>> prints = generateFingerprint(tmpDir.getAbsolutePath(), 10, 2, 4, FPClassDistribution.arch );
+						Hashtable<Integer, List<File>> prints = generateFingerprint(tmpDir.getAbsolutePath(), 10, 2, 4, FPClassDistribution.arch );
 					List<File> firstSet = prints.get(1);
 			
 					String [] fingerPrints = new String[10];
@@ -703,7 +694,8 @@ public class BiometricDataProvider {
 			else
 			{
 				//reach cached finger prints from folder 
-				String dirPath = DataProviderConstants.RESOURCE +"/fingerprints/";
+				//DataProviderConstants.RESOURCE +"/fingerprints/";
+				String dirPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.fingerprintdatapath").toString();
 			System.out.println("dirPath " + dirPath);
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				int min=1;
@@ -866,7 +858,7 @@ System.out.println("Anguli commands" + commands);
 		}
 		else
 		{
-			String srcPath = DataProviderConstants.RESOURCE + "/iris/IITD Database/";
+			String srcPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.irisdatapath").toString(); 
 			int []index = CommonUtil.generateRandomNumbers(count, 224, 1);
 			
 			for(int i=0; i < count; i++) {

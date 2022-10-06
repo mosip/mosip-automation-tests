@@ -19,6 +19,7 @@ import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.PacketUtility;
 import io.mosip.ivv.orchestrator.TestRunner;
+import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
 
 public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
@@ -49,21 +50,25 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		
 		//take all properties from application .properties add to map2 props.putAll(map2);
 		//Application.properties start
-		String fileName = (TestRunner.getExternalResourcePath() + "/config/kernel.properties");
+		//String fileName = (TestRunner.getExternalResourcePath() + "/config/kernel.properties");
+	
+//		FileInputStream fis = null;
+//	      Properties prop = null;
+//	      try {
+//	         fis = new FileInputStream(fileName);
+//	         prop = new Properties();
+//	         prop.load(kernelprops);
+//	      } catch(FileNotFoundException fnfe) {
+//	         fnfe.printStackTrace();
+//	      } catch(IOException ioe) {
+//	         ioe.printStackTrace();
+//	      } 
 		
-		FileInputStream fis = null;
-	      Properties prop = null;
-	      try {
-	         fis = new FileInputStream(fileName);
-	         prop = new Properties();
-	         prop.load(fis);
-	      } catch(FileNotFoundException fnfe) {
-	         fnfe.printStackTrace();
-	      } catch(IOException ioe) {
-	         ioe.printStackTrace();
-	      } 
-	      
-	      props.putAll(prop);
+//	      
+		  Properties kernelprops=ConfigManager.propsKernel;
+		
+		  
+	      props.putAll(kernelprops);
 	      props.putAll(map);
 			//Application.properties start
 		// Instantiating the FileInputStream for output file

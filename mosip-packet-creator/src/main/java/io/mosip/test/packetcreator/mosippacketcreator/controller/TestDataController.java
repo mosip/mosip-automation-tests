@@ -42,7 +42,7 @@ import variables.VariableManager;
 public class TestDataController {
 
     private static final Logger logger = LoggerFactory.getLogger(TestDataController.class);
-    
+
     @Value("${mosip.test.welcome}")
     private String welcomeMessage;
 
@@ -233,7 +233,7 @@ public class TestDataController {
     		logger.info("personaAnguliPath ="+ DataProviderConstants.ANGULI_PATH );
     		
     		logger.info("Resource Path="+ DataProviderConstants.RESOURCE );
-    		logger.info("DOC_Template Path="+ DataProviderConstants.RESOURCE+DataProviderConstants.DOC_TEMPLATE_PATH);
+    		logger.info("DOC_Template Path="+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.documentsdatapath").toString());
     		
     		//clear all tokens
     //		VariableManager.setVariableValue("urlSwitched", "true");
@@ -267,7 +267,7 @@ public class TestDataController {
     	return "{Failed}";
     	
     }
-    @PostMapping(value = "/preregister//{contextKey}")
+    @PostMapping(value = "/preregister/{contextKey}")
     public @ResponseBody String preRegisterResident(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
     		@PathVariable("contextKey") String contextKey) {
 

@@ -493,7 +493,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		
 		String responseStr = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(contextKey,"mockABISsetExpectaion").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mockABISsetExpectaion").toString();
 
 		JSONObject req = new JSONObject();
 		//req.put("id", CommonUtil.getSHA(bdbString));
@@ -560,6 +560,23 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 			responseStr = e.getMessage();
 		}
 		return responseStr;
+	}
+
+	public static String deleteMockAbisExpectations(String id,String contextKey) {
+		
+		String response = "";
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "deleteMockAbisExpectations").toString().trim();
+		url = url + "/" + contextKey;		
+		try {
+			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject(),contextKey);
+			response = resp.toString();
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			response = e.getMessage();
+		}
+		return response;
 	}
 
 

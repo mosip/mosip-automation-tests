@@ -13,7 +13,7 @@ import lombok.Data;
 public class MDSDevice {
 
 	String purpose;
-	List<Integer> deviceSubId;
+	List<String> deviceSubId;
 	String digitalId;
 	String deviceStatus;
 	String deviceId;

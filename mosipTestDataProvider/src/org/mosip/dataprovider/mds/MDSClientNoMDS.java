@@ -101,12 +101,12 @@ public class MDSClientNoMDS implements MDSClientInterface {
 
 	@Override
 	public MDSRCaptureModel captureFromRegDevice(MDSDevice device, MDSRCaptureModel rCaptureModel, String bioType,
-			String bioSubType, int reqScore, int deviceSubId) {
+			String bioSubType, int reqScore, String deviceSubId) {
 
 		List<String> lstSubtype = null;
 		
 		if(bioSubType != null)
-			lstSubtype = Arrays.asList(bioSubType.split("\\s*,\\s*"));
+			lstSubtype = Arrays.asList(bioSubType);//.split("\\s*,\\s*"));
 		if(rCaptureModel == null)
 			rCaptureModel = new MDSRCaptureModel();
 		List<MDSDeviceCaptureModel> lstBiometrics  = rCaptureModel.getLstBiometrics().get(bioType);
@@ -241,5 +241,5 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 }	
