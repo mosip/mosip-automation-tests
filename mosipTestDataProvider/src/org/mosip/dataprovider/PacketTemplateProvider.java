@@ -635,14 +635,14 @@ public class PacketTemplateProvider {
 		return identity;
 	}
 
-	Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile) throws Exception {
+	Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile,String contextKey) throws Exception {
 
 		String strVal = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"usemds").toString();
 		boolean bMDS = Boolean.valueOf(strVal);
 		String cbeff = resident.getBiometric().getCbeff();
 		if (bMDS) {
 			if (cbeff == null) {
-				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident);
+				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident,contextKey);
 				resident.getBiometric().setCapture(capture.getLstBiometrics());
 				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile);
 				resident.getBiometric().setCbeff(strCBeff);
@@ -919,7 +919,7 @@ public class PacketTemplateProvider {
 		return found;
 	}
 
-	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo) {
+	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey) {
 
 		String idjson = "";
 
@@ -1094,7 +1094,7 @@ public class PacketTemplateProvider {
 						if (resident.getSkipFinger()) {
 							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
 						}
-						generateCBEFF(resident, bioAttrib, outFile);
+						generateCBEFF(resident, bioAttrib, outFile,contextKey);
 
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -1124,7 +1124,7 @@ public class PacketTemplateProvider {
 							if (missAttribs != null && !missAttribs.isEmpty())
 								bioAttrib.removeAll(missAttribs);
 
-							generateCBEFF(resident.getGuardian(), bioAttrib, outFile);
+							generateCBEFF(resident.getGuardian(), bioAttrib, outFile,contextKey);
 							// BiometricDataProvider.toCBEFF(bioAttrib,
 							// resident.getGuardian().getBiometric(), outFile);
 
@@ -1422,7 +1422,7 @@ public class PacketTemplateProvider {
 						if (resident.getSkipFinger()) {
 							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
 						}
-						generateCBEFF(resident, bioAttrib, outFile);
+						generateCBEFF(resident, bioAttrib, outFile,contextKey);
 						/*
 						 * Adding to set cbeff filefor officer and supervisor
 						 */
@@ -1443,10 +1443,10 @@ public class PacketTemplateProvider {
 					        byte[] decoded =Base64.getUrlDecoder().decode(value);
 					        String decodedcbeff = new String(decoded, StandardCharsets.UTF_8);
 					        resident.getBiometric().setCbeff(decodedcbeff);
-							generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] + "/"+props.get("mosip.test.regclient.officerBiometricFileName")+".xml");
+							generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] + "/"+props.get("mosip.test.regclient.officerBiometricFileName")+".xml",contextKey);
 						}
 							if(props.containsKey("mosip.test.regclient.supervisorBiometricFileName")) {
-						generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] +"/"+props.get("mosip.test.regclient.supervisorBiometricFileName")+".xml");
+						generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] +"/"+props.get("mosip.test.regclient.supervisorBiometricFileName")+".xml",contextKey);
 							}
 						
 						
@@ -1475,7 +1475,7 @@ public class PacketTemplateProvider {
 							if (missAttribs != null && !missAttribs.isEmpty())
 								bioAttrib.removeAll(missAttribs);
 
-							generateCBEFF(resident.getGuardian(), bioAttrib, outFile);
+							generateCBEFF(resident.getGuardian(), bioAttrib, outFile,contextKey);
 
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -1615,7 +1615,7 @@ public class PacketTemplateProvider {
 			hostName = contextKey.split("_")[0];
 		else
 			throw new RuntimeException("ContextKey not found !!");
-		
+		Boolean contextMapperFound=false;
 		String propPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.env.mapperpath").toString();
 		System.out.println(propPath);
 		try {
@@ -1625,11 +1625,19 @@ public class PacketTemplateProvider {
 				if (file.isFile()) {
 					if (file.getName().contains(hostName + DOMAIN_NAME)) {
 						propPath = file.getAbsolutePath();
+						contextMapperFound=true;
 						break;
 					}
 				}
 			}
-			prop.load(new FileInputStream(propPath));
+			if(contextMapperFound) {
+				prop.load(new FileInputStream(propPath));
+			}
+			else
+			{
+				prop.load(new FileInputStream(propPath+"/Default.properties"));
+			}
+			
 		} catch (FileNotFoundException fnf) {
 			fnf.printStackTrace();
 		} catch (IOException io) {

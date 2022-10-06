@@ -8,14 +8,15 @@ import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.Translator;
+import org.springframework.beans.factory.annotation.Value;
 
 import variables.VariableManager;
 
 public class NameProvider {
 
-	private static String resourceName_male = DataProviderConstants.RESOURCE+"Names/%s/boy_names.csv";
-	private static String resourceName_female = DataProviderConstants.RESOURCE+ "Names/%s/girl_names.csv";
-	private static String resourceName_surname =DataProviderConstants.RESOURCE+ "Names/%s/surnames.csv";
+	private static String resourceName_male = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.namesdatapath").toString()+"/%s/boy_names.csv";
+	private static String resourceName_female = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.namesdatapath").toString()+"/%s/girl_names.csv";
+	private static String resourceName_surname =VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.namesdatapath").toString()+"/%s/surnames.csv";
 	
 	static String[] getSurNames(String lang, int count) {
 		String resPath = String.format(resourceName_surname, lang);

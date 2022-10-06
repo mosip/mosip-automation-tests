@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -147,7 +148,7 @@ public class PersonaController {
 	
 
 	@ApiOperation(value = "Extended API to set Persona specific expectations in mock ABIS ", response = String.class)
-	@PostMapping(value = "/persona/mockabis/v2/expectaions/{contextKey}")
+	@PostMapping(value = "/persona/mockabis/v2/expectations/{contextKey}")
 	public @ResponseBody String setPersonaMockABISExpectationV2(@RequestBody List<MockABISExpectationsDto>  expectations,
 			@PathVariable("contextKey") String contextKey			) {
 	    	
@@ -163,6 +164,20 @@ public class PersonaController {
 	    	return "{Failed}";
 	    	
 	 }
+	
+	@ApiOperation(value = "Delete expectation for a given Id", response = String.class)
+
+    @DeleteMapping(value = "/persona/mockabis/deleteV2/expectations/{id}/{contextKey}")
+    public @ResponseBody String deleteApplication(
+    		@PathVariable("id") String id,
+    		@PathVariable("contextKey") String contextKey) {
+    	
+    	return packetSyncService.deleteMockAbisExpectations(id, contextKey);
+    	
+    }
+	
+	
+	
 	
 	@ApiOperation(value = "Update the machine details ", response = String.class)
 	@PutMapping(value = "/updateMachine/{contextKey}") 

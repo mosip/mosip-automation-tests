@@ -32,7 +32,7 @@ import org.mosip.dataprovider.models.IrisDataModel;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.FPClassDistribution;
-
+import org.springframework.beans.factory.annotation.Value;
 
 import com.jamesmurty.utils.XMLBuilder;
 //import java.util.Date;
@@ -57,7 +57,8 @@ import io.mosip.kernel.core.cbeffutil.jaxbclasses.RegistryIDType;
 import io.mosip.kernel.core.cbeffutil.jaxbclasses.SingleType;
 */
 public class BiometricFingerPrintProvider {
-
+	
+	
 	public static String [] fingerName = {"Left Thumb",
 			"Left IndexFinger",
 			"Left MiddleFinger",
@@ -275,7 +276,7 @@ public class BiometricFingerPrintProvider {
 			else
 			{
 				//reach cached finger prints from folder 
-				String dirPath = DataProviderConstants.RESOURCE +"/fingerprints/";
+				String dirPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.fingerprintdatapath").toString();;
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				for(int i=1; i <= 2; i++) {
 					
@@ -352,7 +353,7 @@ public class BiometricFingerPrintProvider {
 	
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
 		
-		String srcPath = DataProviderConstants.RESOURCE + "/iris/IITD Database/";
+		String srcPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.irisdatapath").toString();
 		int []index = CommonUtil.generateRandomNumbers(count, 224, 1);
 		for(int i=0; i < count; i++) {
 			String fPathL = srcPath + String.format("%03d", index[i]) + "/01_L.bmp";

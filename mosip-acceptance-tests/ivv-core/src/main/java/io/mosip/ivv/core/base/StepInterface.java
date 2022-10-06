@@ -38,6 +38,8 @@ public interface StepInterface {
     CallRecord getCallRecord();
     void run() throws RigInternalError;
 
+
+
    // RequestDataDTO prepare();
     //ResponseDataDTO call(RequestDataDTO requestData);
    // void process(ResponseDataDTO res);

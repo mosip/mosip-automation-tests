@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
+import org.springframework.beans.factory.annotation.Value;
 
 import io.cucumber.messages.internal.com.google.common.io.Files;
 import variables.VariableManager;
@@ -19,7 +20,6 @@ import variables.VariableManager;
 
 public class PhotoProvider {
 	static String Photo_File_Format = "/photo_%02d.jpg";
-	
 	static byte[][] getPhoto(int idx, String gender) {
 		//String encodedImage="";
 		//String hexHash ="";
@@ -44,7 +44,7 @@ public class PhotoProvider {
 			}
 			else
 			{
-				img = ImageIO.read(new File(DataProviderConstants.RESOURCE+"Photos/" + gender.toLowerCase() + photoFile));
+				img = ImageIO.read(new File(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.facedatapath").toString()+"/" + gender.toLowerCase() + photoFile));
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
@@ -72,11 +72,11 @@ public class PhotoProvider {
 	static void splitImages() {
 		///125 x129
 		try {
-			final BufferedImage source = ImageIO.read(new File(DataProviderConstants.RESOURCE+"Photos/female/celebrities.jpg"));
+			final BufferedImage source = ImageIO.read(new File(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.facedatapath").toString()+"/female/celebrities.jpg"));
 			int idx =0;
 			for (int y = 0; y < source.getHeight()-129; y += 129) {
 				for (int x = 0; x < source.getWidth()-125; x += 125) {
-					ImageIO.write(source.getSubimage(x, y, 125, 129), "jpg", new File(DataProviderConstants.RESOURCE+"Photos/female/photo_" + idx++ + ".jpg"));
+					ImageIO.write(source.getSubimage(x, y, 125, 129), "jpg", new File(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.facedatapath").toString()+"/female/photo_" + idx++ + ".jpg"));
 				}
 			}			
 		} catch (IOException e) {

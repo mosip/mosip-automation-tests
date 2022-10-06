@@ -288,8 +288,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String updateResidentRid(String personaFilePath, String rid) throws RigInternalError {
-		String url = baseUrl + props.getProperty("updateResidentUrl") + "?RID=" + rid;
-
+		String url = baseUrl + props.getProperty("updateResidentUrl");
+		HashMap<String, String> map=new HashMap<String, String>();
+		map.put("RID", rid);
+		
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
@@ -300,7 +302,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		jsonwrapper.put("requests", jsonReq);
 
-		Response response = postRequest(url, jsonwrapper.toString(), "link Resident data with RID");
+		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(),map, "link Resident data with RID");
 
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to add Resident RID in resident data");
@@ -310,7 +312,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String updateResidentUIN(String personaFilePath, String uin) throws RigInternalError {
-		String url = baseUrl + props.getProperty("updateResidentUrl") + "?UIN=" + uin;
+		//String url = baseUrl + props.getProperty("updateResidentUrl") + "?UIN=" + uin;
+		String url = baseUrl + props.getProperty("updateResidentUrl");
 
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
@@ -322,8 +325,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		jsonwrapper.put("requests", jsonReq);
 
-		Response response = postRequest(url, jsonwrapper.toString(), "link Resident data with UIN");
-
+		//Response response = postRequest(url, jsonwrapper.toString(), "link Resident data with UIN");
+		HashMap<String, String> map=new HashMap<String, String>();
+		map.put("UIN", uin);
+		Response response =postRequestWithQueryParamAndBody(url, jsonwrapper.toString(),map ,"link Resident data with UIN");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to add UIN in resident data");
 		String ret = response.getBody().asString();
@@ -954,6 +959,7 @@ centerId=10002
 	private Response getRequestWithbody(String url, String body, String contentHeader, String acceptHeader) {
 		logger.info("RESSURED: Sending a GET request to " + url);
 		logger.info("REQUEST: Sending a GET request to " + url);
+		url=addContextToUrl(url);
 		Response getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").log()
 				.all().when().body(body).get(url).then().extract().response();
 		logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
