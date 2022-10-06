@@ -39,7 +39,7 @@ public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("filePath", packetPath);
 		jsonReq.put("base64data", Base64.getEncoder().encodeToString(dataToEncdoeInBase64.getBytes()));
-		Response response = postReqest(url, jsonReq.toString(), "Corrupt Packet");
+		Response response = postRequest(url, jsonReq.toString(), "Corrupt Packet");
 		if (!response.getBody().asString().toLowerCase().contains(".zip"))
 			throw new RigInternalError("Unable to Corrupt Packet");
 	}

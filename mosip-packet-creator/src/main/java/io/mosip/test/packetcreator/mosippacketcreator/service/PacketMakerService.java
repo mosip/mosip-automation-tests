@@ -493,6 +493,9 @@ public class PacketMakerService {
 
 		//
 
+		try {
+			
+			
 		String schemaVersion = jb.optString("IDSchemaVersion", "0");
 		String schemaJson = schemaUtil.getAndSaveSchema(schemaVersion, workDirectory, contextKey);
 
@@ -512,7 +515,7 @@ public class PacketMakerService {
 		JSONObject mergedJsonMap = mergeJSONObject(templateFile, jbToMerge);
 
 		if (type.equals("id")) {
-			List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap);
+			List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap,contextKey);
 			Files.write(Path.of(tempLogPath + regId + "_invalidIds.json"), invalidIds.toString().getBytes());
 		}
 
@@ -606,6 +609,11 @@ public class PacketMakerService {
 			updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME);
 			updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME);
 		}
+		}
+		catch(Exception e)
+	    			{
+			e.printStackTrace();
+	    			}
 		return true;
 	}
 

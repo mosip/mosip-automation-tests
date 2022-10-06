@@ -3,6 +3,7 @@ package org.mosip.dataprovider.test.prereg;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 
+import org.apache.commons.validator.Var;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,15 +35,15 @@ public class PreRegistrationSteps {
 		
 		return new JSONObject();
 	}
-	public static String getApplications(String status, String preregId) {
+	public static String getApplications(String status, String preregId,String contextKey) {
 
 
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() +
-		VariableManager.getVariableValue( "postapplication").toString().trim();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +
+		VariableManager.getVariableValue( contextKey,"postapplication").toString().trim();
 		JSONArray newArray = new JSONArray();
 
 		try {
-			JSONObject resp = RestClient.getNoAuth (url, new JSONObject(),new JSONObject());
+			JSONObject resp = RestClient.getNoAuth (url, new JSONObject(),new JSONObject(),contextKey);
 			String strCount = resp.getString("totalRecords");
 			int count =0;
 			if(strCount != null && !strCount.equals(""))
@@ -76,13 +77,13 @@ public class PreRegistrationSteps {
 		return matchApplication(newArray,preregId).toString();
 	}
 	//"/preregistration/v1/applications";
-	public static String postApplication(ResidentModel resident, DataCallback cb) throws JSONException {
+	public static String postApplication(ResidentModel resident, DataCallback cb,String contextKey) throws JSONException {
 		String result = "";
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() +
-		VariableManager.getVariableValue( "postapplication").toString().trim();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "postapplication").toString().trim();
 		
-		JSONArray requiredFieldsArray=MosipMasterData.getUiSpecId();
-		JSONObject identity = CreatePersona.crateIdentity(resident,cb);
+		JSONArray requiredFieldsArray=MosipMasterData.getUiSpecId(contextKey);
+		JSONObject identity = CreatePersona.createIdentity(resident,cb,contextKey);
 		JSONObject demoData = new JSONObject();
 		demoData.put("identity",identity);
 		JSONObject reqObject = new JSONObject();
@@ -93,7 +94,7 @@ public class PreRegistrationSteps {
 		//RestClient client = annotation.getRestClient();
 		
 		try {
-			JSONObject resp = RestClient.postNoAuth (url, reqBody);
+			JSONObject resp = RestClient.postNoAuth (url, reqBody,contextKey);
 			result = resp.get("preRegistrationId").toString();
 			
 		} catch (Exception e) {
@@ -101,12 +102,12 @@ public class PreRegistrationSteps {
 		}
 		return  result;
 	}
-	public static String putApplication(ResidentModel resident, String preregId) {
+	public static String putApplication(ResidentModel resident, String preregId,String contextKey) {
 		String result = "";
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() +
-				VariableManager.getVariableValue( "postapplication").toString().trim();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +
+				VariableManager.getVariableValue(contextKey, "postapplication").toString().trim();
 		url = url + "/"+ preregId;
-		JSONObject identity = CreatePersona.crateIdentity(resident,null);
+		JSONObject identity = CreatePersona.createIdentity(resident,null,contextKey);
 		JSONObject demoData = new JSONObject();
 		demoData.put("identity",identity);
 		JSONObject reqObject = new JSONObject();
@@ -116,7 +117,7 @@ public class PreRegistrationSteps {
 		//RestClient client = annotation.getRestClient();
 		
 		try {
-			JSONObject resp = RestClient.putNoAuth(url, reqBody);
+			JSONObject resp = RestClient.putNoAuth(url, reqBody,contextKey);
 			result = resp.get("preRegistrationId").toString();
 			
 		} catch (Exception e) {
@@ -125,17 +126,17 @@ public class PreRegistrationSteps {
 		return  result;
 		
 	}
-	public static AppointmentModel getAppointments() {
+	public static AppointmentModel getAppointments(String contextKey) {
 		AppointmentModel appointmentSlot = new AppointmentModel();
 
-		String base = VariableManager.getVariableValue("urlBase").toString().trim();
-		String api = VariableManager.getVariableValue( "appointmentslots").toString().trim();
-		String centerId = VariableManager.getVariableValue( "centerId").toString().trim();
+		String base = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
+		String api = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "appointmentslots").toString().trim();
+		String centerId = VariableManager.getVariableValue(contextKey, "centerId").toString().trim();
 		String url =  base + api + centerId;
 
 
 		try {
-			JSONObject resp = RestClient.getNoAuth(url, new JSONObject(), new JSONObject());
+			JSONObject resp = RestClient.getNoAuth(url, new JSONObject(), new JSONObject(),contextKey);
 
 			if(resp != null) {
 				ObjectMapper objectMapper = new ObjectMapper();
@@ -148,10 +149,10 @@ public class PreRegistrationSteps {
 		}		
 		return appointmentSlot;
 	}
-	public static String cancelAppointment(String preregId, String startTime, String toTime, String appointmentDate, String centerId) {
+	public static String cancelAppointment(String preregId, String startTime, String toTime, String appointmentDate, String centerId,String contextKey) {
 		String response = "";
-		String url = VariableManager.getVariableValue("urlBase").toString().trim()+
-		VariableManager.getVariableValue( "postappointment").toString().trim();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "postappointment").toString().trim();
 		JSONObject obj = new JSONObject();
 		JSONObject requestObject = new JSONObject();
 
@@ -167,7 +168,7 @@ public class PreRegistrationSteps {
 		
 		try {
 			url = url + "/" + preregId;
-			JSONObject resp = RestClient.putNoAuth(url, obj);
+			JSONObject resp = RestClient.putNoAuth(url, obj,contextKey);
 			response = resp.toString();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -177,14 +178,14 @@ public class PreRegistrationSteps {
 		return response;
 			
 	}
-	public static String deleteApplication(String preregId) {
+	public static String deleteApplication(String preregId,String contextKey) {
 	
 		String response = "";
-		String url = VariableManager.getVariableValue("urlBase").toString().trim()+
-		VariableManager.getVariableValue( "postapplication").toString().trim();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
+		VariableManager.getVariableValue(contextKey, "postapplication").toString().trim();
 		url = url + "/" + preregId;		
 		try {
-			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject());
+			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject(),contextKey);
 			response = resp.toString();
 		} catch (Exception e) {
 			
@@ -194,14 +195,14 @@ public class PreRegistrationSteps {
 		return response;
 	}
 
-	public static String discardBooking(HashMap<String, String> map) {
+	public static String discardBooking(HashMap<String, String> map,String contextKey) {
 		
 	String response = "";
-		String url = VariableManager.getVariableValue("urlBase").toString().trim()+
-		VariableManager.getVariableValue( "postappointment").toString().trim();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
+		VariableManager.getVariableValue( VariableManager.NS_DEFAULT,"postappointment").toString().trim();
 		url = url + "?preRegistrationId=" + map.get("preRegistrationId");
 		try {
-			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject());
+			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject(),contextKey);
 			//JSONObject resp = RestClient.deleteNoAuthWithQueryParam(url, new JSONObject().put("map", map));
 			response = resp.toString();
 		} catch (Exception e) {
@@ -213,14 +214,14 @@ public class PreRegistrationSteps {
 		return response;
 	}
 	
-	public static String updatePreRegAppointment(String prid) {
+	public static String updatePreRegAppointment(String prid,String contextKey) {
 		
 		String response = "";
-			String url = VariableManager.getVariableValue("urlBase").toString().trim()+
-			VariableManager.getVariableValue( "postappointment").toString().trim();
+			String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
+			VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "postappointment").toString().trim();
 		url = url + "/" + prid;
 			try {
-				JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject());
+				JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject(),contextKey);
 				//JSONObject resp = RestClient.deleteNoAuthWithQueryParam(url, new JSONObject().put("map", map));
 				response = resp.toString();
 			} catch (Exception e) {
@@ -240,11 +241,11 @@ public class PreRegistrationSteps {
 	
 	
 	
-	public static String bookAppointment(String preRegId, String appointmentDate, int centerId, AppointmentTimeSlotModel slot) throws JSONException {
+	public static String bookAppointment(String preRegId, String appointmentDate, int centerId, AppointmentTimeSlotModel slot, String contextKey) throws JSONException {
 
 		String result ="";
-		String url = VariableManager.getVariableValue("urlBase").toString().trim()+
-		VariableManager.getVariableValue( "postappointment").toString().trim();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "postappointment").toString().trim();
 
 			JSONObject obj = new JSONObject();
 			JSONObject requestObject = new JSONObject();
@@ -264,7 +265,7 @@ public class PreRegistrationSteps {
 			bookingRequestObject.put(0, booking);
 
 			try {
-				JSONObject resp = RestClient.postNoAuth(url, obj);
+				JSONObject resp = RestClient.postNoAuth(url, obj,contextKey);
 
 				if(resp != null) {
 					result = resp.toString();
@@ -280,10 +281,10 @@ public class PreRegistrationSteps {
 			}		
 			return result;
 	}
-	public static JSONObject UploadDocument(String docCatCode,String docTypCode, String langCode, String docFilePath, String preRegID) throws JSONException {
+	public static JSONObject UploadDocument(String docCatCode,String docTypCode, String langCode, String docFilePath, String preRegID, String contextKey) throws JSONException {
 		JSONObject response=null;
-		String url = VariableManager.getVariableValue("urlBase").toString().trim() +
-				VariableManager.getVariableValue("uploaddocument").toString().trim();
+		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +
+				VariableManager.getVariableValue(contextKey,"uploaddocument").toString().trim();
 				
 		JSONObject obj = new JSONObject();
 		JSONObject requestObject = new JSONObject();
@@ -296,7 +297,7 @@ public class PreRegistrationSteps {
 		requestObject.put("langCode", langCode);
 		
 		try {
-			response = RestClient.uploadFile(url + preRegID,docFilePath,obj);
+			response = RestClient.uploadFile(url + preRegID,docFilePath,obj,contextKey);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -313,14 +314,14 @@ public class PreRegistrationSteps {
 		String preRegID ="30491084523580";
 		Boolean bBooked = false;
 		//CreatePersona.sendOtpTo("sanath@mailinator.com");
-		CreatePersona.validateOTP("111111", "sanath@mailinator.com");
-		AppointmentModel res = getAppointments();
+		CreatePersona.validateOTP("111111", "sanath@mailinator.com","contextKey");
+		AppointmentModel res = getAppointments("contextKey");
 		System.out.println(res.getRegCenterId());
 		for( CenterDetailsModel a: res.getAvailableDates()) {
 			if(!a.getHoliday()) {
 				for(AppointmentTimeSlotModel ts: a.getTimeslots()) {
 					if(ts.getAvailability() > 0) {
-						bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts);
+						bookAppointment(preRegID,a.getDate(),res.getRegCenterId(),ts,"contextKey");
 						bBooked = true;
 						break;
 					}

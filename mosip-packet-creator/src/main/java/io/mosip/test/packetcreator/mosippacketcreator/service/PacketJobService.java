@@ -32,10 +32,10 @@ public class PacketJobService {
     private ZipUtils zipUtils;
 
     @Job(name = "Create Packet with pre-reg sync")
-    public void execute() {
+    public void execute(String contextKey) {
         try {
             logger.info("started execute job");
-            JSONObject jb = preregSyncService.syncPrereg();
+            JSONObject jb = preregSyncService.syncPrereg(contextKey);
 
             JSONArray keys = jb.names();
             for(int i=0; i< keys.length(); i++) {

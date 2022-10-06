@@ -9,11 +9,14 @@ import java.util.List;
 import org.mosip.dataprovider.models.CityModel;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import variables.VariableManager;
 
 public class CityProvider extends LocationProviderBase {
 
@@ -57,7 +60,7 @@ public class CityProvider extends LocationProviderBase {
 			cityList.forEach( (countryObjectId, cities) -> {
 				String countryCode = lookupTbl.get(countryObjectId);
 				
-				String path = DataProviderConstants.RESOURCE + "locations/" + countryCode + "/cities.json";
+				String path = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.locationsdatapath").toString() + countryCode + "/cities.json";
 				
 				
 				try {
@@ -79,7 +82,7 @@ public class CityProvider extends LocationProviderBase {
 	}
 	public static List<CityModel> load(String countryIsoCode) throws JsonParseException, JsonMappingException, IOException{
 		
-		String strJson = CommonUtil.readFromJSONFile(DataProviderConstants.RESOURCE +"locations/"+ countryIsoCode + "/cities.json");
+		String strJson = CommonUtil.readFromJSONFile(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.locationsdatapath").toString()+"/"+ countryIsoCode + "/cities.json");
 		ObjectMapper objectMapper = new ObjectMapper();
 		return objectMapper.readValue(strJson.toString(), 
 				objectMapper.getTypeFactory().constructCollectionType(List.class, CityModel.class));

@@ -9,11 +9,11 @@ import variables.VariableManager;
 
 public class CertificateUploader{
 
-    public static String uploadCACertificate(String certificateData ,String partnerDomain){
+    public static String uploadCACertificate(String certificateData ,String partnerDomain, String contextKey){
 
-        String url = VariableManager.getVariableValue("urlBase").toString() +
-        VariableManager.getVariableValue("partner").toString() +
-        VariableManager.getVariableValue("CACertificate").toString();
+        String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()+
+        VariableManager.getVariableValue(contextKey,"partner").toString() +
+        VariableManager.getVariableValue(contextKey,"CACertificate").toString();
 
         JSONObject payload = new JSONObject();
         JSONObject request = new JSONObject();
@@ -31,7 +31,7 @@ public class CertificateUploader{
 
         JSONObject resp;
         try{
-            resp = RestClient.post(url, payload);
+            resp = RestClient.post(url, payload,contextKey);
             return resp.toString();
         }
         catch(Exception e){
@@ -41,11 +41,11 @@ public class CertificateUploader{
 
     }
 
-    public static String uploadPartnerString(String certificateData, String orgName, String partnerID, String partnerDomain){
+    public static String uploadPartnerString(String certificateData, String orgName, String partnerID, String partnerDomain,String contextKey){
 
-        String url = VariableManager.getVariableValue("urlBase").toString() +
-        VariableManager.getVariableValue("partner").toString() +
-        VariableManager.getVariableValue("partnerCertificate").toString();
+        String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
+        VariableManager.getVariableValue(contextKey,"partner").toString() +
+        VariableManager.getVariableValue(contextKey,"partnerCertificate").toString();
 
         JSONObject payload = new JSONObject();
         JSONObject request = new JSONObject();
@@ -66,7 +66,7 @@ public class CertificateUploader{
 
         JSONObject resp;
         try{
-            resp = RestClient.post(url, payload);
+            resp = RestClient.post(url, payload,contextKey);
             return resp.toString();
         }
         catch(Exception e){
@@ -79,7 +79,7 @@ public class CertificateUploader{
 
     public static void main(String[] args){
 
-        System.out.println(uploadCACertificate("certificateData", "partnerDomain"));
+        System.out.println(uploadCACertificate("certificateData", "partnerDomain","contextKey"));
     }
 }
 

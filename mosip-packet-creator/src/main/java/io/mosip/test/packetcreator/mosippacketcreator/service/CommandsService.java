@@ -125,7 +125,7 @@ public class CommandsService {
 		}
 		return retJson.toString();
 	 }
-	public String writeToFile(Properties requestData, long offset) throws IOException {
+	public String writeToFile(String contextKey, Properties requestData, long offset) throws IOException {
 		
 		//take file name
 		String filePath = requestData.getProperty("filePath");
@@ -220,7 +220,7 @@ public class CommandsService {
 		 return targetLocation.toString();
 	}
 	
-	public String generatekey(String machineId) {
+	public String generatekey(String contextKey,String machineId) {
 		 KeyPairGenerator keyGenerator=null;
 			try {
 				keyGenerator = KeyPairGenerator.getInstance("RSA");

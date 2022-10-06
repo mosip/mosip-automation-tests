@@ -37,8 +37,9 @@ public class ResidentController {
 		private String personaConfigPath;
 	    
 
-	  @GetMapping(value = "/resident/status/{rid}")
-	  public @ResponseBody String getRIDStatus( @PathVariable("rid") String rid, @RequestParam(name="contextKey",required = false) String contextKey) {
+	  @GetMapping(value = "/resident/status/{rid}/{contextKey}")
+	  public @ResponseBody String getRIDStatus( @PathVariable("rid") String rid, 
+			  @PathVariable("contextKey") String contextKey			  ) {
 
 		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
   			DataProviderConstants.RESOURCE = personaConfigPath;
@@ -51,8 +52,10 @@ public class ResidentController {
 		return "{Failed}";
 	  }
 	
-	  @GetMapping(value = "/resident/uin/{rid}")
-	  public @ResponseBody String getUINByRid( @PathVariable("rid") String rid, @RequestParam(name="contextKey",required = false) String contextKey) {
+	  @GetMapping(value = "/resident/uin/{rid}/{contextKey}")
+	  public @ResponseBody String getUINByRid( @PathVariable("rid") String rid, 
+			  @PathVariable("contextKey") String contextKey
+			  ) {
 		  String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
 		  
 		  if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -71,8 +74,9 @@ public class ResidentController {
 	
 	  //resident/v1/req/credential
 	  @ApiOperation(value = "download card for the UIN", response = String.class)
-	  @PostMapping(value = "/resident/card/{uin}")
-	  public @ResponseBody String downloadCard(@RequestBody String personaPath, @PathVariable("uin") String uin, @RequestParam(name="contextKey",required = false) String contextKey) {
+	  @PostMapping(value = "/resident/card/{uin}/{contextKey}")
+	  public @ResponseBody String downloadCard(@RequestBody String personaPath, @PathVariable("uin") String uin,
+			  @PathVariable("contextKey") String contextKey			  ) {
 		  String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
 
 		  if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -113,8 +117,10 @@ public class ResidentController {
 		 
 	  }
 	  
-		@GetMapping(value = "/resident/additionalReqId")
-		public @ResponseBody String getAdditionalInfoReqId() {
+		@GetMapping(value = "/resident/additionalReqId/{contextKey}")
+		public @ResponseBody String getAdditionalInfoReqId(
+				@PathVariable("contextKey") String contextKey
+				) {
 
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;
@@ -129,8 +135,10 @@ public class ResidentController {
 			return "{Failed}";
 		}
 
-		@GetMapping(value = "/resident/setThresholdValue/{qualityScore}")
-		public @ResponseBody String setThresholdValue(@PathVariable("qualityScore") String qualityScore) {
+		@GetMapping(value = "/resident/setThresholdValue/{qualityScore}/{contextKey}")
+		public @ResponseBody String setThresholdValue(@PathVariable("qualityScore") String qualityScore,
+				@PathVariable("contextKey") String contextKey
+				) {
 
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;

@@ -160,7 +160,7 @@ public class CryptoUtil {
         wrapper.put("version", "1.0");
         wrapper.put("request", encryptObj);
 
-        JSONObject secretObject = apiUtil.post(baseUrl, baseUrl+encryptApi, wrapper);
+        JSONObject secretObject = apiUtil.post(baseUrl, baseUrl+encryptApi, wrapper,contextKey);
         byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
         return mergeEncryptedData(encBytes, org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),
                 org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("aad")));
@@ -203,7 +203,7 @@ public class CryptoUtil {
         wrapper.put("version", "1.0");
         wrapper.put("request", encryptObj);
 
-        JSONObject secretObject = apiUtil.post(baseUrl, baseUrl+encryptApi, wrapper);
+        JSONObject secretObject = apiUtil.post(baseUrl, baseUrl+encryptApi, wrapper,contextKey);
         byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
         byte[] mergeddata = mergeEncryptedData(encBytes, org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),
                 org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("aad")));

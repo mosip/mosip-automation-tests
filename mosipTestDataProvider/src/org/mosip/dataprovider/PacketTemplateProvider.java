@@ -21,6 +21,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.tools.ant.property.GetProperty;
 import org.javatuples.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,6 +42,7 @@ import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.Translator;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.google.gson.JsonObject;
 
@@ -53,6 +55,7 @@ import variables.VariableManager;
 /*
  * Generate Packet structure for a given Resident record
  */
+
 @SuppressWarnings("unchecked")
 public class PacketTemplateProvider {
 
@@ -62,18 +65,25 @@ public class PacketTemplateProvider {
 	public static String RID_EVIDENCE = "rid_evidence";
 	public static String RID_OPTIONAL = "rid_optional";
 
-	Hashtable<Double, Properties> allSchema = MosipMasterData.getIDSchemaLatestVersion();
-
-	Double schemaVersion = allSchema.keys().nextElement();
+//	Hashtable<Double, Properties> allSchema = MosipMasterData.getIDSchemaLatestVersion("contextKey");
+//
+//	Double schemaVersion = allSchema.keys().nextElement();
+//	
+//	List<MosipIDSchema> schema = (List<MosipIDSchema>) allSchema.get(schemaVersion).get("schemaList");
+//	List<String> requiredAttribs = (List<String>) allSchema.get(schemaVersion).get("requiredAttributes");
+//	
+	Hashtable<Double, Properties> allSchema = null ;
+	Double schemaVersion = 0.0;
+	List<MosipIDSchema> schema = null;
+	List<String> requiredAttribs = null;
 	
-	List<MosipIDSchema> schema = (List<MosipIDSchema>) allSchema.get(schemaVersion).get("schemaList");
-	List<String> requiredAttribs = (List<String>) allSchema.get(schemaVersion).get("requiredAttributes");
 	
 	private static final String DOMAIN_NAME = ".mosip.net";
 	Properties prop = new Properties();
 
-	public void getSchema() {
-		allSchema = MosipMasterData.getIDSchemaLatestVersion();
+	public void getSchema(String contextKey) {
+		
+		allSchema = MosipMasterData.getIDSchemaLatestVersion(contextKey);
 		schemaVersion = allSchema.keys().nextElement();
 		schema = (List<MosipIDSchema>) allSchema.get(schemaVersion).get("schemaList");
 		requiredAttribs = (List<String>) allSchema.get(schemaVersion).get("requiredAttributes");
@@ -87,7 +97,7 @@ public class PacketTemplateProvider {
 		String ridFolder = "";
 		Path path = Paths.get(rootFolder);
 
-		getSchema();
+		getSchema(contextKey);
 
 		if (!Files.exists(path)) {
 			Files.createDirectory(path);
@@ -625,14 +635,14 @@ public class PacketTemplateProvider {
 		return identity;
 	}
 
-	Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile) throws Exception {
+	Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile,String contextKey) throws Exception {
 
-		String strVal = VariableManager.getVariableValue("usemds").toString();
+		String strVal = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"usemds").toString();
 		boolean bMDS = Boolean.valueOf(strVal);
 		String cbeff = resident.getBiometric().getCbeff();
 		if (bMDS) {
 			if (cbeff == null) {
-				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident);
+				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident,contextKey);
 				resident.getBiometric().setCapture(capture.getLstBiometrics());
 				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile);
 				resident.getBiometric().setCbeff(strCBeff);
@@ -682,7 +692,7 @@ public class PacketTemplateProvider {
 				String secVal = "";
 				
 				//context should set Male/Female code values 
-				Object obj = VariableManager.getVariableValue(resGen.name());
+				Object obj = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,resGen.name());
 				if(obj != null) {
 					genderCode = obj.toString();
 					primVal = secVal = genderCode;
@@ -909,7 +919,7 @@ public class PacketTemplateProvider {
 		return found;
 	}
 
-	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo) {
+	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey) {
 
 		String idjson = "";
 
@@ -1084,7 +1094,7 @@ public class PacketTemplateProvider {
 						if (resident.getSkipFinger()) {
 							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
 						}
-						generateCBEFF(resident, bioAttrib, outFile);
+						generateCBEFF(resident, bioAttrib, outFile,contextKey);
 
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -1114,7 +1124,7 @@ public class PacketTemplateProvider {
 							if (missAttribs != null && !missAttribs.isEmpty())
 								bioAttrib.removeAll(missAttribs);
 
-							generateCBEFF(resident.getGuardian(), bioAttrib, outFile);
+							generateCBEFF(resident.getGuardian(), bioAttrib, outFile,contextKey);
 							// BiometricDataProvider.toCBEFF(bioAttrib,
 							// resident.getGuardian().getBiometric(), outFile);
 
@@ -1412,7 +1422,7 @@ public class PacketTemplateProvider {
 						if (resident.getSkipFinger()) {
 							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
 						}
-						generateCBEFF(resident, bioAttrib, outFile);
+						generateCBEFF(resident, bioAttrib, outFile,contextKey);
 						/*
 						 * Adding to set cbeff filefor officer and supervisor
 						 */
@@ -1433,10 +1443,10 @@ public class PacketTemplateProvider {
 					        byte[] decoded =Base64.getUrlDecoder().decode(value);
 					        String decodedcbeff = new String(decoded, StandardCharsets.UTF_8);
 					        resident.getBiometric().setCbeff(decodedcbeff);
-							generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] + "/"+props.get("mosip.test.regclient.officerBiometricFileName")+".xml");
+							generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] + "/"+props.get("mosip.test.regclient.officerBiometricFileName")+".xml",contextKey);
 						}
 							if(props.containsKey("mosip.test.regclient.supervisorBiometricFileName")) {
-						generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] +"/"+props.get("mosip.test.regclient.supervisorBiometricFileName")+".xml");
+						generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] +"/"+props.get("mosip.test.regclient.supervisorBiometricFileName")+".xml",contextKey);
 							}
 						
 						
@@ -1465,7 +1475,7 @@ public class PacketTemplateProvider {
 							if (missAttribs != null && !missAttribs.isEmpty())
 								bioAttrib.removeAll(missAttribs);
 
-							generateCBEFF(resident.getGuardian(), bioAttrib, outFile);
+							generateCBEFF(resident.getGuardian(), bioAttrib, outFile,contextKey);
 
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -1605,8 +1615,8 @@ public class PacketTemplateProvider {
 			hostName = contextKey.split("_")[0];
 		else
 			throw new RuntimeException("ContextKey not found !!");
-		
-		String propPath = VariableManager.getVariableValue("mosip.test.env.mapperpath").toString();
+		Boolean contextMapperFound=false;
+		String propPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.env.mapperpath").toString();
 		System.out.println(propPath);
 		try {
 			File folder = new File(String.valueOf(propPath) + File.separator);
@@ -1615,11 +1625,19 @@ public class PacketTemplateProvider {
 				if (file.isFile()) {
 					if (file.getName().contains(hostName + DOMAIN_NAME)) {
 						propPath = file.getAbsolutePath();
+						contextMapperFound=true;
 						break;
 					}
 				}
 			}
-			prop.load(new FileInputStream(propPath));
+			if(contextMapperFound) {
+				prop.load(new FileInputStream(propPath));
+			}
+			else
+			{
+				prop.load(new FileInputStream(propPath+"/Default.properties"));
+			}
+			
 		} catch (FileNotFoundException fnf) {
 			fnf.printStackTrace();
 		} catch (IOException io) {
@@ -1633,7 +1651,7 @@ public class PacketTemplateProvider {
 	String generateMetaDataJson(ResidentModel resident, String preRegistrationId, String machineId, String centerId,
 			HashMap<String, String[]> fileInfo) {
 
-		String templateMetaJsonPath = VariableManager.getVariableValue("templateIDMeta").toString().trim();
+		String templateMetaJsonPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"templateIDMeta").toString().trim();
 
 		String templateIdentityStr = CommonUtil.readFromJSONFile(templateMetaJsonPath);
 		JSONObject templateIdentity = new JSONObject(templateIdentityStr).getJSONObject("identity");
@@ -1765,7 +1783,7 @@ public class PacketTemplateProvider {
 	public static void main(String[] args) {
 
 		ResidentDataProvider provider = new ResidentDataProvider();
-		List<ResidentModel> residents = provider.generate();
+		List<ResidentModel> residents = provider.generate("contextKey");
 		try {
 			new PacketTemplateProvider().generate("registration_client", "new", residents.get(0), "/temp//newpacket",
 					null, null, null,null,null,null);

@@ -20,22 +20,22 @@ import org.mosip.dataprovider.util.CommonUtil;
 
 public class LocationProvider {
 
-	public static ApplicationConfigIdSchema generate( String langCode, int count) {
+	public static ApplicationConfigIdSchema generate( String langCode, int count,String contextKey) {
 
 		ApplicationConfigIdSchema ret = null;
 		try {
-			ret = MosipMasterData.getPreregLocHierarchy(langCode,count);
+			ret = MosipMasterData.getPreregLocHierarchy(langCode,count,contextKey);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
 		return ret;
 	}
 	//modified version to get Location details as per configured Masterdata 
-	public static Hashtable<String,List<MosipLocationModel>> generate_old(int count, String country) {
+	public static Hashtable<String,List<MosipLocationModel>> generate_old(int count, String country,String contextKey) {
 		
 		Hashtable<String,List<MosipLocationModel>> tbl = new Hashtable<String,List<MosipLocationModel>>();
 
-		HashMap<String,LocationHierarchyModel[]> locHi = MosipMasterData.getAllLocationHierarchies();
+		HashMap<String,LocationHierarchyModel[]> locHi = MosipMasterData.getAllLocationHierarchies(contextKey);
 		Set<String> langSet = locHi.keySet();
 		langSet.forEach( (langcode) ->{
 			List<MosipLocationModel> locations = new ArrayList<MosipLocationModel>();
@@ -48,7 +48,7 @@ public class LocationProvider {
 			if(country != null) {
 				for(LocationHierarchyModel m: locHierachies) {
 					if(m.getIsActive()  && m.getHierarchyLevelName().toLowerCase().equals("country")) {
-						rootlist = MosipMasterData.getLocationsByLevel(locHierachies[nLoop].getHierarchyLevelName());
+						rootlist = MosipMasterData.getLocationsByLevel(locHierachies[nLoop].getHierarchyLevelName(),contextKey);
 						break;
 					}
 					nLoop++;	
@@ -57,7 +57,7 @@ public class LocationProvider {
 			else
 			do {
 				if(locHierachies[nLoop].getIsActive())
-					rootlist = MosipMasterData.getLocationsByLevel(locHierachies[nLoop].getHierarchyLevelName());
+					rootlist = MosipMasterData.getLocationsByLevel(locHierachies[nLoop].getHierarchyLevelName(),contextKey);
 				nLoop++;
 			}while(nLoop < locHierachies.length  && (rootlist == null || rootlist.isEmpty() ));
 			
@@ -65,7 +65,7 @@ public class LocationProvider {
 				MosipLocationModel rootLoc =null;
 				List<MosipLocationModel> list =null;
 				for( MosipLocationModel rlm: rootlist) {
-					list = MosipMasterData.getImmedeateChildren(rlm.getCode(), langcode );
+					list = MosipMasterData.getImmedeateChildren(rlm.getCode(), langcode,contextKey );
 					if(list != null && !list.isEmpty()) {
 						rootLoc = rlm;	
 						locations.add( rootLoc);
@@ -77,7 +77,7 @@ public class LocationProvider {
 					
 					for(int i=1; i < locHierachies.length; i++) {
 						//List<MosipLocationModel> list = MosipMasterData.getLocationsByLevel(locHierachies[i].getHierarchyLevelName());
-						list = MosipMasterData.getImmedeateChildren(rootLoc.getCode(), langcode );
+						list = MosipMasterData.getImmedeateChildren(rootLoc.getCode(), langcode ,contextKey );
 				
 						if(list != null && !list.isEmpty()) {
 							int pos = 0;//CommonUtil.generateRandomNumbers(1, list.size()-1, 0)[0];

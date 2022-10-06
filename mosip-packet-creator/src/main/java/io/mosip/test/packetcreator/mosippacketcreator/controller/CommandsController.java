@@ -28,10 +28,12 @@ public class CommandsController {
 	@Autowired
     CommandsService commandsService;
 	
-	@GetMapping(value = "/exec/{testcaseId}/{IsSynchronous}")
+	@GetMapping(value = "/exec/{testcaseId}/{IsSynchronous}/{contextKey}")
     public @ResponseBody String execJob(
     		@PathVariable("testcaseId") String testcaseId,
-    		@PathVariable(name="IsSynchronous", required=true) Optional<Boolean> isSync) {
+    		@PathVariable(name="IsSynchronous", required=true) Optional<Boolean> isSync,
+    		@PathVariable("contextKey") String contextKey
+    		) {
 		boolean bSync = false;
 		if(isSync.isPresent())
 			bSync = isSync.get();
@@ -41,8 +43,10 @@ public class CommandsController {
 	
 	@ApiOperation(value = "Upload a file to packet-utility configured folder. API Returns the Path", response = String.class)
 	
-	@PostMapping("/uploadFile")
-	public @ResponseBody String uploadFile(@RequestParam("file") MultipartFile file) {
+	@PostMapping("/uploadFile/{contextKey}")
+	public @ResponseBody String uploadFile(@RequestParam("file") MultipartFile file,
+			@PathVariable("contextKey") String contextKey
+			) {
 
 		String fileName ="";
 		try {
@@ -55,24 +59,30 @@ public class CommandsController {
 	}
 	@ApiOperation(value = "Update Status of execution: Key - any unique key, Status ->  inUse | Free", response = String.class)
 	
-	@PutMapping("/status")
-	public @ResponseBody String updateStatus(@RequestParam("key") String key, @RequestParam("status") String status) {
+	@PutMapping("/status/{contextKey}")
+	public @ResponseBody String updateStatus(
+			@RequestParam("key") String key, @RequestParam("status") String status,
+			@PathVariable("contextKey") String contextKey
+			
+			) {
 
 		String timeStamp = CommonUtil.getUTCDateTime(null);
-		VariableManager.setVariableValue(key,status);
-		VariableManager.setVariableValue(key +"_ts",timeStamp);
+		VariableManager.setVariableValue(contextKey,key,status);
+		VariableManager.setVariableValue(contextKey,key +"_ts",timeStamp);
 		
 		return "{\"Success\"}";
 	}
 
 	@ApiOperation(value = "Get Status of execution: Key - any unique key, Status ->  inUse | Free", response = String.class)
 	
-	@GetMapping("/status")
-	public @ResponseBody String getStatus(@RequestParam("key") String key) {
+	@GetMapping("/status/{contextKey}")
+	public @ResponseBody String getStatus(@RequestParam("key") String key,
+			@PathVariable("contextKey") String contextKey
+			) {
 
 		try {
-			String ts = VariableManager.getVariableValue(key +"_ts").toString();
-			String stsVal = VariableManager.getVariableValue(key).toString();
+			String ts = VariableManager.getVariableValue(contextKey,key +"_ts").toString();
+			String stsVal = VariableManager.getVariableValue(contextKey,key).toString();
 			JSONObject json = new JSONObject();
 			json.put(key, stsVal);
 			json.put("ts", ts);
@@ -84,14 +94,15 @@ public class CommandsController {
 		return "{\"Free\"}";
 	}
 
-	@PostMapping("/writeFile")
+	@PostMapping("/writeFile/{contextKey}")
 	public @ResponseBody String writeToFile(@RequestParam("offset") long offset,
-			@RequestBody Properties reqestData ) {
+			@RequestBody Properties reqestData,
+			@PathVariable("contextKey") String contextKey) {
 
 
 		try {
 
-			return commandsService.writeToFile(reqestData, offset);
+			return commandsService.writeToFile(contextKey,reqestData, offset);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -102,8 +113,9 @@ public class CommandsController {
 	
 	@ApiOperation(value = "Verify target environment (context) is available", response = String.class)
 	
-	@GetMapping("/ping")
-	public @ResponseBody String checkContext(@RequestParam(name="module", required = false) String module, @RequestParam("contextKey") String contextKey) {
+	@GetMapping("/ping/{contextKey}")
+	public @ResponseBody String checkContext(@RequestParam(name="module", required = false) String module,
+			@PathVariable("contextKey") String contextKey) {
 	
 		try {
 
@@ -115,25 +127,13 @@ public class CommandsController {
 		}
 		return "{Failed}";
 	}
-	/*
-	@GetMapping("/kube/all")
-	public @ResponseBody String getAllPods(@RequestParam(name="contextKey",required = false) String contextKey) {
-
-		String response ="";
-		try {
-			 response = commandsService.getAllPods(contextKey);
-		} catch (IOException | ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return response;
-	}*/
 	
 	@ApiOperation(value = "Generate privatekey based on machineId", response = String.class)
-	@GetMapping(value = "/generatekey/{machineId}")
-	public String generatekey(@PathVariable String machineId) {
+	@GetMapping(value = "/generatekey/{machineId}/{contextKey}")
+	public String generatekey(@PathVariable String machineId,
+			@PathVariable("contextKey") String contextKey) {
 		try {
-			return commandsService.generatekey(machineId);
+			return commandsService.generatekey(contextKey,machineId);
 		} catch (Exception e) {
 
 			e.printStackTrace();
