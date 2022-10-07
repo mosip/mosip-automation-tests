@@ -246,7 +246,7 @@ public class MDSClient implements MDSClientInterface {
 				model.setDeviceServiceVersion ( CommonUtil.getJSONObjectAttribute(jsonPayload,"deviceServiceVersion",""));
 				model.setDeviceCode( CommonUtil.getJSONObjectAttribute(jsonPayload,"deviceCode",""));
 				model.setHash(hash);
-				if(mosipVersion!=null && mosipVersion.equalsIgnoreCase("1.2")) {
+				if(mosipVersion!=null && mosipVersion.startsWith("1.2")) {
 				model.setSb(jwtSign); // SB is signature block (header..signature)
 				//String temp=jwtTok.getJwtPayload().replace(model.getBioValue(),);
 				
