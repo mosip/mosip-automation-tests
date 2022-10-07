@@ -448,7 +448,7 @@ public class BiometricDataProvider {
 			}
 		}
 		
-		if (mosipVersion != null && mosipVersion.equalsIgnoreCase("1.2") && !bioSubType.isEmpty()) {
+		if (mosipVersion != null && mosipVersion.startsWith("1.2") && !bioSubType.isEmpty()) {
 			builder.e("Others").e("Key").t("CONFIGURED").up().e("Value")
 					.t(bioSubType.toString().substring(1, bioSubType.toString().length() - 1)).up().up();
 		}
