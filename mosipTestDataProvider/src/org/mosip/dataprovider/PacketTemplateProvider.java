@@ -146,7 +146,7 @@ public class PacketTemplateProvider {
 		// Generate evidence json
 
 		//String evidenceJson = generateEvidenceJson(resident, fileInfo);
-		String evidenceJson = generateEvidenceJsonV2(resident, fileInfo);
+		String evidenceJson = generateEvidenceJsonV2(resident, fileInfo,contextKey);
 		Files.write(Paths.get(rid_evidence_folder + "/ID.json"), evidenceJson.getBytes());
 		Files.write(Paths.get(rid_evidence_folder + "/packet_meta_info.json"), metadataJson.getBytes());
 
@@ -257,7 +257,7 @@ public class PacketTemplateProvider {
 		return allIdentityDetails;
 	}
 
-	String generateEvidenceJson(ResidentModel resident, HashMap<String, String[]> fileInfo) {
+	String generateEvidenceJson(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey) {
 
 		JSONObject identity = new JSONObject();
 
@@ -353,7 +353,7 @@ public class PacketTemplateProvider {
 						}
 
 						updateSimpleType(s.getId(), identity, primValue, secValue, resident.getPrimaryLanguage(),
-								resident.getSecondaryLanguage(), resident.getThirdLanguage());
+								resident.getSecondaryLanguage(), resident.getThirdLanguage(),contextKey);
 
 					}
 					continue;
@@ -365,13 +365,13 @@ public class PacketTemplateProvider {
 				} else {
 					primVal = "Some text value";
 					if (resident.getSecondaryLanguage() != null)
-						secVal = Translator.translate(resident.getSecondaryLanguage(), primVal);
+						secVal = Translator.translate(resident.getSecondaryLanguage(), primVal,contextKey);
 
 				}
 				if (s.getType().equals("simpleType")) {
 
 					updateSimpleType(s.getId(), identity, primVal, secVal, resident.getPrimaryLanguage(),
-							resident.getSecondaryLanguage(), resident.getThirdLanguage());
+							resident.getSecondaryLanguage(), resident.getThirdLanguage(),contextKey);
 
 				} else {
 					identity.put(s.getId(), primVal.equals("") ? JSONObject.NULL : primVal);
@@ -384,7 +384,7 @@ public class PacketTemplateProvider {
 
 	}
 	
-	String generateEvidenceJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo) {
+	String generateEvidenceJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey) {
 
 		JSONObject identity = new JSONObject();
 		List<String> missList = resident.getMissAttributes();
@@ -477,7 +477,7 @@ public class PacketTemplateProvider {
 						}
 
 						updateSimpleType(s.getId(), identity, primValue, secValue, resident.getPrimaryLanguage(),
-								resident.getSecondaryLanguage(), resident.getThirdLanguage());
+								resident.getSecondaryLanguage(), resident.getThirdLanguage(), contextKey);
 
 					}
 					continue;
@@ -489,13 +489,13 @@ public class PacketTemplateProvider {
 				} else {
 					primVal = "Some text value";
 					if (resident.getSecondaryLanguage() != null)
-						secVal = Translator.translate(resident.getSecondaryLanguage(), primVal);
+						secVal = Translator.translate(resident.getSecondaryLanguage(), primVal,contextKey);
 
 				}
 				if (s.getType().equals("simpleType")) {
 
 					updateSimpleType(s.getId(), identity, primVal, secVal, resident.getPrimaryLanguage(),
-							resident.getSecondaryLanguage(), resident.getThirdLanguage());
+							resident.getSecondaryLanguage(), resident.getThirdLanguage(), contextKey);
 
 				} else {
 					identity.put(s.getId(), primVal.equals("") ? JSONObject.NULL : primVal);
@@ -591,17 +591,17 @@ public class PacketTemplateProvider {
 	}
 
 	JSONObject updateSimpleType(String id, JSONObject identity, String primValue, String secValue, String primLang,
-			String secLang, String thirdLang) {
+			String secLang, String thirdLang, String contextKey) {
 
 		if (primValue == null)
 			primValue = "Some Text Value";
 
 		if ((secValue == null || secValue.equals("")) && secLang != null && !secLang.equals(""))
-			secValue = Translator.translate(secLang, primValue);
+			secValue = Translator.translate(secLang, primValue,contextKey);
 
 		String thirdValue = "";
 		if (thirdLang != null && !thirdLang.equals(""))
-			thirdValue = Translator.translate(thirdLang, primValue);
+			thirdValue = Translator.translate(thirdLang, primValue,contextKey);
 
 		// array
 		JSONArray ar = new JSONArray();
@@ -754,7 +754,7 @@ public class PacketTemplateProvider {
 	}
 
 	public static Pair<String, String> processAddresslines(MosipIDSchema s, ResidentModel resident,
-			JSONObject identity) {
+			JSONObject identity,String contextKey) {
 		String addr = null;
 		String addr_sec="";
 			
@@ -790,14 +790,14 @@ public class PacketTemplateProvider {
 					);
 			
 				if(resident.getSecondaryLanguage() != null)
-					addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+					addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr, contextKey);
 			}
 			else
 			{
 				if(resident.getSecondaryLanguage() != null) {
 					addr_sec = resident.getAddress_seclang()[index];
 					if(addr_sec == null)
-						addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr);
+						addr_sec =Translator.translate(resident.getSecondaryLanguage(),addr,contextKey);
 				
 				}
 				
@@ -834,7 +834,7 @@ public class PacketTemplateProvider {
 
 	}
 
-	private static Boolean updateFromAdditionalAttribute(JSONObject identity, MosipIDSchema s, ResidentModel resident) {
+	private static Boolean updateFromAdditionalAttribute(JSONObject identity, MosipIDSchema s, ResidentModel resident,String contextKey) {
 		Boolean bRet = false;
 		Hashtable<String,String> addtnAttr = resident.getAddtionalAttributes();
 		if(addtnAttr == null) 
@@ -856,7 +856,7 @@ public class PacketTemplateProvider {
 					//	e.printStackTrace();
 					}
 					if(jsonO == null) {
-						String secValue = Translator.translate(resident.getSecondaryLanguage(),value);
+						String secValue = Translator.translate(resident.getSecondaryLanguage(),value,contextKey);
 						CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(), resident.getSecondaryLanguage(),
 								value,secValue,true);
 					}
@@ -974,7 +974,7 @@ public class PacketTemplateProvider {
 			if ( !s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
 				continue;
 			}
-			if (updateFromAdditionalAttribute(identity, s, resident)) {
+			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
 				continue;
 			}
 			if (processDynamicFields(s, identity, resident))
@@ -1042,7 +1042,7 @@ public class PacketTemplateProvider {
 						if (secLanguage != null)
 							secValue = "Y";
 					} else {
-						Pair<String, String> addrLines = processAddresslines(s, resident, identity);
+						Pair<String, String> addrLines = processAddresslines(s, resident, identity, contextKey);
 						primaryValue = addrLines.getValue0();
 						secValue = addrLines.getValue1();
 					}
@@ -1199,7 +1199,7 @@ public class PacketTemplateProvider {
 							secGValue = resident.getGuardian().getName_seclang().getFirstName();
 
 						updateSimpleType(s.getId(), identity, primValue, secGValue, resident.getPrimaryLanguage(),
-								resident.getSecondaryLanguage(), resident.getThirdLanguage());
+								resident.getSecondaryLanguage(), resident.getThirdLanguage(),contextKey);
 
 					}
 				} else if (s.getInputRequired() && s.getId().contains("IdentityNumber")) {
@@ -1252,7 +1252,7 @@ public class PacketTemplateProvider {
 				if (primaryValue == null || primaryValue.equals("")) {
 					primaryValue = generateDefaultAttributes(s, resident, identity);
 					if (secLanguage != null) {
-						secValue = Translator.translate(secLanguage, primaryValue);
+						secValue = Translator.translate(secLanguage, primaryValue,contextKey);
 					}
 				}
 
@@ -1261,7 +1261,7 @@ public class PacketTemplateProvider {
 				) {
 
 					updateSimpleType(s.getId(), identity, primaryValue, secValue, primaryLanguage, secLanguage,
-							resident.getThirdLanguage());
+							resident.getThirdLanguage(),contextKey);
 
 				} else {
 					// if(s.getRequired() && (primaryValue == null || primaryValue.equals(""))) {
@@ -1342,7 +1342,7 @@ public class PacketTemplateProvider {
 			}
 
 
-			if (updateFromAdditionalAttribute(identity, s, resident)) {
+			if (updateFromAdditionalAttribute(identity, s, resident,contextKey)) {
 				continue;
 			}
 			if (processDynamicFields(s, identity, resident))
@@ -1382,7 +1382,7 @@ public class PacketTemplateProvider {
 						if (secLanguage != null)
 							secValue = "Y";
 					} else {
-						Pair<String, String> addrLines = processAddresslines(s, resident, identity);
+						Pair<String, String> addrLines = processAddresslines(s, resident, identity, contextKey);
 						primaryValue = addrLines.getValue0();
 						secValue = addrLines.getValue1();
 					}
@@ -1490,7 +1490,7 @@ public class PacketTemplateProvider {
 							secGValue = resident.getGuardian().getName_seclang().getFirstName();
 
 						updateSimpleType(s.getId(), identity, primValue, secGValue, resident.getPrimaryLanguage(),
-								resident.getSecondaryLanguage(), resident.getThirdLanguage());
+								resident.getSecondaryLanguage(), resident.getThirdLanguage(), contextKey);
 
 					}
 					continue;
@@ -1585,14 +1585,14 @@ public class PacketTemplateProvider {
 				if (primaryValue == null || primaryValue.equals("")) {
 					primaryValue = generateDefaultAttributes(s, resident, identity);
 					if (secLanguage != null) {
-						secValue = Translator.translate(secLanguage, primaryValue);
+						secValue = Translator.translate(secLanguage, primaryValue, contextKey);
 					}
 				}
 
 				if (s.getType().equals("simpleType")) {
 
 					updateSimpleType(s.getId(), identity, primaryValue, secValue, primaryLanguage, secLanguage,
-							resident.getThirdLanguage());
+							resident.getThirdLanguage(), contextKey);
 
 				} else {
 					if (primaryValue.equals(""))

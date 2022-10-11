@@ -233,7 +233,7 @@ public class TestDataController {
     		logger.info("personaAnguliPath ="+ DataProviderConstants.ANGULI_PATH );
     		
     		logger.info("Resource Path="+ DataProviderConstants.RESOURCE );
-    		logger.info("DOC_Template Path="+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.documentsdatapath").toString());
+    		logger.info("DOC_Template Path="+ VariableManager.getVariableValue(contextKey,"mosip.test.persona.documentsdatapath").toString());
     		
     		//clear all tokens
     //		VariableManager.setVariableValue("urlSwitched", "true");

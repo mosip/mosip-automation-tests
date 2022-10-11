@@ -1194,7 +1194,7 @@ return functionResponse;
 				List<String> regenAttrs = req.getRegenAttributeList();
 				if(regenAttrs != null) {
 					for(String attr: regenAttrs) {
-						ResidentDataProvider.updateBiometric(persona, attr);
+						ResidentDataProvider.updateBiometric(persona, attr,contextKey);
 
 					}
 				}

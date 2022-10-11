@@ -92,14 +92,14 @@ public class LocationProvider {
 		
 		return tbl;
 	}
-	public static List<Location> generateFromFile(String countryIsoCode,int count) {
+	public static List<Location> generateFromFile(String countryIsoCode,int count,String contextKey) {
 		
 		List<Location> locations = new ArrayList<Location>();
 		CountryModel country;
 		try {
-			country = CountryProvider.load(countryIsoCode);
+			country = CountryProvider.load(countryIsoCode,contextKey);
 			List<StateModel> states =StateProvider.load(country.getIso2());
-			List<CityModel> cities = CityProvider.load(countryIsoCode);
+			List<CityModel> cities = CityProvider.load(countryIsoCode,contextKey);
 
 			Random rand = new Random();
 	

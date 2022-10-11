@@ -54,6 +54,7 @@ import org.springframework.stereotype.Service;
 import com.jamesmurty.utils.XMLBuilder;
 //import java.util.Date;
 
+import ch.qos.logback.classic.Logger;
 import io.mosip.mock.sbi.test.CentralizedMockSBI;
 import variables.VariableManager;
 
@@ -598,7 +599,7 @@ public class BiometricDataProvider {
 	}
 	*/
 	 
-	public static BiometricDataModel getBiometricData(Boolean bFinger) throws IOException {
+	public static BiometricDataModel getBiometricData(Boolean bFinger,String contextKey) throws IOException {
 	
 		BiometricDataModel data = new BiometricDataModel();
 		
@@ -690,12 +691,76 @@ public class BiometricDataProvider {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}else
+			{
+				
+				
+				//reach cached finger prints from folder
+				String dirPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
+				System.out.println("dirPath " + dirPath);
+				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
+				File dir = new File(dirPath);
+
+				File listDir[] = dir.listFiles();
+				int numberOfSubfolders = listDir.length;
+
+				int min=1;
+				int max=numberOfSubfolders ;
+				int randomNumber = (int) (Math.random()*(max-min)) + min;
+					String beforescenario=VariableManager.getVariableValue(contextKey,"scenario").toString();
+					String afterscenario=beforescenario.substring(0, beforescenario.indexOf(':'));
+						
+				int currentScenarioNumber = Integer.valueOf(afterscenario);
+				
+				System.out.println("beforescenario" +beforescenario + "afterscenario="+afterscenario);		
+				// If the available impressions are less than scenario number, pick the random one
+
+				// otherwise pick the impression of same of scenario number
+				int impressionToPick = (numberOfSubfolders < currentScenarioNumber) ? currentScenarioNumber : randomNumber ;
+
+				for(int i=min; i <= max; i++) {
+					
+					List<File> lst = CommonUtil.listFiles(dirPath +
+							String.format("/Impression_%d/fp_1/", i));
+					tblFiles.put(i,lst);
+				}
+				String [] fingerPrints = new String[10];
+				String [] fingerPrintHash = new String[10];
+				byte[][] fingerPrintRaw = new byte[10][1];
+				List<File> firstSet = tblFiles.get(impressionToPick);
+				System.out.println("Impression used "+ impressionToPick);
+				
+				int index = 0;
+				for(File f: firstSet) {
+					
+					if(index >9) break;
+					 Path path = Paths.get(f.getAbsolutePath());
+					 byte[] fdata;
+					try {
+						fdata = Files.readAllBytes(path);
+						fingerPrintRaw[index] = fdata;
+						fingerPrints[index]= Base64.getEncoder().encodeToString(fdata);
+
+						fingerPrintHash[index] =CommonUtil.getHexEncodedHash(fdata);
+				
+					} catch (  Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					index++;
+					 
+				}
+				data.setFingerPrint(fingerPrints);
+				data.setFingerHash(fingerPrintHash);
+	data.setFingerRaw(fingerPrintRaw);
+					
 			}
-			else
+		
+			/*else
 			{
 				//reach cached finger prints from folder 
 				//DataProviderConstants.RESOURCE +"/fingerprints/";
-				String dirPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.fingerprintdatapath").toString();
+				String dirPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
 			System.out.println("dirPath " + dirPath);
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				int min=1;
@@ -739,7 +804,7 @@ public class BiometricDataProvider {
 	data.setFingerRaw(fingerPrintRaw);
 					
 				
-			}
+			} */ 
 		}
 		return data;
 	}
@@ -808,7 +873,7 @@ System.out.println("Anguli commands" + commands);
 		return m;
 	}
 	//Left Eye, Right Eye
-	static List<IrisDataModel> generateIris(int count) throws Exception{
+	static List<IrisDataModel> generateIris(int count,String contextKey) throws Exception{
 	
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
 		
@@ -858,7 +923,7 @@ System.out.println("Anguli commands" + commands);
 		}
 		else
 		{
-			String srcPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.irisdatapath").toString(); 
+			String srcPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.irisdatapath").toString(); 
 			int []index = CommonUtil.generateRandomNumbers(count, 224, 1);
 			
 			for(int i=0; i < count; i++) {
@@ -912,7 +977,7 @@ System.out.println("Anguli commands" + commands);
 		}
 		
 		try {
-			List<IrisDataModel> m = generateIris(1);
+			List<IrisDataModel> m = generateIris(1,"contextKey");
 			m.forEach( im -> {
 				System.out.println(im.getLeftHash());
 				System.out.println(im.getRightHash());
@@ -925,7 +990,7 @@ System.out.println("Anguli commands" + commands);
 		
 		BiometricDataModel bio = null;
 		try {
-			bio = getBiometricData(true);
+			bio = getBiometricData(true,"contextkey");
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
