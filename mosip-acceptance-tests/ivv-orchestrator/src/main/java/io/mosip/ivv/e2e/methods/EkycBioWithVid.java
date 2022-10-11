@@ -10,11 +10,13 @@ import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestRunner;
 import io.mosip.testscripts.BioAuth;
+import io.mosip.testscripts.BioAuthOld;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 
@@ -27,7 +29,7 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		 AuthPartnerProcessor.startProcess();
+		 //AuthPartnerProcessor.startProcess();
 		 String _personFilePath = null;
 		 String deviceInfoFilePath = null;
 		String vids = null;
@@ -109,6 +111,10 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue!= null) {
 					String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
+					
+					byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
+					bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
+					
 					if(bioValue== null || bioValue.length()<100)
 						throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
 					for (Object object : casesList) {

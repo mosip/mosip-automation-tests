@@ -1,20 +1,12 @@
 BioAuth:
   Ida_BioAuth_Biometric_Valid_Smoke_Pos:
-      endPoint: /idauthentication/v1/auth/$PartnerKey$
-      role: ida
+      endPoint: /v1/identity/authenticate?id=uinnumber&partnerUrlSuffix=$PartnerKey$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
+      role: resident
       restMethod: post
-      inputTemplate: idaData/BioAuth/bioAuth
-      outputTemplate: idaData/BioAuth/bioAuthResult
+      inputTemplate: idaData/BioAuth/BioAuth
+      outputTemplate: idaData/BioAuth/BioAuthResult
       input: '{
-		"requestTime": "$TIMESTAMP$",
-		"individualId": "uinnumber",
-		"transactionId": "1234567890",
-	    "individualIdType": "UIN",
-        "bio": true,
-        "demo": false,
-        "otp": false,
-		"identityRequest":{
-          "bioSubType": "UNKNOWN",
+          "bioSubType": "",
           "bioType": "FACE",
           "bioValue": "BioValue",
           "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
@@ -29,11 +21,9 @@ BioAuth:
           "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
           "serialNo": "78467171",
           "type": "Face",
-    "transactionId": "1234567890",
-	"identityRequestTemplate": "idaData/BioAuth/BioAuthIdentityEncrypt",
-	"identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
-	}
-	}'
+          "transactionId": "1234567890",
+          "timestamp": "$TIMESTAMP$"
+    }'
       output: '{
-  "authStatus": "true"
+    "authStatus": "true"
 }'

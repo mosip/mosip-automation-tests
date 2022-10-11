@@ -26,7 +26,7 @@ import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestRunner;
-import io.mosip.testscripts.BioAuth;
+import io.mosip.testscripts.BioAuthOld;
 import io.mosip.testscripts.DemoAuth;
 import io.mosip.testscripts.OtpAuth;
 import io.mosip.testscripts.PostWithBodyWithOtpGenerate;
