@@ -20,7 +20,7 @@ import variables.VariableManager;
 
 public class PhotoProvider {
 	static String Photo_File_Format = "/photo_%02d.jpg";
-	static byte[][] getPhoto(int idx, String gender) {
+	static byte[][] getPhoto(int idx, String gender,String contextKey) {
 		//String encodedImage="";
 		//String hexHash ="";
 		byte[] bencoded =null;
@@ -44,7 +44,7 @@ public class PhotoProvider {
 			}
 			else
 			{
-				img = ImageIO.read(new File(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.facedatapath").toString()+"/" + gender.toLowerCase() + photoFile));
+				img = ImageIO.read(new File(VariableManager.getVariableValue(contextKey,"mosip.test.persona.facedatapath").toString()+"/" + gender.toLowerCase() + photoFile));
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
@@ -69,14 +69,14 @@ public class PhotoProvider {
 		}             
 		return new byte[][] {bencoded, bData};
 	}
-	static void splitImages() {
+	static void splitImages(String contextKey) {
 		///125 x129
 		try {
-			final BufferedImage source = ImageIO.read(new File(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.facedatapath").toString()+"/female/celebrities.jpg"));
+			final BufferedImage source = ImageIO.read(new File(VariableManager.getVariableValue(contextKey,"mosip.test.persona.facedatapath").toString()+"/female/celebrities.jpg"));
 			int idx =0;
 			for (int y = 0; y < source.getHeight()-129; y += 129) {
 				for (int x = 0; x < source.getWidth()-125; x += 125) {
-					ImageIO.write(source.getSubimage(x, y, 125, 129), "jpg", new File(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.facedatapath").toString()+"/female/photo_" + idx++ + ".jpg"));
+					ImageIO.write(source.getSubimage(x, y, 125, 129), "jpg", new File(VariableManager.getVariableValue(contextKey,"mosip.test.persona.facedatapath").toString()+"/female/photo_" + idx++ + ".jpg"));
 				}
 			}			
 		} catch (IOException e) {
@@ -155,7 +155,7 @@ public class PhotoProvider {
 		
 	public static void main(String [] args) throws IOException {
 		//splitImages();
-		byte[][] strImg = getPhoto(21,Gender.Male.name());
+		byte[][] strImg = getPhoto(21,Gender.Male.name(),"contextKey");
 		//Files.write(strImg[0].getBytes(), new File( "c:\\temp\\photo.txt"));
 		//System.out.println(strImg);
 		

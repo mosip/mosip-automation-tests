@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 //import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +39,7 @@ import io.mosip.test.packetcreator.mosippacketcreator.dto.webSubEventModel;
 import io.mosip.test.packetcreator.mosippacketcreator.service.CryptoCoreUtil;
 
 import io.swagger.annotations.Api;
+import variables.VariableManager;
 
 @Api(value = "PrintController", description = "REST APIs for Websub subscription client")
 @RequestMapping(value = "/print")
@@ -58,7 +60,7 @@ public class PrintController {
 	@Value("${mosip.test.print.event.secret}")
 	private String websubSecret;
 
-	@Value("${mosip.test.temp}")
+	//@Value("${mosip.test.temp}")
 	private String tempPath;
 	
 	private static final Logger logger = LoggerFactory.getLogger(preRegController.class);
@@ -67,19 +69,20 @@ public class PrintController {
 	 @PostMapping(value = "/print/callback",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	 @PreAuthenticateContentAndVerifyIntent(secret = "${mosip.test.print.event.secret}",
 	 		callback = "/print/print/callback",topic = "${mosip.test.print.topic}")
-	 	public ResponseEntity<String>  printPost(@RequestBody webSubEventModel  eventModel) throws Exception {
+	 	public ResponseEntity<String>  printPost(@RequestBody webSubEventModel  eventModel,
+	 			@PathVariable("contextKey") String contextKey) throws Exception {
 	
 		 logger.info("Print callback fired");
 		 String credential = eventModel.getEvent().getData().get("credential").toString();
 		 String ecryptionPin = eventModel.getEvent().getData().get("protectionKey").toString();
 		 String decodedCrdential = cryptoCoreUtil.decrypt(credential);
 		 logger.info(decodedCrdential);
-		 saveCreds(decodedCrdential);
+		 saveCreds(decodedCrdential,contextKey);
 		 return new ResponseEntity<>("successfully printed", HttpStatus.OK);
 	 }
 	
-	 private void saveCreds(String creds) {
-		File credsPath = new File(tempPath + "/creds/");
+	 private void saveCreds(String creds,String contextKey) {
+		File credsPath = new File(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString() + "/creds/");
 		if (!credsPath.exists()){
 			credsPath.mkdirs();
 		}
