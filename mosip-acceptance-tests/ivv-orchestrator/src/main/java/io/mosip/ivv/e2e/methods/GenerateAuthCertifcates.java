@@ -9,8 +9,7 @@ import io.mosip.ida.certificate.PartnerRegistration;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.testscripts.PostWithBodyWithOtpGenerate;
-import io.restassured.response.Response;
+
 
 public class GenerateAuthCertifcates extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(GenerateAuthCertifcates.class);
@@ -18,16 +17,19 @@ public class GenerateAuthCertifcates extends BaseTestCaseUtil implements StepInt
 
 	@Override
 	public void run() throws RigInternalError {
-		 AuthPartnerProcessor.startProcess();
+		//AuthPartnerProcessor.startProcess();
 		PartnerRegistration.deleteCertificates();
 		CertificateGenerationUtil.getThumbprints();
 		AdminTestUtil.createAndPublishPolicy();
 		
 		PartnerRegistration.generateAndGetPartnerKeyUrl();
 		String partnerKeyUrl= PartnerRegistration.partnerKeyUrl;
+		String uriParts[] = PartnerRegistration.partnerKeyUrl.split("/");
+		partnerId = uriParts[uriParts.length - 2];
 		System.out.println(partnerKeyUrl);
 		BaseTestCaseUtil.partnerKeyUrl=partnerKeyUrl;
 		System.out.println(partnerKeyUrl);
+		
 		
 	}
 }
