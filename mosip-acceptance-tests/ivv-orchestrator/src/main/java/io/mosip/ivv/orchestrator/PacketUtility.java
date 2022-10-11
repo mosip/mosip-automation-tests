@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.testscripts.BioAuth;
+import io.mosip.testscripts.BioAuthOld;
 import io.restassured.response.Response;
 
 public class PacketUtility extends BaseTestCaseUtil {
@@ -889,37 +891,41 @@ centerId=10002
 
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
 			BioAuth bioAuth) throws RigInternalError {
-
-		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", deviceProps.getProperty("partnerKey")));
+		
+		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
+		test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
+		test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioSubType"),
-				"identityRequest.bioSubType");
+				"bioSubType");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioType"),
-				"identityRequest.bioType");
+				"bioType");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceCode"),
-				"identityRequest.deviceCode");
+				"deviceCode");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceProviderID"),
-				"identityRequest.deviceProviderID");
+				"deviceProviderID");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceServiceID"),
-				"identityRequest.deviceServiceID");
+				"deviceServiceID");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceServiceVersion"),
-				"identityRequest.deviceServiceVersion");
+				"deviceServiceVersion");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceProvider"),
-				"identityRequest.deviceProvider");
+				"deviceProvider");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceSubType"),
-				"identityRequest.deviceSubType");
+				"deviceSubType");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("make"),
-				"identityRequest.make");
+				"make");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("model"),
-				"identityRequest.model");
+				"model");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("serialNo"),
-				"identityRequest.serialNo");
+				"serialNo");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"),
-				"identityRequest.type");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("individualIdType"),
-				"individualIdType");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
+				"type");
+		/*
+		 * input = JsonPrecondtion.parseAndReturnJsonContent(input,
+		 * deviceProps.getProperty("individualIdType"), "individualIdType");
+		 */
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "bioValue");
 		test.setInput(input);
 		Reporter.log("<b><u>" + test.getTestCaseName() + "_" + modility + "</u></b>");
 
@@ -928,7 +934,7 @@ centerId=10002
 		} catch (AuthenticationTestException | AdminTestException e) {
 			throw new RigInternalError(e.getMessage());
 		} finally {
-			AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+			//AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
 
 		}
 	}
@@ -947,7 +953,10 @@ centerId=10002
 			throw new RigInternalError(
 					"Unable to retrive BiometricData " + retriveAttributeList + " from packet utility");
 		logger.info("Response : " + response.getBody().asString());
+		
+		
 		return response.getBody().asString();
+		
 
 	}
 
@@ -1355,7 +1364,7 @@ centerId=10002
 	}
 
 	public void operatorOnboardAuth(String modility, String bioValue, String user, TestCaseDTO test,
-			BioAuth bioAuth, String individualIdType,Properties deviceProps ) throws RigInternalError {
+			BioAuthOld bioAuth, String individualIdType,Properties deviceProps ) throws RigInternalError {
 
 		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", deviceProps.getProperty("partnerKey")));
 		String input = test.getInput();

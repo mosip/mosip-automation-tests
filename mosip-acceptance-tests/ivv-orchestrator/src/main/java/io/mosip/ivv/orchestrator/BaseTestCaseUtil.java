@@ -67,6 +67,7 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static String prid_updateResident=null;
 	public static String scenario = null;
 	public static String partnerKeyUrl = null;
+	public static String partnerId = null;
 	public BaseTestCaseUtil() {}
 	
 	public String getDateTime() {
