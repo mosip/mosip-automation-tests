@@ -253,7 +253,7 @@ public class CreatePersona {
 			else
 			if(schemaItem.getId().toLowerCase().contains("address")) {
 			
-				Pair<String,String> addrLines = PacketTemplateProvider.processAddresslines(schemaItem, resident, identity);
+				Pair<String,String> addrLines = PacketTemplateProvider.processAddresslines(schemaItem, resident, identity,contextKey);
 				
 				constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 							resident.getSecondaryLanguage(),

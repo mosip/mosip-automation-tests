@@ -234,7 +234,7 @@ public class BiometricFingerPrintProvider {
 		
 	}
 	*/
-	public static BiometricDataModel getBiometricData(Boolean bFinger) {
+	public static BiometricDataModel getBiometricData(Boolean bFinger,String contextKey) {
 	
 		BiometricDataModel data = new BiometricDataModel();
 		
@@ -276,7 +276,7 @@ public class BiometricFingerPrintProvider {
 			else
 			{
 				//reach cached finger prints from folder 
-				String dirPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.fingerprintdatapath").toString();;
+				String dirPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();;
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				for(int i=1; i <= 2; i++) {
 					
@@ -349,11 +349,11 @@ public class BiometricFingerPrintProvider {
 		return tblFiles;
 	}
 	//Left Eye, Right Eye
-	static List<IrisDataModel> generateIris(int count) throws IOException{
+	static List<IrisDataModel> generateIris(int count,String contextKey) throws IOException{
 	
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
 		
-		String srcPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.irisdatapath").toString();
+		String srcPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.irisdatapath").toString();
 		int []index = CommonUtil.generateRandomNumbers(count, 224, 1);
 		for(int i=0; i < count; i++) {
 			String fPathL = srcPath + String.format("%03d", index[i]) + "/01_L.bmp";
@@ -384,7 +384,7 @@ public class BiometricFingerPrintProvider {
 	}
 	public static void main(String[] args) {
 		
-		BiometricDataModel bio= getBiometricData(true);
+		BiometricDataModel bio= getBiometricData(true,"contextKey");
 		
 		/*
 		Hashtable<Integer, List<File>> tblFiles =generateFingerprint(DataProviderConstants.ANGULI_PATH+"/fps",10, 2,4, FPClassDistribution.arch);

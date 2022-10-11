@@ -96,18 +96,18 @@ public class ResidentDataProvider {
 		ResidentModel guardian = provider.generate(contextKey).get(0);
 		return guardian;
 	}
-	public static ResidentModel updateBiometric(ResidentModel model,String bioType) throws Exception {
+	public static ResidentModel updateBiometric(ResidentModel model,String bioType,String contextKey) throws Exception {
 		boolean bDirty = false;
 		
 		if(bioType.equalsIgnoreCase("finger")) {
-			BiometricDataModel bioData = BiometricDataProvider.getBiometricData(true);
+			BiometricDataModel bioData = BiometricDataProvider.getBiometricData(true,contextKey);
 			model.getBiometric().setFingerPrint( bioData.getFingerPrint());
 			model.getBiometric().setFingerHash( bioData.getFingerHash());
 			bDirty = true;
 		}
 		else
 		if(bioType.equalsIgnoreCase("iris")) {
-			List<IrisDataModel> iris = BiometricDataProvider.generateIris(1);
+			List<IrisDataModel> iris = BiometricDataProvider.generateIris(1,contextKey);
 			if(iris != null && !iris.isEmpty()) {
 				model.getBiometric().setIris(iris.get(0));
 				bDirty = true;
@@ -116,7 +116,7 @@ public class ResidentDataProvider {
 		else
 		if(bioType.equalsIgnoreCase("face")) {
 			BiometricDataModel bioData = model.getBiometric();
-			byte[][] faceData = PhotoProvider.getPhoto(CommonUtil.generateRandomNumbers(1, DataProviderConstants.MAX_PHOTOS, 1)[0], model.getGender().name() );
+			byte[][] faceData = PhotoProvider.getPhoto(CommonUtil.generateRandomNumbers(1, DataProviderConstants.MAX_PHOTOS, 1)[0], model.getGender().name() , contextKey);
 			bioData.setEncodedPhoto(
 					Base64.getEncoder().encodeToString(faceData[0]));
 			bioData.setRawFaceData(faceData[1]);
@@ -349,11 +349,11 @@ public class ResidentDataProvider {
 		List<Name> eng_names = null;
 		
 		if(maleCount >0) {
-			eng_male_names = NameProvider.generateNames(Gender.Male,  DataProviderConstants.LANG_CODE_ENGLISH, maleCount, null);
+			eng_male_names = NameProvider.generateNames(Gender.Male,  DataProviderConstants.LANG_CODE_ENGLISH, maleCount, null,contextKey);
 			eng_names = eng_male_names;
 		}
 		if(femaleCount > 0) {
-			eng_female_names = NameProvider.generateNames(Gender.Female,  DataProviderConstants.LANG_CODE_ENGLISH, femaleCount, null);
+			eng_female_names = NameProvider.generateNames(Gender.Female,  DataProviderConstants.LANG_CODE_ENGLISH, femaleCount, null,contextKey);
 			if(eng_names != null)
 				eng_names.addAll(eng_female_names);
 			else
@@ -362,7 +362,7 @@ public class ResidentDataProvider {
 		
 		if(primary_lang != null) {
 			if(!primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
-				names_primary = NameProvider.generateNames(gender, primary_lang, count, eng_names);
+				names_primary = NameProvider.generateNames(gender, primary_lang, count, eng_names,contextKey);
 			}
 			else
 				names_primary = eng_names;
@@ -370,7 +370,7 @@ public class ResidentDataProvider {
 		}
 		if(sec_lang != null) {
 			if(!sec_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
-				names_sec = NameProvider.generateNames(gender, sec_lang, count, eng_names);
+				names_sec = NameProvider.generateNames(gender, sec_lang, count, eng_names,contextKey);
 			}
 			else
 				names_sec = eng_names;
@@ -403,7 +403,7 @@ public class ResidentDataProvider {
 		List<IrisDataModel> irisList = null;
 		try {
 			if(bIrisRequired)
-				irisList = BiometricDataProvider.generateIris(count);
+				irisList = BiometricDataProvider.generateIris(count,contextKey);
 		} catch (  Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -482,7 +482,7 @@ public class ResidentDataProvider {
 
 				for(int ii=0; ii< DataProviderConstants.MAX_ADDRESS_LINES; ii++) {
 					
-					addrP[ii] = Translator.translate(primLang, addr[ii]);
+					addrP[ii] = Translator.translate(primLang, addr[ii],contextKey);
 				}
 				res.setAddress(addrP);
 			}
@@ -493,7 +493,7 @@ public class ResidentDataProvider {
 				res.setLocation_seclang (  locations_secLang.getTblLocations().get(i));
 				String[] addr_sec = new String[DataProviderConstants.MAX_ADDRESS_LINES];
 				for(int ii=0; ii< DataProviderConstants.MAX_ADDRESS_LINES; ii++) {
-					addr_sec[ii] = Translator.translate(res.getSecondaryLanguage(), addr[ii]);
+					addr_sec[ii] = Translator.translate(res.getSecondaryLanguage(), addr[ii],contextKey);
 				}	
 				res.setAddress_seclang(addr_sec);
 			}
@@ -541,7 +541,7 @@ public class ResidentDataProvider {
 			
 			BiometricDataModel bioData =null;
 			try {
-				bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger);
+				bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger,contextKey);
 			} catch (IOException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
@@ -552,7 +552,7 @@ public class ResidentDataProvider {
 			Object bOFace = attributeList.get(ResidentAttribute.RA_Photo);
 			boolean bFace = ( bOFace == null ? true: (boolean)bOFace);
 			if(bFace) {
-				byte[][] faceData = PhotoProvider.getPhoto(idxes[i], res_gender.name() );
+				byte[][] faceData = PhotoProvider.getPhoto(idxes[i], res_gender.name(),contextKey );
 				bioData.setEncodedPhoto(
 						Base64.getEncoder().encodeToString(faceData[0]));
 				bioData.setRawFaceData(faceData[1]);

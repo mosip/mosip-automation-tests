@@ -11,19 +11,20 @@ import com.ibm.icu.text.Transliterator;
 import variables.VariableManager;
 
 public class Translator {
-	static String IDlookupFile =VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.datapath").toString()+"Address/lang-isocode-transid.csv";
+	static String IDlookupFile;
 	
 	public static void main(String[] args) {
 	        String text = "Mohandas Karamchand Ghandhi";
 	        //Translated text: Hallo Welt!
-	        System.out.println("Text:" + text + ",Translated text: " + translate( "heb", text));
+	        System.out.println("Text:" + text + ",Translated text: " + translate( "heb", text,"contextKey"));
 	}
 
-	static String getLanguageID(String langIsoCode) {
+	static String getLanguageID(String langIsoCode,String contextKey) {
 	
 		String v ="Any-Any";
 		
 		try {
+			IDlookupFile =VariableManager.getVariableValue(contextKey,"mosip.test.persona.datapath").toString()+"Address/lang-isocode-transid.csv";
 			CSVHelper csv = new CSVHelper(IDlookupFile);
 			String[] rec;
 			csv.open();
@@ -42,9 +43,9 @@ public class Translator {
 		return v;
 	}
 	
-	public static Name translateName(String toLanguageIsoCode, Name name) {
+	public static Name translateName(String toLanguageIsoCode, Name name,String contextKey) {
 		Name langName = new Name();
-		String lang_from_to = getLanguageID(toLanguageIsoCode);
+		String lang_from_to = getLanguageID(toLanguageIsoCode,contextKey);
 		
 			
 		Transliterator toTrans = Transliterator.getInstance(lang_from_to);
@@ -59,9 +60,9 @@ public class Translator {
 		
 		return langName;
 	}
-	public static String translate(String toLanguageIsoCode, String text) {
+	public static String translate(String toLanguageIsoCode, String text,String contextKey) {
 		
-		String lang_from_to = getLanguageID(toLanguageIsoCode);
+		String lang_from_to = getLanguageID(toLanguageIsoCode,contextKey);
 		//Enumeration<String> idSet = Transliterator.getAvailableIDs();
 		//String lang_from_to = fromLanguage+ "-"+ toLanguage;
 		//Boolean bFound = false;
