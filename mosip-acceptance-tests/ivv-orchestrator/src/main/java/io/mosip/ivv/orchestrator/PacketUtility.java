@@ -32,7 +32,7 @@ import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.testscripts.BioAuth;
-import io.mosip.testscripts.BioAuthOld;
+//import io.mosip.testscripts.BioAuthOld;
 import io.restassured.response.Response;
 
 public class PacketUtility extends BaseTestCaseUtil {
@@ -1364,7 +1364,7 @@ centerId=10002
 	}
 
 	public void operatorOnboardAuth(String modility, String bioValue, String user, TestCaseDTO test,
-			BioAuthOld bioAuth, String individualIdType,Properties deviceProps ) throws RigInternalError {
+			BioAuth bioAuth, String individualIdType,Properties deviceProps ) throws RigInternalError {
 
 		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", deviceProps.getProperty("partnerKey")));
 		String input = test.getInput();
