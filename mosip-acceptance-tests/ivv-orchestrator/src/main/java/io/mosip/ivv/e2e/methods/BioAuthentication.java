@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 
@@ -27,6 +28,7 @@ import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestRunner;
 import io.mosip.testscripts.BioAuth;
+//import io.mosip.testscripts.BioAuthOld;
 import io.restassured.response.Response;
 
 public class BioAuthentication extends BaseTestCaseUtil implements StepInterface {
@@ -39,9 +41,9 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 
 	@Override
 	public void run() throws RigInternalError {
-		AuthPartnerProcessor.startProcess();
-		//uinPersonaProp.put("3465728037", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_1872907547484694868\\894268942689426.json");
-
+		//AuthPartnerProcessor.startProcess();
+	    //uinPersonaProp.put("9683481379", "C:\\Users\\Sohan.Dey\\Downloads\\residents_10857486596570242644\\7660996440.json");
+	    
 		String deviceInfoFilePath = null;
 		String uins = null;
 		List<String> uinList = null;
@@ -111,6 +113,10 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			}
 			
 			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			
+			
+			
+			System.out.println("bioMetricValue= " + bioResponse);
 
 			String fileName = BIOMETRIC_FACE;
 			bioAuth.isInternal = false;
@@ -118,6 +124,11 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue!= null) {
 					String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
+					
+					byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
+					bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
+					
+					
 					if(bioValue== null || bioValue.length()<100)
 						throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
 					for (Object object : casesList) {

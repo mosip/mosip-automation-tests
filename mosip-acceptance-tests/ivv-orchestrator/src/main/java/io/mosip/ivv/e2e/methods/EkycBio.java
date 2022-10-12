@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 
@@ -27,6 +28,7 @@ import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestRunner;
 import io.mosip.testscripts.BioAuth;
+//import io.mosip.testscripts.BioAuthOld;
 import io.restassured.response.Response;
 
 public class EkycBio extends BaseTestCaseUtil implements StepInterface {
@@ -39,7 +41,8 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		 AuthPartnerProcessor.startProcess();
+		 //AuthPartnerProcessor.startProcess();
+		 //uinPersonaProp.put("9719375326","C:\\Users\\Sohan.Dey\\AppData\\Local\\Temp\\residents_182289324539364480\\3337515223.json");
 		//uinPersonaProp.put("7209149850", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
 		String _personFilePath = null;
 		String deviceInfoFilePath = null;
@@ -118,11 +121,16 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue!= null) {
 					String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
+					
+					byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
+					bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
+					
 					if(bioValue== null || bioValue.length()<100)
 						throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
 					for (Object object : casesList) {
 						TestCaseDTO test = (TestCaseDTO) object;
 						packetUtility.bioAuth(modalityToLog, bioValue, uin, deviceProp, test, bioAuth);
+						System.out.println();
 				}
 			}
 		}
