@@ -44,10 +44,14 @@ public class TestRunner {
 		LOGGER.info(os);
 		if (checkRunType().contains("IDE") || os.toLowerCase().contains("windows") == true) {
 			homeDir = new File(TestResources.getResourcePath() + "testngFile");
+			System.out.println("IDE Home Dir="+homeDir);
 		}
 		else {
-			File dir=new File(System.getProperty("user.dir"));
-		homeDir = new File(dir.getParent() + "/testngFile");
+//			File dir=new File(System.getProperty("user.dir"));
+//			System.out.println("Dir="+dir);
+//		homeDir = new File(dir.getParent() + "/testngFile");
+	    homeDir = new File(System.getProperty("user.dir") + "/MosipTestResource/testngFile"); 
+		System.out.println("Jar Home Dir="+homeDir);
 		} 
 		
 		for (File file : homeDir.listFiles()) {
