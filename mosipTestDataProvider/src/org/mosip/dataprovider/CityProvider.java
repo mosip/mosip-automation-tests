@@ -30,10 +30,10 @@ public class CityProvider extends LocationProviderBase {
 	public List<CityModel> getDetail() {
 		return cityDetail;
 	}
-	public void dump() {
+	public void dump(String contextKey) {
 		//https://parseapi.back4app.com/classes/Continentscountriescities_City?limit=10&excludeKeys=population,adminCode
 		try {
-			Hashtable<String,String> lookupTbl = CountryProvider.getCountryLookup();
+			Hashtable<String,String> lookupTbl = CountryProvider.getCountryLookup(contextKey);
 			
 			String strData = client.get("/Continentscountriescities_City?limit=100000&excludeKeys=population,adminCode", null);
 			
@@ -60,7 +60,7 @@ public class CityProvider extends LocationProviderBase {
 			cityList.forEach( (countryObjectId, cities) -> {
 				String countryCode = lookupTbl.get(countryObjectId);
 				
-				String path = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.locationsdatapath").toString() + countryCode + "/cities.json";
+				String path = VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString() + countryCode + "/cities.json";
 				
 				
 				try {
@@ -80,9 +80,9 @@ public class CityProvider extends LocationProviderBase {
 		}
 
 	}
-	public static List<CityModel> load(String countryIsoCode) throws JsonParseException, JsonMappingException, IOException{
+	public static List<CityModel> load(String countryIsoCode,String contextKey) throws JsonParseException, JsonMappingException, IOException{
 		
-		String strJson = CommonUtil.readFromJSONFile(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.locationsdatapath").toString()+"/"+ countryIsoCode + "/cities.json");
+		String strJson = CommonUtil.readFromJSONFile(VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString()+"/"+ countryIsoCode + "/cities.json");
 		ObjectMapper objectMapper = new ObjectMapper();
 		return objectMapper.readValue(strJson.toString(), 
 				objectMapper.getTypeFactory().constructCollectionType(List.class, CityModel.class));

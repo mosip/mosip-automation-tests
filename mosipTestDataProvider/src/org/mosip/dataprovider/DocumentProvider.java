@@ -38,10 +38,10 @@ public class DocumentProvider {
 
 	//public static String parseThymeleafTemplate(String photo,  String name,String date, String address) {
 	  
-	 static String parseThymeleafTemplateDriverLicense(String photo,  String name,String date, String address) {
+	 static String parseThymeleafTemplateDriverLicense(String photo,  String name,String date, String address,String contextKey) {
 		  
 		FileTemplateResolver templateResolver = new FileTemplateResolver();//ClassLoaderTemplateResolver();
-		templateResolver.setPrefix(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.documentsdatapath").toString());
+		templateResolver.setPrefix(VariableManager.getVariableValue(contextKey,"mosip.test.persona.documentsdatapath").toString());
 	    templateResolver.setSuffix(".html");
 	    templateResolver.setTemplateMode(TemplateMode.HTML);
 
@@ -57,10 +57,10 @@ public class DocumentProvider {
 	    
 	    return templateEngine.process("driverlicense", context);
 	}
-	 static String parseThymeleafTemplatePassport(String photo,  String name,String date, String address) {
+	 static String parseThymeleafTemplatePassport(String photo,  String name,String date, String address,String contextKey) {
 		  
 		FileTemplateResolver templateResolver = new FileTemplateResolver();//ClassLoaderTemplateResolver();
-		templateResolver.setPrefix(VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.documentsdatapath").toString());
+		templateResolver.setPrefix(VariableManager.getVariableValue(contextKey,"mosip.test.persona.documentsdatapath").toString());
 	    templateResolver.setSuffix(".html");
 	    templateResolver.setTemplateMode(TemplateMode.HTML);
 
@@ -134,7 +134,7 @@ public class DocumentProvider {
 				res.getBiometric().getEncodedPhoto(),
 				res.getName().getFirstName() + " " +res.getName().getSurName(),
 				datelic.toLocaleString(),
-				locAddr
+				locAddr,contextKey
 		);
 	
 		File docFile = File.createTempFile("Passport_", ".pdf");
@@ -149,7 +149,7 @@ public class DocumentProvider {
 				res.getBiometric().getEncodedPhoto(),
 				res.getName().getFirstName() + " " +res.getName().getSurName(),
 				datelic.toLocaleString(),
-				locAddr
+				locAddr,contextKey
 		);
 		generatePdfFromHtml(html,docFile);
 		

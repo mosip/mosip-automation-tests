@@ -26,7 +26,8 @@ import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestRunner;
-import io.mosip.testscripts.BioAuthOld;
+import io.mosip.testscripts.BioAuth;
+//import io.mosip.testscripts.BioAuthOld;
 import io.restassured.response.Response;
 
 public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements StepInterface {
@@ -34,7 +35,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 	private static final String BIOMETRIC_FACE = "regproc/OperatorOnboardAuth/operatorOnboardAuth.yml";
 	Properties deviceProp =null;
 	Properties uinResidentDataPathFinalProps = new Properties();
-	BioAuthOld bioAuth = new BioAuthOld();
+	BioAuth bioAuth = new BioAuth();
 	String bioResponse = null;
 
 	@Override
