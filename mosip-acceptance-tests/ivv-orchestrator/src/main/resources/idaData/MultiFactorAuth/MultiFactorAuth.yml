@@ -1,30 +1,15 @@
 MultiFactorAuth:
   auth_MultiFactorAuth_Biometric_Face_With_Valid_Smoke_Pos:
-      endPoint: /idauthentication/v1/auth/$PartnerKey$
-      role: ida
+      endPoint: /v1/identity/authenticate?id=uinnumber&partnerUrlSuffix=$partnerKeyURL$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
+      role: resident
       restMethod: post
-      inputTemplate: idaData/MultiFactorAuth/multiFactorAuth
-      outputTemplate: idaData/MultiFactorAuth/multiFactorAuthResult
+      inputTemplate: idaData/MultiFactorAuth/MultiFactorAuth
+      outputTemplate: idaData/MultiFactorAuth/MultiFactorAuthResult
       input: '{
-        "requestTime": "$TIMESTAMP$",
-        "individualId": "uinnumber",
-    "transactionId": "1234567890",
-      "individualIdType": "UIN",
-        "bio": true,
-        "demo": true,
-        "otp": true,
-        "sendOtp":{
-  "transactionID": "1234567890",
-  "requestTime": "$TIMESTAMP$",
-  "individualId": "uinnumber",
-  "individualIdType": "UIN",
-  "sendOtpReqTemplate": "idaData/MultiFactorAuth/sendOtp",
-  "sendOtpEndPoint": "/idauthentication/v1/otp/$PartnerKey$"
-  },
-    "identityRequest":{
-          "bioSubType": "Left",
-          "bioType": "Iris",
-          "bioValue": "BioValue",
+          "individualId": "idaData",
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
           "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
           "dateTime": "$DATETIME$",
           "deviceProviderID": "1873299273",
@@ -32,22 +17,22 @@ MultiFactorAuth:
           "deviceServiceVersion": "SB.WIN.001",
           "deviceProvider": "SYNCBYTE",
           "deviceProviderId": "SYNCBYTE.LTC165",
-          "deviceSubType": "Full face",
+          "deviceSubType": "Single",
           "make": "Logitech",
           "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
           "serialNo": "78467171",
-          "type": "Iris",
-    "transactionId": "1234567890",
-  "identityRequestTemplate": "idaData/MultiFactorAuth/MultiFactorIdentityEncrypt",
-  "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
-  }
-  }'
+          "type": "Face",
+          "key": "dob",
+          "value": "1970/07/08",
+          "transactionId": "1234567890",
+          "timestamp": "$TIMESTAMP$"
+    }'
       output: '{
   "authStatus": "true",
   "sendOtpResp":{
         "transactionID": "1234567890",
         "maskedMobile": "$IGNORE$",
-    "sendOtpResTemplate":"idaData/MultiFactorAuth/sendOtpRes",
-    "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"idaData/MultiFactorAuth/sendOtpRes",
+        "maskedEmail": "$IGNORE$"
     }
 }'

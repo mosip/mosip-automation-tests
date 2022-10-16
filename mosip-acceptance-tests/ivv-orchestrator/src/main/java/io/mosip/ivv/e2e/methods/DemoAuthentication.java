@@ -1,5 +1,6 @@
 package io.mosip.ivv.e2e.methods;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,14 +19,14 @@ import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.DemoAuth;
+import io.mosip.testscripts.DemoAuthSimplePostForAutoGenId;
 
 public class DemoAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(DemoAuthentication.class);
 	private static final String DEMOPATH = "idaData/DemoAuth/DemoAuth.yml";
-	DemoAuth demoAuth ;
+	DemoAuthSimplePostForAutoGenId demoAuth=new DemoAuthSimplePostForAutoGenId();
 
 	
-
 	@Override
 	public void run() throws RigInternalError {
 		String demofields=null;
@@ -34,10 +35,9 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		String uins = null;
 		String demoResponse = null;
 		String addressResponse=null;
-		demoAuth=new DemoAuth();
 		String _personFilePath = null;
 
-		AuthPartnerProcessor.startProcess();
+		//AuthPartnerProcessor.startProcess();
 		//uinPersonaProp.put("2759239619", "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_2140454779925252334\\498484984849848.json");
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
@@ -66,7 +66,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 		Object[] testObj=demoAuth.getYmlTestData(DEMOPATH);
 		TestCaseDTO test=(TestCaseDTO)testObj[0];
-		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", props.getProperty("partnerKey")));
+		//test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", props.getProperty("partnerKey")));
 
 		for (String uin : uinList) {
 			String personFilePathvalue = null;
@@ -87,11 +87,11 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					uin, "individualId");
 			JSONObject inputJson = new JSONObject(input);
-			String identityRequest = null;
-			if(inputJson.has("identityRequest")) {
-				identityRequest = inputJson.get("identityRequest").toString();
-			}
-			JSONObject identityReqJson = new JSONObject(identityRequest);
+			/*
+			 * if(inputJson.has("identityRequest")) { identityRequest =
+			 * inputJson.get("identityRequest").toString(); }
+			 */
+			//JSONObject identityReqJson = new JSONObject(identityRequest);
 			for(String demoField : demofieldList )
 			{	String demoFieldValueKey=null;
 			String demoValue=null;
@@ -102,7 +102,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey); //array fill all the values
 				if(demoValue==null)
 					throw  new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
-				identityReqJson.put(demoField, demoValue);
+				inputJson.put(demoField, demoValue);
 				break;
 
 			case E2EConstants.DEMOEMAIL:
@@ -110,7 +110,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey); //array fill all the values
 				if(demoValue==null)
 					throw new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
-				identityReqJson.put(demoField, demoValue);
+				inputJson.put(demoField, demoValue);
 				break;
 
 			case E2EConstants.DEMOYMLPHONE:
@@ -118,7 +118,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey); //array fill all the values
 				if(demoValue==null)
 					throw new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
-				identityReqJson.put(demoField, demoValue);
+				inputJson.put(demoField, demoValue);
 				break;
 				
 			case E2EConstants.DEMOADDRESSFETCH:
@@ -136,24 +136,24 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 				JSONArray addressLine1Array=new JSONArray();
 				JSONObject addressLine1Obj=new JSONObject();
-				addressLine1Obj.put("language", BaseTestCase.languageList.get(0));
+				addressLine1Obj.put("language", BaseTestCase.getLanguageList().get(0));
 				addressLine1Obj.put("value", addLine1);
 				addressLine1Array.put(addressLine1Obj);
-				identityReqJson.put(E2EConstants.DEMOADDRESSLINE1, addressLine1Array);
+				inputJson.put(E2EConstants.DEMOADDRESSLINE1, addressLine1Array);
 
 				JSONArray addressLine2Array=new JSONArray();
 				JSONObject addressLine2Obj=new JSONObject();
-				addressLine2Obj.put("language",  BaseTestCase.languageList.get(0));
+				addressLine2Obj.put("language",  BaseTestCase.getLanguageList().get(0));
 				addressLine2Obj.put("value", addLine2);
 				addressLine2Array.put(addressLine2Obj);
-				identityReqJson.put(E2EConstants.DEMOADDRESSLINE2, addressLine2Array);
+				inputJson.put(E2EConstants.DEMOADDRESSLINE2, addressLine2Array);
 
 				JSONArray addressLine3Array=new JSONArray();
 				JSONObject addressLine3Obj=new JSONObject();
-				addressLine3Obj.put("language",  BaseTestCase.languageList.get(0));
+				addressLine3Obj.put("language",  BaseTestCase.getLanguageList().get(0));
 				addressLine3Obj.put("value", addLine3);
 				addressLine3Array.put(addressLine3Obj);
-				identityReqJson.put(E2EConstants.DEMOADDRESSLINE3, addressLine3Array);
+				inputJson.put(E2EConstants.DEMOADDRESSLINE3, addressLine3Array);
 				break;
 			case E2EConstants.DEMONAME:
 
@@ -166,10 +166,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				fullname=firstNm +" "+ midNm + " "+ lastNm ;
 				JSONArray nameArray=new JSONArray();
 				JSONObject nameObj=new JSONObject();
-				nameObj.put("language",  BaseTestCase.languageList.get(0));
+				nameObj.put("language",  BaseTestCase.getLanguageList().get(0));
 				nameObj.put("value", fullname);
 				nameArray.put(nameObj);
-				identityReqJson.put(demoField, nameArray);
+				inputJson.put(demoField, nameArray);
 				break;
 				
 			case E2EConstants.DEMOGENDER:
@@ -177,27 +177,35 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				demoValue = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH+"."+demoFieldValueKey); //array fill all the values
 				JSONArray genArray=new JSONArray();
 				JSONObject genderObj=new JSONObject();
-				genderObj.put("language", BaseTestCase.languageList.get(0));
+				genderObj.put("language", BaseTestCase.getLanguageList().get(0));
 				genderObj.put("value", demoValue);
 				genArray.put(genderObj);
 				if(demoValue==null)
 					throw  new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
-				identityReqJson.put(demoField, genArray);
+				inputJson.put(demoField, genArray);
 				break;
 
 				default:
 					throw new RigInternalError("Given DEMO doesn't match with the options in the script");
 				}
 			}
-			inputJson.put("identityRequest", identityReqJson.toString());
+			//inputJson.put("identityRequest", identityReqJson.toString());
+			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
+			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
+			test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
 			test.setInput(inputJson.toString());
 			try {
-				demoAuth.test(test);
+				try {
+					demoAuth.test(test);
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} catch (AuthenticationTestException | AdminTestException e) {
 				throw new RigInternalError(e.getMessage());
 
 			} finally {
-				AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+				//AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
 			}
 		}
 
