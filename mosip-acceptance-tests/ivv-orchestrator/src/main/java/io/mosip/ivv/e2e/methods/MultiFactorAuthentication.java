@@ -2,7 +2,6 @@ package io.mosip.ivv.e2e.methods;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
@@ -251,8 +250,6 @@ private TestCaseDTO bioAuthE2eTest(List<String> bioAuthList, String uin, TestCas
 		System.out.println("saddjha");
 		if (multiFactorResponse != null && !multiFactorResponse.isEmpty() && modalityKeyTogetBioValue!= null) {
 			String bioValue = JsonPrecondtion.getValueFromJson(multiFactorResponse, modalityKeyTogetBioValue);
-			byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
-			bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
 			test = bioAuth(modalityToLog, bioValue, uin, deviceProp, test, this.bioAuth);
 			System.out.println(test);
 		}

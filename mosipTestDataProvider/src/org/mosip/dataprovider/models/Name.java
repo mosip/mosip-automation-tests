@@ -16,11 +16,11 @@ public class Name  implements Serializable{
 	private String surName;
 	private Gender gender;
 	
-	public Name translateTo(String langIsoCode) {
+	public Name translateTo(String langIsoCode,String contextKey) {
 		Name n = new Name();
-		n.firstName = Translator.translate(langIsoCode, firstName);
-		n.midName = Translator.translate(langIsoCode,midName);
-		n.surName = Translator.translate(langIsoCode, surName);
+		n.firstName = Translator.translate(langIsoCode, firstName,contextKey);
+		n.midName = Translator.translate(langIsoCode,midName,contextKey);
+		n.surName = Translator.translate(langIsoCode, surName,contextKey);
 		n.gender = gender;
 		return n;
 	}
