@@ -15,27 +15,29 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testscripts.OtpAuth;
+import io.mosip.testscripts.OtpAuthNew;
 
 public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EkycOtp.class);
 	private static final String EKYCOTP = "idaData/EkycOtp/EkycOtp.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
-	OtpAuth otpauth=new OtpAuth() ;
+	OtpAuthNew otpauth=new OtpAuthNew() ;
 
 	@Override
 	public void run() throws RigInternalError {
-		 AuthPartnerProcessor.startProcess();
+		 //AuthPartnerProcessor.startProcess();
 		//uinPersonaProp.put("7209149850", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
 
 		String uins = null;
-		String individualidtype = null;
 		List<String> uinList = null;
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
 			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
-		} else {
-			individualidtype = step.getParameters().get(0); 
+		} else { 
 		}
+		
+	
+		
 		
 		if (step.getParameters().size() == 2) { // "e2e_ekycOtp(uin,$$uin)"
 			uins = step.getParameters().get(1);
@@ -52,19 +54,26 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 		
 		Object[] testObj = otpauth.getYmlTestData(EKYCOTP);
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
-		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", props.getProperty("partnerKey")));
+		//test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", props.getProperty("partnerKey")));
 	
 	for (String uin : uinList) {
 		String input=test.getInput();
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					uin, "individualId");
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				 individualidtype, "individualIdType");
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					uin, "sendOtp.individualId");
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				 individualidtype, "sendOtp.individualIdType");
-		 input= input.replace("$PartnerKey$", props.getProperty("partnerKey"));
+			/*
+			 * input = JsonPrecondtion.parseAndReturnJsonContent(input, individualidtype,
+			 * "individualIdType"); input = JsonPrecondtion.parseAndReturnJsonContent(input,
+			 * uin, "sendOtp.individualId"); input =
+			 * JsonPrecondtion.parseAndReturnJsonContent(input, individualidtype,
+			 * "sendOtp.individualIdType"); input= input.replace("$PartnerKey$",
+			 * props.getProperty("partnerKey"));
+			 */
+		 
+		 test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
+			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
+			test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
+		 
+		 
 		test.setInput(input);
 		try {
 			otpauth.test(test);
