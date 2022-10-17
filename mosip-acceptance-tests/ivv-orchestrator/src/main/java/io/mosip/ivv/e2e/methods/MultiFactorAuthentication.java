@@ -19,9 +19,11 @@ import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestRunner;
 import io.mosip.testscripts.BioAuth;
-//import io.mosip.testscripts.BioAuthOld;
+import io.mosip.testscripts.BioAuthOld;
 import io.mosip.testscripts.DemoAuth;
+import io.mosip.testscripts.DemoAuthSimplePostForAutoGenId;
 import io.mosip.testscripts.MultiFactorAuth;
+import io.mosip.testscripts.MultiFactorAuthNew;
 import io.mosip.testscripts.OtpAuth;
 
 //"e2e_multiFactorAuthentication(faceDevice,phoneNumber,UIN,$$uin,$$personaFilePath)"
@@ -31,11 +33,9 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 	Properties deviceProp =null;
 	Properties uinResidentDataPathFinalProps = new Properties();
 	OtpAuth otpAuth=new OtpAuth() ;
-	MultiFactorAuth multiFactorAuth = new MultiFactorAuth();
-	//BioAuthOld bioAuth = new BioAuthOld();
+	MultiFactorAuthNew multiFactorAuth = new MultiFactorAuthNew();
 	BioAuth bioAuth = new BioAuth();
-	
-	DemoAuth demoAuth = new DemoAuth();
+	DemoAuthSimplePostForAutoGenId demoAuth = new DemoAuthSimplePostForAutoGenId();
 	List<String> demoAuthList = null;
 	List<String> bioAuthList = null;
 	String individualType = null;
@@ -48,7 +48,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 
 	@Override
 	public void run() throws RigInternalError {
-		AuthPartnerProcessor.startProcess();
+		//AuthPartnerProcessor.startProcess();
 		//uinPersonaProp.put("2310290713", "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\residents_8783170256176160783\\\\915849158491584.json");
 
 		List<String> demoFetchList = null;
@@ -118,18 +118,24 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 	}
 
 	private TestCaseDTO otpAuthE2eTest(String individualIdAuth, TestCaseDTO test) throws RigInternalError {
-		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", props.getProperty("partnerKey")));
+		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
+		test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
+		test.setEndPoint(test.getEndPoint().replace("uinnumber", individualIdAuth));
 	
 		 String input=test.getInput();
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
 				 individualIdAuth, "individualId");
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				 individualType, "individualIdType");
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				 individualIdAuth, "sendOtp.individualId");
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				 individualType, "sendOtp.individualIdType");
-		 input= input.replace("$PartnerKey$", props.getProperty("partnerKey"));
+			/*
+			 * input = JsonPrecondtion.parseAndReturnJsonContent(input, individualType,
+			 * "individualIdType");
+			 */
+			/*
+			 * input = JsonPrecondtion.parseAndReturnJsonContent(input, individualIdAuth,
+			 * "sendOtp.individualId"); input =
+			 * JsonPrecondtion.parseAndReturnJsonContent(input, individualType,
+			 * "sendOtp.individualIdType");
+			 */
+		 input= input.replace("$PartnerKey$", partnerKeyUrl);
 		test.setInput(input);
 		return test;
 		
@@ -150,7 +156,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 			throw new RigInternalError("Persona doesn't exist for the given UIN " + individualIdAuth);
 		demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList);
 		
-		testInput.setEndPoint(testInput.getEndPoint().replace("$PartnerKey$", props.getProperty("partnerKey")));
+		//testInput.setEndPoint(testInput.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 		
 		String demoFieldValueKey=null;
 		String demoValue = null;
@@ -180,8 +186,8 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				throw new RigInternalError("Received null value from Persona for" + demoField);
 			input = testInput.getInput();
 			
-			input = JsonPrecondtion.parseAndReturnJsonContent(input,demoField, "identityRequest.key");
-			input = JsonPrecondtion.parseAndReturnJsonContent(input,demoValue, "identityRequest.value");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,demoField, "key");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,demoValue, "value");
 			//testInput=filterOutTestCase(testObj,testFilterKey);
 			testInput.setInput(input);
 		}
@@ -258,32 +264,34 @@ private TestCaseDTO bioAuthE2eTest(List<String> bioAuthList, String uin, TestCas
 		 String input = test.getInput();
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,uin, "individualId");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("bioSubType"), "identityRequest.bioSubType");
+					deviceProps.getProperty("bioSubType"), "bioSubType");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("bioType"), "identityRequest.bioType");
+					deviceProps.getProperty("bioType"), "bioType");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("deviceCode"), "identityRequest.deviceCode");
+					deviceProps.getProperty("deviceCode"), "deviceCode");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("deviceProviderID"), "identityRequest.deviceProviderID");
+					deviceProps.getProperty("deviceProviderID"), "deviceProviderID");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("deviceServiceID"), "identityRequest.deviceServiceID");
+					deviceProps.getProperty("deviceServiceID"), "deviceServiceID");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("deviceServiceVersion"), "identityRequest.deviceServiceVersion");
+					deviceProps.getProperty("deviceServiceVersion"), "deviceServiceVersion");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("deviceProvider"), "identityRequest.deviceProvider");
+					deviceProps.getProperty("deviceProvider"), "deviceProvider");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("deviceSubType"), "identityRequest.deviceSubType");
+					deviceProps.getProperty("deviceSubType"), "deviceSubType");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("make"), "identityRequest.make");
+					deviceProps.getProperty("make"), "make");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("model"), "identityRequest.model");
+					deviceProps.getProperty("model"), "model");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("serialNo"), "identityRequest.serialNo");
+					deviceProps.getProperty("serialNo"), "serialNo");
 		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("type"), "identityRequest.type");
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					deviceProps.getProperty("individualIdType"), "individualIdType");
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
+					deviceProps.getProperty("type"), "type");
+			/*
+			 * input = JsonPrecondtion.parseAndReturnJsonContent(input,
+			 * deviceProps.getProperty("individualIdType"), "individualIdType");
+			 */
+		 input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "bioValue");
 		 test.setInput(input); 
 		 
 		 Reporter.log("<b><u>" + test.getTestCaseName()+"_"+ modalityToLog + "</u></b>");

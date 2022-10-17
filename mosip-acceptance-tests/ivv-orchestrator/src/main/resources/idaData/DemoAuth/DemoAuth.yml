@@ -1,22 +1,14 @@
 DemoAuth:
   auth_DemoAuth_Valid_Smoke_deg:
-      endPoint: /idauthentication/v1/auth/$PartnerKey$
-      role: ida
+      endPoint: /v1/identity/authenticate?id=uinnumber&partnerUrlSuffix=$PartnerKeyURL$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
+      role: resident
       restMethod: post
-      inputTemplate: idaData/DemoAuth/demoAuth
-      outputTemplate: idaData/DemoAuth/demoAuthResult
+      inputTemplate: idaData/DemoAuth/DemoIdentityEncrypt
+      outputTemplate: idaData/DemoAuth/DemoAuthResult
       input: '{
-		"requestTime": "$TIMESTAMP$",
-		"individualId": "uinnumber",
-		"transactionId": "1234567890",
-	    "individualIdType": "UIN",
-        "bio": false,
-        "demo": true,
-        "otp": false,
-		"identityRequest":{
-  "identityRequestTemplate": "idaData/DemoAuth/DemoIdentityEncrypt"
-	}
-	}'
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "1234567890"
+    }'
       output: '{
   "authStatus": "true"
 }'
