@@ -9,6 +9,9 @@ import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.RegprocStatusHelper;
 
 public class GetCertificate extends BaseTestCaseUtil implements StepInterface {
+	/*
+	 * Not implemented in progress
+	 */
 	static Logger logger = Logger.getLogger(GetCertificate.class);
 
 	RegprocStatusHelper regprocStatusHelper = new RegprocStatusHelper();
@@ -47,7 +50,7 @@ public class GetCertificate extends BaseTestCaseUtil implements StepInterface {
 		}
 		*/
 		personFilePathvalue="C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_11970612103081897992\\1390477148.json";
-		thumbprint = regprocStatusHelper.getCert();
+		//thumbprint = regprocStatusHelper.getCert();
 		HashMap<String, String> map = new HashMap<String, String>();
 		if (step.getOutVarName() != null) {
 			map.put("thumbprint", thumbprint);
