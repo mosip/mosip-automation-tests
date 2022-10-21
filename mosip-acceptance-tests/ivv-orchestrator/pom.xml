@@ -38,7 +38,51 @@
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
 			</plugin>
+			
+			
+			
 			<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-shade-plugin</artifactId>
+    <version>3.2.4</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>shade</goal>
+            </goals>
+            <configuration>
+                <finalName>ivv-orchestrator-1.2.1-SNAPSHOT-jar-with-dependencies</finalName>
+                <transformers>
+                    <!-- need this to merge the services files properly -->
+                    <transformer
+                            implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                    <!-- add Main-Class to manifest file -->
+                    <transformer
+                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <mainClass>io.mosip.ivv.orchestrator.TestRunner</mainClass>
+                    </transformer>
+                </transformers>
+                <!-- add this to prevent some security issues when merging everything together -->
+                <filters>
+                    <filter>
+                        <artifact>*:*</artifact>
+                        <excludes>
+                            <exclude>META-INF/*.SF</exclude>
+                            <exclude>META-INF/*.DSA</exclude>
+                            <exclude>META-INF/*.RSA</exclude>
+                        </excludes>
+                    </filter>
+                </filters>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+			
+			
+			
+			
+			
+	<!--	<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.3.0</version>
@@ -63,7 +107,7 @@
 					</descriptorRefs>
 				</configuration>
 			</plugin>
-            
+              -->	
             
         </plugins>
     </build>
@@ -127,7 +171,13 @@
 			<groupId>io.mosip.automationtests</groupId>
 			<artifactId>automationtests</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
-			</dependency>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sun.jersey</groupId>
+					<artifactId>jersey-client</artifactId>
+				</exclusion>
+			</exclusions>
+          </dependency>
 	
 	<dependency>
 		<groupId>com.slack.api</groupId>
@@ -145,7 +195,7 @@
 			<artifactId>jackson-core</artifactId>
 			<version>2.10.1</version>
 		</dependency>
-		
-	
+		<!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-jaxrs -->
+
     </dependencies>
 </project>
