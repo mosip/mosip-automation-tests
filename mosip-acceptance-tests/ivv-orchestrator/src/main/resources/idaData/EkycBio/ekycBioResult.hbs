@@ -1,12 +1,20 @@
 {
-    "transactionID": "$IGNORE$",
-    "version": "$IGNORE$",
-    "id": "mosip.identity.kyc",
-    "responseTime": "$IGNORE$",
-    "response": {
-        "kycStatus": "{{kycStatus}}",
+  "URL": "$IGNORE$",
+  "authRequest": "$IGNORE$",
+  "authResponse": {
+    "signature": "$IGNORE$",
+    "body": {
+      "transactionID": "$IGNORE$",
+      "version": "$IGNORE$",
+      "id": "$IGNORE$",
+      "responseTime": "$IGNORE$",
+      "response": {
+        "kycStatus": {{kycStatus}},
         "authToken": "$IGNORE$",
         "thumbprint": "$IGNORE$",
-        "identity": "$IGNORE$"
+        "identity": "$IGNORE$",
+        "sessionKey": "$IGNORE$"
+      }
     }
+  }
 }

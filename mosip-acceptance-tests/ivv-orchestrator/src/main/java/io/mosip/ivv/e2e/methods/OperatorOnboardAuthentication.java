@@ -40,7 +40,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 
 	@Override
 	public void run() throws RigInternalError {
-		AuthPartnerProcessor.startProcess();
+		//AuthPartnerProcessor.startProcess();
 		//uinPersonaProp.put("8497438207", "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_11835704006002908658\\5645168410.json");
 		List<String> modalityList = new ArrayList<>();
 		String personFilePathvalue = null;
