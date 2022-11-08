@@ -1404,7 +1404,7 @@ centerId=10002
 		} catch (AuthenticationTestException | AdminTestException e) {
 			throw new RigInternalError(e.getMessage());
 		} finally {
-			AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+			//AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
 
 		}
 	}
