@@ -712,12 +712,12 @@ public class BiometricDataProvider {
 						
 				int currentScenarioNumber = Integer.valueOf(afterscenario);
 				
-				System.out.println("beforescenario" +beforescenario + "afterscenario="+afterscenario);		
+						
 				// If the available impressions are less than scenario number, pick the random one
 
 				// otherwise pick the impression of same of scenario number
-				int impressionToPick = (numberOfSubfolders < currentScenarioNumber) ? currentScenarioNumber : randomNumber ;
-
+				int impressionToPick = (numberOfSubfolders > currentScenarioNumber) ? currentScenarioNumber : randomNumber ;
+				System.out.println("currentScenarioNumber=" +currentScenarioNumber + "impressionToPick="+impressionToPick);
 				for(int i=min; i <= max; i++) {
 					
 					List<File> lst = CommonUtil.listFiles(dirPath +
