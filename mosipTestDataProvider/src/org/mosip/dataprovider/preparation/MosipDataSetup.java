@@ -541,7 +541,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 
 		String responseStr = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(contextKey,"bulkupload").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"bulkupload").toString();
 
 		JSONObject req = new JSONObject();
 		req.put("category","packet");
