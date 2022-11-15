@@ -611,7 +611,6 @@ public class BiometricDataProvider {
 			boolean bExternalSrc = false;
 			if(val != null )
 				bExternalSrc = Boolean.valueOf(val.toString());
-			
 			if(bExternalSrc) {
 				//folder where all bio input available
 				String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"externalBiometricsource").toString();
@@ -712,12 +711,14 @@ public class BiometricDataProvider {
 						
 				int currentScenarioNumber = Integer.valueOf(afterscenario);
 				
-						
+
 				// If the available impressions are less than scenario number, pick the random one
 
 				// otherwise pick the impression of same of scenario number
-				int impressionToPick = (numberOfSubfolders > currentScenarioNumber) ? currentScenarioNumber : randomNumber ;
-				System.out.println("currentScenarioNumber=" +currentScenarioNumber + "impressionToPick="+impressionToPick);
+				int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber ;
+
+				System.out.println("currentScenarioNumber=" + currentScenarioNumber +" numberOfSubfolders=" + numberOfSubfolders + " impressionToPick=" + impressionToPick );
+				
 				for(int i=min; i <= max; i++) {
 					
 					List<File> lst = CommonUtil.listFiles(dirPath +

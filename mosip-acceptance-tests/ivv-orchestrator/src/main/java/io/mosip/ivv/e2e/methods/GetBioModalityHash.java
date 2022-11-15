@@ -88,8 +88,9 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 					logger.info("modalityHashValueMap" + modalityHashValueMap);
 				}
 			}
-			if (step.getOutVarName() != null)
+			if (step.getOutVarName() != null) {
 				step.getScenario().getVariables().put(step.getOutVarName(), modalityHashValueMap.toString());
+			System.out.println(step.getScenario().getVariables().get( modalityHashValueMap.toString()));}
 			else {
 				hashtable.put(personaId, modalityHashValueMap);
 			}
