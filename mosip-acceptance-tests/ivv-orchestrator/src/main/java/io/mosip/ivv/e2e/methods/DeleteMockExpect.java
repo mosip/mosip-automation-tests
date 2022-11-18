@@ -10,20 +10,9 @@ public class DeleteMockExpect extends BaseTestCaseUtil implements StepInterface 
 
 	@Override
 	public void run() throws RigInternalError {
-		for (String resDataPath : residentPathsPrid.keySet()) {
-			String id = residentPathsPrid.get(resDataPath);
-			if (!StringUtils.isEmpty(prid))
-				deleteExpectation(prid);
-			
-		}
-
+		
+		String url = baseUrl + props.getProperty("deleteMockExpectation");
+		Response response = deleteRequest(url, "deleteMockExpectation");
+		
 	}
-
-	private void deleteExpectation(String id) throws RigInternalError {
-		String url = baseUrl + props.getProperty("deleteExpectation") + id;
-		Response response = deleteReqestWithQueryParam(url, contextInuse, "DeleteApplication");
-//		if (!response.getBody().asString().contains(prid))
-//			throw new RigInternalError("Unable to DeleteApplication for Prid: "+prid);
-	}	}
-
-
+}
