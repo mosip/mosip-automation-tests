@@ -38,6 +38,7 @@ import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.dg.DataGenerator;
 import io.mosip.ivv.parser.Parser;
+import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
 
 public class Orchestrator {
@@ -84,8 +85,10 @@ public class Orchestrator {
 		String scenarioSheet = null;
 		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
 		Properties properties = Utils.getProperties(configFile);
-		scenarioSheet = System.getProperty("scenarioSheet");
-		if (scenarioSheet == null || scenarioSheet.isEmpty())
+		// Properties propsKernel=ConfigManager.propsKernel;
+		//scenarioSheet=propsKernel.getProperty("mosip.test.persona.scenariospath") + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment;
+		 scenarioSheet = System.getProperty("scenarioSheet");
+		 if (scenarioSheet == null || scenarioSheet.isEmpty())
 			throw new RigInternalError("ScenarioSheet argument missing");
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
 		parserInputDTO.setConfigProperties(properties);

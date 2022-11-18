@@ -35,7 +35,9 @@ public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
 	}
 
 	private void corruptPacket(String packetPath, String offset, String dataToEncdoeInBase64) throws RigInternalError {
-		String url = baseUrl + props.getProperty("writeFile") + "offset=" + offset;
+		//uri=baseUrl + "/ping&module="+modules;
+		//http://localhost:8080/writeFile?offset=1024/api-internal.qa-121_context
+		String url = baseUrl + props.getProperty("writeFile") + offset;
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("filePath", packetPath);
 		jsonReq.put("base64data", Base64.getEncoder().encodeToString(dataToEncdoeInBase64.getBytes()));

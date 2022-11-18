@@ -1104,9 +1104,13 @@ return functionResponse;
 
 							List<MDSDeviceCaptureModel> lstFingerData =persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 							for(MDSDeviceCaptureModel cm: lstFingerData) {
-								//retProp.put(	cm.getBioSubType() , CommonUtil.getSHA(cm.getBioValue()));
+								//retProp.put(cm.getBioSubType() , CommonUtil.getSHA(cm.getBioValue()));
 								byte[] valBytes=java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
-								retProp.put(	cm.getBioSubType() , CommonUtil.getSHAFromBytes(valBytes));
+								retProp.put(cm.getBioSubType() , CommonUtil.getSHAFromBytes(valBytes));
+								
+								//byte[] valBytesHash=java.util.Base64.getUrlDecoder().decode(cm.getHash());
+								
+								//retProp.put(cm.getBioSubType() , CommonUtil.getSHAFromBytes(valBytesHash));
 							}
 						}
 					}
@@ -1460,11 +1464,11 @@ return functionResponse;
 		return status;
 	}
 
-	public String deleteMockAbisExpectations(String id, String contextKey) {
+	public  String deleteMockAbisExpectations( String contextKey) {
 		// TODO Auto-generated method stub
 		
-		MosipDataSetup.deleteMockAbisExpectations(id,contextKey);
-		return null;
+		return MosipDataSetup.deleteMockAbisExpectations(contextKey);
+		
 	}
 
 

@@ -94,8 +94,10 @@ public class CommandsController {
 		return "{\"Free\"}";
 	}
 
-	@PostMapping("/writeFile/{contextKey}")
-	public @ResponseBody String writeToFile(@RequestParam("offset") long offset,
+	@PostMapping("/writeFile/{offset}/{contextKey}")
+	public @ResponseBody String writeToFile(
+			//@RequestParam("offset") long offset,
+			@PathVariable("offset") long offset,
 			@RequestBody Properties reqestData,
 			@PathVariable("contextKey") String contextKey) {
 
