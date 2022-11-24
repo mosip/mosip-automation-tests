@@ -711,7 +711,7 @@ centerId=10002
 		
 		
 		
-		jsonReq.put("validUIN", (map.get("$$uin")!=null) ? map.get("$$uin") : "create new");
+		jsonReq.put("validUIN", (map.get("$$uin")!=null) ? map.get("$$uin") : "createnew");
 
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
