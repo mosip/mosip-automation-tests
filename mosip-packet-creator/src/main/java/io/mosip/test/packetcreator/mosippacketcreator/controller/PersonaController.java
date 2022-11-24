@@ -166,13 +166,11 @@ public class PersonaController {
 	 }
 	
 	@ApiOperation(value = "Delete expectation for a given Id", response = String.class)
-
-    @DeleteMapping(value = "/persona/mockabis/deleteV2/expectations/{id}/{contextKey}")
-    public @ResponseBody String deleteApplication(
-    		@PathVariable("id") String id,
+	@DeleteMapping(value = "/mock-abis-service/config/expectation/{contextKey}")
+    public @ResponseBody String deleteExpectations(
     		@PathVariable("contextKey") String contextKey) {
     	
-    	return packetSyncService.deleteMockAbisExpectations(id, contextKey);
+    	return packetSyncService.deleteMockAbisExpectations( contextKey);
     	
     }
 	

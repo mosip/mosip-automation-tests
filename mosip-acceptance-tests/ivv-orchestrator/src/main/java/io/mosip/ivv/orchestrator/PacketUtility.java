@@ -711,7 +711,7 @@ centerId=10002
 		
 		
 		
-		jsonReq.put("validUIN", (map.get("$$uin")!=null) ? map.get("$$uin") : "create new");
+		jsonReq.put("validUIN", (map.get("$$uin")!=null) ? map.get("$$uin") : "createnew");
 
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
@@ -870,7 +870,7 @@ centerId=10002
 		}
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
-		Response response = putReqestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail");
+		Response response = putRequestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail");
 		if (!response.getBody().asString().toLowerCase().contains("sucess"))
 			throw new RigInternalError("Unable to update DemoOrBioDetail " + attributeList + " from packet utility");
 		return response.getBody().asString();

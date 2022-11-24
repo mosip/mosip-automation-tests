@@ -34,7 +34,7 @@ public class DiscardBooking extends BaseTestCaseUtil implements StepInterface {
 					//https://api-internal.dev3.mosip.net/preregistration/v1/appointment?preRegistrationId=111
 					HashMap<String, String> map=new HashMap<String, String>();
 					map.put("preRegistrationId", prid1);
-					Response response =deleteReqestWithQueryParam(url, map, "Discard booking");
+					Response response =deleteRequestWithQueryParam(url, map, "Discard booking");
 				//throw new RigInternalError("PRID cannot be null or empty");
 		}
 	}
