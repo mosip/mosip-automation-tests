@@ -187,7 +187,7 @@ public class BaseTestCaseUtil extends BaseStep{
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"+ apiResponse.getBody().asString() + "</pre>");
 		return apiResponse;
 	}
-	public Response putReqestWithBody(String url,String body,String opsToLog) {
+	public Response putRequestWithBody(String url,String body,String opsToLog) {
 		url=addContextToUrl(url);
 		Reporter.log("<pre> <b>"+opsToLog+": </b> <br/>"+body + "</pre>");
 		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
@@ -196,7 +196,7 @@ public class BaseTestCaseUtil extends BaseStep{
 		return puttResponse;
 	}
 	
-	public Response putReqest(String url,String opsToLog) {
+	public Response putRequest(String url,String opsToLog) {
 		url=addContextToUrl(url);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
@@ -206,7 +206,7 @@ public class BaseTestCaseUtil extends BaseStep{
 		return putResponse;
 	}
 	
-	public Response deleteReqest(String url,String opsToLog) {
+	public Response deleteRequest(String url,String opsToLog) {
 		url=addContextToUrl(url);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
@@ -216,7 +216,7 @@ public class BaseTestCaseUtil extends BaseStep{
 		return deleteResponse;
 	}
 	
-	public Response deleteReqestWithQueryParam(String url,HashMap<String,String> contextKey,String opsToLog) {
+	public Response deleteRequestWithQueryParam(String url,HashMap<String,String> contextKey,String opsToLog) {
 		url=addContextToUrl(url);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response deleteResponse = given().relaxedHTTPSValidation().queryParams(contextKey)

@@ -219,7 +219,7 @@ public class BiometricDataProvider {
 		
 		//	port = (port ==0 ? 4501: port);
 			
-			String p12path =  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.mockmds.p12.path").toString(); 
+			String p12path =  VariableManager.getVariableValue(contextKey,"mosip.test.mockmds.p12.path").toString(); 
 			
 		port= CentralizedMockSBI.startSBI(contextKey, "Registration",  "Biometric Device",Paths.get(p12path, contextKey).toString()) ;
 		//CentralizedMockSBI.stopSBI(context);
@@ -753,7 +753,7 @@ public class BiometricDataProvider {
 				}
 				data.setFingerPrint(fingerPrints);
 				data.setFingerHash(fingerPrintHash);
-	data.setFingerRaw(fingerPrintRaw);
+				data.setFingerRaw(fingerPrintRaw);
 					
 			}
 		
