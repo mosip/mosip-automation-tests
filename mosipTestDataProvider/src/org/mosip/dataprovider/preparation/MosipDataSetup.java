@@ -562,14 +562,15 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		return responseStr;
 	}
 
-	public static String deleteMockAbisExpectations(String id,String contextKey) {
+	public static String deleteMockAbisExpectations(String contextKey) {
 		
 		String response = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
 		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "deleteMockAbisExpectations").toString().trim();
-		url = url + "/" + contextKey;		
+				
 		try {
-			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject(),contextKey);
+			
+			JSONObject resp = RestClient.delete(url, new JSONObject(),contextKey);
 			response = resp.toString();
 		} catch (Exception e) {
 			
