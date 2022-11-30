@@ -31,7 +31,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		profileData = new Hashtable<String,MDSDataModel>();
 	}
 	@Override
-	public void createProfile(String profilePath, String profile, ResidentModel resident) throws Exception {
+	public void createProfile(String profilePath, String profile, ResidentModel resident,String contextKey) throws Exception {
 
 		MDSDataModel data = new MDSDataModel();
 		

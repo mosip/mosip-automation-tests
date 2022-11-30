@@ -7,7 +7,7 @@ import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
 
 public interface MDSClientInterface {
-	public void createProfile(String profilePath,String profile, ResidentModel resident) throws Exception ;
+	public void createProfile(String profilePath,String profile, ResidentModel resident,String contextKey) throws Exception ;
 	public void removeProfile(String profilePath,String profile) ;
 	public  void setProfile(String profile) ;
 	//Type ->"Finger", "Iris", "Face"

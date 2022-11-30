@@ -604,7 +604,7 @@ public class ResidentDataProvider {
 		for(ResidentModel r: lst) {
 			System.out.println(r.toJSONString());
 	
-			cli.createProfile("C:\\Mosip.io\\gitrepos\\mosip-mock-services\\MockMDS\\target\\Profile\\", "tst1", r);
+			cli.createProfile("C:\\Mosip.io\\gitrepos\\mosip-mock-services\\MockMDS\\target\\Profile\\", "tst1", r,"contextKey");
 			
 		}
 		
