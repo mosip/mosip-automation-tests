@@ -1,0 +1,17 @@
+AuthorizationCode:
+   IDP_AuthorizationCode_All_Valid_Smoke_sid:
+      endPoint: /v1/idp/authorization/auth-code
+      role: resident
+      restMethod: post
+      inputTemplate: idaData/AuthorizationCode/AuthorizationCode
+      outputTemplate: idaData/AuthorizationCode/AuthorizationCodeResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+        "acceptedClaims1": "name",
+        "acceptedClaims2": "gender",
+        "acceptedClaims3": "email"
+}'
+      output: '{
+        "redirectUri": "https://health-services.com/userprofile"
+}'
