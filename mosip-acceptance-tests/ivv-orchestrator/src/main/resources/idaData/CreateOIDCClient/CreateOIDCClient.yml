@@ -13,11 +13,10 @@ CreateOIDCClient:
        "relyingPartyId": "$RANDOMID$",
        "redirectUris": "https://health-services.com/userprofile",
        "publicKey": "$OIDCJWKKEY$",
-       "userClaims1": "given_name",
+       "userClaims1": "name",
        "userClaims2": "email",
        "userClaims3": "gender",
-       "userClaims4": "phone_number",
-       "userClaims5": "birthdate",
+       "userClaims4": "birthdate",
        "authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
        "grantTypes": "authorization_code",
        "clientAuthMethods": "private_key_jwt"
