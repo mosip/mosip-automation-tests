@@ -1,0 +1,13 @@
+{
+    "requestTime": "{{requestTime}}",
+    "request": {
+        "transactionId": "{{transactionId}}",
+        "acceptedClaims": ["{{acceptedClaims1}}","{{acceptedClaims2}}","{{acceptedClaims3}}"],
+        "permittedAuthorizeScopes": [
+	      {{#each permittedAuthorizeScopes}}
+	            "{{scope}}"
+	          {{#unless @last}},{{/unless}}
+	      	{{/each}}
+    ]
+    }
+}
