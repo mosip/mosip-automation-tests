@@ -65,7 +65,6 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 			centerHelper.centerStatusUpdate(map.get("centerId"+centerCount),activeFlag);
 			break;
 		case "UPDATE_NONLANG":
-			
 			break;
 
 		case "UPDATE_LANG":
