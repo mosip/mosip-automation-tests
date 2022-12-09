@@ -7,16 +7,16 @@
 	<packaging>pom</packaging>
 	<version>0.1.1-SNAPSHOT</version>
 	<modules>
-        <module>ivv-core</module>
+     <module>ivv-core</module>
 		<module>ivv-parser</module>
 		<module>ivv-dg</module>
-        <module>ivv-registration</module>
+        <!-- <module>ivv-registration</module> -->
 		<module>ivv-orchestrator</module>
-        <module>ivv-preregistration</module>
+        <!-- <module>ivv-preregistration</module> -->
         <module>ivv-regprocessor</module>
         <module>ivv-kernel</module>
-        <module>ivv-ida</module>
-        <module>ivv-mutators</module>
+        <!-- <module>ivv-ida</module> -->
+        <!-- <module>ivv-mutators</module> -->
     </modules>
 	<build>
 		<plugins>
