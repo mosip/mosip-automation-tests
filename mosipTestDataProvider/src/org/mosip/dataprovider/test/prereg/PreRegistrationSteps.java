@@ -126,14 +126,20 @@ public class PreRegistrationSteps {
 		return  result;
 		
 	}
+	
 	public static AppointmentModel getAppointments(String contextKey) {
 		AppointmentModel appointmentSlot = new AppointmentModel();
 
 		String base = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
 		String api = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "appointmentslots").toString().trim();
-		String centerId = VariableManager.getVariableValue(contextKey, "centerId").toString().trim();
+		
+		
+		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.prereg.centerid").toString().trim();
+		if(centerId.equalsIgnoreCase("automatic"))
+		centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString().trim();
+		
+		
 		String url =  base + api + centerId;
-
 
 		try {
 			JSONObject resp = RestClient.getNoAuth(url, new JSONObject(), new JSONObject(),contextKey);
@@ -142,8 +148,6 @@ public class PreRegistrationSteps {
 				ObjectMapper objectMapper = new ObjectMapper();
 				appointmentSlot = objectMapper.readValue(resp.toString(),  AppointmentModel.class);	
 			}
-		
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
@@ -311,7 +315,7 @@ public class PreRegistrationSteps {
 
 	
 				
-		String preRegID ="30491084523580";
+		String preRegID ="24728640730673";
 		Boolean bBooked = false;
 		//CreatePersona.sendOtpTo("sanath@mailinator.com");
 		CreatePersona.validateOTP("111111", "sanath@mailinator.com","contextKey");
