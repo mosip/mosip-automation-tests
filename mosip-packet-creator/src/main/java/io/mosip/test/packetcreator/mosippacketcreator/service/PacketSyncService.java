@@ -622,7 +622,7 @@ return functionResponse;
 
 		String base = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
 		String api = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"appointmentslots").toString().trim();
-		String centerId = VariableManager.getVariableValue( contextKey,"centerId").toString().trim();
+		String centerId = VariableManager.getVariableValue( contextKey,"regclient.centerid").toString().trim();
 		logger.info("BookAppointment:" + base +","+ api + ","+centerId);
 
 		AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
