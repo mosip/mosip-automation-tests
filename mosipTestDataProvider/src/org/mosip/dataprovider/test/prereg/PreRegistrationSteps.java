@@ -245,7 +245,7 @@ public class PreRegistrationSteps {
 	
 	
 	
-	public static String bookAppointment(String preRegId, String appointmentDate, int centerId, AppointmentTimeSlotModel slot, String contextKey) throws JSONException {
+	public static String bookAppointment(String preRegId, String appointmentDate, String centerId, AppointmentTimeSlotModel slot, String contextKey) throws JSONException {
 
 		String result ="";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
@@ -272,6 +272,7 @@ public class PreRegistrationSteps {
 				JSONObject resp = RestClient.postNoAuth(url, obj,contextKey);
 
 				if(resp != null) {
+					
 					result = resp.toString();
 				
 					//ObjectMapper objectMapper = new ObjectMapper();
