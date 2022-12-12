@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class AppointmentModel implements Serializable{
 	 private static final long serialVersionUID = 1L;
-	int regCenterId;
+	String regCenterId;
 	@JsonProperty("centerDetails")
 	List<CenterDetailsModel> availableDates;
 
