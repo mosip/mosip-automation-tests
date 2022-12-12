@@ -608,7 +608,8 @@ return functionResponse;
 		ts.setToTime(appointmentDto.getTime_slot_to());
 
 		return PreRegistrationSteps.bookAppointment(preregId,appointmentDto.getAppointment_date(),
-				Integer.parseInt(appointmentDto.getRegistration_center_id()),
+				appointmentDto.getRegistration_center_id()
+				,
 				ts,contextKey);
 
 	}
