@@ -118,6 +118,64 @@ public class RestClient {
 	public void addHeader(String header, String value) {
 		headers.put(header,  value);
 	}
+	
+	//method used with admin role
+		public static JSONObject getAdminPreReg(String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
+	       
+			String role = "admin";
+	        if (!isValidToken(role,contextKey)){
+	        	initToken(contextKey);
+	        	
+	        }
+	    	boolean bDone = false;
+	    	int nLoop  = 0;
+	    	Response response =null;
+
+	    	//Stict http validation errors - fix
+	    	
+	    	/*if(url.contains("//")) {
+	    		url = url.replace("//", "/"); 		
+	    	}*/
+	    	try {
+	    	while(!bDone) {
+
+	    	//	String token = tokens.get(role);
+	    		String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
+	    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+	    		Map<String,Object> mapParam = requestParams == null ? null: requestParams.toMap();
+	        		//new Gson().fromJson(requestParams.toString(), HashMap.class);
+	    		Map<String,Object> mapPathParam =pathParam == null ? null: pathParam.toMap();
+	        
+	        	//new Gson().fromJson(pathParam.toString(), HashMap.class);
+	        
+	    		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,mapPathParam );
+	    		if(response.getStatusCode() == 401) {
+	    			if(nLoop >= 1)
+	    				bDone = true;
+	    			else {
+	    				initToken(contextKey);
+	    				nLoop++;
+	    			}
+	    		}
+	    		else
+	    			bDone = true;
+	    	}
+
+	        if(response != null) {
+	        	System.out.println(response.getBody().asString());
+	        	
+	        }
+	        checkErrorResponse(response.getBody().asString());
+
+	       }
+	    	catch(Exception e)
+	    	{
+	    		e.printStackTrace();
+	    	}
+	    	 return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+	    }
+		
+		
 	//method used with system role
 	public static JSONObject get(String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
        
@@ -227,10 +285,11 @@ public class RestClient {
 	
 	
 	public static JSONObject getNoAuth(String url, JSONObject requestParams, JSONObject pathParam, String contextKey) throws Exception {
-		if (!isValidToken("resident",contextKey)){
-	           initToken_Resident(contextKey);
+		String role="prereg";
+		if (!isValidToken(role,contextKey)){
+	           initPreregToken(url, requestParams, contextKey);
 	        }
-		String token = tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"resident");
+		String token = tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
 	
 		Response response =null;
 
@@ -251,12 +310,19 @@ public class RestClient {
     }
 	
 	public static JSONObject uploadFile(String url, String filePath, JSONObject requestData,String contextKey) throws Exception {
-		String role = "resident";
+		String role = "prereg";
 	
-		if (!isValidToken(role,contextKey)){
-            initToken(contextKey);
-        }
-
+		if (!isValidToken(role,contextKey)) {
+			 if(role.equalsIgnoreCase("admin")) {
+				initToken_admin(contextKey);
+			}else if(role.equalsIgnoreCase("prereg")) {
+				//initPreregToken(url,jsonRequest,contextKey);
+				}
+			else {
+				initToken(contextKey);
+			}
+			 
+		}
 
 		 Response response =null;
 
@@ -292,10 +358,17 @@ public class RestClient {
 	public static JSONObject uploadFiles(String url, List<String> filePaths, JSONObject requestData,String contextKey) throws Exception {
 		String role = "admin";
 	
-		if (!isValidToken(role,contextKey)){
-          // initToken(contextKey);
-           initToken_admin(contextKey);
-        }
+		if (!isValidToken(role,contextKey)) {
+			 if(role.equalsIgnoreCase("admin")) {
+				initToken_admin(contextKey);
+			}else if(role.equalsIgnoreCase("prereg")) {
+				//initPreregToken(url,jsonRequest,contextKey);
+				}
+			else {
+				initToken(contextKey);
+			}
+			 
+		}
 
 
 		 Response response =null;
@@ -346,13 +419,26 @@ public class RestClient {
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
 */
-	public static JSONObject postNoAuth(String url, JSONObject jsonRequest,String contextKey) throws Exception {
 
-		String role = "resident";
-		if (!isValidToken(role,contextKey)){
-	           initToken_Resident(contextKey);
-	        }
+	public static JSONObject postNoAuth(String url, JSONObject jsonRequest,String contextKey) throws Exception {
+		return postNoAuth(url,jsonRequest,"admin",contextKey);
+	}
+
 	
+	public static JSONObject postNoAuthvalidate(String url, JSONObject jsonRequest,String role,String contextKey) throws Exception {
+
+		
+		if (!isValidToken(role,contextKey)) {
+			 if(role.equalsIgnoreCase("admin")) {
+				initToken_admin(contextKey);
+			}else if(role.equalsIgnoreCase("prereg")) {
+				//initPreregToken(url,jsonRequest,contextKey);
+				}
+			else {
+				initToken(contextKey);
+			}
+			 
+		}
 		
 		//String token = tokens.get(role);
 		String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
@@ -360,9 +446,16 @@ public class RestClient {
 		Response response =null;
 
 	    System.out.println("Request:"+ jsonRequest.toString());
-	    Cookie kukki = new Cookie.Builder("Authorization", token).build();
-        
-	    response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+	       try {
+			response = given()
+        		.contentType(ContentType.JSON)
+        		.body(jsonRequest.toString()).post(url);
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	    System.out.println("Response:"+response.getBody().asString());
+	    
 	    for(Header h: response.getHeaders()) {
 	    	System.out.println(h.getName() +"="+ h.getValue());
 	    }
@@ -372,23 +465,90 @@ public class RestClient {
     	}*/
     	if(cookie != null) {
     		token = cookie.split("=")[1];
+    		token= token.split(";")[0];
     		 tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role,token);
-    	}
+    	}	
     	System.out.println(token);
-        System.out.println("Response:"+response.getBody().asString());
+        
         checkErrorResponse(response.getBody().asString());
 
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
 
 	
-	public static JSONObject putNoAuth(String url, JSONObject jsonRequest,String contextKey) throws Exception {
+	public static JSONObject postNoAuth(String url, JSONObject jsonRequest,String role,String contextKey) throws Exception {
 
-		String role = "resident";
-		if (!isValidToken(role,contextKey)){
-	           initToken_Resident(contextKey);
-	        }
+		
+		if (!isValidToken(role,contextKey)) {
+			 if(role.equalsIgnoreCase("admin")) {
+				initToken_admin(contextKey);
+			}else if(role.equalsIgnoreCase("prereg")) {
+				//initPreregToken(url,jsonRequest,contextKey);
+				}
+			else {
+				initToken(contextKey);
+			}
+			 
+		}
+		
 		//String token = tokens.get(role);
+		String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
+		
+		Response response =null;
+
+	    System.out.println("Request:"+ jsonRequest.toString());
+	    
+	    try {
+	    Cookie kukki = new Cookie.Builder("Authorization", token).build();
+   
+	    response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+	  
+			
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	    System.out.println("Response:"+response.getBody().asString());
+	    
+	    for(Header h: response.getHeaders()) {
+	    	System.out.println(h.getName() +"="+ h.getValue());
+	    }
+	    String cookie = response.getHeader("Set-Cookie");
+    	/*if(cookie == null) {
+    		cookie = response.getHeader("Cookies");
+    	}*/
+    	if(cookie != null) {
+    		token = cookie.split("=")[1];
+    		
+    		 tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role,token);
+    	}	
+    	System.out.println(token);
+        
+        checkErrorResponse(response.getBody().asString());
+
+        return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+    }
+
+
+	public static JSONObject putNoAuth(String url, JSONObject jsonRequest,String contextKey) throws Exception {
+		return postNoAuth(url,jsonRequest,"system",contextKey);
+	}
+
+	
+	
+	public static JSONObject putNoAuth(String url, JSONObject jsonRequest,String role,String contextKey) throws Exception {
+
+		if (!isValidToken(role,contextKey)) {
+			 if(role.equalsIgnoreCase("admin")) {
+				initToken_admin(contextKey);
+			}else if(role.equalsIgnoreCase("prereg")) {
+				//initPreregToken(url,jsonRequest,contextKey);
+				}
+			else {
+				initToken(contextKey);
+			}
+			 
+		}
 		String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
 		
 		Response response =null;
@@ -411,13 +571,13 @@ public class RestClient {
         System.out.println("Response:"+response.getBody().asString());
         checkErrorResponse(response.getBody().asString());
 
-        return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+        return new JSONObject(response.getBody().asString());
     }
 	public static JSONObject deleteNoAuth(String url, JSONObject jsonRequest,String contextKey) throws Exception {
 
-		String role = "resident";
+		String role = "admin";
 		if (!isValidToken(role,contextKey)){
-	           initToken_Resident(contextKey);
+			initToken_admin(contextKey);
 	        }
 		//String token = tokens.get(role);
 		String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
@@ -630,8 +790,59 @@ public class RestClient {
     	}
     }
 	
+	
+	public static JSONObject putAdminPrereg(String url, JSONObject jsonRequest,String contextKey) throws Exception {
+		String role = "system";
+		if (!isValidToken(role,contextKey)){
+            initToken(contextKey);
+        }
+		boolean bDone = false;
+	    int nLoop  = 0;
+	    Response response =null;
+
+	  //Stict http validation errors - fix
+    	/*if(url.contains("//")) {
+    		url = url.replace("//", "/"); 		
+    	} */
+	    
+	    while(!bDone) {
+	    	//String token = tokens.get(role);
+	    	String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
+    		
+	    	Cookie kukki = new Cookie.Builder("Authorization", token).build();
+	    	System.out.println("Request:"+ jsonRequest.toString());
+	    	response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+	    	if(response.getStatusCode() == 401 || response.getStatusCode() == 500 ) {
+    			if(nLoop >= 1)
+    				bDone = true;
+    			else {
+    				initToken(contextKey);
+    				nLoop++;
+    			}
+    		}
+    		else
+    			bDone = true;
+	    
+	    }
+	    	
+	    String cookie = response.getHeader("set-cookie");
+    	if(cookie != null) {
+    		
+    		String token = cookie.split("=")[1];
+    		  tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role, token);
+    		
+    	}
+    	if(response.getBody().asString().startsWith("{")) {
+    		System.out.println("Response:"+response.getBody().asString());
+    		checkErrorResponse(response.getBody().asString());
+    		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+    	}
+    	else {
+    		return new JSONObject("{\"status\":\""+ response.getBody().asString() + "\"}" );
+    	}
+    }
 	public static JSONObject putPreRegStatus(String url, JSONObject jsonRequest,String contextKey) throws Exception {
-		String role = "resident";// //system
+		String role = "prereg";// //system
 		if (!isValidToken(role,contextKey)){
            initToken(contextKey);
         }
@@ -730,6 +941,49 @@ public class RestClient {
     	}
     }
 
+	public  static boolean initPreregToken(String url,JSONObject requestBody,String contextKey){
+        try {		
+        
+				String jsonBody = requestBody.toString(); 
+			logger.info("Prereg logger " +  jsonBody);
+			Response response =null;
+			try {
+				response = given()
+            		.contentType("application/json")
+            		.body(jsonBody)
+            		.post(url);
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+				
+            if (response.getStatusCode() != 200 || response.toString().contains("errorCode")) {
+//            	boolean bSlackit = VariableManager.getVariableValue(contextKey,"post2slack") == null ? false : Boolean.parseBoolean(VariableManager.getVariableValue(contextKey,"post2slack").toString()) ;
+//            	if(bSlackit)
+//            		SlackIt.postMessage(null,
+//            				authUrl  + " Failed to authenticate, Is " +  VariableManager.getVariableValue(contextKey,"urlBase").toString() + " down ?");
+//            	
+            	return false;
+            }
+			//String responseBody = response.getBody().asString();
+			//String token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
+            //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
+           
+          String token=response.getCookie("Authorization");
+          if( token==null) return false;
+          tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"prereg", token);
+            //tokens.put("admin", token);
+			return true;	
+		}
+		catch(Exception  ex){
+			
+		}
+        return false;
+  		
+        //https://dev.mosip.net/v1/authmanager/authenticate/internal/useridPwd
+    }
+	
+	
 	public  static boolean initToken(String contextKey){
 	        try {		
 	        
