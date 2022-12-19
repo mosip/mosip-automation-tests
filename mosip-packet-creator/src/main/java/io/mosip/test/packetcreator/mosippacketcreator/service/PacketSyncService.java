@@ -623,11 +623,9 @@ return functionResponse;
 
 		String base = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
 		String api = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"appointmentslots").toString().trim();
-		String centerId = VariableManager.getVariableValue( contextKey,"regclient.centerid").toString().trim();
-		logger.info("BookAppointment:" + base +","+ api + ","+centerId);
-
+		
 		AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
-
+	
 		for( CenterDetailsModel a: res.getAvailableDates()) {
 			if(!a.getHoliday()) {
 				for(AppointmentTimeSlotModel ts: a.getTimeslots()) {
@@ -803,10 +801,12 @@ return functionResponse;
 		}
 		if(outDir == null || outDir.trim().equals("")) {
 			packetDir = Files.createTempDirectory("packets_");
+			logger.info("packetDir=" + packetDir);
 		}
 		else
 		{
 			packetDir = Paths.get(outDir);
+			logger.info("packetDir=" + packetDir);
 		}
 		if(!packetDir.toFile().exists()) {
 			packetDir.toFile().createNewFile();
@@ -826,7 +826,7 @@ return functionResponse;
 			for(String path: personaFilePaths) {
 				ResidentModel resident = ResidentModel.readPersona(path);
 				String packetPath = packetDir.toString()+File.separator + resident.getId();
-
+				logger.info("packetPath="+packetPath);
 				machineId=VariableManager.getVariableValue(contextKey,"mosip.test.regclient.machineid").toString();
 
 				centerId=VariableManager.getVariableValue(contextKey,"mosip.test.regclient.centerid").toString();
@@ -836,6 +836,7 @@ return functionResponse;
 				obj.put("id",resident.getId());
 				obj.put("path", packetPath);
 				logger.info("createPacket:" + packetPath);
+				logger.info("obj="+obj);
 				packetPaths.put(obj);
 
 			}
