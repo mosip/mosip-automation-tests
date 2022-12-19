@@ -42,11 +42,14 @@ import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.google.gson.JsonObject;
 
 import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
+
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -58,6 +61,7 @@ import variables.VariableManager;
 
 @SuppressWarnings("unchecked")
 public class PacketTemplateProvider {
+	private static final Logger logger = LoggerFactory.getLogger(PacketTemplateProvider.class);
 
 	static HashMap<String, String[]> fileInfo = new HashMap<String, String[]>();
 
@@ -96,7 +100,7 @@ public class PacketTemplateProvider {
 		String rootFolder = packetFilePath;
 		String ridFolder = "";
 		Path path = Paths.get(rootFolder);
-
+		logger.info("path1:"+path);
 		getSchema(contextKey);
 
 		if (!Files.exists(path)) {
@@ -104,10 +108,12 @@ public class PacketTemplateProvider {
 		}
 		String sourceFolder = rootFolder + File.separator + source.toUpperCase();
 		path = Paths.get(sourceFolder);
+		logger.info("path2:"+path);
 		if (!Files.exists(path)) {
 			Files.createDirectory(path);
 		}
 		String processFolder = sourceFolder + File.separator + process.toUpperCase();
+		logger.info("processFolder:"+processFolder);
 		path = Paths.get(processFolder);
 		if (!Files.exists(path)) {
 			Files.createDirectory(path);
@@ -1785,7 +1791,7 @@ public class PacketTemplateProvider {
 		ResidentDataProvider provider = new ResidentDataProvider();
 		List<ResidentModel> residents = provider.generate("contextKey");
 		try {
-			new PacketTemplateProvider().generate("registration_client", "new", residents.get(0), "/temp//newpacket",
+			new PacketTemplateProvider().generate("registration_client", "new", residents.get(0), "/temp/newpacket",
 					null, null, null,null,null,null);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

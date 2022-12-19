@@ -439,8 +439,9 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() + VariableManager.getVariableValue(contextKey,"updatePreRegStatus").toString()
 				+ preregId + "?statusCode=" + statusCode;
 		try {
-			JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject(),contextKey);
-			//JSONObject resp = RestClient.putNoAuth(url, new JSONObject());
+			//JSONObject resp = RestClient.put(url, new JSONObject(),contextKey); // Not updating status
+			
+			JSONObject resp = RestClient.putNoAuth(url, new JSONObject(),"prereg",contextKey);
 			if (resp != null) {
 				response = resp.getString("response");
 				System.out.println(response);
