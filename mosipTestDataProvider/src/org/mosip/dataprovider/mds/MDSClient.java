@@ -152,7 +152,7 @@ public class MDSClient implements MDSClientInterface {
 		//File []defFiles = defProfile.listFiles();
 		for(File f: firstSet) {
 			try {
-				Files.copy(f, new File(profDir.getAbsolutePath() +"\\"+ f.getName()));
+				Files.copy(f, new File(profDir.getAbsolutePath() +"/"+ f.getName()));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

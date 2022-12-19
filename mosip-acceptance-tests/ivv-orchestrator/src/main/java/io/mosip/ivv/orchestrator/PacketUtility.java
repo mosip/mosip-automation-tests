@@ -243,7 +243,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public void preRegStatusValidResponse(String response) throws RigInternalError {
-		if (!response.toLowerCase().contains("status_updated_sucessfully")) {
+		if (!response.toLowerCase().contains("status_updated_sucessfully")) { 
 			Reporter.log("STATUS_NOT_UPDATED_SUCESSFULLY");
 			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
 		} else {
