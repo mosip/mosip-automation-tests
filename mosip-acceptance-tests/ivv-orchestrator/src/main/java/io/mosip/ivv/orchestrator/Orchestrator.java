@@ -86,8 +86,10 @@ public class Orchestrator {
 		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
 		Properties properties = Utils.getProperties(configFile);
 		// Properties propsKernel=ConfigManager.propsKernel;
-		//scenarioSheet=propsKernel.getProperty("mosip.test.persona.scenariospath") + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment;
-		 scenarioSheet = System.getProperty("scenarioSheet");
+		
+		//scenarios-sanity-api-internal.qa-1201-b2
+		scenarioSheet=properties.getProperty("ivv.path.scenario.sheet.folder") + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
+	//	 scenarioSheet = System.getProperty("scenarioSheet");
 		 if (scenarioSheet == null || scenarioSheet.isEmpty())
 			throw new RigInternalError("ScenarioSheet argument missing");
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
@@ -99,8 +101,10 @@ public class Orchestrator {
 				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.biometrics.folder"));
 		parserInputDTO.setPersonaSheet(
 				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.persona.sheet"));
-		parserInputDTO.setScenarioSheet(TestRunner.getExternalResourcePath()
-				+ properties.getProperty("ivv.path.scenario.sheet.folder") + scenarioSheet);
+//		parserInputDTO.setScenarioSheet(TestRunner.getExternalResourcePath()
+//				+ properties.getProperty("ivv.path.scenario.sheet.folder") + scenarioSheet);
+		parserInputDTO.setScenarioSheet(scenarioSheet);
+		
 		parserInputDTO.setRcSheet(
 				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.rcpersona.sheet"));
 		parserInputDTO.setPartnerSheet(
