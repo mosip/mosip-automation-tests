@@ -3,8 +3,8 @@ BioAuth:
       endPoint: /v1/identity/authenticate?id=uinnumber&partnerUrlSuffix=$PartnerKey$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
       role: resident
       restMethod: post
-      inputTemplate: idaData/BioAuth/BioAuth
-      outputTemplate: idaData/BioAuth/BioAuthResult
+      inputTemplate: idaData/BioAuth/bioAuth
+      outputTemplate: idaData/BioAuth/bioAuthResult
       input: '{
           "bioSubType": "",
           "bioType": "FACE",

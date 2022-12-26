@@ -4,7 +4,7 @@ DemoAuth:
       role: resident
       restMethod: post
       inputTemplate: idaData/DemoAuth/DemoIdentityEncrypt
-      outputTemplate: idaData/DemoAuth/DemoAuthResult
+      outputTemplate: idaData/DemoAuth/demoAuthResult
       input: '{
         "timestamp": "$TIMESTAMP$",
         "transactionId": "1234567890"
