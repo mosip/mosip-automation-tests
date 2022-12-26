@@ -3,8 +3,8 @@ EkycOtp:
       endPoint: /v1/identity/authenticate?id=uinnumber&isKyc=true&partnerUrlSuffix=$partnerKeyURL$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
       role: resident
       restMethod: post
-      inputTemplate: idaData/EkycOtp/EkycOtp
-      outputTemplate: idaData/EkycOtp/EkycOtpResult
+      inputTemplate: idaData/EkycOtp/ekycOtp
+      outputTemplate: idaData/EkycOtp/ekycOtpResult
       input: '{
         "individualId": "uinnumber",
         "transactionID": "1234567890",
