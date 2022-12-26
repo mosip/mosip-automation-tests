@@ -11,6 +11,7 @@ import org.springframework.util.FileSystemUtils;
 import java.io.*;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -498,13 +499,21 @@ public class PacketMakerService {
 
 		try {
 			
+		
 			
 		String schemaVersion = jb.optString("IDSchemaVersion", "0");
 		String schemaJson = schemaUtil.getAndSaveSchema(schemaVersion, workDirectory, contextKey);
 
 		if (type.equals("id")) {
-
-			Files.write(Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString() + regId + "_schema.json"), schemaJson.getBytes());
+			Path path = Paths.get(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_schema.json");
+	        Files.createDirectories(path.getParent());
+	        try {
+	            Files.createFile(path);
+	        } catch (FileAlreadyExistsException e) {
+	            System.err.println("already exists: " + e.getMessage());
+	        }
+				//Files.write(Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_schema.json"), schemaJson.getBytes());
+	        Files.write(path, schemaJson.getBytes());
 
 		}
 		/*
@@ -519,7 +528,15 @@ public class PacketMakerService {
 
 		if (type.equals("id")) {
 			List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap,contextKey);
-			Files.write(Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString() + regId + "_invalidIds.json"), invalidIds.toString().getBytes());
+			Path path = Paths.get(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_invalidIds.json");
+	        Files.createDirectories(path.getParent());
+	        try {
+	            Files.createFile(path);
+	        } catch (FileAlreadyExistsException e) {
+	            System.err.println("already exists: " + e.getMessage());
+	        }
+				Files.write(path, invalidIds.toString().getBytes());
+		//	Files.write(Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString() ,contextKey.replace("_context", ""), regId + "_invalidIds.json"), invalidIds.toString().getBytes());
 		}
 
 		if (!writeJSONFile(mergedJsonMap.toMap(), templateFile)) {
@@ -635,7 +652,9 @@ public class PacketMakerService {
 				cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + "_unenc.zip")), contextKey));
 
 		Path src = Path.of(containerRootFolder + "_unenc.zip");
-		Files.copy(src, Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString() + src.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+		
+		
+		Files.copy(src, Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(), contextKey.replace("_context", ""), src.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
 
 		Files.delete(Path.of(containerRootFolder + "_unenc.zip"));
 		FileSystemUtils.deleteRecursively(Path.of(containerRootFolder));
@@ -651,7 +670,7 @@ public class PacketMakerService {
 
 		Path src = Path.of(path + "_unenc.zip");
 
-		Files.copy(src, Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString() + src.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(src, Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  src.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
 
 		Files.delete(Path.of(path + "_unenc.zip"));
 		return result;
