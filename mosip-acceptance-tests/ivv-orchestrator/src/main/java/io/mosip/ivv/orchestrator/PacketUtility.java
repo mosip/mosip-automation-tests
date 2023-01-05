@@ -242,7 +242,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public void preRegStatusValidResponse(String response) throws RigInternalError {
-		if (!response.toLowerCase().contains("status_updated_sucessfully")) {
+		if (!response.toLowerCase().contains("status_updated_sucessfully")) { 
 			Reporter.log("STATUS_NOT_UPDATED_SUCESSFULLY");
 			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
 		} else {
@@ -257,7 +257,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// bookOnHolidays;
 		String url = baseUrl + "/prereg/appointment/" + prid + "/" + nthSlot + "/" + bookOnHolidays;
 		JSONObject jsonReq = new JSONObject();
-		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "BookAppointment");
+		
+		Response response = postRequest(url, jsonReq.toString(), "BookAppointment");
+		//Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "BookAppointment");
 		if (!response.getBody().asString().toLowerCase().contains("appointment booked successfully"))
 			throw new RigInternalError("Unable to BookAppointment from packet utility");
 	}

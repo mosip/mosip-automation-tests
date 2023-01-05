@@ -632,7 +632,8 @@ public class CreatePersona {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +"preregistration/v1/login/sendOtp/langcode";
 	//	url = "https://dev.mosip.net/preregistration/v1/login/sendOtp";
 		try {
-			JSONObject resp = RestClient.postNoAuth(url, obj, contextKey);
+			JSONObject resp = RestClient.postNoAuthvalidate(url, obj, "sendotp",contextKey);
+			//JSONObject resp = RestClient.post(url, obj, "admin",contextKey);
 			response = resp.toString();
 		} catch (Exception e) {
 			
@@ -670,7 +671,8 @@ public class CreatePersona {
 
 		
 		try {
-			JSONObject resp = RestClient.postNoAuth (url, obj,contextKey);
+			JSONObject resp = RestClient.postNoAuthvalidate (url, obj,"prereg",contextKey);
+			//JSONObject resp = RestClient.post (url, obj,"admin",contextKey);
 			response = resp.toString();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

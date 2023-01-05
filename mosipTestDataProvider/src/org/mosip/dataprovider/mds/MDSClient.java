@@ -6,7 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -39,14 +40,17 @@ public class MDSClient implements MDSClientInterface {
 		else
 			this.port = port;
 	}
+	
+	
 	//create profile folder and create all ISO images as per resident data
 	
-	public void createProfile(String profilePath,String profile, ResidentModel resident) throws Exception {
+	public void createProfileOld(String profilePath,String profile, ResidentModel resident) throws Exception {
 		File profDir = new File(profilePath + "/"+ profile);
 		if(!profDir.exists())
 			profDir.mkdir();
 		//copy from default profile
 		File defProfile = new File( profilePath +"/"+ "Default");
+		
 		File []defFiles = defProfile.listFiles();
 		for(File f: defFiles) {
 			try {
@@ -91,6 +95,106 @@ public class MDSClient implements MDSClientInterface {
 		
 			
 	}
+	
+	
+	
+
+	//create profile folder and create all ISO images as per resident data
+	
+	public void createProfile(String profilePath,String profile, ResidentModel resident,String contextKey) throws Exception {
+		File profDir = new File(profilePath + "/"+ profile);
+		if(!profDir.exists())
+			profDir.mkdir();
+		//copy from default profile
+		
+		
+		/////////
+		//reach cached finger prints from folder
+				String dirPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
+				System.out.println("dirPath " + dirPath);
+				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
+				File dir = new File(dirPath);
+
+				File listDir[] = dir.listFiles();
+				int numberOfSubfolders = listDir.length;
+
+				int min=1;
+				int max=numberOfSubfolders ;
+				int randomNumber = (int) (Math.random()*(max-min)) + min;
+				String beforescenario=VariableManager.getVariableValue(contextKey,"scenario").toString();
+				String afterscenario=beforescenario.substring(0, beforescenario.indexOf(':'));
+
+				int currentScenarioNumber = Integer.valueOf(afterscenario);
+
+
+				// If the available impressions are less than scenario number, pick the random one
+
+				// otherwise pick the impression of same of scenario number
+				int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber ;
+
+				System.out.println("currentScenarioNumber=" + currentScenarioNumber +" numberOfSubfolders=" + numberOfSubfolders + " impressionToPick=" + impressionToPick );
+				List<File> lst=new LinkedList<File>();
+				for(int i=min; i <= max; i++) {
+
+					lst = CommonUtil.listFiles(dirPath +
+							String.format("/Impression_%d/fp_1/", i));
+					tblFiles.put(i,lst);
+				}
+				
+				List<File> firstSet = tblFiles.get(impressionToPick);
+				System.out.println("Impression used "+ impressionToPick);
+		
+		///////////////
+		
+				
+		//File defProfile = new File( profilePath +"/"+ "Automatic");
+		
+		//File []defFiles = defProfile.listFiles();
+		for(File f: firstSet) {
+			try {
+				Files.copy(f, new File(profDir.getAbsolutePath() +"/"+ f.getName()));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		ISOConverter convert = new ISOConverter();
+		try {
+			if(!resident.getSkipFace()) {
+				byte[] face = resident.getBiometric().getRawFaceData();
+				convert.convertFace(face,profDir + "/" + "Face.iso");
+			}
+			if(!resident.getSkipIris()) {
+				
+				IrisDataModel iris = resident.getBiometric().getIris();
+				if(iris != null) {
+					
+					if(iris.getRawLeft() != null)
+						convert.convertIris(iris.getRawLeft(), profDir + "/"+ "Left_Iris.iso", "Left");
+					if(iris.getRawRight() != null)
+						convert.convertIris(iris.getRawRight(), profDir + "/"+ "Right_Iris.iso", "Right");
+				}
+			}
+			if(!resident.getSkipFinger()) {
+				byte[] [] fingerData = resident.getBiometric().getFingerRaw();
+				for(int i=0; i < 10; i++) {
+					String fingerName = DataProviderConstants.displayFingerName[i];
+					String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
+					if(fingerData[i] != null) {
+						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName);
+					}
+				}
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+			
+	}
+	
+	
 	public void removeProfile(String profilePath,String profile) {
 		setProfile("Default");
 		File profDir = new File(profilePath + "/"+ profile);
