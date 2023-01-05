@@ -18,15 +18,17 @@ import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataCallback;
 import org.mosip.dataprovider.util.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 import variables.VariableManager;
 
 
 
 public class PreRegistrationSteps {
+	private static final Logger logger = LoggerFactory.getLogger(PreRegistrationSteps.class);
 
 	private static JSONObject matchApplication(JSONArray arr, String preregId) {
 		for(int i=0; i < arr.length() ; i++)
@@ -43,7 +45,9 @@ public class PreRegistrationSteps {
 		JSONArray newArray = new JSONArray();
 
 		try {
-			JSONObject resp = RestClient.getNoAuth (url, new JSONObject(),new JSONObject(),contextKey);
+		//	JSONObject resp = RestClient.getNoAuth (url, new JSONObject(),new JSONObject(),contextKey);
+			JSONObject resp = RestClient.getAdminPreReg (url, new JSONObject(),new JSONObject(),contextKey);
+			
 			String strCount = resp.getString("totalRecords");
 			int count =0;
 			if(strCount != null && !strCount.equals(""))
@@ -94,7 +98,7 @@ public class PreRegistrationSteps {
 		//RestClient client = annotation.getRestClient();
 		
 		try {
-			JSONObject resp = RestClient.postNoAuth (url, reqBody,contextKey);
+			JSONObject resp = RestClient.postNoAuth (url, reqBody,"prereg",contextKey);
 			result = resp.get("preRegistrationId").toString();
 			
 		} catch (Exception e) {
@@ -117,7 +121,8 @@ public class PreRegistrationSteps {
 		//RestClient client = annotation.getRestClient();
 		
 		try {
-			JSONObject resp = RestClient.putNoAuth(url, reqBody,contextKey);
+			//JSONObject resp = RestClient.putNoAuth(url, reqBody,contextKey);
+			JSONObject resp = RestClient.putAdminPrereg(url, reqBody,contextKey);
 			result = resp.get("preRegistrationId").toString();
 			
 		} catch (Exception e) {
@@ -126,24 +131,30 @@ public class PreRegistrationSteps {
 		return  result;
 		
 	}
+	
 	public static AppointmentModel getAppointments(String contextKey) {
 		AppointmentModel appointmentSlot = new AppointmentModel();
 
 		String base = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
 		String api = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "appointmentslots").toString().trim();
-		String centerId = VariableManager.getVariableValue(contextKey, "centerId").toString().trim();
+		
+		
+		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.prereg.centerid").toString().trim();
+		if(centerId.equalsIgnoreCase("automatic"))
+		centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString().trim();
+		
+		
 		String url =  base + api + centerId;
-
+		logger.info("BookAppointment:" + url);
 
 		try {
+			//JSONObject resp = RestClient.get(url, new JSONObject(), new JSONObject(),contextKey);
 			JSONObject resp = RestClient.getNoAuth(url, new JSONObject(), new JSONObject(),contextKey);
-
+			 //JSONObject resp = RestClient.getAdminPreReg(url, new JSONObject(), new JSONObject(),contextKey);
 			if(resp != null) {
 				ObjectMapper objectMapper = new ObjectMapper();
 				appointmentSlot = objectMapper.readValue(resp.toString(),  AppointmentModel.class);	
 			}
-		
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
@@ -168,7 +179,8 @@ public class PreRegistrationSteps {
 		
 		try {
 			url = url + "/" + preregId;
-			JSONObject resp = RestClient.putNoAuth(url, obj,contextKey);
+			//JSONObject resp = RestClient.putNoAuth(url, obj,contextKey); 
+			JSONObject resp = RestClient.putAdminPrereg(url, obj,contextKey); 
 			response = resp.toString();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -241,7 +253,7 @@ public class PreRegistrationSteps {
 	
 	
 	
-	public static String bookAppointment(String preRegId, String appointmentDate, int centerId, AppointmentTimeSlotModel slot, String contextKey) throws JSONException {
+	public static String bookAppointment(String preRegId, String appointmentDate, String centerId, AppointmentTimeSlotModel slot, String contextKey) throws JSONException {
 
 		String result ="";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
@@ -265,9 +277,10 @@ public class PreRegistrationSteps {
 			bookingRequestObject.put(0, booking);
 
 			try {
-				JSONObject resp = RestClient.postNoAuth(url, obj,contextKey);
+				JSONObject resp = RestClient.postNoAuth(url, obj,"prereg",contextKey);
 
 				if(resp != null) {
+					
 					result = resp.toString();
 				
 					//ObjectMapper objectMapper = new ObjectMapper();
@@ -311,7 +324,7 @@ public class PreRegistrationSteps {
 
 	
 				
-		String preRegID ="30491084523580";
+		String preRegID ="24728640730673";
 		Boolean bBooked = false;
 		//CreatePersona.sendOtpTo("sanath@mailinator.com");
 		CreatePersona.validateOTP("111111", "sanath@mailinator.com","contextKey");

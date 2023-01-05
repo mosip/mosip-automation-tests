@@ -158,6 +158,13 @@ public class BaseTestCaseUtil extends BaseStep{
 	}
 	
 	protected static String addContextToUrl(String url) {
+		if(url.contains("?"))
+		{
+			String urlArr[]=url.split("\\?");
+			return urlArr[0] + "/" + System.getProperty("env.user")+"_context?" + urlArr[1];
+		}
+		else if(url.contains("mockmv")) return url;
+		else
 		return url + "/" + System.getProperty("env.user")+"_context";
 	}
 	public static Response getRequest(String url, String opsToLog) {
