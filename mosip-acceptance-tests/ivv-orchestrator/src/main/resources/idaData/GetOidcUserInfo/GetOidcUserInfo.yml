@@ -6,6 +6,6 @@ GetOidcUserInfo:
       inputTemplate: idaData/GetOidcUserInfo/GetOidcUserInfo
       outputTemplate: idaData/GetOidcUserInfo/GetOidcUserInfoResult
       input: '{
-        "idpAccessToken": "$ID:GenerateToken_Valid_Smoke_sid_access_token$"
+        "idpAccessToken": "idpAccessToken"
 }'
       output: "200"
