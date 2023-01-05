@@ -29,11 +29,20 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
 
-		if (!step.getParameters().isEmpty() && step.getParameters().get(0).startsWith("$$")) {
+		if (!step.getParameters().isEmpty() ) {
+			
+			if( step.getParameters().get(0).startsWith("$$")) {
 
-			clientId = (String) oidcClientProp.get("clientId");
+				clientId = (String) oidcClientProp.get("clientId");
+				
+			}
+			
+			else {
+				clientId= step.getParameters().get(0);
+			}
 			System.out.println(clientId);
 		}
+				
 
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, clientId, "clientId");
