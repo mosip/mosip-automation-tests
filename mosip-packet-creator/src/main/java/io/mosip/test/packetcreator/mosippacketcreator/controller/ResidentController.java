@@ -4,6 +4,7 @@ package io.mosip.test.packetcreator.mosippacketcreator.controller;
 import java.util.List;
 
 import org.mosip.dataprovider.mds.MDSClient;
+import org.mosip.dataprovider.test.registrationclient.RegistrationSteps;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.ReadEmail;
 import org.slf4j.Logger;
@@ -144,9 +145,18 @@ public class ResidentController {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
 			try {
-				MDSClient client = new MDSClient(0);
-				client.setProfile("Default");
-				client.setThresholdValue(qualityScore);
+				long port= MDSClient.port;
+				
+				//client = new MDSClient(0); //
+				//port --in MDS Admin api -- hit
+				// {"type" : "Biometric Device","qualityScore": "20", "fromIso" : false}
+				// POST URI - 127.0.0.1:4501/admin/score
+				
+				 RegistrationSteps steps = new RegistrationSteps();
+				// steps.setMDSprofile(type, profile);
+			    steps.setMDSscore(port,"Biometric Device", qualityScore, contextKey);
+//				client.setProfile("Default");
+//				client.setThresholdValue(qualityScore);
 				return "qualityScore :" + qualityScore + " is updated";
 			} catch (Exception e) {
 				logger.error("ThresholdValue", e);

@@ -31,7 +31,7 @@ import variables.VariableManager;
 
 public class MDSClient implements MDSClientInterface {
 
-	int port;
+	public static int port;
 	public static String MDSURL = "http://127.0.0.1:";
 	
 	public MDSClient(int port) {
