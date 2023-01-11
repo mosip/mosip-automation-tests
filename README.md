@@ -51,14 +51,12 @@ Below are repository details of various modules used for the automation
 1. Download vcredist_x86.exe `https://www.microsoft.com/en-us/download/details.aspx?id=48145`
   ( Note : one time activity it will be installed as a service , no need to do it again for any further update)
 1. Download `centralized folder from src/main/resources/dockersupport
-	- Under `mosip-packet-creator
-			-Biometric Devices= Contains Mockmds specific files.
-			-config= application.properties configurations
-			-resource
-					-config=default.properties
-					-mapper=demographic mappings environment specific or default setup.
-					-privatekeys=machine specific details for encrypting and signing the packet.
-					
+1. Under `mosip-packet-creator
+1. Biometric Devices= Contains Mockmds specific files.
+1. config= application.properties configurations
+1. config=default.properties
+1. mapper=demographic mappings environment specific or default setup.
+1. privatekeys=machine specific details for encrypting and signing the packet.					
 1. Set device certificates as per the environment and keep certificate under each modality keys. See [MDSdevicecert.md](https://github.com/mosip/mosip-infra/blob/1.2.0-rc2/deployment/sandbox-v2/docs/MDSdevicecert.md).
 1. Place Device p12 file under `centralized\mountvolume\mockmdscert\api-internal.env_context
 
@@ -73,7 +71,8 @@ Below are repository details of various modules used for the automation
 ## Configuration - DSL Orchestrator
 1. Build the E2E_Automation acceptance test project and get the jar  `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\target`
 2. Take the config folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\config`
-3. Take the local folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\local`
+3. Update kernel properties secret keys based on the env details
+4. Take the local folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\local`
 
 1. Command to execute the e2e automation (ivv-orchestrator-1.2.0.1-SNAPSHOT-jar-with-dependencies.jar) utility with below vm arguments
      * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl `-Denv.testLevel`=sanity `-Denv.langcode`=eng -jar ivv-orchestrator-1.2.0.1-SNAPSHOT-jar-with-dependencies.jar
