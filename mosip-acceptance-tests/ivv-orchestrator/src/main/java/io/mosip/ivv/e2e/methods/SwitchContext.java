@@ -24,7 +24,7 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 			logger.warn("SwitchContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else {
 			contextKeyValue = step.getParameters().get(0);
-			if (step.getParameters().size() == 2) {
+			if (step.getParameters().size() >1) {
 				String userAndMachineDetailParam = step.getParameters().get(1);
 				if (userAndMachineDetailParam.startsWith("$$")) {
 					map = step.getScenario().getVariables();
@@ -36,11 +36,11 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 				}
 				if (step.getParameters().size() > 3)  // true/false  (want to generate privatekey)
 					generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(3));
-				
-				if (userAndMachineDetailParam != null)
-				packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/");
 				if (map != null)
-				packetUtility.createContexts("",contextKeyValue, map, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/");
+					packetUtility.createContexts("",contextKeyValue, map, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/");
+					
+				else if (userAndMachineDetailParam != null)
+				packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/");
 				
 				
 				

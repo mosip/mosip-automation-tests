@@ -1,5 +1,8 @@
 package org.mosip.dataprovider.test.registrationclient;
 
+
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +12,7 @@ import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.RestClient;
 
-
+import io.restassured.response.Response;
 import variables.VariableManager;
 
 public class RegistrationSteps {
@@ -136,5 +139,39 @@ public class RegistrationSteps {
 		return response.getJSONObject("identity").getString("UIN");
 		
 	}
+	
+	
+	public void setMDSscore(long port,String type, String qualityScore,String contextKey) {
+
+		try {
+			String requestBody = "{\"type\":\"" + type + "\",\"qualityScore\":\"" + qualityScore
+					+ "\",\"fromIso\":false}";
+
+			Response response  = RestClient.post("http://127.0.0.1:"+port+"/admin/score",requestBody,contextKey);;
+		System.out.println(response.toString());
+
+			assertEquals(200, response.statusCode());
+			assertEquals("Success", response.jsonPath().getString("errorInfo"));
+		} catch (Exception e) {
+			System.out.println("Issue with the Rest Assured MOCKMDS Score Request"+ e);
+		}
+	}
+
+
+    public void setMDSprofile(String type,String profile) {
+        try {
+//            String requestBody = "{\"type\":\""+type+"\",\"profileId\":\"" + profile + "\"}";
+//
+//            Response response = RestAssured.given().baseUri("http://127.0.0.1:4501/admin/profile")
+//                    .contentType(ContentType.JSON).and().body(requestBody).when().post().then().extract().response();
+//            assertEquals(200, response.statusCode());
+//            assertEquals("Success", response.jsonPath().getString("errorInfo"));
+
+        } catch (Exception e) {
+        	System.out.println("Issue with the Rest Assured MOCKMDS Profile Request"+ e);
+        }
+    }
+    
+    
 	
 }

@@ -1,6 +1,10 @@
 package io.mosip.ivv.e2e.methods;
 
+import java.util.HashMap;
+
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
@@ -18,6 +22,9 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 		if (!step.getParameters().isEmpty() && step.getParameters().size() > 0)
 			repeats = Integer.parseInt(step.getParameters().get(0));
 		String url = baseUrl + props.getProperty("getAdditionalInfoReqId");
+		
+		HashMap<Long, JSONObject> map=ReadWebSocket.map;
+		
 		while (counter < repeats) {
 			logger.info("*******Checking the email for AdditionalInfoReqId...*******");
 			Response response = getRequest(url, "Get addtionalInfoRequestId");

@@ -668,6 +668,16 @@ public class RestClient {
 	public static JSONObject post(String url, JSONObject jsonRequest,String contextKey) throws Exception {
 		return post(url,jsonRequest,"system",contextKey);
 	}
+	
+	public static Response post(String url,String requestBody,String contextKey) throws Exception 
+	{
+
+		Response response = RestAssured.given().baseUri(url)
+				.contentType(ContentType.JSON).and().body(requestBody).when().post().then().extract().response();
+return response;
+
+	}
+	
 	public static JSONObject post(String url, JSONObject jsonRequest,String role,String contextKey) throws Exception {
 		//String role = "system";
 		if (!isValidToken(role,contextKey)) {
