@@ -32,6 +32,7 @@ import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.testscripts.BioAuth;
+import io.mosip.testscripts.IdpBioAuth;
 //import io.mosip.testscripts.BioAuthOld;
 import io.restassured.response.Response;
 
@@ -68,10 +69,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// "GENERATE_RESIDENTS_DATA");
 //Docker change//		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), contextKey,
 //				"GENERATE_RESIDENTS_DATA");
-		
-		Response response = postRequest(url, jsonwrapper.toString(),
-				"GENERATE_RESIDENTS_DATA");
-		
+
+		Response response = postRequest(url, jsonwrapper.toString(), "GENERATE_RESIDENTS_DATA");
+
 		// assertTrue(response.getBody().asString().contains("SUCCESS"),"Unable to get
 		// residentData from packet utility");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
@@ -119,11 +119,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		// Response response = postReqest(url, jsonwrapper.toString(),
 		// "GENERATE_RESIDENTS_DATA");
-		//Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), contextKey,
-			//	"GENERATE_RESIDENTS_DATA");
-		Response response = postRequest(url, jsonwrapper.toString(),
-				"GENERATE_RESIDENTS_DATA");
-		
+		// Response response = postRequestWithQueryParamAndBody(url,
+		// jsonwrapper.toString(), contextKey,
+		// "GENERATE_RESIDENTS_DATA");
+		Response response = postRequest(url, jsonwrapper.toString(), "GENERATE_RESIDENTS_DATA");
+
 		return response;
 
 	}
@@ -141,8 +141,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + props.getProperty("getTemplateUrl") + process;
 		// Response templateResponse = postReqest(url, jsonReq.toString(),
 		// "GET-TEMPLATE");
-		Response templateResponse = postRequest(url, jsonReq.toString(),
-				"GET-TEMPLATE");
+		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE");
 		JSONObject jsonResponse = new JSONObject(templateResponse.asString());
 		JSONArray resp = jsonResponse.getJSONArray("packets");
 		if ((resp.length() <= 0))
@@ -171,8 +170,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put("personaFilePath", jsonArray);
-		 Response response =postRequest(url,jsonReq.toString(),"Verify Otp");
-		//Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "Verify Otp"); //docker comment
+		Response response = postRequest(url, jsonReq.toString(), "Verify Otp");
+		// Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),
+		// contextKey, "Verify Otp"); //docker comment
 		// assertTrue(response.getBody().asString().contains("VALIDATION_SUCCESSFUL"),"Unable
 		// to Verify Otp from packet utility");
 		if (!response.getBody().asString().toLowerCase().contains("validation_successful"))
@@ -186,8 +186,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put("personaFilePath", jsonArray);
-		 Response response =postRequest(url,jsonReq.toString(),"AddApplication");
-		//Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "AddApplication");
+		Response response = postRequest(url, jsonReq.toString(), "AddApplication");
+		// Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),
+		// contextKey, "AddApplication");
 		String prid = response.getBody().asString();
 		// assertTrue((int)prid.charAt(0)>47 && (int)prid.charAt(0)<58 ,"Unable to
 		// pre-register from packet utility");
@@ -221,8 +222,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// postReqest(url,jsonReq.toString(),"Upload Documents");
 		postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "Upload Documents");
 	}
-
-
 
 	public String updatePreRegStatus(String prid, String status, HashMap<String, String> contextKey)
 			throws RigInternalError {
@@ -293,9 +292,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String updateResidentRid(String personaFilePath, String rid) throws RigInternalError {
 		String url = baseUrl + props.getProperty("updateResidentUrl");
-		HashMap<String, String> map=new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("RID", rid);
-		
+
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
@@ -306,7 +305,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		jsonwrapper.put("requests", jsonReq);
 
-		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(),map, "link Resident data with RID");
+		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
+				"link Resident data with RID");
 
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to add Resident RID in resident data");
@@ -316,7 +316,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String updateResidentUIN(String personaFilePath, String uin) throws RigInternalError {
-		//String url = baseUrl + props.getProperty("updateResidentUrl") + "?UIN=" + uin;
+		// String url = baseUrl + props.getProperty("updateResidentUrl") + "?UIN=" +
+		// uin;
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 
 		JSONObject jsonwrapper = new JSONObject();
@@ -329,10 +330,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		jsonwrapper.put("requests", jsonReq);
 
-		//Response response = postRequest(url, jsonwrapper.toString(), "link Resident data with UIN");
-		HashMap<String, String> map=new HashMap<String, String>();
+		// Response response = postRequest(url, jsonwrapper.toString(), "link Resident
+		// data with UIN");
+		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("UIN", uin);
-		Response response =postRequestWithQueryParamAndBody(url, jsonwrapper.toString(),map ,"link Resident data with UIN");
+		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
+				"link Resident data with UIN");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to add UIN in resident data");
 		String ret = response.getBody().asString();
@@ -486,13 +489,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath,
-			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus)
-			throws RigInternalError {
-		
-		String url = baseUrl + "/packet/sync/01"; //01 -- to generate wrong hash
-		return getRID(url, packetPath, residentPath,
-			additionalInfoReqId,  contextKey,  responseStatus);
+	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath, String additionalInfoReqId,
+			HashMap<String, String> contextKey, String responseStatus) throws RigInternalError {
+
+		String url = baseUrl + "/packet/sync/01"; // 01 -- to generate wrong hash
+		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus);
 	}
 
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
@@ -500,8 +501,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			throws RigInternalError {
 
 		String url = baseUrl + "/packet/sync/0"; // 0 -- to skip prereg
-		return getRID(url, packetPath, residentPath,
-			additionalInfoReqId,  contextKey,  responseStatus);
+		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus);
 
 	}
 
@@ -515,8 +515,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		arr.put(1, residentPath);
 		jsonReq.put("personaFilePath", arr);
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
-		Response response = postRequest(url, jsonReq.toString(),
-				"Generate And UploadPacket");
+		Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket");
 		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			rid = jsonResp.getJSONObject("response").getString("registrationId");
@@ -552,8 +551,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,
 			Boolean generatePrivateKey, String status, String baseUrl) throws RigInternalError {
-		//String url = this.baseUrl + "/context/server/" + key;
-		String url = this.baseUrl + "/context/server/" ;
+		// String url = this.baseUrl + "/context/server/" + key;
+		String url = this.baseUrl + "/context/server/";
 		Map<String, String> map = new HashMap<String, String>();
 		if (userAndMachineDetailParam != null && !userAndMachineDetailParam.isEmpty()) {
 			String[] details = userAndMachineDetailParam.split("@@");
@@ -566,7 +565,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		}
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
-		JSONObject jsonReq = new JSONObject();		
+		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("scenario", scenario);
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
@@ -605,14 +604,15 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
 			Boolean generatePrivateKey, String status, String baseUrl) throws RigInternalError {
-		//OLD //String url = this.baseUrl + "/context/server/" + key; //this.baseUrl + "/context/server/" + key?contextKey=Ckey
-		String url = this.baseUrl + "/context/server" ; //this.baseUrl + "/context/server/" + key?contextKey=Ckey
-		
+		// OLD //String url = this.baseUrl + "/context/server/" + key; //this.baseUrl +
+		// "/context/server/" + key?contextKey=Ckey
+		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
+
 		String centerId = "centerId" + map.get("appendedkey");
 
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
 		JSONObject jsonReq = new JSONObject();
-		
+
 		jsonReq.put("scenario", scenario);
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
@@ -631,89 +631,51 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
 
 		/**
-		 * More Keys add here
-		 * #Things from deploy packet utility
-#FROM APPLICATION
-#Move below property to IVV application properties
-mosip.test.regclient.machineid= 10000  
-mosip.test.baseurl=https://api-internal.cellbox-e2e.mosip.net
-mosip.test.regclient.centerid = 10002
-mosip.test.regclient.userid = 110123
-mosip.test.regclient.password = Techno@123
-mosip.test.regclient.supervisorid = 110123
-mosip.test.regclient.supervisorpwd = Techno@123
-# Ref ID is centerid_machineid 10012_10011
-mosip.test.regclient.clientid = mosip-reg-client
-mosip.test.regclient.secretkey=sgSNDz2NeL0PMVFh
-mosip.test.regclient.appId = registrationclient
-mosip.test.primary.langcode=eng
-
-#FROM DEFAULT
-#Move below property to IVV application properties
-urlBase=https://api-internal.cellbox-e2e.mosip.net
-# COMMON FOR ALL MODULES
-operatorId=110126
-password=Techno@123
-
-#DEFAULT
-appId=admin
-clientId=mosip-admin-client
-secretKey=GgrDINTwOpGGLWcr
-
-#RESIDENT
-resident_appId=resident
-resident_clientId=mosip-resident-client
-resident_secretKey=uIiOZwMfdOB42J3O
-
-#ADMIN
-admin_appId=admin
-admin_clientId=mosip-admin-client
-admin_secretKey=GgrDINTwOpGGLWcr
-
-userid = 110126
-supervisorid = 110126
-centerId=10010
-preconfiguredOtp=111111
-usemds=true
-mdsport=4501
-mdsbypass=false
-#Move above property to IVV application properties
-
-#Move above property to IVV application properties
-#FROM PRE REG deploy
-#Move below property to IVV application properties
-operatorId=110123
-password=mosip
-appId=registrationclient
-clientId=mosip-reg-client
-secretKey=sgSNDz2NeL0PMVFh
-userid = 110123
-supervisorid = 110123
-preconfiguredOtp=111111
-usePreConfiguredOtp=true
-otpTargetEmail=sanath.test.mosip@gmail.com
-usePreConfiguredEmail=sanath.test.mosip@gmail.com
-#Move above property to IVV application properties
-#FROM REG CLIENT
-#Move below property to IVV application properties
-operatorId=110123
-password=Techno@123
-appId=registrationclient
-clientId=mosip-reg-client
-secretKey=Mebm5nrsfNER03b6
-
-userid = 110123
-supervisorid = 110123
-centerId=10002
-
-#Done
+		 * More Keys add here #Things from deploy packet utility #FROM APPLICATION #Move
+		 * below property to IVV application properties mosip.test.regclient.machineid=
+		 * 10000 mosip.test.baseurl=https://api-internal.cellbox-e2e.mosip.net
+		 * mosip.test.regclient.centerid = 10002 mosip.test.regclient.userid = 110123
+		 * mosip.test.regclient.password = Techno@123 mosip.test.regclient.supervisorid
+		 * = 110123 mosip.test.regclient.supervisorpwd = Techno@123 # Ref ID is
+		 * centerid_machineid 10012_10011 mosip.test.regclient.clientid =
+		 * mosip-reg-client mosip.test.regclient.secretkey=sgSNDz2NeL0PMVFh
+		 * mosip.test.regclient.appId = registrationclient
+		 * mosip.test.primary.langcode=eng
+		 * 
+		 * #FROM DEFAULT #Move below property to IVV application properties
+		 * urlBase=https://api-internal.cellbox-e2e.mosip.net # COMMON FOR ALL MODULES
+		 * operatorId=110126 password=Techno@123
+		 * 
+		 * #DEFAULT appId=admin clientId=mosip-admin-client secretKey=GgrDINTwOpGGLWcr
+		 * 
+		 * #RESIDENT resident_appId=resident resident_clientId=mosip-resident-client
+		 * resident_secretKey=uIiOZwMfdOB42J3O
+		 * 
+		 * #ADMIN admin_appId=admin admin_clientId=mosip-admin-client
+		 * admin_secretKey=GgrDINTwOpGGLWcr
+		 * 
+		 * userid = 110126 supervisorid = 110126 centerId=10010 preconfiguredOtp=111111
+		 * usemds=true mdsport=4501 mdsbypass=false #Move above property to IVV
+		 * application properties
+		 * 
+		 * #Move above property to IVV application properties #FROM PRE REG deploy #Move
+		 * below property to IVV application properties operatorId=110123 password=mosip
+		 * appId=registrationclient clientId=mosip-reg-client secretKey=sgSNDz2NeL0PMVFh
+		 * userid = 110123 supervisorid = 110123 preconfiguredOtp=111111
+		 * usePreConfiguredOtp=true otpTargetEmail=sanath.test.mosip@gmail.com
+		 * usePreConfiguredEmail=sanath.test.mosip@gmail.com #Move above property to IVV
+		 * application properties #FROM REG CLIENT #Move below property to IVV
+		 * application properties operatorId=110123 password=Techno@123
+		 * appId=registrationclient clientId=mosip-reg-client secretKey=Mebm5nrsfNER03b6
+		 * 
+		 * userid = 110123 supervisorid = 110123 centerId=10002
+		 * 
+		 * #Done
 		 * 
 		 * 
 		 */
-		
-		
-		
-		jsonReq.put("validUIN", (map.get("$$uin")!=null) ? map.get("$$uin") : "createnew");
+
+		jsonReq.put("validUIN", (map.get("$$uin") != null) ? map.get("$$uin") : "createnew");
 
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
@@ -789,11 +751,10 @@ centerId=10002
 				else
 					jsonReq.put("mosip.test.regclient.supervisorBiometricFileName", supervOpertoDetails[5]);
 			}
-		}		
-		
-		
-		JSONObject JO=new JSONObject(map);
-		
+		}
+
+		JSONObject JO = new JSONObject(map);
+
 		Response response = postRequest(url, mergeJSONObjects(JO, jsonReq).toString(), "SetContext");
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
@@ -802,21 +763,24 @@ centerId=10002
 	}
 
 	public static JSONObject mergeJSONObjects(JSONObject json1, JSONObject json2) {
-        JSONObject mergedJSON = new JSONObject();
-        try {
-            // getNames(): Get an array of field names from a JSONObject.
-            mergedJSON = new JSONObject(json1, JSONObject.getNames(json1));
-            for (String crunchifyKey : JSONObject.getNames(json2)) {
-                // get(): Get the value object associated with a key.
-                mergedJSON.put(crunchifyKey, json2.get(crunchifyKey));
-            }
-        } catch (JSONException e) {
-            // RunttimeException: Constructs a new runtime exception with the specified detail message.
-            // The cause is not initialized, and may subsequently be initialized by a call to initCause.
-            throw new RuntimeException("JSON Exception" + e);
-        }
-        return mergedJSON;
-    }
+		JSONObject mergedJSON = new JSONObject();
+		try {
+			// getNames(): Get an array of field names from a JSONObject.
+			mergedJSON = new JSONObject(json1, JSONObject.getNames(json1));
+			for (String crunchifyKey : JSONObject.getNames(json2)) {
+				// get(): Get the value object associated with a key.
+				mergedJSON.put(crunchifyKey, json2.get(crunchifyKey));
+			}
+		} catch (JSONException e) {
+			// RunttimeException: Constructs a new runtime exception with the specified
+			// detail message.
+			// The cause is not initialized, and may subsequently be initialized by a call
+			// to initCause.
+			throw new RuntimeException("JSON Exception" + e);
+		}
+		return mergedJSON;
+	}
+
 	@SuppressWarnings("unused")
 	private JSONObject createPayload(String publicKey, String machineId) {
 		JSONObject jsonMachine = new JSONObject();
@@ -893,18 +857,15 @@ centerId=10002
 
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
 			BioAuth bioAuth) throws RigInternalError {
-		
+
 		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 		test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 		test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioSubType"),
-				"bioSubType");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioType"),
-				"bioType");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceCode"),
-				"deviceCode");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioSubType"), "bioSubType");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioType"), "bioType");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceCode"), "deviceCode");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceProviderID"),
 				"deviceProviderID");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceServiceID"),
@@ -915,14 +876,10 @@ centerId=10002
 				"deviceProvider");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceSubType"),
 				"deviceSubType");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("make"),
-				"make");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("model"),
-				"model");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("serialNo"),
-				"serialNo");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"),
-				"type");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("make"), "make");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("model"), "model");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("serialNo"), "serialNo");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"), "type");
 		/*
 		 * input = JsonPrecondtion.parseAndReturnJsonContent(input,
 		 * deviceProps.getProperty("individualIdType"), "individualIdType");
@@ -936,7 +893,52 @@ centerId=10002
 		} catch (AuthenticationTestException | AdminTestException e) {
 			throw new RigInternalError(e.getMessage());
 		} finally {
-			//AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+			// AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+
+		}
+	}
+
+	public void idpBioAuth(String modility, String bioValue, String uin, String transactionId, Properties deviceProps,
+			TestCaseDTO test, IdpBioAuth idpBioAuth) throws RigInternalError {
+
+		String input = test.getInput();
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioSubType"),
+				"identityRequest.bioSubType");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioType"),
+				"identityRequest.bioType");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceCode"),
+				"identityRequest.deviceCode");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceProviderID"),
+				"identityRequest.deviceProviderID");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceServiceID"),
+				"identityRequest.deviceServiceID");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceServiceVersion"),
+				"identityRequest.deviceServiceVersion");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceProvider"),
+				"identityRequest.deviceProvider");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("deviceSubType"),
+				"identityRequest.deviceSubType");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("make"),
+				"identityRequest.make");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("model"),
+				"identityRequest.model");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("serialNo"),
+				"identityRequest.serialNo");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"),
+				"identityRequest.type");
+
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
+		test.setInput(input);
+		Reporter.log("<b><u>" + test.getTestCaseName() + "_" + modility + "</u></b>");
+
+		try {
+			idpBioAuth.test(test);
+		} catch (AuthenticationTestException | AdminTestException e) {
+			throw new RigInternalError(e.getMessage());
+		} finally {
+			// AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
 
 		}
 	}
@@ -950,15 +952,13 @@ centerId=10002
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
 		Response response = getReqest(url, jsonReq.toString(), "Retrive BiometricData");
-		
+
 		if (response.getBody().asString().equals(""))
 			throw new RigInternalError(
 					"Unable to retrive BiometricData " + retriveAttributeList + " from packet utility");
 		logger.info("Response : " + response.getBody().asString());
-		
-		
+
 		return response.getBody().asString();
-		
 
 	}
 
@@ -970,7 +970,7 @@ centerId=10002
 	private Response getRequestWithbody(String url, String body, String contentHeader, String acceptHeader) {
 		logger.info("RESSURED: Sending a GET request to " + url);
 		logger.info("REQUEST: Sending a GET request to " + url);
-		url=addContextToUrl(url);
+		url = addContextToUrl(url);
 		Response getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").log()
 				.all().when().body(body).get(url).then().extract().response();
 		logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
@@ -1365,8 +1365,8 @@ centerId=10002
 		return puttResponse;
 	}
 
-	public void operatorOnboardAuth(String modility, String bioValue, String user, TestCaseDTO test,
-			BioAuth bioAuth, String individualIdType,Properties deviceProps ) throws RigInternalError {
+	public void operatorOnboardAuth(String modility, String bioValue, String user, TestCaseDTO test, BioAuth bioAuth,
+			String individualIdType, Properties deviceProps) throws RigInternalError {
 
 		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", deviceProps.getProperty("partnerKey")));
 		String input = test.getInput();
@@ -1395,8 +1395,7 @@ centerId=10002
 				"identityRequest.serialNo");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"),
 				"identityRequest.type");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, individualIdType,
-				"individualIdType");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, individualIdType, "individualIdType");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
 		test.setInput(input);
 		Reporter.log("<b><u>" + test.getTestCaseName() + "_" + modility + "</u></b>");
@@ -1406,7 +1405,7 @@ centerId=10002
 		} catch (AuthenticationTestException | AdminTestException e) {
 			throw new RigInternalError(e.getMessage());
 		} finally {
-			//AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
+			// AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
 
 		}
 	}
