@@ -739,7 +739,7 @@ return functionResponse;
 		return response;
 	}
 
-	public String createPacket(PersonaRequestDto personaRequest, String process, String preregId, String contextKey) throws IOException {
+	public String createPacket(PersonaRequestDto personaRequest, String process, String preregId, String contextKey,String purpose) throws IOException {
 
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
@@ -768,7 +768,7 @@ return functionResponse;
 			String packetPath = packetDir.toString()+File.separator + resident.getId();
 
 			Properties props = contextUtils.loadServerContext(contextKey);
-			packetTemplateProvider.generate("registration_client", process, resident, packetPath,preregId,machineId, centerId,contextKey,props,new JSONObject());
+			packetTemplateProvider.generate("registration_client", process, resident, packetPath,preregId,machineId, centerId,contextKey,props,new JSONObject(),purpose);
 
 			JSONObject obj = new JSONObject();
 			obj.put("id",resident.getId());
@@ -785,7 +785,7 @@ return functionResponse;
 
 
 	}
-	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir,String preregId, String contextKey) throws IOException {
+	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir,String preregId, String contextKey,String purpose) throws IOException {
 
 
 		Path packetDir = null;
@@ -831,7 +831,7 @@ return functionResponse;
 
 				centerId=VariableManager.getVariableValue(contextKey,"mosip.test.regclient.centerid").toString();
 
-				packetTemplateProvider.generate("registration_client", process, resident, packetPath , preregId, machineId, centerId,contextKey,props,preregResponse);
+				packetTemplateProvider.generate("registration_client", process, resident, packetPath , preregId, machineId, centerId,contextKey,props,preregResponse,purpose);
 				JSONObject obj = new JSONObject();
 				obj.put("id",resident.getId());
 				obj.put("path", packetPath);

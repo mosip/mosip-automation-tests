@@ -43,7 +43,7 @@ public class MDSClient implements MDSClientInterface {
 	
 	
 	//create profile folder and create all ISO images as per resident data
-	
+/*	
 	public void createProfileOld(String profilePath,String profile, ResidentModel resident) throws Exception {
 		File profDir = new File(profilePath + "/"+ profile);
 		if(!profDir.exists())
@@ -83,7 +83,7 @@ public class MDSClient implements MDSClientInterface {
 					String fingerName = DataProviderConstants.displayFingerName[i];
 					String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
 					if(fingerData[i] != null) {
-						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName);
+						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName,pur);
 					}
 				}
 			}
@@ -96,13 +96,13 @@ public class MDSClient implements MDSClientInterface {
 			
 	}
 	
-	
+	*/
 	
 
 	//create profile folder and create all ISO images as per resident data
 	
-	public void createProfile(String profilePath,String profile, ResidentModel resident,String contextKey) throws Exception {
-		File profDir = new File(profilePath + "/"+ profile);
+	public void createProfile(String profilePath,String profile, ResidentModel resident,String contextKey,String purpose) throws Exception {
+		File profDir = new File(profilePath + "/"+ purpose+ "/" + profile);
 		if(!profDir.exists())
 			profDir.mkdir();
 		//copy from default profile
@@ -181,7 +181,7 @@ public class MDSClient implements MDSClientInterface {
 					String fingerName = DataProviderConstants.displayFingerName[i];
 					String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
 					if(fingerData[i] != null) {
-						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName);
+						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName,purpose);
 					}
 				}
 			}
