@@ -1,8 +1,10 @@
 package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 
+import java.util.HashMap;
 import java.util.List;
 
+import org.mosip.dataprovider.BiometricDataProvider;
 import org.mosip.dataprovider.mds.MDSClient;
 import org.mosip.dataprovider.test.registrationclient.RegistrationSteps;
 import org.mosip.dataprovider.util.DataProviderConstants;
@@ -145,7 +147,7 @@ public class ResidentController {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
 			try {
-				long port= MDSClient.port;
+				HashMap<String, Integer> port=BiometricDataProvider.portmap;
 				
 				//client = new MDSClient(0); //
 				//port --in MDS Admin api -- hit
@@ -154,7 +156,7 @@ public class ResidentController {
 				
 				 RegistrationSteps steps = new RegistrationSteps();
 				// steps.setMDSprofile(type, profile);
-			    steps.setMDSscore(port,"Biometric Device", qualityScore, contextKey);
+			    steps.setMDSscore(port.get("port_"+contextKey),"Biometric Device", qualityScore, contextKey);
 //				client.setProfile("Default");
 //				client.setThresholdValue(qualityScore);
 				return "qualityScore :" + qualityScore + " is updated";
@@ -163,7 +165,4 @@ public class ResidentController {
 			}
 			return "{Failed}";
 		}
-		
-		
-		
 }

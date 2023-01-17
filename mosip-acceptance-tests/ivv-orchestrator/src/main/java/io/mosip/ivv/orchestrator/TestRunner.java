@@ -32,7 +32,7 @@ public class TestRunner {
 		BaseTestCase.initialize();
 		// Initializing or setting up execution
 		ConfigManager.init();
-		
+		//here
 		startTestRunner();
 	}
 

@@ -21,6 +21,7 @@ import java.util.Arrays;
 //import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +32,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.collections.map.HashedMap;
 import org.json.JSONObject;
 import org.mosip.dataprovider.mds.MDSClient;
 import org.mosip.dataprovider.mds.MDSClientInterface;
@@ -52,6 +54,7 @@ import org.mosip.dataprovider.util.FPClassDistribution;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.HashBiMap;
 import com.jamesmurty.utils.XMLBuilder;
 //import java.util.Date;
 
@@ -63,7 +66,7 @@ import variables.VariableManager;
 
 public class BiometricDataProvider {
 
-
+public static HashMap<String, Integer> portmap=new HashMap();
 
 	static String buildBirIris(String irisInfo, String irisName,String jtwSign,String payload,String qualityScore) throws ParserConfigurationException, FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
@@ -202,7 +205,7 @@ public class BiometricDataProvider {
 		}
 		return lst;
 	}
-	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey) throws Exception {
+	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey,String purpose) throws Exception {
 
 		BiometricDataModel biodata = resident.getBiometric();
 		MDSClientInterface mds = null;
@@ -222,11 +225,14 @@ public class BiometricDataProvider {
 
 			String p12path =  VariableManager.getVariableValue(contextKey,"mosip.test.mockmds.p12.path").toString(); 
 
-			port= CentralizedMockSBI.startSBI(contextKey, "Registration",  "Biometric Device",Paths.get(p12path, contextKey).toString()) ;
+			port= CentralizedMockSBI.startSBI(contextKey, "Registration",  "Biometric Device",Paths.get(p12path, contextKey).toString()) ;//image type jp2000(reg) or wsq in case of authentication both can be
+		//	port= CentralizedMockSBI.startSBI(contextKey, "Auth",  "Biometric Device",Paths.get(p12path, contextKey).toString(),) ;
+			
+			portmap.put("port_"+contextKey,port);
 			//CentralizedMockSBI.stopSBI(context);
 			mds =new MDSClient(port);
 			profileName = "res"+ resident.getId();
-			mds.createProfile(mdsprofilePath, profileName , resident,contextKey);
+			mds.createProfile(mdsprofilePath, profileName , resident,contextKey,purpose);
 			mds.setProfile(profileName);
 			//mds.setProfile("Default");
 
@@ -235,7 +241,7 @@ public class BiometricDataProvider {
 			mds = new MDSClientNoMDS();
 			bNoMDS = false;
 			profileName = "res"+ resident.getId();
-			mds.createProfile(mdsprofilePath, profileName , resident,contextKey);
+			mds.createProfile(mdsprofilePath, profileName , resident,contextKey,purpose);
 			mds.setProfile(profileName);
 		}
 
