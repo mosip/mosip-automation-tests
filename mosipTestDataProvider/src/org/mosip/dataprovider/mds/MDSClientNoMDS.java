@@ -31,7 +31,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		profileData = new Hashtable<String,MDSDataModel>();
 	}
 	@Override
-	public void createProfile(String profilePath, String profile, ResidentModel resident,String contextKey) throws Exception {
+	public void createProfile(String profilePath, String profile, ResidentModel resident,String contextKey,String purpose) throws Exception {
 
 		MDSDataModel data = new MDSDataModel();
 		
@@ -53,7 +53,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 				String fingerName = DataProviderConstants.displayFingerName[i];
 				//String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
 				if(fingerData[i] != null) {
-					fingersISO[i]=convert.convertFinger(fingerData[i], null , fingerName);
+					fingersISO[i]=convert.convertFinger(fingerData[i], null , fingerName,purpose);
 				}
 			}
 			data.setFingersISO(fingersISO);
