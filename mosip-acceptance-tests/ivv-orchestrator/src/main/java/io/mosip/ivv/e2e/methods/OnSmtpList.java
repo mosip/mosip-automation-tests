@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
+import java.net.http.WebSocket.Listener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -14,6 +15,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.Reporter;
 
@@ -33,25 +35,28 @@ import java.util.concurrent.CountDownLatch;
         
 import io.mosip.service.BaseTestCase;
 
-public class ReadWebSocket extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(ReadWebSocket.class);
+public class OnSmtpList extends BaseTestCaseUtil implements StepInterface {
+	Logger logger = Logger.getLogger(OnSmtpList.class);
   static HashMap map=new HashMap<Long, String>();
-	static int count=0;
+
+  static Boolean flag=false;
+  
 	public void run() {
 		  try {
-		  CountDownLatch latch = new CountDownLatch(10000);
+		 // CountDownLatch latch = new CountDownLatch(10000);
 		  // -Denv.user=api-internal.qa-1201-b2 -Denv.endpoint=https://api-internal.qa-1201-b2.mosip.net -Denv.testLevel=sanity -Denv.langcode=eng
 		  
-		  int count=0;
+		  
 	        WebSocket ws = HttpClient
 	                .newHttpClient()
 	                .newWebSocketBuilder()
-	                .buildAsync(URI.create("wss://smtp.qa-1201-b2.mosip.net/mocksmtp/websocket"), new WebSocketClient(latch,map))
+	                .buildAsync(URI.create("wss://smtp.qa-1201-b2.mosip.net/mocksmtp/websocket"), new WebSocketClient())
 	                .join();
+	              
 	      
-				latch.await();
+			//	latch.await();
 				
-			} catch (InterruptedException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -60,9 +65,11 @@ public class ReadWebSocket extends BaseTestCaseUtil implements StepInterface {
 	
 
     private static class WebSocketClient implements WebSocket.Listener {
-    	  private final CountDownLatch latch;
+    	 // private final CountDownLatch latch;
           
-          public WebSocketClient(CountDownLatch latch,HashMap<Long, String> map) { this.latch = latch; }
+          public WebSocketClient() {  
+        	 
+          }
           
           @Override
           public void onOpen(WebSocket webSocket) {
@@ -70,20 +77,43 @@ public class ReadWebSocket extends BaseTestCaseUtil implements StepInterface {
               WebSocket.Listener.super.onOpen(webSocket);
           }
           
+          
+          @Override
+        public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
+        	// TODO Auto-generated method stub
+        	return Listener.super.onClose(webSocket, statusCode, reason);
+        }
+        
           @Override
           public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
+        	  if(flag) {
+        		  onClose(webSocket, 0, "After suite invoked closing");
+        	  }
               System.out.println("onText received " + data);
-             JSONObject json= new JSONObject(data);
-            System.out.println( json.get("html"));
+              try {
+//            JSONObject json=new JSONObject(data);
+//            System.out.println("html" + json.get("html"));
+//
+//            System.out.println("text" + json.getJSONObject("to").get("text"));
+//            
+            	  Long count=(long) 00;
+        
               map.put(count++, data);
+            }
+            catch(JSONException e)
+            {
+            	e.printStackTrace();
+            }
               System.out.println(map);
-              latch.countDown();
+              //latch.countDown();
               return WebSocket.Listener.super.onText(webSocket, data, last);
           }
           
           @Override
           public void onError(WebSocket webSocket, Throwable error) {
+        	 
               System.out.println("Bad day! " + webSocket.toString());
+              error.printStackTrace();
               WebSocket.Listener.super.onError(webSocket, error);
           }
       }

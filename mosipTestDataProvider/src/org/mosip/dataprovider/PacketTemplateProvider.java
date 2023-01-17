@@ -95,7 +95,7 @@ public class PacketTemplateProvider {
 
 	// generate un encrypted template
 	public void generate(String source, String process, ResidentModel resident, String packetFilePath, String preregId,
-			String machineId, String centerId,String contextKey,Properties props,JSONObject preregResponse) throws IOException {
+			String machineId, String centerId,String contextKey,Properties props,JSONObject preregResponse,String purpose) throws IOException {
 
 		String rootFolder = packetFilePath;
 		String ridFolder = "";
@@ -142,7 +142,7 @@ public class PacketTemplateProvider {
 		}
 		//String idJson = generateIDJson(resident, fileInfo);
 		
-		String idJson = generateIDJsonV2(resident, fileInfo,contextKey,props,preregResponse);
+		String idJson = generateIDJsonV2(resident, fileInfo,contextKey,props,preregResponse,purpose);
 		JSONObject processMVEL = processMVEL(resident, idJson, schema, process);
 		idJson = processMVEL.toString();
 		Files.write(Paths.get(ridFolder + "/ID.json"), idJson.getBytes());
@@ -641,14 +641,14 @@ public class PacketTemplateProvider {
 		return identity;
 	}
 
-	Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile,String contextKey) throws Exception {
+	Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile,String contextKey,String purpose) throws Exception {
 
 		String strVal = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"usemds").toString();
 		boolean bMDS = Boolean.valueOf(strVal);
 		String cbeff = resident.getBiometric().getCbeff();
 		if (bMDS) {
 			if (cbeff == null) {
-				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident,contextKey);
+				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident,contextKey,purpose);
 				resident.getBiometric().setCapture(capture.getLstBiometrics());
 				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile);
 				resident.getBiometric().setCbeff(strCBeff);
@@ -925,7 +925,7 @@ public class PacketTemplateProvider {
 		return found;
 	}
 
-	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey) {
+	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,String purpose) {
 
 		String idjson = "";
 
@@ -1100,7 +1100,7 @@ public class PacketTemplateProvider {
 						if (resident.getSkipFinger()) {
 							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
 						}
-						generateCBEFF(resident, bioAttrib, outFile,contextKey);
+						generateCBEFF(resident, bioAttrib, outFile,contextKey,purpose);
 
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -1130,7 +1130,7 @@ public class PacketTemplateProvider {
 							if (missAttribs != null && !missAttribs.isEmpty())
 								bioAttrib.removeAll(missAttribs);
 
-							generateCBEFF(resident.getGuardian(), bioAttrib, outFile,contextKey);
+							generateCBEFF(resident.getGuardian(), bioAttrib, outFile,contextKey,purpose);
 							// BiometricDataProvider.toCBEFF(bioAttrib,
 							// resident.getGuardian().getBiometric(), outFile);
 
@@ -1288,7 +1288,7 @@ public class PacketTemplateProvider {
 	}
 	
 	
-	String generateIDJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,Properties props,JSONObject preregResponse) {
+	String generateIDJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,Properties props,JSONObject preregResponse,String purpose) {
 
 		String idjson = "";
 
@@ -1428,7 +1428,7 @@ public class PacketTemplateProvider {
 						if (resident.getSkipFinger()) {
 							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
 						}
-						generateCBEFF(resident, bioAttrib, outFile,contextKey);
+						generateCBEFF(resident, bioAttrib, outFile,contextKey,purpose);
 						/*
 						 * Adding to set cbeff filefor officer and supervisor
 						 */
@@ -1449,10 +1449,10 @@ public class PacketTemplateProvider {
 					        byte[] decoded =Base64.getUrlDecoder().decode(value);
 					        String decodedcbeff = new String(decoded, StandardCharsets.UTF_8);
 					        resident.getBiometric().setCbeff(decodedcbeff);
-							generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] + "/"+props.get("mosip.test.regclient.officerBiometricFileName")+".xml",contextKey);
+							generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] + "/"+props.get("mosip.test.regclient.officerBiometricFileName")+".xml",contextKey,purpose);
 						}
 							if(props.containsKey("mosip.test.regclient.supervisorBiometricFileName")) {
-						generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] +"/"+props.get("mosip.test.regclient.supervisorBiometricFileName")+".xml",contextKey);
+						generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] +"/"+props.get("mosip.test.regclient.supervisorBiometricFileName")+".xml",contextKey,purpose);
 							}
 						
 						
@@ -1481,7 +1481,7 @@ public class PacketTemplateProvider {
 							if (missAttribs != null && !missAttribs.isEmpty())
 								bioAttrib.removeAll(missAttribs);
 
-							generateCBEFF(resident.getGuardian(), bioAttrib, outFile,contextKey);
+							generateCBEFF(resident.getGuardian(), bioAttrib, outFile,contextKey,purpose);
 
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -1792,7 +1792,7 @@ public class PacketTemplateProvider {
 		List<ResidentModel> residents = provider.generate("contextKey");
 		try {
 			new PacketTemplateProvider().generate("registration_client", "new", residents.get(0), "/temp/newpacket",
-					null, null, null,null,null,null);
+					null, null, null,null,null,null,null);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

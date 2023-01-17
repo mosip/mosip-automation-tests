@@ -22,8 +22,9 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 		if (!step.getParameters().isEmpty() && step.getParameters().size() > 0)
 			repeats = Integer.parseInt(step.getParameters().get(0));
 		String url = baseUrl + props.getProperty("getAdditionalInfoReqId");
-		
-		HashMap<Long, JSONObject> map=ReadWebSocket.map;
+		HashMap m=new HashMap<Long, String>();
+	while(OnSmtpList.map.isEmpty())
+		 m=OnSmtpList.map;
 		
 		while (counter < repeats) {
 			logger.info("*******Checking the email for AdditionalInfoReqId...*******");

@@ -361,7 +361,7 @@ public class TestDataController {
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
     			DataProviderConstants.RESOURCE = personaConfigPath;
     		}
-    		return packetSyncService.createPacketTemplates(preRegisterRequestDto.getPersonaFilePath(),process,outFolderPath, null,contextKey);
+    		return packetSyncService.createPacketTemplates(preRegisterRequestDto.getPersonaFilePath(),process,outFolderPath, null,contextKey,"Registration");
     	
     	} catch (Exception ex){
              logger.error("createPackets", ex);
