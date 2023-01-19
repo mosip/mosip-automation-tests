@@ -43,13 +43,19 @@ public class MDSClient implements MDSClientInterface {
 	
 	
 	//create profile folder and create all ISO images as per resident data
-/*	
-	public void createProfileOld(String profilePath,String profile, ResidentModel resident) throws Exception {
-		File profDir = new File(profilePath + "/"+ profile);
+
+	public void createProfileold(String profilePath,String profile, ResidentModel resident,String contextKey,String purpose) throws Exception {
+//		File profDir = new File(profilePath + "/"+ profile);
+//		if(!profDir.exists())
+//			profDir.mkdir();
+		File profDir1 = new File(profilePath + "/"+ profile);
+		File profDir = new File(profilePath + "/"+ profile+ "/" + purpose);
+		if(!profDir1.exists())
+			profDir1.mkdir();
 		if(!profDir.exists())
 			profDir.mkdir();
 		//copy from default profile
-		File defProfile = new File( profilePath +"/"+ "Default");
+		File defProfile = new File( profilePath +"/"+ "Default"+"/"+purpose);
 		
 		File []defFiles = defProfile.listFiles();
 		for(File f: defFiles) {
@@ -83,7 +89,7 @@ public class MDSClient implements MDSClientInterface {
 					String fingerName = DataProviderConstants.displayFingerName[i];
 					String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
 					if(fingerData[i] != null) {
-						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName,pur);
+						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName,purpose);
 					}
 				}
 			}
@@ -96,13 +102,17 @@ public class MDSClient implements MDSClientInterface {
 			
 	}
 	
-	*/
+	
 	
 
 	//create profile folder and create all ISO images as per resident data
 	
 	public void createProfile(String profilePath,String profile, ResidentModel resident,String contextKey,String purpose) throws Exception {
-		File profDir = new File(profilePath + "/"+ purpose+ "/" + profile);
+//		File profDir = new File(profilePath + "/"+ profile+ "/" + purpose);
+		File profDir1 = new File(profilePath + "/"+ profile);
+		File profDir = new File(profilePath + "/"+ profile+ "/" + purpose);
+		if(!profDir1.exists())
+			profDir1.mkdir();
 		if(!profDir.exists())
 			profDir.mkdir();
 		//copy from default profile
