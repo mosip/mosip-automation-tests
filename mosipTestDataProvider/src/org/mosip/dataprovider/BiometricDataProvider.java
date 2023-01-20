@@ -976,12 +976,33 @@ static List<IrisDataModel> generateIris(int count,String contextKey) throws Exce
 		int []index = CommonUtil.generateRandomNumbers(count, num, 1);
 		String leftbmp=null;
 		String rightbmp=null;
+		//reach cached finger prints from folder
+		System.out.println("dirPath " + srcPath);
+		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
+		File dir = new File(srcPath);
+
+		File listDir[] = dir.listFiles();
+		int numberOfSubfolders = listDir.length;
+
+		int min=1;
+		int max=numberOfSubfolders ;
+		int randomNumber = (int) (Math.random()*(max-min)) + min;
+		String beforescenario=VariableManager.getVariableValue(contextKey,"scenario").toString();
+		String afterscenario=beforescenario.substring(0, beforescenario.indexOf(':'));
+
+		int currentScenarioNumber = Integer.valueOf(afterscenario);
+
+
+		// If the available impressions are less than scenario number, pick the random one
+
+		// otherwise pick the impression of same of scenario number
+		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber ;
 
 		
-		for(int i=0; i < count; i++) {
+		
 			
 			
-			File folder = new File(srcPath + "/"+String.format("%03d", index[i]));
+			File folder = new File(srcPath + "/"+String.format("%03d",impressionToPick));
 			
 			File[] listOfFiles = folder.listFiles();
 			
@@ -1002,8 +1023,8 @@ static List<IrisDataModel> generateIris(int count,String contextKey) throws Exce
 			if(rightbmp==null) {
 				rightbmp=leftbmp;
 			}
-			String fPathL = srcPath + "/"+String.format("%03d", index[i]) + "/"+leftbmp;
-			String fPathR = srcPath +"/"+ String.format("%03d", index[i]) + "/"+rightbmp;
+			String fPathL = srcPath + "/"+String.format("%03d", impressionToPick) + "/"+leftbmp;
+			String fPathR = srcPath +"/"+ String.format("%03d", impressionToPick) + "/"+rightbmp;
 
 			String leftIrisData ="";
 			String rightIrisData = "";
@@ -1037,7 +1058,7 @@ static List<IrisDataModel> generateIris(int count,String contextKey) throws Exce
 			m.setRawRight(frdata);
 			retVal.add( m);
 		}
-	}
+	
 	return retVal;
 }
 public static void main(String[] args) {
