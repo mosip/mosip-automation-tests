@@ -972,34 +972,69 @@ static List<IrisDataModel> generateIris(int count,String contextKey) throws Exce
 	else
 	{
 		String srcPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.irisdatapath").toString(); 
-		int []index = CommonUtil.generateRandomNumbers(count, 224, 1);
+		int num=new File(srcPath).list().length;
+		int []index = CommonUtil.generateRandomNumbers(count, num, 1);
+		String leftbmp=null;
+		String rightbmp=null;
 
+		
 		for(int i=0; i < count; i++) {
-			String fPathL = srcPath + "/"+String.format("%03d", index[i]) + "/01_L.bmp";
-			String fPathR = srcPath +"/"+ String.format("%03d", index[i]) + "/05_R.bmp";
+			
+			
+			File folder = new File(srcPath + "/"+String.format("%03d", index[i]));
+			
+			File[] listOfFiles = folder.listFiles();
+			
+			for (File file :listOfFiles ) {
+			    if (file.getName().contains("L")) {
+			        leftbmp= file.getName();
+			    }
+			    else {
+			    	rightbmp=file.getName();
+			    }
+			}
+			
+//			String fPathL = srcPath + "/"+String.format("%03d", index[i]) + "/01_L.bmp";
+//			String fPathR = srcPath +"/"+ String.format("%03d", index[i]) + "/05_R.bmp";
+			if(leftbmp==null) {
+				leftbmp=rightbmp;
+			}
+			if(rightbmp==null) {
+				rightbmp=leftbmp;
+			}
+			String fPathL = srcPath + "/"+String.format("%03d", index[i]) + "/"+leftbmp;
+			String fPathR = srcPath +"/"+ String.format("%03d", index[i]) + "/"+rightbmp;
 
 			String leftIrisData ="";
 			String rightIrisData = "";
 			String irisHash = "";
+			byte[] fldata = null;
+			byte[] frdata = null;
 			if(Files.exists(Paths.get(fPathL))) {
-				byte[] fdata = Files.readAllBytes(Paths.get(fPathL));
-				leftIrisData = Hex.encodeHexString( fdata ) ;	
-				irisHash = CommonUtil.getHexEncodedHash(fdata);
+				 fldata = Files.readAllBytes(Paths.get(fPathL));
+				leftIrisData = Hex.encodeHexString( fldata ) ;	
+				irisHash = CommonUtil.getHexEncodedHash(fldata);
 				m.setLeftHash(irisHash);
 			}
 			if(Files.exists(Paths.get(fPathR))) {
-				byte[] fdata = Files.readAllBytes(Paths.get(fPathR));
-				rightIrisData = Hex.encodeHexString( fdata ) ;	
-				irisHash = CommonUtil.getHexEncodedHash(fdata);
+				 frdata = Files.readAllBytes(Paths.get(fPathR));
+				rightIrisData = Hex.encodeHexString( frdata ) ;	
+				irisHash = CommonUtil.getHexEncodedHash(frdata);
 				m.setRightHash(irisHash);
 			}
-			if(leftIrisData.equals(""))
+			if(leftIrisData.equals("")) {
+				fldata=frdata;
 				leftIrisData = rightIrisData;
-			else
-				if(rightIrisData.equals(""))
+			}
+				else
+				if(rightIrisData.equals("")) {
+					frdata=fldata;
 					rightIrisData = leftIrisData;
+				}
 			m.setLeft(leftIrisData);
 			m.setRight(rightIrisData);
+			m.setRawLeft(fldata);
+			m.setRawRight(frdata);
 			retVal.add( m);
 		}
 	}
