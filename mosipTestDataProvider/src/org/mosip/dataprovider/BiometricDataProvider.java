@@ -213,12 +213,12 @@ public static HashMap<String, Integer> portmap=new HashMap();
 		boolean bNoMDS = true;
 		String mdsprofilePath = null;
 		String profileName = null;
-
+        int port =0;
 		val =  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsbypass").toString();
 		if(val == null || val.equals("") || val.equals("false")) {
 
 			val =  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsport").toString();
-			int port = Integer.parseInt(val);
+//			 port = Integer.parseInt(val);
 			mdsprofilePath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsprofilepath").toString();
 
 			//	port = (port ==0 ? 4501: port);
@@ -233,7 +233,7 @@ public static HashMap<String, Integer> portmap=new HashMap();
 			mds =new MDSClient(port);
 			profileName = "res"+ resident.getId();
 			mds.createProfile(mdsprofilePath, profileName , resident,contextKey,purpose);
-			mds.setProfile(profileName);
+			mds.setProfile(profileName,port);
 			//mds.setProfile("Default");
 
 		}
@@ -242,7 +242,7 @@ public static HashMap<String, Integer> portmap=new HashMap();
 			bNoMDS = false;
 			profileName = "res"+ resident.getId();
 			mds.createProfile(mdsprofilePath, profileName , resident,contextKey,purpose);
-			mds.setProfile(profileName);
+        	mds.setProfile(profileName,port);
 		}
 
 		MDSRCaptureModel capture = null;
@@ -262,7 +262,7 @@ public static HashMap<String, Integer> portmap=new HashMap();
 				// client.captureFromRegDevice(d.get(0),r, "Face",null,60,1,1);
 
 				capture =  mds.captureFromRegDevice(faceDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_FACE,
-						null, 60, faceDevice.getDeviceSubId().get(0));
+						null, 60, faceDevice.getDeviceSubId().get(0),port);
 			}
 		}
 		if( biodata.getIris() != null) {
@@ -275,14 +275,14 @@ public static HashMap<String, Integer> portmap=new HashMap();
 			if(irisExceptions == null || irisExceptions.isEmpty() ) {
 				if(filteredAttribs != null && filteredAttribs.contains("leftEye")) {
 					capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
-							null, 60, irisDevice.getDeviceSubId().get(0));
+							null, 60, irisDevice.getDeviceSubId().get(0),port);
 				}
 
 				if(irisDevice.getDeviceSubId().size() > 1) {
 					if(filteredAttribs != null && filteredAttribs.contains("rightEye")) {
 
 						capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
-								null, 60, irisDevice.getDeviceSubId().get(1));
+								null, 60, irisDevice.getDeviceSubId().get(1),port);
 					}
 				}
 			}
@@ -297,14 +297,14 @@ public static HashMap<String, Integer> portmap=new HashMap();
 
 					if(f.equalsIgnoreCase("right") && (filteredAttribs != null && filteredAttribs.contains("leftEye"))) {
 						capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
-								null, 60, irisDevice.getDeviceSubId().get(0));	
+								null, 60, irisDevice.getDeviceSubId().get(0),port);	
 					}
 					else
 						if(f.equalsIgnoreCase("left") && (filteredAttribs != null && filteredAttribs.contains("rightEye"))) {
 
 							if(irisDevice.getDeviceSubId().size() > 1)
 								capture =  mds.captureFromRegDevice(irisDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
-										null, 60, irisDevice.getDeviceSubId().get(1));
+										null, 60, irisDevice.getDeviceSubId().get(1),port);
 						}
 				}
 			}
@@ -321,7 +321,7 @@ public static HashMap<String, Integer> portmap=new HashMap();
 
 			for(int i = 0; i < fingerDevice.getDeviceSubId().size(); i++) {
 				capture =  mds.captureFromRegDevice(fingerDevice,capture ,DataProviderConstants.MDS_DEVICE_TYPE_FINGER,
-						null, 60, fingerDevice.getDeviceSubId().get(i));
+						null, 60, fingerDevice.getDeviceSubId().get(i),port);
 			}
 			List<MDSDeviceCaptureModel> lstFingers= capture.getLstBiometrics().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 			if(fingerExceptions != null  && !fingerExceptions.isEmpty()) {
@@ -365,9 +365,9 @@ public static HashMap<String, Integer> portmap=new HashMap();
 
 		}
 
-		if(!bNoMDS) {
-			mds.removeProfile( mdsprofilePath, profileName );
-		}
+		 
+			mds.removeProfile( mdsprofilePath, profileName,port);
+		
 		return capture;
 	}
 
@@ -940,29 +940,34 @@ static List<IrisDataModel> generateIris(int count,String contextKey) throws Exce
 		String leftIrisData ="";
 		String rightIrisData = "";
 		String irisHash = "";
+		byte[] fdata = null;
+		byte[] frdata = null;
 		if(Files.exists(Paths.get(fPathL))) {
-			byte[] fdata = Files.readAllBytes(Paths.get(fPathL));
+			 fdata = Files.readAllBytes(Paths.get(fPathL));
 			leftIrisData = Hex.encodeHexString( fdata ) ;	
 			irisHash = CommonUtil.getHexEncodedHash(fdata);
 			m.setLeftHash(irisHash);
 		}
 		if(Files.exists(Paths.get(fPathR))) {
-			byte[] fdata = Files.readAllBytes(Paths.get(fPathR));
-			rightIrisData = Hex.encodeHexString( fdata ) ;	
-			irisHash = CommonUtil.getHexEncodedHash(fdata);
+			 frdata = Files.readAllBytes(Paths.get(fPathR));
+			rightIrisData = Hex.encodeHexString( frdata ) ;	
+			irisHash = CommonUtil.getHexEncodedHash(frdata);
 			m.setRightHash(irisHash);
 		}
-		if(leftIrisData.equals(""))
+		if(leftIrisData.equals("")) {
+			fdata=frdata;
 			leftIrisData = rightIrisData;
-		else
-			if(rightIrisData.equals(""))
+		}
+			else
+			if(rightIrisData.equals("")) {
+				frdata=fdata;
 				rightIrisData = leftIrisData;
+			}
 		m.setLeft(leftIrisData);
 		m.setRight(rightIrisData);
+		m.setRawLeft(fdata);
+		m.setRawRight(frdata);
 		retVal.add( m);
-
-
-
 	}
 	else
 	{
@@ -970,8 +975,8 @@ static List<IrisDataModel> generateIris(int count,String contextKey) throws Exce
 		int []index = CommonUtil.generateRandomNumbers(count, 224, 1);
 
 		for(int i=0; i < count; i++) {
-			String fPathL = srcPath + String.format("%03d", index[i]) + "/01_L.bmp";
-			String fPathR = srcPath + String.format("%03d", index[i]) + "/05_R.bmp";
+			String fPathL = srcPath + "/"+String.format("%03d", index[i]) + "/01_L.bmp";
+			String fPathR = srcPath +"/"+ String.format("%03d", index[i]) + "/05_R.bmp";
 
 			String leftIrisData ="";
 			String rightIrisData = "";
