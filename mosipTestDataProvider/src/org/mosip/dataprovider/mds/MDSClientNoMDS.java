@@ -67,14 +67,14 @@ public class MDSClientNoMDS implements MDSClientInterface {
 	}
 
 	@Override
-	public void removeProfile(String profilePath, String profile) {
+	public void removeProfile(String profilePath, String profile,int port) {
 
 		profileData.remove(profile);
 		
 	}
 
 	@Override
-	public void setProfile(String profile) {
+	public void setProfile(String profile,int port) {
 	
 		current = profileData.get(profile);
 	}
@@ -101,7 +101,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 
 	@Override
 	public MDSRCaptureModel captureFromRegDevice(MDSDevice device, MDSRCaptureModel rCaptureModel, String bioType,
-			String bioSubType, int reqScore, String deviceSubId) {
+			String bioSubType, int reqScore, String deviceSubId,int port) {
 
 		List<String> lstSubtype = null;
 		
