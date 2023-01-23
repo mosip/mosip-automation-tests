@@ -23,15 +23,14 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 			repeats = Integer.parseInt(step.getParameters().get(0));
 		String url = baseUrl + props.getProperty("getAdditionalInfoReqId");
 		HashMap m=new HashMap<Long, String>();
-	while(OnSmtpList.map.isEmpty())
-		 m=OnSmtpList.map;
-		
+		m=OnSmtpList.map;
 		while (counter < repeats) {
 			logger.info("*******Checking the email for AdditionalInfoReqId...*******");
 			Response response = getRequest(url, "Get addtionalInfoRequestId");
 			String additonalInfoRequestId = response.getBody().asString();
 			if (additonalInfoRequestId != null && !additonalInfoRequestId.isEmpty()
 					&& !additonalInfoRequestId.equals("{Failed}")) {
+				m=OnSmtpList.map;
 				logger.info("AdditionalInfoReqId retrieved: " + additonalInfoRequestId);
 				if (step.getOutVarName() != null)
 					step.getScenario().getVariables().put(step.getOutVarName(), additonalInfoRequestId);
