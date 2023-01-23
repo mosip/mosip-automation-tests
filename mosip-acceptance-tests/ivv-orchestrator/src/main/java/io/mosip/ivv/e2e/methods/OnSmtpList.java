@@ -66,7 +66,7 @@ public class OnSmtpList extends BaseTestCaseUtil implements StepInterface {
 
     private static class WebSocketClient implements WebSocket.Listener {
     	 // private final CountDownLatch latch;
-          
+    	  Long count=(long) 00;
           public WebSocketClient() {  
         	 
           }
@@ -87,18 +87,21 @@ public class OnSmtpList extends BaseTestCaseUtil implements StepInterface {
           @Override
           public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
         	  if(flag) {
+        		  System.out.println(map);
+        		   System.out.println("End Closure of listner " );
         		  onClose(webSocket, 0, "After suite invoked closing");
         	  }
-              System.out.println("onText received " + data);
+              System.out.println("Before : onText received " + data);
               try {
 //            JSONObject json=new JSONObject(data);
 //            System.out.println("html" + json.get("html"));
 //
 //            System.out.println("text" + json.getJSONObject("to").get("text"));
-//            
-            	  Long count=(long) 00;
+         
+            	
         
               map.put(count++, data);
+              System.out.println(" After adding onText received " + count + "data" + data);
             }
             catch(JSONException e)
             {
