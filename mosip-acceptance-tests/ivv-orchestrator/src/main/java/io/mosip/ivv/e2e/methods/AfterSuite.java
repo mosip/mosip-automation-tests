@@ -40,8 +40,10 @@ public class AfterSuite extends BaseTestCaseUtil implements StepInterface {
   
 	public void run() {
 		  try {
+			
+			  System.out.println(OnSmtpList.map);
 			  OnSmtpList.flag=true;
-			  
+			  System.out.println(OnSmtpList.map);
 		  }
 		  catch(Exception e)
 		  {
