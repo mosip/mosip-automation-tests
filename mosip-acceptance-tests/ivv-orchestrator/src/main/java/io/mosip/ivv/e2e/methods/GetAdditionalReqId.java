@@ -3,6 +3,7 @@ package io.mosip.ivv.e2e.methods;
 import java.util.HashMap;
 
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -22,15 +23,26 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 		if (!step.getParameters().isEmpty() && step.getParameters().size() > 0)
 			repeats = Integer.parseInt(step.getParameters().get(0));
 		String url = baseUrl + props.getProperty("getAdditionalInfoReqId");
-		HashMap m=new HashMap<Long, String>();
-		m=OnSmtpList.map;
+		HashMap m=new HashMap<Object, Object>();
+		String additonalInfoRequestId=null;
 		while (counter < repeats) {
+			m=OnSmtpList.map;
+			if(m.get("alok.test.mosip@gmail.com")!=null) {
+			String html=(String) m.get("alok.test.mosip@gmail.com");
+			 StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1");
+			//String arr[]=html.split("AdditionalInfoRequestId","AdditionalInfoRequestId".indexOf(str) ;
+			//System.out.println(arr);
+			
 			logger.info("*******Checking the email for AdditionalInfoReqId...*******");
-			Response response = getRequest(url, "Get addtionalInfoRequestId");
-			String additonalInfoRequestId = response.getBody().asString();
+			//Response response = getRequest(url, "Get addtionalInfoRequestId");
+			//String additonalInfoRequestId = response.getBody().asString();
+			 additonalInfoRequestId= StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1")+"-BIOMETRIC_CORRECTION-1";;
+			//additonalInfoRequestId= StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1");
+			
+			}
 			if (additonalInfoRequestId != null && !additonalInfoRequestId.isEmpty()
 					&& !additonalInfoRequestId.equals("{Failed}")) {
-				m=OnSmtpList.map;
+			
 				logger.info("AdditionalInfoReqId retrieved: " + additonalInfoRequestId);
 				if (step.getOutVarName() != null)
 					step.getScenario().getVariables().put(step.getOutVarName(), additonalInfoRequestId);
