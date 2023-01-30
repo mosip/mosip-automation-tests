@@ -25,8 +25,9 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		List<String> hashModality = new ArrayList<>();
 		List<String> modalitysubTypeList = new ArrayList<>();
 		String personaId = null;
+		String vv="hhhhhnjkj.kjkjk.mkmkmk";
 		
-
+		String delaysec="30";
 		if (step.getParameters().size() == 4) { /// id=878787877
 			personaId = step.getParameters().get(0);
 			if (!personaId.equals("-1")) {
@@ -62,8 +63,11 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			duplicate = Boolean.parseBoolean(step.getParameters().get(2)); // boolean isDuplicate
 			hashProp = PacketUtility.getParamsArg(step.getParameters().get(3), "@@"); // List<String> hashModality
 			hashProp.stream().forEach(key -> hashModality.add(key));
+			 if(step.getParameters().size() == 7) {
+				 delaysec=step.getParameters().get(6);
+			}
 			JSONArray jsonOutterReq = buildMockRequest(personaPath, duplicate, hashModality, modalitysubTypeList,
-					personaId);
+					personaId,Integer.parseInt(delaysec));
 			packetUtility.setMockabisExpectaion(jsonOutterReq, contextInuse);
 			//hashtable.clear();
 
@@ -71,7 +75,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 	
 
 	private JSONArray buildMockRequest(String personaPath, boolean duplicate, List<String> hashModality,
-			List<String> modalitysubTypeList, String personaId) {
+			List<String> modalitysubTypeList, String personaId,int delaySec ) {
 		Map<String, String> modalityHashValueMap =new HashMap<>();
 		if(isFound) {
 			//$$modalityHashValue
@@ -99,7 +103,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		//Map<String, String> modalityHashValueMap = hashtable.get(personaId);
 		JSONArray outterReq = new JSONArray();
 		JSONObject jsonOutterReq = new JSONObject();
-		jsonOutterReq.put("delaySec", "30");
+		jsonOutterReq.put("delaySec", delaySec);
 		jsonOutterReq.put("duplicate", duplicate);
 		JSONArray modalities = new JSONArray();
 		if (!modalitysubTypeList.isEmpty() && modalitysubTypeList.size() > 0)
