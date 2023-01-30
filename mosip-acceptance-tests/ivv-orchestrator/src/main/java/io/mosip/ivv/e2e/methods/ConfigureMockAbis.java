@@ -27,8 +27,8 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		String personaId = null;
 		String vv="hhhhhnjkj.kjkjk.mkmkmk";
 		
-		String delaysec="30";
-		if (step.getParameters().size() == 4) { /// id=878787877
+		String delaysec="-1";
+ 		if (step.getParameters().size() == 4) { /// id=878787877
 			personaId = step.getParameters().get(0);
 			if (!personaId.equals("-1")) {
 				if (residentPersonaIdPro.get(personaId) == null) {
@@ -47,7 +47,11 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 				break;
 			}
 		 }
-		}else if(step.getParameters().size() == 6) { // "$$var=e2e_configureMockAbis-1,Right IndexFinger,false,Right IndexFinger,$$personaFilePath,$$modalityHashValue)"
+		}else if(step.getParameters().size() >= 6) { 
+			//"e2e_configureMockAbis(-1,Right IndexFinger,false,Right IndexFinger,$$personaFilePath,$$modalityHashValue,delaynum,successcode)"
+
+			//"e2e_configureMockAbis(-1,Right IndexFinger,false,Right IndexFinger,$$personaFilePath,$$modalityHashValue,delaynum,errorcode@@reason)"
+			
 			personaPath=step.getParameters().get(4);
 			if(personaPath.startsWith("$$")) {
 				personaPath=step.getScenario().getVariables().get(personaPath);
@@ -63,7 +67,8 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			duplicate = Boolean.parseBoolean(step.getParameters().get(2)); // boolean isDuplicate
 			hashProp = PacketUtility.getParamsArg(step.getParameters().get(3), "@@"); // List<String> hashModality
 			hashProp.stream().forEach(key -> hashModality.add(key));
-			 if(step.getParameters().size() == 7) {
+			 
+			if(step.getParameters().size() == 7) {
 				 delaysec=step.getParameters().get(6);
 			}
 			JSONArray jsonOutterReq = buildMockRequest(personaPath, duplicate, hashModality, modalitysubTypeList,
