@@ -36,7 +36,7 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 			logger.info("*******Checking the email for AdditionalInfoReqId...*******");
 			//Response response = getRequest(url, "Get addtionalInfoRequestId");
 			//String additonalInfoRequestId = response.getBody().asString();
-			 additonalInfoRequestId= StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1")+"-BIOMETRIC_CORRECTION-1";;
+			 additonalInfoRequestId= StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1").trim()+"-BIOMETRIC_CORRECTION-1";
 			//additonalInfoRequestId= StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1");
 			
 			}
