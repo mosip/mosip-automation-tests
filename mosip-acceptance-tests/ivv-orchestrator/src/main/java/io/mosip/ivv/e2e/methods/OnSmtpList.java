@@ -31,6 +31,8 @@ import io.mosip.ivv.e2e.pojo.Root;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.PacketUtility;
 import io.mosip.ivv.orchestrator.TestRunner;
+import io.mosip.kernel.util.ConfigManager;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -47,17 +49,23 @@ public class OnSmtpList extends BaseTestCaseUtil implements StepInterface {
 
 	public void run() {
 		try {
+			  Properties kernelprops=ConfigManager.propsKernel;
+				String a1="wss://smtp.";
+				String externalurl=kernelprops.getProperty("keycloak-external-url");
+			    String a2=	externalurl.substring(externalurl.indexOf(".")+1);
+			    String a3="/mocksmtp/websocket"; 
+				  
 			WebSocket ws = HttpClient
 					.newHttpClient()
 					.newWebSocketBuilder()
-					.buildAsync(URI.create("wss://smtp.qa-1201-b2.mosip.net/mocksmtp/websocket"), new WebSocketClient())
+//					.buildAsync(URI.create("wss://smtp.qa-1201-b2.mosip.net/mocksmtp/websocket"), new WebSocketClient())
+					.buildAsync(URI.create(a1+a2+a3), new WebSocketClient())
 					.join();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
-
 
 	private static class WebSocketClient implements WebSocket.Listener {
 		Long count=(long) 00;
