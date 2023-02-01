@@ -116,6 +116,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		jsonOutterReq.put("modalities", modalities);
 		jsonOutterReq.put("operation", "Identify");
 		jsonOutterReq.put("personaPath", personaPath);
+		
 		JSONArray refHashs = new JSONArray();
 		/*
 		 * if (!hashModality.isEmpty() && hashModality.size() > 0)
