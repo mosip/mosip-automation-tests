@@ -173,5 +173,27 @@ public class RegistrationSteps {
     }
     
     
+public Response getStagesByRID(String rid, String contextKey) throws Exception {
+
+	String uri="v1/admin/packetstatusupdate?rid="+rid+"&langCode="+"eng";
+		//String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + uri ;
+		String url="https://api-internal.dev2.mosip.net/" +uri;
+			
+		/*JSONObject req = new JSONObject();
+		JSONObject reqWrapper = new JSONObject();
+		reqWrapper.put("id", "mosip.resident.checkstatus");
+		reqWrapper.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+		reqWrapper.put("version", "v1");
+		req.put("individualId", rid);
+		req.put("individualIdType", "RID");
+		reqWrapper.put("request", req);
+		 */
+
+		Response response =RestClient.getAdmin(url,new JSONObject(),new JSONObject(),contextKey);
+		System.out.println(response);
+		return response;
+		
+	}
+	
 	
 }
