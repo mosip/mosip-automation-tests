@@ -1289,7 +1289,7 @@ return functionResponse;
 
 	}
 
-	public String setPersonaMockABISExpectation(List<String> personaFilePath, boolean bDuplicate, String contextKey) throws JSONException, NoSuchAlgorithmException, IOException {
+	public String setPersonaMockABISExpectation(List<String> personaFilePath, boolean bDuplicate, String contextKey,String statusCode,String failureReason) throws JSONException, NoSuchAlgorithmException, IOException {
 
 		String bdbString ="";
 		String [] duplicateBdbs;
@@ -1322,7 +1322,7 @@ return functionResponse;
 			}
 			else
 				duplicateBdbs= null;
-			MosipDataSetup.configureMockABISBiometric(bdbString, bDuplicate,duplicateBdbs, DataProviderConstants.DEFAULT_ABIS_DELAY, null ,contextKey);
+			MosipDataSetup.configureMockABISBiometric(bdbString, bDuplicate,duplicateBdbs, DataProviderConstants.DEFAULT_ABIS_DELAY, null ,contextKey,statusCode,failureReason);
 		}
 		return "{\"status\":\"Success\"}";
 	}
@@ -1440,7 +1440,7 @@ return functionResponse;
 			for(String b:subTypeBdbStr ) {
 				String responseStr=MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(),duplicateBdbs,
 						(expct.getDelaySec() <= 0 ?  DataProviderConstants.DEFAULT_ABIS_DELAY : expct.getDelaySec()),
-						expct.getOperation(),contextKey);
+						expct.getOperation(),contextKey,expct.getStatusCode(),expct.getFailureReason());
 				reponse.add(responseStr);
 			}
 			System.out.println(String.join(", ", reponse));
