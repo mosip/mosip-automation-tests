@@ -22,43 +22,45 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 		HashMap<String, String>map=new HashMap<String, String>();
 		HashMap<String, String> context=null;
 		 String transactionTypeCode =null;
-		   String subStatusCode =null;
+		   String statusCode =null;
 			if (step.getParameters().size() >= 3) {
 				rid = step.getParameters().get(0);
 				transactionTypeCode=step.getParameters().get(1);
-				subStatusCode=step.getParameters().get(2);
+				statusCode=step.getParameters().get(2);
 			}
 			 if (rid.startsWith("$$")) {
 				 map = step.getScenario().getVariables();
 				}
 			Response response = getRequest(baseUrl+props.getProperty("ridStatus")+map.get("$$rid"), "Get Stages by rid");
 			
-		// Check these two keys	subStatusCode,transactionTypeCode
+		// Check these two keys	statusCode,transactionTypeCode
 			
 		JSONObject res = new JSONObject(response.getBody().asString());
 		JSONArray arr=res.getJSONObject("response").getJSONArray("packetStatusUpdateList");
 		  for (Object myObject : arr) {
 
-		       		        JSONObject myJSONObject = (JSONObject) myObject;
-		     
-//		         transactionTypeCode = myJSONObject.getString("transactionTypeCode");
-//		         subStatusCode = myJSONObject.getString("subStatusCode");
-		        if(transactionTypeCode.equalsIgnoreCase(myJSONObject.getString("transactionTypeCode")) &&
-		        	subStatusCode.equalsIgnoreCase(myJSONObject.getString("subStatusCode")))
+		       		 JSONObject myJSONObject = (JSONObject) myObject;
+	        if(transactionTypeCode.equalsIgnoreCase(myJSONObject.getString("transactionTypeCode")))
+	        {
+		        	if(statusCode.equalsIgnoreCase(myJSONObject.getString("statusCode")))
 		        	{
-		        	 System.out.println("matching");
+		        	 System.out.println("matching statusCode");
 		        	 flag=true;
-		        	  break;
 		        	 
 		        	}
+		        	else
+		        	{
+		        		flag=false;
+		        		break;
+		        	}
 		    }
-		
+		  }
 		  logger.info(res.toString());
 		if (flag.equals(true)) {
-			logger.info("RESPONSE= contains" + transactionTypeCode + subStatusCode);
+			logger.info("RESPONSE= contains" + transactionTypeCode + statusCode);
 		} else {
 			logger.error("RESPONSE= doesn't contain" + arr);
-			throw new RuntimeException("RESPONSE= doesn't contain" + transactionTypeCode + subStatusCode);
+			throw new RuntimeException("RESPONSE= doesn't contain" + transactionTypeCode + statusCode);
 		}
 
 	}
