@@ -1,0 +1,14 @@
+ApproveAPIKey:
+   Idp_ApproveRejectPartnerAPIKeyReq_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/policy/$MAPPINGKEY$
+      role: partner
+      restMethod: put
+      inputTemplate: idaData/PmsIntegration/ApproveAPIKey/approveAPIKey
+      outputTemplate: idaData/PmsIntegration/ApproveAPIKey/approveAPIKeyResult
+      input: '{
+      "status": "Approved",
+	  "requesttime": "$TIMESTAMP$"
+  }'
+      output: '{
+        "response": "Policy mapping approved successfully"
+    }'

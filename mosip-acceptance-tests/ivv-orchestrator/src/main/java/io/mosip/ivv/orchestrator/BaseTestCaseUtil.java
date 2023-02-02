@@ -57,6 +57,7 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static Properties uinPersonaProp=new Properties();
 	public static Properties vidPersonaProp=new Properties();
 	public static Properties oidcClientProp=new Properties();
+	public static Properties oidcPmsProp=new Properties();
 	public static HashMap<String, String> ridPersonaPath=new LinkedHashMap<String, String>();
 	public static Properties residentPersonaIdPro=new Properties();
 	public static Properties ridPacketPathPro=new Properties();
