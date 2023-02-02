@@ -35,13 +35,15 @@ import java.util.concurrent.CountDownLatch;
         
 import io.mosip.service.BaseTestCase;
 
-public class AfterSuite extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(AfterSuite.class);
+public class TearDown extends BaseTestCaseUtil implements StepInterface {
+	Logger logger = Logger.getLogger(TearDown.class);
   
 	public void run() {
 		  try {
+			
+			  System.out.println(OnSmtpList.map);
 			  OnSmtpList.flag=true;
-			  
+			  System.out.println(OnSmtpList.map);
 		  }
 		  catch(Exception e)
 		  {

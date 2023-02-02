@@ -485,7 +485,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 	
 		return devices;
 	}
-	public static String configureMockABISBiometric(String bdbString, boolean bDuplicate, String[] duplicateBdbs, int delay, String operation,String contextKey) 
+	public static String configureMockABISBiometric(String bdbString, boolean bDuplicate, String[] duplicateBdbs, int delay, String operation,String contextKey,String statusCode,String failureReason) 
 			throws JSONException, NoSuchAlgorithmException {
 		
 
@@ -503,9 +503,11 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		req.put("version","1.0");
 		req.put("requesttime",CommonUtil.getUTCDateTime(null) );
 		req.put("actionToInterfere",operation );
-		req.put("forcedResponse","Duplicate" );
+//		req.put("forcedResponse","Duplicate" );
+		req.put("forcedResponse",failureReason);
+		req.put("delayInExecution",Integer.toString(delay));
+		req.put("errorCode",statusCode);
 		
-		req.put("delayInExecution",Integer.toString(delay) );
 		
 		if(!bDuplicate)
 			req.put("gallery",JSONObject.NULL);

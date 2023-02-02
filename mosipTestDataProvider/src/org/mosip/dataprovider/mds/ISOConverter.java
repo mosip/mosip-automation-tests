@@ -13,6 +13,7 @@ import java.util.Map;
 
 import com.google.common.io.Files;
 
+import io.mosip.biometrics.util.CommonUtil;
 import io.mosip.biometrics.util.ConvertRequestDto;
 import io.mosip.biometrics.util.face.FaceEncoder;
 import io.mosip.biometrics.util.finger.FingerEncoder;
@@ -86,11 +87,11 @@ public class ISOConverter {
 		
 		*/
 		
-		
+		byte[] jp2bytes= CommonUtil.convertJPEGToJP2UsingOpenCV(inStream, 95);
 		ConvertRequestDto convertRequestDto=new ConvertRequestDto();
 		convertRequestDto.setBiometricSubType(biometricSubType);
 		convertRequestDto.setImageType(0);
-		convertRequestDto.setInputBytes(inStream);
+		convertRequestDto.setInputBytes(jp2bytes);
 		convertRequestDto.setModality("Finger");
 		convertRequestDto.setPurpose(purpose);//R
 		convertRequestDto.setVersion("ISO19794_4_2011");
@@ -165,10 +166,11 @@ public class ISOConverter {
 		int quality = 80; 
 		IrisQualityBlock [] qualityBlocks = new IrisQualityBlock [] { new IrisQualityBlock ((byte)quality , algorithmVendorIdentifier, qualityAlgorithmIdentifier)};
 		*/
+		byte[] jp2bytes= CommonUtil.convertJPEGToJP2UsingOpenCV(inStream, 95);
 		ConvertRequestDto convertRequestDto=new ConvertRequestDto();
 		convertRequestDto.setBiometricSubType(biometricSubType);
 		convertRequestDto.setImageType(0);
-		convertRequestDto.setInputBytes(inStream);
+		convertRequestDto.setInputBytes(jp2bytes);
 		convertRequestDto.setModality("Iris");
 		convertRequestDto.setPurpose("Registration");
 		convertRequestDto.setVersion("ISO19794_6_2011");
@@ -243,10 +245,11 @@ public class ISOConverter {
 		
 		*/
 		
+	byte[] jp2bytes= CommonUtil.convertJPEGToJP2UsingOpenCV(inStream, 95);
 		ConvertRequestDto convertRequestDto=new ConvertRequestDto();
 		convertRequestDto.setBiometricSubType("");
 		convertRequestDto.setImageType(0);
-		convertRequestDto.setInputBytes(inStream);
+		convertRequestDto.setInputBytes(jp2bytes);
 		convertRequestDto.setModality("Face");
 		convertRequestDto.setPurpose("Registration");
 		convertRequestDto.setVersion("ISO19794_5_2011");

@@ -12,5 +12,7 @@ public class MockABISExpectationsDto {
 	boolean isDuplicate;		//True - show this hash as duplicate
 	List<String> modalities;	//List of fingers, face, iris, whose hash should be registered
 	List<String> refHashs;		//List of hash , which should be returned with identify request
-	int delaySec;					// Delay in seconds
+	int delaySec;	// Delay in seconds
+	String statusCode;
+	String failureReason;
 }

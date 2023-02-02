@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.mosip.test.packetcreator.mosippacketcreator.controller.ResidentController;
+import io.restassured.response.Response;
 import variables.VariableManager;
 
 
@@ -72,6 +73,19 @@ public class ResidentService {
 		  RegistrationSteps steps = new RegistrationSteps();
 		//  try {
 			 return steps.getUINByRID(rid,context);
+		 // } catch (Exception e) {
+		//	  logger.error("getUINByRID", e);
+		  //}
+		  //return "{Failed}";
+	  }
+	  
+  public Response getStagesByRID(String rid, String context) throws Exception {
+		  
+		  VariableManager.Init(context);
+		  loadServerContextProperties(context);
+		  RegistrationSteps steps = new RegistrationSteps();
+		//  try {
+			 return steps.getStagesByRID(rid,context);
 		 // } catch (Exception e) {
 		//	  logger.error("getUINByRID", e);
 		  //}

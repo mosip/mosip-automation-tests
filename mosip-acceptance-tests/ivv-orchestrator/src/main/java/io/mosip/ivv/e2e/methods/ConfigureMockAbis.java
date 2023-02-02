@@ -25,9 +25,12 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		List<String> hashModality = new ArrayList<>();
 		List<String> modalitysubTypeList = new ArrayList<>();
 		String personaId = null;
-		
-
-		if (step.getParameters().size() == 4) { /// id=878787877
+		String vv="hhhhhnjkj.kjkjk.mkmkmk";
+		List <String> errorList =null;
+		String delaysec="-1";
+		String statusCode=null;
+		String failureReason= null;
+ 		if (step.getParameters().size() == 4) { /// id=878787877
 			personaId = step.getParameters().get(0);
 			if (!personaId.equals("-1")) {
 				if (residentPersonaIdPro.get(personaId) == null) {
@@ -46,7 +49,11 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 				break;
 			}
 		 }
-		}else if(step.getParameters().size() == 6) { // "$$var=e2e_configureMockAbis-1,Right IndexFinger,false,Right IndexFinger,$$personaFilePath,$$modalityHashValue)"
+		}else if(step.getParameters().size() >= 6) { 
+			//"e2e_configureMockAbis(-1,Right IndexFinger,false,Right IndexFinger,$$personaFilePath,$$modalityHashValue,delaynum,successcode)"
+
+			//"e2e_configureMockAbis(-1,Right IndexFinger,false,Right IndexFinger,$$personaFilePath,$$modalityHashValue,delaynum,errorcode@@reason)"
+			
 			personaPath=step.getParameters().get(4);
 			if(personaPath.startsWith("$$")) {
 				personaPath=step.getScenario().getVariables().get(personaPath);
@@ -62,8 +69,24 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			duplicate = Boolean.parseBoolean(step.getParameters().get(2)); // boolean isDuplicate
 			hashProp = PacketUtility.getParamsArg(step.getParameters().get(3), "@@"); // List<String> hashModality
 			hashProp.stream().forEach(key -> hashModality.add(key));
+			 
+			if(step.getParameters().size() >= 7) {
+				 delaysec=step.getParameters().get(6);
+			}
+			
+			if(step.getParameters().size() == 8) {
+				
+				if(step.getParameters().get(7).contains("@@")) {
+			     errorList = PacketUtility.getParamsArg(step.getParameters().get(7),"@@");
+			      statusCode = errorList.get(0);
+			      failureReason =errorList.get(1);
+				}
+				else {
+				statusCode = step.getParameters().get(7);
+				}
+				}
 			JSONArray jsonOutterReq = buildMockRequest(personaPath, duplicate, hashModality, modalitysubTypeList,
-					personaId);
+					personaId,Integer.parseInt(delaysec),statusCode,failureReason);
 			packetUtility.setMockabisExpectaion(jsonOutterReq, contextInuse);
 			//hashtable.clear();
 
@@ -71,7 +94,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 	
 
 	private JSONArray buildMockRequest(String personaPath, boolean duplicate, List<String> hashModality,
-			List<String> modalitysubTypeList, String personaId) {
+			List<String> modalitysubTypeList, String personaId,int delaySec,String statusCode, String failureReason ) {
 		Map<String, String> modalityHashValueMap =new HashMap<>();
 		if(isFound) {
 			//$$modalityHashValue
@@ -99,7 +122,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		//Map<String, String> modalityHashValueMap = hashtable.get(personaId);
 		JSONArray outterReq = new JSONArray();
 		JSONObject jsonOutterReq = new JSONObject();
-		jsonOutterReq.put("delaySec", "30");
+		jsonOutterReq.put("delaySec", delaySec);
 		jsonOutterReq.put("duplicate", duplicate);
 		JSONArray modalities = new JSONArray();
 		if (!modalitysubTypeList.isEmpty() && modalitysubTypeList.size() > 0)
@@ -107,6 +130,10 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		jsonOutterReq.put("modalities", modalities);
 		jsonOutterReq.put("operation", "Identify");
 		jsonOutterReq.put("personaPath", personaPath);
+		
+		jsonOutterReq.put("statusCode", statusCode);
+		jsonOutterReq.put("failureReason", failureReason);
+		
 		JSONArray refHashs = new JSONArray();
 		/*
 		 * if (!hashModality.isEmpty() && hashModality.size() > 0)

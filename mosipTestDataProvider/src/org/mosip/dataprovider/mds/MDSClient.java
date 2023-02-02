@@ -43,13 +43,19 @@ public class MDSClient implements MDSClientInterface {
 	
 	
 	//create profile folder and create all ISO images as per resident data
-/*	
-	public void createProfileOld(String profilePath,String profile, ResidentModel resident) throws Exception {
-		File profDir = new File(profilePath + "/"+ profile);
+
+	public void createProfileold(String profilePath,String profile, ResidentModel resident,String contextKey,String purpose) throws Exception {
+//		File profDir = new File(profilePath + "/"+ profile);
+//		if(!profDir.exists())
+//			profDir.mkdir();
+		File profDir1 = new File(profilePath + "/"+ profile);
+		File profDir = new File(profilePath + "/"+ profile+ "/" + purpose);
+		if(!profDir1.exists())
+			profDir1.mkdir();
 		if(!profDir.exists())
 			profDir.mkdir();
 		//copy from default profile
-		File defProfile = new File( profilePath +"/"+ "Default");
+		File defProfile = new File( profilePath +"/"+ "Default"+"/"+purpose);
 		
 		File []defFiles = defProfile.listFiles();
 		for(File f: defFiles) {
@@ -83,7 +89,7 @@ public class MDSClient implements MDSClientInterface {
 					String fingerName = DataProviderConstants.displayFingerName[i];
 					String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
 					if(fingerData[i] != null) {
-						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName,pur);
+						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName,purpose);
 					}
 				}
 			}
@@ -96,13 +102,17 @@ public class MDSClient implements MDSClientInterface {
 			
 	}
 	
-	*/
+	
 	
 
 	//create profile folder and create all ISO images as per resident data
 	
 	public void createProfile(String profilePath,String profile, ResidentModel resident,String contextKey,String purpose) throws Exception {
-		File profDir = new File(profilePath + "/"+ purpose+ "/" + profile);
+//		File profDir = new File(profilePath + "/"+ profile+ "/" + purpose);
+		File profDir1 = new File(profilePath + "/"+ profile);
+		File profDir = new File(profilePath + "/"+ profile+ "/" + purpose);
+		if(!profDir1.exists())
+			profDir1.mkdir();
 		if(!profDir.exists())
 			profDir.mkdir();
 		//copy from default profile
@@ -169,9 +179,9 @@ public class MDSClient implements MDSClientInterface {
 				IrisDataModel iris = resident.getBiometric().getIris();
 				if(iris != null) {
 					
-					if(iris.getRawLeft() != null)
+//					if(iris.getRawLeft() != null)
 						convert.convertIris(iris.getRawLeft(), profDir + "/"+ "Left_Iris.iso", "Left");
-					if(iris.getRawRight() != null)
+//					if(iris.getRawRight() != null)
 						convert.convertIris(iris.getRawRight(), profDir + "/"+ "Right_Iris.iso", "Right");
 				}
 			}
@@ -195,8 +205,8 @@ public class MDSClient implements MDSClientInterface {
 	}
 	
 	
-	public void removeProfile(String profilePath,String profile) {
-		setProfile("Default");
+	public void removeProfile(String profilePath,String profile,int port) {
+		setProfile("Default",port);
 		File profDir = new File(profilePath + "/"+ profile);
 		if(profDir.exists()) {
 			 // list all the files in an array
@@ -210,15 +220,16 @@ public class MDSClient implements MDSClientInterface {
 		}
 		
 	}
-	public  void setProfile(String profile) {
+	public  void setProfile(String profile,int port) {
 		
-		String url =  MDSURL +port + "/profile";
+		String url =  MDSURL +port + "/admin/profile";
 		JSONObject body = new JSONObject();
 		body.put("profileId", profile);
+		body.put("type", "Biometric Device");
 
 		try {
 			HttpRCapture capture = new HttpRCapture(url);
-			capture.setMethod("SETPROFILE");
+			capture.setMethod("POST");
 			String response = RestClient.rawHttp(capture, body.toString());
 			JSONObject respObject = new JSONObject(response);
 
@@ -261,7 +272,7 @@ public class MDSClient implements MDSClientInterface {
 	public  MDSRCaptureModel captureFromRegDevice(MDSDevice device, 
 			MDSRCaptureModel rCaptureModel,
 			String type,
-			String bioSubType, int reqScore,String deviceSubId) {
+			String bioSubType, int reqScore,String deviceSubId,int port) {
 		String mosipVersion=null;;
 		try {
 	      mosipVersion=VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.version").toString();
@@ -412,7 +423,7 @@ public class MDSClient implements MDSClientInterface {
 		
 		MDSClient client = new MDSClient(0);
 		//client.setProfile("res643726437264372");
-		client.setProfile("Default");
+		client.setProfile("Default",port);
 		List<MDSDevice> d= client.getRegDeviceInfo("Iris");
 		d.forEach( dv-> {
 			System.out.println(dv.toJSONString());	
@@ -425,7 +436,7 @@ public class MDSClient implements MDSClientInterface {
 		f.forEach( dv-> {
 			System.out.println(dv.toJSONString());	
 			
-			MDSRCaptureModel r =  client.captureFromRegDevice(dv, null, "Finger",null,60,"1");
+			MDSRCaptureModel r =  client.captureFromRegDevice(dv, null, "Finger",null,60,"1",0);
 			//MDSRCaptureModel r =  client.captureFromRegDevice(d.get(0),null, "Iris",null,60,2);
 		
 			System.out.println( r.toJSONString());
