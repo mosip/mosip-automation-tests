@@ -126,25 +126,25 @@ public class PersonaController {
 	    	
 	}
 	
-	@ApiOperation(value = "Set Persona specific expectations in mock ABIS, Duplicate -> True/False", response = String.class)
-	@PostMapping(value = "/persona/mockabis/expectaions/{duplicate}/{contextKey}")
-	public @ResponseBody String setPersonaMockABISExpectation(@RequestBody List<String>  personaFilePath,
-			@PathVariable("duplicate") boolean bDuplicate,
-			@PathVariable("contextKey") String contextKey
-			) {
-	    	
-		try{    	
-	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
-	    			DataProviderConstants.RESOURCE = personaConfigPath;
-	    		}
-	    		return packetSyncService.setPersonaMockABISExpectation(personaFilePath, bDuplicate,contextKey);
-	    	
-	    } catch (Exception ex){
-	             logger.error("setPersonaMockABISExpectation", ex);
-	    }
-	    	return "{Failed}";
-	    	
-	 }
+//	@ApiOperation(value = "Set Persona specific expectations in mock ABIS, Duplicate -> True/False", response = String.class)
+//	@PostMapping(value = "/persona/mockabis/expectaions/{duplicate}/{contextKey}")
+//	public @ResponseBody String setPersonaMockABISExpectation(@RequestBody List<String>  personaFilePath,
+//			@PathVariable("duplicate") boolean bDuplicate,
+//			@PathVariable("contextKey") String contextKey
+//			) {
+//	    	
+//		try{    	
+//	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+//	    			DataProviderConstants.RESOURCE = personaConfigPath;
+//	    		}
+//	    		return packetSyncService.setPersonaMockABISExpectation(personaFilePath, bDuplicate,contextKey, statusCode,failureReason);
+//	    	
+//	    } catch (Exception ex){
+//	             logger.error("setPersonaMockABISExpectation", ex);
+//	    }
+//	    	return "{Failed}";
+//	    	
+//	 }
 	
 
 	@ApiOperation(value = "Extended API to set Persona specific expectations in mock ABIS ", response = String.class)

@@ -120,11 +120,67 @@ public class RestClient {
 	}
 	
 	//method used with admin role
+		public static Response getAdmin(String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
+	       
+			String role = "admin";
+	        if (!isValidToken(role,contextKey)){
+	        	initToken_admin(contextKey);
+	        	
+	        }
+	    	boolean bDone = false;
+	    	int nLoop  = 0;
+	    	Response response =null;
+
+	    	//Stict http validation errors - fix
+	    	
+	    	/*if(url.contains("//")) {
+	    		url = url.replace("//", "/"); 		
+	    	}*/
+	    	try {
+	    	while(!bDone) {
+
+	    	//	String token = tokens.get(role);
+	    		String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
+	    		Cookie kukki = new Cookie.Builder("Authorization", token).build();
+	    		Map<String,Object> mapParam = requestParams == null ? null: requestParams.toMap();
+	        		//new Gson().fromJson(requestParams.toString(), HashMap.class);
+	    		Map<String,Object> mapPathParam =pathParam == null ? null: pathParam.toMap();
+	        
+	        	//new Gson().fromJson(pathParam.toString(), HashMap.class);
+	        
+	    		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,mapPathParam );
+	    		if(response.getStatusCode() == 401) {
+	    			if(nLoop >= 1)
+	    				bDone = true;
+	    			else {
+	    				initToken(contextKey);
+	    				nLoop++;
+	    			}
+	    		}
+	    		else
+	    			bDone = true;
+	    	}
+
+	        if(response != null) {
+	        	System.out.println(response.getBody().asString());
+	        	
+	        }
+	        checkErrorResponse(response.getBody().asString());
+
+	       }
+	    	catch(Exception e)
+	    	{
+	    		e.printStackTrace();
+	    	}
+	    	 return response;
+	    }
+		
+		//method used with admin role
 		public static JSONObject getAdminPreReg(String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
 	       
 			String role = "admin";
 	        if (!isValidToken(role,contextKey)){
-	        	initToken(contextKey);
+	        	initToken_admin(contextKey);
 	        	
 	        }
 	    	boolean bDone = false;
@@ -176,6 +232,7 @@ public class RestClient {
 	    }
 		
 		
+	
 	//method used with system role
 	public static JSONObject get(String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
        
