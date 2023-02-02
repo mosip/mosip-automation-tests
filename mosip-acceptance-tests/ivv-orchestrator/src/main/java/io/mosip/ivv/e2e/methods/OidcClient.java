@@ -59,6 +59,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 		String partnerId = null;
 		String policyName = null;
 		String mappingkey = null;
+		String clientId = null;
 
 		// CreatePolicyGroup Call
 
@@ -368,6 +369,8 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 					Response response = oidcClient.response;
 					if (response != null) {
 						JSONObject jsonResp = new JSONObject(response.getBody().asString());
+						clientId = jsonResp.getJSONObject("response").getString("clientId");
+						oidcPmsProp.put("clientId", clientId);
 					}
 
 				} catch (AuthenticationTestException | AdminTestException e) {
