@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.test.packetcreator.mosippacketcreator.dto.UpdatePersonaDto;
 import io.mosip.test.packetcreator.mosippacketcreator.service.ResidentService;
+import io.restassured.response.Response;
 import io.swagger.annotations.ApiOperation;
 
 
@@ -165,4 +166,31 @@ public class ResidentController {
 			}
 			return "{Failed}";
 		}
+
+
+
+		  @GetMapping(value = "/resident/stages/{rid}/{contextKey}")
+		  public @ResponseBody String getStagesByRid( @PathVariable("rid") String rid, 
+				  @PathVariable("contextKey") String contextKey
+				  ) {
+			  String r=null;
+			  if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+		  			DataProviderConstants.RESOURCE = personaConfigPath;
+		  		}
+
+	 
+			  try {
+				return residentService.getStagesByRID(rid, contextKey).getBody().asString();
+			  }catch (Exception e) {
+				   logger.error("getStagesByRid", e);
+				
+			  }
+			  return r;
+		  }
+
+
+
+
+
+
 }
