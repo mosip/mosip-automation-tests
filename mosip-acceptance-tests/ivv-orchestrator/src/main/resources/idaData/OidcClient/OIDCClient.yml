@@ -1,0 +1,21 @@
+CreateOIDCClient:
+   Idp_CreateOIDCClient_all_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: idaData/OidcClient/OIDCClient
+      outputTemplate: idaData/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyName": "$ID:DefinePolicy_All_Valid_Smoke_sid_name$",
+        "publicKey": "$OIDCJWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+        "status": "ACTIVE"
+}'
