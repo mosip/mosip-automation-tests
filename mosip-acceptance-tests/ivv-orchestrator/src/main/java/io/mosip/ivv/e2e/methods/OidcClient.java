@@ -371,6 +371,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 						JSONObject jsonResp = new JSONObject(response.getBody().asString());
 						clientId = jsonResp.getJSONObject("response").getString("clientId");
 						oidcPmsProp.put("clientId", clientId);
+						oidcClientProp.put("clientId", clientId);
 					}
 
 				} catch (AuthenticationTestException | AdminTestException e) {
