@@ -16,6 +16,7 @@ import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.SimplePost;
 import io.restassured.response.Response;
 
@@ -23,22 +24,26 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 	static Logger logger = Logger.getLogger(IdpAuthentication.class);
 	private static final String AuthenticateUser = "idaData/AuthenticateUser/AuthenticateUser.yml";
 	private static final String OtpUser = "idaData/SendOtpForIdp/SendOtp.yml";
-	SimplePost authenticateUser=new SimplePost() ;
+	SimplePost authenticateUser = new SimplePost();
 
 	@Override
 	public void run() throws RigInternalError {
-		
+
 		String uins = null;
+		String vids = null;
 		String authType = null;
 		String pin = null;
 		List<String> uinList = null;
+		List<String> vidList = null;
 		String transactionId = "";
+		Object[] casesListUIN = null;
+		Object[] casesListVID = null;
+		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 
 		Object[] testObj = authenticateUser.getYmlTestData(AuthenticateUser);
 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
-		
-		
+
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transactionId parameter is  missing from DSL step");
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
@@ -47,99 +52,230 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 			System.out.println(transactionId);
 
 		}
-		if(step.getParameters().size() == 4 && step.getParameters().get(1).startsWith("$$")) { //"e2e_PinAuthentication($$transactionId,$$uin)"
+		if (step.getParameters().size() == 5 && step.getParameters().get(1).startsWith("$$")) { // "e2e_IdpAuthentication($$transactionId,$$uin,OTP,111111,$$vid)"
 			uins = step.getParameters().get(1);
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 			}
-		}
-		else if (step.getParameters().size() == 4) {
+		} else if (step.getParameters().size() == 5) {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		}else
+		} else
 			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
-		
-		
-		if (step.getParameters().size() == 4) {
+
+		// Fetching VID
+		if (step.getParameters().size() == 5 && step.getParameters().get(1).startsWith("$$")) {
+			// "e2e_IdpAuthentication($$transactionId,$$uin,OTP,111111,$$vid)"
+			vids = step.getParameters().get(4);
+			if (vids.startsWith("$$")) {
+				vids = step.getScenario().getVariables().get(vids);
+				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
+			}
+		} else if (step.getParameters().size() == 5) {
+			vids = step.getParameters().get(4);
+			if (!StringUtils.isBlank(vids))
+				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
+		} else
+			vidList = new ArrayList<>(vidPersonaProp.stringPropertyNames());
+
+		if (step.getParameters().size() == 5) {
 			authType = step.getParameters().get(2);
 
 		}
-		
-		if (step.getParameters().size() == 4) {
+
+		if (step.getParameters().size() == 5) {
 			pin = step.getParameters().get(3);
 
 		}
-		
-		if(step.getParameters().size() == 4 && step.getParameters().get(2).contains("OTP")) {
-			
+
+		if (step.getParameters().size() == 5 && step.getParameters().get(2).contains("OTP")) {
+
 			Object[] testObjForOtp = authenticateUser.getYmlTestData(OtpUser);
 
-			TestCaseDTO testForOtp = (TestCaseDTO) testObjForOtp[0];
-			
-			String input = testForOtp.getInput();
-			
-			for (String uin : uinList) {
-				
-				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
-				
-				input = JsonPrecondtion.parseAndReturnJsonContent(input,
-						uin, "individualId");
-				
-				testForOtp.setInput(input);
-				
-				
-				
-				try {
-					authenticateUser.test(testForOtp);
+			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
+					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
 
-					Response response = authenticateUser.response;
-					System.out.println(response);
-					
+				casesListUIN = authenticateUser.getYmlTestData(OtpUser);
 
-				} catch (AuthenticationTestException | AdminTestException e) {
-					throw new RigInternalError(e.getMessage());
-
-				}
 			}
-			
-			
-			
+
+			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
+					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+				casesListVID = authenticateUser.getYmlTestData(OtpUser);
+			}
+
+			else {
+				casesListUIN = authenticateUser.getYmlTestData(OtpUser);
+				casesListVID = authenticateUser.getYmlTestData(OtpUser);
+			}
+
+			TestCaseDTO testForOtp = (TestCaseDTO) testObjForOtp[0];
+
+			String input = testForOtp.getInput();
+
+			for (String uin : uinList) {
+
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
+
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
+
+				testForOtp.setInput(input);
+
+				if (idType.contains("UIN") || idType.contains("uin")) {
+					casesListUIN = authenticateUser.getYmlTestData(OtpUser);
+				}
+				if (casesListUIN != null) {
+					for (Object object : casesListUIN) {
+						test.setInput(input);
+						test = (TestCaseDTO) object;
+						try {
+							authenticateUser.test(testForOtp);
+						} catch (AuthenticationTestException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (AdminTestException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+
+			}
+
+			for (String vid : vidList) {
+
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
+
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
+
+				testForOtp.setInput(input);
+
+				if (idType.contains("VID") || idType.contains("vid")) {
+					casesListVID = authenticateUser.getYmlTestData(OtpUser);
+				}
+				if (casesListVID != null) {
+					for (Object object : casesListVID) {
+						test.setInput(input);
+						test = (TestCaseDTO) object;
+						try {
+							authenticateUser.test(testForOtp);
+						} catch (AuthenticationTestException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (AdminTestException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+
+			}
+
 		}
-		
-		
 
 		for (String uin : uinList) {
 
-		String input = test.getInput();
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
-		
-		input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				uin, "individualId");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				authType, "authFactorType");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				pin, "challenge");
-		
-		test.setInput(input);
+			if (idType.contains("UIN") || idType.contains("uin")) {
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
+			}
 
-		try {
-			authenticateUser.test(test);
+			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
+					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
 
-			Response response = authenticateUser.response;
-			if (response != null) {
-				JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
 
 			}
 
-		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
+			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
+					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+			}
+
+			else {
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+			}
+
+			if (idType.contains("UIN") || idType.contains("uin")) {
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
+			}
+			if (casesListUIN != null) {
+				for (Object object : casesListUIN) {
+					String input = test.getInput();
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
+
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, authType, "authFactorType");
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, pin, "challenge");
+
+					test.setInput(input);
+
+					test = (TestCaseDTO) object;
+					try {
+						authenticateUser.test(test);
+					} catch (AuthenticationTestException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (AdminTestException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 
 		}
+		for (String vid : vidList) {
 
-	}
+			if (idType.contains("VID") || idType.contains("vid")) {
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+			}
+
+			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
+					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+
+			}
+
+			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
+					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
+			}
+
+			else {
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+			}
+
+			if (idType.contains("VID") || idType.contains("vid")) {
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+			}
+			if (casesListVID != null) {
+				for (Object object : casesListVID) {
+					String input = test.getInput();
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
+
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, authType, "authFactorType");
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, pin, "challenge");
+
+					test.setInput(input);
+
+					test = (TestCaseDTO) object;
+					try {
+						authenticateUser.test(test);
+					} catch (AuthenticationTestException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (AdminTestException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+
+		}
 	}
 }
-		
-		
