@@ -175,7 +175,7 @@ public class RegistrationSteps {
     
 public Response getStagesByRID(String rid, String contextKey) throws Exception {
 
-	String uri="v1/admin/packetstatusupdate?rid="+rid+"&langCode="+ VariableManager.getVariableValue(contextKey,"baselang");
+	String uri= VariableManager.getVariableValue(contextKey,"ridStageStatus")+"?rid="+rid+"&langCode="+ VariableManager.getVariableValue(contextKey,"baselang");
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + uri ;
 			Response response =RestClient.getAdmin(url,new JSONObject(),new JSONObject(),contextKey);
 		System.out.println(response);
