@@ -35,7 +35,8 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 		String pin = null;
 		List<String> uinList = null;
 		List<String> vidList = null;
-		String transactionId = "";
+		String transactionId1 = "";
+		String transactionId2 = "";
 		Object[] casesListUIN = null;
 		Object[] casesListVID = null;
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
@@ -48,17 +49,30 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 			logger.error("transactionId parameter is  missing from DSL step");
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
-			transactionId = (String) oidcClientProp.get("transactionId");
-			System.out.println(transactionId);
+			transactionId1 = (String) oidcClientProp.get("transactionId1");
+			// transactionId1 = step.getParameters().get(3);
+			// transactionId1 = step.getScenario().getVariables().get(transactionId1);
+			System.out.println(transactionId1);
 
 		}
-		if (step.getParameters().size() == 5 && step.getParameters().get(1).startsWith("$$")) { // "e2e_IdpAuthentication($$transactionId,$$uin,OTP,111111,$$vid)"
+
+		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
+			logger.error("transactionId parameter is  missing from DSL step");
+			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
+		} else {
+			transactionId2 = (String) oidcClientProp.get("transactionId2");
+			// transactionId2 = step.getParameters().get(5);
+			// transactionId2 = step.getScenario().getVariables().get(transactionId2);
+			System.out.println(transactionId2);
+
+		}
+		if (step.getParameters().size() == 6 && step.getParameters().get(1).startsWith("$$")) { // "e2e_IdpAuthentication($$transactionId,$$uin,OTP,111111,$$vid)"
 			uins = step.getParameters().get(1);
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 			}
-		} else if (step.getParameters().size() == 5) {
+		} else if (step.getParameters().size() == 6) {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
@@ -66,14 +80,14 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
 
 		// Fetching VID
-		if (step.getParameters().size() == 5 && step.getParameters().get(1).startsWith("$$")) {
+		if (step.getParameters().size() == 6 && step.getParameters().get(1).startsWith("$$")) {
 			// "e2e_IdpAuthentication($$transactionId,$$uin,OTP,111111,$$vid)"
 			vids = step.getParameters().get(4);
 			if (vids.startsWith("$$")) {
 				vids = step.getScenario().getVariables().get(vids);
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
 			}
-		} else if (step.getParameters().size() == 5) {
+		} else if (step.getParameters().size() == 6) {
 			vids = step.getParameters().get(4);
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
@@ -117,7 +131,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 			for (String uin : uinList) {
 
-				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId1, "transactionId");
 
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 
@@ -146,18 +160,17 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 			for (String vid : vidList) {
 
-				
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId2, "transactionId");
+
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
+
+				testForOtp.setInput(input);
 
 				if (idType.contains("VID") || idType.contains("vid")) {
 					casesListVID = authenticateUser.getYmlTestData(OtpUser);
 				}
 				if (casesListVID != null) {
 					for (Object object : casesListVID) {
-						input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
-
-						input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
-
-						testForOtp.setInput(input);
 						test.setInput(input);
 						test = (TestCaseDTO) object;
 						try {
@@ -206,7 +219,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 				for (Object object : casesListUIN) {
 					test = (TestCaseDTO) object;
 					String input = test.getInput();
-					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId1, "transactionId");
 
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, authType, "authFactorType");
@@ -251,17 +264,13 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
 			}
 
-			if (idType.contains("VID") || idType.contains("vid")) {
-				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
-			}
 			if (casesListVID != null) {
 				for (Object object : casesListVID) {
-					
+
 					test = (TestCaseDTO) object;
+
 					String input = test.getInput();
-					
-					
-					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId2, "transactionId");
 
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, authType, "authFactorType");
