@@ -16,6 +16,7 @@ import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.GetWithParam;
 import io.mosip.testscripts.SimplePost;
 import io.mosip.testscripts.SimplePostForAutoGenIdForUrlEncoded;
@@ -29,15 +30,16 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	SimplePost authorizationCode = new SimplePost();
 	SimplePostForAutoGenIdForUrlEncoded generateToken = new SimplePostForAutoGenIdForUrlEncoded();
 	GetWithParam getUserInfo = new GetWithParam();
+	String clientId = "";
+	String transactionId1 = "";
+	String transactionId2 = "";
+	String code = "";
+	String redirectUri = "";
+	String idpAccessToken = "";
+	List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 
 	@Override
 	public void run() throws RigInternalError {
-
-		String clientId = "";
-		String transactionId = "";
-		String code = "";
-		String redirectUri = "";
-		String idpAccessToken = "";
 
 		Object[] testObjForAuthorizationCode = authorizationCode.getYmlTestData(AuthorizationCode);
 		Object[] testObjForGenerateToken = generateToken.getYmlTestData(GenerateToken);
@@ -51,8 +53,23 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			logger.error("transactionId parameter is  missing from DSL step");
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
-			transactionId = (String) oidcClientProp.get("transactionId");
-			System.out.println(transactionId);
+
+			if (idType.contains("VID") || idType.contains("vid")) {
+				transactionId2 = (String) oidcClientProp.get("transactionId2");
+				System.out.println(transactionId2);
+			}
+
+			else if (idType.contains("UIN") || idType.contains("uin")) {
+				transactionId1 = (String) oidcClientProp.get("transactionId1");
+				System.out.println(transactionId1);
+			}
+
+			else {
+
+				transactionId2 = (String) oidcClientProp.get("transactionId2");
+				System.out.println(transactionId2);
+
+			}
 
 		}
 		if (step.getParameters().size() == 2 || step.getParameters().get(1).startsWith("$$")) {
@@ -68,7 +85,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		}
 
 		String inputForAuthorization = testAuthorization.getInput();
-		inputForAuthorization = JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization, transactionId,
+		inputForAuthorization = JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization, transactionId2,
 				"transactionId");
 
 		testAuthorization.setInput(inputForAuthorization);
@@ -112,7 +129,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		Response response = generateToken.response;
 		if (response != null) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			//idpAccessToken = jsonResp.getString("access_token");
+			// idpAccessToken = jsonResp.getString("access_token");
 			idpAccessToken = jsonResp.get("access_token").toString();
 			System.out.println(jsonResp.toString());
 		}
@@ -126,8 +143,6 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 		testGetUserInfo.setInput(inputForGetUserInfo);
 
-		
-		
 		try {
 			getUserInfo.test(testGetUserInfo);
 
