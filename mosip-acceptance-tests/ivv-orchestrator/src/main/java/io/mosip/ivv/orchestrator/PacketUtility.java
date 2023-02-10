@@ -31,6 +31,7 @@ import io.mosip.authentication.fw.util.AuthPartnerProcessor;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
+import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.BioAuth;
 import io.mosip.testscripts.IdpBioAuth;
 //import io.mosip.testscripts.BioAuthOld;
@@ -566,6 +567,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
 		JSONObject jsonReq = new JSONObject();
+		jsonReq.put("baselang", BaseTestCase.getLanguageList().get(0));
 		jsonReq.put("scenario", scenario);
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
