@@ -60,9 +60,19 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 			if (response != null) {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
 				String transactionId = jsonResp.getJSONObject("response").getString("transactionId");
+				
 
-				oidcClientProp.put("transactionId", transactionId); // "$$clientId=e2e_OidcClient()"
-				System.out.println(oidcClientProp);
+				if( step.getParameters().get(1).contains("transactionId1")) {
+					oidcClientProp.put("transactionId1", transactionId); // "$$clientId=e2e_OidcClient()"
+					System.out.println(oidcClientProp);
+				}
+				else if(step.getParameters().get(1).contains("transactionId2")){
+					
+					oidcClientProp.put("transactionId2", transactionId); // "$$clientId=e2e_OidcClient()"
+					System.out.println(oidcClientProp);
+					
+				}
+				
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
@@ -70,5 +80,10 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 
 		}
 
+	}
+
+	private void elseif() {
+		// TODO Auto-generated method stub
+		
 	}
 }
