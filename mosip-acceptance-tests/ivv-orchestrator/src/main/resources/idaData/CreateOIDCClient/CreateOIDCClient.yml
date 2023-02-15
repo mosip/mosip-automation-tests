@@ -11,7 +11,7 @@ CreateOIDCClient:
        "clientName": "MOSIP OIDC Client",
        "logoUri": "https://health-services.com/logo.png",
        "relyingPartyId": "$RANDOMID$",
-       "redirectUris": "https://health-services.com/userprofile",
+       "redirectUris": "$IDPREDIRECTURI$",
        "publicKey": "$OIDCJWKKEY$",
        "userClaims1": "name",
        "userClaims2": "email",
