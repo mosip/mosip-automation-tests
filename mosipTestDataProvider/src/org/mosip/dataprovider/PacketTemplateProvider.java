@@ -1641,7 +1641,7 @@ public class PacketTemplateProvider {
 			}
 			else
 			{
-				prop.load(new FileInputStream(propPath+"/Default.properties"));
+				prop.load(new FileInputStream(propPath+"/default.properties"));
 			}
 			
 		} catch (FileNotFoundException fnf) {
