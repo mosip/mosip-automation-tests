@@ -14,7 +14,7 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 	// Packetcreator take two argument (NEW/LOST/UPDATE,id1=23232@@id2=<personaId>)
 	Logger logger = Logger.getLogger(Packetcreator.class);
 	String process = null;
-
+	public String _additionalInfoReqId=null;
 	@Override
 	public void run() throws RigInternalError {
 		if (step.getParameters().isEmpty()) {
@@ -47,7 +47,7 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 			process = step.getParameters().get(0); // "$$zipPacketPath=e2e_packetcreator(NEW,$$templatePath)"  --> now  "$$zipPacketPath=e2e_packetcreator(NEW,$$templatePath,$$additionalInfoReqId)" 
 			String _templatePath = step.getParameters().get(1);
 
-			String _additionalInfoReqId=null;
+			
 			if (step.getParameters().size() > 2) {
 				_additionalInfoReqId = step.getParameters().get(2);
 				if (!_additionalInfoReqId.isEmpty() && _additionalInfoReqId.startsWith("$$"))
@@ -73,6 +73,7 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 		jsonReq.put("source", E2EConstants.SOURCE);
 		jsonReq.put("templatePath", templatePath);
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
+		
 		//Response response = postRequestWithPathParamAndBody(url, jsonReq.toString(), contextInuse, "CreatePacket");
 		Response response = postRequest(url, jsonReq.toString(), "CreatePacket");
 		if (!response.getBody().asString().toLowerCase().contains("zip"))
