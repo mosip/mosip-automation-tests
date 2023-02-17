@@ -17,21 +17,17 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 
-		String rid = null;
+		
+		String ridStage =null;
 		Boolean flag=false;
-		HashMap<String, String>map=new HashMap<String, String>();
-		HashMap<String, String> context=null;
 		 String transactionTypeCode =null;
 		   String statusCode =null;
 			if (step.getParameters().size() >= 3) {
-				rid = step.getParameters().get(0);
+				 ridStage = step.getScenario().getVariables().get(step.getParameters().get(0));
 				transactionTypeCode=step.getParameters().get(1);
 				statusCode=step.getParameters().get(2);
 			}
-			 if (rid.startsWith("$$")) {
-				 map = step.getScenario().getVariables();
-				}
-			Response response = getRequest(baseUrl+props.getProperty("ridStatus")+map.get("$$rid"), "Get Stages by rid");
+			Response response = getRequest(baseUrl+props.getProperty("ridStatus")+ridStage, "Get Stages by rid");
 			
 		// Check these two keys	statusCode,transactionTypeCode
 			
