@@ -146,7 +146,7 @@ public class PacketTemplateProvider {
 		JSONObject processMVEL = processMVEL(resident, idJson, schema, process);
 		idJson = processMVEL.toString();
 		Files.write(Paths.get(ridFolder + "/ID.json"), idJson.getBytes());
-		String metadataJson = generateMetaDataJson(resident, preregId, machineId, centerId, fileInfo);
+		String metadataJson = generateMetaDataJson(resident, preregId, machineId, centerId, fileInfo,contextKey);
 		Files.write(Paths.get(ridFolder + "/packet_meta_info.json"), metadataJson.getBytes());
 
 		// Generate evidence json
@@ -1655,9 +1655,9 @@ public class PacketTemplateProvider {
 	
 
 	String generateMetaDataJson(ResidentModel resident, String preRegistrationId, String machineId, String centerId,
-			HashMap<String, String[]> fileInfo) {
+			HashMap<String, String[]> fileInfo, String contextKey) {
 
-		String templateMetaJsonPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"templateIDMeta").toString().trim();
+		String templateMetaJsonPath = VariableManager.getVariableValue(contextKey, "templateIDMeta").toString().trim();
 
 		String templateIdentityStr = CommonUtil.readFromJSONFile(templateMetaJsonPath);
 		JSONObject templateIdentity = new JSONObject(templateIdentityStr).getJSONObject("identity");

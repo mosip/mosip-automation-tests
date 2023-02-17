@@ -207,7 +207,9 @@ public static HashMap<String, Integer> portmap=new HashMap();
 	}
 	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey,String purpose) throws Exception {
 
-		BiometricDataModel biodata = resident.getBiometric();
+		BiometricDataModel biodata = null;
+		MDSRCaptureModel capture = null;
+
 		MDSClientInterface mds = null;
 		String val;
 		boolean bNoMDS = true;
@@ -215,6 +217,7 @@ public static HashMap<String, Integer> portmap=new HashMap();
 		String profileName = null;
         int port =0;
 		val =  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsbypass").toString();
+		try {
 		if(val == null || val.equals("") || val.equals("false")) {
 
 			val =  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsport").toString();
@@ -224,7 +227,7 @@ public static HashMap<String, Integer> portmap=new HashMap();
 			//	port = (port ==0 ? 4501: port);
 
 			String p12path =  VariableManager.getVariableValue(contextKey,"mosip.test.mockmds.p12.path").toString(); 
-
+			System.out.println("p12path" + p12path);
 			port= CentralizedMockSBI.startSBI(contextKey, "Registration",  "Biometric Device",Paths.get(p12path, contextKey).toString()) ;//image type jp2000(reg) or wsq in case of authentication both can be
 		//	port= CentralizedMockSBI.startSBI(contextKey, "Auth",  "Biometric Device",Paths.get(p12path, contextKey).toString(),) ;
 			
@@ -245,8 +248,7 @@ public static HashMap<String, Integer> portmap=new HashMap();
         	mds.setProfile(profileName,port);
 		}
 
-		MDSRCaptureModel capture = null;
-
+		biodata = resident.getBiometric();
 		List<String> filteredAttribs = resident.getFilteredBioAttribtures();
 		List<BioModality> bioExceptions = resident.getBioExceptions();
 
@@ -367,7 +369,11 @@ public static HashMap<String, Integer> portmap=new HashMap();
 
 		 
 			mds.removeProfile( mdsprofilePath, profileName,port);
-		
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		return capture;
 	}
 

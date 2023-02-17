@@ -121,7 +121,7 @@ public class MDSClient implements MDSClientInterface {
 		/////////
 		//reach cached finger prints from folder
 				String dirPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
-				System.out.println("dirPath " + dirPath);
+				System.out.println("createProfile dirPath " + dirPath);
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				File dir = new File(dirPath);
 
@@ -142,7 +142,7 @@ public class MDSClient implements MDSClientInterface {
 				// otherwise pick the impression of same of scenario number
 				int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber ;
 
-				System.out.println("currentScenarioNumber=" + currentScenarioNumber +" numberOfSubfolders=" + numberOfSubfolders + " impressionToPick=" + impressionToPick );
+				System.out.println("createProfile currentScenarioNumber=" + currentScenarioNumber +" numberOfSubfolders=" + numberOfSubfolders + " impressionToPick=" + impressionToPick );
 				List<File> lst=new LinkedList<File>();
 				for(int i=min; i <= max; i++) {
 
@@ -152,7 +152,7 @@ public class MDSClient implements MDSClientInterface {
 				}
 				
 				List<File> firstSet = tblFiles.get(impressionToPick);
-				System.out.println("Impression used "+ impressionToPick);
+				System.out.println("createProfile Impression used "+ impressionToPick);
 		
 		///////////////
 		
@@ -228,6 +228,7 @@ public class MDSClient implements MDSClientInterface {
 		body.put("type", "Biometric Device");
 
 		try {
+			System.out.println("Inside Setprofile");
 			HttpRCapture capture = new HttpRCapture(url);
 			capture.setMethod("POST");
 			String response = RestClient.rawHttp(capture, body.toString());
