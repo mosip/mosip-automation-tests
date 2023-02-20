@@ -8,10 +8,14 @@ on:
       - master
       - 1.*
       - develop
+      - MOSIP*
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SERVICE_LOCATION: mosip-packet-creator
+      CONFIG_LOCATION: 'src/main/resources/dockersupport/centralized/mosip-packet-creator'
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
@@ -51,18 +55,25 @@ jobs:
 
       - name: Build mosip-packet-creator with Maven
         run: |
-            cd mosip-packet-creator
-            mvn clean install -s $GITHUB_WORKSPACE/settings.xml
+          cd mosip-packet-creator
+          mvn clean install -s $GITHUB_WORKSPACE/settings.xml
 
       - name: Ready the springboot artifacts
         run: |
-            zip -r release.zip $( find -name 'deploy' -type d -o -name 'mosip-packet-creator-*.jar' -type f )
+          cd mosip-packet-creator
+          mkdir build_files
+          cp $( find -name 'mosip-packet-creator-*.jar' -type f ) build_files
+          cp -r ${{env.CONFIG_LOCATION}}/Biometric\ Devices build_files/Biometric\ Devices
+          cp -r ${{env.CONFIG_LOCATION}}/config build_files/config
+          cp -r ${{env.CONFIG_LOCATION}}/resource build_files/resource
+          cp -r ${{env.CONFIG_LOCATION}}/application.properties build_files/application.properties
+          zip -r release.zip build_files/*
 
       - name: Upload the springboot jars
         uses: actions/upload-artifact@v1
         with:
           name: release
-          path: ./release.zip
+          path: ./mosip-packet-creator/release.zip
 
       - uses: 8398a7/action-slack@v3
         with:
@@ -85,7 +96,7 @@ jobs:
       - uses: actions/download-artifact@v1
         with:
           name: release
-          path: ./
+          path: ./${{env.SERVICE_LOCATION}}
 
       - name: Setup branch name
         run: |
@@ -100,8 +111,10 @@ jobs:
           xml-file: ./${{ env.SERVICE_LOCATION }}/pom.xml
           xpath: /*[local-name()="project"]/*[local-name()="version"]
 
-      - name: Unzip and extract the admin-service
-        run: unzip -uj "release.zip" "${{ env.SERVICE_LOCATION }}/target/*" -d "./${{ env.SERVICE_LOCATION }}/target"
+      - name:  Extract the mosip-packet-creator jar and its dependency configs
+        run: |
+          cd  ./${{env.SERVICE_LOCATION}} 
+          unzip "release.zip"
 
       - name: Get current date
         id: date
@@ -109,7 +122,14 @@ jobs:
 
       - name: Build image
         run: |
-          docker build . --file ./${{env.SERVICE_LOCATION}}/Dockerfile --build-arg SOURCE=mosip --build-arg COMMIT_HASH=$(git rev-parse HEAD) --build-arg COMMIT_ID=$(git rev-parse --short HEAD) --build-arg BUILD_TIME=${{steps.date.outputs.date}} --tag ${{ env.SERVICE_NAME }}
+          cd  ./${{env.SERVICE_LOCATION}}
+          mkdir docker-image-build
+          cp -r ./build_files ./docker-image-build/build_files
+          cp -r ./entrypoint.sh ./docker-image-build/entrypoint.sh
+          cp ./Dockerfile  ./docker-image-build/Dockerfile
+          
+          cd docker-image-build
+          docker build . --file Dockerfile --build-arg SOURCE=mosip --build-arg COMMIT_HASH=$(git rev-parse HEAD) --build-arg COMMIT_ID=$(git rev-parse --short HEAD) --build-arg BUILD_TIME=${{steps.date.outputs.date}} --tag ${{ env.SERVICE_NAME }}
 
       - name: Log into registry
         run: echo "${{ secrets.release_docker_hub }}" | docker login -u ${{ secrets.actor_docker_hub }} --password-stdin
