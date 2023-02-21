@@ -120,7 +120,7 @@ public class MDSClient implements MDSClientInterface {
 		
 		/////////
 		//reach cached finger prints from folder
-				String dirPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
+				String dirPath = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
 				System.out.println("createProfile dirPath " + dirPath);
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				File dir = new File(dirPath);

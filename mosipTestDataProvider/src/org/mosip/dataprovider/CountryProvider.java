@@ -34,7 +34,7 @@ public class CountryProvider extends LocationProviderBase{
 		Hashtable<String,String> tbl = new Hashtable<String,String>() ;
 		List<CountryLookup> list =null ;
 		try {
-			String strJson = CommonUtil.readFromJSONFile(VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString()+ "/countries.json");
+			String strJson = CommonUtil.readFromJSONFile(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString()+ "/countries.json");
 		
 			ObjectMapper objectMapper = new ObjectMapper();
 			list = objectMapper.readValue(strJson, 
@@ -81,13 +81,13 @@ public class CountryProvider extends LocationProviderBase{
 		      myWriter.write( Obj.writeValueAsString(c));
 		      myWriter.close();
 		}
-		FileWriter myWriter = new FileWriter(VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString()+"/countries.json");
+		FileWriter myWriter = new FileWriter(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString()+"/countries.json");
 	    myWriter.write( Obj.writeValueAsString(clList));
 	    myWriter.close();
 	}
 	public static CountryModel load(String isoCode,String contextKey) throws JsonParseException, JsonMappingException, IOException {
 	
-		String strJson = CommonUtil.readFromJSONFile(VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString()+"/"+ isoCode + "/country.json");
+		String strJson = CommonUtil.readFromJSONFile(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString()+"/"+ isoCode + "/country.json");
 		ObjectMapper objectMapper = new ObjectMapper();
 		return objectMapper.readValue(strJson, CountryModel.class);
 		

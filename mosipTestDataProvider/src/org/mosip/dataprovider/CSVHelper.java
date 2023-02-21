@@ -103,7 +103,7 @@ public class CSVHelper {
 	public static void main(String [] args) {
 		
 		try {
-			CSVHelper helper  = new CSVHelper(VariableManager.getVariableValue("contextKey","mosip.test.persona.namesdatapath").toString()+"/en/surnames.csv");
+			CSVHelper helper  = new CSVHelper(VariableManager.getVariableValue("contextKey","mountPath").toString()+VariableManager.getVariableValue("contextKey","mosip.test.persona.namesdatapath").toString()+"/en/surnames.csv");
 			System.out.println(helper.getRecordCount());
 			helper.open();
 			List<String[]> recs = helper.readRecords( new int[] {0,15,10,20, 12});
@@ -114,7 +114,7 @@ public class CSVHelper {
 			helper.close();
 			
 			
-			helper  = new CSVHelper(VariableManager.getVariableValue("contextKey","mosip.test.persona.namesdatapath").toString()+"/ara/boy_names.csv");
+			helper  = new CSVHelper(VariableManager.getVariableValue("contextKey","mountPath").toString()+VariableManager.getVariableValue("contextKey","mosip.test.persona.namesdatapath").toString()+"/ara/boy_names.csv");
 			System.out.println(helper.getRecordCount());
 			helper.open();
 			recs = helper.readRecords( new int[] {1,15,10,20, 12});
