@@ -226,7 +226,7 @@ public static HashMap<String, Integer> portmap=new HashMap();
 
 			//	port = (port ==0 ? 4501: port);
 
-			String p12path =  VariableManager.getVariableValue(contextKey,"mosip.test.mockmds.p12.path").toString(); 
+			String p12path =  VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.mockmds.p12.path").toString(); 
 			System.out.println("p12path" + p12path);
 			port= CentralizedMockSBI.startSBI(contextKey, "Registration",  "Biometric Device",Paths.get(p12path, contextKey).toString()) ;//image type jp2000(reg) or wsq in case of authentication both can be
 		//	port= CentralizedMockSBI.startSBI(contextKey, "Auth",  "Biometric Device",Paths.get(p12path, contextKey).toString(),) ;
@@ -614,7 +614,7 @@ public static HashMap<String, Integer> portmap=new HashMap();
 	public static Hashtable<Integer, List<File>> impressionCaptureList(String contextKey)
 	{
 		//reach cached finger prints from folder
-		String dirPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
+		String dirPath = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
 		System.out.println("dirPath " + dirPath);
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 		File dir = new File(dirPath);
@@ -741,7 +741,7 @@ public static BiometricDataModel getBiometricData(Boolean bFinger,String context
 		}else
 		{
 		//reach cached finger prints from folder
-			String dirPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
+			String dirPath = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
 			System.out.println("dirPath " + dirPath);
 			Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 			File dir = new File(dirPath);
@@ -977,7 +977,8 @@ static List<IrisDataModel> generateIris(int count,String contextKey) throws Exce
 	}
 	else
 	{
-		String srcPath = VariableManager.getVariableValue(contextKey,"mosip.test.persona.irisdatapath").toString(); 
+		String srcPath = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.irisdatapath").toString();
+ 
 		int num=new File(srcPath).list().length;
 		int []index = CommonUtil.generateRandomNumbers(count, num, 1);
 		String leftbmp=null;

@@ -32,6 +32,7 @@ import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.RestClient;
 import io.mosip.ivv.core.base.BaseStep;
 import io.mosip.ivv.e2e.constant.E2EConstants;
+import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -40,7 +41,8 @@ public class BaseTestCaseUtil extends BaseStep{
 	public static HashMap<String, String> pridsAndRids=new LinkedHashMap<String, String>();
 	public static HashMap<String, String> uinReqIds = new LinkedHashMap<String, String>();
 	public static Properties props = new AdminTestUtil().getproperty(TestRunner.getExternalResourcePath()+"/config/test-orchestrator_mz.properties");
-	public String baseUrl=props.getProperty("packetUtilityBaseUrl");
+	public static Properties propsKernel = new AdminTestUtil().getproperty(TestRunner.getExternalResourcePath()+ "config/Kernel.properties");
+	public String baseUrl=ConfigManager.getpacketUtilityBaseUrl();
 	public static HashMap<String, String> residentTemplatePaths = new LinkedHashMap<String, String>();
 	public static HashMap<String, String> residentPathsPrid = new LinkedHashMap<String, String>();
 	public static HashMap<String, String> templatePacketPath = new LinkedHashMap<String, String>();
