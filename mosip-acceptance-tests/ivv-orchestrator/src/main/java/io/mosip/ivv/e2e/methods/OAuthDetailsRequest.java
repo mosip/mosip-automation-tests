@@ -1,6 +1,9 @@
 package io.mosip.ivv.e2e.methods;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -59,7 +62,15 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 			Response response = oAuthDetails.response;
 			if (response != null) {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
+				
+				JSONObject responseBody = jsonResp.getJSONObject("response"); 
+
 				String transactionId = jsonResp.getJSONObject("response").getString("transactionId");
+				
+				MessageDigest digest = MessageDigest.getInstance("SHA-256");
+				byte[] hash = digest.digest(responseBody.toString().getBytes(StandardCharsets.UTF_8));
+				String urlEncodedResp = Base64.getUrlEncoder().encodeToString(hash);
+				oidcClientProp.put("urlEncodedResp", urlEncodedResp);
 				
 
 				if( step.getParameters().get(1).contains("transactionId1")) {
@@ -75,7 +86,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 				
 			}
 
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException e) {
 			throw new RigInternalError(e.getMessage());
 
 		}
