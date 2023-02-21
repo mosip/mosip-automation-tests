@@ -24,6 +24,10 @@ ARG container_user_gid=1001
 # set working directory for the user
 ENV work_dir=/home/${container_user}/
 
+COPY ./build_files/ ./
+ADD ./entrypoint.sh .
+RUN chmod +x ./entrypoint.sh
+
 # install packages and create user
 RUN groupadd -g ${container_user_gid} ${container_user_group} \
     && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/bash -m ${container_user} \
@@ -32,13 +36,9 @@ RUN groupadd -g ${container_user_gid} ${container_user_group} \
 # set working directory
 WORKDIR ${work_dir}
 
-COPY ./build_files/ ./
-ADD ./entrypoint.sh .
-RUN chmod +x ./entrypoint.sh
-
 EXPOSE 8080
 
 # select container user for all tasks
-USER ${container_user_uid}:${container_user_gid} ${work_dir}
+USER ${container_user_uid}:${container_user_gid}
 
 ENTRYPOINT ["./entrypoint.sh"]
