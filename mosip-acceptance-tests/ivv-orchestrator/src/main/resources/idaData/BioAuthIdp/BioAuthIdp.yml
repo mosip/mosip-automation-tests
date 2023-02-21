@@ -1,11 +1,12 @@
 BioAuth:
   IDP_BioAuth_Biometric_Face_With_Valid_Smoke_Pos:
-      endPoint: /v1/idp/authorization/authenticate
+      endPoint: v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
       inputTemplate: idaData/BioAuthIdp/bioAuth
       outputTemplate: idaData/BioAuthIdp/bioAuthResult
       input: '{
+	    "encodedHash": "$ID:OAuthDetailsRequest_13all_Valid_Smoke_sid_encodedResp$",
         "requestTime": "$TIMESTAMP$",
         "transactionId": "transactionId",
         "individualId": "individualId",

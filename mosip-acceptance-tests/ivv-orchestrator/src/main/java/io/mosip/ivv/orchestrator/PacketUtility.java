@@ -905,6 +905,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
+		
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, oidcClientProp.getProperty("urlEncodedResp"), "encodedHash");
+		
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioSubType"),
 				"identityRequest.bioSubType");
