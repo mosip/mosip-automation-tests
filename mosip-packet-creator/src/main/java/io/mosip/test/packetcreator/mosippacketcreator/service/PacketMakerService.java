@@ -505,7 +505,7 @@ public class PacketMakerService {
 		String schemaJson = schemaUtil.getAndSaveSchema(schemaVersion, workDirectory, contextKey);
 
 		if (type.equals("id")) {
-			Path path = Paths.get(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_schema.json");
+			Path path = Paths.get(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_schema.json");
 	        Files.createDirectories(path.getParent());
 	        try {
 	            Files.createFile(path);
@@ -528,7 +528,7 @@ public class PacketMakerService {
 
 		if (type.equals("id")) {
 			List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap,contextKey);
-			Path path = Paths.get(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_invalidIds.json");
+			Path path = Paths.get(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_invalidIds.json");
 	        Files.createDirectories(path.getParent());
 	        try {
 	            Files.createFile(path);
@@ -654,7 +654,7 @@ public class PacketMakerService {
 		Path src = Path.of(containerRootFolder + "_unenc.zip");
 		
 		
-		Files.copy(src, Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(), contextKey.replace("_context", ""), src.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(src, Path.of(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(), contextKey.replace("_context", ""), src.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
 
 		Files.delete(Path.of(containerRootFolder + "_unenc.zip"));
 		FileSystemUtils.deleteRecursively(Path.of(containerRootFolder));
@@ -670,7 +670,7 @@ public class PacketMakerService {
 
 		Path src = Path.of(path + "_unenc.zip");
 
-		Files.copy(src, Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  src.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(src, Path.of(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  src.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
 
 		Files.delete(Path.of(path + "_unenc.zip"));
 		return result;
