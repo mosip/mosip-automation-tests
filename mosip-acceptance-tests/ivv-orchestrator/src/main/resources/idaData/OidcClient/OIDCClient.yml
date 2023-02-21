@@ -6,6 +6,8 @@ CreateOIDCClient:
       inputTemplate: idaData/OidcClient/OIDCClient
       outputTemplate: idaData/OidcClient/OIDCClientResult
       input: '{
+	    "encodedHash": "$ID:OAuthDetailsRequest_13all_Valid_Smoke_sid_encodedResp$",
+        "transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
         "name": "$RANDOMID$",
         "policyName": "$ID:DefinePolicy_All_Valid_Smoke_sid_name$",
         "publicKey": "$OIDCJWKKEY$",

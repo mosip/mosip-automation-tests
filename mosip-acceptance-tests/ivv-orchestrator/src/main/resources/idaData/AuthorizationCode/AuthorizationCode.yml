@@ -1,11 +1,12 @@
 AuthorizationCode:
    IDP_AuthorizationCode_All_Valid_Smoke_sid:
-      endPoint: /v1/idp/authorization/auth-code
+      endPoint: v1/esignet/authorization/auth-code
       role: resident
       restMethod: post
       inputTemplate: idaData/AuthorizationCode/AuthorizationCode
       outputTemplate: idaData/AuthorizationCode/AuthorizationCodeResult
       input: '{
+	    "encodedHash": "$ID:OAuthDetailsRequest_13all_Valid_Smoke_sid_encodedResp$",
         "requestTime": "$TIMESTAMP$",
         "transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
         "acceptedClaims1": "name",

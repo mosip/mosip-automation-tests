@@ -134,6 +134,8 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId1, "transactionId");
 
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
+				
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, oidcClientProp.getProperty("urlEncodedResp"), "encodedHash");
 
 				testForOtp.setInput(input);
 
@@ -163,6 +165,8 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId2, "transactionId");
 
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
+				
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, oidcClientProp.getProperty("urlEncodedResp"), "encodedHash");
 
 				testForOtp.setInput(input);
 
@@ -220,7 +224,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 					test = (TestCaseDTO) object;
 					String input = test.getInput();
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId1, "transactionId");
-
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, oidcClientProp.getProperty("urlEncodedResp"), "encodedHash");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, authType, "authFactorType");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, pin, "challenge");
@@ -271,7 +275,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 					String input = test.getInput();
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId2, "transactionId");
-
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, oidcClientProp.getProperty("urlEncodedResp"), "encodedHash");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, authType, "authFactorType");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, pin, "challenge");

@@ -1,11 +1,13 @@
 GenerateToken:
    IDP_GenerateToken_Valid_Smoke_sid:
-      endPoint: /v1/idp/oauth/token
+      endPoint: v1/esignet/oauth/token
       role: resident
       restMethod: post
       inputTemplate: idaData/GenerateToken/GenerateToken
       outputTemplate: idaData/GenerateToken/GenerateTokenResult
       input: '{
+	      "encodedHash": "$ID:OAuthDetailsRequest_13all_Valid_Smoke_sid_encodedResp$",
+          "transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
           "grant_type": "authorization_code",
           "code": "code",
           "client_id": "client_id",
