@@ -39,6 +39,6 @@ RUN chmod +x ./entrypoint.sh
 EXPOSE 8080
 
 # select container user for all tasks
-USER ${container_user_uid}:${container_user_gid}
+USER ${container_user_uid}:${container_user_gid} ${work_dir}
 
 ENTRYPOINT ["./entrypoint.sh"]
