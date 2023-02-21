@@ -60,7 +60,7 @@ public class CityProvider extends LocationProviderBase {
 			cityList.forEach( (countryObjectId, cities) -> {
 				String countryCode = lookupTbl.get(countryObjectId);
 				
-				String path = VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString() + countryCode + "/cities.json";
+				String path = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString() + countryCode + "/cities.json";
 				
 				
 				try {
@@ -82,7 +82,7 @@ public class CityProvider extends LocationProviderBase {
 	}
 	public static List<CityModel> load(String countryIsoCode,String contextKey) throws JsonParseException, JsonMappingException, IOException{
 		
-		String strJson = CommonUtil.readFromJSONFile(VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString()+"/"+ countryIsoCode + "/cities.json");
+		String strJson = CommonUtil.readFromJSONFile(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.locationsdatapath").toString()+"/"+ countryIsoCode + "/cities.json");
 		ObjectMapper objectMapper = new ObjectMapper();
 		return objectMapper.readValue(strJson.toString(), 
 				objectMapper.getTypeFactory().constructCollectionType(List.class, CityModel.class));

@@ -29,9 +29,10 @@ public class TestRunner {
 		BaseTestCase.ApplnURI=System.getProperty("env.endpoint");
 		BaseTestCase.testLevel=System.getProperty("env.testLevel");
 		BaseTestCase.languageList=Arrays.asList(System.getProperty("env.langcode").split(","));
+		ConfigManager.init();
 		BaseTestCase.initialize();
 		// Initializing or setting up execution
-		ConfigManager.init();
+		
 		//here
 		startTestRunner();
 	}

@@ -82,7 +82,7 @@ public class PrintController {
 	 }
 	
 	 private void saveCreds(String creds,String contextKey) {
-		File credsPath = new File(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString() + "/creds/");
+		File credsPath = new File(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString() + "/creds/");
 		if (!credsPath.exists()){
 			credsPath.mkdirs();
 		}

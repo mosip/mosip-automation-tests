@@ -41,7 +41,7 @@ public class DocumentProvider {
 	 static String parseThymeleafTemplateDriverLicense(String photo,  String name,String date, String address,String contextKey) {
 		  
 		FileTemplateResolver templateResolver = new FileTemplateResolver();//ClassLoaderTemplateResolver();
-		templateResolver.setPrefix(VariableManager.getVariableValue(contextKey,"mosip.test.persona.documentsdatapath").toString());
+		templateResolver.setPrefix(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.documentsdatapath").toString());
 	    templateResolver.setSuffix(".html");
 	    templateResolver.setTemplateMode(TemplateMode.HTML);
 
@@ -60,7 +60,7 @@ public class DocumentProvider {
 	 static String parseThymeleafTemplatePassport(String photo,  String name,String date, String address,String contextKey) {
 		  
 		FileTemplateResolver templateResolver = new FileTemplateResolver();//ClassLoaderTemplateResolver();
-		templateResolver.setPrefix(VariableManager.getVariableValue(contextKey,"mosip.test.persona.documentsdatapath").toString());
+		templateResolver.setPrefix(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.documentsdatapath").toString());
 	    templateResolver.setSuffix(".html");
 	    templateResolver.setTemplateMode(TemplateMode.HTML);
 
