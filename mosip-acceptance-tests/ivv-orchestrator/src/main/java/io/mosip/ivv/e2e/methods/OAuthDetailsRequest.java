@@ -8,6 +8,9 @@ import java.util.Base64;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
@@ -63,12 +66,13 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 			if (response != null) {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
 				
-				JSONObject responseBody = jsonResp.getJSONObject("response"); 
-
 				String transactionId = jsonResp.getJSONObject("response").getString("transactionId");
+				Gson gson = new Gson();
+				JsonObject json =  gson.fromJson(response.getBody().asString(), JsonObject.class);
+				String responseJsonString = json.getAsJsonObject("response").toString();
 				
 				MessageDigest digest = MessageDigest.getInstance("SHA-256");
-				byte[] hash = digest.digest(responseBody.toString().getBytes(StandardCharsets.UTF_8));
+				byte[] hash = digest.digest(responseJsonString.getBytes(StandardCharsets.UTF_8));
 				String urlEncodedResp = Base64.getUrlEncoder().encodeToString(hash);
 				oidcClientProp.put("urlEncodedResp", urlEncodedResp);
 				
