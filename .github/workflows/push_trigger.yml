@@ -55,12 +55,12 @@ jobs:
 
       - name: Build mosip-packet-creator with Maven
         run: |
-          cd mosip-packet-creator
+          cd ./${{env.SERVICE_LOCATION}}
           mvn clean install -s $GITHUB_WORKSPACE/settings.xml
 
       - name: Ready the springboot artifacts
         run: |
-          cd mosip-packet-creator
+          cd ./${{env.SERVICE_LOCATION}}
           mkdir build_files
           cp $( find -name 'mosip-packet-creator-*.jar' -type f ) build_files
           cp -r ${{env.CONFIG_LOCATION}}/Biometric\ Devices build_files/Biometric\ Devices
