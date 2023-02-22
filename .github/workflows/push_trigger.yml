@@ -73,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: release
-          path: ./mosip-packet-creator/release.zip
+          path: ./${{env.SERVICE_LOCATION}}/release.zip
 
       - uses: 8398a7/action-slack@v3
         with:
