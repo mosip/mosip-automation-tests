@@ -42,12 +42,11 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 		        	{
 		        	 System.out.println("matching statusCode");
 		        	 flag=true;
-		        	 
+		        	 break;
 		        	}
 		        	else
 		        	{
 		        		flag=false;
-		        		break;
 		        	}
 		    }
 		  }
