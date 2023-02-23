@@ -188,8 +188,14 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 		Object[] testObj5 = uploadCACertificate.getYmlTestData(UploadCACertificate);
 
 		TestCaseDTO test5 = (TestCaseDTO) testObj5[0];
+		
+
+		
 
 		String inputForUploadCACertificate = test5.getInput();
+		
+		inputForUploadCACertificate = JsonPrecondtion.parseAndReturnJsonContent(inputForUploadCACertificate, partnerId,
+				"partnerId");
 
 		// inputForCreatePartner =
 		// JsonPrecondtion.parseAndReturnJsonContent(inputForCreatePartner, name,
@@ -219,8 +225,11 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 		// JsonPrecondtion.parseAndReturnJsonContent(inputForCreatePartner, name,
 		// "policyGroup");
 
+		
+		
+		inputForUploadInterCertificate = JsonPrecondtion.parseAndReturnJsonContent(inputForUploadInterCertificate, partnerId,
+				"partnerId");
 		test6.setInput(inputForUploadInterCertificate);
-
 		try {
 			uploadInterCertificate.test(test6);
 			Response response = uploadInterCertificate.response;
