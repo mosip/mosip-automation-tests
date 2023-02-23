@@ -135,7 +135,7 @@ public class Orchestrator {
 		//scenarios-sanity-api-internal.qa-1201-b2
 		//VariableManager.getVariableValue(contextKey,"mountPath").toString()
 		//scenarioSheet=properties.getProperty("ivv.path.scenario.sheet.folder") + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
-		scenarioSheet=ConfigManager.getmountPath() + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
+		scenarioSheet=ConfigManager.getmountPath()+"/scenarios/" + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
 		//	 scenarioSheet = System.getProperty("scenarioSheet");
 		 if (scenarioSheet == null || scenarioSheet.isEmpty())
 			throw new RigInternalError("ScenarioSheet argument missing");
