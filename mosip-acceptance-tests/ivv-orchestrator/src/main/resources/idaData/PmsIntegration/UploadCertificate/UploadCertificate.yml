@@ -6,6 +6,7 @@ uploadCACert:
       inputTemplate: idaData/PmsIntegration/UploadCertificate/uploadCertificate
       outputTemplate: idaData/PmsIntegration/UploadCertificate/uploadCertificateResult
       input: '{
+    "partnerId": "partnerId",
     "certificateData": "$CACERT$",
     "requesttime": "$TIMESTAMP$"
   }'
@@ -19,6 +20,7 @@ uploadCACert:
       inputTemplate: idaData/PmsIntegration/UploadCertificate/uploadCertificate
       outputTemplate: idaData/PmsIntegration/UploadCertificate/uploadCertificateResult
       input: '{
+    "partnerId": "partnerId",
     "certificateData": "$INTERCERT$",
     "requesttime": "$TIMESTAMP$"
   }'
