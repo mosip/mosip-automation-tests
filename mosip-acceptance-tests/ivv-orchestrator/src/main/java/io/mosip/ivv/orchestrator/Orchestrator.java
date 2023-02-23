@@ -1,5 +1,8 @@
 package io.mosip.ivv.orchestrator;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -39,6 +42,7 @@ import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.dg.DataGenerator;
 import io.mosip.ivv.parser.Parser;
 import io.mosip.kernel.util.ConfigManager;
+import io.mosip.kernel.util.S3Adapter;
 import io.mosip.service.BaseTestCase;
 
 public class Orchestrator {
@@ -78,7 +82,48 @@ public class Orchestrator {
 	@AfterSuite
 	public void afterSuite() {
 		extent.flush();
+		
+		 if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
+				File repotFile = new File(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
+						+ "/" + System.getProperty("emailable.report2.name"));
+				System.out.println("reportFile is::" + System.getProperty("user.dir") + "/"
+						+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report2.name"));
+				S3Adapter s3Adapter = new S3Adapter();
+				boolean isStoreSuccess = false;
+				try {
+					isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), System.getProperty("modules"), null,
+							null, System.getProperty("emailable.report2.name"), repotFile);
+					System.out.println("isStoreSuccess:: " + isStoreSuccess);
+				} catch (Exception e) {
+					System.out.println("error occured while pushing the object" + e.getLocalizedMessage());
+					e.printStackTrace();
+				}
+				if (isStoreSuccess) {
+					System.out.println("Pushed file to S3");
+				} else {
+					System.out.println("Failed while pushing file to S3");
+				}
+			}
+		 
+		
 	}
+	
+	 private String getCommitId(){
+	    	Properties properties = new Properties();
+			try (InputStream is = EmailableReport.class.getClassLoader().getResourceAsStream("git.properties")) {
+				properties.load(is);
+				
+				//commitId = properties.getProperty("git.commit.id.abbrev");
+				
+				//branch = properties.getProperty("git.branch");
+				return "Commit Id is: " + properties.getProperty("git.commit.id.abbrev") + " & Branch Name is:" + properties.getProperty("git.branch");
+
+			} catch (IOException io) {
+				io.printStackTrace();
+				return "";
+			}
+			
+	    }
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = false)
 	public static Object[][] dataProvider() throws RigInternalError {
@@ -88,8 +133,10 @@ public class Orchestrator {
 		// Properties propsKernel=ConfigManager.propsKernel;
 		
 		//scenarios-sanity-api-internal.qa-1201-b2
-		scenarioSheet=properties.getProperty("ivv.path.scenario.sheet.folder") + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
-	//	 scenarioSheet = System.getProperty("scenarioSheet");
+		//VariableManager.getVariableValue(contextKey,"mountPath").toString()
+		//scenarioSheet=properties.getProperty("ivv.path.scenario.sheet.folder") + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
+		scenarioSheet=ConfigManager.getmountPath() + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
+		//	 scenarioSheet = System.getProperty("scenarioSheet");
 		 if (scenarioSheet == null || scenarioSheet.isEmpty())
 			throw new RigInternalError("ScenarioSheet argument missing");
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
