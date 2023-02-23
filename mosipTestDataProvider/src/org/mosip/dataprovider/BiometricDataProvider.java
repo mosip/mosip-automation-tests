@@ -221,15 +221,13 @@ public static HashMap<String, Integer> portmap=new HashMap();
 		if(val == null || val.equals("") || val.equals("false")) {
 
 			val =  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsport").toString();
-//			 port = Integer.parseInt(val);
 			mdsprofilePath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsprofilepath").toString();
 
-			//	port = (port ==0 ? 4501: port);
+			Path p12path = Paths.get(System.getProperty("java.io.tmpdir"),
+					"IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
 
-			String p12path =  VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.mockmds.p12.path").toString(); 
 			System.out.println("p12path" + p12path);
-			port= CentralizedMockSBI.startSBI(contextKey, "Registration",  "Biometric Device",Paths.get(p12path, contextKey).toString()) ;//image type jp2000(reg) or wsq in case of authentication both can be
-		//	port= CentralizedMockSBI.startSBI(contextKey, "Auth",  "Biometric Device",Paths.get(p12path, contextKey).toString(),) ;
+			port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device", p12path.toString());
 			
 			portmap.put("port_"+contextKey,port);
 			//CentralizedMockSBI.stopSBI(context);
