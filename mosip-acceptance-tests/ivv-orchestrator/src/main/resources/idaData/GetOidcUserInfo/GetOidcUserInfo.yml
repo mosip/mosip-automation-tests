@@ -6,8 +6,8 @@ GetOidcUserInfo:
       inputTemplate: idaData/GetOidcUserInfo/GetOidcUserInfo
       outputTemplate: idaData/GetOidcUserInfo/GetOidcUserInfoResult
       input: '{
-	    "transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
-	    "encodedHash": "$ID:OAuthDetailsRequest_13all_Valid_Smoke_sid_encodedResp$",
+	    "transactionId": "transactionId",
+	    "encodedHash": "encodedHash",
         "idpAccessToken": "idpAccessToken"
 }'
       output: "200"
