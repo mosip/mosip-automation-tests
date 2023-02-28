@@ -6,9 +6,9 @@ SendOtp:
       inputTemplate: idaData/SendOtpForIdp/SendOtp
       outputTemplate: idaData/SendOtpForIdp/SendOtpResult
       input: '{
-	    "encodedHash": "$ID:OAuthDetailsRequest_13all_Valid_Smoke_sid_encodedResp$",
+	    "encodedHash": "encodedHash",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "transactionId",
 	    "individualId": "8267411571",
 	    "channel1": "email",
 	    "channel2": "phone"

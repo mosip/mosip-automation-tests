@@ -6,9 +6,9 @@ AuthorizationCode:
       inputTemplate: idaData/AuthorizationCode/AuthorizationCode
       outputTemplate: idaData/AuthorizationCode/AuthorizationCodeResult
       input: '{
-	    "encodedHash": "$ID:OAuthDetailsRequest_13all_Valid_Smoke_sid_encodedResp$",
+	    "encodedHash": "encodedHash",
         "requestTime": "$TIMESTAMP$",
-        "transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+        "transactionId": "transactionId",
         "acceptedClaims1": "name",
         "acceptedClaims2": "gender",
         "acceptedClaims3": "email"
