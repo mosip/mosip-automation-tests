@@ -362,7 +362,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				String inputForOidcClient = test11.getInput();
 
 				inputForOidcClient = JsonPrecondtion
-						.parseAndReturnJsonContent(inputForOidcClient, policyName, "policyName");
+						.parseAndReturnJsonContent(inputForOidcClient, policyId, "policyId");
 				inputForOidcClient = JsonPrecondtion
 						.parseAndReturnJsonContent(inputForOidcClient, partnerId, "authPartnerId");
 				
