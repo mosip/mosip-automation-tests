@@ -224,7 +224,8 @@ public static HashMap<String, Integer> portmap=new HashMap();
 			mdsprofilePath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mdsprofilepath").toString();
 
 			Path p12path = Paths.get(System.getProperty("java.io.tmpdir"),
-					"IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
+//					"IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
+					"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
 
 			System.out.println("p12path" + p12path);
 			port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device", p12path.toString());
