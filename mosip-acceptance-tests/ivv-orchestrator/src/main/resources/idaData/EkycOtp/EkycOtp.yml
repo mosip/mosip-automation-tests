@@ -1,6 +1,6 @@
 EkycOtp:
   Ida_EkycOtp_Auth_With_Valid_Smoke_Pos:
-      endPoint: /v1/identity/authenticate?id=uinnumber&isKyc=true&partnerUrlSuffix=$partnerKeyURL$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
+      endPoint: /v1/identity/authenticate?moduleName=$MODULENAME$&id=uinnumber&isKyc=true&partnerUrlSuffix=$partnerKeyURL$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
       role: resident
       restMethod: post
       inputTemplate: idaData/EkycOtp/ekycOtp
