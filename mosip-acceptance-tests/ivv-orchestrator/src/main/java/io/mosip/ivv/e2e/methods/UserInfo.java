@@ -33,6 +33,8 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	String clientId = "";
 	String transactionId1 = "";
 	String transactionId2 = "";
+	String urlEncodedResp1 = "";
+	String urlEncodedResp2 = "";
 	String code = "";
 	String redirectUri = "";
 	String idpAccessToken = "";
@@ -56,11 +58,13 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 			if (idType.contains("VID") || idType.contains("vid")) {
 				transactionId2 = (String) oidcClientProp.get("transactionId2");
+				urlEncodedResp2 = (String) oidcClientProp.get("urlEncodedResp2");
 				System.out.println(transactionId2);
 			}
 
 			else if (idType.contains("UIN") || idType.contains("uin")) {
 				transactionId1 = (String) oidcClientProp.get("transactionId1");
+				urlEncodedResp1 = (String) oidcClientProp.get("urlEncodedResp1");
 				System.out.println(transactionId1);
 			}
 
@@ -84,31 +88,92 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			}
 		}
 
+		// Auth Code API Call
+
 		String inputForAuthorization = testAuthorization.getInput();
-		inputForAuthorization = JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization, transactionId2,
-				"transactionId");
 
-		testAuthorization.setInput(inputForAuthorization);
+		if (idType.contains("VID") || idType.contains("vid")) {
 
-		try {
-			authorizationCode.test(testAuthorization);
+			inputForAuthorization = JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization, transactionId2,
+					"transactionId");
 
-			Response response = authorizationCode.response;
-			if (response != null) {
-				JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
-				code = jsonResp.getJSONObject("response").getString("code");
-				redirectUri = jsonResp.getJSONObject("response").getString("redirectUri");
-				oidcClientProp.put("code", code);
+			inputForAuthorization = JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization,
+					oidcClientProp.getProperty("urlEncodedResp2"), "encodedHash");
 
-				System.out.println(code);
+			testAuthorization.setInput(inputForAuthorization);
 
-				System.out.println(jsonResp.toString());
+			try {
+				authorizationCode.test(testAuthorization);
+
+				Response response = authorizationCode.response;
+				if (response != null) {
+					JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
+					code = jsonResp.getJSONObject("response").getString("code");
+					redirectUri = jsonResp.getJSONObject("response").getString("redirectUri");
+					oidcClientProp.put("code", code);
+
+				}
+
+			} catch (AuthenticationTestException | AdminTestException e) {
+				throw new RigInternalError(e.getMessage());
+
 			}
-
-		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
-
 		}
+
+		else if (idType.contains("UIN") || idType.contains("uin")) {
+
+			inputForAuthorization = JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization, transactionId1,
+					"transactionId");
+			inputForAuthorization = JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization,
+					oidcClientProp.getProperty("urlEncodedResp1"), "encodedHash");
+
+			testAuthorization.setInput(inputForAuthorization);
+
+			try {
+				authorizationCode.test(testAuthorization);
+
+				Response response = authorizationCode.response;
+				if (response != null) {
+					JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
+					code = jsonResp.getJSONObject("response").getString("code");
+					redirectUri = jsonResp.getJSONObject("response").getString("redirectUri");
+					oidcClientProp.put("code", code);
+
+				}
+
+			} catch (AuthenticationTestException | AdminTestException e) {
+				throw new RigInternalError(e.getMessage());
+
+			}
+		}
+
+		//
+		/*
+		 * String inputForAuthorization = testAuthorization.getInput();
+		 * inputForAuthorization =
+		 * JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization,
+		 * transactionId2, "transactionId");
+		 * 
+		 * testAuthorization.setInput(inputForAuthorization);
+		 * 
+		 * try { authorizationCode.test(testAuthorization);
+		 * 
+		 * Response response = authorizationCode.response; if (response != null) {
+		 * JSONObject jsonResp = new JSONObject(response.getBody().asString()); //
+		 * "$$transactionId=e2e_OAuthDetailsRequest($$clientId)" code =
+		 * jsonResp.getJSONObject("response").getString("code"); redirectUri =
+		 * jsonResp.getJSONObject("response").getString("redirectUri");
+		 * oidcClientProp.put("code", code);
+		 * 
+		 * System.out.println(code);
+		 * 
+		 * System.out.println(jsonResp.toString()); }
+		 * 
+		 * } catch (AuthenticationTestException | AdminTestException e) { throw new
+		 * RigInternalError(e.getMessage());
+		 * 
+		 * }
+		 */
 
 		String inputForGenerateToken = testGenerateToken.getInput();
 
