@@ -208,8 +208,26 @@ public class BiometricDataProvider {
 				mdsprofilePath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsprofilepath")
 						.toString();
 
-				Path p12path = Paths.get(System.getProperty("java.io.tmpdir"), "AUTHCERTS",
+				String certsDir = System.getenv("authCertsPath") == null
+						? VariableManager.getVariableValue(contextKey, "authCertsPath").toString()
+						: System.getenv("authCertsPath");
+
+				if (certsDir == null || certsDir.length() == 0) {
+					certsDir = System.getProperty("java.io.tmpdir");
+				}
+
+				// C:\Users\Sohan.Dey\AppData\Local\Temp\AUTHCERTS\DSL-IDA-api-internal.qa-1201-b2.mosip.net
+
+				Path p12path = Paths.get(certsDir, "AUTHCERTS",
 						"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
+
+				/*
+				 * String certsTargetDir = System.getProperty("java.io.tmpdir")+ File.separator
+				 * + "AUTHCERTS"; Path p12path =
+				 * Paths.get(VariableManager.getVariableValue(contextKey, "authCertsPath")
+				 * "AUTHCERTS", "DSL-IDA-" + VariableManager.getVariableValue(contextKey,
+				 * "db-server"));
+				 */
 
 				System.out.println("p12path" + p12path);
 				port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device", p12path.toString());
