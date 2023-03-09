@@ -92,16 +92,15 @@ public class S3Adapter {
 	 * connection.putObject(bucketName, finalObjectName, file); return true; }
 	 */
 	
-	public boolean putObject(String account, final String container, String source, String process, String objectName, File file) {
+	public boolean putObject(String account, String source, String process, String objectName, File file) {
 		String finalObjectName = null;
 		String bucketName = null;
 	        System.out.println("useAccountAsBucketname:: "+useAccountAsBucketname);
 		if (useAccountAsBucketname) {
-				finalObjectName = getName(container, source, process, objectName);
+				finalObjectName = getName( source, process, objectName);
 				bucketName = account;
 		} else {
 				finalObjectName = getName(source, process, objectName);
-				bucketName = container;
 		}
 		System.out.println("bucketName :: "+bucketName);
 		AmazonS3 connection = getConnection(bucketName);
