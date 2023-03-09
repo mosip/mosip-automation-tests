@@ -26,7 +26,6 @@ import org.testng.log4testng.Logger;
 import org.testng.xml.XmlSuite;
 
 import io.mosip.kernel.util.ConfigManager;
-import io.mosip.kernel.util.S3Adapter;
 
 /**
  * Reporter that generates a single-page HTML report of the test results.
@@ -82,7 +81,7 @@ public class EmailableReport implements IReporter {
 			S3Adapter s3Adapter = new S3Adapter();
 			boolean isStoreSuccess = false;
 			try {
-				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), System.getProperty("modules"), null,
+				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), null,
 						null, System.getProperty("emailable.report2.name"), repotFile);
 				System.out.println("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {
