@@ -63,8 +63,8 @@ public class TestRunner {
 		runner.setTestSuites(suitefiles);
 		System.getProperties().setProperty("testng.outpur.dir", "testng-report");
 		runner.setOutputDirectory("testng-report");
-		System.getProperties().setProperty("emailable.report2.name",
-				"mosip-DSL" + System.currentTimeMillis() + "-report.html");
+		System.getProperties().setProperty("emailable.report2.name", "DSL-" + BaseTestCase.environment + "-"
+				+ BaseTestCase.testLevel + "-run-" + System.currentTimeMillis() + "-report.html");
 		runner.run();
 
 		System.exit(0);
