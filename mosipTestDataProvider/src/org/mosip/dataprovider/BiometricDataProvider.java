@@ -213,12 +213,12 @@ public class BiometricDataProvider {
 						: System.getenv("authCertsPath");
 
 				if (certsDir == null || certsDir.length() == 0) {
-					certsDir = System.getProperty("java.io.tmpdir");
+					certsDir = System.getProperty("java.io.tmpdir")+File.separator+"AUTHCERTS";
 				}
 
 				// C:\Users\Sohan.Dey\AppData\Local\Temp\AUTHCERTS\DSL-IDA-api-internal.qa-1201-b2.mosip.net
 
-				Path p12path = Paths.get(certsDir, "AUTHCERTS",
+				Path p12path = Paths.get(certsDir,
 						"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
 
 				/*
