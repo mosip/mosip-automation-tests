@@ -42,7 +42,6 @@ import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.dg.DataGenerator;
 import io.mosip.ivv.parser.Parser;
 import io.mosip.kernel.util.ConfigManager;
-import io.mosip.kernel.util.S3Adapter;
 import io.mosip.service.BaseTestCase;
 
 public class Orchestrator {
@@ -91,7 +90,7 @@ public class Orchestrator {
 				S3Adapter s3Adapter = new S3Adapter();
 				boolean isStoreSuccess = false;
 				try {
-					isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), System.getProperty("modules"), null,
+					isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), null,
 							null, System.getProperty("emailable.report2.name"), repotFile);
 					System.out.println("isStoreSuccess:: " + isStoreSuccess);
 				} catch (Exception e) {
