@@ -57,22 +57,14 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		} else {
 
 			if (idType.contains("VID") || idType.contains("vid")) {
-<<<<<<< HEAD
 				transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
-=======
-				transactionId2 = (String) oidcClientProp.get("transactionId2");
-				urlEncodedResp2 = (String) oidcClientProp.get("urlEncodedResp2");
->>>>>>> upstream/develop
+				urlEncodedResp2 = (String) step.getScenario().getOidcClientProp().get("urlEncodedResp2");
 				System.out.println(transactionId2);
 			}
 
 			else if (idType.contains("UIN") || idType.contains("uin")) {
-<<<<<<< HEAD
 				transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
-=======
-				transactionId1 = (String) oidcClientProp.get("transactionId1");
-				urlEncodedResp1 = (String) oidcClientProp.get("urlEncodedResp1");
->>>>>>> upstream/develop
+				urlEncodedResp1 = (String) step.getScenario().getOidcClientProp().get("urlEncodedResp1");
 				System.out.println(transactionId1);
 			}
 
@@ -106,28 +98,19 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 					"transactionId");
 
 			inputForAuthorization = JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization,
-					oidcClientProp.getProperty("urlEncodedResp2"), "encodedHash");
+					step.getScenario().getOidcClientProp().getProperty("urlEncodedResp2"), "encodedHash");
 
 			testAuthorization.setInput(inputForAuthorization);
 
 			try {
 				authorizationCode.test(testAuthorization);
 
-<<<<<<< HEAD
-			Response response = authorizationCode.response;
-			if (response != null) {
-				JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
-				code = jsonResp.getJSONObject("response").getString("code");
-				redirectUri = jsonResp.getJSONObject("response").getString("redirectUri");
-				step.getScenario().getOidcClientProp().put("code", code);
-=======
 				Response response = authorizationCode.response;
 				if (response != null) {
 					JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
 					code = jsonResp.getJSONObject("response").getString("code");
 					redirectUri = jsonResp.getJSONObject("response").getString("redirectUri");
-					oidcClientProp.put("code", code);
->>>>>>> upstream/develop
+					step.getScenario().getOidcClientProp().put("code", code);
 
 				}
 
@@ -142,7 +125,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			inputForAuthorization = JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization, transactionId1,
 					"transactionId");
 			inputForAuthorization = JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization,
-					oidcClientProp.getProperty("urlEncodedResp1"), "encodedHash");
+					step.getScenario().getOidcClientProp().getProperty("urlEncodedResp1"), "encodedHash");
 
 			testAuthorization.setInput(inputForAuthorization);
 
@@ -154,7 +137,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 					JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
 					code = jsonResp.getJSONObject("response").getString("code");
 					redirectUri = jsonResp.getJSONObject("response").getString("redirectUri");
-					oidcClientProp.put("code", code);
+					step.getScenario().getOidcClientProp().put("code", code);
 
 				}
 
