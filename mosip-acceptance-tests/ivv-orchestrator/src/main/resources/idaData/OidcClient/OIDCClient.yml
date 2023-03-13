@@ -7,7 +7,7 @@ CreateOIDCClient:
       outputTemplate: idaData/OidcClient/OIDCClientResult
       input: '{
         "name": "$RANDOMID$",
-        "policyName": "$ID:DefinePolicy_All_Valid_Smoke_sid_name$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_name$",
         "publicKey": "$OIDCJWKKEY$",
         "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
         "logoUri": "https://health-services.com/logo.png",

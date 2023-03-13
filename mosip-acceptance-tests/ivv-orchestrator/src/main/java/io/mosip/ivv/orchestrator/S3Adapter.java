@@ -167,7 +167,7 @@ public class S3Adapter {
 
 		return finalObjectName;
 	}
-
+	
 	public static String getName(String source, String process, String objectName) {
 		String finalObjectName = "";
 		if (StringUtils.isNotEmpty(source))
@@ -179,4 +179,5 @@ public class S3Adapter {
 
 		return finalObjectName;
 	}
+
 }

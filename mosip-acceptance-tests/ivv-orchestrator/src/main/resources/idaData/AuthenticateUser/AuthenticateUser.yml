@@ -6,7 +6,7 @@ AuthenticateUser:
       inputTemplate: idaData/AuthenticateUser/AuthenticateUser
       outputTemplate: idaData/AuthenticateUser/AuthenticateUserResult
       input: '{
-	    "encodedHash": "$ID:OAuthDetailsRequest_13all_Valid_Smoke_sid_encodedResp$",
+	    "encodedHash": "encodedHash",
         "requestTime": "$TIMESTAMP$",
         "transactionId": "transactionId",
         "individualId": "8267411571",

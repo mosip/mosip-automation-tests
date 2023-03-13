@@ -901,13 +901,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public void idpBioAuth(String modility, String bioValue, String uin, String transactionId, Properties deviceProps,
-			TestCaseDTO test, IdpBioAuth idpBioAuth) throws RigInternalError {
+			TestCaseDTO test, IdpBioAuth idpBioAuth, String input ) throws RigInternalError {
 
-		String input = test.getInput();
+		
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 		
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash");
-		
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash"); //need to check is this needed
+
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioSubType"),
 				"identityRequest.bioSubType");

@@ -1,13 +1,11 @@
 GetOidcUserInfo:
-   IDP_GetOidcUserInfo_IdpAccessToken_StatusCode_Valid_Smoke_sid:
-      endPoint: v1/esignet/oidc/userinfo
+   IDP_GetOidcUserInfo_IdpAccessToken_StatusCode_Valid_Smoke:
+      endPoint: /v1/esignet/oidc/userinfo
       role: resident
       restMethod: get
       inputTemplate: idaData/GetOidcUserInfo/GetOidcUserInfo
       outputTemplate: idaData/GetOidcUserInfo/GetOidcUserInfoResult
       input: '{
-	    "transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
-	    "encodedHash": "$ID:OAuthDetailsRequest_13all_Valid_Smoke_sid_encodedResp$",
         "idpAccessToken": "idpAccessToken"
 }'
       output: "200"
