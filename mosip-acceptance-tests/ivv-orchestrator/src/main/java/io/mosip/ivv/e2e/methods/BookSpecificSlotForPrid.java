@@ -30,8 +30,8 @@ public class BookSpecificSlotForPrid extends BaseTestCaseUtil implements StepInt
 			time_slot_from =step.getParameters().get(2);
 			time_slot_to =step.getParameters().get(3);
 		}
-		for (String resDataPath : residentPathsPrid.keySet()) {
-			String prid = residentPathsPrid.get(resDataPath);
+		for (String resDataPath : step.getScenario().getResidentPathsPrid().keySet()) {
+			String prid = step.getScenario().getResidentPathsPrid().get(resDataPath);
 			if (!StringUtils.isEmpty(prid)) {
 				bookSlotForPrid(prid);
 			} else
@@ -47,7 +47,7 @@ public class BookSpecificSlotForPrid extends BaseTestCaseUtil implements StepInt
 		jsonReq.put(E2EConstants.REGISTRATION_CENTER_ID, registration_center_id);
 		jsonReq.put(E2EConstants.TIME_SLOT_FROM, time_slot_from);
 		jsonReq.put(E2EConstants.TIME_SLOT_TO, time_slot_to);
-		Response response =postRequestWithQueryParamAndBody(url,jsonReq.toString(),contextInuse,"BookSlotForPrid");
+		Response response =postRequestWithQueryParamAndBody(url,jsonReq.toString(),step.getScenario().getCurrentStep(),"BookSlotForPrid",step);
 		if (!response.getBody().asString().toLowerCase()
 				.contains("appointment booked successfully"))
 			throw new RigInternalError("Unable to Book Appointment for Prid :"+prid);

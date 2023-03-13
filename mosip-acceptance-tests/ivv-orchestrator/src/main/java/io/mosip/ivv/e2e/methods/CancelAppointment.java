@@ -50,7 +50,7 @@ public class CancelAppointment extends BaseTestCaseUtil implements StepInterface
 		String url = baseUrl+ props.getProperty("cancelAppointment") + prid;
 		
 		
-		Response response = putRequest(url, "CancelAppointment");
+		Response response = putRequest(url, "CancelAppointment",step);
 		if (!response.getBody().asString().toLowerCase()
 				.contains(message))
 			throw new RigInternalError("Unable to CancelAppointment");

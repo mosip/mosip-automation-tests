@@ -53,7 +53,7 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 			throw new RigInternalError("Parameter not supported only allowed are [processed/rejected/failed]");
 		}
 		if(tempPridAndRid ==null)
-    		tempPridAndRid =pridsAndRids;
+    		tempPridAndRid =step.getScenario().getPridsAndRids() ;
 		
 			try {
 			for (String rid : this.tempPridAndRid.values()) {

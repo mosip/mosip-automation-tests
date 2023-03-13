@@ -14,8 +14,8 @@ public class UpdateResidentWithUIN extends BaseTestCaseUtil implements StepInter
 		Boolean isForChildPacket = false;
 		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
-			if (isForChildPacket && !generatedResidentData.isEmpty()  && uin_updateResident!=null) 
-				packetUtility.updateResidentUIN(generatedResidentData.get(0), uin_updateResident);
+			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty()  && step.getScenario().getUin_updateResident()!=null) 
+				packetUtility.updateResidentUIN(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getUin_updateResident());
 		} else {
 			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {  //"e2e_updateResidentWithUIN($$personaFilePath,$$uin)"
 				String personaFilePath = step.getParameters().get(0);
@@ -26,8 +26,8 @@ public class UpdateResidentWithUIN extends BaseTestCaseUtil implements StepInter
 					packetUtility.updateResidentUIN(personaFilePath, _uin);
 				}
 			} else {
-				for (String uin : uinPersonaProp.stringPropertyNames()) {
-					packetUtility.updateResidentUIN(uinPersonaProp.getProperty(uin), uin);
+				for (String uin : step.getScenario().getUinPersonaProp().stringPropertyNames()) {
+					packetUtility.updateResidentUIN(step.getScenario().getUinPersonaProp().getProperty(uin), uin);
 				}
 			}
 		}

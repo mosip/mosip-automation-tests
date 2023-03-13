@@ -71,10 +71,10 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 				_personaFilePath = step.getScenario().getVariables().get(_personaFilePath);
 				uinList = new ArrayList<>();
 				uinList.add(uins);
-				uinPersonaProp.put(uins, _personaFilePath);
+				step.getScenario().getUinPersonaProp().put(uins, _personaFilePath);
 			}
 		} else
-			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
+			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		// FETCHING VID
 
@@ -90,16 +90,16 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 				_personaFilePath = step.getScenario().getVariables().get(_personaFilePath);
 				vidList = new ArrayList<>();
 				vidList.add(vids);
-				vidPersonaProp.put(vids, _personaFilePath);
+				step.getScenario().getVidPersonaProp().put(vids, _personaFilePath);
 			}
 		} else
-			vidList = new ArrayList<>(vidPersonaProp.stringPropertyNames());
+			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transactionId parameter is  missing from DSL step");
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
-			transactionId1 = (String) oidcClientProp.get("transactionId1");
+			transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
 			// transactionId1 = step.getParameters().get(3);
 			// transactionId1 = step.getScenario().getVariables().get(transactionId1);
 			System.out.println(transactionId1);
@@ -110,7 +110,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 			logger.error("transactionId parameter is  missing from DSL step");
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
-			transactionId2 = (String) oidcClientProp.get("transactionId2");
+			transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
 			// transactionId2 = step.getParameters().get(5);
 			// transactionId2 = step.getScenario().getVariables().get(transactionId2);
 			System.out.println(transactionId2);
@@ -119,8 +119,8 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 
 		for (String uin : uinList) {
 			String personFilePathvalue = null;
-			if (uinPersonaProp.containsKey(uin))
-				personFilePathvalue = uinPersonaProp.getProperty(uin);
+			if (step.getScenario().getUinPersonaProp().containsKey(uin))
+				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
 
@@ -202,8 +202,8 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 
 		for (String vid : vidList) {
 			String personFilePathvalue = null;
-			if (vidPersonaProp.containsKey(vid))
-				personFilePathvalue = vidPersonaProp.getProperty(vid);
+			if (step.getScenario().getVidPersonaProp().containsKey(vid))
+				personFilePathvalue = step.getScenario().getVidPersonaProp().getProperty(vid);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + vid);
 

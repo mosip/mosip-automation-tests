@@ -24,7 +24,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		boolean generatePrivateKey = Boolean.FALSE;
 		String status = null;
 		String negative="valid";
-		scenario = step.getScenario().getId() + ":" + step.getScenario().getDescription();
+		//neeha scenario = step.getScenario().getId() + ":" + step.getScenario().getDescription();
 		HashMap<String, String> map = new HashMap<String, String>();
 		HashMap<String, String> dummyholder = new HashMap<String, String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
@@ -32,10 +32,10 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		} else {
 			contextKeyValue = step.getParameters().get(0); 
 			contextKeyValue=System.getProperty("env.user")+"_context";
-			// contextKey.put("contextKey",contextKeyValue );
-			contextKey.put(contextKeyValue, "true");
-			contextInuse.clear();
-			contextInuse.put("contextKey", contextKeyValue);
+			// step.getScenario().getContextInuse()put("contextKey",contextKeyValue );
+			step.getScenario().getCurrentStep().put(contextKeyValue, "true");
+			step.getScenario().getCurrentStep().clear();
+			step.getScenario().getCurrentStep().put("contextKey", contextKeyValue);
 			if (step.getParameters().size() > 1) { // machineid=112121@@.......
 				String value = step.getParameters().get(1);
 				if (!(value.equalsIgnoreCase("-1")) && value.contains("@@"))
@@ -63,9 +63,9 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		
 		if (userAndMachineDetailParam != null)
 			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion, generatePrivateKey,
-					status, BaseTestCase.ApplnURI + "/");
+					status, BaseTestCase.ApplnURI + "/",step);
 		else if(map != null)
 			packetUtility.createContexts(negative,contextKeyValue, map, mosipVersion, generatePrivateKey, status,
-					BaseTestCase.ApplnURI + "/");
+					BaseTestCase.ApplnURI + "/",step);
 	}
 }

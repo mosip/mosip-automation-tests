@@ -49,7 +49,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 			logger.error("transactionId parameter is  missing from DSL step");
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
-			transactionId1 = (String) oidcClientProp.get("transactionId1");
+			transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
 			// transactionId1 = step.getParameters().get(3);
 			// transactionId1 = step.getScenario().getVariables().get(transactionId1);
 			System.out.println(transactionId1);
@@ -60,7 +60,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 			logger.error("transactionId parameter is  missing from DSL step");
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
-			transactionId2 = (String) oidcClientProp.get("transactionId2");
+			transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
 			// transactionId2 = step.getParameters().get(5);
 			// transactionId2 = step.getScenario().getVariables().get(transactionId2);
 			System.out.println(transactionId2);
@@ -77,7 +77,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 		} else
-			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
+			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		// Fetching VID
 		if (step.getParameters().size() == 6 && step.getParameters().get(1).startsWith("$$")) {
@@ -92,7 +92,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
 		} else
-			vidList = new ArrayList<>(vidPersonaProp.stringPropertyNames());
+			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		if (step.getParameters().size() == 5) {
 			authType = step.getParameters().get(2);
@@ -135,7 +135,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 				
-				input = JsonPrecondtion.parseAndReturnJsonContent(input, oidcClientProp.getProperty("urlEncodedResp"), "encodedHash");
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash");
 
 				testForOtp.setInput(input);
 
@@ -166,7 +166,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
 				
-				input = JsonPrecondtion.parseAndReturnJsonContent(input, oidcClientProp.getProperty("urlEncodedResp"), "encodedHash");
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash");
 
 				testForOtp.setInput(input);
 
@@ -224,7 +224,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 					test = (TestCaseDTO) object;
 					String input = test.getInput();
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId1, "transactionId");
-					input = JsonPrecondtion.parseAndReturnJsonContent(input, oidcClientProp.getProperty("urlEncodedResp"), "encodedHash");
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, authType, "authFactorType");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, pin, "challenge");
@@ -275,7 +275,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 					String input = test.getInput();
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId2, "transactionId");
-					input = JsonPrecondtion.parseAndReturnJsonContent(input, oidcClientProp.getProperty("urlEncodedResp"), "encodedHash");
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, authType, "authFactorType");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, pin, "challenge");

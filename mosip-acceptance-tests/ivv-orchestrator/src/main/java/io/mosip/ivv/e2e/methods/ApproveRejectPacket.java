@@ -31,10 +31,10 @@ public class ApproveRejectPacket extends BaseTestCaseUtil implements StepInterfa
 		try {
 			for (Object object : testCaseList) {
 				TestCaseDTO test = (TestCaseDTO) object;
-				for(String keys:manualVerificationRid.keySet()) {
+				for(String keys:step.getScenario().getManualVerificationRid().keySet()) {
 					test.setInput(test.getInput()
 							.replace("$mvUsrId$", keys)
-							.replace("$regId$", manualVerificationRid.get(keys))
+							.replace("$regId$", step.getScenario().getManualVerificationRid().get(keys))
 							.replace("$statusCode$", status_Code));
 					test.setOutput(test.getOutput()
 							.replace("$mvUsrId$", keys)
@@ -53,9 +53,9 @@ public class ApproveRejectPacket extends BaseTestCaseUtil implements StepInterfa
 				if(!response.get("response").toString().equals("null"))
 				{
 					JSONObject responseJson = new JSONObject(response.get("response").toString());
-					statusCode = responseJson.get("statusCode").toString();
-					pridsAndRids.clear();
-					pridsAndRids.put(null, responseJson.get("regId").toString());
+					step.getScenario().setStatusCode( responseJson.get("statusCode").toString());
+					step.getScenario().getPridsAndRids().clear();
+					step.getScenario().getPridsAndRids().put(null, responseJson.get("regId").toString());
 				}
 
 			}

@@ -24,10 +24,10 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
     		String _uin=step.getParameters().get(0);
     		if(_uin.startsWith("$$")) {
 				_uin = step.getScenario().getVariables().get(_uin);
-				if (uinReqIds == null)
-					uinReqIds = new HashMap<>();
-				uinReqIds.clear();
-				uinReqIds.put(_uin, "uin");
+				//if (step.getScenario().getUinReqIds() == null)
+					//neeha step.getScenario().getUinReqIds() = new HashMap<>();
+				step.getScenario().getUinReqIds().clear();
+				step.getScenario().getUinReqIds().put(_uin, "uin");
     		}
     	}
     	try {
@@ -42,7 +42,7 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 		logger.info("No. of TestCases in Yml file : " + testCaseList.length);
 		try {
 			for (Object object : testCaseList) {
-				for(String uin: this.uinReqIds.keySet()) {
+				for(String uin: this.step.getScenario().getUinReqIds().keySet()) {
 				TestCaseDTO test = (TestCaseDTO) object;
 				test.setInput(test.getInput().replace("$UIN$", uin).replace("$UIN$", uin));
 				test.setOutput(test.getOutput().replace("$UIN$", uin));
@@ -59,7 +59,7 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 				if(!response.get("response").toString().equals("null"))
 	    		{
 					JSONObject responseJson = new JSONObject(response.get("response").toString());
-						this.uinReqIds.put(uin, responseJson.get("requestId").toString());
+						this.step.getScenario().getUinReqIds().put(uin, responseJson.get("requestId").toString());
 						if(step.getOutVarName()!=null)
 							 step.getScenario().getVariables().put(step.getOutVarName(), responseJson.get("requestId").toString());
 					}

@@ -31,12 +31,12 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
     @SuppressWarnings("static-access")
 	@Override
     public void run() throws RigInternalError {
-    	getIdentity(this.pridsAndRids);
+    	getIdentity(this.step.getScenario().getPridsAndRids());
     }
 
     public void getIdentity(HashMap<String, String> rids) throws RigInternalError
     {
-    	uinReqIds.clear();
+    	step.getScenario().getUinReqIds().clear();
     	for(String rid: rids.values())
     	{
     		if(rid!=null) {
@@ -59,7 +59,7 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
     			JSONObject respJson = new JSONObject(res.get("response").toString());
     			JSONObject identityJson = new JSONObject(respJson.get("identity").toString());
     			String uin = identityJson.get("UIN").toString();
-    			uinReqIds.put(uin, null);
+    			step.getScenario().getUinReqIds().put(uin, null);
     			FileUtil.createFile(new File(TestResources.getResourcePath()+identitypath+uin+".json"), response.asString());
     		}else
     			{

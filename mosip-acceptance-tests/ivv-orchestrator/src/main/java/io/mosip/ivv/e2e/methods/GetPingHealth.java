@@ -18,10 +18,10 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 		String modules = null,uri=null;
 		HashMap<String, String> context=null;
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
-			context = contextInuse;
+			context = step.getScenario().getCurrentStep();
 			modules = "";
 		} else {
-			context = contextInuse;
+			context = step.getScenario().getCurrentStep();
 			if (step.getParameters().size() == 1)
 				modules = step.getParameters().get(0);
 			else
@@ -33,7 +33,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 		else
 		uri=baseUrl + "/ping";
 		
-		Response response = getRequest(uri, "Health Check");
+		Response response = getRequest(uri, "Health Check",step);
 		JSONObject res = new JSONObject(response.asString());
 		logger.info(res.toString());
 		if (res.get("status").equals(true)) {

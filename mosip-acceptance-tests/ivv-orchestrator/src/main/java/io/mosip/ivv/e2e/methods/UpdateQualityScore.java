@@ -14,7 +14,7 @@ public class UpdateQualityScore extends BaseTestCaseUtil implements StepInterfac
 		else
 			throw new RigInternalError("QualityScore is missing");
 		String url = baseUrl + props.getProperty("setThresholdValue") + qualityScore;
-		getRequest(url, "Update qualityScore : " + qualityScore);
+		getRequest(url, "Update qualityScore : " + qualityScore,step);
 
 	}
 

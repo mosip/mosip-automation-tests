@@ -10,8 +10,8 @@ public class DeleteApplication extends BaseTestCaseUtil implements StepInterface
 
 	@Override
 	public void run() throws RigInternalError {
-		for (String resDataPath : residentPathsPrid.keySet()) {
-			String prid = residentPathsPrid.get(resDataPath);
+		for (String resDataPath : step.getScenario().getResidentPathsPrid().keySet()) {
+			String prid = step.getScenario().getResidentPathsPrid().get(resDataPath);
 			if (!StringUtils.isEmpty(prid))
 				deleteApplication(prid);
 			else
@@ -22,7 +22,7 @@ public class DeleteApplication extends BaseTestCaseUtil implements StepInterface
 
 	private void deleteApplication(String prid) throws RigInternalError {
 		String url = baseUrl + props.getProperty("deleteApplication") + prid;
-		Response response = deleteRequestWithQueryParam(url, contextInuse, "DeleteApplication");
+		Response response = deleteRequestWithQueryParam(url, step.getScenario().getCurrentStep(),"DeleteApplication",step);
 		if (!response.getBody().asString().contains(prid))
 			throw new RigInternalError("Unable to DeleteApplication for Prid: "+prid);
 	}

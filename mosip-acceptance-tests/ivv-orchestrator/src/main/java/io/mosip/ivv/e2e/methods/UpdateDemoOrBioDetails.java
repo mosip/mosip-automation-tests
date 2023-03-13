@@ -40,7 +40,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 						(updateAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>() : updateAttributeList);
 			}
 		} else {
-			for (String resDataPath : residentTemplatePaths.keySet()) {
+			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
 				packetUtility.updateDemoOrBioDetail(resDataPath,
 						(regenAttributeList.get(0).equalsIgnoreCase("0")) ? null : regenAttributeList,
 						(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>()

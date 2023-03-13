@@ -37,21 +37,21 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 				if (step.getParameters().size() > 3)  // true/false  (want to generate privatekey)
 					generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(3));
 				if (map != null)
-					packetUtility.createContexts("",contextKeyValue, map, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/");
+					packetUtility.createContexts("",contextKeyValue, map, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/",step);
 					
 				else if (userAndMachineDetailParam != null)
-				packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/");
+				packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/",step);
 				
 				
 				
-				contextKey.put(contextKeyValue, "true");
+				step.getScenario().getCurrentStep().put(contextKeyValue, "true");
 			} else {
-				if (!contextKey.containsKey(contextKeyValue))
+				if (!step.getScenario().getCurrentStep().containsKey(contextKeyValue))
 					throw new RigInternalError(contextKeyValue + " is not present in the system");
-				contextInuse.clear();
+				step.getScenario().getCurrentStep().clear();
 
 			}
-			contextInuse.put("contextKey", contextKeyValue);
+			step.getScenario().getCurrentStep().put("contextKey", contextKeyValue);
 		}
 
 	}

@@ -167,7 +167,8 @@ public class ContextUtils {
 				keyGenerator.initialize(2048, new SecureRandom());
 				final KeyPair keypair = keyGenerator.generateKeyPair();
 				
-				createKeyFile(String.valueOf(personaConfigPath) + File.separator + "privatekeys"+ File.separator+contextKey+ "." + machineId + ".reg.key", keypair.getPrivate().getEncoded());
+				createKeyFile(String.valueOf(personaConfigPath) + File.separator + 
+						"privatekeys"+ File.separator+VariableManager.getVariableValue(contextKey, "db-server").toString()+ "." + machineId + ".reg.key", keypair.getPrivate().getEncoded());
 				
 				final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
 				System.out.println("publicKey: "+publicKey);

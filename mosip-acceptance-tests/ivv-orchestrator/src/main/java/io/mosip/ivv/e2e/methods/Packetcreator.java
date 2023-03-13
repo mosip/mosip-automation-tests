@@ -29,19 +29,19 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 				personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
 				for (String id : personaIdValue.stringPropertyNames()) {
 					String value = personaIdValue.get(id).toString();
-					if (residentPersonaIdPro.get(value) == null)
+					if (step.getScenario().getResidentPersonaIdPro().get(value) == null)
 						throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
-					String personaPath = residentPersonaIdPro.get(value).toString();
-					residentTemplatePaths.put(personaPath, residentTemplatePaths.get(personaPath));
+					String personaPath = step.getScenario().getResidentPersonaIdPro().get(value).toString();
+					step.getScenario().getResidentTemplatePaths().put(personaPath, step.getScenario().getResidentTemplatePaths().get(personaPath));
 				}
 			}
-			for (String resDataPath : residentTemplatePaths.keySet()) {
-				String templatePath = residentTemplatePaths.get(resDataPath);
+			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
+				String templatePath = step.getScenario().getResidentTemplatePaths().get(resDataPath);
 				String idJosn = templatePath + "/REGISTRATION_CLIENT/" + process + "/rid_id/" + "ID.json";
 				packetPath = createPacket(idJosn, templatePath,null);  //    3rd argument is _additionalInfoReqId here pass null
-				templatePacketPath.put(templatePath, packetPath);
+				step.getScenario().getTemplatePacketPath().put(templatePath, packetPath);
 				// this is inserted for storing rid with resident data it will be deleted in RIDSync
-				ridPersonaPath.put(packetPath, resDataPath);
+				step.getScenario().getRidPersonaPath().put(packetPath, resDataPath);
 			}
 		} else {
 			process = step.getParameters().get(0); // "$$zipPacketPath=e2e_packetcreator(NEW,$$templatePath)"  --> now  "$$zipPacketPath=e2e_packetcreator(NEW,$$templatePath,$$additionalInfoReqId)" 
@@ -74,8 +74,8 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 		jsonReq.put("templatePath", templatePath);
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
 		
-		//Response response = postRequestWithPathParamAndBody(url, jsonReq.toString(), contextInuse, "CreatePacket");
-		Response response = postRequest(url, jsonReq.toString(), "CreatePacket");
+		//Response response = postRequestWithPathParamAndBody(url, jsonReq.toString(), step.getScenario().getContextInuse(), "CreatePacket");
+		Response response = postRequest(url, jsonReq.toString(), "CreatePacket",step);
 		if (!response.getBody().asString().toLowerCase().contains("zip"))
 			throw new RigInternalError("Unable to get packet from packet utility");
 		return response.getBody().asString().replaceAll("\\\\", "\\\\\\\\");

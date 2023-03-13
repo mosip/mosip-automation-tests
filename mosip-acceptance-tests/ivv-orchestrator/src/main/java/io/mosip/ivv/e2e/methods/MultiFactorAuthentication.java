@@ -58,7 +58,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 	@Override
 	public void run() throws RigInternalError {
 		// AuthPartnerProcessor.startProcess();
-		// uinPersonaProp.put("2310290713",
+		// step.getScenario().getUinPersonaProp().put("2310290713",
 		// "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\residents_8783170256176160783\\\\915849158491584.json");
 
 		List<String> demoFetchList = null;
@@ -75,7 +75,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 					if (!StringUtils.isBlank(step.getParameters().get(i))) {
 						bioAuthList = Arrays.asList(step.getParameters().get(i).split("@@"));
 					} else {
-						bioAuthList = new ArrayList<String>(uinPersonaProp.stringPropertyNames());
+						bioAuthList = new ArrayList<String>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 					}
 				}
 
@@ -85,7 +85,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						demoFetchList = new ArrayList<String>();
 						demoFetchList.add(E2EConstants.DEMOFETCH);
 					} else {
-						demoAuthList = new ArrayList<String>(uinPersonaProp.stringPropertyNames());
+						demoAuthList = new ArrayList<String>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 					}
 				}
 
@@ -93,7 +93,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 					if (!StringUtils.isBlank(step.getParameters().get(i))) {
 						individualType = step.getParameters().get(i);
 					} else {
-						individualType = uinPersonaProp.stringPropertyNames().iterator().next();
+						individualType = step.getScenario().getUinPersonaProp().stringPropertyNames().iterator().next();
 					}
 				}
 
@@ -108,7 +108,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						uinList = new ArrayList<>();
 						uinList.add(individualIdAuth);// uin actual value
 					} else {
-						individualIdAuth = uinPersonaProp.stringPropertyNames().iterator().next();
+						individualIdAuth = step.getScenario().getUinPersonaProp().stringPropertyNames().iterator().next();
 						uinList = new ArrayList<>();
 						uinList.add(individualIdAuth);
 					}
@@ -123,7 +123,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 					} else if (!step.getParameters().get(i).equals("0")) {
 						vids = step.getParameters().get(i); // vid actual value
 					} else {
-						vids = vidPersonaProp.stringPropertyNames().iterator().next();
+						vids = step.getScenario().getVidPersonaProp().stringPropertyNames().iterator().next();
 					}
 				}
 			}
@@ -260,8 +260,8 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				_personFilePath = step.getScenario().getVariables().get(_personFilePath);
 				personFilePathvalue = _personFilePath;
 			}
-		} else if (uinPersonaProp.containsKey(individualIdAuth))
-			personFilePathvalue = uinPersonaProp.getProperty(individualIdAuth);
+		} else if (step.getScenario().getUinPersonaProp().containsKey(individualIdAuth))
+			personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(individualIdAuth);
 		else
 			throw new RigInternalError("Persona doesn't exist for the given UIN " + individualIdAuth);
 		demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList);
@@ -323,8 +323,8 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 					_personFilePath = step.getScenario().getVariables().get(_personFilePath);
 					personFilePathvalue = _personFilePath;
 				}
-			} else if (uinPersonaProp.containsKey(uin))
-				personFilePathvalue = uinPersonaProp.getProperty(uin);
+			} else if (step.getScenario().getUinPersonaProp().containsKey(uin))
+				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
 
