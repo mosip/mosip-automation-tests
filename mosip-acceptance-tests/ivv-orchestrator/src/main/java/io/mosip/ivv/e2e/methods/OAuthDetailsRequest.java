@@ -67,24 +67,34 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 				JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
 				
 				String transactionId = jsonResp.getJSONObject("response").getString("transactionId");
-				Gson gson = new Gson();
-				JsonObject json =  gson.fromJson(response.getBody().asString(), JsonObject.class);
-				String responseJsonString = json.getAsJsonObject("response").toString();
-				
-				MessageDigest digest = MessageDigest.getInstance("SHA-256");
-				byte[] hash = digest.digest(responseJsonString.getBytes(StandardCharsets.UTF_8));
-				String urlEncodedResp = Base64.getUrlEncoder().encodeToString(hash);
-				step.getScenario().getOidcClientProp().put("urlEncodedResp", urlEncodedResp);
+
 				
 
 				if( step.getParameters().get(1).contains("transactionId1")) {
 					step.getScenario().getOidcClientProp().put("transactionId1", transactionId); // "$$clientId=e2e_OidcClient()"
+					Gson gson = new Gson();
+					JsonObject json =  gson.fromJson(response.getBody().asString(), JsonObject.class);
+					String responseJsonString = json.getAsJsonObject("response").toString();
+					
+					MessageDigest digest = MessageDigest.getInstance("SHA-256");
+					byte[] hash = digest.digest(responseJsonString.getBytes(StandardCharsets.UTF_8));
+					String urlEncodedResp = Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+					step.getScenario().getOidcClientProp().put("urlEncodedResp1", urlEncodedResp);
 					System.out.println(step.getScenario().getOidcClientProp());
 				}
 				else if(step.getParameters().get(1).contains("transactionId2")){
 					
 					step.getScenario().getOidcClientProp().put("transactionId2", transactionId); // "$$clientId=e2e_OidcClient()"
+					Gson gson = new Gson();
+					JsonObject json =  gson.fromJson(response.getBody().asString(), JsonObject.class);
+					String responseJsonString = json.getAsJsonObject("response").toString();
+					
+					MessageDigest digest = MessageDigest.getInstance("SHA-256");
+					byte[] hash = digest.digest(responseJsonString.getBytes(StandardCharsets.UTF_8));
+					String urlEncodedResp = Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+					step.getScenario().getOidcClientProp().put("urlEncodedResp2", urlEncodedResp);
 					System.out.println(step.getScenario().getOidcClientProp());
+
 					
 				}
 				

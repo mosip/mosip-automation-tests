@@ -1,6 +1,6 @@
 OtpAuth:
   Ida_OTP_Auth_With_Valid_Smoke_Pos:
-      endPoint: /v1/identity/authenticate?id=uinnumber&partnerUrlSuffix=$PartnerKey$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
+      endPoint: /v1/identity/authenticate?moduleName=$MODULENAME$&certsDir=$CERTSDIR$&id=uinnumber&partnerUrlSuffix=$PartnerKey$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
       role: resident
       restMethod: post
       inputTemplate: idaData/OtpAuth/otpAuth

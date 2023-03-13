@@ -192,8 +192,12 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 
 					for (Object object : casesList) {
 						TestCaseDTO test = (TestCaseDTO) object;
+                        String input = test.getInput();
+						
+						input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp1"), "encodedHash");
+						
 						packetUtility.idpBioAuth(modalityToLog, bioValue, uin, transactionId1, deviceProp, test,
-								idpBioAuth);
+								idpBioAuth,input);
 					}
 				}
 
@@ -275,8 +279,12 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 
 					for (Object object : casesList) {
 						TestCaseDTO test = (TestCaseDTO) object;
+						String input = test.getInput();
+						
+						input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp2"), "encodedHash");
+						
 						packetUtility.idpBioAuth(modalityToLog, bioValue, vid, transactionId2, deviceProp, test,
-								idpBioAuth);
+								idpBioAuth, input);
 					}
 				}
 
