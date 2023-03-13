@@ -98,7 +98,7 @@ public class Orchestrator {
 				S3Adapter s3Adapter = new S3Adapter();
 				
 				try {
-					isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), null,null,
+					isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
 							null, System.getProperty("emailable.report2.name"), repotFile);
 					System.out.println("isStoreSuccess:: " + isStoreSuccess);
 				} catch (Exception e) {
