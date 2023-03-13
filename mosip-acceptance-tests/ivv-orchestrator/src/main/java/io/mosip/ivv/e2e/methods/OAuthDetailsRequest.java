@@ -39,7 +39,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 			
 			if( step.getParameters().get(0).startsWith("$$")) {
 
-				clientId = (String) oidcClientProp.get("clientId");
+				clientId = (String) step.getScenario().getOidcClientProp().get("clientId");
 				
 			}
 			
@@ -74,17 +74,17 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 				MessageDigest digest = MessageDigest.getInstance("SHA-256");
 				byte[] hash = digest.digest(responseJsonString.getBytes(StandardCharsets.UTF_8));
 				String urlEncodedResp = Base64.getUrlEncoder().encodeToString(hash);
-				oidcClientProp.put("urlEncodedResp", urlEncodedResp);
+				step.getScenario().getOidcClientProp().put("urlEncodedResp", urlEncodedResp);
 				
 
 				if( step.getParameters().get(1).contains("transactionId1")) {
-					oidcClientProp.put("transactionId1", transactionId); // "$$clientId=e2e_OidcClient()"
-					System.out.println(oidcClientProp);
+					step.getScenario().getOidcClientProp().put("transactionId1", transactionId); // "$$clientId=e2e_OidcClient()"
+					System.out.println(step.getScenario().getOidcClientProp());
 				}
 				else if(step.getParameters().get(1).contains("transactionId2")){
 					
-					oidcClientProp.put("transactionId2", transactionId); // "$$clientId=e2e_OidcClient()"
-					System.out.println(oidcClientProp);
+					step.getScenario().getOidcClientProp().put("transactionId2", transactionId); // "$$clientId=e2e_OidcClient()"
+					System.out.println(step.getScenario().getOidcClientProp());
 					
 				}
 				

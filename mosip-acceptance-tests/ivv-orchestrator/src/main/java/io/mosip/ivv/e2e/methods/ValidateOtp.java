@@ -15,19 +15,19 @@ public class ValidateOtp extends BaseTestCaseUtil implements StepInterface {
 		String emailOrPhone = "test.automation@gmail.com";
 		if (step.getParameters().isEmpty()) {
 			// emailOrPhone =step.getParameters().get(0);
-			for (String resDataPath : residentTemplatePaths.keySet()) {
-				packetUtility.verifyOtp(resDataPath,contextInuse,emailOrPhone);
+			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
+				packetUtility.verifyOtp(resDataPath,step.getScenario().getCurrentStep(),emailOrPhone);
 			}
 		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 1
 				&& !step.getParameters().get(0).startsWith("$$")) { // used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
-			if (isForChildPacket && !generatedResidentData.isEmpty())
-				packetUtility.verifyOtp(generatedResidentData.get(0), contextInuse, emailOrPhone);
+			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty())
+				packetUtility.verifyOtp(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(), emailOrPhone);
 		}else {
 			String personaFilePath = step.getParameters().get(0);    //"$$var=e2e_validateOtp($$personaFilePath)"
 			if (personaFilePath.startsWith("$$")) {
 				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
-				packetUtility.verifyOtp(personaFilePath, contextInuse, emailOrPhone);
+				packetUtility.verifyOtp(personaFilePath, step.getScenario().getCurrentStep(), emailOrPhone);
 			}
 		}
 	}

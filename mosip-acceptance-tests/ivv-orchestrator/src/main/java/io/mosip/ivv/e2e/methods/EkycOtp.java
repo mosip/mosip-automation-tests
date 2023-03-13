@@ -27,7 +27,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		// AuthPartnerProcessor.startProcess();
-		// uinPersonaProp.put("7209149850",
+		// step.getScenario().getUinPersonaProp().put("7209149850",
 		// "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
 
 		String uins = null;
@@ -60,7 +60,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 		} else
-			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
+			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		// Fetching VID
 
@@ -75,7 +75,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
 		} else
-			vidList = new ArrayList<>(vidPersonaProp.stringPropertyNames());
+			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 				|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {

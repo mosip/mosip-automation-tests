@@ -6,7 +6,10 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 @Getter
 @Setter
@@ -16,8 +19,39 @@ public class Scenario {
     private ArrayList<String> tags = new ArrayList();
     private String personaClass, groupName;
     private ArrayList<Step.modules> modules = new ArrayList();
+    
     private  HashMap<String,String> variables = new HashMap<String,String>();
 
+    private HashMap<String, String> residentTemplatePaths = new LinkedHashMap<String, String>();
+    private HashMap<String, String> residentPathsPrid = new LinkedHashMap<String, String>();
+    private HashMap<String, String> templatePacketPath = new LinkedHashMap<String, String>();
+    private HashMap<String, String> manualVerificationRid = new LinkedHashMap<String, String>();
+    private Properties residentPersonaIdPro=new Properties();
+    private HashMap<String, String> pridsAndRids=new LinkedHashMap<String, String>();
+    private HashMap<String, String> uinReqIds = new LinkedHashMap<String, String>();
+    private  List<String> generatedResidentData =new ArrayList<>();
+    private  String templatPath_updateResident=null;
+    private  String rid_updateResident=null;
+    private  String uin_updateResident=null;
+    private  String prid_updateResident=null;
+   // private  List<String> resDataPathList= new LinkedList();
+
+    private  HashMap<String, String> ridPersonaPath=new LinkedHashMap<String, String>();
+
+
+    private  Properties vidPersonaProp=new Properties();
+
+    private  Properties oidcPmsProp=new Properties();
+	
+    private  HashMap<String, String> residentPathGuardianRid = null;
+	
+  //  private  HashMap<String, String> contextKey=new HashMap<String, String>();
+    private  HashMap<String, String> currentStep=new HashMap<String, String>();
+	
+    private  Properties uinPersonaProp=new Properties();
+    private  Properties oidcClientProp=new Properties();
+    private  String prid=null;
+    private  String statusCode=null;
     @Getter
     @Setter
     public static class Step
@@ -37,6 +71,9 @@ public class Scenario {
         private String outVarName=null;
         private Scenario scenario=null;
 
+        
+        
+        
         public static class Error{
             public String code;
         }

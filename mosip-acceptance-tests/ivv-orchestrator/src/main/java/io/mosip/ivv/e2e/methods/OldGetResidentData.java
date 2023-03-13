@@ -46,9 +46,9 @@ public class OldGetResidentData extends BaseTestCaseUtil implements StepInterfac
 			for (int i = 0; i < resArray.length(); i++) {
 				JSONObject obj = resArray.getJSONObject(i);
 				String resFilePath = obj.get("path").toString();
-				residentTemplatePaths.put(resFilePath, null);
+				step.getScenario().getResidentTemplatePaths().put(resFilePath, null);
 			}
-			System.out.println("RESIDENTTEMPLATEPATHS: " + residentTemplatePaths);
+			System.out.println("RESIDENTTEMPLATEPATHS: " + step.getScenario().getResidentTemplatePaths());
 
 		}
 	}

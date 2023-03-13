@@ -46,8 +46,8 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		 //AuthPartnerProcessor.startProcess();
-		 //uinPersonaProp.put("9719375326","C:\\Users\\Sohan.Dey\\AppData\\Local\\Temp\\residents_182289324539364480\\3337515223.json");
-		//uinPersonaProp.put("7209149850", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
+		 //step.getScenario().getUinPersonaProp().put("9719375326","C:\\Users\\Sohan.Dey\\AppData\\Local\\Temp\\residents_182289324539364480\\3337515223.json");
+		//step.getScenario().getUinPersonaProp().put("7209149850", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
 		String deviceInfoFilePath = null;
 		String uins = null;
 		String vids = null;
@@ -77,10 +77,10 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 				_personaFilePath = step.getScenario().getVariables().get(_personaFilePath);
 				uinList = new ArrayList<>();
 				uinList.add(uins);
-				uinPersonaProp.put(uins, _personaFilePath);
+				step.getScenario().getUinPersonaProp().put(uins, _personaFilePath);
 			}
 		} else
-			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
+			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		if (step.getParameters().size() == 2) {
 			vids = step.getParameters().get(1);
@@ -94,15 +94,15 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 				_personaFilePath = step.getScenario().getVariables().get(_personaFilePath);
 				vidList = new ArrayList<>();
 				vidList.add(vids);
-				vidPersonaProp.put(vids, _personaFilePath);
+				step.getScenario().getVidPersonaProp().put(vids, _personaFilePath);
 			}
 		} else
-			vidList = new ArrayList<>(vidPersonaProp.stringPropertyNames());
+			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		for (String uin : uinList) {
 			String personFilePathvalue = null;
-			if (uinPersonaProp.containsKey(uin))
-				personFilePathvalue = uinPersonaProp.getProperty(uin);
+			if (step.getScenario().getUinPersonaProp().containsKey(uin))
+				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
 
@@ -190,8 +190,8 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 
 		for (String vid : vidList) {
 			String personFilePathvalue = null;
-			if (vidPersonaProp.containsKey(vid))
-				personFilePathvalue = vidPersonaProp.getProperty(vid);
+			if (step.getScenario().getVidPersonaProp().containsKey(vid))
+				personFilePathvalue = step.getScenario().getVidPersonaProp().getProperty(vid);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given VID " + vid);
 

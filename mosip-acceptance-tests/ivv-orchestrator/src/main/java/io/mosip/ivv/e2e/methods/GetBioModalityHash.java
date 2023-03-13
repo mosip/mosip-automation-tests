@@ -26,17 +26,17 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 		if (step.getParameters().size() == 2) { /// id=878787877
 			personaId = step.getParameters().get(0);
 			if (!personaId.equals("-1")) {
-				if (residentPersonaIdPro.get(personaId) == null) {
+				if (step.getScenario().getResidentPersonaIdPro().get(personaId) == null) {
 					logger.error("Persona id : [" + personaId + "] is not present is the system");
 					throw new RigInternalError("Persona id : [" + personaId + "] is not present is the system");
 				}
-				personaPath = residentPersonaIdPro.get(personaId).toString();
+				personaPath = step.getScenario().getResidentPersonaIdPro().get(personaId).toString();
 				if (StringUtils.isBlank(personaPath))
 					throw new RigInternalError(
 							"PersonaPath is not present in the system for persona id : [" + personaId + "]");
 			} else {
-				for (String id : residentPersonaIdPro.stringPropertyNames()) {
-					personaPath = residentPersonaIdPro.getProperty(id);
+				for (String id : step.getScenario().getResidentPersonaIdPro().stringPropertyNames()) {
+					personaPath = step.getScenario().getResidentPersonaIdPro().getProperty(id);
 					personaId = id;
 					break;
 				}

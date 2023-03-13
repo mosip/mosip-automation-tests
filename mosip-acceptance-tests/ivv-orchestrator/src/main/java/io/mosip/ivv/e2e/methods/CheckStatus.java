@@ -29,17 +29,19 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 		} else if(step.getParameters().size()==1){
 			_ridStatusParam =step.getParameters().get(0);
 			if(tempPridAndRid ==null)
-	    		tempPridAndRid =pridsAndRids;
+	    		tempPridAndRid =step.getScenario().getPridsAndRids();
 			checkStatus(_ridStatusParam, _expectedRidProcessed);
 		}else {
 			if (step.getParameters().size() >= 2) {   // "$$var=e2e_checkStatus(processed,$$rid)"  
 				_ridStatusParam = step.getParameters().get(0);
 				String _rid = step.getParameters().get(1);
 				if (_rid.startsWith("$$")) {
-					_rid = step.getScenario().getVariables().get(_rid);
+					_rid = step.getScenario().getVariables().get(_rid); //11000000101010101000000000
+					if(_rid==null)
+						System.out.println("neeha");
 					if (tempPridAndRid == null) {
 						tempPridAndRid = new HashMap<>();
-						tempPridAndRid.put("rid", _rid);
+						tempPridAndRid.put("rid", _rid); //11000000101010101000000000
 						if (step.getParameters().size() > 3) {  // "$$var=e2e_checkStatus(processed,$$rid,$$rid2,any)"  in case of BulkUpload
 							String _rid2 = step.getParameters().get(2);
 							_expectedRidProcessed=step.getParameters().get(3);
@@ -62,7 +64,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			throw new RigInternalError(
 					"Parameter : " + _ridStatusParam + "not supported only allowed are [processed/rejected/failed/reregister]");
 		try {
-			for (String rid : this.tempPridAndRid.values()) {
+			for (String rid : tempPridAndRid.values()) {
 				int counter = 0;
 				String ridStatus = "under";
 				while (ridStatus.contains("under") && counter < Integer.parseInt(props.getProperty("loopCount"))) {
@@ -72,8 +74,10 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 					long startTime = System.currentTimeMillis();
 					logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
 					Utils.auditLog.info(this.getClass().getSimpleName() + " Rid :" + rid);
+					if(rid==null) 
+						System.out.println("NEeha");
 					Response response = getRequest(baseUrl + getRidStatusUrl + rid,
-							"Check rid status: " + rid);
+							"Check rid status: " + rid,step);
 					long stopTime = System.currentTimeMillis();
 					long elapsedTime = stopTime - startTime;
 					logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime

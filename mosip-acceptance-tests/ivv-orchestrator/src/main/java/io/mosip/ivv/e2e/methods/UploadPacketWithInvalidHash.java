@@ -11,17 +11,17 @@ public class UploadPacketWithInvalidHash extends BaseTestCaseUtil implements Ste
 		Boolean isForChildPacket=false;
 		if(!step.getParameters().isEmpty() && step.getParameters().size()==1) {  //  used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
-			if (isForChildPacket && !generatedResidentData.isEmpty()  && templatPath_updateResident!=null) { 
-				rid_updateResident = packetUtility.generateAndUploadPacketSkippingPrereg(templatPath_updateResident,
-						generatedResidentData.get(0), null,contextInuse, "success");
+			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty()  && step.getScenario().getTemplatPath_updateResident()!=null) { 
+				step.getScenario().setRid_updateResident( packetUtility.generateAndUploadPacketSkippingPrereg(step.getScenario().getTemplatPath_updateResident(),
+						step.getScenario().getGeneratedResidentData().get(0), null,step.getScenario().getCurrentStep(), "success",step));
 			}
 		} else if(step.getParameters().isEmpty()) {  // parent or resident processing e2e_generateAndUploadPacketSkippingPrereg()
-			for (String resDataPath : residentTemplatePaths.keySet()) {
+			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
 				String rid = packetUtility.generateAndUploadPacketWrongHash(
-						residentTemplatePaths.get(resDataPath), resDataPath,null, contextInuse, "success");
+						step.getScenario().getResidentTemplatePaths().get(resDataPath), resDataPath,null, step.getScenario().getCurrentStep(), "success",step);
 				if (rid != null) {
-					pridsAndRids.put("0", rid);
-					ridPersonaPath.put(rid, resDataPath);
+					step.getScenario().getPridsAndRids().put("0", rid);
+					step.getScenario().getRidPersonaPath().put(rid, resDataPath);
 				}
 			}
 			
@@ -40,7 +40,7 @@ public class UploadPacketWithInvalidHash extends BaseTestCaseUtil implements Ste
 				residentPath = step.getScenario().getVariables().get(residentPath);
 				templatePath = step.getScenario().getVariables().get(templatePath);
 				String rid = packetUtility.generateAndUploadPacketWrongHash(templatePath, residentPath,_additionalInfoReqId,
-						contextInuse, "success");
+						step.getScenario().getCurrentStep(), "success",step);
 				if (step.getOutVarName() != null)
 					step.getScenario().getVariables().put(step.getOutVarName(), rid);
 			} 

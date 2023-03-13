@@ -23,16 +23,16 @@ public class BulkUploadPacket extends BaseTestCaseUtil implements StepInterface 
 			personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
 			for (String id : personaIdValue.stringPropertyNames()) {
 				String value = personaIdValue.get(id).toString();
-				if (residentPersonaIdPro.get(value) == null) {
+				if (step.getScenario().getResidentPersonaIdPro().get(value) == null) {
 					logger.error("Persona id : [" + value + "] is not present is the system");
 					throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
 				}
-				String personaPath = residentPersonaIdPro.get(value).toString();
-				String templatePath = residentTemplatePaths.get(personaPath);
+				String personaPath = step.getScenario().getResidentPersonaIdPro().get(value).toString();
+				String templatePath = step.getScenario().getResidentTemplatePaths().get(personaPath);
 				if (StringUtils.isBlank(templatePath))
 					throw new RigInternalError(
 							"Template path is not present in the system for persona id : [" + value + "]");
-				String packetPath  = templatePacketPath.get(templatePath);
+				String packetPath  = step.getScenario().getTemplatePacketPath().get(templatePath);
 				if (packetPath != null && !packetPath.isEmpty())
 					packetPathArray.put(packetPath);
 			}
@@ -47,12 +47,11 @@ public class BulkUploadPacket extends BaseTestCaseUtil implements StepInterface 
 			}
 
 		} else {
-			for (String packetPath : templatePacketPath.values())
+			for (String packetPath : step.getScenario().getTemplatePacketPath().values())
 				packetPathArray.put(packetPath);
 		}
 		String url = baseUrl + props.getProperty("bulkupload");
-		Response response = packetUtility.postRequestWithQueryParamAndBody(url, packetPathArray.toString(),
-				contextInuse, "BulkUpload");
+		Response response = packetUtility.postRequestWithQueryParamAndBody(url, packetPathArray.toString(),step.getScenario().getCurrentStep(),"BulkUpload",step);
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to perform bulkupload from packet utility");
 	}

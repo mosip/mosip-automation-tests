@@ -12,7 +12,7 @@ public class DeleteMockExpect extends BaseTestCaseUtil implements StepInterface 
 	public void run() throws RigInternalError {
 		
 		String url = baseUrl + props.getProperty("deleteMockExpectation");
-		Response response = deleteRequest(url, "deleteMockExpectation");
+		Response response = deleteRequest(url, "deleteMockExpectation",step);
 		
 	}
 }

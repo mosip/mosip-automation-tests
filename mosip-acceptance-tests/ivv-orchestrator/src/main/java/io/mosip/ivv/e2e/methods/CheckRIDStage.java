@@ -27,7 +27,7 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 				transactionTypeCode=step.getParameters().get(1);
 				statusCode=step.getParameters().get(2);
 			}
-			Response response = getRequest(baseUrl+props.getProperty("ridStatus")+ridStage, "Get Stages by rid");
+			Response response = getRequest(baseUrl+props.getProperty("ridStatus")+ridStage, "Get Stages by rid",step);
 			
 		// Check these two keys	statusCode,transactionTypeCode
 			

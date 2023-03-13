@@ -13,8 +13,8 @@ public class UpdateResidentWithRID extends BaseTestCaseUtil implements StepInter
 		Boolean isForChildPacket = false;
 		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
-			if (isForChildPacket && !generatedResidentData.isEmpty() && rid_updateResident != null)
-				packetUtility.updateResidentRid(generatedResidentData.get(0), rid_updateResident);
+			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty() && step.getScenario().getRid_updateResident() != null)
+				packetUtility.updateResidentRid(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getRid_updateResident());
 		} else {
 			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {
 				String personaFilePath = step.getParameters().get(0);
@@ -25,8 +25,8 @@ public class UpdateResidentWithRID extends BaseTestCaseUtil implements StepInter
 					packetUtility.updateResidentRid(personaFilePath, _rid);
 				}
 			} else {
-				for (String rid : ridPersonaPath.keySet()) {
-					packetUtility.updateResidentRid(ridPersonaPath.get(rid), rid);
+				for (String rid : step.getScenario().getRidPersonaPath().keySet()) {
+					packetUtility.updateResidentRid(step.getScenario().getRidPersonaPath().get(rid), rid);
 				}
 			}
 			

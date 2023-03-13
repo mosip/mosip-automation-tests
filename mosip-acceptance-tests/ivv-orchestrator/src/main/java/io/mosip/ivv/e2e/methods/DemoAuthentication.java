@@ -42,7 +42,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		Object[] casesListVID = null;
 
 		// AuthPartnerProcessor.startProcess();
-		// uinPersonaProp.put("2759239619",
+		// step.getScenario().getUinPersonaProp().put("2759239619",
 		// "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_2140454779925252334\\498484984849848.json");
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
@@ -67,7 +67,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 			}
 		} else
-			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
+			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		if (step.getParameters().size() == 2) {
 			vids = step.getParameters().get(1); // "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
@@ -82,7 +82,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
 			}
 		} else
-			vidList = new ArrayList<>(vidPersonaProp.stringPropertyNames());
+			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		Object[] testObj = demoAuth.getYmlTestData(DEMOPATH);
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
@@ -93,8 +93,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			String personFilePathvalue = null;
 			if (step.getParameters().size() > 2) {
 				personFilePathvalue = _personFilePath;
-			} else if (uinPersonaProp.containsKey(uin))
-				personFilePathvalue = uinPersonaProp.getProperty(uin);
+			} else if (step.getScenario().getUinPersonaProp().containsKey(uin))
+				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
 
@@ -275,8 +275,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			String personFilePathvalue = null;
 			if (step.getParameters().size() > 2) {
 				personFilePathvalue = _personFilePath;
-			} else if (vidPersonaProp.containsKey(vid))
-				personFilePathvalue = vidPersonaProp.getProperty(vid);
+			} else if (step.getScenario().getVidPersonaProp().containsKey(vid))
+				personFilePathvalue = step.getScenario().getVidPersonaProp().getProperty(vid);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + vid);
 

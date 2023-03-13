@@ -12,11 +12,11 @@ public class Packetsync extends BaseTestCaseUtil implements StepInterface {
 			String _zipPacketPath=step.getParameters().get(0);
 			if(_zipPacketPath.startsWith("$$")){
 				_zipPacketPath=step.getScenario().getVariables().get(_zipPacketPath);
-				packetUtility.packetSync(_zipPacketPath, contextInuse);
+				packetUtility.packetSync(_zipPacketPath, step.getScenario().getCurrentStep());
 			}
 		}else {
-			for (String packetPath : templatePacketPath.values())
-				packetUtility.packetSync(packetPath, contextInuse);
+			for (String packetPath : step.getScenario().getTemplatePacketPath().values())
+				packetUtility.packetSync(packetPath, step.getScenario().getCurrentStep());
 		}
 		
 	}

@@ -27,7 +27,7 @@ public class UpdateUINDetail extends BaseTestCaseUtil implements StepInterface {
 		logger.info("No. of TestCases in Yml file : " + testCaseList.length);
 		
 				for (Object object : testCaseList) {
-					for(String uin: BaseTestCaseUtil.uinReqIds.keySet()) {
+					for(String uin: step.getScenario().getUinReqIds().keySet()) {
 						try {
 						TestCaseDTO test = (TestCaseDTO) object;
 						String input=test.getInput().replace("$UIN$", uin).replace("$UIN$", uin).replace("$UIN$", uin);
@@ -47,8 +47,8 @@ public class UpdateUINDetail extends BaseTestCaseUtil implements StepInterface {
 						Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 						JSONObject res = new JSONObject(postWithBodyWithOtpGenerate.response.asString());
 					JSONObject responseJson = new JSONObject(res.get("response").toString());
-					for (String prid : pridsAndRids.keySet()) {
-						pridsAndRids.put(prid, responseJson.get("registrationId").toString());
+					for (String prid : step.getScenario().getPridsAndRids().keySet()) {
+						step.getScenario().getPridsAndRids().put(prid, responseJson.get("registrationId").toString());
 					}
 
 				} catch (AuthenticationTestException | AdminTestException e) {

@@ -52,7 +52,7 @@ public class AssignPacketToUser extends BaseTestCaseUtil implements StepInterfac
 				if(!response.get("response").toString().equals("null"))
 	    		{
 					JSONObject responseJson = new JSONObject(response.get("response").toString());
-						manualVerificationRid.put(userId, responseJson.get("regId").toString());
+						step.getScenario().getManualVerificationRid().put(userId, responseJson.get("regId").toString());
 					}
 				}
 		} catch (Exception e) {

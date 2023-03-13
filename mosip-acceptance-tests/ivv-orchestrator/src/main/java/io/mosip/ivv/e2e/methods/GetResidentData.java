@@ -37,12 +37,12 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 				isForChildPacket = Boolean.parseBoolean(step.getParameters().get(5));
 				
 				if(isForChildPacket) { //  used for child packet processing  [1,true,false,Any,-1,true]
-					generatedResidentData = packetUtility.generateResidents(nofResident, bAdult, bSkipGuardian, gender, (missFields.equalsIgnoreCase("-1")) ? null : missFields, contextInuse);
+					step.getScenario().setGeneratedResidentData( packetUtility.generateResidents(nofResident, bAdult, bSkipGuardian, gender, (missFields.equalsIgnoreCase("-1")) ? null : missFields, step.getScenario().getCurrentStep()));
 				} else {
-					cleanData();
-					Response response = packetUtility.generateResident(nofResident,bAdult,bSkipGuardian,gender,missFields,contextInuse);
+					 cleanData();
+					Response response = packetUtility.generateResident(nofResident,bAdult,bSkipGuardian,gender,missFields,step.getScenario().getCurrentStep(),step);
 					JSONArray resp = new JSONObject(response.getBody().asString()).getJSONArray("response");
-					List<String> residentPaths = new ArrayList<>();
+					//neeha List<String> residentPaths = new ArrayList<>();
 					for (int i = 0; i < resp.length(); i++) {
 						JSONObject obj = resp.getJSONObject(i);
 						String resFilePath = obj.get("path").toString();
@@ -51,15 +51,16 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 						 step.getScenario().getVariables().put(step.getOutVarName(), resFilePath);
 						
 						
-						residentPaths.add(resFilePath);
+					//neeha	residentPaths.add(resFilePath);
 						//TODO : REMOVE AFTER TESTING
-						residentTemplatePaths.put(resFilePath, null);
-						//residentTemplatePaths.put("C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_3868007285188428668\\3717670314.json", null);
-						residentPersonaIdPro.put(id, resFilePath);
-						//residentPersonaIdPro.put("3717670314", "C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_3868007285188428668\\3717670314.json");
+						step.getScenario().getResidentTemplatePaths().put(resFilePath, null);  //step.getScenario().getResidentTemplatePaths().put(resFilePath, null);
+						//step.getScenario().getResidentTemplatePaths().put("C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_3868007285188428668\\3717670314.json", null);
+						
+						step.getScenario().getResidentPersonaIdPro().put(id, resFilePath); //step.getScenario().getResidentPersonaIdPro().put(id, resFilePath);
+						//step.getScenario().getResidentPersonaIdPro().put("3717670314", "C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_3868007285188428668\\3717670314.json");
 					}
-					if(!residentPersonaIdPro.isEmpty())
-					storeProp(residentPersonaIdPro);
+					if(!step.getScenario().getResidentPersonaIdPro().isEmpty())
+					storeProp(step.getScenario().getResidentPersonaIdPro());
 
 				}	
 			} else {
@@ -70,7 +71,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 	
 	private static void storeProp(Properties prop) {
 		String filePath=TestRunner.getExternalResourcePath()
-				+ props.getProperty("ivv.path.deviceinfo.folder") +"residentPersonaIdPro.properties";
+				+ props.getProperty("ivv.path.deviceinfo.folder") +"step.getScenario().getResidentPersonaIdPro().properties";
 		OutputStream output = null;
 		try {
 			output = new FileOutputStream(filePath);
@@ -85,10 +86,10 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 	
 
 	private void cleanData() {
-		pridsAndRids.clear();
-		uinReqIds.clear();
-		residentTemplatePaths.clear();
-		residentPathsPrid.clear();
-		templatePacketPath.clear();
+		step.getScenario().getPridsAndRids().clear(); //step.getScenario().getPridsAndRids().clear();
+		step.getScenario().getUinReqIds().clear();  //step.getScenario().getUinReqIds().clear();
+		step.getScenario().getResidentTemplatePaths().clear();//step.getScenario().getResidentTemplatePaths().clear();
+		step.getScenario().getResidentPathsPrid().clear(); //esidentPathsPrid.clear();
+		step.getScenario().getTemplatePacketPath().clear();//step.getScenario().getTemplatePacketPath().clear();
 	}
 }

@@ -32,7 +32,7 @@ public class PostMockMv extends BaseTestCaseUtil implements StepInterface {
 		
 		jo.put("rid", rid);
 		jo.put("mockMvDecision", decision);
-		Response response = postRequest(uri, jo.toString(), "MockMv");
+		Response response = postRequest(uri, jo.toString(), "MockMv",step);
 	//	JSONObject res = new JSONObject(response.asString());
 //		logger.info(response.toString());
 //		

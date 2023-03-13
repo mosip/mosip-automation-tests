@@ -80,8 +80,8 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				name = jsonResp.getJSONObject("response").getString("name");
 				policygroupId = jsonResp.getJSONObject("response").getString("id");
 
-				oidcPmsProp.put("name", name);
-				oidcPmsProp.put("policygroupId", policygroupId);
+				step.getScenario().getOidcPmsProp().put("name", name);
+				step.getScenario().getOidcPmsProp().put("policygroupId", policygroupId);
 
 				System.out.println(name);
 			}
@@ -114,7 +114,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 				policyId = jsonResp.getJSONObject("response").getString("id");
 				policyName = jsonResp.getJSONObject("response").getString("name");
-				oidcPmsProp.put("policyId", policyId); // "$$clientId=e2e_OidcClient()"
+				step.getScenario().getOidcPmsProp().put("policyId", policyId); // "$$clientId=e2e_OidcClient()"
 
 				System.out.println(policyId);
 			}
@@ -175,7 +175,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 				partnerId = jsonResp.getJSONObject("response").getString("partnerId");
 
-				oidcPmsProp.put("partnerId", partnerId);
+				step.getScenario().getOidcPmsProp().put("partnerId", partnerId);
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
@@ -294,7 +294,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString()); 
 				mappingkey = jsonResp.getJSONObject("response").getString("mappingkey");
 
-				oidcPmsProp.put("mappingkey", partnerId);
+				step.getScenario().getOidcPmsProp().put("mappingkey", partnerId);
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
@@ -379,8 +379,8 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 					if (response != null) {
 						JSONObject jsonResp = new JSONObject(response.getBody().asString());
 						clientId = jsonResp.getJSONObject("response").getString("clientId");
-						oidcPmsProp.put("clientId", clientId);
-						oidcClientProp.put("clientId", clientId);
+						step.getScenario().getOidcPmsProp().put("clientId", clientId);
+						step.getScenario().getOidcClientProp().put("clientId", clientId);
 					}
 
 				} catch (AuthenticationTestException | AdminTestException e) {

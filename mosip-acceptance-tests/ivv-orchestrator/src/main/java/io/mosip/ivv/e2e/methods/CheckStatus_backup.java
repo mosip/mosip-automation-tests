@@ -30,7 +30,7 @@ public class CheckStatus_backup extends BaseTestCaseUtil implements StepInterfac
 		} else if(step.getParameters().size()==1){
 			status_param =step.getParameters().get(0);
 			if(tempPridAndRid ==null)
-	    		tempPridAndRid =pridsAndRids;
+	    		tempPridAndRid =step.getScenario().getPridsAndRids();
 			checkStatus(status_param);
 		}else {
 			if (step.getParameters().size() == 2) {

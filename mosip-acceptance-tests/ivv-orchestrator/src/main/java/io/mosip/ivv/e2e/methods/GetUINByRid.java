@@ -26,9 +26,9 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
     	//must call e2e_wait() before generating uin
 		if (!step.getParameters().isEmpty() && !(step.getParameters().get(0).startsWith("$$"))) { // used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
-			if (isForChildPacket && !StringUtils.isEmpty(rid_updateResident)) {
+			if (isForChildPacket && !StringUtils.isEmpty(step.getScenario().getRid_updateResident())) {
 				HashMap<String, String> rid = new HashMap<>();
-				rid.put("rid", rid_updateResident);
+				rid.put("rid", step.getScenario().getRid_updateResident());
 				getIdentity(rid);
 			}
 		} else if (!step.getParameters().isEmpty() && step.getParameters().get(0).startsWith("$$")) {
@@ -37,12 +37,12 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 			ridMap.put("0", rid);
 			getIdentity(ridMap);
 		} else
-			getIdentity(this.pridsAndRids);
+			getIdentity(this.step.getScenario().getPridsAndRids());
 	}
     public void getIdentity(HashMap<String, String> rids) throws RigInternalError
     {
-    	uinReqIds.clear();
-    	uinPersonaProp.clear();
+    	step.getScenario().getUinReqIds().clear();
+    	step.getScenario().getUinPersonaProp().clear();
     	for(String rid: rids.values())
     	{
     		if(rid!=null) {
@@ -50,7 +50,7 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
         		Reporter.log("<pre>" + ReportUtil.getTextAreaJsonMsgHtml("{Rid: "+rid +"}") + "</pre>");
         		long startTime = System.currentTimeMillis();
 				logger.info(this.getClass().getSimpleName()+" starts at..."+startTime +" MilliSec");
-        		Response response = getRequest(baseUrl+getIdentityUrl+rid, "Get uin by rid: " + rid);
+        		Response response = getRequest(baseUrl+getIdentityUrl+rid, "Get uin by rid: " + rid,step);
         		long stopTime = System.currentTimeMillis();
 				long elapsedTime = stopTime - startTime;
 				logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
@@ -63,11 +63,11 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 					step.getScenario().getVariables().put(step.getOutVarName(), uin);
 				
 				else if (isForChildPacket && !StringUtils.isEmpty(uin) && !(uin.trim().contains("errorCode")))
-					uin_updateResident = uin; // used for child packet processing
+					step.getScenario().setUin_updateResident( uin); // used for child packet processing
 				else if (!StringUtils.isEmpty(uin)  && !(uin.trim().contains("errorCode"))) {
-					uinReqIds.put(uin, null);
-					if (!uinPersonaProp.containsKey(uin))
-						uinPersonaProp.put(uin, ridPersonaPath.get(rid));
+					step.getScenario().getUinReqIds().put(uin, null);
+					if (!step.getScenario().getUinPersonaProp().containsKey(uin))
+						step.getScenario().getUinPersonaProp().put(uin, step.getScenario().getRidPersonaPath().get(rid));
 				} else {
 					logger.error("Issue while fetching identity for RID: " + rid + " Response: " + response.toString());
 					throw new RigInternalError("Not able to Fetch identity for RID: " + rid);

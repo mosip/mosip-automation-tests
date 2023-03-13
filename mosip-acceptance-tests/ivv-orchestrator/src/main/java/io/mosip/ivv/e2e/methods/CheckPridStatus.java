@@ -23,8 +23,8 @@ public class CheckPridStatus extends BaseTestCaseUtil implements StepInterface {
 		} else {
 			pridStatus = step.getParameters().get(0);
 		}
-		for (String resDataPath : residentPathsPrid.keySet()) {
-			String prid = residentPathsPrid.get(resDataPath);
+		for (String resDataPath : step.getScenario().getResidentPathsPrid().keySet()) {
+			String prid = step.getScenario().getResidentPathsPrid().get(resDataPath);
 			if (!StringUtils.isEmpty(prid))
 				checkPridStatus(prid, pridStatus);
 			else
@@ -41,7 +41,7 @@ public class CheckPridStatus extends BaseTestCaseUtil implements StepInterface {
 			throw new RigInternalError("DSL argument cannot be null or empty or not supported");
 		}
 		String url = BaseTestCase.ApplnURI + props.getProperty("checkPridStatus") + prid;
-		Response response = getRequest(url, "CheckPridStatus");
+		Response response = getRequest(url, "CheckPridStatus",step);
 		if (!response.getBody().asString().toLowerCase().contains(status))
 			throw new RigInternalError("Falied to check status of prid :" + prid);
 	}

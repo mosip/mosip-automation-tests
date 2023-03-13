@@ -55,18 +55,18 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		} else {
 
 			if (idType.contains("VID") || idType.contains("vid")) {
-				transactionId2 = (String) oidcClientProp.get("transactionId2");
+				transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
 				System.out.println(transactionId2);
 			}
 
 			else if (idType.contains("UIN") || idType.contains("uin")) {
-				transactionId1 = (String) oidcClientProp.get("transactionId1");
+				transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
 				System.out.println(transactionId1);
 			}
 
 			else {
 
-				transactionId2 = (String) oidcClientProp.get("transactionId2");
+				transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
 				System.out.println(transactionId2);
 
 			}
@@ -75,7 +75,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		if (step.getParameters().size() == 2 || step.getParameters().get(1).startsWith("$$")) {
 			if (step.getParameters().get(1).startsWith("$$")) {
 
-				clientId = (String) oidcClientProp.get("clientId");
+				clientId = (String) step.getScenario().getOidcClientProp().get("clientId");
 
 			}
 
@@ -98,7 +98,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
 				code = jsonResp.getJSONObject("response").getString("code");
 				redirectUri = jsonResp.getJSONObject("response").getString("redirectUri");
-				oidcClientProp.put("code", code);
+				step.getScenario().getOidcClientProp().put("code", code);
 
 				System.out.println(code);
 
