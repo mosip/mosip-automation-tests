@@ -81,7 +81,7 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 				default:
 					throw new RigInternalError("Given Bio subType:[" + modalitysubType + "] is not valid");
 				}
-				String hashResponse = packetUtility.retrieveBiometric(personaPath, modalityHashList);
+				String hashResponse = packetUtility.retrieveBiometric(personaPath, modalityHashList,step);
 				if (hashResponse != null && !hashResponse.isEmpty() && modalityKeyTogetHashValue != null) {
 					String hashValue = JsonPrecondtion.getValueFromJson(hashResponse, modalityKeyTogetHashValue);
 					modalityHashValueMap.put(modalitysubType, hashValue);

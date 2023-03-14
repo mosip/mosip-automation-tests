@@ -135,7 +135,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 				}
 			}
 
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
 			System.out.println("bioMetricValue= " + bioResponse);
 
@@ -181,7 +181,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 				if (casesListUIN != null) {
 					for (Object object : casesListUIN) {
 						TestCaseDTO test = (TestCaseDTO) object;
-						packetUtility.bioAuth(modalityToLog, bioValue, uin, deviceProp, test, bioAuth);
+						packetUtility.bioAuth(modalityToLog, bioValue, uin, deviceProp, test, bioAuth,step);
 					}
 				}
 
@@ -224,7 +224,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 				}
 			}
 
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
 			System.out.println("bioMetricValue= " + bioResponse);
 
@@ -270,7 +270,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 				if (casesListVID != null) {
 					for (Object object : casesListVID) {
 						TestCaseDTO test = (TestCaseDTO) object;
-						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth);
+						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth,step);
 					}
 				}
 

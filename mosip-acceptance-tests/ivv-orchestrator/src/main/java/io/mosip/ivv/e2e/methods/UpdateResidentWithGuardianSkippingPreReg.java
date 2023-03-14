@@ -20,13 +20,15 @@ public class UpdateResidentWithGuardianSkippingPreReg extends BaseTestCaseUtil i
 			if (guardianPersonaFilePath.startsWith("$$") && childPersonaFilePath.startsWith("$$")) {
 				guardianPersonaFilePath = step.getScenario().getVariables().get(guardianPersonaFilePath);
 				childPersonaFilePath = step.getScenario().getVariables().get(childPersonaFilePath);
-				packetUtility.updateResidentWithGuardianSkippingPreReg(guardianPersonaFilePath, childPersonaFilePath,step.getScenario().getCurrentStep());
+				packetUtility.updateResidentWithGuardianSkippingPreReg(guardianPersonaFilePath, 
+						childPersonaFilePath,step.getScenario().getCurrentStep(),step);
 			}
 		} else {
 			step.getScenario().setResidentPathGuardianRid( new LinkedHashMap<String, String>());
 			for (String path : step.getScenario().getResidentTemplatePaths().keySet()) {
 				step.getScenario().getResidentPathGuardianRid().put(path,
-						packetUtility.updateResidentWithGuardianSkippingPreReg(path,null, step.getScenario().getCurrentStep()));
+						packetUtility.updateResidentWithGuardianSkippingPreReg(path,null, 
+								step.getScenario().getCurrentStep(),step));
 				Reporter.log("<b><u>Checking Status Of Created Guardians</u></b>");
 				CheckStatus checkStatus = new CheckStatus();
 				checkStatus.tempPridAndRid = step.getScenario().getResidentPathGuardianRid();

@@ -87,7 +87,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 				}
 			JSONArray jsonOutterReq = buildMockRequest(personaPath, duplicate, hashModality, modalitysubTypeList,
 					personaId,Integer.parseInt(delaysec),statusCode,failureReason);
-			packetUtility.setMockabisExpectaion(jsonOutterReq, step.getScenario().getCurrentStep());
+			packetUtility.setMockabisExpectaion(jsonOutterReq, step.getScenario().getCurrentStep(),step);
 			//hashtable.clear();
 
 		}

@@ -28,9 +28,9 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 		Reporter.log("<pre> <b> assuming  RegCenter is de-active [isActive=false] </b></pre>");
 		String url = System.getProperty("env.endpoint") + props.getProperty("getRegistrationCenter");
 		JSONObject jsonregCenterReq = packetUtility.regCenterPutrequestBuilder(null, value,
-				prop.getProperty("locationCode"), prop.getProperty("zoneCode"), status);
+				prop.getProperty("locationCode"), prop.getProperty("zoneCode"), status,step);
 		Response putResponse = packetUtility.putReqestWithCookiesAndBody(url, jsonregCenterReq.toString(), token,
-				"Update RegCenter details with status[isActive=" + status + "]");
+				"Update RegCenter details with status[isActive=" + status + "]",step);
 		if (putResponse.getBody().asString().toLowerCase().contains("errorcode")) {
 			throw new RigInternalError("unable to update RegCenter detail");
 		}
@@ -69,7 +69,7 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 		}
 		JSONObject jsonPutReq = packetUtility.machineRequestBuilder(null, prop.getProperty("machineSpecId"), value,
 				prop.getProperty("zoneCode"), status);
-		Boolean machineStatus = packetUtility.updateMachineDetail(jsonPutReq, token, status);
+		Boolean machineStatus = packetUtility.updateMachineDetail(jsonPutReq, token, status,step);
 		if (!(machineStatus == Boolean.parseBoolean(status))) {
 			String message = (status.equals("true")) ? "Activate machine" : "DeActivate machine";
 			throw new RigInternalError("Unable to " + message);

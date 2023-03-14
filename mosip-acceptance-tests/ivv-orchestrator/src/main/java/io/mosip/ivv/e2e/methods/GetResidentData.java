@@ -37,7 +37,8 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 				isForChildPacket = Boolean.parseBoolean(step.getParameters().get(5));
 				
 				if(isForChildPacket) { //  used for child packet processing  [1,true,false,Any,-1,true]
-					step.getScenario().setGeneratedResidentData( packetUtility.generateResidents(nofResident, bAdult, bSkipGuardian, gender, (missFields.equalsIgnoreCase("-1")) ? null : missFields, step.getScenario().getCurrentStep()));
+					step.getScenario().setGeneratedResidentData( packetUtility.generateResidents(nofResident, bAdult, 
+							bSkipGuardian, gender, (missFields.equalsIgnoreCase("-1")) ? null : missFields, step.getScenario().getCurrentStep(),step));
 				} else {
 					 cleanData();
 					Response response = packetUtility.generateResident(nofResident,bAdult,bSkipGuardian,gender,missFields,step.getScenario().getCurrentStep(),step);

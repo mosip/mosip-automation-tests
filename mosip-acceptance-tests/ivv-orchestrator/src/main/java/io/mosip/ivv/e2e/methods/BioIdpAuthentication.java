@@ -153,7 +153,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 				}
 			}
 
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
 			System.out.println("bioMetricValue= " + bioResponse);
 
@@ -197,7 +197,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 						input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp1"), "encodedHash");
 						
 						packetUtility.idpBioAuth(modalityToLog, bioValue, uin, transactionId1, deviceProp, test,
-								idpBioAuth,input);
+								idpBioAuth,input,step);
 					}
 				}
 
@@ -240,7 +240,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 				}
 			}
 
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
 			System.out.println("bioMetricValue= " + bioResponse);
 
@@ -284,7 +284,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 						input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp2"), "encodedHash");
 						
 						packetUtility.idpBioAuth(modalityToLog, bioValue, vid, transactionId2, deviceProp, test,
-								idpBioAuth, input);
+								idpBioAuth, input,step);
 					}
 				}
 

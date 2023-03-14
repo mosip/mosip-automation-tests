@@ -20,13 +20,13 @@ public class UpdateResidentWithGuardian extends BaseTestCaseUtil implements Step
 				guardianPersonaFilePath = step.getScenario().getVariables().get(guardianPersonaFilePath);
 				childPersonaFilePath = step.getScenario().getVariables().get(childPersonaFilePath);
 				packetUtility.updateResidentWithGuardianSkippingPreReg(guardianPersonaFilePath, childPersonaFilePath,
-						step.getScenario().getCurrentStep());
+						step.getScenario().getCurrentStep(),step);
 			}
 		} else {
 			step.getScenario().setResidentPathGuardianRid(new LinkedHashMap<String, String>());
 			CheckStatus checkStatus = new CheckStatus();
 			for (String path : step.getScenario().getResidentTemplatePaths().keySet()) {
-				step.getScenario().getResidentPathGuardianRid().put(path, packetUtility.updateResidentGuardian(path));
+				step.getScenario().getResidentPathGuardianRid().put(path, packetUtility.updateResidentGuardian(path,step));
 				Reporter.log("<b><u>Checking Status Of Created Guardians</u></b>");
 				checkStatus.tempPridAndRid = step.getScenario().getResidentPathGuardianRid();
 				//checkStatus.checkStatus(gaurdianStatus);
