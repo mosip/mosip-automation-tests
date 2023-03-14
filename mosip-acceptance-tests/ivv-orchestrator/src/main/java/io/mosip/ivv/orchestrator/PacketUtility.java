@@ -266,7 +266,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String generateAndUploadPacket(String prid, String packetPath, HashMap<String, String> map,
-			String responseStatus) throws RigInternalError {
+			String responseStatus,Scenario.Step step) throws RigInternalError {
 		String rid = null;
 		String url = baseUrl + "/packet/sync/" + prid;
 		JSONObject jsonReq = new JSONObject();
@@ -364,7 +364,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String prid = preReg(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep());
 		uploadDocuments(step.getScenario().getGeneratedResidentData().get(0), prid, step.getScenario().getCurrentStep());
 		bookAppointment(prid, 1, step.getScenario().getCurrentStep(), false);
-		String rid = generateAndUploadPacket(prid, templatePath, step.getScenario().getCurrentStep(), "success");
+		String rid = generateAndUploadPacket(prid, templatePath, step.getScenario().getCurrentStep(), "success",step);
 
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 
@@ -802,7 +802,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String updateDemoOrBioDetail(String resFilePath, List<String> attributeList, List<String> missAttributeList,
-			List<String> updateAttributeList) throws RigInternalError {
+			List<String> updateAttributeList, Scenario.Step step) throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePersonaData");
 		JSONObject jsonReqInner = new JSONObject();
 		JSONObject updateAttribute = new JSONObject();
