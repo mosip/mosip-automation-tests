@@ -129,7 +129,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 		modalityToLog = "FACE";
 		modalityKeyTogetBioValue = "face_encrypted";
 			 */
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
 			String fileName = BIOMETRIC_FACE;
 			bioAuth.isInternal = false;
@@ -141,7 +141,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 					throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
 				for (Object object : casesList) {
 					TestCaseDTO test = (TestCaseDTO) object;
-					packetUtility.operatorOnboardAuth(modalityToLog, bioValue, "dsl1", test, bioAuth,"USERID",deviceProp);
+					packetUtility.operatorOnboardAuth(modalityToLog, bioValue, "dsl1", test, bioAuth,"USERID",deviceProp,step);
 				}
 			}
 		}

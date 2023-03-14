@@ -103,7 +103,7 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 				}
 			}
 			deviceProp.setProperty("individualIdType", "VID");
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
 			String fileName = BIOMETRIC_FACE;
 			bioAuth.isInternal = false;
@@ -119,7 +119,7 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 						throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
 					for (Object object : casesList) {
 						TestCaseDTO test = (TestCaseDTO) object;
-						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth);
+						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth,step);
 				}
 			}
 		}

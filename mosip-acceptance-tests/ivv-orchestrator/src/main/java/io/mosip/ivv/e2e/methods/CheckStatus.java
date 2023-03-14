@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
@@ -30,7 +31,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			_ridStatusParam =step.getParameters().get(0);
 			if(tempPridAndRid ==null)
 	    		tempPridAndRid =step.getScenario().getPridsAndRids();
-			checkStatus(_ridStatusParam, _expectedRidProcessed);
+			checkStatus(_ridStatusParam, _expectedRidProcessed,step);
 		}else {
 			if (step.getParameters().size() >= 2) {   // "$$var=e2e_checkStatus(processed,$$rid)"  
 				_ridStatusParam = step.getParameters().get(0);
@@ -50,14 +51,14 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 								tempPridAndRid.put("rid2", _rid2);
 							}
 						}
-						checkStatus(_ridStatusParam, _expectedRidProcessed);
+						checkStatus(_ridStatusParam, _expectedRidProcessed,step);
 					}
 				}
 			}
 		}
 	}
     
-	public void checkStatus(String _ridStatusParam,String _expectedRidProcessed) throws RigInternalError {
+	public void checkStatus(String _ridStatusParam,String _expectedRidProcessed,Scenario.Step step) throws RigInternalError {
 		String waitTime=props.getProperty("waitTime");
 		List<String> allowedParam = Arrays.asList("processed", "rejected", "failed","reregister");
 		if (!(allowedParam.contains(_ridStatusParam.toLowerCase())))

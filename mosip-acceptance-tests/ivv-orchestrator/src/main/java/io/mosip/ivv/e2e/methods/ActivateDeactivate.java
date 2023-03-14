@@ -65,7 +65,7 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 				}
 				JSONObject jsonResp = new JSONObject(getMachineResponse.getBody().asString());
 				Boolean machineStatus = packetUtility.activateDeActiveMachine(jsonResp.toString(),
-						prop.getProperty("machineSpecId"), value, prop.getProperty("zoneCode"), token, status);
+						prop.getProperty("machineSpecId"), value, prop.getProperty("zoneCode"), token, status,step);
 				if (!(machineStatus == Boolean.parseBoolean(status))) {
 					String message = (status.equals("true")) ? "Activate machine" : "DeActivate machine";
 					throw new RigInternalError("Unable to " + message);
@@ -129,7 +129,7 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 				}
 				JSONObject jsonRegcenterResp = new JSONObject(getregCenterResponse.getBody().asString());
 				Boolean regCenterStatus = packetUtility.activateDeActiveRegCenter(jsonRegcenterResp.toString(), value,
-						prop.getProperty("locationCode"), prop.getProperty("zoneCode"), token, status);
+						prop.getProperty("locationCode"), prop.getProperty("zoneCode"), token, status,step);
 				if (!(regCenterStatus == Boolean.parseBoolean(status))) {
 					String message = (status.equals("true")) ? "Activate RegCenter" : "DeActivate RegCenter";
 					throw new RigInternalError("Unable to " + message);
@@ -145,7 +145,7 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 			String deiceJsonReq = helper.buildDeviceRequest(jsonResp, Boolean.valueOf(status));
 			url = endPoint + props.getProperty("devices");
 			Response deviceResponse = packetUtility.putReqestWithCookiesAndBody(url, deiceJsonReq, token,
-					"Device activate/deactivate");
+					"Device activate/deactivate",step);
 			if (deviceResponse.getBody().asString().toLowerCase().contains("errorcode"))
 				throw new RigInternalError("Failed to activate/deactivate device");
 			break;

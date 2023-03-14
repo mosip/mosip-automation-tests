@@ -16,6 +16,7 @@ import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.AuthPartnerProcessor;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
@@ -155,7 +156,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				if (casesListUIN != null) {
 					for (Object object : casesListUIN) {
 						test = (TestCaseDTO) object;
-						test = demoAuthE2eTest(demoFetchList, uin, test);
+						test = demoAuthE2eTest(demoFetchList, uin, test,step);
 						test = bioAuthE2eTest(bioAuthList, uin, test);
 						test = otpAuthE2eTest(uin, test);
 						
@@ -204,7 +205,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				if (casesListVID != null) {
 					for (Object object : casesListVID) {
 						test = (TestCaseDTO) object;
-						test = demoAuthE2eTest(demoFetchList, vid, test);
+						test = demoAuthE2eTest(demoFetchList, vid, test,step);
 						test = bioAuthE2eTest(bioAuthList, vid, test);
 						test = otpAuthE2eTest(vid, test);
 						try {
@@ -250,7 +251,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 
 	}
 
-	private TestCaseDTO demoAuthE2eTest(List<String> demoFetchList, String individualIdAuth, TestCaseDTO testInput)
+	private TestCaseDTO demoAuthE2eTest(List<String> demoFetchList, String individualIdAuth, TestCaseDTO testInput,Scenario.Step step)
 			throws RigInternalError {
 
 		String personFilePathvalue = null;
@@ -264,7 +265,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 			personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(individualIdAuth);
 		else
 			throw new RigInternalError("Persona doesn't exist for the given UIN " + individualIdAuth);
-		demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList);
+		demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList,step);
 
 		// testInput.setEndPoint(testInput.getEndPoint().replace("$PartnerKey$",
 		// partnerKeyUrl));
@@ -357,7 +358,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				}
 			}
 
-			multiFactorResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			multiFactorResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 			System.out.println("saddjha");
 			if (multiFactorResponse != null && !multiFactorResponse.isEmpty() && modalityKeyTogetBioValue != null) {
 				String bioValue = JsonPrecondtion.getValueFromJson(multiFactorResponse, modalityKeyTogetBioValue);

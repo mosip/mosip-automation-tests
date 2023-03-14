@@ -100,10 +100,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 			List<String> demoFetchList = new ArrayList<String>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
-			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList);
+			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList,step);
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
-			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList);
+			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList,step);
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 			JSONObject inputJson = new JSONObject(input);
@@ -282,10 +282,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 			List<String> demoFetchList = new ArrayList<String>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
-			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList);
+			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList,step);
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
-			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList);
+			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList,step);
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
 			JSONObject inputJson = new JSONObject(input);
