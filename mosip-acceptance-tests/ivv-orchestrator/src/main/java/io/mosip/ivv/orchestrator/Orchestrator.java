@@ -264,25 +264,25 @@ public class Orchestrator {
 				st.assertHttpStatus();
 				if (st.hasError()) {
 					extentTest.fail(identifier + " - failed");
-					//Assert.assertFalse(st.hasError());
+					Assert.assertFalse(st.hasError());
 				}
 				if (st.getErrorsForAssert().size() > 0) {
 					st.errorHandler();
 					if (st.hasError()) {
 						extentTest.fail(identifier + " - failed");
-						//Assert.assertFalse(st.hasError());
+						Assert.assertFalse(st.hasError());
 					}
 				} else {
 					st.assertNoError();
 					if (st.hasError()) {
 						extentTest.fail(identifier + " - failed");
-						//Assert.assertFalse(st.hasError());
+						Assert.assertFalse(st.hasError());
 					}
 				}
 				store = st.getState();
 				if (st.hasError()) {
 					extentTest.fail(identifier + " - failed");
-					//Assert.assertFalse(st.hasError());
+					Assert.assertFalse(st.hasError());
 				} else {
 					extentTest.pass(identifier + " - passed");
 				}
