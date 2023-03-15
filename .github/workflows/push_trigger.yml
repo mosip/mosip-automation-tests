@@ -61,10 +61,11 @@ jobs:
       - name: Ready the springboot artifacts
         run: |
           cd ./${{env.SERVICE_LOCATION}}
-          mkdir build_files
+          mkdir -p build_files/config
           cp $( find -name 'mosip-packet-creator-*.jar' -type f ) build_files
           cp -r ${{env.CONFIG_LOCATION}}/Biometric\ Devices build_files/Biometric\ Devices
-          cp -r ${{env.CONFIG_LOCATION}}/config build_files/config
+          #cp -r ${{env.CONFIG_LOCATION}}/config build_files/config
+          cp -r src/main/resources/application.properties build_files/config/
           cp -r ${{env.CONFIG_LOCATION}}/resource build_files/resource
           cp -r ${{env.CONFIG_LOCATION}}/application.properties build_files/application.properties
           zip -r release.zip build_files/*
