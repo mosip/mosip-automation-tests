@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.json.JSONException;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.Reporter;
@@ -89,7 +90,7 @@ public class Orchestrator {
 	public void afterSuite() {
 		extent.flush();
 	}
-	
+
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
 	public static Object[][] dataProvider() throws RigInternalError {
 		String scenarioSheet = null;
@@ -116,8 +117,8 @@ public class Orchestrator {
 				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.biometrics.folder"));
 		parserInputDTO.setPersonaSheet(
 				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.persona.sheet"));
-		//		parserInputDTO.setScenarioSheet(TestRunner.getExternalResourcePath()
-		//				+ properties.getProperty("ivv.path.scenario.sheet.folder") + scenarioSheet);
+		// parserInputDTO.setScenarioSheet(TestRunner.getExternalResourcePath()
+		// + properties.getProperty("ivv.path.scenario.sheet.folder") + scenarioSheet);
 		parserInputDTO.setScenarioSheet(scenarioSheet);
 
 		parserInputDTO.setRcSheet(
@@ -173,43 +174,36 @@ public class Orchestrator {
 			Properties properties) throws SQLException, InterruptedException {
 		// Another scenario execution kicked-off before BEFORE_SUITE execution
 
-
-		if (!scenario.getId().equalsIgnoreCase("0"))
-		{
+		if (!scenario.getId().equalsIgnoreCase("0")) {
 
 			// AFTER_SUITE scenario execution kicked-off before all execution
-			if (scenario.getId().equalsIgnoreCase("AFTER_SUITE")) //|| scenariosExeuted)
+			if (scenario.getId().equalsIgnoreCase("AFTER_SUITE")) // || scenariosExeuted)
 			{
-				// Wait  till all scenarios are executed
-				while (counterLock.get() < totalScenario-1) //executed excluding after suite
+				// Wait till all scenarios are executed
+				while (counterLock.get() < totalScenario - 1) // executed excluding after suite
 				{
-					System.out.println("inside scenariosExeuted " +counterLock.get() + "- " +scenario.getId());
+					System.out.println("inside scenariosExeuted " + counterLock.get() + "- " + scenario.getId());
 					Thread.sleep(10000); // Sleep for 10 sec
 				}
-			}
-			else {
+			} else {
 
-				int loopCount = 20;
 				// Wait for before suite executed
-				while (beforeSuiteExeuted == false)
-				{
+				while (beforeSuiteExeuted == false) {
 					Thread.sleep(10000); // Sleep for 10 sec
 
-					System.out.println("inside beforeSuiteExeuted == false "+counterLock.get() + "- " +scenario.getId());
+					System.out.println(
+							"inside beforeSuiteExeuted == false " + counterLock.get() + "- " + scenario.getId());
 				}
 			}
 		}
 
-		System.out.println(" scenario :- "+ counterLock.get() +scenario.getId());
-
+		System.out.println(" scenario :- " + counterLock.get() + scenario.getId());
 
 		/*
 		 * 
 		 * 
 		 * 
 		 */
-
-
 
 		extent.flush();
 		String tags = System.getProperty("ivv.tags");
@@ -221,11 +215,7 @@ public class Orchestrator {
 			throw new SkipException("Skipping Scenario #" + scenario.getId());
 		}
 		ObjectMapper mapper = new ObjectMapper();
-		//		try {
-		//			String stepsAsString = mapper.writeValueAsString(scenario.getSteps());
-		//		} catch (JsonProcessingException e) {
-		//			e.printStackTrace();
-		//		}
+
 		Utils.auditLog.info("");
 		message = "Scenario_" + scenario.getId() + ": " + scenario.getDescription();
 		Utils.auditLog.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
@@ -289,63 +279,53 @@ public class Orchestrator {
 			} catch (ClassNotFoundException e) {
 				extentTest.error(identifier + " - ClassNotFoundException --> " + e.toString());
 				e.printStackTrace();
+				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
-				//return;
+
+				return;
 			} catch (IllegalAccessException e) {
 				extentTest.error(identifier + " - IllegalAccessException --> " + e.toString());
 				e.printStackTrace();
+				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
-				//return;
+				return;
 			} catch (InstantiationException e) {
 				extentTest.error(identifier + " - InstantiationException --> " + e.toString());
 				e.printStackTrace();
+				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
-				//return;
+				return;
+
 			} catch (RigInternalError e) {
 				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
 				e.printStackTrace();
+				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
-				//return;
+				return;
+
 			} catch (RuntimeException e) {
 				extentTest.error(identifier + " - RuntimeException --> " + e.toString());
 				e.printStackTrace();
+				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
-				//return;
-			}
-			finally {
-				System.out.println("Inside finally : scenario.getId()=" + scenario.getId());
+				return;
 			}
 
 		}
+		updateRunStatistics(scenario);
 
-		
+	}
+
+	static void updateRunStatistics(Scenario scenario) {
 		System.out.println(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
-		if (scenario.getId().equalsIgnoreCase("0")) 
+		if (scenario.getId().equalsIgnoreCase("0")) {
 			beforeSuiteExeuted = true;
+			System.out.println("Before Suite executed");
+		}
 
-		//scenariosExecuted ++;
-		System.out.println("scenariosExecuted : " + counterLock.get());
-
-		//		synchronized (lock) {
-		//			if (scenario.getId().equalsIgnoreCase("0")) 
-		//				beforeSuiteExeuted = true;
-		//				
-		//			scenariosExecuted ++;
-		//			System.out.println("scenariosExecuted : " + scenariosExecuted);
-		//		}
-
-
+		System.out.println("scenarios Executed : " + counterLock.get());
 
 	}
-
-
-	static void incrementCounter(Scenario scenario) {
-
-	}
-
-
-
-
 
 	private String getPackage(Scenario.Step step) {
 		String pack = packages.get(step.getModule().toString());
