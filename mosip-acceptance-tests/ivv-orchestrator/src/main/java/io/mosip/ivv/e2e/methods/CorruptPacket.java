@@ -18,7 +18,7 @@ public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
 		if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {
 			offset = step.getParameters().get(0);
 			dataToEncdoeInBase64 = step.getParameters().get(1);
-			for (String packetPath : templatePacketPath.values()) {
+			for (String packetPath : step.getScenario().getTemplatePacketPath().values()) {
 				corruptPacket(packetPath, offset, dataToEncdoeInBase64);
 			}
 		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 3) { // "$$var=e2e_corruptPacket(1024,Hello Auto,$$zipPacketPath)"
@@ -41,7 +41,7 @@ public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("filePath", packetPath);
 		jsonReq.put("base64data", Base64.getEncoder().encodeToString(dataToEncdoeInBase64.getBytes()));
-		Response response = postRequest(url, jsonReq.toString(), "Corrupt Packet");
+		Response response = postRequest(url, jsonReq.toString(), "Corrupt Packet",step);
 		if (!response.getBody().asString().toLowerCase().contains(".zip"))
 			throw new RigInternalError("Unable to Corrupt Packet");
 	}

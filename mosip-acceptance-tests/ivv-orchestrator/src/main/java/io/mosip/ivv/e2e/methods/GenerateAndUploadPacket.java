@@ -12,9 +12,10 @@ public class GenerateAndUploadPacket extends BaseTestCaseUtil implements StepInt
 		Boolean isForChildPacket = false;
 		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
-			if (isForChildPacket && prid_updateResident != null && templatPath_updateResident != null)
-				rid_updateResident=packetUtility.generateAndUploadPacket(prid_updateResident, templatPath_updateResident, contextInuse,
-						responseStatus);
+			if (isForChildPacket && step.getScenario().getPrid_updateResident() != null && step.getScenario().getTemplatPath_updateResident() != null)
+				step.getScenario().setRid_updateResident(packetUtility.generateAndUploadPacket(step.getScenario().getPrid_updateResident(), 
+						step.getScenario().getTemplatPath_updateResident(), step.getScenario().getCurrentStep(),
+						responseStatus,step));
 		} else {
 			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {  // "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
 				String prid = step.getParameters().get(0);
@@ -22,18 +23,18 @@ public class GenerateAndUploadPacket extends BaseTestCaseUtil implements StepInt
 				if (prid.startsWith("$$") && templatePath.startsWith("$$")) {
 					prid = step.getScenario().getVariables().get(prid);
 					templatePath = step.getScenario().getVariables().get(templatePath);
-					String rid = packetUtility.generateAndUploadPacket(prid, templatePath, contextInuse, "success");
+					String rid = packetUtility.generateAndUploadPacket(prid, templatePath, step.getScenario().getCurrentStep(), "success",step);
 					if (step.getOutVarName() != null)
 						step.getScenario().getVariables().put(step.getOutVarName(), rid);
 
 				}
 			} else {
-				for (String resDataPath : residentTemplatePaths.keySet()) {
-					String rid = packetUtility.generateAndUploadPacket(residentPathsPrid.get(resDataPath),
-							residentTemplatePaths.get(resDataPath), contextInuse, responseStatus);
+				for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
+					String rid = packetUtility.generateAndUploadPacket(step.getScenario().getResidentPathsPrid().get(resDataPath),
+							step.getScenario().getResidentTemplatePaths().get(resDataPath), step.getScenario().getCurrentStep(), responseStatus,step);
 					if (rid != null) {
-						pridsAndRids.put(residentPathsPrid.get(resDataPath), rid);
-						ridPersonaPath.put(rid, resDataPath);
+						step.getScenario().getPridsAndRids().put(step.getScenario().getResidentPathsPrid().get(resDataPath), rid);
+						step.getScenario().getRidPersonaPath().put(rid, resDataPath);
 					}
 
 				}

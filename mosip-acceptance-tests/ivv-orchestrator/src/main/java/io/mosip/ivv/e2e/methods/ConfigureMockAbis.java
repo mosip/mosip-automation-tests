@@ -33,19 +33,19 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
  		if (step.getParameters().size() == 4) { /// id=878787877
 			personaId = step.getParameters().get(0);
 			if (!personaId.equals("-1")) {
-				if (residentPersonaIdPro.get(personaId) == null) {
+				if (step.getScenario().getResidentPersonaIdPro().get(personaId) == null) {
 					logger.error("Persona id : [" + personaId + "] is not present is the system");
 					throw new RigInternalError("Persona id : [" + personaId + "] is not present is the system");
 				}
-				personaPath = residentPersonaIdPro.get(personaId).toString();
+				personaPath = step.getScenario().getResidentPersonaIdPro().get(personaId).toString();
 				if (StringUtils.isBlank(personaPath))
 					throw new RigInternalError(
 							"PersonaPath is not present in the system for persona id : [" + personaId + "]");
 			}
 		 else {
-			for (String personaid : residentPersonaIdPro.stringPropertyNames()) {
+			for (String personaid : step.getScenario().getResidentPersonaIdPro().stringPropertyNames()) {
 				personaId = personaid;
-				personaPath = residentPersonaIdPro.getProperty(personaid);
+				personaPath = step.getScenario().getResidentPersonaIdPro().getProperty(personaid);
 				break;
 			}
 		 }
@@ -87,7 +87,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 				}
 			JSONArray jsonOutterReq = buildMockRequest(personaPath, duplicate, hashModality, modalitysubTypeList,
 					personaId,Integer.parseInt(delaysec),statusCode,failureReason);
-			packetUtility.setMockabisExpectaion(jsonOutterReq, contextInuse);
+			packetUtility.setMockabisExpectaion(jsonOutterReq, step.getScenario().getCurrentStep(),step);
 			//hashtable.clear();
 
 		}

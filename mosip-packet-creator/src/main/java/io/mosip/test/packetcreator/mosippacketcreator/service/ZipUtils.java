@@ -31,7 +31,8 @@ public class ZipUtils {
                     
                 	if(System.getProperty("os.name").toLowerCase().contains("windows"))
                 		targetFile = targetFile.replace("\\", "/");
-                	logger.info(targetFile);
+                
+                	logger.info(" In ZipUtils : zipFolder ()--- sourceFolderPath : " + sourceFolderPath + " zipPath : " + zipPath + " targetFile : "  + targetFile  );
                     zos.putNextEntry(new ZipEntry(targetFile));
                     Files.copy(file, zos);
                     zos.closeEntry();

@@ -20,32 +20,32 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 		String process = null;
 		String personaPath=null;
 		Properties personaIdValue = null;
-		if (step.getParameters().isEmpty() && !generatedResidentData.isEmpty()) {  //  used to child packet processing
-			JSONArray jsonArray = packetUtility.getTemplate(new HashSet<String>(generatedResidentData), "NEW",
-					contextInuse);
+		if (step.getParameters().isEmpty() && !step.getScenario().getGeneratedResidentData().isEmpty()) {  //  used to child packet processing
+			JSONArray jsonArray = packetUtility.getTemplate(new HashSet<String>(step.getScenario().getGeneratedResidentData()), "NEW",
+					step.getScenario().getCurrentStep(),step);
 			JSONObject obj = jsonArray.getJSONObject(0);
-			templatPath_updateResident = obj.get("path").toString();
+			step.getScenario().setTemplatPath_updateResident( obj.get("path").toString());
 		} else {
 			process = step.getParameters().get(0);
 			if (step.getParameters().size() > 1) {
 				String personaId = step.getParameters().get(1);
 				if(personaId.startsWith("$$")) {
 					personaPath=step.getScenario().getVariables().get(personaId);
-					residentTemplatePaths.clear();
+					step.getScenario().getResidentTemplatePaths().clear();//step.getScenario().getResidentTemplatePaths().clear();
 				}else {
 					personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
 					for (String id : personaIdValue.stringPropertyNames()) {
 						String value = personaIdValue.get(id).toString();
-						if (residentPersonaIdPro.get(value) == null)
+						if (step.getScenario().getResidentPersonaIdPro().get(value) == null)
 							throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
-						personaPath = residentPersonaIdPro.get(value).toString();
+						personaPath = step.getScenario().getResidentPersonaIdPro().get(value).toString();
 					}
 					
 				}
-				residentTemplatePaths.put(personaPath, null);
+				step.getScenario().getResidentTemplatePaths().put(personaPath, null);
 			}
 
-			JSONArray resp = packetUtility.getTemplate(residentTemplatePaths.keySet(), process, contextInuse);
+			JSONArray resp = packetUtility.getTemplate(step.getScenario().getResidentTemplatePaths().keySet(), process, step.getScenario().getCurrentStep(),step);
 
 			for (int i = 0; i < resp.length(); i++) {
 				JSONObject obj = resp.getJSONObject(i);
@@ -53,16 +53,16 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 				String tempFilePath = obj.get("path").toString();
 				if(step.getOutVarName()!=null)
 					 step.getScenario().getVariables().put(step.getOutVarName(), tempFilePath);
-				for (String residentPath : residentTemplatePaths.keySet()) {
+				for (String residentPath : step.getScenario().getResidentTemplatePaths().keySet()) {
 					if (residentPath.contains(id)) {
-						residentTemplatePaths.put(residentPath, tempFilePath);
+						step.getScenario().getResidentTemplatePaths().put(residentPath, tempFilePath);
 						break;
 					}
 				}
 
 			}
-			for (String residentPath : residentTemplatePaths.keySet()) {
-				if (residentTemplatePaths.get(residentPath) == null)
+			for (String residentPath : step.getScenario().getResidentTemplatePaths().keySet()) {
+				if (step.getScenario().getResidentTemplatePaths().get(residentPath) == null)
 					throw new RigInternalError("Unable to get packetTemplate from packet utility");
 			}
 		}

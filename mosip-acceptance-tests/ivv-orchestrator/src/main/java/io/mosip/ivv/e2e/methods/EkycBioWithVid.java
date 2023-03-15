@@ -59,18 +59,18 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
 			}
 		}else
-			vidList = new ArrayList<>(vidPersonaProp.stringPropertyNames());
+			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		for (String vid : vidList) {
 			String personFilePathvalue = null;
 			if(step.getParameters().size()>2) {
 				personFilePathvalue=_personFilePath;
 			}
-			else if (vidPersonaProp.containsKey(vid))
+			else if (step.getScenario().getVidPersonaProp().containsKey(vid))
 			{
-				String uin =vidPersonaProp.get(vid).toString();
-				personFilePathvalue= uinPersonaProp.get(uin).toString();
-				//personFilePathvalue = vidAnduinpersonaprop.getProperty(vid);
+				String uin =step.getScenario().getVidPersonaProp().get(vid).toString();
+				personFilePathvalue= step.getScenario().getUinPersonaProp().get(uin).toString();
+				//personFilePathvalue = vidAndstep.getScenario().getUinPersonaProp().getProperty(vid);
 			}	
 			else
 				throw new RigInternalError("Persona doesn't exist for the given VID " + vid);
@@ -103,7 +103,7 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 				}
 			}
 			deviceProp.setProperty("individualIdType", "VID");
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
 			String fileName = BIOMETRIC_FACE;
 			bioAuth.isInternal = false;
@@ -119,7 +119,7 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 						throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
 					for (Object object : casesList) {
 						TestCaseDTO test = (TestCaseDTO) object;
-						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth);
+						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth,step);
 				}
 			}
 		}

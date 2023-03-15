@@ -11,8 +11,9 @@ public class UploadDocuments extends BaseTestCaseUtil implements StepInterface {
 		Boolean isForChildPacket = false;
 		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
-			if (isForChildPacket && !generatedResidentData.isEmpty() && prid_updateResident != null)
-				packetUtility.uploadDocuments(generatedResidentData.get(0), prid_updateResident, contextInuse);
+			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty() && step.getScenario().getPrid_updateResident() != null)
+				packetUtility.uploadDocuments(step.getScenario().getGeneratedResidentData().get(0), 
+						step.getScenario().getPrid_updateResident(), step.getScenario().getCurrentStep(),step);
 		} else {
 			if (!step.getParameters().isEmpty() && step.getParameters().size() > 1) { // "$$var=e2e_uploadDocuments($$personaFilePath,$$prid)"
 				String personaFilePath = step.getParameters().get(0);
@@ -20,11 +21,11 @@ public class UploadDocuments extends BaseTestCaseUtil implements StepInterface {
 				if (personaFilePath.startsWith("$$") && prid.startsWith("$$")) {
 					personaFilePath = step.getScenario().getVariables().get(personaFilePath);
 					prid = step.getScenario().getVariables().get(prid);
-					packetUtility.uploadDocuments(personaFilePath, prid, contextInuse);
+					packetUtility.uploadDocuments(personaFilePath, prid, step.getScenario().getCurrentStep(),step);
 				}
 			} else {
-				for (String resDataPath : residentPathsPrid.keySet()) {
-					packetUtility.uploadDocuments(resDataPath, residentPathsPrid.get(resDataPath), contextInuse);
+				for (String resDataPath : step.getScenario().getResidentPathsPrid().keySet()) {
+					packetUtility.uploadDocuments(resDataPath, step.getScenario().getResidentPathsPrid().get(resDataPath), step.getScenario().getCurrentStep(),step);
 				}
 			}
 		}

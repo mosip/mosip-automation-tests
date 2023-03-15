@@ -33,10 +33,10 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
     		String _requestId=step.getParameters().get(0);
     		if(_requestId.startsWith("$$")) {
 				_requestId = step.getScenario().getVariables().get(_requestId);
-				if (uinReqIds == null)
-					uinReqIds = new HashMap<>();
-				uinReqIds.clear();
-				uinReqIds.put("requestId", _requestId);
+//				if (step.getScenario().getUinReqIds() == null)
+//					step.getScenario().getUinReqIds() = new HashMap<>();
+				step.getScenario().getUinReqIds().clear();
+				step.getScenario().getUinReqIds().put("requestId", _requestId);
     		}
     	}
     	String fileName = downLoadCard_YML;
@@ -46,7 +46,7 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 		logger.info("No. of TestCases in Yml file : " + testCaseList.length);
 		
 				for (Object object : testCaseList) {
-					for(String requestid: this.uinReqIds.values()) {
+					for(String requestid: this.step.getScenario().getUinReqIds().values()) {
 						try {
 						TestCaseDTO test = (TestCaseDTO) object;
 						test.setInput(test.getInput().replace("$requestId$", requestid));

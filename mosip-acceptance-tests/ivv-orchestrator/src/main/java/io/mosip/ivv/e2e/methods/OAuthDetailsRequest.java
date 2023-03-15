@@ -39,7 +39,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 			
 			if( step.getParameters().get(0).startsWith("$$")) {
 
-				clientId = (String) oidcClientProp.get("clientId");
+				clientId = (String) step.getScenario().getOidcClientProp().get("clientId");
 				
 			}
 			
@@ -67,12 +67,11 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 				JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
 				
 				String transactionId = jsonResp.getJSONObject("response").getString("transactionId");
-				
-				
+
 				
 
 				if( step.getParameters().get(1).contains("transactionId1")) {
-					oidcClientProp.put("transactionId1", transactionId); // "$$clientId=e2e_OidcClient()"
+					step.getScenario().getOidcClientProp().put("transactionId1", transactionId); // "$$clientId=e2e_OidcClient()"
 					Gson gson = new Gson();
 					JsonObject json =  gson.fromJson(response.getBody().asString(), JsonObject.class);
 					String responseJsonString = json.getAsJsonObject("response").toString();
@@ -80,12 +79,12 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 					MessageDigest digest = MessageDigest.getInstance("SHA-256");
 					byte[] hash = digest.digest(responseJsonString.getBytes(StandardCharsets.UTF_8));
 					String urlEncodedResp = Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
-					oidcClientProp.put("urlEncodedResp1", urlEncodedResp);
-					System.out.println(oidcClientProp);
+					step.getScenario().getOidcClientProp().put("urlEncodedResp1", urlEncodedResp);
+					System.out.println(step.getScenario().getOidcClientProp());
 				}
 				else if(step.getParameters().get(1).contains("transactionId2")){
 					
-					oidcClientProp.put("transactionId2", transactionId); // "$$clientId=e2e_OidcClient()"
+					step.getScenario().getOidcClientProp().put("transactionId2", transactionId); // "$$clientId=e2e_OidcClient()"
 					Gson gson = new Gson();
 					JsonObject json =  gson.fromJson(response.getBody().asString(), JsonObject.class);
 					String responseJsonString = json.getAsJsonObject("response").toString();
@@ -93,8 +92,9 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 					MessageDigest digest = MessageDigest.getInstance("SHA-256");
 					byte[] hash = digest.digest(responseJsonString.getBytes(StandardCharsets.UTF_8));
 					String urlEncodedResp = Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
-					oidcClientProp.put("urlEncodedResp2", urlEncodedResp);
-					System.out.println(oidcClientProp);
+					step.getScenario().getOidcClientProp().put("urlEncodedResp2", urlEncodedResp);
+					System.out.println(step.getScenario().getOidcClientProp());
+
 					
 				}
 				

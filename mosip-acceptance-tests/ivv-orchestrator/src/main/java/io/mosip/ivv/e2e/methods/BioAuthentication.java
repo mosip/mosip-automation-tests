@@ -46,7 +46,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 	@Override
 	public void run() throws RigInternalError {
 		// AuthPartnerProcessor.startProcess();
-		// uinPersonaProp.put("9683481379",
+		// step.getScenario().getUinPersonaProp().put("9683481379",
 		// "C:\\Users\\Sohan.Dey\\Downloads\\residents_10857486596570242644\\7660996440.json");
 
 		String deviceInfoFilePath = null;
@@ -78,10 +78,10 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 				_personaFilePath = step.getScenario().getVariables().get(_personaFilePath);
 				uinList = new ArrayList<>();
 				uinList.add(uins);
-				uinPersonaProp.put(uins, _personaFilePath);
+				step.getScenario().getUinPersonaProp().put(uins, _personaFilePath);
 			}
 		} else
-			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
+			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		if (step.getParameters().size() == 2) {
 			vids = step.getParameters().get(1);
@@ -95,15 +95,15 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 				_personaFilePath = step.getScenario().getVariables().get(_personaFilePath);
 				vidList = new ArrayList<>();
 				vidList.add(vids);
-				vidPersonaProp.put(vids, _personaFilePath);
+				step.getScenario().getVidPersonaProp().put(vids, _personaFilePath);
 			}
 		} else
-			vidList = new ArrayList<>(vidPersonaProp.stringPropertyNames());
+			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		for (String uin : uinList) {
 			String personFilePathvalue = null;
-			if (uinPersonaProp.containsKey(uin))
-				personFilePathvalue = uinPersonaProp.getProperty(uin);
+			if (step.getScenario().getUinPersonaProp().containsKey(uin))
+				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
 
@@ -136,7 +136,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 				}
 			}
 
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
 			System.out.println("bioMetricValue= " + bioResponse);
 
@@ -182,7 +182,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 				if (casesListUIN != null) {
 					for (Object object : casesListUIN) {
 						TestCaseDTO test = (TestCaseDTO) object;
-						packetUtility.bioAuth(modalityToLog, bioValue, uin, deviceProp, test, bioAuth);
+						packetUtility.bioAuth(modalityToLog, bioValue, uin, deviceProp, test, bioAuth,step);
 					}
 				}
 
@@ -191,8 +191,8 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 
 		for (String vid : vidList) {
 			String personFilePathvalue = null;
-			if (vidPersonaProp.containsKey(vid))
-				personFilePathvalue = vidPersonaProp.getProperty(vid);
+			if (step.getScenario().getVidPersonaProp().containsKey(vid))
+				personFilePathvalue = step.getScenario().getVidPersonaProp().getProperty(vid);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given VID " + vid);
 
@@ -225,7 +225,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 				}
 			}
 
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
 			System.out.println("bioMetricValue= " + bioResponse);
 
@@ -271,7 +271,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 				if (casesListVID != null) {
 					for (Object object : casesListVID) {
 						TestCaseDTO test = (TestCaseDTO) object;
-						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth);
+						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth,step);
 					}
 				}
 

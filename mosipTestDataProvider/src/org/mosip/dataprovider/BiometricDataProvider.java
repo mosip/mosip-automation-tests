@@ -208,6 +208,7 @@ public class BiometricDataProvider {
 				mdsprofilePath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsprofilepath")
 						.toString();
 
+
 				String certsDir = System.getenv("authCertsPath") == null
 						? VariableManager.getVariableValue(contextKey, "authCertsPath").toString()
 						: System.getenv("authCertsPath");
@@ -215,6 +216,7 @@ public class BiometricDataProvider {
 				if (certsDir == null || certsDir.length() == 0) {
 					certsDir = System.getProperty("java.io.tmpdir")+File.separator+"AUTHCERTS";
 				}
+
 
 				// C:\Users\Sohan.Dey\AppData\Local\Temp\AUTHCERTS\DSL-IDA-api-internal.qa-1201-b2.mosip.net
 

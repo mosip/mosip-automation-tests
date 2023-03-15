@@ -77,7 +77,7 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 					throw new RigInternalError("machineId :[" + value + "] not found");
 				}
 				JSONObject jsonRespUser = new JSONObject(responseUser.getBody().asString());
-				Boolean userStatus = packetUtility.remapUser(jsonRespUser.toString(), token, value, regCenterId, zoneCode);
+				Boolean userStatus = packetUtility.remapUser(jsonRespUser.toString(), token, value, regCenterId, zoneCode,step);
 				if (userStatus != null)
 					message = userStatus ? "Reampped "+type : "Remap Fail "+type;
 				else
@@ -101,7 +101,7 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 						throw new RigInternalError("deviceId :[" + arrayValue[1] + "] not found");
 					}
 					JSONObject jsonRespDevice = new JSONObject(responseDevice.getBody().asString());
-					Boolean deviceStatus = packetUtility.remapDevice(jsonRespDevice.toString(), token, arrayValue[1], regCenterId, zoneCode);
+					Boolean deviceStatus = packetUtility.remapDevice(jsonRespDevice.toString(), token, arrayValue[1], regCenterId, zoneCode,step);
 					if (deviceStatus != null)
 						message = deviceStatus ? "Reampped "+type : "Remap Fail "+type;
 					else
