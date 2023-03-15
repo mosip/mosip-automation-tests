@@ -68,6 +68,7 @@ import tss.tpm.TPMU_SIGNATURE;
 import tss.tpm.TPM_ALG_ID;
 import tss.tpm.TPM_HANDLE;
 import tss.tpm.TPM_RH;
+import variables.VariableManager;
 
 @Component
 public class CryptoUtil {
@@ -425,7 +426,7 @@ public class CryptoUtil {
 		File[] listOfFiles = folder.listFiles();
 		for (File file : listOfFiles) {
 		    if (file.isFile()) {
-				if (file.getName().contains(contextKey +"."+ machineid)) {
+				if (file.getName().contains(VariableManager.getVariableValue(contextKey, "db-server").toString() +"."+ machineid)) {
 					filePath = file.getAbsolutePath();
 					break;
 				}

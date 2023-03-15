@@ -11,7 +11,7 @@ public class UpdateApplication extends BaseTestCaseUtil implements StepInterface
 
 	@Override
 	public void run() throws RigInternalError {
-		for (String resDataPath : residentTemplatePaths.keySet()) {
+		for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
 			Reporter.log("<b><u>" + "UpdateApplication testCase </u></b>");
 			//packetUtility.updateApplication(resDataPath, residentPathsPrid, contextKey);
 		}

@@ -30,15 +30,15 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 			assertTrue(false,"process paramter is  missing in step: "+step.getName());
 		} else if(step.getParameters().size() == 1){
 			process =step.getParameters().get(0);
-			pridsAndRids.clear();
+			step.getScenario().getPridsAndRids().clear();
 			String registrationId=null;
-			for (String packetPath : templatePacketPath.values()) {
+			for (String packetPath : step.getScenario().getTemplatePacketPath().values()) {
 				registrationId=ridsync(packetPath, E2EConstants.APPROVED_SUPERVISOR_STATUS,process);
-				pridsAndRids.put(packetPath, registrationId);
-				ridPersonaPath.put(registrationId, ridPersonaPath.get(packetPath));
-				ridPersonaPath.remove(packetPath);
+				step.getScenario().getPridsAndRids().put(packetPath, registrationId);
+				step.getScenario().getRidPersonaPath().put(registrationId, step.getScenario().getRidPersonaPath().get(packetPath));
+				step.getScenario().getRidPersonaPath().remove(packetPath);
 			}
-			storeProp(pridsAndRids);
+			storeProp(step.getScenario().getPridsAndRids());
 		}else
 			if(step.getParameters().size()>1) { // "$$rid=e2e_ridsync(NEW,$$zipPacketPath)"
 				process =step.getParameters().get(0);
@@ -66,7 +66,7 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 	private String ridsync(String containerPath, String supervisorStatus,String process) throws RigInternalError {
 		String url = baseUrl + props.getProperty("ridsyncUrl");
 		JSONObject jsonReq = buildRequest(containerPath, supervisorStatus,process);
-		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),contextInuse, "Ridsync");
+		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),step.getScenario().getCurrentStep(), "Ridsync",step);
 
 		JSONArray jsonArray = new JSONArray(response.asString());
 		JSONObject responseJson = new JSONObject(jsonArray.get(0).toString());

@@ -25,10 +25,10 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
     		String _requestId=step.getParameters().get(0);
     		if(_requestId.startsWith("$$")) {
 				_requestId = step.getScenario().getVariables().get(_requestId);
-				if (uinReqIds == null)
-					uinReqIds = new HashMap<>();
-				uinReqIds.clear();
-				uinReqIds.put("requestId", _requestId);
+			//	if ( step.getScenario().getUinReqIds() == null)
+					//neeha step.getScenario().getUinReqIds() = new HashMap<>();
+				step.getScenario().getUinReqIds().clear();
+				step.getScenario().getUinReqIds().put("requestId", _requestId);
     		}
     	}
     	String fileName = check_status_YML;
@@ -40,7 +40,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 			boolean credentialIssued = false;
 			try {
 				for (Object object : testCaseList) {
-					for(String requestid: this.uinReqIds.values()) {
+					for(String requestid: this.step.getScenario().getUinReqIds().values()) {
 						int counter=0;
 					while(!credentialIssued && counter<Integer.parseInt(props.getProperty("loopCount"))) {
 						counter++;

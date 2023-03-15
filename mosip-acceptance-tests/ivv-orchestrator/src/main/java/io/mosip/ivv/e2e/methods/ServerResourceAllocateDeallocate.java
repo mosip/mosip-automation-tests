@@ -19,10 +19,10 @@ public class ServerResourceAllocateDeallocate extends BaseTestCaseUtil implement
 			allocateOrDeallocate = step.getParameters().get(0);
 			switch (allocateOrDeallocate.toLowerCase()) {
 			case E2EConstants.ALLOCATE:
-				packetUtility.serverResourceStatusManager(E2EConstants.FREE, E2EConstants.INUSE);
+				packetUtility.serverResourceStatusManager(E2EConstants.FREE, E2EConstants.INUSE,step);
 				break;
 			case E2EConstants.DE_ALLOCATE:
-				packetUtility.serverResourceStatusManager(E2EConstants.INUSE, E2EConstants.FREE);
+				packetUtility.serverResourceStatusManager(E2EConstants.INUSE, E2EConstants.FREE,step);
 				break;
 			default: {
 				logger.error("Parameter: " + allocateOrDeallocate + " is not allowed");

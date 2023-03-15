@@ -31,6 +31,7 @@ import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.RestClient;
 import io.mosip.ivv.core.base.BaseStep;
+import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
@@ -38,38 +39,18 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class BaseTestCaseUtil extends BaseStep{
-	public static HashMap<String, String> pridsAndRids=new LinkedHashMap<String, String>();
-	public static HashMap<String, String> uinReqIds = new LinkedHashMap<String, String>();
+
 	public static Properties props = new AdminTestUtil().getproperty(TestRunner.getExternalResourcePath()+"/config/test-orchestrator_mz.properties");
 	public static Properties propsKernel = new AdminTestUtil().getproperty(TestRunner.getExternalResourcePath()+ "config/Kernel.properties");
 	public String baseUrl=ConfigManager.getpacketUtilityBaseUrl();
-	public static HashMap<String, String> residentTemplatePaths = new LinkedHashMap<String, String>();
-	public static HashMap<String, String> residentPathsPrid = new LinkedHashMap<String, String>();
-	public static HashMap<String, String> templatePacketPath = new LinkedHashMap<String, String>();
-	public static HashMap<String, String> manualVerificationRid = new LinkedHashMap<String, String>();
-	public static HashMap<String, String> residentPathGuardianRid = null;
+	
 	public static final long DEFAULT_WAIT_TIME = 30000l;
 	public static final long TIME_IN_MILLISEC = 1000l;
-	public static String prid=null;
-	public static String statusCode=null;
+
 	public static PacketUtility packetUtility= new PacketUtility();
-	public static HashMap<String, String> contextKey=new HashMap<String, String>();
-	public static HashMap<String, String> contextInuse=new HashMap<String, String>();
-	public static List<String> resDataPathList= new LinkedList();
-	public static Properties uinPersonaProp=new Properties();
-	public static Properties vidPersonaProp=new Properties();
-	public static Properties oidcClientProp=new Properties();
-	public static Properties oidcPmsProp=new Properties();
-	public static HashMap<String, String> ridPersonaPath=new LinkedHashMap<String, String>();
-	public static Properties residentPersonaIdPro=new Properties();
-	public static Properties ridPacketPathPro=new Properties();
 	public static Hashtable<String,Map<String,String>> hashtable= new Hashtable<>();
-	public static List<String> generatedResidentData =new ArrayList<>();
-	public static String templatPath_updateResident=null;
-	public static String rid_updateResident=null;
-	public static String uin_updateResident=null;
-	public static String prid_updateResident=null;
-	public static String scenario = null;
+
+	//public static String scenario = null; // Neeed to check how to add in scenario
 	public static String partnerKeyUrl = null;
 	public static String partnerId = null;
 	public BaseTestCaseUtil() {}
@@ -160,18 +141,24 @@ public class BaseTestCaseUtil extends BaseStep{
 		return filteredCases.toArray();
 	}
 	
-	protected static String addContextToUrl(String url) {
+	protected static String addContextToUrl(String url,Scenario.Step step) {
+		
+		String scenario=step.getScenario().getId() + ":" + step.getScenario().getDescription();
+		String context=System.getProperty("env.user")+ "_S"+scenario.substring(0, scenario.indexOf(':'))+"_context";
+		
+		//String context=System.getProperty("env.user")+"_context";
+		
 		if(url.contains("?"))
 		{
 			String urlArr[]=url.split("\\?");
-			return urlArr[0] + "/" + System.getProperty("env.user")+"_context?" + urlArr[1];
+			return urlArr[0] + "/" + context +"?" + urlArr[1];
 		}
 		else if(url.contains("mockmv")) return url;
 		else
-		return url + "/" + System.getProperty("env.user")+"_context";
+		return url + "/" + context;
 	}
-	public static Response getRequest(String url, String opsToLog) {
-		url=addContextToUrl(url);
+	public static Response getRequest(String url, String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract().response();
@@ -180,8 +167,8 @@ public class BaseTestCaseUtil extends BaseStep{
 		return getResponse;
 	}
 	
-	public static Response getRequestWithQueryParam(String url, HashMap<String,String> contextKey,String opsToLog) {
-		url=addContextToUrl(url);
+	public static Response getRequestWithQueryParam(String url,HashMap<String,String> contextKey,String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response getResponse = given().relaxedHTTPSValidation().queryParams(contextKey)
 				.accept("*/*").log().all().when().get(url).then().log().all().extract().response();
@@ -190,15 +177,15 @@ public class BaseTestCaseUtil extends BaseStep{
 		return getResponse;
 	}
 	
-	public Response postRequest(String url,String body,String opsToLog) {
-		url=addContextToUrl(url);
+	public Response postRequest(String url,String body,String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>"+opsToLog+": </b> <br/>"+body + "</pre>");
 		Response apiResponse = RestClient.postRequest(url, body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"+ apiResponse.getBody().asString() + "</pre>");
 		return apiResponse;
 	}
-	public Response putRequestWithBody(String url,String body,String opsToLog) {
-		url=addContextToUrl(url);
+	public Response putRequestWithBody(String url,String body,String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>"+opsToLog+": </b> <br/>"+body + "</pre>");
 		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 				.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
@@ -206,8 +193,8 @@ public class BaseTestCaseUtil extends BaseStep{
 		return puttResponse;
 	}
 	
-	public Response putRequest(String url,String opsToLog) {
-		url=addContextToUrl(url);
+	public Response putRequest(String url,String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON).log().all().when().put(url).then().log().all().extract().response();
@@ -216,8 +203,8 @@ public class BaseTestCaseUtil extends BaseStep{
 		return putResponse;
 	}
 	
-	public Response deleteRequest(String url,String opsToLog) {
-		url=addContextToUrl(url);
+	public Response deleteRequest(String url,String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract().response();
@@ -226,48 +213,48 @@ public class BaseTestCaseUtil extends BaseStep{
 		return deleteResponse;
 	}
 	
-	public Response deleteRequestWithQueryParam(String url,HashMap<String,String> contextKey,String opsToLog) {
-		url=addContextToUrl(url);
+	public Response deleteRequestWithQueryParam(String url,HashMap<String,String> map,String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response deleteResponse = given().relaxedHTTPSValidation().queryParams(contextKey)
+		Response deleteResponse = given().relaxedHTTPSValidation().queryParams(map)
 				.accept("*/*").log().all().when().delete(url).then().log().all().extract().response();
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ deleteResponse.getBody().asString() + "</pre>");
 		return deleteResponse;
 	}
 	
-	public Response putRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
-		url=addContextToUrl(url);
+	public Response putRequestWithQueryParamAndBody(String url, String body,HashMap<String,String> map, String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response apiResponse = RestClient.putRequestWithQueryParamAndBody(url, body, contextKey,MediaType.APPLICATION_JSON,
+		Response apiResponse = RestClient.putRequestWithQueryParamAndBody(url, body, map,MediaType.APPLICATION_JSON,
 				"*/*");
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ apiResponse.getBody().asString() + "</pre>");
 		return apiResponse;
 	}
 	
-	public Response postRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
-		url=addContextToUrl(url);
+	public Response postRequestWithQueryParamAndBody(String url, String body, HashMap<String,String> map,String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response apiResponse = RestClient.postRequestWithQueryParamAndBody(url, body, contextKey,MediaType.APPLICATION_JSON,
+		Response apiResponse = RestClient.postRequestWithQueryParamAndBody(url, body,map,MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ apiResponse.getBody().asString() + "</pre>");
 		return apiResponse;
 	}
 	
-	public Response postRequestWithPathParamAndBody(String url, String body, HashMap<String,String> contextKey, String opsToLog) {
-		url=addContextToUrl(url);
+	public Response postRequestWithPathParamAndBody(String url, String body, HashMap<String,String> map,String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response apiResponse = given().contentType(ContentType.JSON).pathParams(contextKey).body(body)
+		Response apiResponse = given().contentType(ContentType.JSON).pathParams(map).body(body)
 				.log().all().when().post(url).then().log().all().extract().response();
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ apiResponse.getBody().asString() + "</pre>");
 		return apiResponse;
 	}
 	
-	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
-		url=addContextToUrl(url);
+	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 				.accept("*/*").log().all().when().cookie("Authorization", token).post(url).then().log().all().extract()
@@ -277,10 +264,10 @@ public class BaseTestCaseUtil extends BaseStep{
 		return posttResponse;
 	}
 	
-	public Response putRequestWithQueryParam(String url, HashMap<String, String> queryParams,String opsToLog) {
-		url=addContextToUrl(url);
+	public Response putRequestWithQueryParam(String url,  HashMap<String,String> map , String opsToLog,Scenario.Step step) {
+		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response puttResponse = given().queryParams(queryParams).relaxedHTTPSValidation().log().all().when().put(url)
+		Response puttResponse = given().queryParams( map).relaxedHTTPSValidation().log().all().when().put(url)
 				.then().log().all().extract().response();
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ puttResponse.getBody().asString() + "</pre>");

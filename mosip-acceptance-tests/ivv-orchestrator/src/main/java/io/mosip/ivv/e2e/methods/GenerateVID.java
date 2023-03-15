@@ -40,8 +40,8 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		//uinPersonaProp.put("6471974360", "C:\\\\Users\\\\Sohan.Dey\\\\AppData\\\\Local\\\\Temp\\\\residents_1250718917110156783\\\\101681016810168.json");
-		vidPersonaProp.clear();
+		//step.getScenario().getUinPersonaProp().put("6471974360", "C:\\\\Users\\\\Sohan.Dey\\\\AppData\\\\Local\\\\Temp\\\\residents_1250718917110156783\\\\101681016810168.json");
+		step.getScenario().getVidPersonaProp().clear();
 		String uins = null;
 		String vidtype = null;
 		List<String> uinList = null;
@@ -64,7 +64,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 		}else
-			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
+			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 		
 		
 		Object[] testObj=generatevid.getYmlTestData(GenerateVID);
@@ -92,9 +92,9 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 		        String vid = jsonResp.getJSONObject("response").getString("vid"); 
 		        if (step.getOutVarName() != null)
 					step.getScenario().getVariables().put(step.getOutVarName(), vid);
-		        else vidPersonaProp.put(vid, uin);
+		        else step.getScenario().getVidPersonaProp().put(vid, uin);
 		        
-		        System.out.println(vidPersonaProp);
+		        System.out.println(step.getScenario().getVidPersonaProp());
 			}
 			
 		} catch (AuthenticationTestException | AdminTestException e) {

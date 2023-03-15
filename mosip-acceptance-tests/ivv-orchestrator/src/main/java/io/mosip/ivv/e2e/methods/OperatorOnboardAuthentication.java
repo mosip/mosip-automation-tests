@@ -41,7 +41,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 	@Override
 	public void run() throws RigInternalError {
 		//AuthPartnerProcessor.startProcess();
-		//uinPersonaProp.put("8497438207", "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_11835704006002908658\\5645168410.json");
+		//step.getScenario().getUinPersonaProp().put("8497438207", "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_11835704006002908658\\5645168410.json");
 		List<String> modalityList = new ArrayList<>();
 		String personFilePathvalue = null;
 		String deviceInfoFilePath = null;
@@ -71,18 +71,18 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 				_personaFilePath = step.getScenario().getVariables().get(_personaFilePath);
 				uinList = new ArrayList<>();
 				uinList.add(uins);
-				uinPersonaProp.put(uins, _personaFilePath);
+				step.getScenario().getUinPersonaProp().put(uins, _personaFilePath);
 			}
 		}
 		else
-			uinList = new ArrayList<>(uinPersonaProp.stringPropertyNames());
+			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		for (String uin : uinList) {
 
 
 
-			if (uinPersonaProp.containsKey(uin))
-				personFilePathvalue = uinPersonaProp.getProperty(uin);
+			if (step.getScenario().getUinPersonaProp().containsKey(uin))
+				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
 
@@ -121,7 +121,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 				+ props.getProperty("ivv.path.deviceinfo.folder") + "faceDevice" + ".properties";
 		deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 		String uin="8497438207";
-		personFilePathvalue = uinPersonaProp.getProperty(uin);
+		personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 		String modalityToLog = null;
 		String modalityKeyTogetBioValue = null;
 		modalityList.add(E2EConstants.FACEFETCH);
@@ -129,7 +129,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 		modalityToLog = "FACE";
 		modalityKeyTogetBioValue = "face_encrypted";
 			 */
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
 			String fileName = BIOMETRIC_FACE;
 			bioAuth.isInternal = false;
@@ -141,7 +141,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 					throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
 				for (Object object : casesList) {
 					TestCaseDTO test = (TestCaseDTO) object;
-					packetUtility.operatorOnboardAuth(modalityToLog, bioValue, "dsl1", test, bioAuth,"USERID",deviceProp);
+					packetUtility.operatorOnboardAuth(modalityToLog, bioValue, "dsl1", test, bioAuth,"USERID",deviceProp,step);
 				}
 			}
 		}
