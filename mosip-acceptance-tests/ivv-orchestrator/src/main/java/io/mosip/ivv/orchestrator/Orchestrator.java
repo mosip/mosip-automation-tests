@@ -332,27 +332,27 @@ public class Orchestrator {
 			} catch (ClassNotFoundException e) {
 				extentTest.error(identifier + " - ClassNotFoundException --> " + e.toString());
 				e.printStackTrace();
-				//Assert.assertTrue(false);
+				Assert.assertTrue(false);
 				//return;
 			} catch (IllegalAccessException e) {
 				extentTest.error(identifier + " - IllegalAccessException --> " + e.toString());
 				e.printStackTrace();
-				//Assert.assertTrue(false);
+				Assert.assertTrue(false);
 				//return;
 			} catch (InstantiationException e) {
 				extentTest.error(identifier + " - InstantiationException --> " + e.toString());
 				e.printStackTrace();
-				//Assert.assertTrue(false);
+				Assert.assertTrue(false);
 				//return;
 			} catch (RigInternalError e) {
 				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
 				e.printStackTrace();
-				//Assert.assertTrue(false);
+				Assert.assertTrue(false);
 				//return;
 			} catch (RuntimeException e) {
 				extentTest.error(identifier + " - RuntimeException --> " + e.toString());
 				e.printStackTrace();
-				//Assert.assertTrue(false);
+				Assert.assertTrue(false);
 				//return;
 			}
 			finally {
