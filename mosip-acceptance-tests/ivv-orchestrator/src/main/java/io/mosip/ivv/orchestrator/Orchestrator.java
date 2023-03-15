@@ -88,57 +88,8 @@ public class Orchestrator {
 	@AfterSuite
 	public void afterSuite() {
 		extent.flush();
-
-		boolean isStoreSuccess = false;
-		 if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
-				File repotFile = new File(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
-						+ "/" + System.getProperty("emailable.report2.name"));
-				System.out.println("reportFile is::" + System.getProperty("user.dir") + "/"
-						+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report2.name"));
-				S3Adapter s3Adapter = new S3Adapter();
-				
-				try {
-					isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
-							null, System.getProperty("emailable.report2.name"), repotFile);
-					System.out.println("isStoreSuccess:: " + isStoreSuccess);
-				} catch (Exception e) {
-					System.out.println("error occured while pushing the object" + e.getLocalizedMessage());
-					e.printStackTrace();
-				}
-				if (isStoreSuccess) {
-					System.out.println("Pushed file to S3");
-				} else {
-					System.out.println("Failed while pushing file to S3");
-				}
-
-			}
-			if (isStoreSuccess) {
-				System.out.println("Pushed file to S3");
-			} else {
-				System.out.println("Failed while pushing file to S3");
-			}
-		}
-
-
-	
-
-	private String getCommitId(){
-		Properties properties = new Properties();
-		try (InputStream is = EmailableReport.class.getClassLoader().getResourceAsStream("git.properties")) {
-			properties.load(is);
-
-			//commitId = properties.getProperty("git.commit.id.abbrev");
-
-			//branch = properties.getProperty("git.branch");
-			return "Commit Id is: " + properties.getProperty("git.commit.id.abbrev") + " & Branch Name is:" + properties.getProperty("git.branch");
-
-		} catch (IOException io) {
-			io.printStackTrace();
-			return "";
-		}
-
 	}
-
+	
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
 	public static Object[][] dataProvider() throws RigInternalError {
 		String scenarioSheet = null;
@@ -146,11 +97,14 @@ public class Orchestrator {
 		Properties properties = Utils.getProperties(configFile);
 		// Properties propsKernel=ConfigManager.propsKernel;
 
-		//scenarios-sanity-api-internal.qa-1201-b2
-		//VariableManager.getVariableValue(contextKey,"mountPath").toString()
-		//scenarioSheet=properties.getProperty("ivv.path.scenario.sheet.folder") + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
-		scenarioSheet=ConfigManager.getmountPathForScenario()+"/scenarios/" + "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
-		//	 scenarioSheet = System.getProperty("scenarioSheet");
+		// scenarios-sanity-api-internal.qa-1201-b2
+		// VariableManager.getVariableValue(contextKey,"mountPath").toString()
+		// scenarioSheet=properties.getProperty("ivv.path.scenario.sheet.folder") +
+		// "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
+		scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-" + BaseTestCase.testLevel
+				+ "-" + BaseTestCase.environment + ".csv";
+		// scenarioSheet = System.getProperty("scenarioSheet");
+
 		if (scenarioSheet == null || scenarioSheet.isEmpty())
 			throw new RigInternalError("ScenarioSheet argument missing");
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
@@ -259,7 +213,7 @@ public class Orchestrator {
 
 		extent.flush();
 		String tags = System.getProperty("ivv.tags");
-		String identifier =null;
+		String identifier = null;
 		if (tags == null || tags.isEmpty()) {
 			Utils.auditLog.info("Running Scenario #" + scenario.getId());
 		} else if (!matchTags(tags, scenario.getTags())) {
@@ -287,7 +241,9 @@ public class Orchestrator {
 		for (Scenario.Step step : scenario.getSteps()) {
 			Utils.auditLog.info("");
 
-			identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters() + "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
+			identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters()
+					+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
+
 					+ step.getVariant() + "]";
 			Utils.auditLog.info(identifier);
 
@@ -301,7 +257,8 @@ public class Orchestrator {
 				st.setStep(step);
 				st.setup();
 				st.validateStep();
-				Reporter.log("\n\n\n\n=============="+ "[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters() + "] " + "================ \n\n\n\n\n", true);
+				Reporter.log("\n\n\n\n==============" + "[Test Step: " + step.getName() + "] [Test Parameters: "
+						+ step.getParameters() + "] " + "================ \n\n\n\n\n", true);
 				st.run();
 
 				st.assertHttpStatus();
@@ -409,12 +366,17 @@ public class Orchestrator {
 
 	@AfterClass
 	public void publishResult() {
-		/*		messageBuilder.append("Execution Target: " + BaseTestCase.ApplnURI.split("//")[1]);
-		messageBuilder.append("\n").append("Total scenarios ran: " + totalScenario).append(" ")
-				.append("Failed: " + (totalScenario - countScenarioPassed)).append(" ")
-				.append("Passed : " + countScenarioPassed);
-		messageBuilder.append("\n").append("Find the report: " + SlackChannelIntegration.reportUrl);
-		SlackChannelIntegration.postMessage(SlackChannelIntegration.defaultChannel, messageBuilder.toString());
+
+		/*
+		 * messageBuilder.append("Execution Target: " +
+		 * BaseTestCase.ApplnURI.split("//")[1]);
+		 * messageBuilder.append("\n").append("Total scenarios ran: " +
+		 * totalScenario).append(" ") .append("Failed: " + (totalScenario -
+		 * countScenarioPassed)).append(" ") .append("Passed : " + countScenarioPassed);
+		 * messageBuilder.append("\n").append("Find the report: " +
+		 * SlackChannelIntegration.reportUrl);
+		 * SlackChannelIntegration.postMessage(SlackChannelIntegration.defaultChannel,
+		 * messageBuilder.toString());
 		 */
 	}
 
