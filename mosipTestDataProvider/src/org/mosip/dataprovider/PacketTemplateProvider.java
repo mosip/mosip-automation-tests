@@ -63,7 +63,7 @@ import variables.VariableManager;
 public class PacketTemplateProvider {
 	private static final Logger logger = LoggerFactory.getLogger(PacketTemplateProvider.class);
 
-	static HashMap<String, String[]> fileInfo = new HashMap<String, String[]>();
+	 HashMap<String, String[]> fileInfo = new HashMap<String, String[]>();
 
 	public static String RID_FOLDER = "rid_id";
 	public static String RID_EVIDENCE = "rid_evidence";
@@ -415,8 +415,7 @@ public class PacketTemplateProvider {
 						if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
 							index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size() - 1, 0)[0];
 							String docFile = doc.getDocs().get(index);
-							System.out.println("docFIle=" + docFile + " dType=" + s.getSubType() + " cat=" + s.getId());
-
+							
 							JSONObject o = new JSONObject();
 							o.put("format", "pdf");
 							//o.put("type", doc.getType().get(index).getCode());
@@ -431,6 +430,8 @@ public class PacketTemplateProvider {
 							String outFile = fileInfo.get(RID_EVIDENCE)[0] + "/" + fileInfo.get(RID_EVIDENCE)[1];
 							try {
 								Files.copy(Paths.get(docFile), Paths.get(outFile));
+								System.out.println("contextkey" +  contextKey + "Index= "+index+ " File info= " + fileInfo+" From-docFIle=" + docFile + " To-docFIle=" + outFile + " dType=" + s.getSubType() + "Proof of cat=" + s.getId());
+
 
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -1428,6 +1429,7 @@ public class PacketTemplateProvider {
 						if (resident.getSkipFinger()) {
 							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
 						}
+						logger.info("Before Cbeff Generation contextkey=" + contextKey + " fileinfo=" + fileInfo +  " outFile=" + outFile);
 						generateCBEFF(resident, bioAttrib, outFile,contextKey,purpose);
 						/*
 						 * Adding to set cbeff filefor officer and supervisor
