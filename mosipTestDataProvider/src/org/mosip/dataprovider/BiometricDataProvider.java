@@ -188,7 +188,7 @@ public class BiometricDataProvider {
 		return lst;
 	}
 
-	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey, String purpose)
+	public  static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey, String purpose)
 			throws Exception {
 
 		BiometricDataModel biodata = null;
