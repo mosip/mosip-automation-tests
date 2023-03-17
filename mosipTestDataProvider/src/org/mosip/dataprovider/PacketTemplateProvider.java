@@ -26,6 +26,7 @@ import org.javatuples.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.models.BioModality;
+import org.mosip.dataprovider.models.ContextSchemaDetail;
 import org.mosip.dataprovider.models.DocumentDto;
 import org.mosip.dataprovider.models.DynamicFieldModel;
 import org.mosip.dataprovider.models.MosipDocument;
@@ -63,7 +64,7 @@ import variables.VariableManager;
 public class PacketTemplateProvider {
 	private static final Logger logger = LoggerFactory.getLogger(PacketTemplateProvider.class);
 
-	 HashMap<String, String[]> fileInfo = new HashMap<String, String[]>();
+//	 HashMap<String, String[]> fileInfo = new HashMap<String, String[]>();
 
 	public static String RID_FOLDER = "rid_id";
 	public static String RID_EVIDENCE = "rid_evidence";
@@ -76,32 +77,30 @@ public class PacketTemplateProvider {
 //	List<MosipIDSchema> schema = (List<MosipIDSchema>) allSchema.get(schemaVersion).get("schemaList");
 //	List<String> requiredAttribs = (List<String>) allSchema.get(schemaVersion).get("requiredAttributes");
 //	
-	Hashtable<Double, Properties> allSchema = null ;
-	Double schemaVersion = 0.0;
-	List<MosipIDSchema> schema = null;
-	List<String> requiredAttribs = null;
+
 	
 	
 	private static final String DOMAIN_NAME = ".mosip.net";
-	Properties prop = new Properties();
+//	Properties prop = new Properties();
 
-	public void getSchema(String contextKey) {
-		
-		allSchema = MosipMasterData.getIDSchemaLatestVersion(contextKey);
-		schemaVersion = allSchema.keys().nextElement();
-		schema = (List<MosipIDSchema>) allSchema.get(schemaVersion).get("schemaList");
-		requiredAttribs = (List<String>) allSchema.get(schemaVersion).get("requiredAttributes");
+	public ContextSchemaDetail getSchema(String contextKey) {
+		ContextSchemaDetail contextSchemaDetail = new ContextSchemaDetail();
+		contextSchemaDetail.setAllSchema(MosipMasterData.getIDSchemaLatestVersion(contextKey));	
+		contextSchemaDetail.setSchemaVersion(contextSchemaDetail.getAllSchema().keys().nextElement());
+		contextSchemaDetail.setSchema( (List<MosipIDSchema>) contextSchemaDetail.getAllSchema().get(contextSchemaDetail.getSchemaVersion()).get("schemaList"));
+		contextSchemaDetail.setRequiredAttribs((List<String>) contextSchemaDetail.getAllSchema().get(contextSchemaDetail.getSchemaVersion()).get("requiredAttributes"));
+		return contextSchemaDetail;
 	}
 
 	// generate un encrypted template
 	public void generate(String source, String process, ResidentModel resident, String packetFilePath, String preregId,
 			String machineId, String centerId,String contextKey,Properties props,JSONObject preregResponse,String purpose) throws IOException {
-
+	final HashMap<String, String[]> fileInfo = new HashMap<String, String[]>();
 		String rootFolder = packetFilePath;
 		String ridFolder = "";
 		Path path = Paths.get(rootFolder);
 		logger.info("path1:"+path);
-		getSchema(contextKey);
+		ContextSchemaDetail contextSchemaDetail =getSchema(contextKey);
 
 		if (!Files.exists(path)) {
 			Files.createDirectory(path);
@@ -142,17 +141,24 @@ public class PacketTemplateProvider {
 		}
 		//String idJson = generateIDJson(resident, fileInfo);
 		
-		String idJson = generateIDJsonV2(resident, fileInfo,contextKey,props,preregResponse,purpose);
-		JSONObject processMVEL = processMVEL(resident, idJson, schema, process);
+		String idJson = null ;
+		try{
+			idJson=generateIDJsonV2(resident, fileInfo,contextKey,props,preregResponse,purpose,contextSchemaDetail);
+			
+		}
+		catch(Throwable e) {
+			e.printStackTrace();
+		}
+		JSONObject processMVEL = processMVEL(resident, idJson, process,contextSchemaDetail);
 		idJson = processMVEL.toString();
 		Files.write(Paths.get(ridFolder + "/ID.json"), idJson.getBytes());
-		String metadataJson = generateMetaDataJson(resident, preregId, machineId, centerId, fileInfo,contextKey);
+		String metadataJson = generateMetaDataJson(resident, preregId, machineId, centerId, fileInfo,contextKey,contextSchemaDetail);
 		Files.write(Paths.get(ridFolder + "/packet_meta_info.json"), metadataJson.getBytes());
 
 		// Generate evidence json
 
 		//String evidenceJson = generateEvidenceJson(resident, fileInfo);
-		String evidenceJson = generateEvidenceJsonV2(resident, fileInfo,contextKey);
+		String evidenceJson = generateEvidenceJsonV2(resident, fileInfo,contextKey,props,contextSchemaDetail);
 		Files.write(Paths.get(rid_evidence_folder + "/ID.json"), evidenceJson.getBytes());
 		Files.write(Paths.get(rid_evidence_folder + "/packet_meta_info.json"), metadataJson.getBytes());
 
@@ -161,22 +167,22 @@ public class PacketTemplateProvider {
 		Files.write(Paths.get(rid_optional_folder + "/ID.json"), evidenceJson.getBytes());
 		Files.write(Paths.get(rid_optional_folder + "/packet_meta_info.json"), metadataJson.getBytes());
 
-		idJson = genRID_PacketTypeJson(source, process, "id");
+		idJson = genRID_PacketTypeJson(source, process, "id",contextSchemaDetail);
 		Files.write(Paths.get(processFolder + File.separator + "/rid_id.json"), idJson.getBytes());
-		idJson = genRID_PacketTypeJson(source, process, "evidence");
+		idJson = genRID_PacketTypeJson(source, process, "evidence",contextSchemaDetail);
 		Files.write(Paths.get(processFolder + File.separator + "/rid_evidence.json"), idJson.getBytes());
-		idJson = genRID_PacketTypeJson(source, process, "optional");
+		idJson = genRID_PacketTypeJson(source, process, "optional",contextSchemaDetail);
 		Files.write(Paths.get(processFolder + File.separator + "/rid_optional.json"), idJson.getBytes());
 
 	}
-	private JSONObject processMVEL(ResidentModel resident,String idJson,List<MosipIDSchema> schema,String process) {
+	private JSONObject processMVEL(ResidentModel resident,String idJson,String process,ContextSchemaDetail contextSchemaDetail) {
 		Map<String, Object> allIdentityDetails = new LinkedHashMap<String, Object>();
-		Map<String, DocumentDto> documents = getDocuments(resident,idJson,schema);
+		Map<String, DocumentDto> documents = getDocuments(resident,idJson,contextSchemaDetail);
 		allIdentityDetails.putAll(documents);
 		 JSONObject json = new JSONObject(idJson);
 		 json=json.getJSONObject("identity");
-		 for (MosipIDSchema s : schema) {
-			 if (!CommonUtil.isExists(requiredAttribs, s.getId()))
+		 for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
+			 if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 					continue;
 			 if(s.getType().equalsIgnoreCase("documentType") || s.getType().equalsIgnoreCase("biometricsType")) {
 				 continue;
@@ -184,10 +190,10 @@ public class PacketTemplateProvider {
 			 if(json.has(s.getId()))
 			 allIdentityDetails.put(s.getId(),  json.get(s.getId()));
 		 }
-		 Map<String, Object> identityObject = getIdentityObject(schema,process,schemaVersion, resident);
+		 Map<String, Object> identityObject = getIdentityObject(contextSchemaDetail.getSchema(),process,contextSchemaDetail.getSchemaVersion(), resident);
 		 allIdentityDetails.putAll(identityObject);
-		 for(MosipIDSchema s : schema) {
-			 if (!CommonUtil.isExists(requiredAttribs, s.getId()))
+		 for(MosipIDSchema s : contextSchemaDetail.getSchema()) {
+			 if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 					continue;
 			 List<SchemaRule>  rule = s.getRequiredOn();
 				if(rule != null) {
@@ -205,12 +211,12 @@ public class PacketTemplateProvider {
 		return json;
 	}
 	
-	private Map<String, DocumentDto> getDocuments(ResidentModel resident,String idJson,List<MosipIDSchema> schema){
+	private Map<String, DocumentDto> getDocuments(ResidentModel resident,String idJson,ContextSchemaDetail contextSchemaDetail){
 		 Map<String, DocumentDto> documents = new HashMap<>();	
 		JSONObject json = new JSONObject(idJson);
 		json=json.getJSONObject("identity");
-		for (MosipIDSchema s : schema) {
-			if (!CommonUtil.isExists(requiredAttribs, s.getId()))
+		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
+			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
 			for (MosipDocument doc : resident.getDocuments()) {
 				if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
@@ -263,13 +269,13 @@ public class PacketTemplateProvider {
 		return allIdentityDetails;
 	}
 
-	String generateEvidenceJson(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey) {
+	String generateEvidenceJson(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,ContextSchemaDetail contextSchemaDetail) {
 
 		JSONObject identity = new JSONObject();
 
 		List<String> missList = resident.getMissAttributes();
 
-		for (MosipIDSchema s : schema) {
+		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			String primVal = "";
 			String secVal = "";
 			if (s.getFieldCategory().equals("evidence") && (s.getInputRequired() || s.getRequired())) {
@@ -390,12 +396,12 @@ public class PacketTemplateProvider {
 
 	}
 	
-	String generateEvidenceJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey) {
+	String generateEvidenceJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,Properties prop,ContextSchemaDetail contextSchemaDetail) {
 
 		JSONObject identity = new JSONObject();
 		List<String> missList = resident.getMissAttributes();
 
-		for (MosipIDSchema s : schema) {
+		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			System.out.println(s.toJSONString());
 			String primVal = "";
 			String secVal = "";
@@ -926,7 +932,7 @@ public class PacketTemplateProvider {
 		return found;
 	}
 
-	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,String purpose) {
+	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,String purpose,ContextSchemaDetail contextSchemaDetail) {
 
 		String idjson = "";
 
@@ -948,10 +954,10 @@ public class PacketTemplateProvider {
 			locationSet_sec = locations_seclang.keySet();
 		List<String> lstMissedAttributes = resident.getMissAttributes();
 		//identity.put("IDSchemaVersion",schemaVersion );
-		for (MosipIDSchema s : schema) {
+		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			System.out.println(s.toJSONString());
 			// if not reqd field , skip it
-			if (!CommonUtil.isExists(requiredAttribs, s.getId()))
+			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
 
 			if (lstMissedAttributes != null
@@ -960,7 +966,7 @@ public class PacketTemplateProvider {
 			}
 
 			if (s.getId().equalsIgnoreCase("idschemaVersion")) {
-				identity.put(s.getId(), schemaVersion);
+				identity.put(s.getId(), contextSchemaDetail.getSchemaVersion());
 				continue;
 			}
 
@@ -1289,7 +1295,7 @@ public class PacketTemplateProvider {
 	}
 	
 	
-	String generateIDJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,Properties props,JSONObject preregResponse,String purpose) {
+	String generateIDJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo,String contextKey,Properties prop,JSONObject preregResponse,String purpose,ContextSchemaDetail contextSchemaDetail) {
 
 		String idjson = "";
 
@@ -1307,12 +1313,12 @@ public class PacketTemplateProvider {
 			locationSet_sec = locations_seclang.keySet();
 		List<String> lstMissedAttributes = resident.getMissAttributes();
 
-		loadMapperProp(contextKey);  // load mapped property 
+		loadMapperProp(contextKey,prop);  // load mapped property 
 
-		for (MosipIDSchema s : schema) {
+		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			System.out.println(s.toJSONString());
 			// if not reqd field , skip it
-			if (!CommonUtil.isExists(requiredAttribs, s.getId()))
+			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
 
 			if (lstMissedAttributes != null
@@ -1344,7 +1350,7 @@ public class PacketTemplateProvider {
 	
 
 			if (prop.getProperty("idschemaversion") != null && s.getId().equals(prop.getProperty("idschemaversion"))) {
-				identity.put(s.getId(), schemaVersion);
+				identity.put(s.getId(), contextSchemaDetail.getSchemaVersion());
 				continue;
 			}
 
@@ -1434,7 +1440,7 @@ public class PacketTemplateProvider {
 						/*
 						 * Adding to set cbeff filefor officer and supervisor
 						 */
-						if(props.containsKey("mosip.test.regclient.officerBiometricFileName")) {
+						if(prop.containsKey("mosip.test.regclient.officerBiometricFileName")) {
 //							Response response = RestAssured.given()
 //					                .contentType(ContentType.JSON)
 //					                .when()
@@ -1451,10 +1457,10 @@ public class PacketTemplateProvider {
 					        byte[] decoded =Base64.getUrlDecoder().decode(value);
 					        String decodedcbeff = new String(decoded, StandardCharsets.UTF_8);
 					        resident.getBiometric().setCbeff(decodedcbeff);
-							generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] + "/"+props.get("mosip.test.regclient.officerBiometricFileName")+".xml",contextKey,purpose);
+							generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] + "/"+prop.get("mosip.test.regclient.officerBiometricFileName")+".xml",contextKey,purpose);
 						}
-							if(props.containsKey("mosip.test.regclient.supervisorBiometricFileName")) {
-						generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] +"/"+props.get("mosip.test.regclient.supervisorBiometricFileName")+".xml",contextKey,purpose);
+							if(prop.containsKey("mosip.test.regclient.supervisorBiometricFileName")) {
+						generateCBEFF(resident, bioAttrib, fileInfo.get(RID_FOLDER)[0] +"/"+prop.get("mosip.test.regclient.supervisorBiometricFileName")+".xml",contextKey,purpose);
 							}
 						
 						
@@ -1617,7 +1623,7 @@ public class PacketTemplateProvider {
 		return idjson;
 	}
 
-	private void loadMapperProp(String contextKey) {
+	private void loadMapperProp(String contextKey,Properties prop) {
 		String hostName = null;
 		if (contextKey != null && !contextKey.equals(""))
 			hostName = contextKey.split("_")[0];
@@ -1657,7 +1663,7 @@ public class PacketTemplateProvider {
 	
 
 	String generateMetaDataJson(ResidentModel resident, String preRegistrationId, String machineId, String centerId,
-			HashMap<String, String[]> fileInfo, String contextKey) {
+			HashMap<String, String[]> fileInfo, String contextKey,ContextSchemaDetail contextSchemaDetail) {
 
 		String templateMetaJsonPath = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"templateIDMeta").toString().trim();
 
@@ -1666,7 +1672,7 @@ public class PacketTemplateProvider {
 		JSONObject identity = new JSONObject();
 		JSONArray docArray = new JSONArray();
 
-		for (MosipIDSchema s : schema) {
+		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			if (s.getType().equals("documentType") && s.getRequired()) {
 				int index = 0;
 				for (MosipDocument doc : resident.getDocuments()) {
@@ -1769,14 +1775,14 @@ public class PacketTemplateProvider {
 		return retObject.toString();
 	}
 
-	String genRID_PacketTypeJson(String src, String process, String packetType) {
+	String genRID_PacketTypeJson(String src, String process, String packetType,ContextSchemaDetail contextSchemaDetail) {
 
 		JSONObject retObject = new JSONObject();
 		retObject.put("process", process.toUpperCase());
 		retObject.put("source", src.toUpperCase());
 		retObject.put("creationdate", CommonUtil.getUTCDateTime(null));
 		retObject.put("providerversion", "v1.0");
-		retObject.put("schemaversion", schemaVersion);
+		retObject.put("schemaversion", contextSchemaDetail.getSchemaVersion());
 		retObject.put("encryptedhash", "");
 		retObject.put("signature", "");
 		retObject.put("id", "");
