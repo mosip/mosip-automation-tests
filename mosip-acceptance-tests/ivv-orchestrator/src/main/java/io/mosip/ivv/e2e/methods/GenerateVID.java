@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -36,74 +37,71 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(GenerateVID.class);
 	private static final String GenerateVID = "idaData/GenerateVID/createGenerateVID.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
-	PostWithBodyWithOtpGenerate generatevid=new PostWithBodyWithOtpGenerate() ;
+	PostWithBodyWithOtpGenerate generatevid = new PostWithBodyWithOtpGenerate();
 
 	@Override
 	public void run() throws RigInternalError {
-		//step.getScenario().getUinPersonaProp().put("6471974360", "C:\\\\Users\\\\Sohan.Dey\\\\AppData\\\\Local\\\\Temp\\\\residents_1250718917110156783\\\\101681016810168.json");
+		// step.getScenario().getUinPersonaProp().put("6471974360",
+		// "C:\\\\Users\\\\Sohan.Dey\\\\AppData\\\\Local\\\\Temp\\\\residents_1250718917110156783\\\\101681016810168.json");
 		step.getScenario().getVidPersonaProp().clear();
 		String uins = null;
 		String vidtype = null;
 		List<String> uinList = null;
+		String transactionID = step.getScenario().getId() + RandomStringUtils.randomNumeric(8);
+		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("VID Type[Perpetual/Temporary] parameter is  missing from DSL step");
 			throw new RigInternalError("VID Type[Perpetual/Temporary] paramter is  missing in step: " + step.getName());
 		} else {
-			vidtype = step.getParameters().get(0); 
+			vidtype = step.getParameters().get(0);
 
 		}
-		if(step.getParameters().size() == 2 && step.getParameters().get(1).startsWith("$$")) { //"$$vid=e2e_GenerateVID(Perpetual,$$uin)"
+		if (step.getParameters().size() == 2 && step.getParameters().get(1).startsWith("$$")) { // "$$vid=e2e_GenerateVID(Perpetual,$$uin)"
 			uins = step.getParameters().get(1);
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 			}
-		}
-		else if (step.getParameters().size() == 2) {
+		} else if (step.getParameters().size() == 2) {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		}else
+		} else
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
-		
-		
-		Object[] testObj=generatevid.getYmlTestData(GenerateVID);
 
-		TestCaseDTO test=(TestCaseDTO)testObj[0];
-	
-	for (String uin : uinList) {
-		String input=test.getInput();
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					uin, "individualId");
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				 vidtype, "vidType");
-		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					uin, "sendOtp.individualId");
-		test.setInput(input);
-		
-		
-		
-		try {
-			generatevid.test(test);
-			Response response= generatevid.response;
-			if (response!= null)
-			{
-				JSONObject jsonResp = new JSONObject(response.getBody().asString());
-		        String vid = jsonResp.getJSONObject("response").getString("vid"); 
-		        if (step.getOutVarName() != null)
-					step.getScenario().getVariables().put(step.getOutVarName(), vid);
-		        else step.getScenario().getVidPersonaProp().put(vid, uin);
-		        
-		        System.out.println(step.getScenario().getVidPersonaProp());
+		Object[] testObj = generatevid.getYmlTestData(GenerateVID);
+
+		TestCaseDTO test = (TestCaseDTO) testObj[0];
+
+		for (String uin : uinList) {
+			String input = test.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, vidtype, "vidType");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "sendOtp.individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionID, "sendOtp.transactionID");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionID, "transactionID");
+
+			test.setInput(input);
+
+			try {
+				generatevid.test(test);
+				Response response = generatevid.response;
+				if (response != null) {
+					JSONObject jsonResp = new JSONObject(response.getBody().asString());
+					String vid = jsonResp.getJSONObject("response").getString("vid");
+					if (step.getOutVarName() != null)
+						step.getScenario().getVariables().put(step.getOutVarName(), vid);
+					else
+						step.getScenario().getVidPersonaProp().put(vid, uin);
+
+					System.out.println(step.getScenario().getVidPersonaProp());
+				}
+
+			} catch (AuthenticationTestException | AdminTestException e) {
+				throw new RigInternalError(e.getMessage());
+
 			}
-			
-		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
-
 		}
-	}
 
 	}
 }
-		
-		
