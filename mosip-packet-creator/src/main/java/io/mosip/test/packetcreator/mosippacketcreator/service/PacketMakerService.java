@@ -79,7 +79,7 @@ public class PacketMakerService {
 
 	@Value("${mosip.test.regclient.supervisorid}")
 	private String supervisorId;
-	
+
 	@Value("${mosip.test.regclient.supervisorpwd}")
 	private String supervisorPwd;
 
@@ -118,9 +118,9 @@ public class PacketMakerService {
 	@Value("${packetmanager.zip.datetime.pattern:yyyyMMddHHmmss}")
 	private String zipDatetimePattern;
 
-	 @Value("${mosip.test.persona.configpath}")
-	    private String personaConfigPath;
-	
+	@Value("${mosip.test.persona.configpath}")
+	private String personaConfigPath;
+
 	@PostConstruct
 	public void initService() {
 		if (workDirectory != null)
@@ -201,15 +201,41 @@ public class PacketMakerService {
 		}
 		logger.info("packPacketContainer:src=" + src + ",process=" + process + "PacketRoot=" + tempPacketRootFolder
 				+ " regid=" + regId);
+		try {
+			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id", contextKey);
+		}
+		catch(Throwable e)
+		{
+			logger.error(" ID Packet FAIL to Pack",e );
 
-		packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id", contextKey);
+		}
 
-		packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "evidence"), regId, "evidence",
-				contextKey);
-		packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "optional"), regId, "optional",
-				contextKey);
-		packContainer(tempPacketRootFolder, contextKey);
+		try {
+			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "evidence"), regId, "evidence",
+					contextKey);
+		}
+		catch(Throwable e)
+		{
+			logger.error(" EVIDENCE Packet FAIL to Pack",e );
 
+		}
+		try {
+			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "optional"), regId, "optional",
+					contextKey);
+		}
+		catch(Throwable e)
+		{
+			logger.error(" OPTIONAL Packet FAIL to Pack",e );
+
+		}try {
+			packContainer(tempPacketRootFolder, contextKey);
+
+		}
+		catch(Throwable e)
+		{
+			logger.error(" packContainer FAIL to Pack",e );
+
+		}
 		retPath = Path.of(Path.of(tempPacketRootFolder) + ".zip").toString();
 
 		return retPath;
@@ -247,7 +273,7 @@ public class PacketMakerService {
 	 */
 	public String createContainer(Path docPath, String dataFile, String templatePacketLocation, String source,
 			String processArg, String preregId, String contextKey, boolean bZip, String additionalInfoReqId)
-			throws Exception {
+					throws Exception {
 
 		String retPath = "";
 		if (contextKey != null && !contextKey.equals("")) {
@@ -498,142 +524,142 @@ public class PacketMakerService {
 		//
 
 		try {
-			
-		
-			
-		String schemaVersion = jb.optString("IDSchemaVersion", "0");
-		String schemaJson = schemaUtil.getAndSaveSchema(schemaVersion, workDirectory, contextKey);
 
-		if (type.equals("id")) {
-			Path path = Paths.get(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_schema.json");
-	        Files.createDirectories(path.getParent());
-	        try {
-	            Files.createFile(path);
-	        } catch (FileAlreadyExistsException e) {
-	            System.err.println("already exists: " + e.getMessage());
-	        }
+
+
+			String schemaVersion = jb.optString("IDSchemaVersion", "0");
+			String schemaJson = schemaUtil.getAndSaveSchema(schemaVersion, workDirectory, contextKey);
+
+			if (type.equals("id")) {
+				Path path = Paths.get(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_schema.json");
+				Files.createDirectories(path.getParent());
+				try {
+					Files.createFile(path);
+				} catch (FileAlreadyExistsException e) {
+					System.err.println("already exists: " + e.getMessage());
+				}
 				//Files.write(Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_schema.json"), schemaJson.getBytes());
-	        Files.write(path, schemaJson.getBytes());
+				Files.write(path, schemaJson.getBytes());
 
-		}
-		/*
-		 * if(type.equals("id")){ List<String> missingAttributes =
-		 * getMissingAttributeList(schemaJson, jb);
-		 * 
-		 * dataToMerge = fillMissingAttributes( missingAttributes, dataToMerge); }
-		 */
-		JSONObject jbToMerge = schemaUtil.getPacketIDData(schemaJson, dataToMerge, type);
+			}
+			/*
+			 * if(type.equals("id")){ List<String> missingAttributes =
+			 * getMissingAttributeList(schemaJson, jb);
+			 * 
+			 * dataToMerge = fillMissingAttributes( missingAttributes, dataToMerge); }
+			 */
+			JSONObject jbToMerge = schemaUtil.getPacketIDData(schemaJson, dataToMerge, type);
 
-		JSONObject mergedJsonMap = mergeJSONObject(templateFile, jbToMerge);
+			JSONObject mergedJsonMap = mergeJSONObject(templateFile, jbToMerge);
 
-		if (type.equals("id")) {
-			List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap,contextKey);
-			Path path = Paths.get(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_invalidIds.json");
-	        Files.createDirectories(path.getParent());
-	        try {
-	            Files.createFile(path);
-	        } catch (FileAlreadyExistsException e) {
-	            System.err.println("already exists: " + e.getMessage());
-	        }
+			if (type.equals("id")) {
+				List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap,contextKey);
+				Path path = Paths.get(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(),contextKey.replace("_context", ""),  regId + "_invalidIds.json");
+				Files.createDirectories(path.getParent());
+				try {
+					Files.createFile(path);
+				} catch (FileAlreadyExistsException e) {
+					System.err.println("already exists: " + e.getMessage());
+				}
 				Files.write(path, invalidIds.toString().getBytes());
-		//	Files.write(Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString() ,contextKey.replace("_context", ""), regId + "_invalidIds.json"), invalidIds.toString().getBytes());
-		}
+				//	Files.write(Path.of(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString() ,contextKey.replace("_context", ""), regId + "_invalidIds.json"), invalidIds.toString().getBytes());
+			}
 
-		if (!writeJSONFile(mergedJsonMap.toMap(), templateFile)) {
-			logger.error("Error creating packet {} ", regId);
-			return false;
-		}
+			if (!writeJSONFile(mergedJsonMap.toMap(), templateFile)) {
+				logger.error("Error creating packet {} ", regId);
+				return false;
+			}
 
-		/* Debug */
-		/*
-		 * if(type.equals("id")) { writeJSONFile(mergedJsonMap, "c:\\temp\\id_"+regId +
-		 * ".json"); }
-		 */
-		updatePacketMetaInfo(packetRootFolder, "metaData", "registrationId", regId, true);
-		if (preregId != null && !preregId.equalsIgnoreCase("0")) // newly added
+			/* Debug */
+			/*
+			 * if(type.equals("id")) { writeJSONFile(mergedJsonMap, "c:\\temp\\id_"+regId +
+			 * ".json"); }
+			 */
+			updatePacketMetaInfo(packetRootFolder, "metaData", "registrationId", regId, true);
+			if (preregId != null && !preregId.equalsIgnoreCase("0")) // newly added
 
-			updatePacketMetaInfo(packetRootFolder, "metaData", "preRegistrationId", preregId, true);
+				updatePacketMetaInfo(packetRootFolder, "metaData", "preRegistrationId", preregId, true);
 
-		updatePacketMetaInfo(packetRootFolder, "metaData", "creationDate", APIRequestUtil.getUTCDateTime(null), true);
-		updatePacketMetaInfo(packetRootFolder, "metaData", "machineId", machineId, false);
-		updatePacketMetaInfo(packetRootFolder, "metaData", "centerId", centerId, false);
-		updatePacketMetaInfo(packetRootFolder, "metaData", "registrationType",
-				StringUtils.capitalize(process.toLowerCase()), false);
+			updatePacketMetaInfo(packetRootFolder, "metaData", "creationDate", APIRequestUtil.getUTCDateTime(null), true);
+			updatePacketMetaInfo(packetRootFolder, "metaData", "machineId", machineId, false);
+			updatePacketMetaInfo(packetRootFolder, "metaData", "centerId", centerId, false);
+			updatePacketMetaInfo(packetRootFolder, "metaData", "registrationType",
+					StringUtils.capitalize(process.toLowerCase()), false);
 
-		//ToRead Context file
+			//ToRead Context file
 			String filePath =  personaConfigPath + "/server.context."+  contextKey + ".properties";
-    	  	Properties p=new Properties();
-	    		
-	    			try {
-	    				FileReader reader=new FileReader(filePath);  
-	    		    	
-	    					p.load(reader);
-	    					reader.close();
-	    				
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}  
-	    			officerId=p.getProperty("mosip.test.regclient.userid");    
-//        if(officerId.equals("null"))officerId=null;
-//        else if(officerId.equals("invalid"))officerId="invalid";
-//        else officerId="true";
-	    	
-	    updatePacketMetaInfo(packetRootFolder, "operationsData", "officerId", officerId, false);
-	    			
-        
-	    			supervisorId=p.getProperty("mosip.test.regclient.supervisorid");
-//        if(supervisorId.equals("null"))supervisorId=null;
-//        else if(supervisorId.equals("invalid"))supervisorId="false";
-//        else supervisorId="true";
-        updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorId", supervisorId, false);
-        
-        //officerPwd
-        officerPwd=p.getProperty("mosip.test.regclient.password");
-        if(officerPwd != null && officerPwd.equals("invalid"))officerPwd="false"; //invalid
-        else if(officerPwd != null && !officerPwd.equals(""))officerPwd="true";  //valid
-        else officerPwd="false";  //null
-        updatePacketMetaInfo(packetRootFolder,  "operationsData","officerPassword",  officerPwd, false);
-        
-        //supervisorPwd
-        supervisorPwd=p.getProperty("mosip.test.regclient.supervisorpwd");
-        if(supervisorPwd != null && supervisorPwd.equals("invalid"))supervisorPwd="false"; //invalid
-        else if(supervisorPwd != null && !supervisorPwd.equals(""))supervisorPwd="true";  //valid
-        else supervisorPwd="false";  //null
-        updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorPassword",  supervisorPwd, false);
+			Properties p=new Properties();
 
-        //officerBiometricFileName
-        officerBiometricFileName=p.getProperty("mosip.test.regclient.officerBiometricFileName"); 
-        if(officerBiometricFileName != null && officerBiometricFileName.length()>1) {}
-        else officerBiometricFileName=null;
-        updatePacketMetaInfo(packetRootFolder, "operationsData", "officerBiometricFileName",  officerBiometricFileName, false);
+			try {
+				FileReader reader=new FileReader(filePath);  
 
-        //supervisorBiometricFileName
-        supervisorBiometricFileName=p.getProperty("mosip.test.regclient.supervisorBiometricFileName");
-        if(supervisorBiometricFileName != null  && supervisorBiometricFileName.length()>1) {}
-        else supervisorBiometricFileName=null;
-        updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorBiometricFileName",  supervisorBiometricFileName, false);
+				p.load(reader);
+				reader.close();
 
-        
-		updateAudit(packetRootFolder, regId);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}  
+			officerId=p.getProperty("mosip.test.regclient.userid");    
+			//        if(officerId.equals("null"))officerId=null;
+			//        else if(officerId.equals("invalid"))officerId="invalid";
+			//        else officerId="true";
 
-		LinkedList<String> sequence = updateHashSequence1(packetRootFolder);
-		LinkedList<String> operations_seq = updateHashSequence2(packetRootFolder);
-		if (preregId != null && preregId.equals("01")) // to generte invalid hash data
-		{
-			Files.write(Path.of(packetRootFolder, PACKET_DATA_HASH_FILENAME),
-					"PACKET_DATA_HASH_INVALID_DATA".getBytes());
-			Files.write(Path.of(packetRootFolder, PACKET_OPERATION_HASH_FILENAME),
-					"PACKET_OPERATION_HASH_INVALID_DATA".getBytes());
-		} else {
-			updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME);
-			updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME);
-		}
+			updatePacketMetaInfo(packetRootFolder, "operationsData", "officerId", officerId, false);
+
+
+			supervisorId=p.getProperty("mosip.test.regclient.supervisorid");
+			//        if(supervisorId.equals("null"))supervisorId=null;
+			//        else if(supervisorId.equals("invalid"))supervisorId="false";
+			//        else supervisorId="true";
+			updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorId", supervisorId, false);
+
+			//officerPwd
+			officerPwd=p.getProperty("mosip.test.regclient.password");
+			if(officerPwd != null && officerPwd.equals("invalid"))officerPwd="false"; //invalid
+			else if(officerPwd != null && !officerPwd.equals(""))officerPwd="true";  //valid
+			else officerPwd="false";  //null
+			updatePacketMetaInfo(packetRootFolder,  "operationsData","officerPassword",  officerPwd, false);
+
+			//supervisorPwd
+			supervisorPwd=p.getProperty("mosip.test.regclient.supervisorpwd");
+			if(supervisorPwd != null && supervisorPwd.equals("invalid"))supervisorPwd="false"; //invalid
+			else if(supervisorPwd != null && !supervisorPwd.equals(""))supervisorPwd="true";  //valid
+			else supervisorPwd="false";  //null
+			updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorPassword",  supervisorPwd, false);
+
+			//officerBiometricFileName
+			officerBiometricFileName=p.getProperty("mosip.test.regclient.officerBiometricFileName"); 
+			if(officerBiometricFileName != null && officerBiometricFileName.length()>1) {}
+			else officerBiometricFileName=null;
+			updatePacketMetaInfo(packetRootFolder, "operationsData", "officerBiometricFileName",  officerBiometricFileName, false);
+
+			//supervisorBiometricFileName
+			supervisorBiometricFileName=p.getProperty("mosip.test.regclient.supervisorBiometricFileName");
+			if(supervisorBiometricFileName != null  && supervisorBiometricFileName.length()>1) {}
+			else supervisorBiometricFileName=null;
+			updatePacketMetaInfo(packetRootFolder, "operationsData", "supervisorBiometricFileName",  supervisorBiometricFileName, false);
+
+
+			updateAudit(packetRootFolder, regId);
+
+			LinkedList<String> sequence = updateHashSequence1(packetRootFolder);
+			LinkedList<String> operations_seq = updateHashSequence2(packetRootFolder);
+			if (preregId != null && preregId.equals("01")) // to generte invalid hash data
+			{
+				Files.write(Path.of(packetRootFolder, PACKET_DATA_HASH_FILENAME),
+						"PACKET_DATA_HASH_INVALID_DATA".getBytes());
+				Files.write(Path.of(packetRootFolder, PACKET_OPERATION_HASH_FILENAME),
+						"PACKET_OPERATION_HASH_INVALID_DATA".getBytes());
+			} else {
+				updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME);
+				updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME);
+			}
 		}
 		catch(Exception e)
-	    			{
+		{
 			e.printStackTrace();
-	    			}
+		}
 		return true;
 	}
 
@@ -652,8 +678,8 @@ public class PacketMakerService {
 				cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + "_unenc.zip")), contextKey));
 
 		Path src = Path.of(containerRootFolder + "_unenc.zip");
-		
-		
+
+
 		Files.copy(src, Path.of(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString(), contextKey.replace("_context", ""), src.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
 
 		Files.delete(Path.of(containerRootFolder + "_unenc.zip"));

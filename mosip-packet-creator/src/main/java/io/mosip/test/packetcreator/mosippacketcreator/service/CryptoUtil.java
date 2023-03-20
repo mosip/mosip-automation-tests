@@ -168,8 +168,18 @@ public class CryptoUtil {
     }
 
     public boolean encryptPacket(byte[] data, String referenceId, String packetLocation, String contextKey) throws  Exception {
-        byte[] encData = encrypt(data, referenceId, contextKey);
-        try(FileOutputStream fos = new FileOutputStream(packetLocation)){
+    	byte[] encData =null;
+    	try {
+    		encData= encrypt(data, referenceId, contextKey);
+      }
+      catch(Throwable e)
+      {
+    	  logger.error("Encrypt Failing..",e);
+        //Retrying the encrypt on failure..
+  		encData= encrypt(data, referenceId, contextKey); // Temperary solution need to check with Taheer java.lang.Exception: [{"errorCode":"KER-KMS-500","message":"could not execute statement; SQL [n/a]; constraint [uni_ident_const]; nested exception is org.hibernate.exception.ConstraintViolationException: could not execute statement"}]
+
+      }
+    	try(FileOutputStream fos = new FileOutputStream(packetLocation)){
             fos.write(encData);
             fos.flush();
             return true;
