@@ -260,10 +260,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + "/prereg/appointment/" + prid + "/" + nthSlot + "/" + bookOnHolidays;
 		JSONObject jsonReq = new JSONObject();
 				Response response = postRequest(url, jsonReq.toString(), "BookAppointment",step);
+				
+				
 		//Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "BookAppointment");
-		if (!response.getBody().asString().toLowerCase().contains("appointment booked successfully"))
+		if (!response.getBody().asString().toLowerCase().contains("appointment booked successfully")) {
+			System.out.println("bookAppointment Response is:" + response +" url: "+ url );
 			throw new RigInternalError("Unable to BookAppointment from packet utility");
-	}
+	}}
 
 	public String generateAndUploadPacket(String prid, String packetPath, HashMap<String, String> map,
 			String responseStatus,Scenario.Step step) throws RigInternalError {
