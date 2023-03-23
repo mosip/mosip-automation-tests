@@ -1,7 +1,7 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name = "DSL_E2E_AUTOMATION-RUN" data-provider-thread-count="10">
+<suite name = "DSL_E2E_AUTOMATION-RUN" data-provider-thread-count="5">
     <parameter name="scenarioFilter" value="random"/>
     <parameter name="stopOnError" value="false"/>
     <test name = "E2E-AUTOMATION-TEST" group-by-instances="true">
