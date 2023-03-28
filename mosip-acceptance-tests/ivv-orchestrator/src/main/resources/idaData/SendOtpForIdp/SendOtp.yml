@@ -1,6 +1,6 @@
 SendOtp:
    IDP_SendOtp_all_Valid_Smoke:
-      endPoint: v1/esignet/authorization/send-otp
+      endPoint: /v1/esignet/authorization/send-otp
       role: resident
       restMethod: post
       inputTemplate: idaData/SendOtpForIdp/SendOtp

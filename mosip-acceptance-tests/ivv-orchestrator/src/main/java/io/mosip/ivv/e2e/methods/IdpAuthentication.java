@@ -57,8 +57,8 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 		}
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
-			logger.error("transactionId parameter is  missing from DSL step");
-			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
+			logger.error("transa from DSL step");
+			throw new RigInternalError("transactionId parameter is  missingctionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
 			// transactionId2 = step.getParameters().get(5);
@@ -94,17 +94,17 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 		} else
 			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
-		if (step.getParameters().size() == 5) {
+		if (step.getParameters().size() == 6) {
 			authType = step.getParameters().get(2);
 
 		}
 
-		if (step.getParameters().size() == 5) {
+		if (step.getParameters().size() == 6) {
 			pin = step.getParameters().get(3);
 
 		}
 
-		if (step.getParameters().size() == 5 && step.getParameters().get(2).contains("OTP")) {
+		if (step.getParameters().size() == 6 && step.getParameters().get(2).contains("OTP")) {
 
 			Object[] testObjForOtp = authenticateUser.getYmlTestData(OtpUser);
 
@@ -135,7 +135,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 				
-				input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash");
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp1"), "encodedHash");
 
 				testForOtp.setInput(input);
 
@@ -166,7 +166,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
 				
-				input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash");
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp2"), "encodedHash");
 
 				testForOtp.setInput(input);
 
@@ -224,7 +224,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 					test = (TestCaseDTO) object;
 					String input = test.getInput();
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId1, "transactionId");
-					input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash");
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp1"), "encodedHash");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, authType, "authFactorType");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, pin, "challenge");
@@ -275,7 +275,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 					String input = test.getInput();
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId2, "transactionId");
-					input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash");
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp2"), "encodedHash");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, authType, "authFactorType");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, pin, "challenge");
