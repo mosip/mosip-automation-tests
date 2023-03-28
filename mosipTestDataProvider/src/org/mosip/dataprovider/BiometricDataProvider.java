@@ -381,7 +381,7 @@ public class BiometricDataProvider {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		//CentralizedMockSBI.stopSBI(contextKey);
+		CentralizedMockSBI.stopSBI(contextKey);
 		return capture;
 	}
 
