@@ -2,10 +2,14 @@ package io.mosip.ivv.orchestrator;
 
 import static io.restassured.RestAssured.given;
 
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +28,21 @@ import org.json.JSONObject;
 import org.json.simple.JSONValue;
 import org.testng.Reporter;
 
+import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+
 import io.mosip.admin.fw.util.AdminTestException;
+import io.mosip.admin.fw.util.AdminTestUtil;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.AuthPartnerProcessor;
@@ -909,7 +927,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 		
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash"); //need to check is this needed
+		//input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash"); //need to check is this needed
 
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioSubType"),
@@ -1417,4 +1435,64 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		}
 	}
+	
+	public static String getJsonFromTemplate(String input, String template) {
+		return getJsonFromTemplate(input, template, true);
+
+	}
+
+	public static String getJsonFromTemplate(String input, String template, boolean readFile) {
+		String resultJson = null;
+		try {
+			Handlebars handlebars = new Handlebars();
+			Gson gson = new Gson();
+			Type type = new TypeToken<Map<String, Object>>() {
+			}.getType();
+			System.out.print(input);
+			Map<String, Object> map = gson.fromJson(input, type);
+			String templateJsonString;
+			if (readFile) {
+				templateJsonString = new String(Files.readAllBytes(Paths.get(AdminTestUtil.getResourcePath() + template + ".hbs")),
+						"UTF-8");
+			} else {
+				templateJsonString = template;
+			}
+
+			Template compiledTemplate = handlebars.compileInline(templateJsonString);
+			Context context = Context.newBuilder(map).build();
+			resultJson = compiledTemplate.apply(context);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultJson;
+	}
+	
+	public static String signJWKKey(String clientId, RSAKey jwkKey) {
+		String tempUrl = BaseTestCase.ApplnURI.replace("-internal", "") +"/v1/esignet/oauth/token";
+		String clientAssertionToken = "";
+		// Create RSA-signer with the private key
+		JWSSigner signer;
+
+		try {
+			signer = new RSASSASigner(jwkKey);
+
+			// Prepare JWT with claims set
+			JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(clientId)//
+					.audience(tempUrl)//
+					.issuer(clientId)//
+					.issueTime(new Date()).expirationTime(new Date(new Date().getTime() + 180 * 1000)).build();
+
+			SignedJWT signedJWT = new SignedJWT(
+					new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(jwkKey.getKeyID()).build(), claimsSet);
+
+			// Compute the RSA signature
+			signedJWT.sign(signer);
+			 clientAssertionToken = signedJWT.serialize();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//logger.error("Exception while signing oidcJWKKey for client assertion: " + e.getMessage());
+		}
+		return clientAssertionToken;
+	}
+
 }

@@ -10,7 +10,7 @@ GenerateToken:
           "code": "code",
           "client_id": "client_id",
           "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-          "client_assertion": "$CLIENT_ASSERTION_JWK$",
+          "client_assertion": "client_assertion",
           "redirect_uri": "https://health-services.com/userprofile"
 }'
       output: '{
