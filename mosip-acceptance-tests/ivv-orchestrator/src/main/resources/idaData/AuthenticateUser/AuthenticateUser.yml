@@ -1,6 +1,6 @@
 AuthenticateUser:
    IDP_AuthenticateUserIDP_Valid_Smoke:
-      endPoint: v1/esignet/authorization/authenticate
+      endPoint: /v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
       inputTemplate: idaData/AuthenticateUser/AuthenticateUser
