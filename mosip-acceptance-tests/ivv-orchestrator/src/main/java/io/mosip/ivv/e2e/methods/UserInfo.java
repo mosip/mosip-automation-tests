@@ -9,6 +9,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.nimbusds.jose.jwk.RSAKey;
+
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
@@ -16,6 +18,7 @@ import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.ivv.orchestrator.PacketUtility;
 import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.GetWithParam;
 import io.mosip.testscripts.SimplePost;
@@ -38,6 +41,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	String code = "";
 	String redirectUri = "";
 	String idpAccessToken = "";
+	String data = "";
 	List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 
 	@Override
@@ -181,7 +185,33 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		inputForGenerateToken = JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, code, "code");
 		inputForGenerateToken = JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, redirectUri,
 				"redirect_uri");
+		String oidcJwkKey = (String) step.getScenario().getOidcPmsProp().get("oidcJwkKey"+step.getScenario().getId());
+		
+		
+			String oidcJWKKeyString = oidcJwkKey;
+			// String oidcJWKKeyString = props.getProperty("privateKey");
+			System.out.println("oidcJWKKeyString =" + oidcJWKKeyString);
+			RSAKey oidcJWKKey1;
+			try {
+				oidcJWKKey1 = RSAKey.parse(oidcJWKKeyString);
+				data = PacketUtility.signJWKKey(clientId, oidcJWKKey1);
+				System.out.println("oidcJWKKey1 =" + oidcJWKKey1);
+			} catch (java.text.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			inputForGenerateToken = JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, data,
+					"client_assertion");
+			
 
+		/*
+		 * inputForGenerateToken =
+		 * JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, oidcJwkKey,
+		 * "client_assertion");
+		 */
+		
+		
 		testGenerateToken.setInput(inputForGenerateToken);
 
 		try {
