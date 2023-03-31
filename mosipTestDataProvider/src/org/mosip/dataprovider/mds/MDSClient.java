@@ -340,14 +340,18 @@ public class MDSClient implements MDSClientInterface {
 			String response = RestClient.rawHttp(capture, jsonReq.toString());
 			System.out.println("MDS RESPONSE :"+  response);
 			JSONObject respObject = new JSONObject(response);
-			JSONArray bioArray = respObject.getJSONArray("biometrics");
-			List<MDSDeviceCaptureModel> lstBiometrics  = rCaptureModel.getLstBiometrics().get(type);
+			JSONArray bioArray = new JSONArray();
+			bioArray=respObject.getJSONArray("biometrics");
+			List<MDSDeviceCaptureModel> lstBiometrics  = new ArrayList<MDSDeviceCaptureModel>();
+
+			lstBiometrics = rCaptureModel.getLstBiometrics().get(type);
 			if(lstBiometrics == null)
 				lstBiometrics = new ArrayList<MDSDeviceCaptureModel>();
 			rCaptureModel.getLstBiometrics().put(type, lstBiometrics);
 			
 			for(int i=0; i < bioArray.length(); i++) {
-				JSONObject bioObject = bioArray.getJSONObject(i);
+				JSONObject bioObject = new JSONObject();
+				bioObject=bioArray.getJSONObject(i);
 				String data = bioObject.getString("data");
 				
 				String hash = bioObject.getString("hash");
