@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>io.mosip.test.packetcreator</groupId>
 	<artifactId>mosip-packet-creator</artifactId>
-	<version>1.2.0.1-B2-SNAPSHOT</version>
+	<version>1.2.1-SNAPSHOT</version>
 	<name>mosip-packet-creator</name>
 	<description>Demo project for Spring Boot</description>
 
@@ -121,7 +121,7 @@
 	   <dependency>
 		<groupId>io.mosip.test.dataprovider</groupId>
   		<artifactId>dataprovider</artifactId>
-  		<version>1.2.0.1-B2-SNAPSHOT</version>
+  		<version>1.2.1-SNAPSHOT</version>
 
 		</dependency>
 		<dependency>
