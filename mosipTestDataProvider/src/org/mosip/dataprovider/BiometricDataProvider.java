@@ -235,7 +235,7 @@ public class BiometricDataProvider {
 				port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device", p12path.toString());
 
 				portmap.put("port_" + contextKey, port);
-				// CentralizedMockSBI.stopSBI(context);
+				// CentralizedMockSBI.stopSBI(contextKey);
 				mds = new MDSClient(port);
 				profileName = "res" + resident.getId();
 				mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);

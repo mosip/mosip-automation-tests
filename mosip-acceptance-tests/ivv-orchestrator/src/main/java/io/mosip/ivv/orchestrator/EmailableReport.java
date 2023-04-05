@@ -76,6 +76,8 @@ public class EmailableReport implements IReporter {
         writer.close();
         
         if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
+        	
+        	//D:\GITDSLFresh121Snap1\mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\testng-report
 			File repotFile = new File(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
 					+ "/" + System.getProperty("emailable.report2.name"));
 			System.out.println("reportFile is::" + System.getProperty("user.dir") + "/"
@@ -85,6 +87,7 @@ public class EmailableReport implements IReporter {
 			try {
 				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
 						null, System.getProperty("emailable.report2.name"), repotFile);
+				
 				System.out.println("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {
 				System.out.println("error occured while pushing the object" + e.getLocalizedMessage());
