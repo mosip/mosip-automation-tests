@@ -66,20 +66,42 @@ public class Orchestrator {
 		}
 	};
 
+//	@BeforeSuite
+//	public void beforeSuite() {
+//		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
+//		this.configToSystemProperties();
+//		Utils.setupLogger(System.getProperty("user.dir") + this.properties.getProperty("ivv._path.auditlog"));
+//		/* setting exentreport */
+//		htmlReporter = new ExtentHtmlReporter(
+//				// System.getProperty("user.dir") +
+//				// this.properties.getProperty("ivv._path.reports"));
+//				TestRunner.getGlobalResourcePath() + this.properties.getProperty("ivv._path.reports"));
+//		extent = new ExtentReports();
+//
+//		extent.attachReporter(htmlReporter);
+//	}
+	
+
 	@BeforeSuite
 	public void beforeSuite() {
+//		File repotFile = new File(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
+//		+ "/" + System.getProperty("emailable.report2.name"));
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
-		this.configToSystemProperties();
-		Utils.setupLogger(System.getProperty("user.dir") + this.properties.getProperty("ivv._path.auditlog"));
+//		this.configToSystemProperties();
+		Utils.setupLogger(System.getProperty("user.dir") +"/" + System.getProperty("testng.outpur.dir")
+		+ "/" + this.properties.getProperty("ivv._path.auditlog"));
 		/* setting exentreport */
 		htmlReporter = new ExtentHtmlReporter(
-				// System.getProperty("user.dir") +
-				// this.properties.getProperty("ivv._path.reports"));
-				TestRunner.getGlobalResourcePath() + this.properties.getProperty("ivv._path.reports"));
+				
+				System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
+				+ "/" + this.properties.getProperty("ivv._path.reports"));
 		extent = new ExtentReports();
 
 		extent.attachReporter(htmlReporter);
 	}
+	
+	
+	
 
 	@BeforeTest
 	public static void create_proxy_server() {

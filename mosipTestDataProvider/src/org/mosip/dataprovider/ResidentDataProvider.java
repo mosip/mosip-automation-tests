@@ -116,7 +116,9 @@ public class ResidentDataProvider {
 		else
 		if(bioType.equalsIgnoreCase("face")) {
 			BiometricDataModel bioData = model.getBiometric();
-			byte[][] faceData = PhotoProvider.getPhoto(CommonUtil.generateRandomNumbers(1, DataProviderConstants.MAX_PHOTOS, 1)[0], model.getGender().name() , contextKey);
+//			byte[][] faceData = PhotoProvider.getPhoto(CommonUtil.generateRandomNumbers(1, DataProviderConstants.MAX_PHOTOS, 1)[0], 
+//					model.getGender().name() , contextKey);
+			byte[][] faceData = PhotoProvider.getPhoto(contextKey);
 			bioData.setEncodedPhoto(
 					Base64.getEncoder().encodeToString(faceData[0]));
 			bioData.setRawFaceData(faceData[1]);
@@ -190,6 +192,14 @@ public class ResidentDataProvider {
 		lang_arr = new String [ minLanguages > 0 ? minLanguages : langs.size()];
 		return langs.toArray(lang_arr);
 	}
+	
+	/*
+	 * 
+	 * GENERATE METHOD 
+	 * 
+	 * 
+	 * 
+	 */
 	public List<ResidentModel> generate(String contextKey) {
 		
 		List<ResidentModel> residents = new ArrayList<ResidentModel>();
@@ -398,8 +408,8 @@ public class ResidentDataProvider {
 
 		Hashtable<String, List<MosipIndividualTypeModel>> resStatusList =  MosipMasterData.getIndividualTypes(contextKey);
 		
-		int [] idxes = CommonUtil.generateRandomNumbers(count,DataProviderConstants.MAX_PHOTOS,0);
-
+	//	int [] idxes = CommonUtil.generateRandomNumbers(count,DataProviderConstants.MAX_PHOTOS,0);
+		
 		List<IrisDataModel> irisList = null;
 		try {
 			if(bIrisRequired)
@@ -552,7 +562,10 @@ public class ResidentDataProvider {
 			Object bOFace = attributeList.get(ResidentAttribute.RA_Photo);
 			boolean bFace = ( bOFace == null ? true: (boolean)bOFace);
 			if(bFace) {
-				byte[][] faceData = PhotoProvider.getPhoto(idxes[i], res_gender.name(),contextKey );
+			//	byte[][] faceData = PhotoProvider.getPhoto(idxes[i], res_gender.name(),contextKey );
+				
+				byte[][] faceData = PhotoProvider.getPhoto(contextKey );
+				
 				bioData.setEncodedPhoto(
 						Base64.getEncoder().encodeToString(faceData[0]));
 				bioData.setRawFaceData(faceData[1]);
