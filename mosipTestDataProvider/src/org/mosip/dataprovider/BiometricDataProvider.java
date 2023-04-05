@@ -375,7 +375,10 @@ public class BiometricDataProvider {
 			}
 
 			mds.removeProfile(mdsprofilePath, profileName, port);
-		} catch (Exception e) {
+			
+		}
+		
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		CentralizedMockSBI.stopSBI(contextKey);

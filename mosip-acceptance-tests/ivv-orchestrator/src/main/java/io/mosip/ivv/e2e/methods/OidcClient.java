@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.fasterxml.jackson.core.JsonParser;
+
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.AdminTestUtil;
 import io.mosip.admin.fw.util.TestCaseDTO;
@@ -15,6 +17,8 @@ import io.mosip.ida.certificate.PartnerRegistration;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.ivv.orchestrator.PacketUtility;
+import io.mosip.testrunner.MosipTestRunner;
 import io.mosip.testscripts.PostWithOnlyPathParam;
 import io.mosip.testscripts.PutWithPathParamsAndBody;
 import io.mosip.testscripts.SimplePatchForAutoGenId;
@@ -34,7 +38,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 	private static final String UploadPartnerCertificate = "idaData/PmsIntegration/UploadCert/UploadCert.yml";
 	private static final String RequestAPIKeyForAuthPartner = "idaData/PmsIntegration/RequestAPIKey/RequestAPIKey.yml";
 	private static final String ApproveAPIKey = "idaData/PmsIntegration/ApproveAPIKey/ApproveAPIKey.yml";
-	private static final String GenerateApiKey = "idaData/PmsIntegration/GenerateApiKey/GenerateApiKey.yml";
+	//private static final String GenerateApiKey = "idaData/PmsIntegration/GenerateApiKey/GenerateApiKey.yml";
 	private static final String OidcClient = "idaData/OidcClient/OIDCClient.yml";
 
 	
@@ -47,7 +51,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 	SimplePost uploadPartnerCertificate = new SimplePost();
 	SimplePostForAutoGenId requestAPIKeyForAuthPartner = new SimplePostForAutoGenId();
 	SimplePut approveAPIKey = new SimplePut();
-	SimplePatchForAutoGenId generateApiKey = new SimplePatchForAutoGenId();
+	//SimplePatchForAutoGenId generateApiKey = new SimplePatchForAutoGenId();
 	SimplePostForAutoGenId oidcClient=new SimplePostForAutoGenId();
 	
 	@Override
@@ -329,42 +333,88 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 		
 		// GenerateApiKey Call
 
-				Object[] testObj10 = generateApiKey.getYmlTestData(GenerateApiKey);
-
-				TestCaseDTO test10 = (TestCaseDTO) testObj10[0];
-				test10.setEndPoint(test10.getEndPoint().replace("$PARTNERId$", partnerId));
-
-				String inputForGenerateApiKey = test10.getInput();
-
-				inputForGenerateApiKey = JsonPrecondtion
-						.parseAndReturnJsonContent(inputForGenerateApiKey, policyName, "policyName");
-
-				test10.setInput(inputForGenerateApiKey);
-
-				try {
-					generateApiKey.test(test10);
-					Response response = generateApiKey.response;
-					if (response != null) {
-						JSONObject jsonResp = new JSONObject(response.getBody().asString());
-					}
-
-				} catch (AuthenticationTestException | AdminTestException e) {
-					throw new RigInternalError(e.getMessage());
-
-				}
+		/*
+		 * Object[] testObj10 = generateApiKey.getYmlTestData(GenerateApiKey);
+		 * 
+		 * TestCaseDTO test10 = (TestCaseDTO) testObj10[0];
+		 * test10.setEndPoint(test10.getEndPoint().replace("$PARTNERId$", partnerId));
+		 * 
+		 * String inputForGenerateApiKey = test10.getInput();
+		 * 
+		 * inputForGenerateApiKey = JsonPrecondtion
+		 * .parseAndReturnJsonContent(inputForGenerateApiKey, policyName, "policyName");
+		 * 
+		 * test10.setInput(inputForGenerateApiKey);
+		 * 
+		 * try { generateApiKey.test(test10); Response response =
+		 * generateApiKey.response; if (response != null) { JSONObject jsonResp = new
+		 * JSONObject(response.getBody().asString()); }
+		 * 
+		 * } catch (AuthenticationTestException | AdminTestException e) { throw new
+		 * RigInternalError(e.getMessage());
+		 * 
+		 * }
+		 */
 				
 				// OIDC_CLIENT Creation Call
 
 				Object[] testObj11 = oidcClient.getYmlTestData(OidcClient);
 
 				TestCaseDTO test11 = (TestCaseDTO) testObj11[0];
+				
+				String inputForOidcClient = PacketUtility.getJsonFromTemplate(test11.getInput(), test11.getInputTemplate());
 
-				String inputForOidcClient = test11.getInput();
+				String oidcJwkKey = MosipTestRunner.generateJWKPublicKey();
+				step.getScenario().getOidcPmsProp().put("oidcJwkKey"+step.getScenario().getId(), oidcJwkKey);
+				
+				if (inputForOidcClient.contains("$OIDCJWKKEY$")) {
+					inputForOidcClient = inputForOidcClient.replace("$OIDCJWKKEY$", oidcJwkKey.toString());
+				}
+				
+				//String inputForOidcClient = test11.getInput();
+				
+				if (inputForOidcClient.contains("$POLICYID$")) {
+					inputForOidcClient = inputForOidcClient.replace("$POLICYID$", policyId);
+				}
+				
+				if (inputForOidcClient.contains("$PARTNERID$")) {
+					inputForOidcClient = inputForOidcClient.replace("$PARTNERID$", partnerId);
+				}
 
-				inputForOidcClient = JsonPrecondtion
-						.parseAndReturnJsonContent(inputForOidcClient, policyId, "policyId");
-				inputForOidcClient = JsonPrecondtion
-						.parseAndReturnJsonContent(inputForOidcClient, partnerId, "authPartnerId");
+				/*
+				 * inputForOidcClient = JsonPrecondtion
+				 * .parseAndReturnJsonContent(inputForOidcClient, policyId, "policyId");
+				 * inputForOidcClient = JsonPrecondtion
+				 * .parseAndReturnJsonContent(inputForOidcClient, partnerId, "authPartnerId");
+				 */
+				
+				/*
+				 * inputForOidcClient = JsonPrecondtion
+				 * .parseAndReturnJsonContent(inputForOidcClient, partnerId, "authPartnerId");
+				 */
+				
+				
+				
+				/*
+				 * inputForOidcClient = JsonPrecondtion
+				 * .parseAndReturnJsonContent(inputForOidcClient, oidcJwkKey, "publicKey");
+				 */
+
+				
+
+				/*
+				 * JSONObject req = new JSONObject(inputForOidcClient);
+				 * 
+				 * if(req.has("publicKey")) { //req.put("publicKey", oidcJwkKey);
+				 * req.put("publicKey", oidcJwkKey.replace("\"", "")); }
+				 */
+				
+				/*
+				 * org.json.JSONObject requesteJson = new
+				 * org.json.JSONObject(inputForOidcClient); String requesteBody =
+				 * requesteJson.get("request").toString();
+				 */
+				
 				
 				test11.setInput(inputForOidcClient);
 
