@@ -16,7 +16,7 @@ import variables.VariableManager;
 
 
 public class PhotoProvider {
-	static String Photo_File_Format = "/Face(%02d).jpg";
+	static String Photo_File_Format = "/face%04d.jpg";
 	//static byte[][] getPhoto(int idx, String gender,String contextKey) {
 		static byte[][] getPhoto(String contextKey) {
 			
@@ -30,8 +30,6 @@ public class PhotoProvider {
 					String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString();
 					
-			System.out.println("dirPath " + dirPath);
-			Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 			File dir = new File(dirPath);
 
 			File listDir[] = dir.listFiles();
@@ -53,13 +51,9 @@ public class PhotoProvider {
 
 			System.out.println("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
 					+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
-			
-	List<File> file = CommonUtil.listFiles(dirPath + String.format(Photo_File_Format, impressionToPick));
-			
-					
-					
-			String photoFile = String.format(Photo_File_Format, VariableManager.getVariableValue(contextKey,"mountPath").toString());
-			Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"enableExternalBiometricSource");
+					File file=new File(dirPath + String.format(Photo_File_Format, impressionToPick));
+
+					Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"enableExternalBiometricSource");
 			boolean bExternalSrc = false;
 			BufferedImage img = null;
 			
@@ -75,12 +69,9 @@ public class PhotoProvider {
 			}
 			else
 			{
-				
-//				img = ImageIO.read(new File(VariableManager.getVariableValue(contextKey,"mountPath").toString()+
-//						VariableManager.getVariableValue(contextKey,"mosip.test.persona.facedatapath").toString()+"/" + gender.toLowerCase() + photoFile));
-				
-				img = ImageIO.read(new File(VariableManager.getVariableValue(contextKey,"mountPath").toString()+
-					VariableManager.getVariableValue(contextKey,"mosip.test.persona.facedatapath").toString()+"/"+file + photoFile));
+				img=ImageIO.read(file);
+				System.out.println("Image picked from this path="+ file);
+			
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
