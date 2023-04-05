@@ -5,29 +5,60 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
+import java.util.Hashtable;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import org.mosip.dataprovider.util.CommonUtil;
-import org.mosip.dataprovider.util.DataProviderConstants;
-import org.mosip.dataprovider.util.Gender;
-import org.springframework.beans.factory.annotation.Value;
 
-import io.cucumber.messages.internal.com.google.common.io.Files;
 import variables.VariableManager;
 
 
 public class PhotoProvider {
-	static String Photo_File_Format = "/photo_%02d.jpg";
-	static byte[][] getPhoto(int idx, String gender,String contextKey) {
+	static String Photo_File_Format = "/Face(%02d).jpg";
+	//static byte[][] getPhoto(int idx, String gender,String contextKey) {
+		static byte[][] getPhoto(String contextKey) {
+			
 		//String encodedImage="";
 		//String hexHash ="";
 		byte[] bencoded =null;
 		byte[] bData = null;
 		try {
 			//JPEG2000
-			String photoFile = String.format(Photo_File_Format, idx);
+					
+					String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString();
+					
+			System.out.println("dirPath " + dirPath);
+			Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
+			File dir = new File(dirPath);
+
+			File listDir[] = dir.listFiles();
+			int numberOfSubfolders = listDir.length;
+
+			int min = 1;
+			int max = numberOfSubfolders;
+			int randomNumber = (int) (Math.random() * (max - min)) + min;
+			String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
+			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+
+			int currentScenarioNumber = Integer.valueOf(afterscenario);
+
+			// If the available impressions are less than scenario number, pick the random
+			// one
+
+			// otherwise pick the impression of same of scenario number
+			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+
+			System.out.println("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
+					+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
+			
+	List<File> file = CommonUtil.listFiles(dirPath + String.format(Photo_File_Format, impressionToPick));
+			
+					
+					
+			String photoFile = String.format(Photo_File_Format, VariableManager.getVariableValue(contextKey,"mountPath").toString());
 			Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"enableExternalBiometricSource");
 			boolean bExternalSrc = false;
 			BufferedImage img = null;
@@ -44,7 +75,12 @@ public class PhotoProvider {
 			}
 			else
 			{
-				img = ImageIO.read(new File(VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.facedatapath").toString()+"/" + gender.toLowerCase() + photoFile));
+				
+//				img = ImageIO.read(new File(VariableManager.getVariableValue(contextKey,"mountPath").toString()+
+//						VariableManager.getVariableValue(contextKey,"mosip.test.persona.facedatapath").toString()+"/" + gender.toLowerCase() + photoFile));
+				
+				img = ImageIO.read(new File(VariableManager.getVariableValue(contextKey,"mountPath").toString()+
+					VariableManager.getVariableValue(contextKey,"mosip.test.persona.facedatapath").toString()+"/"+file + photoFile));
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
@@ -155,7 +191,7 @@ public class PhotoProvider {
 		
 	public static void main(String [] args) throws IOException {
 		//splitImages();
-		byte[][] strImg = getPhoto(21,Gender.Male.name(),"contextKey");
+		//byte[][] strImg = getPhoto(21,Gender.Male.name(),"contextKey");
 		//Files.write(strImg[0].getBytes(), new File( "c:\\temp\\photo.txt"));
 		//System.out.println(strImg);
 		
