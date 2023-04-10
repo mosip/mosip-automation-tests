@@ -232,8 +232,13 @@ public class BiometricDataProvider {
 				 */
 
 				System.out.println("p12path" + p12path);
+				
 				port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device", p12path.toString());
-
+				
+				//Need to check with Anusha is this below line correct wrt multi run of scenarios for each env.
+				//port = CentralizedMockSBI.startSBI(VariableManager.getVariableValue(contextKey, "db-server").toString(), "Registration", "Biometric Device", p12path.toString());
+				
+				
 				portmap.put("port_" + contextKey, port);
 				// CentralizedMockSBI.stopSBI(contextKey);
 				mds = new MDSClient(port);
@@ -378,8 +383,8 @@ public class BiometricDataProvider {
 			
 		}
 		
-		catch (Exception e) {
-			e.printStackTrace();
+		catch (Throwable t) {
+			t.getStackTrace();
 		}
 		CentralizedMockSBI.stopSBI(contextKey);
 		return capture;

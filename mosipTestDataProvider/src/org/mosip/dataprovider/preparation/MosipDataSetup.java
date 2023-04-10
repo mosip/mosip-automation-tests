@@ -573,8 +573,8 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 				
 		try {
 			
-			JSONObject resp = RestClient.delete(url, new JSONObject(),contextKey);
-			response = resp.toString();
+			response= RestClient.deleteExpectation(url, new JSONObject(),contextKey);
+			
 		} catch (Exception e) {
 			
 			e.printStackTrace();
