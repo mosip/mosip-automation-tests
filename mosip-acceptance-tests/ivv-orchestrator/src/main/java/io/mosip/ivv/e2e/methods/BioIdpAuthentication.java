@@ -155,7 +155,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 
 			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
-			System.out.println("bioMetricValue= " + bioResponse);
+			//System.out.println("bioMetricValue= " + bioResponse);
 
 			String fileName = AuthenticateUser;
 			idpBioAuth.isInternal = false;
@@ -242,7 +242,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 
 			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
-			System.out.println("bioMetricValue= " + bioResponse);
+			//System.out.println("bioMetricValue= " + bioResponse);
 
 			String fileName = AuthenticateUser;
 			idpBioAuth.isInternal = false;

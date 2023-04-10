@@ -137,7 +137,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 
 			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
-			System.out.println("bioMetricValue= " + bioResponse);
+			//System.out.println("bioMetricValue= " + bioResponse);
 
 			String fileName = BIOMETRIC_FACE;
 			bioAuth.isInternal = false;
@@ -226,7 +226,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 
 			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
 
-			System.out.println("bioMetricValue= " + bioResponse);
+			//System.out.println("bioMetricValue= " + bioResponse);
 
 			String fileName = BIOMETRIC_FACE;
 			bioAuth.isInternal = false;
