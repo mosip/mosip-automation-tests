@@ -31,7 +31,7 @@ import variables.VariableManager;
 
 public class MDSClient implements MDSClientInterface {
 
-	public static int port;
+	public  int port;
 	public static String MDSURL = "http://127.0.0.1:";
 	
 	public MDSClient(int port) {
@@ -338,7 +338,7 @@ public class MDSClient implements MDSClientInterface {
 			HttpRCapture capture = new HttpRCapture(url);
 			capture.setMethod("RCAPTURE");
 			String response = RestClient.rawHttp(capture, jsonReq.toString());
-			System.out.println("MDS RESPONSE :"+  response);
+			//System.out.println("MDS RESPONSE :"+  response);
 			JSONObject respObject = new JSONObject(response);
 			JSONArray bioArray = respObject.getJSONArray("biometrics");
 			List<MDSDeviceCaptureModel> lstBiometrics  = rCaptureModel.getLstBiometrics().get(type);
@@ -424,7 +424,7 @@ public class MDSClient implements MDSClientInterface {
 		
 		MDSClient client = new MDSClient(0);
 		//client.setProfile("res643726437264372");
-		client.setProfile("Default",port);
+		//client.setProfile("Default",port);
 		List<MDSDevice> d= client.getRegDeviceInfo("Iris");
 		d.forEach( dv-> {
 			System.out.println(dv.toJSONString());	
