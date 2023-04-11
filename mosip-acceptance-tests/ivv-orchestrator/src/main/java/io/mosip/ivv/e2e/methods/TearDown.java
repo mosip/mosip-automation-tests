@@ -41,9 +41,9 @@ public class TearDown extends BaseTestCaseUtil implements StepInterface {
 	public void run() {
 		  try {
 			
-			  System.out.println(OnSmtpList.map);
+			  System.out.println(OnSmtpList.emailNotificationMapS);
 			  OnSmtpList.flag=true;
-			  System.out.println(OnSmtpList.map);
+			  System.out.println(OnSmtpList.emailNotificationMapS);
 		  }
 		  catch(Exception e)
 		  {
