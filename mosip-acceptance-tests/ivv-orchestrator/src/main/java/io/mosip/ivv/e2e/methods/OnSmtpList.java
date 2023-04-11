@@ -8,10 +8,14 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Listener;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -43,7 +47,7 @@ import io.mosip.service.BaseTestCase;
 
 public class OnSmtpList extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(OnSmtpList.class);
-	static HashMap map=new HashMap<Object, Object>();
+	static Map<Object, Object> emailNotificationMapS=Collections.synchronizedMap(new HashMap<Object, Object>());
 
 	static Boolean flag=false;
 
@@ -90,7 +94,7 @@ public class OnSmtpList extends BaseTestCaseUtil implements StepInterface {
 		@Override
 		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
 			if(flag) {
-				System.out.println(map);
+				System.out.println(emailNotificationMapS);
 				System.out.println("End Closure of listner " );
 				onClose(webSocket, 0, "After suite invoked closing");
 			}
@@ -98,7 +102,7 @@ public class OnSmtpList extends BaseTestCaseUtil implements StepInterface {
 				ObjectMapper om = new ObjectMapper();
 
 				root = om.readValue(data.toString(), Root.class);
-				map.put(root.to.value.get(0).address,root.html);
+				emailNotificationMapS.put(root.to.value.get(0).address,root.html);
 				System.out.println(" After adding onText received " + count + "data" + data + root);
 			} catch (JsonMappingException e) {
 
@@ -121,118 +125,72 @@ public class OnSmtpList extends BaseTestCaseUtil implements StepInterface {
 			WebSocket.Listener.super.onError(webSocket, error);
 		}
 	}
-}
 
 
-
-
-
-/*
-
-{
-"attachments": [],
-"headers": {},
-"headerLines": [
-	{
-		"key": "date",
-		"line": "Date: Fri, 6 Jan 2023 12:36:32 +0000 (UTC)"
-	},
-	{
-		"key": "from",
-		"line": "From: do-not-reply@mosip.io"
-	},
-	{
-		"key": "to",
-		"line": "To: alok.test.mosip@gmail.com"
-	},
-	{
-		"key": "message-id",
-		"line": "Message-ID: <1375994350.47282.1673008592273@notifier-85b56cf8b6-d7tqq>"
-	},
-	{
-		"key": "subject",
-		"line": "Subject: UIN Generated"
-	},
-	{
-		"key": "mime-version",
-		"line": "MIME-Version: 1.0"
-	},
-	{
-		"key": "content-type",
-		"line": "Content-Type: multipart/mixed; \r\n\tboundary=\"----=_Part_47280_955397360.1673008592158\""
+public static String getOtp(int repeatCounter, String emailId){
+	int counter = 0;
+	
+	//HashMap m=new HashMap<Object, Object>();
+	String otp = "";
+	while (counter < repeatCounter) {
+	//	m= emailNotificationMap;
+		if(emailNotificationMapS.get(emailId)!=null) {
+			String html=(String) emailNotificationMapS.get(emailId);
+			//as we alredy consumed notification removed from map
+			emailNotificationMapS.remove(emailId);	
+			otp = parseOtp(html);
+			if (otp != null && otp.length()>0) {
+//				Got the required OTP Ignore in between notification which doesn't have OTP
+				return otp;
+			}
+			
+		}
+		System.out.println("*******Checking the email for OTP...*******");
+		counter++;
+		try {
+			System.out.println("Not received Otp yet, waiting for 10 Sec");
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			System.out.println(e.getMessage());
+		}
+		
 	}
-],
-"html": "Dear $name_eng, Your UIN for Registration ID: 10636106261007320230106123531 has been successfully generated and will reach soon at your postal address. Thank You",
-"subject": "UIN Generated",
-"date": "2023-01-06T12:36:32.000Z",
-"to": {
-	"value": [
-		{
-			"address": "alok.test.mosip@gmail.com",
-			"name": ""a
-		}
-	],
-	"html": "<span class=\"mp_address_group\"><a href=\"mailto:alok.test.mosip@gmail.com\" class=\"mp_address_email\">alok.test.mosip@gmail.com</a></span>",
-	"text": "alok.test.mosip@gmail.com"
-},
-"from": {
-	"value": [
-		{
-			"address": "do-not-reply@mosip.io",
-			"name": ""
-		}
-	],
-	"html": "<span class=\"mp_address_group\"><a href=\"mailto:do-not-reply@mosip.io\" class=\"mp_address_email\">do-not-reply@mosip.io</a></span>",
-	"text": "do-not-reply@mosip.io"
-},
-"messageId": "<1375994350.47282.1673008592273@notifier-85b56cf8b6-d7tqq>"
+	System.out.println("OTP not found even after " + repeatCounter + " retries");
+	return otp;
 }
 
- */
-
-
-
-
-//import com.fasterxml.jackson.databind.ObjectMapper; // version 2.11.1
-//import com.fasterxml.jackson.annotation.JsonProperty; // version 2.11.1
-/* ObjectMapper om = new ObjectMapper();
-Root root = om.readValue(myJsonString, Root.class); 
-public class From{
- public ArrayList<Value> value;
- public String html;
- public String text;
+public static String parseOtp(String message){
+	
+	// To Do Key entry found add parsing logic for OTP
+	
+//	Dear FR OTP for UIN XXXXXXXX02 is 111111 and is valid for 3 minutes. (Generated on 16-03-2023 at 15:43:39 Hrs)
+//
+//	عزيزي $ name OTP لـ $ idvidType $ idvid هو $ otp وهو صالح لـ $ validTime دقيقة. (تم إنشاؤه في $ date في $ time Hrs)
+//
+//	Cher $name_fra, OTP pour UIN XXXXXXXX02 est 111111 et est valide pour 3 minutes. (Généré le 16-03-2023 à 15:43:39 Hrs)
+	
+//	"Dear FR OTP for UIN XXXXXXXX02 is 111111 and is valid for 3 minutes. (Generated on 16-03-2023 at 15:43:39 Hrs)\r\n"
+//	+ "\r\n"
+//	+ "عزيزي $ name OTP لـ $ idvidType $ idvid هو $ 101010 وهو صالح لـ $ validTime دقيقة. (تم إنشاؤه في $ date في $ time Hrs)\r\n"
+//	+ "\r\n"
+//	+ "Cher $name_fra, OTP pour UIN XXXXXXXX02 est 123456 et est valide pour 3 minutes. (Généré le 16-03-2023 à 15:43:39 Hrs)";
+	
+	//find any 6 digit number
+	Pattern mPattern = Pattern.compile("(|^)\\s\\d{6}\\s");
+	String otp = "";
+	if(message!=null) {
+	    Matcher mMatcher = mPattern.matcher(message);
+	    if(mMatcher.find()) {
+	        otp = mMatcher.group(0);
+	        otp = otp.trim();
+	        System.out.println("Extracted OTP: "+ otp+ " message : "+ message);
+	    }else {
+	        //something went wrong
+	    	System.out.println("Failed to extract the OTP!! "+ "message : " + message);
+	    	
+	    }
+	}
+	return otp;
 }
 
-public class HeaderLine{
- public String key;
- public String line;
 }
-
-public class Headers{
-}
-
-public class Root{
- public ArrayList<Object> attachments;
- public Headers headers;
- public ArrayList<HeaderLine> headerLines;
- public String html;
- public String subject;
- public Date date;
- @JsonProperty("to") 
- public To myto;
- public From from;
- public String messageId;
-}
-
-public class To{
- public ArrayList<Value> value;
- public String html;
- public String text;
-}
-
-public class Value{
- public String address;
- public String name;
-}
-
- */

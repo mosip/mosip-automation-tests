@@ -1,6 +1,7 @@
 package io.mosip.ivv.e2e.methods;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -23,10 +24,10 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 		if (!step.getParameters().isEmpty() && step.getParameters().size() > 0)
 			repeats = Integer.parseInt(step.getParameters().get(0));
 		String url = baseUrl + props.getProperty("getAdditionalInfoReqId");
-		HashMap m=new HashMap<Object, Object>();
+		Map<Object, Object> m=new HashMap<Object, Object>();
 		String additonalInfoRequestId=null;
 		while (counter < repeats) {
-			m=OnSmtpList.map;
+			m=OnSmtpList.emailNotificationMapS;
 			if(m.get("alok.test.mosip@gmail.com")!=null) {
 			String html=(String) m.get("alok.test.mosip@gmail.com");
 			 StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1");
