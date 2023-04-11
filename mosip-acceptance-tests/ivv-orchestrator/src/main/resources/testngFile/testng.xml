@@ -17,4 +17,5 @@
 		<listener
 			class-name="io.mosip.ivv.orchestrator.EmailableReport" />
 	</listeners>
+	
 </suite>
