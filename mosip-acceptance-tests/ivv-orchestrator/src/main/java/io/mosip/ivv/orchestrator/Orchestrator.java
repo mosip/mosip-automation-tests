@@ -204,7 +204,7 @@ public class Orchestrator {
 				// Wait till all scenarios are executed
 				while (counterLock.get() < totalScenario - 1) // executed excluding after suite
 				{
-					System.out.println("inside scenariosExeuted " + counterLock.get() + "- " + scenario.getId());
+					System.out.println(" Thread ID: "+Thread.currentThread().getId()+" inside scenariosExecuted " + counterLock.get() + "- " + scenario.getId() );
 					Thread.sleep(10000); // Sleep for 10 sec
 				}
 			} else {
@@ -213,13 +213,13 @@ public class Orchestrator {
 				while (beforeSuiteExeuted == false) {
 					Thread.sleep(10000); // Sleep for 10 sec
 
-					System.out.println(
-							"inside beforeSuiteExeuted == false " + counterLock.get() + "- " + scenario.getId());
+					System.out.println( " Thread ID: "+Thread.currentThread().getId()+
+							" inside beforeSuiteExecuted == false " + counterLock.get() + "- " + scenario.getId());
 				}
 			}
 		}
 
-		System.out.println(" scenario :- " + counterLock.get() + scenario.getId());
+		System.out.println(" Thread ID: "+Thread.currentThread().getId()+" scenario :- " + counterLock.get() + scenario.getId());
 
 		/*
 		 * 
@@ -345,7 +345,7 @@ public class Orchestrator {
 			System.out.println("Before Suite executed");
 		}
 
-		System.out.println("scenarios Executed : " + counterLock.get());
+		System.out.println(" Thread ID: "+Thread.currentThread().getId()+" scenarios Executed : " + counterLock.get());
 
 	}
 
