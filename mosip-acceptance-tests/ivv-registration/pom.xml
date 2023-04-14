@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ivv-parent</artifactId>
         <groupId>io.mosip.ivv</groupId>
-        <version>1.2.0.1-B2-SNAPSHOT</version>
+        <version>1.2.0.1-B2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -71,17 +71,17 @@
         <dependency>
             <groupId>io.mosip.ivv.core</groupId>
             <artifactId>ivv-core</artifactId>
-            <version>1.2.0.1-B2-SNAPSHOT</version>
+            <version>1.2.0.1-B2</version>
         </dependency>
         <dependency>
             <groupId>io.mosip.ivv.parser</groupId>
             <artifactId>ivv-parser</artifactId>
-            <version>1.2.0.1-B2-SNAPSHOT</version>
+            <version>1.2.0.1-B2</version>
         </dependency>
         <dependency>
             <groupId>io.mosip.ivv.dg</groupId>
             <artifactId>ivv-dg</artifactId>
-            <version>1.2.0.1-B2-SNAPSHOT</version>
+            <version>1.2.0.1-B2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>

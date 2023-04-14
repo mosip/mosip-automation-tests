@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.test.dataprovider</groupId>
 	<artifactId>dataprovider</artifactId>
-	<version>1.2.0.1-B2-SNAPSHOT</version>
+	<version>1.2.0.1-B2</version>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
