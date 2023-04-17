@@ -51,4 +51,5 @@ ENV mountPathForScenario=
 ENV authCertsPath=/home/${container_user}/authcerts
 ENV THREAD_COUNT=
 ENV ENABLE_DEBUG=no
+ENV LANG_SELECT=0
 ENTRYPOINT ["/bin/bash", "-c", "./entrypoint.sh"]

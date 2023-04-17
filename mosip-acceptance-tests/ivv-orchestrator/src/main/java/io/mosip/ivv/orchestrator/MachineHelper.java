@@ -53,7 +53,17 @@ public class MachineHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "code");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "name");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "description");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					BaseTestCase.languageCode,"langCode");
+			
 			testPost.setInput(input);
+			
+			String output = testPost.getOutput();
+			
+			output = JsonPrecondtion.parseAndReturnJsonContent(output,
+					BaseTestCase.languageCode,"langCode");
+			
+			testPost.setOutput(output);
 
 			String code = null;
 			sp.test(testPost);
@@ -126,8 +136,18 @@ public class MachineHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "minDriverversion");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "model");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "name");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					BaseTestCase.languageCode,"langCode");
+			
 			testPost.setInput(input);
 
+			String output = testPost.getOutput();
+			
+			output = JsonPrecondtion.parseAndReturnJsonContent(output,
+					BaseTestCase.languageCode,"langCode");
+			
+			testPost.setOutput(output);
+			
 			String id = null;
 			simplepost.test(testPost);
 			Response response = simplepost.response;
@@ -198,8 +218,20 @@ public class MachineHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "name");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("centerId"+centerCount), "regCenterId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("zoneCode"), "zoneCode");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					BaseTestCase.languageCode,"langCode");
+			
 			map.put("machineSpecId", machineSpecId);
 			testPost.setInput(input);
+			
+			
+			String output = testPost.getOutput();
+			
+			output = JsonPrecondtion.parseAndReturnJsonContent(output,
+					BaseTestCase.languageCode,"langCode");
+			
+			testPost.setOutput(output);
+			
 			
 				simplepost.test(testPost);
 				Response response= simplepost.response;
@@ -269,6 +301,9 @@ public class MachineHelper extends BaseTestCaseUtil {
 
 			String input=testdto.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					BaseTestCase.languageCode,"langCode");
+			
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					map.get("machineSpecId"), "machineSpecId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("machineid"), "id");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("machineName"), "name");
@@ -281,6 +316,13 @@ public class MachineHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("publicKey"), "publicKey");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("signPublicKey"), "signPublicKey");
 			testdto.setInput(input);
+			
+			String output = testdto.getOutput();
+			
+			output = JsonPrecondtion.parseAndReturnJsonContent(output,
+					BaseTestCase.languageCode,"langCode");
+			
+			testdto.setOutput(output);
 			
 			simpleput.test(testdto);
 				Response response= simpleput.response;
