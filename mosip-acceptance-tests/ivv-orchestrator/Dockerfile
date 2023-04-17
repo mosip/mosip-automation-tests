@@ -50,4 +50,5 @@ ENV packetUtilityBaseUrl=
 ENV mountPathForScenario=
 ENV authCertsPath=/home/${container_user}/authcerts
 ENV THREAD_COUNT=
+ENV ENABLE_DEBUG=no
 ENTRYPOINT ["/bin/bash", "-c", "./entrypoint.sh"]
