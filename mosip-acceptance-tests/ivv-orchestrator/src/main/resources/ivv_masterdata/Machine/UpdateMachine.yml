@@ -2,7 +2,6 @@ UpdateMachine:
    Masterdata_UpdateMachine_All_Valid_Smoke:
       endPoint: /v1/masterdata/machines
       role: admin
-      templateFields: ["name"]
       restMethod: put
       inputTemplate: ivv_masterdata/Machine/machine
       outputTemplate: ivv_masterdata/Machine/machineResult

@@ -18,7 +18,7 @@ import io.mosip.service.BaseTestCase;
 public class TestRunner {
 	private static final Logger LOGGER = Logger.getLogger(TestRunner.class);
 	public static String jarUrl = TestRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-
+	
 	public static void main(String[] args) {
 		if (checkRunType().equalsIgnoreCase("JAR")) {
 			removeOldMosipTestTestResource();
@@ -28,7 +28,11 @@ public class TestRunner {
 		BaseTestCase.environment = System.getProperty("env.user");
 		BaseTestCase.ApplnURI = System.getProperty("env.endpoint");
 		BaseTestCase.testLevel = System.getProperty("env.testLevel");
-		BaseTestCase.languageList = Arrays.asList(System.getProperty("env.langcode").split(","));
+//		BaseTestCase.languageList = Arrays.asList(System.getProperty("env.langcode").split(","));
+		
+		BaseTestCase.languageList= BaseTestCase.getLanguageList(); 
+		BaseTestCase.languageCode =BaseTestCase.languageList.get(Integer.parseInt(System.getProperty("langselect")));
+		
 		ConfigManager.init();
 		BaseTestCase.initialize();
 		// Initializing or setting up execution

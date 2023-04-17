@@ -2,7 +2,6 @@ CreateMachineSpecification:
    Masterdata_CreateMachineSpecification_All_Valid_Smoke_sid:
       endPoint: /v1/masterdata/machinespecifications
       role: admin
-      templateFields: ["name"]
       restMethod: post
       inputTemplate: ivv_masterdata/MachineSpecification/machineSpecification
       outputTemplate: ivv_masterdata/MachineSpecification/machineSpecificationResult
