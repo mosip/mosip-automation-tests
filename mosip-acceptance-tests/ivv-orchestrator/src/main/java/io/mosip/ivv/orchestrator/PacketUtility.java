@@ -588,6 +588,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
 		JSONObject jsonReq = new JSONObject();
+		jsonReq.put("enableDebug",System.getProperty("enableDebug"));
 		jsonReq.put("baselang", BaseTestCase.getLanguageList().get(0));
 		jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		jsonReq.put("urlBase", baseUrl);

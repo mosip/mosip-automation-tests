@@ -66,7 +66,7 @@ public class RestClient {
 		}
 
 		Object urlBase=VariableManager.getVariableValue(contextKey,"urlBase");
-		
+
 		if(urlBase!=null) {
 			String token= tokens.get(urlBase.toString().trim()+role);
 			return  !(null == token);
@@ -158,7 +158,7 @@ public class RestClient {
 					bDone = true;
 			}
 
-			if(response != null) {
+			if(isDebugEnabled(contextKey) && response != null ) {
 				System.out.println(response.getBody().asString());
 
 			}
@@ -170,6 +170,15 @@ public class RestClient {
 			e.printStackTrace();
 		}
 		return response;
+	}
+
+	public static boolean isDebugEnabled(String contextKey){	
+		boolean debugEnabled=false;
+
+		String enableDebugflag=VariableManager.getVariableValue(contextKey,"enableDebug").toString();
+		if(enableDebugflag!=null && !enableDebugflag.isEmpty())
+			debugEnabled= enableDebugflag.equalsIgnoreCase("yes");
+		return debugEnabled;
 	}
 
 	//method used with admin role
@@ -214,7 +223,7 @@ public class RestClient {
 					bDone = true;
 			}
 
-			if(response != null) {
+			if(isDebugEnabled(contextKey) && response != null ) {
 				System.out.println(response.getBody().asString());
 
 			}
@@ -272,7 +281,7 @@ public class RestClient {
 					bDone = true;
 			}
 
-			if(response != null) {
+			if(isDebugEnabled(contextKey) && response != null ) {
 				System.out.println(response.getBody().asString());
 
 			}
@@ -328,7 +337,7 @@ public class RestClient {
 				bDone = true;
 		}
 
-		if(response != null) {
+		if(isDebugEnabled(contextKey) && response != null ) {
 			System.out.println(response.getBody().asString());
 
 		}
@@ -355,8 +364,7 @@ public class RestClient {
 
 		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,mapPathParam );
 
-		if(response != null) {
-			System.out.println(response.getBody().asString());        	
+		if(isDebugEnabled(contextKey) && response != null ) {	System.out.println(response.getBody().asString());        	
 		}
 		checkErrorResponse(response.getBody().asString());
 
@@ -498,7 +506,7 @@ public class RestClient {
 		String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
 
 		Response response =null;
-
+		if(isDebugEnabled(contextKey ) )
 		System.out.println("Request:"+ jsonRequest.toString());
 		try {
 			response = given()
@@ -562,6 +570,7 @@ public class RestClient {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+		if(isDebugEnabled(contextKey ) )
 		System.out.println("Response:"+response.getBody().asString());
 
 		for(Header h: response.getHeaders()) {
@@ -606,7 +615,7 @@ public class RestClient {
 		String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
 
 		Response response =null;
-
+		if(isDebugEnabled(contextKey ) )
 		System.out.println("Request:"+ jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder("Authorization", token).build();
 
@@ -622,6 +631,7 @@ public class RestClient {
 			tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role,token);
 		}
 		System.out.println(token);
+		if(isDebugEnabled(contextKey ) )
 		System.out.println("Response:"+response.getBody().asString());
 		checkErrorResponse(response.getBody().asString());
 
@@ -681,9 +691,10 @@ public class RestClient {
 			token = cookie.split("=")[1];
 			tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role,token);
 		}
+		if(isDebugEnabled(contextKey ) ) {
 		System.out.println(token);
 		System.out.println("Response:"+response.getBody().asString());
-
+		}
 
 		return new JSONObject(response.getBody().asString());
 	}
@@ -711,9 +722,11 @@ public class RestClient {
 			token = cookie.split("=")[1];
 			tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role,token);
 		}
+		
+		if(isDebugEnabled(contextKey ) ) {
 		System.out.println(token);
 		System.out.println("Response:"+response.getBody().asString());
-
+		}
 
 		return response.getBody().asString();
 	}
@@ -743,8 +756,11 @@ public class RestClient {
 			token = cookie.split("=")[1];
 			tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role,token);
 		}
+		
+		if(isDebugEnabled(contextKey ) ) {
 		System.out.println(token);
 		System.out.println("Response:"+response.getBody().asString());
+		}
 		checkErrorResponse(response.getBody().asString());
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -853,6 +869,7 @@ public class RestClient {
 			String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
 
 			Cookie kukki = new Cookie.Builder("Authorization", token).build();
+			if(isDebugEnabled(contextKey ) )
 			System.out.println("Request:"+ jsonRequest.toString());
 			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 			if(response.getStatusCode() == 401 || response.getStatusCode() == 500 ) {
@@ -875,7 +892,9 @@ public class RestClient {
 			tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role, token);
 
 		}
+		
 		if(response.getBody().asString().startsWith("{")) {
+			if(isDebugEnabled(contextKey ))
 			System.out.println("Response:"+response.getBody().asString());
 			checkErrorResponse(response.getBody().asString());
 			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -905,6 +924,7 @@ public class RestClient {
 			String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
 
 			Cookie kukki = new Cookie.Builder("Authorization", token).build();
+			if(isDebugEnabled(contextKey ))
 			System.out.println("Request:"+ jsonRequest.toString());
 			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 			if(response.getStatusCode() == 401 || response.getStatusCode() == 500 ) {
@@ -928,6 +948,7 @@ public class RestClient {
 
 		}
 		if(response.getBody().asString().startsWith("{")) {
+			if(isDebugEnabled(contextKey ))
 			System.out.println("Response:"+response.getBody().asString());
 			checkErrorResponse(response.getBody().asString());
 			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -951,6 +972,7 @@ public class RestClient {
 			String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
 
 			Cookie kukki = new Cookie.Builder("Authorization", token).build();
+			if(isDebugEnabled(contextKey ))
 			System.out.println("Request:"+ jsonRequest.toString());
 			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 			if(response.getStatusCode() == 401 || response.getStatusCode() == 500 ) {
@@ -974,6 +996,7 @@ public class RestClient {
 			tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role, token);
 		}
 		if(response.getBody().asString().startsWith("{")) {
+			if(isDebugEnabled(contextKey ))
 			System.out.println("Response:"+response.getBody().asString());
 			checkErrorResponse(response.getBody().asString());
 			return new JSONObject(response.getBody().asString());
@@ -1026,6 +1049,7 @@ public class RestClient {
 			tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role, token);
 		}
 		if(response.getBody().asString().startsWith("{")) {
+			if(isDebugEnabled(contextKey ))
 			System.out.println("Response:"+response.getBody().asString());
 			checkErrorResponse(response.getBody().asString());
 
