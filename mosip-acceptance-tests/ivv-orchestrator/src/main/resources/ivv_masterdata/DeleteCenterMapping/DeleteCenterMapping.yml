@@ -2,7 +2,6 @@ DeleteMachine:
    MasterData_DeleteMachine_All_Valid_Smoke_sid:  
       endPoint: /v1/admin/masterdata/usercentermapping/{id}
       role: admin
-      templateFields: []
       restMethod: delete
       inputTemplate: ivv_masterdata/DeleteCenterMapping/deleteCenterMapping
       outputTemplate: ivv_masterdata/DeleteCenterMapping/deleteCenterMappingResult

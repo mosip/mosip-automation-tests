@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.PatchWithPathParam;
 import io.mosip.testscripts.PutWithPathParam;
 import io.mosip.testscripts.SimplePost;
@@ -41,13 +42,17 @@ public class CenterHelper extends BaseTestCaseUtil {
 					centerId, "id");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					zone,"zoneCode");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					BaseTestCase.languageCode,"langCode");
+			
 			testPut.setInput(input);
 
-		
 			
 			String output=testPut.getOutput();
 			output = JsonPrecondtion.parseAndReturnJsonContent(output,
 					zone,"zoneCode");
+			output = JsonPrecondtion.parseAndReturnJsonContent(output,
+					BaseTestCase.languageCode,"langCode");
 			testPut.setOutput(output);
 			simpleput.test(testPut);
 			Response response= simpleput.response;
@@ -131,11 +136,17 @@ public class CenterHelper extends BaseTestCaseUtil {
 					getDateTime(), "name");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					zone,"zoneCode");
+			
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					BaseTestCase.languageCode,"langCode");
+			
 			testPost.setInput(input);
 			
 			String output=testPost.getOutput();
 			output = JsonPrecondtion.parseAndReturnJsonContent(output,
 					zone,"zoneCode");
+			output = JsonPrecondtion.parseAndReturnJsonContent(output,
+					BaseTestCase.languageCode,"langCode");
 			testPost.setOutput(output);
 			
 			simplepost.test(testPost);

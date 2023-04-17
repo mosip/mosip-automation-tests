@@ -2,7 +2,6 @@ UpdateMachineType:
    Masterdata_UpdateMachineType_All_Valid_Smoke:
       endPoint: /v1/masterdata/machinetypes
       role: admin
-      templateFields: ["description","name"]
       restMethod: put
       inputTemplate: ivv_masterdata/MachineType/machineType
       outputTemplate: ivv_masterdata/MachineType/machineTypeResult
@@ -21,7 +20,6 @@ UpdateMachineType:
    Masterdata_UpdateMachineType_Invalid_InputParameter_Code_Missing:
       endPoint: /v1/masterdata/machinetypes
       role: admin
-      templateFields: ["description","name"]
       restMethod: put
       inputTemplate: ivv_masterdata/MachineType/machineType
       outputTemplate: ivv_masterdata/error
@@ -44,7 +42,6 @@ UpdateMachineType:
    Masterdata_UpdateMachineType_Invalid_InputParameter_Code_Empty:
       endPoint: /v1/masterdata/machinetypes
       role: admin
-      templateFields: ["description","name"]
       restMethod: put
       inputTemplate: ivv_masterdata/MachineType/machineType
       outputTemplate: ivv_masterdata/error
@@ -67,7 +64,6 @@ UpdateMachineType:
    Masterdata_UpdateMachineType_InputParameter_Name_Missing:
       endPoint: /v1/masterdata/machinetypes
       role: admin
-      templateFields: ["description"]
       restMethod: put
       inputTemplate: ivv_masterdata/MachineType/machineType
       outputTemplate: ivv_masterdata/error
@@ -90,7 +86,6 @@ UpdateMachineType:
    Masterdata_UpdateMachineType_InputParameter_Name_Empty:
       endPoint: /v1/masterdata/machinetypes
       role: admin
-      templateFields: ["description"]
       restMethod: put
       inputTemplate: ivv_masterdata/MachineType/machineType
       outputTemplate: ivv_masterdata/error
@@ -113,7 +108,6 @@ UpdateMachineType:
    Masterdata_UpdateMachineType_InputParameter_Name_AboveMaxLen64:
       endPoint: /v1/masterdata/machinetypes
       role: admin
-      templateFields: ["description"]
       restMethod: put
       inputTemplate: ivv_masterdata/MachineType/machineType
       outputTemplate: ivv_masterdata/error
@@ -136,7 +130,6 @@ UpdateMachineType:
    Masterdata_UpdateMachineType_InputParameter_Description_AboveMaxLen128:
       endPoint: /v1/masterdata/machinetypes
       role: admin
-      templateFields: ["name"]
       restMethod: put
       inputTemplate: ivv_masterdata/MachineType/machineType
       outputTemplate: ivv_masterdata/error

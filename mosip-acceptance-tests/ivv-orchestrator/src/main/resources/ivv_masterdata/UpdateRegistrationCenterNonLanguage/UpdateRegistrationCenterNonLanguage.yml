@@ -2,7 +2,6 @@ UpdateRegistrationCenterNonLanguage:
    MasterData_UpdateRegistrationCenterNonLanguage_Smoke:  
       endPoint: /v1/masterdata/registrationcenters/nonlanguage
       role: admin
-      templateFields: ["contactPerson"]
       restMethod: put
       inputTemplate: ivv_masterdata/UpdateRegistrationCenterNonLanguage/updateRegistrationCenter
       outputTemplate: ivv_masterdata/UpdateRegistrationCenterNonLanguage/updateRegistrationCenterResult
