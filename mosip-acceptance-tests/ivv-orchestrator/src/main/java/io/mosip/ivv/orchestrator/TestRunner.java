@@ -33,6 +33,8 @@ public class TestRunner {
 		BaseTestCase.languageList= BaseTestCase.getLanguageList(); 
 		BaseTestCase.languageCode =BaseTestCase.languageList.get(Integer.parseInt(System.getProperty("langselect")));
 		
+		System.out.println("Current running language: "+BaseTestCase.languageCode);
+		
 		ConfigManager.init();
 		BaseTestCase.initialize();
 		// Initializing or setting up execution
