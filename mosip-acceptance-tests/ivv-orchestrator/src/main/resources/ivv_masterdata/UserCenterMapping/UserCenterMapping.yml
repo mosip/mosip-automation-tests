@@ -2,7 +2,6 @@ UserCenterMapping:
    MasterData_UserCenterMapping_All_Valid_Smoke:
       endPoint: /v1/masterdata/usercentermapping
       role: admin
-      templateFields: ["name"]
       restMethod: post
       inputTemplate: ivv_masterdata/UserCenterMapping/userCenterMapping
       outputTemplate: ivv_masterdata/UserCenterMapping/userCenterMappingResult

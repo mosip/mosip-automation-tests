@@ -2,7 +2,6 @@ UpdateRegistrationCenterLang:
    MasterData_UpdateRegistrationCenterLang_Smoke:  
       endPoint: /v1/masterdata/registrationcenters/language
       role: admin
-      templateFields: ["addressLine1","addressLine2","addressLine3","contactPerson","name"]
       restMethod: put
       inputTemplate: ivv_masterdata/UpdateRegistrationCenterLang/updateRegistrationCenter
       outputTemplate: ivv_masterdata/UpdateRegistrationCenterLang/updateRegistrationCenterResult

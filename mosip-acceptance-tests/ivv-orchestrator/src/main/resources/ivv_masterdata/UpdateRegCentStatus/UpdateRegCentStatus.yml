@@ -2,7 +2,6 @@ UpdateRegCentStatus:
    MasterData_UpdateRegCentStatus_All_Valid_Smoke_sid:  
       endPoint: /v1/masterdata/registrationcenters?isActive={isActive}&id={id}
       role: admin
-      templateFields: ["id"]
       restMethod: patch
       inputTemplate: ivv_masterdata/UpdateRegCentStatus/updateRegCentStatus
       outputTemplate: ivv_masterdata/UpdateRegCentStatus/updateRegCentStatusResult
