@@ -50,6 +50,7 @@ import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
+import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.BioAuth;
 import io.mosip.testscripts.IdpBioAuth;
@@ -588,7 +589,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
 		JSONObject jsonReq = new JSONObject();
-		jsonReq.put("enableDebug",System.getProperty("enableDebug"));
+		jsonReq.put("enableDebug",ConfigManager.getEnableDebug());
 		jsonReq.put("baselang", BaseTestCase.getLanguageList().get(0));
 		jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		jsonReq.put("urlBase", baseUrl);
@@ -638,6 +639,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject jsonReq = new JSONObject();
 
 		jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
+		jsonReq.put("enableDebug",ConfigManager.getEnableDebug());
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
 		jsonReq.put("mosip.test.regclient.machineid",
