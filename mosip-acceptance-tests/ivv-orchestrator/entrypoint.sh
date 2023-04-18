@@ -22,4 +22,4 @@ fi
 
 ## Run DSL Orchestrator
 java --version
-java -jar -Denv.user="$USER" -Denv.endpoint="$ENDPOINT" -Denv.testLevel="$TESTLEVEL" -Denv.langcode="$LANG_CODE" -DthreadCount="$THREAD_COUNT" -DenableDebug="$ENABLE_DEBUG" -Dlangselect="$LANG_SELECT" ivv-orchestrator-*-jar-with-dependencies.jar
+java -jar -Denv.user="$USER" -Denv.endpoint="$ENDPOINT" -Denv.testLevel="$TESTLEVEL" ivv-orchestrator-*-jar-with-dependencies.jar

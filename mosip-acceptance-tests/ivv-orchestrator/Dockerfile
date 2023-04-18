@@ -42,14 +42,17 @@ EXPOSE 8081
 ENV USER=
 ENV ENDPOINT=
 ENV TESTLEVEL=
-ENV LANG_CODE=
+
+
 ENV ENABLE_INSECURE=
 ENV authDemoServiceBaseURL=
 ENV authDemoServicePort=
 ENV packetUtilityBaseUrl=
 ENV mountPathForScenario=
 ENV authCertsPath=/home/${container_user}/authcerts
-ENV THREAD_COUNT=
-ENV ENABLE_DEBUG=no
-ENV LANG_SELECT=0
+ENV threadCount=
+ENV enableDebug=
+ENV langselect=
+ENV push-reports-to-s3=
+ENV s3-account=
 ENTRYPOINT ["/bin/bash", "-c", "./entrypoint.sh"]

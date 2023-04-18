@@ -18,7 +18,7 @@ import io.mosip.service.BaseTestCase;
 public class TestRunner {
 	private static final Logger LOGGER = Logger.getLogger(TestRunner.class);
 	public static String jarUrl = TestRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-	
+
 	public static void main(String[] args) {
 		if (checkRunType().equalsIgnoreCase("JAR")) {
 			removeOldMosipTestTestResource();
@@ -28,18 +28,20 @@ public class TestRunner {
 		BaseTestCase.environment = System.getProperty("env.user");
 		BaseTestCase.ApplnURI = System.getProperty("env.endpoint");
 		BaseTestCase.testLevel = System.getProperty("env.testLevel");
-//		BaseTestCase.languageList = Arrays.asList(System.getProperty("env.langcode").split(","));
-		
-		BaseTestCase.languageList= BaseTestCase.getLanguageList(); 
-		BaseTestCase.languageCode =BaseTestCase.languageList.get(Integer.parseInt(System.getProperty("langselect")));
-		
-		System.out.println("Current running language: "+BaseTestCase.languageCode);
-		
+
+		// Initializing or setting up execution
 		ConfigManager.init();
 		BaseTestCase.initialize();
-		// Initializing or setting up execution
+		
 
-		// here
+		BaseTestCase.languageList = BaseTestCase.getLanguageList();
+
+		// Selecting the language based on index for example- eng,ara,fra (To run suite
+		// in ara lang pass 1 in langselect property)
+
+		BaseTestCase.languageCode = BaseTestCase.languageList.get(Integer.parseInt(ConfigManager.getLangselect()));
+
+		System.out.println("Current running language: " + BaseTestCase.languageCode);
 		startTestRunner();
 	}
 
