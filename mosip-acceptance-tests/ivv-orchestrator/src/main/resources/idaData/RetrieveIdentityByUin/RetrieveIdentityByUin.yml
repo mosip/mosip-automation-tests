@@ -1,0 +1,18 @@
+RetrieveIdentity:
+  IdRepository_RetrieveIdentity_With_UIN:
+      endPoint: /idrepository/v1/identity/idvid/{id}
+      role: idrepo
+      restMethod: get
+      inputTemplate: idaData/RetrieveIdentityByUin/retrieveIdentityByUin
+      outputTemplate: idaData/RetrieveIdentityByUin/retrieveIdentityByResult
+      input: '{
+    "id": "UI5654@"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "IDR-IDC-007",
+      "message": "No Record(s) found"
+    }
+  ]
+}'
