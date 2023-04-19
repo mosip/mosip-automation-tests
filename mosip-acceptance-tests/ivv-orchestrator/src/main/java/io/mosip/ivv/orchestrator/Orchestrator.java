@@ -130,10 +130,15 @@ public class Orchestrator {
 		// scenarioSheet = System.getProperty("scenarioSheet");
 		Path path = Paths.get(scenarioSheet);
 
-		if (!Files.exists(path) || scenarioSheet == null || scenarioSheet.isEmpty()) {
+		if (!Files.exists(path) ) {
 			scenarioSheet = ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-"
 					+ BaseTestCase.testLevel + "-" + "default" + ".csv";
 		}
+		else if(scenarioSheet == null || scenarioSheet.isEmpty()) {
+			throw new RigInternalError("ScenarioSheet argument missing");
+		}
+		
+		System.out.println();
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
 		parserInputDTO.setConfigProperties(properties);
 		parserInputDTO.setDocumentsFolder(
