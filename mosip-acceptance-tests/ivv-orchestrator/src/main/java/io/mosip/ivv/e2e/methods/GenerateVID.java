@@ -27,6 +27,7 @@ import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestRunner;
+import io.mosip.testrunner.MockSMTPListener;
 //import io.mosip.testscripts.BioAuthOld;
 import io.mosip.testscripts.DemoAuth;
 import io.mosip.testscripts.OtpAuth;
@@ -47,6 +48,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 		String uins = null;
 		String vidtype = null;
 		List<String> uinList = null;
+		String emailId ="";
 		String transactionID = step.getScenario().getId() + RandomStringUtils.randomNumeric(8);
 		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
@@ -56,8 +58,8 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 			vidtype = step.getParameters().get(0);
 
 		}
-		if (step.getParameters().size() == 2 && step.getParameters().get(1).startsWith("$$")) { // "$$vid=e2e_GenerateVID(Perpetual,$$uin)"
-			uins = step.getParameters().get(1);
+		if (step.getParameters().size() == 3 && step.getParameters().get(1).startsWith("$$")) { 
+			uins = step.getParameters().get(1);  // "$$vid=e2e_GenerateVID(Perpetual,$$uin,$$email)"
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
@@ -68,15 +70,24 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 		} else
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
+		
+		if (step.getParameters().size() == 3 && step.getParameters().get(2).startsWith("$$")) { 
+			emailId = step.getParameters().get(2);  // "$$vid=e2e_GenerateVID(Perpetual,$$uin,$$email)"
+			if (emailId.startsWith("$$")) {
+				emailId = step.getScenario().getVariables().get(emailId);
+			}
+		}
 
 		Object[] testObj = generatevid.getYmlTestData(GenerateVID);
 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
+		
 
 		for (String uin : uinList) {
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vidtype, "vidType");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "sendOtp.individualId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionID, "sendOtp.transactionID");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionID, "transactionID");
