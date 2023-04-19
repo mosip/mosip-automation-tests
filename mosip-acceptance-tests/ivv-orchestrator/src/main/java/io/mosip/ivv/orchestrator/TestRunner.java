@@ -14,6 +14,7 @@ import org.testng.TestNG;
 
 import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
+import io.mosip.testrunner.MockSMTPListener;
 
 public class TestRunner {
 	private static final Logger LOGGER = Logger.getLogger(TestRunner.class);
@@ -42,6 +43,9 @@ public class TestRunner {
 		BaseTestCase.languageCode = BaseTestCase.languageList.get(Integer.parseInt(ConfigManager.getLangselect()));
 
 		System.out.println("Current running language: " + BaseTestCase.languageCode);
+		
+		MockSMTPListener mockSMTPListener = new MockSMTPListener();
+		mockSMTPListener.run();
 		startTestRunner();
 	}
 
@@ -74,6 +78,9 @@ public class TestRunner {
 		System.getProperties().setProperty("emailable.report2.name", "DSL-" + BaseTestCase.environment + "-"
 				+ BaseTestCase.testLevel + "-run-" + System.currentTimeMillis() + "-report.html");
 		runner.run();
+		
+		MockSMTPListener mockSMTPListener = new MockSMTPListener();
+		mockSMTPListener.bTerminate = true;
 
 		System.exit(0);
 	}

@@ -53,7 +53,7 @@ import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.BioAuth;
-import io.mosip.testscripts.IdpBioAuth;
+import io.mosip.testscripts.EsignetBioAuth;
 //import io.mosip.testscripts.BioAuthOld;
 import io.restassured.response.Response;
 
@@ -925,7 +925,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public void idpBioAuth(String modility, String bioValue, String uin, String transactionId, Properties deviceProps,
-			TestCaseDTO test, IdpBioAuth idpBioAuth, String input ,Scenario.Step step) throws RigInternalError {
+			TestCaseDTO test, EsignetBioAuth idpBioAuth, String input ,Scenario.Step step) throws RigInternalError {
 
 		
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
