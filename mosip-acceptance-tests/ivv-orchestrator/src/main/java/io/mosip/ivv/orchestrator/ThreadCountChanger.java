@@ -2,12 +2,15 @@ package io.mosip.ivv.orchestrator;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.testng.IAlterSuiteListener;
 import org.testng.xml.XmlSuite;
 
+import io.mosip.ivv.e2e.methods.ApproveRejectPacket;
 import io.mosip.kernel.util.ConfigManager;
 
 public class ThreadCountChanger implements IAlterSuiteListener  {
+	Logger logger = Logger.getLogger(ThreadCountChanger.class);
 	
 	@Override
     public void alter(List<XmlSuite> suites) {
@@ -17,7 +20,7 @@ public class ThreadCountChanger implements IAlterSuiteListener  {
         
         int count = Integer.parseInt(ConfigManager.getThreadCount());
         
-        System.out.println("Running suite with thread count : "+count);
+        logger.info("Running suite with thread count : "+count);
 
         for (XmlSuite suite : suites) {
             suite.setThreadCount(count);
