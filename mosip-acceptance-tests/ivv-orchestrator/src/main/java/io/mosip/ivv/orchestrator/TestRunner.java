@@ -42,7 +42,7 @@ public class TestRunner {
 
 		BaseTestCase.languageCode = BaseTestCase.languageList.get(Integer.parseInt(ConfigManager.getLangselect()));
 
-		System.out.println("Current running language: " + BaseTestCase.languageCode);
+		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
 		
 		MockSMTPListener mockSMTPListener = new MockSMTPListener();
 		mockSMTPListener.run();
