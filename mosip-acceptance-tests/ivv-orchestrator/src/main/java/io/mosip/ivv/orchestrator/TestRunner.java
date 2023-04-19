@@ -14,6 +14,7 @@ import org.testng.TestNG;
 
 import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
+import io.mosip.testrunner.MockSMTPListener;
 
 public class TestRunner {
 	private static final Logger LOGGER = Logger.getLogger(TestRunner.class);
@@ -28,12 +29,23 @@ public class TestRunner {
 		BaseTestCase.environment = System.getProperty("env.user");
 		BaseTestCase.ApplnURI = System.getProperty("env.endpoint");
 		BaseTestCase.testLevel = System.getProperty("env.testLevel");
-		BaseTestCase.languageList = Arrays.asList(System.getProperty("env.langcode").split(","));
+
+		// Initializing or setting up execution
 		ConfigManager.init();
 		BaseTestCase.initialize();
-		// Initializing or setting up execution
+		
 
-		// here
+		BaseTestCase.languageList = BaseTestCase.getLanguageList();
+
+		// Selecting the language based on index for example- eng,ara,fra (To run suite
+		// in ara lang pass 1 in langselect property)
+
+		BaseTestCase.languageCode = BaseTestCase.languageList.get(Integer.parseInt(ConfigManager.getLangselect()));
+
+		System.out.println("Current running language: " + BaseTestCase.languageCode);
+		
+		MockSMTPListener mockSMTPListener = new MockSMTPListener();
+		mockSMTPListener.run();
 		startTestRunner();
 	}
 
@@ -66,6 +78,9 @@ public class TestRunner {
 		System.getProperties().setProperty("emailable.report2.name", "DSL-" + BaseTestCase.environment + "-"
 				+ BaseTestCase.testLevel + "-run-" + System.currentTimeMillis() + "-report.html");
 		runner.run();
+		
+		MockSMTPListener mockSMTPListener = new MockSMTPListener();
+		mockSMTPListener.bTerminate = true;
 
 		System.exit(0);
 	}

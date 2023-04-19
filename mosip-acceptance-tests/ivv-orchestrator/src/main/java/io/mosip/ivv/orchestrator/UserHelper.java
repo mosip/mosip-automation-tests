@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.DeleteWithParam;
 import io.mosip.testscripts.PatchWithPathParam;
 import io.mosip.testscripts.PutWithPathParam;
@@ -95,6 +96,8 @@ public class UserHelper extends BaseTestCaseUtil {
 					user, "id");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					map.get("centerId"+centerNum), "regCenterId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					BaseTestCase.languageCode,"langCode");
 			testPutDcom.setInput(input);
 			simplepost.test(testPutDcom);
 			Response response= simplepost.response;
@@ -122,6 +125,8 @@ public class UserHelper extends BaseTestCaseUtil {
 					user, "userId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					map.get("zoneCode"), "zoneCode");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					BaseTestCase.languageCode,"langCode");
 						testPutDcom.setInput(input);
 						
 						String output=testPutDcom.getOutput();
