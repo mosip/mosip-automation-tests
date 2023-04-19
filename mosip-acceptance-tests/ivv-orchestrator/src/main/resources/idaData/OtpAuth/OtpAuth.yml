@@ -7,6 +7,7 @@ OtpAuth:
       outputTemplate: idaData/OtpAuth/otpAuthResult
       input: '{
         "individualId": "uinnumber",
+        "otp": "otp",
         "transactionID": "1234567890",
         "timestamp": "$TIMESTAMP$"
     }'
