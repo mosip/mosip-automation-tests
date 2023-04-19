@@ -590,6 +590,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("enableDebug",ConfigManager.getEnableDebug());
+		 logger.info("Running suite with enableDebug : "+ConfigManager.getEnableDebug());
 		jsonReq.put("baselang", BaseTestCase.getLanguageList().get(0));
 		jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		jsonReq.put("urlBase", baseUrl);
@@ -640,6 +641,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		jsonReq.put("enableDebug",ConfigManager.getEnableDebug());
+		  logger.info("Running suite with enableDebug : "+ConfigManager.getEnableDebug());
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
 		jsonReq.put("mosip.test.regclient.machineid",
