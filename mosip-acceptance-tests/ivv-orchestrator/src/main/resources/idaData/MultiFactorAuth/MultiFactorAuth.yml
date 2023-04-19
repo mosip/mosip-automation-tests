@@ -7,6 +7,7 @@ MultiFactorAuth:
       outputTemplate: idaData/MultiFactorAuth/multiFactorAuthResult
       input: '{
           "individualId": "idaData",
+          "otp": "otp",
           "bioSubType": "",
           "bioType": "FACE",
           "bioValue": "$FACE$",
