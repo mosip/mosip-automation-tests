@@ -2,7 +2,6 @@ CreateMachineType:
    Masterdata_CreateMachineType_All_Valid_Smoke:
       endPoint: /v1/masterdata/machinetypes
       role: admin
-      templateFields: ["description","name"]
       restMethod: post
       inputTemplate: ivv_masterdata/MachineType/machineType
       outputTemplate: ivv_masterdata/MachineType/machineTypeResult

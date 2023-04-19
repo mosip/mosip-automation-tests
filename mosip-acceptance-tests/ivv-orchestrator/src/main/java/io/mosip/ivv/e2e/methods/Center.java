@@ -7,6 +7,7 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.CenterHelper;
+import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.PatchWithPathParam;
 import io.mosip.testscripts.PutWithPathParam;
 import io.mosip.testscripts.SimplePost;
@@ -20,6 +21,7 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 	SimplePut simpleput=new SimplePut();
 	PutWithPathParam putwithpathparam=new PutWithPathParam();
 	CenterHelper centerHelper=new CenterHelper();
+	
 	//GetWithParam
 	@Override
 	public void run() throws RigInternalError {
@@ -58,6 +60,7 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 			centerHelper.centerStatusUpdate(centerId,activeFlag);
 			map.put("centerId"+centerCount, centerId);
 			map.put("zoneCode", id);
+			map.put("langCode", BaseTestCase.languageCode);
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().putAll(map);
 			break;

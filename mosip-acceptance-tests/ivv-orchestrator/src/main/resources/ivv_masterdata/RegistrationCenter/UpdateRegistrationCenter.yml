@@ -2,7 +2,6 @@ UpdateRegistrationCenter:
    MasterData_UpdateRegistrationCenter_allValid_smoke:
       endPoint: /v1/masterdata/registrationcenters
       role: admin
-      templateFields: ["name","addressLine1","addressLine2","addressLine3","timeZone","langCode"]
       restMethod: put
       inputTemplate: ivv_masterdata/RegistrationCenter/registrationCenter
       outputTemplate: ivv_masterdata/RegistrationCenter/registrationCenterResult
