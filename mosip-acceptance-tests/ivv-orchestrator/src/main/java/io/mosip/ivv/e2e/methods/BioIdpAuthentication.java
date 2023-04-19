@@ -22,7 +22,7 @@ import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestRunner;
 import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.BioAuth;
-import io.mosip.testscripts.IdpBioAuth;
+import io.mosip.testscripts.EsignetBioAuth;
 import io.restassured.response.Response;
 
 public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterface {
@@ -30,7 +30,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 	private static final String AuthenticateUser = "idaData/BioAuthIdp/BioAuthIdp.yml";
 	Properties deviceProp = null;
 	Properties uinResidentDataPathFinalProps = new Properties();
-	IdpBioAuth idpBioAuth = new IdpBioAuth();
+	EsignetBioAuth idpBioAuth = new EsignetBioAuth();
 	String bioResponse = null;
 
 	@Override

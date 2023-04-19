@@ -54,6 +54,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 	String multiFactorResponse = null;
 	String uins = null;
 	String demoResponse = null;
+	String emailId = null;
 	List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 
 	@Override
@@ -68,6 +69,13 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
 			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+		}
+		
+		if (step.getParameters().size() > 1 && step.getParameters().get(6).startsWith("$$")) { 
+			emailId = step.getParameters().get(6);
+			if (emailId.startsWith("$$")) {
+				emailId = step.getScenario().getVariables().get(emailId);
+			}
 		}
 
 		if (step.getParameters().size() > 1) {
@@ -235,6 +243,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, individualIdAuth, "individualId");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
 		/*
 		 * input = JsonPrecondtion.parseAndReturnJsonContent(input, individualType,
 		 * "individualIdType");

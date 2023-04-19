@@ -35,6 +35,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 		List<String> uinList = null;
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 		List<String> vidList = null;
+		String emailId ="";
 
 		
 
@@ -46,16 +47,25 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 		}
+		
+		
+		//Fetching EMAIL
+		if (step.getParameters().size() == 5 && step.getParameters().get(5).startsWith("$$")) { 
+			emailId = step.getParameters().get(5); 
+			if (emailId.startsWith("$$")) {
+				emailId = step.getScenario().getVariables().get(emailId);
+			}
+		}
 
 		// Fetching UIN
 
-		if (step.getParameters().size() == 4) { // "e2e_ekycOtp(uin,$$uin,vid,$$vid)"
+		if (step.getParameters().size() == 5) { // "e2e_ekycOtp(uin,$$uin,vid,$$vid,$$email)"
 			uins = step.getParameters().get(1);
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 			}
-		} else if (step.getParameters().size() == 4) {
+		} else if (step.getParameters().size() == 5) {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
@@ -64,13 +74,13 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 
 		// Fetching VID
 
-		if (step.getParameters().size() == 4) { // "e2e_ekycOtp(uin,$$uin,vid,$$vid)"
+		if (step.getParameters().size() == 5) { // "e2e_ekycOtp(uin,$$uin,vid,$$vid,$$email)"
 			vids = step.getParameters().get(3);
 			if (vids.startsWith("$$")) {
 				vids = step.getScenario().getVariables().get(vids);
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
 			}
-		} else if (step.getParameters().size() == 4) {
+		} else if (step.getParameters().size() == 5) {
 			vids = step.getParameters().get(3);
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
@@ -107,6 +117,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			}
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
 
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
@@ -140,6 +151,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			}
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
 
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
