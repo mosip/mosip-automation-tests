@@ -50,8 +50,8 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 		
 		
 		//Fetching EMAIL
-		if (step.getParameters().size() == 5 && step.getParameters().get(5).startsWith("$$")) { 
-			emailId = step.getParameters().get(5); 
+		if (step.getParameters().size() == 5 && step.getParameters().get(4).startsWith("$$")) { 
+			emailId = step.getParameters().get(4); 
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
 			}
