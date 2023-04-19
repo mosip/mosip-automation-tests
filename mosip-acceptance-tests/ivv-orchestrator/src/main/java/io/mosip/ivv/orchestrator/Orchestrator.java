@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,7 +83,6 @@ public class Orchestrator {
 //
 //		extent.attachReporter(htmlReporter);
 //	}
-	
 
 	@BeforeSuite
 	public void beforeSuite() {
@@ -88,20 +90,17 @@ public class Orchestrator {
 //		+ "/" + System.getProperty("emailable.report2.name"));
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
 //		this.configToSystemProperties();
-		Utils.setupLogger(System.getProperty("user.dir") +"/" + System.getProperty("testng.outpur.dir")
-		+ "/" + this.properties.getProperty("ivv._path.auditlog"));
+		Utils.setupLogger(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
+				+ this.properties.getProperty("ivv._path.auditlog"));
 		/* setting exentreport */
 		htmlReporter = new ExtentHtmlReporter(
-				
-				System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
-				+ "/" + this.properties.getProperty("ivv._path.reports"));
+
+				System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
+						+ this.properties.getProperty("ivv._path.reports"));
 		extent = new ExtentReports();
 
 		extent.attachReporter(htmlReporter);
 	}
-	
-	
-	
 
 	@BeforeTest
 	public static void create_proxy_server() {
@@ -124,12 +123,17 @@ public class Orchestrator {
 		// VariableManager.getVariableValue(contextKey,"mountPath").toString()
 		// scenarioSheet=properties.getProperty("ivv.path.scenario.sheet.folder") +
 		// "scenarios-"+ BaseTestCase.testLevel +"-"+ BaseTestCase.environment+".csv";
+
 		scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-" + BaseTestCase.testLevel
 				+ "-" + BaseTestCase.environment + ".csv";
-		// scenarioSheet = System.getProperty("scenarioSheet");
 
-		if (scenarioSheet == null || scenarioSheet.isEmpty())
-			throw new RigInternalError("ScenarioSheet argument missing");
+		// scenarioSheet = System.getProperty("scenarioSheet");
+		Path path = Paths.get(scenarioSheet);
+
+		if (!Files.exists(path) || scenarioSheet == null || scenarioSheet.isEmpty()) {
+			scenarioSheet = ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-"
+					+ BaseTestCase.testLevel + "-" + "default" + ".csv";
+		}
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
 		parserInputDTO.setConfigProperties(properties);
 		parserInputDTO.setDocumentsFolder(
@@ -204,7 +208,8 @@ public class Orchestrator {
 				// Wait till all scenarios are executed
 				while (counterLock.get() < totalScenario - 1) // executed excluding after suite
 				{
-					System.out.println(" Thread ID: "+Thread.currentThread().getId()+" inside scenariosExecuted " + counterLock.get() + "- " + scenario.getId() );
+					System.out.println(" Thread ID: " + Thread.currentThread().getId() + " inside scenariosExecuted "
+							+ counterLock.get() + "- " + scenario.getId());
 					Thread.sleep(10000); // Sleep for 10 sec
 				}
 			} else {
@@ -213,13 +218,14 @@ public class Orchestrator {
 				while (beforeSuiteExeuted == false) {
 					Thread.sleep(10000); // Sleep for 10 sec
 
-					System.out.println( " Thread ID: "+Thread.currentThread().getId()+
-							" inside beforeSuiteExecuted == false " + counterLock.get() + "- " + scenario.getId());
+					System.out.println(" Thread ID: " + Thread.currentThread().getId()
+							+ " inside beforeSuiteExecuted == false " + counterLock.get() + "- " + scenario.getId());
 				}
 			}
 		}
 
-		System.out.println(" Thread ID: "+Thread.currentThread().getId()+" scenario :- " + counterLock.get() + scenario.getId());
+		System.out.println(" Thread ID: " + Thread.currentThread().getId() + " scenario :- " + counterLock.get()
+				+ scenario.getId());
 
 		/*
 		 * 
@@ -345,7 +351,8 @@ public class Orchestrator {
 			System.out.println("Before Suite executed");
 		}
 
-		System.out.println(" Thread ID: "+Thread.currentThread().getId()+" scenarios Executed : " + counterLock.get());
+		System.out.println(
+				" Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
 
 	}
 
