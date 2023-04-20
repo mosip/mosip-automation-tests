@@ -12,8 +12,8 @@
 		<listeners>
 		<listener
 			class-name="io.mosip.ivv.orchestrator.ThreadCountChanger" />
-	</listeners>
-	<listeners>
+	
+
 		<listener
 			  class-name="io.mosip.ivv.orchestrator.EmailableReport" />
 			
