@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.testng.IReporter;
 import org.testng.ISuite;
 import org.testng.ISuiteResult;
@@ -22,19 +23,17 @@ import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.collections.Lists;
 import org.testng.internal.Utils;
-import org.testng.log4testng.Logger;
 import org.testng.xml.XmlSuite;
 
 import io.mosip.kernel.util.ConfigManager;
 import io.mosip.kernel.util.S3Adapter;
 import io.mosip.service.BaseTestCase;
-import jdk.internal.org.jline.utils.Log;
 
 /**
  * Reporter that generates a single-page HTML report of the test results.
  */
 public class EmailableReport implements IReporter {
-    private static final Logger LOG = Logger.getLogger(EmailableReport.class);
+	Logger logger = Logger.getLogger(EmailableReport.class);
 
     protected PrintWriter writer;
 
@@ -60,7 +59,7 @@ public class EmailableReport implements IReporter {
         try {
             writer = createWriter(outputDirectory);
         } catch (IOException e) {
-            LOG.error("Unable to create output file", e);
+        	logger.error("Unable to create output file", e);
             return;
         }
         
@@ -77,7 +76,7 @@ public class EmailableReport implements IReporter {
         writer.close();
         
         if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
-        	Log.info("Running with PushReportsToS3: "+ConfigManager.getPushReportsToS3());
+        	logger.info("Running with PushReportsToS3: "+ConfigManager.getPushReportsToS3());
         	
         	//D:\GITDSLFresh121Snap1\mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\testng-report
 			File repotFile = new File(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
