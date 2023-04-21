@@ -205,8 +205,8 @@ public class MDSClient implements MDSClientInterface {
 	}
 	
 	
-	public void removeProfile(String profilePath,String profile,int port) {
-		setProfile("Default",port);
+	public void removeProfile(String profilePath,String profile,int port,String contextKey) {
+		setProfile("Default",port,contextKey);
 		File profDir = new File(profilePath + "/"+ profile);
 		if(profDir.exists()) {
 			 // list all the files in an array
@@ -220,7 +220,7 @@ public class MDSClient implements MDSClientInterface {
 		}
 		
 	}
-	public  void setProfile(String profile,int port) {
+	public  void setProfile(String profile,int port,String contextKey) {
 		
 		String url =  MDSURL +port + "/admin/profile";
 		JSONObject body = new JSONObject();
@@ -231,7 +231,7 @@ public class MDSClient implements MDSClientInterface {
 			System.out.println("Inside Setprofile");
 			HttpRCapture capture = new HttpRCapture(url);
 			capture.setMethod("POST");
-			String response = RestClient.rawHttp(capture, body.toString());
+			String response = RestClient.rawHttp(capture, body.toString(),contextKey);
 			JSONObject respObject = new JSONObject(response);
 
 		}catch(Exception ex) {
@@ -273,7 +273,7 @@ public class MDSClient implements MDSClientInterface {
 	public  MDSRCaptureModel captureFromRegDevice(MDSDevice device, 
 			MDSRCaptureModel rCaptureModel,
 			String type,
-			String bioSubType, int reqScore,String deviceSubId,int port) {
+			String bioSubType, int reqScore,String deviceSubId,int port,String contextKey) {
 		String mosipVersion=null;;
 		try {
 	      mosipVersion=VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.version").toString();
@@ -337,7 +337,7 @@ public class MDSClient implements MDSClientInterface {
 		try {
 			HttpRCapture capture = new HttpRCapture(url);
 			capture.setMethod("RCAPTURE");
-			String response = RestClient.rawHttp(capture, jsonReq.toString());
+			String response = RestClient.rawHttp(capture, jsonReq.toString(),contextKey);
 			//System.out.println("MDS RESPONSE :"+  response);
 			JSONObject respObject = new JSONObject(response);
 			JSONArray bioArray = respObject.getJSONArray("biometrics");
@@ -437,10 +437,10 @@ public class MDSClient implements MDSClientInterface {
 		f.forEach( dv-> {
 			System.out.println(dv.toJSONString());	
 			
-			MDSRCaptureModel r =  client.captureFromRegDevice(dv, null, "Finger",null,60,"1",0);
+//			MDSRCaptureModel r =  client.captureFromRegDevice(dv, null, "Finger",null,60,"1",0);
 			//MDSRCaptureModel r =  client.captureFromRegDevice(d.get(0),null, "Iris",null,60,2);
 		
-			System.out.println( r.toJSONString());
+//			System.out.println( r.toJSONString());
 			
 		});
 		

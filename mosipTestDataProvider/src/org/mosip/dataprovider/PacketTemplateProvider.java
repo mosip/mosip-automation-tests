@@ -147,7 +147,8 @@ public class PacketTemplateProvider {
 			
 		}
 		catch(Throwable e) {
-			e.printStackTrace();
+			logger.error("generate", e);
+//			e.printStackTrace();
 		}
 		JSONObject processMVEL = processMVEL(resident, idJson, process,contextSchemaDetail);
 		idJson = processMVEL.toString();
@@ -1465,7 +1466,8 @@ public class PacketTemplateProvider {
 						
 						
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.error("generateIDJsonV2", e);
+//						e.printStackTrace();
 					}
 					continue;
 				} else if (prop.getProperty("introducerbiometric") != null
@@ -1492,7 +1494,8 @@ public class PacketTemplateProvider {
 							generateCBEFF(resident.getGuardian(), bioAttrib, outFile,contextKey,purpose);
 
 						} catch (Exception e) {
-							e.printStackTrace();
+							logger.error("generateIDJsonV2", e);
+//							e.printStackTrace();
 						}
 
 					} else if (resident.getGuardian() != null) {
@@ -1541,7 +1544,8 @@ public class PacketTemplateProvider {
 								Files.copy(Paths.get(docFile), Paths.get(outFile));
 
 							} catch (Exception e) {
-								e.printStackTrace();
+								logger.error("generateIDJsonV2", e);
+//								e.printStackTrace();
 							}
 							break;
 						}
