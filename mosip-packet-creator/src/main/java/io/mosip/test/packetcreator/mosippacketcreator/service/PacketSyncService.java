@@ -791,7 +791,7 @@ return functionResponse;
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
 
-		logger.info("createPacket->outDir:" + outDir);
+		logger.info("createPacketTemplates->outDir:" + outDir);
 
 
 		loadServerContextProperties(contextKey);
@@ -841,8 +841,8 @@ return functionResponse;
 
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("createPacketTemplates", e);
+//			e.printStackTrace();
 		}
 
 		JSONObject response = new JSONObject();
