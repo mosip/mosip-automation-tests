@@ -1377,7 +1377,7 @@ public class RestClient {
 		return new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
 	}
 
-	public static String rawHttp(HttpRCapture httpRCapture, String jsonBody) throws IOException {
+	public static String rawHttp(HttpRCapture httpRCapture, String jsonBody,String contextKey) throws IOException {
 
 		String result ="";
 		//StringBuilder builder = new StringBuilder();
@@ -1389,7 +1389,12 @@ public class RestClient {
 		if (entity != null) {
 
 			result = EntityUtils.toString(entity);
-			System.out.println(result);
+			
+			
+			if(isDebugEnabled(contextKey) ) {
+				System.out.println(result);
+
+			}
 		}
 		return result;
 		/*

@@ -95,7 +95,7 @@ public class PacketController {
 	    		
 	    	
 	    	} catch (Exception ex){
-	             logger.error("createPackets", ex);
+	             logger.error("createTemplate", ex);
 	    	}
 	    	return "{\"Failed\"}";
 	  }
