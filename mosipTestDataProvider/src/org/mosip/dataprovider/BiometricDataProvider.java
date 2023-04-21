@@ -244,7 +244,7 @@ public class BiometricDataProvider {
 				mds = new MDSClient(port);
 				profileName = "res" + resident.getId();
 				mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-				mds.setProfile(profileName, port);
+				mds.setProfile(profileName, port,contextKey);
 				// mds.setProfile("Default");
 
 			} else {
@@ -252,7 +252,7 @@ public class BiometricDataProvider {
 				bNoMDS = false;
 				profileName = "res" + resident.getId();
 				mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-				mds.setProfile(profileName, port);
+				mds.setProfile(profileName, port,contextKey);
 			}
 
 			biodata = resident.getBiometric();
@@ -271,7 +271,7 @@ public class BiometricDataProvider {
 					// client.captureFromRegDevice(d.get(0),r, "Face",null,60,1,1);
 
 					capture = mds.captureFromRegDevice(faceDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_FACE,
-							null, 60, faceDevice.getDeviceSubId().get(0), port);
+							null, 60, faceDevice.getDeviceSubId().get(0), port,contextKey);
 				}
 			}
 			if (biodata.getIris() != null) {
@@ -285,7 +285,7 @@ public class BiometricDataProvider {
 					if (filteredAttribs != null && filteredAttribs.contains("leftEye")) {
 						capture = mds.captureFromRegDevice(irisDevice, capture,
 								DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
-								irisDevice.getDeviceSubId().get(0), port);
+								irisDevice.getDeviceSubId().get(0), port,contextKey);
 					}
 
 					if (irisDevice.getDeviceSubId().size() > 1) {
@@ -293,7 +293,7 @@ public class BiometricDataProvider {
 
 							capture = mds.captureFromRegDevice(irisDevice, capture,
 									DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
-									irisDevice.getDeviceSubId().get(1), port);
+									irisDevice.getDeviceSubId().get(1), port,contextKey);
 						}
 					}
 				} else {
@@ -309,14 +309,14 @@ public class BiometricDataProvider {
 								&& (filteredAttribs != null && filteredAttribs.contains("leftEye"))) {
 							capture = mds.captureFromRegDevice(irisDevice, capture,
 									DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
-									irisDevice.getDeviceSubId().get(0), port);
+									irisDevice.getDeviceSubId().get(0), port,contextKey);
 						} else if (f.equalsIgnoreCase("left")
 								&& (filteredAttribs != null && filteredAttribs.contains("rightEye"))) {
 
 							if (irisDevice.getDeviceSubId().size() > 1)
 								capture = mds.captureFromRegDevice(irisDevice, capture,
 										DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
-										irisDevice.getDeviceSubId().get(1), port);
+										irisDevice.getDeviceSubId().get(1), port,contextKey);
 						}
 					}
 				}
@@ -334,7 +334,7 @@ public class BiometricDataProvider {
 				for (int i = 0; i < fingerDevice.getDeviceSubId().size(); i++) {
 					capture = mds.captureFromRegDevice(fingerDevice, capture,
 							DataProviderConstants.MDS_DEVICE_TYPE_FINGER, null, 60,
-							fingerDevice.getDeviceSubId().get(i), port);
+							fingerDevice.getDeviceSubId().get(i), port,contextKey);
 				}
 				List<MDSDeviceCaptureModel> lstFingers = capture.getLstBiometrics()
 						.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
@@ -379,7 +379,7 @@ public class BiometricDataProvider {
 
 			}
 
-			mds.removeProfile(mdsprofilePath, profileName, port);
+			mds.removeProfile(mdsprofilePath, profileName, port,contextKey);
 			
 		}
 		
