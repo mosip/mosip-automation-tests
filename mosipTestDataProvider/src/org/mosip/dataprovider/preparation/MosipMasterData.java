@@ -312,8 +312,8 @@ public  class MosipMasterData {
 				setCache(url, locList,contextKey);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if(RestClient.isDebugEnabled(contextKey))
+			     e.printStackTrace();
 		}
 		return locList;
 	
