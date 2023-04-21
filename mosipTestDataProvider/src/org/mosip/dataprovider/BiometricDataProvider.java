@@ -1,6 +1,8 @@
 package org.mosip.dataprovider;
 
 import java.awt.image.BufferedImage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.File;
 //import java.io.FileInputStream;
@@ -52,6 +54,7 @@ import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.FPClassDistribution;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -59,13 +62,13 @@ import com.google.common.collect.HashBiMap;
 import com.jamesmurty.utils.XMLBuilder;
 //import java.util.Date;
 
-import ch.qos.logback.classic.Logger;
 import io.mosip.mock.sbi.test.CentralizedMockSBI;
 import variables.VariableManager;
 
 public class BiometricDataProvider {
 
 	public static HashMap<String, Integer> portmap = new HashMap();
+	private static final Logger logger = LoggerFactory.getLogger(BiometricDataProvider.class);
 
 	static String buildBirIris(String irisInfo, String irisName, String jtwSign, String payload, String qualityScore)
 			throws ParserConfigurationException, FactoryConfigurationError, TransformerException,
@@ -384,6 +387,7 @@ public class BiometricDataProvider {
 		}
 		
 		catch (Throwable t) {
+			logger.error("regenBiometricViaMDS", t);
 			t.getStackTrace();
 		}
 		CentralizedMockSBI.stopSBI(contextKey);
