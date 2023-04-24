@@ -77,6 +77,10 @@ public class TestRunner {
 		runner.setOutputDirectory("testng-report");
 		System.getProperties().setProperty("emailable.report2.name", "DSL-" + BaseTestCase.environment + "-"
 				+ BaseTestCase.testLevel + "-run-" + System.currentTimeMillis() + "-report.html");
+		
+		//EXTENT REPORT
+		System.getProperties().setProperty("emailable.report3.name", "DSL-" + BaseTestCase.environment + "-"
+				+ "EXTENT" + "-run-" + System.currentTimeMillis() + "-report.html");
 		runner.run();
 		
 		MockSMTPListener mockSMTPListener = new MockSMTPListener();

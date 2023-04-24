@@ -83,11 +83,23 @@ public class EmailableReport implements IReporter {
 					+ "/" + System.getProperty("emailable.report2.name"));
 			System.out.println("reportFile is::" + System.getProperty("user.dir") + "/"
 					+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report2.name"));
+			
+			// EXTENT REPORT
+			File repotFile2 = new File(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
+					+ "/" + System.getProperty("emailable.report3.name"));
+			System.out.println("reportFile is::" + System.getProperty("user.dir") + "/"
+					+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report2.name"));
+			
+			
+			
 			S3Adapter s3Adapter = new S3Adapter();
 			boolean isStoreSuccess = false;
 			try {
 				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
 						null, System.getProperty("emailable.report2.name"), repotFile);
+				
+				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
+						null, System.getProperty("emailable.report3.name"), repotFile2);
 				
 				System.out.println("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {
