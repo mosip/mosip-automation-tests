@@ -1,5 +1,5 @@
 GenerateToken:
-   IDP_GenerateToken_Valid_Smoke:
+   ESignet_GenerateToken_Valid_Smoke:
       endPoint: /v1/esignet/oauth/token
       role: resident
       restMethod: post

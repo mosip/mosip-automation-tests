@@ -1,5 +1,5 @@
 AuthenticateUser:
-   IDP_AuthenticateUserIDP_Valid_Smoke:
+   ESignet_AuthenticateUserIDP_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
