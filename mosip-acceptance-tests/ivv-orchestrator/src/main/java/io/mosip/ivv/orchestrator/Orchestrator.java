@@ -47,6 +47,7 @@ import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.dg.DataGenerator;
 import io.mosip.ivv.parser.Parser;
 import io.mosip.kernel.util.ConfigManager;
+import io.mosip.kernel.util.S3Adapter;
 import io.mosip.service.BaseTestCase;
 
 public class Orchestrator {
@@ -100,6 +101,35 @@ public class Orchestrator {
 		extent = new ExtentReports();
 
 		extent.attachReporter(htmlReporter);
+		
+		
+		if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
+			// EXTENT REPORT
+			File repotFile2 = new File(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
+					+ "/" + System.getProperty("emailable.report3.name"));
+			System.out.println("reportFile is::" + System.getProperty("user.dir") + "/"
+					+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report3.name"));
+			
+			S3Adapter s3Adapter = new S3Adapter();
+			boolean isStoreSuccess = false;
+			try {
+				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
+						null, System.getProperty("emailable.report3.name"), repotFile2);
+				
+				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
+						null, System.getProperty("emailable.report3.name"), repotFile2);
+				
+				System.out.println("isStoreSuccess:: " + isStoreSuccess);
+			} catch (Exception e) {
+				System.out.println("error occured while pushing the object" + e.getLocalizedMessage());
+				e.printStackTrace();
+			}
+			if (isStoreSuccess) {
+				System.out.println("Pushed file to S3");
+			} else {
+				System.out.println("Failed while pushing file to S3");
+			}
+		}
 	}
 
 	@BeforeTest
