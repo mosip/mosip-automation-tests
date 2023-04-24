@@ -1,5 +1,5 @@
 OAuthDetailsRequest:
-   IDP_OAuthDetailsRequest_all_Valid_Smoke:
+   ESignet_OAuthDetailsRequest_all_Valid_Smoke:
       endPoint: /v1/esignet/authorization/oauth-details
       role: resident
       restMethod: post

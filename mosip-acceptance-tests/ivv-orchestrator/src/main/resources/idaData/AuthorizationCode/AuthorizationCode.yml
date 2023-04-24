@@ -1,5 +1,5 @@
 AuthorizationCode:
-   IDP_AuthorizationCode_All_Valid_Smoke_sid:
+   ESignet_AuthorizationCode_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
       role: resident
       restMethod: post
