@@ -1,5 +1,5 @@
 SendOtp:
-   IDP_SendOtp_all_Valid_Smoke:
+   ESignet_SendOtp_all_Valid_Smoke:
       endPoint: /v1/esignet/authorization/send-otp
       role: resident
       restMethod: post

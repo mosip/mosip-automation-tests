@@ -1,5 +1,5 @@
 CreateOIDCClient:
-   Idp_CreateOIDCClient_all_Valid_Smoke_sid:
+   Esignet_CreateOIDCClient_all_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/oidc/client
       role: partner
       restMethod: post
