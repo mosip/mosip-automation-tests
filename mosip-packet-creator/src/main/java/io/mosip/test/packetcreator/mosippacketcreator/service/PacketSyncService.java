@@ -129,9 +129,12 @@ public class PacketSyncService {
 
 	@Value("${packetmanager.zip.datetime.pattern:yyyyMMddHHmmss}")
 	private String zipDatetimePattern;
+	
+	
 
 	// @Value("${mosip.test.env.mapperpath}")
 	// private String mapperFilePath;
+	
 
 	@Value("${mosip.test.idrepo.idvidpath}")
 	private String idvid;
@@ -354,7 +357,7 @@ public class PacketSyncService {
 			return functionResponse;
 
 		} else {
-           String regID =null;
+          
 			JSONObject functionResponse = new JSONObject();
 			JSONObject nobj = new JSONObject();
 			response = packetSyncService.uploadPacket(packetPath, contextKey);
@@ -366,7 +369,7 @@ public class PacketSyncService {
 				nobj.put("status", "SUCCESS");
 				
 				// Get the rid from the packet template
-				nobj.put("registrationId",regID);
+				nobj.put("registrationId",packetMakerService.getNewRegId());
 				return functionResponse;
 			}
 
