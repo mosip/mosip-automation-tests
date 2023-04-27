@@ -28,7 +28,6 @@ import io.mosip.test.packetcreator.mosippacketcreator.dto.RidSyncReqRequestDto;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.RidSyncReqResponseDTO;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.SyncRidDto;
 import io.mosip.test.packetcreator.mosippacketcreator.service.APIRequestUtil;
-import io.mosip.test.packetcreator.mosippacketcreator.service.CommandsService;
 import io.mosip.test.packetcreator.mosippacketcreator.service.ContextUtils;
 import io.mosip.test.packetcreator.mosippacketcreator.service.CryptoUtil;
 import io.mosip.test.packetcreator.mosippacketcreator.service.PacketJobService;
@@ -76,8 +75,6 @@ public class TestDataController {
     @Autowired
     ContextUtils contextUtils;
     
-    @Autowired
-    CommandsService testcaseExecutionService;
 
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
@@ -108,11 +105,11 @@ public class TestDataController {
     	return bRet;
     }
     @PostMapping(value = "/packetcreator/{contextKey}")
-    public @ResponseBody String createPacket(@RequestBody PacketCreateDto packetCreateDto, 
+    public @ResponseBody  String createPacket(@RequestBody PacketCreateDto packetCreateDto, 
     		@PathVariable("contextKey") String contextKey) 
     {
         try{
-            return pkm.createContainer(null,packetCreateDto.getIdJsonPath(), packetCreateDto.getTemplatePath(),
+            return pkm.createContainer(packetCreateDto.getIdJsonPath(), packetCreateDto.getTemplatePath(),
             		packetCreateDto.getSource(), packetCreateDto.getProcess(), null,contextKey, true,packetCreateDto.getAdditionalInfoReqId());
         } catch (Exception ex){
              logger.error("", ex);
@@ -201,8 +198,9 @@ public class TestDataController {
         return response;
     }
     
-    @GetMapping(value = "/makepacketandsync/{preregId}/{contextKey}")
+    @GetMapping(value = "/makepacketandsync/{preregId}/{getRidFromSync}/{contextKey}")
     public @ResponseBody String makePacketAndSync(@PathVariable("preregId") String preregId,
+    		@PathVariable("getRidFromSync") boolean getRidFromSync,
     		@PathVariable("contextKey") String contextKey
     		) {
 
@@ -210,7 +208,8 @@ public class TestDataController {
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
     			DataProviderConstants.RESOURCE = personaConfigPath;
     		}
-    		return packetSyncService.makePacketAndSync(preregId,null, null,contextKey,null).toString();
+    	
+			return packetSyncService.makePacketAndSync(preregId,null, null,contextKey,null,getRidFromSync ).toString();
     	
     	} catch (Exception ex){
              logger.error("makePacketAndSync", ex);
@@ -372,10 +371,11 @@ public class TestDataController {
     /*
      * Download from pre-reg, merge with the given packet template and upload to register
      */
-    @PostMapping(value = "/packet/sync/{preregId}/{contextKey}")
+    @PostMapping(value = "/packet/sync/{preregId}/{getRidFromSync}/{contextKey}")
     public @ResponseBody String preRegToRegister(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-    		@PathVariable("preregId") String preregId,
-    		@PathVariable("contextKey") String contextKey) {
+    		@PathVariable("preregId") String preregId, 
+    		@PathVariable("getRidFromSync") boolean getRidFromSync,
+    @PathVariable("contextKey") String contextKey){
 
     	try{    	
     		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
@@ -388,10 +388,12 @@ public class TestDataController {
     		if(preRegisterRequestDto.getPersonaFilePath().size() > 1) {
         		personaPath = preRegisterRequestDto.getPersonaFilePath().get(1);
     		}
+    		
+    		
     		logger.info("packet-Sync: personaPath="+ (personaPath == null ? "N/A": personaPath));
     		logger.info("packet-Sync: TemplatePath="+ preRegisterRequestDto.getPersonaFilePath().get(0));
     		
-    		return packetSyncService.preRegToRegister(preRegisterRequestDto.getPersonaFilePath().get(0),preregId, personaPath, contextKey,preRegisterRequestDto.getAdditionalInfoReqId());
+    		return packetSyncService.preRegToRegister(preRegisterRequestDto.getPersonaFilePath().get(0),preregId, personaPath, contextKey,preRegisterRequestDto.getAdditionalInfoReqId(),getRidFromSync);
     	
     	} catch (Exception ex){
              logger.error("createPacket", ex);
