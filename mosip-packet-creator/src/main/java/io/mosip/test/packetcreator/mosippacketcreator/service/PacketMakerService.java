@@ -120,7 +120,8 @@ public class PacketMakerService {
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
-
+ 
+	
 	@PostConstruct
 	public void initService() {
 		if (workDirectory != null)
@@ -139,6 +140,10 @@ public class PacketMakerService {
 			logger.error("", ex);
 		}
 
+	}
+	
+	public String getNewRegId() {
+		return newRegId;
 	}
 
 	public String getWorkDirectory() {
@@ -275,7 +280,7 @@ public class PacketMakerService {
 			String processArg, String preregId, String contextKey, boolean bZip, String additionalInfoReqId)
 					throws Exception {
 		
-		String packetPath = "";
+  		String packetPath = "";
 		if (contextKey != null && !contextKey.equals("")) {
 
 			Properties props = contextUtils.loadServerContext(contextKey);
