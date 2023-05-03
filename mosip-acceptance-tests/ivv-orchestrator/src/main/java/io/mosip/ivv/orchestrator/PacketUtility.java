@@ -50,6 +50,7 @@ import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
+import io.mosip.ivv.e2e.methods.OnSmtpList;
 import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.BioAuth;
@@ -184,14 +185,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public void verifyOtp(String resFilePath, HashMap<String, String> contextKey, String emailOrPhone,Scenario.Step step)
-			throws RigInternalError {
-		String url = baseUrl + props.getProperty("verifyOtpUrl") + emailOrPhone;
+	public void verifyOtp(String resFilePath, HashMap<String, String> contextKey, String emailOrPhone,
+			Scenario.Step step, String otp) throws RigInternalError {
+		String url = baseUrl + props.getProperty("verifyOtpUrl") + emailOrPhone+ "/"+otp;
 		JSONObject jsonReq = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put("personaFilePath", jsonArray);
-		Response response = postRequest(url, jsonReq.toString(), "Verify Otp",step);
+		Response response = postRequest(url, jsonReq.toString(), "Verify Otp", step);
 		// Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),
 		// contextKey, "Verify Otp"); //docker comment
 		// assertTrue(response.getBody().asString().contains("VALIDATION_SUCCESSFUL"),"Unable
@@ -377,16 +378,22 @@ public class PacketUtility extends BaseTestCaseUtil {
 		 */
 		// List<String> generatedResidentData = generateResidents(1,
 		// true,true,"Any",null,contextKey);
-		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields, step.getScenario().getCurrentStep(),step);
-		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", step.getScenario().getCurrentStep(),step);
+		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields,
+				step.getScenario().getCurrentStep(), step);
+		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW",
+				step.getScenario().getCurrentStep(), step);
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
-		requestOtp(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(), parentEmailOrPhone,step);
-		verifyOtp(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(), parentEmailOrPhone,step);
-		String prid = preReg(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(),step);
-		uploadDocuments(step.getScenario().getGeneratedResidentData().get(0), prid, step.getScenario().getCurrentStep(),step);
-		bookAppointment(prid, 1, step.getScenario().getCurrentStep(), false,step);
-		String rid = generateAndUploadPacket(prid, templatePath, step.getScenario().getCurrentStep(), "success",step);
+		requestOtp(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(),
+				parentEmailOrPhone, step);
+		verifyOtp(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(),
+				parentEmailOrPhone, step, "111111");
+		String prid = preReg(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(),
+				step);
+		uploadDocuments(step.getScenario().getGeneratedResidentData().get(0), prid, step.getScenario().getCurrentStep(),
+				step);
+		bookAppointment(prid, 1, step.getScenario().getCurrentStep(), false, step);
+		String rid = generateAndUploadPacket(prid, templatePath, step.getScenario().getCurrentStep(), "success", step);
 
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 
