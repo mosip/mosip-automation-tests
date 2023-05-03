@@ -120,7 +120,8 @@ public class PacketMakerService {
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
-
+ 
+	
 	@PostConstruct
 	public void initService() {
 		if (workDirectory != null)
@@ -139,6 +140,10 @@ public class PacketMakerService {
 			logger.error("", ex);
 		}
 
+	}
+	
+	public String getNewRegId() {
+		return newRegId;
 	}
 
 	public String getWorkDirectory() {
@@ -256,7 +261,7 @@ public class PacketMakerService {
 		} else
 			idJsonPath = packetSyncService.createIDJsonFromPersona(personaPath, contextKey);
 
-		String packetPath = createContainer(null, (idJsonPath == null ? null : idJsonPath.toString()), templatePath,
+		String packetPath = createContainer( (idJsonPath == null ? null : idJsonPath.toString()), templatePath,
 				src, process, null, contextKey, false, additionalInfoReqId);
 
 		logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
@@ -271,11 +276,11 @@ public class PacketMakerService {
 	/*
 	 * Create packet with our without Encryption
 	 */
-	public String createContainer(Path docPath, String dataFile, String templatePacketLocation, String source,
+	public String createContainer( String dataFile, String templatePacketLocation, String source,
 			String processArg, String preregId, String contextKey, boolean bZip, String additionalInfoReqId)
 					throws Exception {
-
-		String retPath = "";
+		
+  		String packetPath = "";
 		if (contextKey != null && !contextKey.equals("")) {
 
 			Properties props = contextUtils.loadServerContext(contextKey);
@@ -350,11 +355,12 @@ public class PacketMakerService {
 					contextKey);
 			packContainer(tempPacketRootFolder, contextKey);
 
-			retPath = Path.of(Path.of(tempPacketRootFolder) + ".zip").toString();
+			packetPath = Path.of(Path.of(tempPacketRootFolder) + ".zip").toString();
 		} else {
-			retPath = tempPacketRootFolder;
+			packetPath = tempPacketRootFolder;
 		}
-		return retPath;
+		
+		return packetPath;
 
 	}
 
