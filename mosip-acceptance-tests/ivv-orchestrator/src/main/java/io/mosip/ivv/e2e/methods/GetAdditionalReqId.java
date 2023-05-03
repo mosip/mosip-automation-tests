@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrunner.MockSMTPListener;
 import io.restassured.response.Response;
 
 
@@ -27,7 +28,7 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 		Map<Object, Object> m=new HashMap<Object, Object>();
 		String additonalInfoRequestId=null;
 		while (counter < repeats) {
-			m=OnSmtpList.emailNotificationMapS;
+			m=MockSMTPListener.emailNotificationMapS;
 			if(m.get("alok.test.mosip@gmail.com")!=null) {
 			String html=(String) m.get("alok.test.mosip@gmail.com");
 			 StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1");
