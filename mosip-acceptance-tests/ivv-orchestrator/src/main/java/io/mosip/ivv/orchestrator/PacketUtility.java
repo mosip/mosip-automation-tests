@@ -448,7 +448,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String updateResidentWithGuardianSkippingPreReg_old(String residentFilePath,
-			HashMap<String, String> contextKey, String withRidOrUin, String missingFields,Scenario.Step step) throws RigInternalError {
+			HashMap<String, String> contextKey, String withRidOrUin, String missingFields,Scenario.Step step,boolean getRidFromSync) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		/*
 		 * String missingField=null; boolean isGaurdianVal=false; String
@@ -464,7 +464,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
 		String rid = generateAndUploadPacketSkippingPrereg(templatePath, step.getScenario().getGeneratedResidentData().get(0), null, contextKey,
-				"success",step);
+				"success",step,getRidFromSync);
 
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 
@@ -520,23 +520,23 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath, String additionalInfoReqId,
-			HashMap<String, String> contextKey, String responseStatus,Scenario.Step step) throws RigInternalError {
+			HashMap<String, String> contextKey, String responseStatus,Scenario.Step step,boolean getRidFromSync) throws RigInternalError {
 
 		String url = baseUrl + "/packet/sync/01"; // 01 -- to generate wrong hash
-		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus,step);
+		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus,step,getRidFromSync);
 	}
 
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
-			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus,Scenario.Step step)
+			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus,Scenario.Step step,boolean getRidFromSync)
 			throws RigInternalError {
 
-		String url = baseUrl + "/packet/sync/0"; // 0 -- to skip prereg
-		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus,step);
+		String url = baseUrl + "/packet/sync/0/"+getRidFromSync; // 0 -- to skip prereg
+		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus,step,getRidFromSync);
 
 	}
 
 	public String getRID(String url, String packetPath, String residentPath, String additionalInfoReqId,
-			HashMap<String, String> contextKey, String responseStatus,Scenario.Step step) throws RigInternalError {
+			HashMap<String, String> contextKey, String responseStatus,Scenario.Step step,boolean getRidFromSync) throws RigInternalError {
 		String rid = null;
 
 		JSONObject jsonReq = new JSONObject();
@@ -545,6 +545,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		arr.put(1, residentPath);
 		jsonReq.put("personaFilePath", arr);
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
+		
+		
 		Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket",step);
 		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
