@@ -419,9 +419,11 @@ public class BiometricDataProvider {
 				.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 		// String [] fingerPrint = biometricDataModel.getFingerPrint();
 		// for(int i=0; i< fingerPrint.length; i++) {
+		logger.info("lstFingerData is: "+lstFingerData);
 		int i = 0;
 		String fingerData = null;
-
+        
+		if(lstFingerData!=null) {
 		for (String finger : bioFilter) {
 			if (finger.toLowerCase().contains("eye") || finger.toLowerCase().equals("face"))
 				continue;
@@ -436,7 +438,7 @@ public class BiometricDataProvider {
 					break;
 				}
 			}
-
+			logger.info("fingerData is: "+fingerData);
 			if (i >= 0 && fingerData != null) {
 				String strFinger = DataProviderConstants.displayFingerName[i];
 				String strFingerXml = buildBirFinger(fingerData, strFinger, currentCM.getSb(), currentCM.getPayload(),
@@ -445,6 +447,7 @@ public class BiometricDataProvider {
 				builder = builder.importXMLBuilder(fbuilder);
 			}
 
+		}
 		}
 
 		// Step 2: Add Face
