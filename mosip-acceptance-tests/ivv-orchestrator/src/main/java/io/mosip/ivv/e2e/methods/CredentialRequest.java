@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import org.testng.Reporter;
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
+import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
@@ -20,16 +21,26 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
     @SuppressWarnings("static-access")
 	@Override
     public void run() throws RigInternalError {
-    	if(!step.getParameters().isEmpty() && step.getParameters().size()==1) { //"$$requestId=e2e_credentialRequest($$uin)"
-    		String _uin=step.getParameters().get(0);
-    		if(_uin.startsWith("$$")) {
+    	String emailId ="";
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { // "$$requestId=e2e_credentialRequest($$uin)"
+			String _uin = step.getParameters().get(0);
+
+			if (_uin.startsWith("$$")) {
 				_uin = step.getScenario().getVariables().get(_uin);
-				//if (step.getScenario().getUinReqIds() == null)
-					//neeha step.getScenario().getUinReqIds() = new HashMap<>();
+				// if (step.getScenario().getUinReqIds() == null)
+				// neeha step.getScenario().getUinReqIds() = new HashMap<>();
 				step.getScenario().getUinReqIds().clear();
 				step.getScenario().getUinReqIds().put(_uin, "uin");
-    		}
-    	}
+			}
+
+		}
+
+		if (step.getParameters().size() == 2 && step.getParameters().get(1).startsWith("$$")) {
+			emailId = step.getParameters().get(1);
+			if (emailId.startsWith("$$")) { // "$$requestId=e2e_credentialRequest($$uin,$$email)"
+				emailId = step.getScenario().getVariables().get(emailId);
+			}
+		}
     	try {
 			Thread.sleep(30000);
 		} catch (InterruptedException e) {
@@ -43,8 +54,10 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 		try {
 			for (Object object : testCaseList) {
 				for(String uin: this.step.getScenario().getUinReqIds().keySet()) {
+					
 				TestCaseDTO test = (TestCaseDTO) object;
 				test.setInput(test.getInput().replace("$UIN$", uin).replace("$UIN$", uin));
+				test.setInput(test.getInput().replace("$OTP$", emailId).replace("$OTP$", emailId));
 				test.setOutput(test.getOutput().replace("$UIN$", uin));
 				Reporter.log("<b><u>"+test.getTestCaseName()+ "</u></b>");
 				
