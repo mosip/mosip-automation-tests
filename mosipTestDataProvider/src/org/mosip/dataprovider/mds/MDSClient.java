@@ -5,11 +5,11 @@ import static io.restassured.RestAssured.given;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.assertj.core.util.Arrays;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.models.IrisDataModel;
@@ -262,6 +262,7 @@ public class MDSClient implements MDSClientInterface {
 				try {
 					devices = objectMapper.readValue(deviceArray.toString(), 
 							objectMapper.getTypeFactory().constructCollectionType(List.class, MDSDevice.class));
+					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -345,6 +346,20 @@ public class MDSClient implements MDSClientInterface {
 			if(lstBiometrics == null)
 				lstBiometrics = new ArrayList<MDSDeviceCaptureModel>();
 			rCaptureModel.getLstBiometrics().put(type, lstBiometrics);
+			
+			List<String> retriableErrorCodes=new  ArrayList<String>();
+			retriableErrorCodes.add("703");
+			
+			
+			// Check if Rcapture returns an error response if on error, retry based on Error ;code. 
+			if(bioArray.length()==1 &&  retriableErrorCodes.contains( bioArray.getJSONObject(0).getJSONObject("errorCode") ))
+			{
+				 response = RestClient.rawHttp(capture, jsonReq.toString(),contextKey);
+				
+				 respObject = new JSONObject(response);
+				 bioArray = respObject.getJSONArray("biometrics");
+		}
+			
 			
 			for(int i=0; i < bioArray.length(); i++) {
 				JSONObject bioObject = bioArray.getJSONObject(i);
