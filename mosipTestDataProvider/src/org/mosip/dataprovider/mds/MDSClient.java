@@ -349,10 +349,10 @@ public class MDSClient implements MDSClientInterface {
 			
 			List<String> retriableErrorCodes=new  ArrayList<String>();
 			retriableErrorCodes.add("703");
-			
+			retriableErrorCodes.add("710");
 			
 			// Check if Rcapture returns an error response if on error, retry based on Error ;code. 
-			if(bioArray.length()==1 &&  retriableErrorCodes.contains( bioArray.getJSONObject(0).getJSONObject("errorCode") ))
+			if(bioArray.length()==1 &&  retriableErrorCodes.contains( bioArray.getJSONObject(0).getJSONObject("error").getString("errorCode") ))
 			{
 				 response = RestClient.rawHttp(capture, jsonReq.toString(),contextKey);
 				
