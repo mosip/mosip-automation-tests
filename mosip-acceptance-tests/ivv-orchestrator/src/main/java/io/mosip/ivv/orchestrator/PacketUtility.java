@@ -290,7 +290,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public String generateAndUploadPacket(String prid, String packetPath, HashMap<String, String> map,
 			String responseStatus,Scenario.Step step) throws RigInternalError {
 		String rid = null;
-		String url = baseUrl + "/packet/sync/" + prid;
+		String url = baseUrl + "/packet/sync/" + prid +"/"+true;
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
 		arr.put(packetPath);
@@ -521,7 +521,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath, String additionalInfoReqId,
 			HashMap<String, String> contextKey, String responseStatus,Scenario.Step step,boolean getRidFromSync) throws RigInternalError {
 
-		String url = baseUrl + "/packet/sync/01"; // 01 -- to generate wrong hash
+		String url = baseUrl + "/packet/sync/01/"+true; // 01 -- to generate wrong hash
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus,step,getRidFromSync);
 	}
 
