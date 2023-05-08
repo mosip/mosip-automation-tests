@@ -21,16 +21,20 @@ import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.cucumber.messages.internal.com.google.common.io.Files;
+import io.mosip.mock.sbi.service.SBIMockService;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import variables.VariableManager;
 
 public class MDSClient implements MDSClientInterface {
 
+    private static final Logger logger = LoggerFactory.getLogger(MDSClient.class);
 	public  int port;
 	public static String MDSURL = "http://127.0.0.1:";
 	
@@ -352,8 +356,9 @@ public class MDSClient implements MDSClientInterface {
 			retriableErrorCodes.add("710");
 			
 			// Check if Rcapture returns an error response if on error, retry based on Error ;code. 
-			if(bioArray.length()==1 &&  retriableErrorCodes.contains( bioArray.getJSONObject(0).getJSONObject("error").getString("errorCode") ))
+			while(bioArray.length()==1 &&  retriableErrorCodes.contains( bioArray.getJSONObject(0).getJSONObject("error").getString("errorCode") ))
 			{
+				logger.info("Check if Rcapture returns an error response if on error, retry based on Error ;code. ");
 				 response = RestClient.rawHttp(capture, jsonReq.toString(),contextKey);
 				
 				 respObject = new JSONObject(response);
