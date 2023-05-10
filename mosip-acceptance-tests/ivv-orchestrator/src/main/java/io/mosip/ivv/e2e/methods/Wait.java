@@ -26,7 +26,7 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 	// Pass flag as true in the step to get the wait time from the regproc actuator for the reprocessor to kick in  
 		else if (step.getParameters().size() == 1 && step.getParameters().get(0).contains("true")) {
 			Boolean flag = Boolean.parseBoolean(step.getParameters().get(0));
-			if (flag != false) {
+			if (flag) {
 				waitFromActuator = getActuatorDelay();
 				waitTime = TIME_IN_MILLISEC * waitFromActuator;
 			}
