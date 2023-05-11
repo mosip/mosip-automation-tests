@@ -896,7 +896,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 						// (arr[0].trim().equalsIgnoreCase("email")?(arr[1].trim()+"@mosip.io"):arr[1].trim()));
 						updateAttribute.put(arr[0].trim(),
 								(arr[0].trim().equalsIgnoreCase("email")
-										? (arr[1].trim().equalsIgnoreCase("testmosip") ? "alok.test.mosip@gmail.com"
+										? (arr[1].trim().equalsIgnoreCase("testmosip") ? "dslautomation@mosip.io"
 												: arr[1].trim() + "@mosip.io")
 										: arr[1].trim()));
 				}
@@ -1514,7 +1514,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 	
 	public static String signJWKKey(String clientId, RSAKey jwkKey) {
-		String tempUrl = BaseTestCase.ApplnURI.replace("-internal", "") +"/v1/esignet/oauth/token";
+		String tempUrl = BaseTestCase.ApplnURI.replace("api-internal", "esignet") +"/v1/esignet/oauth/token";
 		String clientAssertionToken = "";
 		// Create RSA-signer with the private key
 		JWSSigner signer;
