@@ -654,11 +654,14 @@ public class BiometricDataProvider {
 		System.out.println("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
 				+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
 		List<File> lst = new LinkedList<File>();
-		for (int i = min; i <= max; i++) {
-
-			lst = CommonUtil.listFiles(dirPath + String.format("/Impression_%d/fp_1/", i));
-			tblFiles.put(i, lst);
-		}
+		/*
+		 * for (int i = min; i <= max; i++) {
+		 * 
+		 * lst = CommonUtil.listFiles(dirPath + String.format("/Impression_%d/fp_1/",
+		 * i)); tblFiles.put(i, lst); }
+		 */
+		lst = CommonUtil.listFiles(dirPath + String.format("/Impression_%d/fp_1/", Integer.toString(impressionToPick)));
+		tblFiles.put(impressionToPick, lst);
 		return tblFiles;
 	}
 
