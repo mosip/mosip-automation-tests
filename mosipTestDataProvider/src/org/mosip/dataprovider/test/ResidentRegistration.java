@@ -13,7 +13,7 @@ public class ResidentRegistration {
 	@Then("^register$")
 	public static void register(String contextKey) {
 		String retVal="";
-		String url = VariableManager.getVariableValue(contextKey,"packetutilURLBase") +
+		String url = VariableManager.getVariableValue(contextKey,"packetUtilityBaseUrl") +
 				VariableManager.getVariableValue(contextKey, "makeandsyncpacket").toString();
 		String preRegID = VariableManager.getVariableValue(contextKey,"PRID").toString();
 		String rid ="";
@@ -32,7 +32,7 @@ public class ResidentRegistration {
 	@Then("^check registration status$")
 	public static void checkRegistrationStatus(String contextKey) {
 		String RegID = VariableManager.getVariableValue(contextKey,"RID").toString();
-		String url = VariableManager.getVariableValue(contextKey,"packetutilURLBase") +
+		String url = VariableManager.getVariableValue(contextKey,"packetUtilityBaseUrl") +
 				VariableManager.getVariableValue( contextKey,"makeandsyncpacket").toString();
 		
 	}
