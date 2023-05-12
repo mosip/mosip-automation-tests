@@ -51,6 +51,7 @@ import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
 import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
 import org.mosip.dataprovider.preparation.MosipMasterData;
+import org.mosip.dataprovider.test.registrationclient.RegistrationSteps;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.FPClassDistribution;
@@ -191,7 +192,7 @@ public class BiometricDataProvider {
 		return lst;
 	}
 
-	public  static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey, String purpose)
+	public  static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey, String purpose,String qualityScore)
 			throws Exception {
 
 		BiometricDataModel biodata = null;
@@ -257,7 +258,14 @@ public class BiometricDataProvider {
 				mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
 				mds.setProfile(profileName, port,contextKey);
 			}
-
+			
+           // Change mockmds quality score
+			
+			HashMap<String, Integer> portAsPerKey = BiometricDataProvider.portmap;
+			 RegistrationSteps steps = new RegistrationSteps();
+		    steps.setMDSscore(portAsPerKey.get("port_"+contextKey),"Biometric Device", qualityScore, contextKey);
+			logger.info("mds score is changed to : "+qualityScore );
+		    
 			biodata = resident.getBiometric();
 			List<String> filteredAttribs = resident.getFilteredBioAttribtures();
 			List<BioModality> bioExceptions = resident.getBioExceptions();

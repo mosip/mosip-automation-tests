@@ -80,9 +80,10 @@ public class PacketController {
 	    	return "{\"Failed\"}";
 	  }
 
-	  @PostMapping(value = "/packet/template/{process}/{contextKey}")
+	  @PostMapping(value = "/packet/template/{process}/{qualityScore}/{contextKey}")
 	  public @ResponseBody String createTemplate(@RequestBody PreRegisterRequestDto requestDto,
 			@PathVariable("process") String process,
+			 @PathVariable("qualityScore") String qualityScore,
 			 @PathVariable("contextKey") String contextKey
 			 ) {
 
@@ -91,7 +92,7 @@ public class PacketController {
 	    			DataProviderConstants.RESOURCE = personaConfigPath;
 	    		}
 
-	    		return packetSyncService.createPacketTemplates(requestDto.getPersonaFilePath(),process,null,null, contextKey,"Registration");
+	    		return packetSyncService.createPacketTemplates(requestDto.getPersonaFilePath(),process,null,null, contextKey,"Registration",qualityScore);
 	    		
 	    	
 	    	} catch (Exception ex){
