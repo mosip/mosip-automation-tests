@@ -58,7 +58,7 @@ public class ReadEmail {
 		List<String> additionalInfoReqIds = new ArrayList<String>();
 		gmailPOPHost = "pop.gmail.com";
 		mailStoreType = "pop3";  
-		username= "alok.test.mosip@gmail.com";  
+		username= "alok1.test.mosip@gmail.com";  
 		password= "alok@Mosip@123";//change accordingly  
 		String keyWord = "AdditionalInfoRequestId";
 		
