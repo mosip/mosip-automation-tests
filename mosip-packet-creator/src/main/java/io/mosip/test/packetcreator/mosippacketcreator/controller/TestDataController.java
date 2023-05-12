@@ -350,23 +350,23 @@ public class TestDataController {
     	return "{\"Failed\"}";
     }
     
-    @PostMapping(value = "/packet/{process}/{outFolderPath}/{contextKey}")
-    public @ResponseBody String createPackets(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-    		@PathVariable("process") String process,
-    		@PathVariable("outFolderPath") String outFolderPath,
-    		@PathVariable("contextKey") String contextKey) {
-
-    	try{    	
-    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
-    			DataProviderConstants.RESOURCE = personaConfigPath;
-    		}
-    		return packetSyncService.createPacketTemplates(preRegisterRequestDto.getPersonaFilePath(),process,outFolderPath, null,contextKey,"Registration");
-    	
-    	} catch (Exception ex){
-             logger.error("createPackets", ex);
-    	}
-    	return "{\"Failed\"}";
-    }
+//    @PostMapping(value = "/packet/{process}/{outFolderPath}/{contextKey}")
+//    public @ResponseBody String createPackets(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
+//    		@PathVariable("process") String process,
+//    		@PathVariable("outFolderPath") String outFolderPath,
+//    		@PathVariable("contextKey") String contextKey) {
+//
+//    	try{    	
+//    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+//    			DataProviderConstants.RESOURCE = personaConfigPath;
+//    		}
+//    		return packetSyncService.createPacketTemplates(preRegisterRequestDto.getPersonaFilePath(),process,outFolderPath, null,contextKey,"Registration");
+//    	
+//    	} catch (Exception ex){
+//             logger.error("createPackets", ex);
+//    	}
+//    	return "{\"Failed\"}";
+//    }
     	  
     /*
      * Download from pre-reg, merge with the given packet template and upload to register

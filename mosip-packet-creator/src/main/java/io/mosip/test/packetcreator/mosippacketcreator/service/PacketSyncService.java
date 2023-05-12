@@ -772,7 +772,7 @@ public class PacketSyncService {
 	}
 
 	public String createPacket(PersonaRequestDto personaRequest, String process, String preregId, String contextKey,
-			String purpose) throws IOException {
+			String purpose,String qualityScore) throws IOException {
 
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
@@ -800,7 +800,7 @@ public class PacketSyncService {
 
 			Properties props = contextUtils.loadServerContext(contextKey);
 			packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId, machineId,
-					centerId, contextKey, props, new JSONObject(), purpose);
+					centerId, contextKey, props, new JSONObject(), purpose,qualityScore);
 
 			JSONObject obj = new JSONObject();
 			obj.put("id", resident.getId());
@@ -816,7 +816,7 @@ public class PacketSyncService {
 	}
 
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
-			String contextKey, String purpose) throws IOException {
+			String contextKey, String purpose,String qualityScore) throws IOException {
 
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
@@ -861,7 +861,7 @@ public class PacketSyncService {
 				centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 
 				packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
-						machineId, centerId, contextKey, props, preregResponse, purpose);
+						machineId, centerId, contextKey, props, preregResponse, purpose,qualityScore);
 				JSONObject obj = new JSONObject();
 				obj.put("id", resident.getId());
 				obj.put("path", packetPath);
