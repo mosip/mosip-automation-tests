@@ -1540,5 +1540,18 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		return clientAssertionToken;
 	}
+	
+	public static int getActuatorDelay() {
+		String sequence = null;
+
+		sequence = AdminTestUtil.getRegprocWaitFromActuator();
+		String[] numbers = sequence.split(",");
+		int commonDifference = Integer.parseInt(numbers[1]) - Integer.parseInt(numbers[0]);
+
+		// Convert wait time from regproc actuator in seconds
+
+		int waitFromActuator = commonDifference * 60;
+		return waitFromActuator;
+	}
 
 }
