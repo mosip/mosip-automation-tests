@@ -60,25 +60,33 @@ import io.restassured.response.Response;
 public class PacketUtility extends BaseTestCaseUtil {
 	Logger logger = Logger.getLogger(PacketUtility.class);
 
-	public List<String> generateResidents(int n, Boolean bAdult, Boolean bSkipGuardian, String gender,
-			String missFields, HashMap<String, String> contextKey,Scenario.Step step) throws RigInternalError {
+	public List<String> generateResidents(int n, String ageCategory, Boolean bSkipGuardian, String missFields,
+			HashMap<String, String> bioFlag, Scenario.Step step) throws RigInternalError {
 
 		String url = baseUrl + props.getProperty("getResidentUrl") + n;
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
-		if (bAdult) {
+		if (ageCategory.equalsIgnoreCase("adult")) {
 			residentAttrib.put("Age", "RA_Adult");
-		} else {
+		}
+		
+		else if(ageCategory.equalsIgnoreCase("minor")){
 			residentAttrib.put("Age", "RA_Minor");
 			residentAttrib.put("SkipGaurdian", bSkipGuardian);
 		}
-		residentAttrib.put("Gender", gender);
+		
+		else if(ageCategory.equalsIgnoreCase("infant")){
+			residentAttrib.put("Age", "RA_Infant");
+			residentAttrib.put("SkipGaurdian", bSkipGuardian);
+		}
+		residentAttrib.put("Gender", bioFlag.get("Gender"));
 		// residentAttrib.put("PrimaryLanguage", "eng");
-		residentAttrib.put("Iris", true);
-		// added for face biometric related issue
-		residentAttrib.put("Finger", true);
-		residentAttrib.put("Face", true);
+		// residentAttrib.put("SecondaryLanguage", "ara");
+		// residentAttrib.put("ThirdLanguage", "fra");
+		residentAttrib.put("Iris", bioFlag.get("Iris"));
+		residentAttrib.put("Finger", bioFlag.get("Finger"));
+		residentAttrib.put("Face", bioFlag.get("Face"));
 		//
 
 		if (missFields != null)
@@ -91,7 +99,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 //Docker change//		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), contextKey,
 //				"GENERATE_RESIDENTS_DATA");
 
-		Response response = postRequest(url, jsonwrapper.toString(), "GENERATE_RESIDENTS_DATA",step);
+		Response response = postRequest(url, jsonwrapper.toString(), "GENERATE_RESIDENTS_DATA", step);
 
 		// assertTrue(response.getBody().asString().contains("SUCCESS"),"Unable to get
 		// residentData from packet utility");
@@ -111,26 +119,33 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public Response generateResident(int n, Boolean bAdult, Boolean bSkipGuardian, String gender, String missFields,
-			HashMap<String, String> contextKey,Scenario.Step step) throws RigInternalError {
+	public Response generateResident(int n, String ageCategory, Boolean bSkipGuardian, String missFields,
+			HashMap<String, String> bioFlag, Scenario.Step step) throws RigInternalError {
 
 		String url = baseUrl + props.getProperty("getResidentUrl") + n;
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
-		if (bAdult) {
+		if (ageCategory.equalsIgnoreCase("adult")) {
 			residentAttrib.put("Age", "RA_Adult");
-		} else {
+		}
+		
+		else if(ageCategory.equalsIgnoreCase("minor")){
 			residentAttrib.put("Age", "RA_Minor");
 			residentAttrib.put("SkipGaurdian", bSkipGuardian);
 		}
-		residentAttrib.put("Gender", gender);
+		
+		else if(ageCategory.equalsIgnoreCase("infant")){
+			residentAttrib.put("Age", "RA_Infant");
+			residentAttrib.put("SkipGaurdian", bSkipGuardian);
+		}
+		residentAttrib.put("Gender", bioFlag.get("Gender"));
 		// residentAttrib.put("PrimaryLanguage", "eng");
 		// residentAttrib.put("SecondaryLanguage", "ara");
 		// residentAttrib.put("ThirdLanguage", "fra");
-		residentAttrib.put("Iris", true);
-		residentAttrib.put("Finger", true);
-		residentAttrib.put("Face", true);
+		residentAttrib.put("Iris", bioFlag.get("Iris"));
+		residentAttrib.put("Finger", bioFlag.get("Finger"));
+		residentAttrib.put("Face", bioFlag.get("Face"));
 		//
 
 		if (missFields != null)
@@ -143,14 +158,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// Response response = postRequestWithQueryParamAndBody(url,
 		// jsonwrapper.toString(), contextKey,
 		// "GENERATE_RESIDENTS_DATA");
-		Response response = postRequest(url, jsonwrapper.toString(), "GENERATE_RESIDENTS_DATA",step);
+		Response response = postRequest(url, jsonwrapper.toString(), "GENERATE_RESIDENTS_DATA", step);
 
 		return response;
 
 	}
 
-	public JSONArray getTemplate(Set<String> resPath, String process, HashMap<String, String> contextKey,Scenario.Step step,String qualityScore)
-			throws RigInternalError {
+	public JSONArray getTemplate(Set<String> resPath, String process, HashMap<String, String> contextKey,
+			Scenario.Step step, String qualityScore) throws RigInternalError {
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
 		for (String residentPath : resPath) {
@@ -159,10 +174,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		jsonReq.put("personaFilePath", arr);
 		// String url = baseUrl + props.getProperty("getTemplateUrl") + process + "/ /";
-		String url = baseUrl + props.getProperty("getTemplateUrl") + process+"/"+qualityScore;
+		String url = baseUrl + props.getProperty("getTemplateUrl") + process + "/" + qualityScore;
 		// Response templateResponse = postReqest(url, jsonReq.toString(),
 		// "GET-TEMPLATE");
-		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE",step);
+		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
 		JSONObject jsonResponse = new JSONObject(templateResponse.asString());
 		JSONArray resp = jsonResponse.getJSONArray("packets");
 		if ((resp.length() <= 0))
@@ -170,7 +185,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return resp;
 	}
 
-	public void requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone,Scenario.Step step)
+	public void requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone, Scenario.Step step)
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("sendOtpUrl") + emailOrPhone;
 		JSONObject jsonReq = new JSONObject();
@@ -178,7 +193,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonArray.put(resFilePath);
 		jsonReq.put("personaFilePath", jsonArray);
 		// postReqest(url,jsonReq.toString(),"Send Otp");
-		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),map, "Send Otp",step);
+		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Send Otp", step);
 		if (!response.getBody().asString().toLowerCase().contains("email request submitted"))
 			throw new RigInternalError("Unable to Send OTP");
 
@@ -186,7 +201,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public void verifyOtp(String resFilePath, HashMap<String, String> contextKey, String emailOrPhone,
 			Scenario.Step step, String otp) throws RigInternalError {
-		String url = baseUrl + props.getProperty("verifyOtpUrl") + emailOrPhone+ "/"+otp;
+		String url = baseUrl + props.getProperty("verifyOtpUrl") + emailOrPhone + "/" + otp;
 		JSONObject jsonReq = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
@@ -201,13 +216,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String preReg(String resFilePath, HashMap<String, String> contextKey,Scenario.Step step) throws RigInternalError {
+	public String preReg(String resFilePath, HashMap<String, String> contextKey, Scenario.Step step)
+			throws RigInternalError {
 		String url = baseUrl + props.getProperty("preregisterUrl");
 		JSONObject jsonReq = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put("personaFilePath", jsonArray);
-		Response response = postRequest(url, jsonReq.toString(), "AddApplication",step);
+		Response response = postRequest(url, jsonReq.toString(), "AddApplication", step);
 		// Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),
 		// contextKey, "AddApplication");
 		String prid = response.getBody().asString();
@@ -234,20 +250,20 @@ public class PacketUtility extends BaseTestCaseUtil {
 //
 //	}
 
-	public void uploadDocuments(String resFilePath, String prid, HashMap<String, String> map,Scenario.Step step) {
+	public void uploadDocuments(String resFilePath, String prid, HashMap<String, String> map, Scenario.Step step) {
 		String url = baseUrl + "/prereg/documents/" + prid;
 		JSONObject jsonReq = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put("personaFilePath", jsonArray);
 		// postReqest(url,jsonReq.toString(),"Upload Documents");
-		postRequestWithQueryParamAndBody(url, jsonReq.toString(), map,"Upload Documents",step);
+		postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Upload Documents", step);
 	}
 
-	public String updatePreRegStatus(String prid, String status, HashMap<String, String> map,Scenario.Step step)
+	public String updatePreRegStatus(String prid, String status, HashMap<String, String> map, Scenario.Step step)
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePreRegStatus") + prid + "?statusCode=" + status;
-		Response response = putRequestWithQueryParam(url, map, "UpdatePreRegStatus",step);
+		Response response = putRequestWithQueryParam(url, map, "UpdatePreRegStatus", step);
 		return (response.getBody().asString());
 
 	}
@@ -263,7 +279,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public void preRegStatusValidResponse(String response) throws RigInternalError {
-		if (!response.toLowerCase().contains("status_updated_sucessfully")) { 
+		if (!response.toLowerCase().contains("status_updated_sucessfully")) {
 			Reporter.log("STATUS_NOT_UPDATED_SUCESSFULLY");
 			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
 		} else {
@@ -272,33 +288,34 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 	}
 
-	public void bookAppointment(String prid, int nthSlot, HashMap<String, String> contextKey, boolean bookOnHolidays,Scenario.Step step)
-			throws RigInternalError {
+	public void bookAppointment(String prid, int nthSlot, HashMap<String, String> contextKey, boolean bookOnHolidays,
+			Scenario.Step step) throws RigInternalError {
 		// String url = baseUrl + "/bookappointment/" + prid + "/" + nthSlot + "/" +
 		// bookOnHolidays;
 		String url = baseUrl + "/prereg/appointment/" + prid + "/" + nthSlot + "/" + bookOnHolidays;
 		JSONObject jsonReq = new JSONObject();
-				Response response = postRequest(url, jsonReq.toString(), "BookAppointment",step);
-				
-				
-		//Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), contextKey, "BookAppointment");
+		Response response = postRequest(url, jsonReq.toString(), "BookAppointment", step);
+
+		// Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),
+		// contextKey, "BookAppointment");
 		if (!response.getBody().asString().toLowerCase().contains("appointment booked successfully")) {
-			System.out.println("bookAppointment Response is:" + response +" url: "+ url );
+			System.out.println("bookAppointment Response is:" + response + " url: " + url);
 			throw new RigInternalError("Unable to BookAppointment from packet utility");
-	}}
+		}
+	}
 
 	public String generateAndUploadPacket(String prid, String packetPath, HashMap<String, String> map,
-			String responseStatus,Scenario.Step step) throws RigInternalError {
+			String responseStatus, Scenario.Step step) throws RigInternalError {
 		String rid = null;
-		String url = baseUrl + "/packet/sync/" + prid +"/"+true;
+		String url = baseUrl + "/packet/sync/" + prid + "/" + true;
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
 		arr.put(packetPath);
 		jsonReq.put("personaFilePath", arr);
 		// Response response =postReqest(url,jsonReq.toString(),"Generate And
 		// UploadPacket");
-		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map,
-				"Generate And UploadPacket",step);
+		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Generate And UploadPacket",
+				step);
 		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			rid = jsonResp.getJSONObject("response").getString("registrationId");
@@ -313,7 +330,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return rid;
 	}
 
-	public String updateResidentRid(String personaFilePath, String rid,Scenario.Step step) throws RigInternalError {
+	public String updateResidentRid(String personaFilePath, String rid, Scenario.Step step) throws RigInternalError {
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("RID", rid);
@@ -328,8 +345,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		jsonwrapper.put("requests", jsonReq);
 
-		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(),map,
-				"link Resident data with RID",step);
+		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
+				"link Resident data with RID", step);
 
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to add Resident RID in resident data");
@@ -338,7 +355,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String updateResidentUIN(String personaFilePath, String uin,Scenario.Step step) throws RigInternalError {
+	public String updateResidentUIN(String personaFilePath, String uin, Scenario.Step step) throws RigInternalError {
 		// String url = baseUrl + props.getProperty("updateResidentUrl") + "?UIN=" +
 		// uin;
 		String url = baseUrl + props.getProperty("updateResidentUrl");
@@ -357,8 +374,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// data with UIN");
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("UIN", uin);
-		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(),map,
-				"link Resident data with UIN",step);
+		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
+				"link Resident data with UIN", step);
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to add UIN in resident data");
 		String ret = response.getBody().asString();
@@ -366,50 +383,71 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String updateResidentGuardian_old(String residentFilePath, String withRidOrUin, String missingFields,
-			String parentEmailOrPhone,Scenario.Step step,String qualityScore) throws RigInternalError {
+	/*
+	 * public String updateResidentGuardian_old(String residentFilePath, String
+	 * withRidOrUin, String missingFields,HashMap<String, String> bioFlag, String
+	 * parentEmailOrPhone,Scenario.Step step,String qualityScore) throws
+	 * RigInternalError { Reporter.
+	 * log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>"
+	 * );
+	 * 
+	 * String missingField=null; //boolean isGaurdianVal=false;
+	 * if(isGaurdianValid!=null) { //missingFields=isGaurdianValid.split("@@");
+	 * //isGaurdianVal=Boolean.parseBoolean(missingFields[0]);
+	 * missingField=missingFields[0]; }
+	 * 
+	 * // List<String> generatedResidentData = generateResidents(1, //
+	 * true,true,"Any",null,contextKey);
+	 * 
+	 * List<String> generatedResidentData = generateResidents(1, true, true,
+	 * missingFields, bioFlag, step); JSONArray jsonArray = getTemplate(new
+	 * HashSet<String>(generatedResidentData), "NEW",
+	 * step.getScenario().getCurrentStep(), step,qualityScore); JSONObject obj =
+	 * jsonArray.getJSONObject(0); String templatePath = obj.get("path").toString();
+	 * requestOtp(step.getScenario().getGeneratedResidentData().get(0),
+	 * step.getScenario().getCurrentStep(), parentEmailOrPhone, step);
+	 * verifyOtp(step.getScenario().getGeneratedResidentData().get(0),
+	 * step.getScenario().getCurrentStep(), parentEmailOrPhone, step, "111111");
+	 * String prid = preReg(step.getScenario().getGeneratedResidentData().get(0),
+	 * step.getScenario().getCurrentStep(), step);
+	 * uploadDocuments(step.getScenario().getGeneratedResidentData().get(0), prid,
+	 * step.getScenario().getCurrentStep(), step); bookAppointment(prid, 1,
+	 * step.getScenario().getCurrentStep(), false, step); String rid =
+	 * generateAndUploadPacket(prid, templatePath,
+	 * step.getScenario().getCurrentStep(), "success", step);
+	 * 
+	 * String url = baseUrl + props.getProperty("updateResidentUrl");
+	 * 
+	 * if (withRidOrUin.equalsIgnoreCase("rid"))
+	 * updateResidentRid(step.getScenario().getGeneratedResidentData().get(0),
+	 * rid,step); else if (withRidOrUin.equalsIgnoreCase("uin")) { try {
+	 * Thread.sleep(30000); } catch (InterruptedException e) { e.printStackTrace();
+	 * } String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
+	 * Response response = getRequest(identityUrl + rid, "Get uin by rid :" +
+	 * rid,step); String uin = response.asString();
+	 * updateResidentUIN(step.getScenario().getGeneratedResidentData().get(0),
+	 * uin,step); }
+	 * 
+	 * JSONObject jsonwrapper = new JSONObject(); JSONObject jsonReq = new
+	 * JSONObject(); JSONObject residentAttrib = new JSONObject();
+	 * residentAttrib.put("guardian",
+	 * step.getScenario().getGeneratedResidentData().get(0));
+	 * residentAttrib.put("child", residentFilePath); jsonReq.put("PR_ResidentList",
+	 * residentAttrib); jsonwrapper.put("requests", jsonReq); Response response =
+	 * postRequest(url, jsonwrapper.toString(), "Update Resident Guardian",step); //
+	 * assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to //
+	 * update Resident Guardian from packet utility");
+	 * Reporter.log("<b><u>Generated GuardianPacket with Rid: " + rid +
+	 * " And linked to child </u></b>"); if
+	 * (!response.getBody().asString().toLowerCase().contains("success")) throw new
+	 * RigInternalError("Unable to update Resident Guardian from packet utility");
+	 * return rid;
+	 * 
+	 * }
+	 */
+
+	public String updateResidentGuardian(String residentFilePath, Scenario.Step step) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
-		/*
-		 * String missingField=null; //boolean isGaurdianVal=false;
-		 * if(isGaurdianValid!=null) { //missingFields=isGaurdianValid.split("@@");
-		 * //isGaurdianVal=Boolean.parseBoolean(missingFields[0]);
-		 * missingField=missingFields[0]; }
-		 */
-		// List<String> generatedResidentData = generateResidents(1,
-		// true,true,"Any",null,contextKey);
-		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields,
-				step.getScenario().getCurrentStep(), step);
-		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW",
-				step.getScenario().getCurrentStep(), step,qualityScore);
-		JSONObject obj = jsonArray.getJSONObject(0);
-		String templatePath = obj.get("path").toString();
-		requestOtp(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(),
-				parentEmailOrPhone, step);
-		verifyOtp(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(),
-				parentEmailOrPhone, step, "111111");
-		String prid = preReg(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(),
-				step);
-		uploadDocuments(step.getScenario().getGeneratedResidentData().get(0), prid, step.getScenario().getCurrentStep(),
-				step);
-		bookAppointment(prid, 1, step.getScenario().getCurrentStep(), false, step);
-		String rid = generateAndUploadPacket(prid, templatePath, step.getScenario().getCurrentStep(), "success", step);
-
-		String url = baseUrl + props.getProperty("updateResidentUrl");
-
-		if (withRidOrUin.equalsIgnoreCase("rid"))
-			updateResidentRid(step.getScenario().getGeneratedResidentData().get(0), rid,step);
-		else if (withRidOrUin.equalsIgnoreCase("uin")) {
-			try {
-				Thread.sleep(30000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
-			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid,step);
-			String uin = response.asString();
-			updateResidentUIN(step.getScenario().getGeneratedResidentData().get(0), uin,step);
-		}
-
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
@@ -417,100 +455,81 @@ public class PacketUtility extends BaseTestCaseUtil {
 		residentAttrib.put("child", residentFilePath);
 		jsonReq.put("PR_ResidentList", residentAttrib);
 		jsonwrapper.put("requests", jsonReq);
-		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian",step);
-		// assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to
-		// update Resident Guardian from packet utility");
-		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + rid + " And linked to child </u></b>");
-		if (!response.getBody().asString().toLowerCase().contains("success"))
-			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
-		return rid;
-
-	}
-
-	public String updateResidentGuardian(String residentFilePath,Scenario.Step step) throws RigInternalError {
-		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
-		JSONObject jsonwrapper = new JSONObject();
-		JSONObject jsonReq = new JSONObject();
-		JSONObject residentAttrib = new JSONObject();
-		residentAttrib.put("guardian", step.getScenario().getGeneratedResidentData().get(0));
-		residentAttrib.put("child", residentFilePath);
-		jsonReq.put("PR_ResidentList", residentAttrib);
-		jsonwrapper.put("requests", jsonReq);
 		String url = baseUrl + props.getProperty("updateResidentUrl");
-		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian",step);
-		Reporter.log(
-				"<b><u>Generated GuardianPacket with Rid: " + step.getScenario().getRid_updateResident() + " And linked to child </u></b>");
+		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
+		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + step.getScenario().getRid_updateResident()
+				+ " And linked to child </u></b>");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
 		return step.getScenario().getRid_updateResident();
 
 	}
 
-	public String updateResidentWithGuardianSkippingPreReg_old(String residentFilePath,
-			HashMap<String, String> contextKey, String withRidOrUin, String missingFields,Scenario.Step step,boolean getRidFromSync,String qualityScore) throws RigInternalError {
-		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
-		/*
-		 * String missingField=null; boolean isGaurdianVal=false; String
-		 * []missingFields=null; if(isGaurdianValid!=null&&!isGaurdianValid.isEmpty()) {
-		 * missingFields=isGaurdianValid.split("@@");
-		 * isGaurdianVal=Boolean.parseBoolean(missingFields[0]); if(isGaurdianVal)
-		 * missingField=missingFields[1]; }
-		 */
-		// List<String> generatedResidentData = generateResidents(1,
-		// true,true,"Any",null,contextKey);
-		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields, contextKey,step);
-		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextKey,step,qualityScore);
-		JSONObject obj = jsonArray.getJSONObject(0);
-		String templatePath = obj.get("path").toString();
-		String rid = generateAndUploadPacketSkippingPrereg(templatePath, step.getScenario().getGeneratedResidentData().get(0), null, contextKey,
-				"success",step,getRidFromSync);
-
-		String url = baseUrl + props.getProperty("updateResidentUrl");
-
-		if (withRidOrUin.equalsIgnoreCase("rid"))
-			updateResidentRid(step.getScenario().getGeneratedResidentData().get(0), rid,step);
-		else if (withRidOrUin.equalsIgnoreCase("uin")) {
-			try {
-				Thread.sleep(30000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
-			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid,step);
-			String uin = response.asString();
-			updateResidentUIN(step.getScenario().getGeneratedResidentData().get(0), uin,step);
-		}
-
-		JSONObject jsonwrapper = new JSONObject();
-		JSONObject jsonReq = new JSONObject();
-		JSONObject residentAttrib = new JSONObject();
-		residentAttrib.put("guardian", step.getScenario().getGeneratedResidentData().get(0));
-		residentAttrib.put("child", residentFilePath);
-		jsonReq.put("PR_ResidentList", residentAttrib);
-		jsonwrapper.put("requests", jsonReq);
-		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian",step);
-		// assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to
-		// update Resident Guardian from packet utility");
-		if (!response.getBody().asString().toLowerCase().contains("success"))
-			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
-		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + rid + " And linked to child </u></b>");
-		return rid;
-
-	}
+//	public String updateResidentWithGuardianSkippingPreReg_old(String residentFilePath,
+//			HashMap<String, String> contextKey, String withRidOrUin, String missingFields,HashMap<String, String> bioFlag,Scenario.Step step,boolean getRidFromSync,String qualityScore) throws RigInternalError {
+//		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
+//		/*
+//		 * String missingField=null; boolean isGaurdianVal=false; String
+//		 * []missingFields=null; if(isGaurdianValid!=null&&!isGaurdianValid.isEmpty()) {
+//		 * missingFields=isGaurdianValid.split("@@");
+//		 * isGaurdianVal=Boolean.parseBoolean(missingFields[0]); if(isGaurdianVal)
+//		 * missingField=missingFields[1]; }
+//		 */
+//		// List<String> generatedResidentData = generateResidents(1,
+//		// true,true,"Any",null,contextKey);
+//		List<String> generatedResidentData = generateResidents(1, true, true, missingFields, contextKey,step);
+//		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextKey,step,qualityScore);
+//		JSONObject obj = jsonArray.getJSONObject(0);
+//		String templatePath = obj.get("path").toString();
+//		String rid = generateAndUploadPacketSkippingPrereg(templatePath, step.getScenario().getGeneratedResidentData().get(0), null, contextKey,
+//				"success",step,getRidFromSync);
+//
+//		String url = baseUrl + props.getProperty("updateResidentUrl");
+//
+//		if (withRidOrUin.equalsIgnoreCase("rid"))
+//			updateResidentRid(step.getScenario().getGeneratedResidentData().get(0), rid,step);
+//		else if (withRidOrUin.equalsIgnoreCase("uin")) {
+//			try {
+//				Thread.sleep(30000);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
+//			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid,step);
+//			String uin = response.asString();
+//			updateResidentUIN(step.getScenario().getGeneratedResidentData().get(0), uin,step);
+//		}
+//
+//		JSONObject jsonwrapper = new JSONObject();
+//		JSONObject jsonReq = new JSONObject();
+//		JSONObject residentAttrib = new JSONObject();
+//		residentAttrib.put("guardian", step.getScenario().getGeneratedResidentData().get(0));
+//		residentAttrib.put("child", residentFilePath);
+//		jsonReq.put("PR_ResidentList", residentAttrib);
+//		jsonwrapper.put("requests", jsonReq);
+//		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian",step);
+//		// assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to
+//		// update Resident Guardian from packet utility");
+//		if (!response.getBody().asString().toLowerCase().contains("success"))
+//			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
+//		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + rid + " And linked to child </u></b>");
+//		return rid;
+//
+//	}
 
 	public String updateResidentWithGuardianSkippingPreReg(String guardianPersonaFilePath, String childPersonaFilePath,
-			HashMap<String, String> contextKey,Scenario.Step step) throws RigInternalError {
+			HashMap<String, String> contextKey, Scenario.Step step) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
 		residentAttrib.put("guardian", guardianPersonaFilePath);
-		residentAttrib.put("child",
-				(childPersonaFilePath != null) ? childPersonaFilePath : step.getScenario().getGeneratedResidentData().get(0));
+		residentAttrib.put("child", (childPersonaFilePath != null) ? childPersonaFilePath
+				: step.getScenario().getGeneratedResidentData().get(0));
 		jsonReq.put("PR_ResidentList", residentAttrib);
 		jsonwrapper.put("requests", jsonReq);
 		String url = baseUrl + props.getProperty("updateResidentUrl");
-		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian",step);
+		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
 		Reporter.log("<b><u>Generated GuardianPacket And linked to child </u></b>");
@@ -519,23 +538,27 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath, String additionalInfoReqId,
-			HashMap<String, String> contextKey, String responseStatus,Scenario.Step step,boolean getRidFromSync) throws RigInternalError {
+			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync)
+			throws RigInternalError {
 
-		String url = baseUrl + "/packet/sync/01/"+true; // 01 -- to generate wrong hash
-		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus,step,getRidFromSync);
+		String url = baseUrl + "/packet/sync/01/" + true; // 01 -- to generate wrong hash
+		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
+				getRidFromSync);
 	}
 
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
-			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus,Scenario.Step step,boolean getRidFromSync)
-			throws RigInternalError {
+			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus, Scenario.Step step,
+			boolean getRidFromSync) throws RigInternalError {
 
-		String url = baseUrl + "/packet/sync/0/"+getRidFromSync; // 0 -- to skip prereg
-		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus,step,getRidFromSync);
+		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; // 0 -- to skip prereg
+		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
+				getRidFromSync);
 
 	}
 
 	public String getRID(String url, String packetPath, String residentPath, String additionalInfoReqId,
-			HashMap<String, String> contextKey, String responseStatus,Scenario.Step step,boolean getRidFromSync) throws RigInternalError {
+			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync)
+			throws RigInternalError {
 		String rid = null;
 
 		JSONObject jsonReq = new JSONObject();
@@ -544,9 +567,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		arr.put(1, residentPath);
 		jsonReq.put("personaFilePath", arr);
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
-		
-		
-		Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket",step);
+
+		Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
 		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			rid = jsonResp.getJSONObject("response").getString("registrationId");
@@ -556,7 +578,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return rid;
 	}
 
-	public String createContext(String key, String baseUrl,Scenario.Step step) throws RigInternalError {
+	public String createContext(String key, String baseUrl, Scenario.Step step) throws RigInternalError {
 		String url = this.baseUrl + "/servercontext/" + key;
 
 		JSONObject jsonReq = new JSONObject();
@@ -571,7 +593,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("prereg.password", E2EConstants.USER_PASSWD);
 		jsonReq.put("mosip.test.regclient.supervisorid", E2EConstants.SUPERVISOR_ID);
 		jsonReq.put("prereg.preconfiguredOtp", E2EConstants.PRECONFIGURED_OTP);
-		Response response = postRequest(url, jsonReq.toString(), "SetContext",step);
+		Response response = postRequest(url, jsonReq.toString(), "SetContext", step);
 		// Response response =
 		// given().contentType(ContentType.JSON).body(jsonReq.toString()).post(url);
 		if (!response.getBody().asString().toLowerCase().contains("true"))
@@ -581,7 +603,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,
-			Boolean generatePrivateKey, String status, String baseUrl,Scenario.Step step) throws RigInternalError {
+			Boolean generatePrivateKey, String status, String baseUrl, Scenario.Step step) throws RigInternalError {
 		// String url = this.baseUrl + "/context/server/" + key;
 		String url = this.baseUrl + "/context/server/";
 		Map<String, String> map = new HashMap<String, String>();
@@ -597,27 +619,26 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
 		JSONObject jsonReq = new JSONObject();
-		jsonReq.put("enableDebug",ConfigManager.getEnableDebug());
-		 logger.info("Running suite with enableDebug : "+ConfigManager.getEnableDebug());
+		jsonReq.put("enableDebug", ConfigManager.getEnableDebug());
+		logger.info("Running suite with enableDebug : " + ConfigManager.getEnableDebug());
 		jsonReq.put("baselang", BaseTestCase.getLanguageList().get(0));
-		//jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
-		 
+		// jsonReq.put("scenario", step.getScenario().getId() + ":" +
+		// step.getScenario().getDescription());
+
 		if (status != null) {
-		    String[] parts = status.split("@@");
-		    status = parts[0];
-		    if (parts.length == 2 && parts[0].equals("null")) {
-		    	int a = 0;
-		        a = Integer.parseInt(parts[1]); 
-		        jsonReq.put("scenario", a + ":" + step.getScenario().getDescription() );
-		    } else {
-		        jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
-		    }
+			String[] parts = status.split("@@");
+			status = parts[0];
+			if (parts.length == 2 && parts[0].equals("null")) {
+				int a = 0;
+				a = Integer.parseInt(parts[1]);
+				jsonReq.put("scenario", a + ":" + step.getScenario().getDescription());
+			} else {
+				jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
+			}
 		} else {
-		    jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
+			jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		}
-		
-		
-		
+
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
 		jsonReq.put("mosip.test.regclient.machineid",
@@ -646,7 +667,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (mosipVersion != null && !mosipVersion.isEmpty()) {
 			jsonReq.put("mosip.version", mosipVersion);
 		}
-		Response response = postRequest(url, jsonReq.toString(), "SetContext",step);
+		Response response = postRequest(url, jsonReq.toString(), "SetContext", step);
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
 		return response.getBody().asString();
@@ -654,7 +675,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
-			Boolean generatePrivateKey, String status, String baseUrl,Scenario.Step step) throws RigInternalError {
+			Boolean generatePrivateKey, String status, String baseUrl, Scenario.Step step) throws RigInternalError {
 		// OLD //String url = this.baseUrl + "/context/server/" + key; //this.baseUrl +
 		// "/context/server/" + key?contextKey=Ckey
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
@@ -664,25 +685,25 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
 		JSONObject jsonReq = new JSONObject();
 
-		//jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
-		
+		// jsonReq.put("scenario", step.getScenario().getId() + ":" +
+		// step.getScenario().getDescription());
+
 		if (status != null) {
-		    String[] parts = status.split("@@");
-		    status = parts[0];
-		    if (parts.length == 2 && parts[0].equals("null")) {
-		    	int a = 0;
-		        a = Integer.parseInt(parts[1]); 
-		        jsonReq.put("scenario", a + ":" + step.getScenario().getDescription() );
-		    } else {
-		        jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
-		    }
+			String[] parts = status.split("@@");
+			status = parts[0];
+			if (parts.length == 2 && parts[0].equals("null")) {
+				int a = 0;
+				a = Integer.parseInt(parts[1]);
+				jsonReq.put("scenario", a + ":" + step.getScenario().getDescription());
+			} else {
+				jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
+			}
 		} else {
-		    jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
+			jsonReq.put("scenario", step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		}
-		
-		
-		jsonReq.put("enableDebug",ConfigManager.getEnableDebug());
-		  logger.info("Running suite with enableDebug : "+ConfigManager.getEnableDebug());
+
+		jsonReq.put("enableDebug", ConfigManager.getEnableDebug());
+		logger.info("Running suite with enableDebug : " + ConfigManager.getEnableDebug());
 		jsonReq.put("urlBase", baseUrl);
 		jsonReq.put("mosip.test.baseurl", baseUrl);
 		jsonReq.put("mosip.test.regclient.machineid",
@@ -824,7 +845,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		JSONObject JO = new JSONObject(map);
 
-		Response response = postRequest(url, mergeJSONObjects(JO, jsonReq).toString(), "SetContext",step);
+		Response response = postRequest(url, mergeJSONObjects(JO, jsonReq).toString(), "SetContext", step);
 		if (!response.getBody().asString().toLowerCase().contains("true"))
 			throw new RigInternalError("Unable to set context from packet utility");
 		return response.getBody().asString();
@@ -905,27 +926,28 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
-		Response response = putRequestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail",step);
+		Response response = putRequestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail", step);
 		if (!response.getBody().asString().toLowerCase().contains("sucess"))
 			throw new RigInternalError("Unable to update DemoOrBioDetail " + attributeList + " from packet utility");
 		return response.getBody().asString();
 
 	}
 
-	public String packetSync(String personaPath, HashMap<String, String> map,Scenario.Step step) throws RigInternalError {
+	public String packetSync(String personaPath, HashMap<String, String> map, Scenario.Step step)
+			throws RigInternalError {
 		String url = baseUrl + props.getProperty("packetsyncUrl");
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
 		arr.put(personaPath);
 		jsonReq.put("personaFilePath", arr);
-		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),map, "Packet Sync:",step);
+		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Packet Sync:", step);
 		if (!response.getBody().asString().toLowerCase().contains("packet has reached"))
 			throw new RigInternalError("Unable to do sync packet from packet utility");
 		return response.getBody().asString();
 	}
 
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
-			BioAuth bioAuth,Scenario.Step step) throws RigInternalError {
+			BioAuth bioAuth, Scenario.Step step) throws RigInternalError {
 
 		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 		test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
@@ -968,12 +990,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public void idpBioAuth(String modility, String bioValue, String uin, String transactionId, Properties deviceProps,
-			TestCaseDTO test, EsignetBioAuth idpBioAuth, String input ,Scenario.Step step) throws RigInternalError {
+			TestCaseDTO test, EsignetBioAuth idpBioAuth, String input, Scenario.Step step) throws RigInternalError {
 
-		
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
-		
-		//input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"), "encodedHash"); //need to check is this needed
+
+		// input = JsonPrecondtion.parseAndReturnJsonContent(input,
+		// step.getScenario().getOidcClientProp().getProperty("urlEncodedResp"),
+		// "encodedHash"); //need to check is this needed
 
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId, "transactionId");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("bioSubType"),
@@ -1015,7 +1038,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 	}
 
-	public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList,Scenario.Step step) throws RigInternalError {
+	public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList, Scenario.Step step)
+			throws RigInternalError {
 		String url = baseUrl + props.getProperty("getPersonaData");
 		JSONObject jsonReqInner = new JSONObject();
 		if (retriveAttributeList != null && !(retriveAttributeList.isEmpty()))
@@ -1023,7 +1047,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReqInner.put("personaFilePath", resFilePath);
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
-		Response response = getReqest(url, jsonReq.toString(), "Retrive BiometricData",step);
+		Response response = getReqest(url, jsonReq.toString(), "Retrive BiometricData", step);
 
 		if (response.getBody().asString().equals(""))
 			throw new RigInternalError(
@@ -1034,15 +1058,17 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	private Response getReqest(String url, String body, String opsToLog,Scenario.Step step) {
-		Response apiResponse = getRequestWithbody(url, body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON,step);
+	private Response getReqest(String url, String body, String opsToLog, Scenario.Step step) {
+		Response apiResponse = getRequestWithbody(url, body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON,
+				step);
 		return apiResponse;
 	}
 
-	private Response getRequestWithbody(String url, String body, String contentHeader, String acceptHeader,Scenario.Step step) {
+	private Response getRequestWithbody(String url, String body, String contentHeader, String acceptHeader,
+			Scenario.Step step) {
 		logger.info("RESSURED: Sending a GET request to " + url);
 		logger.info("REQUEST: Sending a GET request to " + url);
-		url = addContextToUrl(url,step);
+		url = addContextToUrl(url, step);
 		Response getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").log()
 				.all().when().body(body).get(url).then().extract().response();
 		logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
@@ -1076,11 +1102,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return list;
 	}
 
-	public void serverResourceStatusManager(String responsePattern, String status,Scenario.Step step) throws RigInternalError {
+	public void serverResourceStatusManager(String responsePattern, String status, Scenario.Step step)
+			throws RigInternalError {
 		String respnseStatus = "";
 		HashMap<String, String> getHMapQParam = createGetRequest();
 		String url = baseUrl + props.getProperty("statusCheck");
-		Response getResponse = getRequestWithQueryParam(url, getHMapQParam, "Get server status",step);
+		Response getResponse = getRequestWithQueryParam(url, getHMapQParam, "Get server status", step);
 		if (getResponse == null) {
 			throw new RigInternalError("Packet utility get method doesn't return any response");
 		}
@@ -1088,7 +1115,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (!respnseStatus.isEmpty()) {
 			if (respnseStatus.toLowerCase().contains(responsePattern.toLowerCase())) {
 				HashMap<String, String> putHMapQParam = createPutReqeust(status);
-				putRequestWithQueryParam(url, putHMapQParam, "Update server key",step);
+				putRequestWithQueryParam(url, putHMapQParam, "Update server key", step);
 			} else {
 				throw new RigInternalError("execution status alrady in use");
 			}
@@ -1110,10 +1137,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return putHMapQParam;
 	}
 
-	public void setMockabisExpectaion(JSONArray jsonreq, HashMap<String, String> contextKey,Scenario.Step step) throws RigInternalError {
+	public void setMockabisExpectaion(JSONArray jsonreq, HashMap<String, String> contextKey, Scenario.Step step)
+			throws RigInternalError {
 		String url = baseUrl + props.getProperty("mockAbis");
-		Response response = postRequestWithQueryParamAndBody(url, jsonreq.toString(), contextKey,
-				"Mockabis Expectaion",step);
+		Response response = postRequestWithQueryParamAndBody(url, jsonreq.toString(), contextKey, "Mockabis Expectaion",
+				step);
 		System.out.println("****" + response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to set mockabis expectaion from packet utility");
@@ -1121,7 +1149,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	//// Activate/DeActivate machine--- start
 	public Boolean activateDeActiveMachine(String jsonInput, String machineSpecId, String machineid, String zoneCode,
-			String token, String status,Scenario.Step step) throws RigInternalError {
+			String token, String status, Scenario.Step step) throws RigInternalError {
 		/*
 		 * String regCenterId = JsonPrecondtion.getValueFromJson(jsonInput,
 		 * "response.(machines)[0].regCenterId"); String url =
@@ -1138,14 +1166,15 @@ public class PacketUtility extends BaseTestCaseUtil {
 		 */
 
 		JSONObject jsonPutReq = machineRequestBuilder(jsonInput, machineSpecId, machineid, zoneCode, status);
-		Boolean isActive = updateMachineDetail(jsonPutReq, token, status,step);
+		Boolean isActive = updateMachineDetail(jsonPutReq, token, status, step);
 		return isActive;
 	}
 
-	public Boolean updateMachineDetail(JSONObject jsonPutReq, String token, String status,Scenario.Step step) throws RigInternalError {
+	public Boolean updateMachineDetail(JSONObject jsonPutReq, String token, String status, Scenario.Step step)
+			throws RigInternalError {
 		String url = System.getProperty("env.endpoint") + props.getProperty("getMachine");
 		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token,
-				"Update machine detail with status[isActive=" + status + "]",step);
+				"Update machine detail with status[isActive=" + status + "]", step);
 		if (puttResponse.getBody().asString().toLowerCase().contains("errorcode")) {
 			logger.error("unable to update machine detail");
 			throw new RigInternalError("unable to update machine detail");
@@ -1155,7 +1184,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return isActive;
 	}
 
-	public Response putReqestWithCookiesAndBody(String url, String body, String token, String opsToLog,Scenario.Step step) {
+	public Response putReqestWithCookiesAndBody(String url, String body, String token, String opsToLog,
+			Scenario.Step step) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 				.accept("*/*").log().all().when().cookie("Authorization", token).put(url).then().log().all().extract()
@@ -1197,19 +1227,19 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	/* Remap User--- start */
-	public Boolean remapUser(String jsonInput, String token, String value, String regCenterId, String zoneCode,Scenario.Step step)
-			throws RigInternalError {
+	public Boolean remapUser(String jsonInput, String token, String value, String regCenterId, String zoneCode,
+			Scenario.Step step) throws RigInternalError {
 		regCenterId = !regCenterId.equals("0") ? regCenterId
 				: JsonPrecondtion.getValueFromJson(jsonInput, "response.regCenterId");
 		String PUTUSERURL = System.getProperty("env.endpoint") + props.getProperty("putUserToRemap") + value + "/eng/"
 				+ regCenterId;
-		String updatedRegCenter = updateToRemapUser(PUTUSERURL, token,step);
+		String updatedRegCenter = updateToRemapUser(PUTUSERURL, token, step);
 		return updatedRegCenter.equals(regCenterId) ? true : false;
 	}
 
 	/**** Remap Device ****/
-	public Boolean remapDevice(String jsonInput, String token, String value, String regCenterId, String zoneCode,Scenario.Step step)
-			throws RigInternalError {
+	public Boolean remapDevice(String jsonInput, String token, String value, String regCenterId, String zoneCode,
+			Scenario.Step step) throws RigInternalError {
 		regCenterId = !regCenterId.equals("0") ? regCenterId
 				: JsonPrecondtion.getValueFromJson(jsonInput, "response.(data)[0].regCenterId");
 		zoneCode = !zoneCode.equals("0") ? zoneCode
@@ -1217,7 +1247,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String PUTUSERURL = System.getProperty("env.endpoint") + props.getProperty("putDeviceToRemap");
 		JSONObject jsonPutReq = requestBuilderDeviceRemap(jsonInput, zoneCode, regCenterId);
 		Response response = putReqestWithCookiesAndBody(PUTUSERURL, JSONValue.toJSONString(jsonPutReq), token,
-				"Remap device to different registration center",step);
+				"Remap device to different registration center", step);
 		return JsonPrecondtion.getValueFromJson(response.getBody().asString(), "response.regCenterId")
 				.equals(regCenterId) ? true : false;
 	}
@@ -1238,7 +1268,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		zoneCode = !zoneCode.equals("0") ? zoneCode
 				: JsonPrecondtion.getValueFromJson(jsonResp.toString(), "response.(registrationCenters)[0].zoneCode");
 		JSONObject jsonPutReq = requestBuilderMachineRemap(jsonInput, zoneCode, regCenterId);
-		String updatedMachineID = updateToRemapMachine(jsonPutReq, token,step);
+		String updatedMachineID = updateToRemapMachine(jsonPutReq, token, step);
 		return updatedMachineID;
 	}
 
@@ -1346,11 +1376,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	// Activate/DeActivate RegCenter--- start
 	public Boolean activateDeActiveRegCenter(String jsonInput, String id, String locationCode, String zoneCode,
-			String token, String status,Scenario.Step step) throws RigInternalError {
-		JSONObject jsonPutReq = regCenterPutrequestBuilder(jsonInput, id, locationCode, zoneCode, status,step);
+			String token, String status, Scenario.Step step) throws RigInternalError {
+		JSONObject jsonPutReq = regCenterPutrequestBuilder(jsonInput, id, locationCode, zoneCode, status, step);
 		String url = System.getProperty("env.endpoint") + props.getProperty("getRegistrationCenter");
 		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token,
-				"Update RegCenter details with status[isActive=]" + status,step);
+				"Update RegCenter details with status[isActive=]" + status, step);
 		if (puttResponse.getBody().asString().toLowerCase().contains("errorcode")) {
 			logger.error("unable to update RegCenter detail");
 			throw new RigInternalError("unable to update RegCenter detail");
@@ -1361,7 +1391,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public JSONObject regCenterPutrequestBuilder(String jsonInput, String id, String locationCode, String zoneCode,
-			String status,Scenario.Step step) {
+			String status, Scenario.Step step) {
 		JSONObject jsonOutterReq = new JSONObject();
 		JSONObject jsonInnerReq = new JSONObject();
 		jsonOutterReq.put("id", "string");
@@ -1406,9 +1436,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	// Activate/DeActivate RegCenter--- end
 
-	private String updateToRemapMachine(JSONObject jsonPutReq, String token,Scenario.Step step) throws RigInternalError {
+	private String updateToRemapMachine(JSONObject jsonPutReq, String token, Scenario.Step step)
+			throws RigInternalError {
 		String url = System.getProperty("env.endpoint") + props.getProperty("putMachineToRemap");
-		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token, "Update machine detail",step);
+		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token, "Update machine detail",
+				step);
 		if (puttResponse.getBody().asString().toLowerCase().contains("errorcode")) {
 			logger.error("unable to update machine detail");
 			throw new RigInternalError("unable to update machine detail");
@@ -1418,8 +1450,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return machineID;
 	}
 
-	private String updateToRemapUser(String url, String token,Scenario.Step step) throws RigInternalError {
-		Response puttResponse = putReqestWithCookiesAndNoBody(url, token, "Update user detail",step);
+	private String updateToRemapUser(String url, String token, Scenario.Step step) throws RigInternalError {
+		Response puttResponse = putReqestWithCookiesAndNoBody(url, token, "Update user detail", step);
 		if (puttResponse.getBody().asString().toLowerCase().contains("errorcode")) {
 			logger.error("unable to update user detail");
 			throw new RigInternalError("unable to update user detail");
@@ -1429,7 +1461,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return regCenterId;
 	}
 
-	public Response putReqestWithCookiesAndNoBody(String url, String token, String opsToLog,Scenario.Step step) {
+	public Response putReqestWithCookiesAndNoBody(String url, String token, String opsToLog, Scenario.Step step) {
 		Response puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON).accept("*/*")
 				.log().all().when().cookie("Authorization", token).put(url).then().log().all().extract().response();
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
@@ -1438,7 +1470,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public void operatorOnboardAuth(String modility, String bioValue, String user, TestCaseDTO test, BioAuth bioAuth,
-			String individualIdType, Properties deviceProps,Scenario.Step step) throws RigInternalError {
+			String individualIdType, Properties deviceProps, Scenario.Step step) throws RigInternalError {
 
 		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", deviceProps.getProperty("partnerKey")));
 		String input = test.getInput();
@@ -1481,7 +1513,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		}
 	}
-	
+
 	public static String getJsonFromTemplate(String input, String template) {
 		return getJsonFromTemplate(input, template, true);
 
@@ -1498,8 +1530,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 			Map<String, Object> map = gson.fromJson(input, type);
 			String templateJsonString;
 			if (readFile) {
-				templateJsonString = new String(Files.readAllBytes(Paths.get(AdminTestUtil.getResourcePath() + template + ".hbs")),
-						"UTF-8");
+				templateJsonString = new String(
+						Files.readAllBytes(Paths.get(AdminTestUtil.getResourcePath() + template + ".hbs")), "UTF-8");
 			} else {
 				templateJsonString = template;
 			}
@@ -1512,9 +1544,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		return resultJson;
 	}
-	
+
 	public static String signJWKKey(String clientId, RSAKey jwkKey) {
-		String tempUrl = BaseTestCase.ApplnURI.replace("api-internal", "esignet") +"/v1/esignet/oauth/token";
+		String tempUrl = BaseTestCase.ApplnURI.replace("api-internal", "esignet") + "/v1/esignet/oauth/token";
 		String clientAssertionToken = "";
 		// Create RSA-signer with the private key
 		JWSSigner signer;
@@ -1533,10 +1565,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 			// Compute the RSA signature
 			signedJWT.sign(signer);
-			 clientAssertionToken = signedJWT.serialize();
+			clientAssertionToken = signedJWT.serialize();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			//logger.error("Exception while signing oidcJWKKey for client assertion: " + e.getMessage());
+			// logger.error("Exception while signing oidcJWKKey for client assertion: " +
+			// e.getMessage());
 		}
 		return clientAssertionToken;
 	}
