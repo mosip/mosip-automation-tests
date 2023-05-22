@@ -10,6 +10,7 @@ import io.mosip.admin.fw.util.AdminTestUtil;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.ivv.orchestrator.PacketUtility;
 
 public class Wait extends BaseTestCaseUtil implements StepInterface {
 
@@ -27,7 +28,7 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 		else if (step.getParameters().size() == 1 && step.getParameters().get(0).contains("true")) {
 			Boolean flag = Boolean.parseBoolean(step.getParameters().get(0));
 			if (flag) {
-				waitFromActuator = getActuatorDelay();
+				waitFromActuator = PacketUtility.getActuatorDelay();
 				waitTime = TIME_IN_MILLISEC * waitFromActuator;
 			}
 
@@ -47,17 +48,6 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 		}
 	}
 
-	private int getActuatorDelay() {
-		String sequence = null;
-
-		sequence = AdminTestUtil.getRegprocWaitFromActuator();
-		String[] numbers = sequence.split(",");
-		int commonDifference = Integer.parseInt(numbers[1]) - Integer.parseInt(numbers[0]);
-
-		// Convert wait time from regproc actuator in seconds
-
-		int waitFromActuator = commonDifference * 60;
-		return waitFromActuator;
-	}
+	
 
 }
