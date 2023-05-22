@@ -149,7 +149,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public JSONArray getTemplate(Set<String> resPath, String process, HashMap<String, String> contextKey,Scenario.Step step)
+	public JSONArray getTemplate(Set<String> resPath, String process, HashMap<String, String> contextKey,Scenario.Step step,String qualityScore)
 			throws RigInternalError {
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
@@ -159,7 +159,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		jsonReq.put("personaFilePath", arr);
 		// String url = baseUrl + props.getProperty("getTemplateUrl") + process + "/ /";
-		String url = baseUrl + props.getProperty("getTemplateUrl") + process;
+		String url = baseUrl + props.getProperty("getTemplateUrl") + process+"/"+qualityScore;
 		// Response templateResponse = postReqest(url, jsonReq.toString(),
 		// "GET-TEMPLATE");
 		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE",step);
@@ -367,7 +367,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String updateResidentGuardian_old(String residentFilePath, String withRidOrUin, String missingFields,
-			String parentEmailOrPhone,Scenario.Step step) throws RigInternalError {
+			String parentEmailOrPhone,Scenario.Step step,String qualityScore) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		/*
 		 * String missingField=null; //boolean isGaurdianVal=false;
@@ -380,7 +380,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields,
 				step.getScenario().getCurrentStep(), step);
 		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW",
-				step.getScenario().getCurrentStep(), step);
+				step.getScenario().getCurrentStep(), step,qualityScore);
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
 		requestOtp(step.getScenario().getGeneratedResidentData().get(0), step.getScenario().getCurrentStep(),
@@ -447,7 +447,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String updateResidentWithGuardianSkippingPreReg_old(String residentFilePath,
-			HashMap<String, String> contextKey, String withRidOrUin, String missingFields,Scenario.Step step,boolean getRidFromSync) throws RigInternalError {
+			HashMap<String, String> contextKey, String withRidOrUin, String missingFields,Scenario.Step step,boolean getRidFromSync,String qualityScore) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		/*
 		 * String missingField=null; boolean isGaurdianVal=false; String
@@ -459,7 +459,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// List<String> generatedResidentData = generateResidents(1,
 		// true,true,"Any",null,contextKey);
 		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields, contextKey,step);
-		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextKey,step);
+		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextKey,step,qualityScore);
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
 		String rid = generateAndUploadPacketSkippingPrereg(templatePath, step.getScenario().getGeneratedResidentData().get(0), null, contextKey,

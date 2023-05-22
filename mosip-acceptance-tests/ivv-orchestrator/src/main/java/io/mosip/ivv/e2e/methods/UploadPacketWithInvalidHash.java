@@ -29,12 +29,7 @@ public class UploadPacketWithInvalidHash extends BaseTestCaseUtil implements Ste
 		}else {
 			String residentPath = step.getParameters().get(0);
 			String templatePath = step.getParameters().get(1);
-			
-			if (step.getParameters().size() >=2) {
-				getRidFromSync = Boolean.parseBoolean(step.getParameters().get(2));
-
-			}
-			
+						
 			String _additionalInfoReqId=null;
 			if (step.getParameters().size() > 3) {
 				_additionalInfoReqId = step.getParameters().get(3);
