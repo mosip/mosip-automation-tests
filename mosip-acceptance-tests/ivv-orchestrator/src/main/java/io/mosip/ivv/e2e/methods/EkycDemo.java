@@ -23,7 +23,7 @@ import io.mosip.testscripts.DemoAuthSimplePostForAutoGenId;
 
 public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EkycDemo.class);
-	private static final String DEMOPATH = "idaData/DemoAuth/DemoAuth.yml";
+	private static final String DEMOPATH = "idaData/DemoAuth/EkycDemo.yml";
 	DemoAuthSimplePostForAutoGenId demoAuth = new DemoAuthSimplePostForAutoGenId();
 
 	@Override
@@ -41,9 +41,6 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 		Object[] casesListVID = null;
 
-		// AuthPartnerProcessor.startProcess();
-		// step.getScenario().getUinPersonaProp().put("2759239619",
-		// "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_2140454779925252334\\498484984849848.json");
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
@@ -55,10 +52,10 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 
 		}
 		if (step.getParameters().size() == 2) {
-			uins = step.getParameters().get(1); // "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
+			uins = step.getParameters().get(1); // "e2e_ekycDemo(name,$$uin,$$personaFilePath,$$vid)"
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else if (step.getParameters().size() > 2) { // "e2e_demoAuthentication(name,$$uin,$$personaFilePath)"
+		} else if (step.getParameters().size() > 2) { 
 			uins = step.getParameters().get(1);
 			_personFilePath = step.getParameters().get(2);
 			if (uins.startsWith("$$") && _personFilePath.startsWith("$$")) {
