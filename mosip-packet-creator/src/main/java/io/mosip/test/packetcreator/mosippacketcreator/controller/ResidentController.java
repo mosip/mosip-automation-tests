@@ -139,36 +139,33 @@ public class ResidentController {
 			return "{Failed}";
 		}
 
-		@GetMapping(value = "/resident/setThresholdValue/{qualityScore}/{contextKey}")
-		public @ResponseBody String setThresholdValue(@PathVariable("qualityScore") String qualityScore,
-				@PathVariable("contextKey") String contextKey
-				) {
-
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
-			try {
-				HashMap<String, Integer> port=BiometricDataProvider.portmap;
-				
-				//client = new MDSClient(0); //
-				//port --in MDS Admin api -- hit
-				// {"type" : "Biometric Device","qualityScore": "20", "fromIso" : false}
-				// POST URI - 127.0.0.1:4501/admin/score
-				
-				 RegistrationSteps steps = new RegistrationSteps();
-				// steps.setMDSprofile(type, profile);
-			    steps.setMDSscore(port.get("port_"+contextKey),"Biometric Device", qualityScore, contextKey);
-//				client.setProfile("Default");
-//				client.setThresholdValue(qualityScore);
-				return "qualityScore :" + qualityScore + " is updated";
-			} catch (Exception e) {
-				logger.error("ThresholdValue", e);
-			}
-			return "{Failed}";
-		}
-
-
-
+		/*
+		 * @GetMapping(value =
+		 * "/resident/setThresholdValue/{qualityScore}/{contextKey}")
+		 * public @ResponseBody String setThresholdValue(@PathVariable("qualityScore")
+		 * String qualityScore,
+		 * 
+		 * @PathVariable("contextKey") String contextKey ) {
+		 * 
+		 * if (personaConfigPath != null && !personaConfigPath.equals("")) {
+		 * DataProviderConstants.RESOURCE = personaConfigPath; } try { HashMap<String,
+		 * Integer> port=BiometricDataProvider.portmap;
+		 * 
+		 * //client = new MDSClient(0); // //port --in MDS Admin api -- hit // {"type" :
+		 * "Biometric Device","qualityScore": "20", "fromIso" : false} // POST URI -
+		 * 127.0.0.1:4501/admin/score
+		 * 
+		 * RegistrationSteps steps = new RegistrationSteps(); //
+		 * steps.setMDSprofile(type, profile);
+		 * steps.setMDSscore(port.get("port_"+contextKey),"Biometric Device",
+		 * qualityScore, contextKey); // client.setProfile("Default"); //
+		 * client.setThresholdValue(qualityScore); return "qualityScore :" +
+		 * qualityScore + " is updated"; } catch (Exception e) {
+		 * logger.error("ThresholdValue", e); } return "{Failed}"; }
+		 * 
+		 * 
+		 */
+		
 		  @GetMapping(value = "/resident/stages/{rid}/{contextKey}")
 		  public @ResponseBody String getStagesByRid( @PathVariable("rid") String rid, 
 				  @PathVariable("contextKey") String contextKey
