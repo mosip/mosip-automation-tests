@@ -30,6 +30,22 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		String delaysec="-1";
 		String statusCode=null;
 		String failureReason= null;
+		
+		int waitTimeFromActuator = 0;
+		Long waitTime = DEFAULT_WAIT_TIME;
+		
+		if(step.getParameters().size() >= 7 && step.getParameters().get(8).contains("true")) {
+			waitTimeFromActuator = PacketUtility.getActuatorDelay();
+			waitTime = TIME_IN_MILLISEC * waitTimeFromActuator;
+			try {
+				Thread.sleep(waitTime);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
  		if (step.getParameters().size() == 4) { /// id=878787877
 			personaId = step.getParameters().get(0);
 			if (!personaId.equals("-1")) {
@@ -74,7 +90,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 				 delaysec=step.getParameters().get(6);
 			}
 			
-			if(step.getParameters().size() == 8) {
+			if(step.getParameters().size() >= 7) {
 				
 				if(step.getParameters().get(7).contains("@@")) {
 			     errorList = PacketUtility.getParamsArg(step.getParameters().get(7),"@@");
