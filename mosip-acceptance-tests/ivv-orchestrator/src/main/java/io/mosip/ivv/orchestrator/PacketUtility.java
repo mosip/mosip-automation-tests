@@ -111,38 +111,42 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public Response generateResident(int n, Boolean bAdult, Boolean bSkipGuardian, String gender, String missFields,
-			HashMap<String, String> contextKey,Scenario.Step step) throws RigInternalError {
+	public Response generateResident(int n, String ageCategory
+			, Boolean bSkipGuardian, String missFields,
+			HashMap<String, String> genderAndBioFlag,Scenario.Step step) throws RigInternalError {
 
 		String url = baseUrl + props.getProperty("getResidentUrl") + n;
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
-		if (bAdult) {
+		if (ageCategory.equalsIgnoreCase("adult")) {
 			residentAttrib.put("Age", "RA_Adult");
-		} else {
+		
+		}
+		
+		else if(ageCategory.equalsIgnoreCase("minor")){
 			residentAttrib.put("Age", "RA_Minor");
 			residentAttrib.put("SkipGaurdian", bSkipGuardian);
 		}
-		residentAttrib.put("Gender", gender);
-		// residentAttrib.put("PrimaryLanguage", "eng");
-		// residentAttrib.put("SecondaryLanguage", "ara");
-		// residentAttrib.put("ThirdLanguage", "fra");
-		residentAttrib.put("Iris", true);
-		residentAttrib.put("Finger", true);
-		residentAttrib.put("Face", true);
-		//
+		
+		else if(ageCategory.equalsIgnoreCase("infant")){
+			residentAttrib.put("Age", "RA_Infant");
+			residentAttrib.put("SkipGaurdian", bSkipGuardian);
+		}
+
+		residentAttrib.put("Gender", genderAndBioFlag.get("Gender"));
+		residentAttrib.put("Iris", genderAndBioFlag.get("Iris"));
+		residentAttrib.put("Finger", genderAndBioFlag.get("Finger"));
+		residentAttrib.put("Face", genderAndBioFlag.get("Face"));
+		
+		
 
 		if (missFields != null)
 			residentAttrib.put("Miss", missFields);
 		jsonReq.put("PR_ResidentAttribute", residentAttrib);
 		jsonwrapper.put("requests", jsonReq);
 
-		// Response response = postReqest(url, jsonwrapper.toString(),
-		// "GENERATE_RESIDENTS_DATA");
-		// Response response = postRequestWithQueryParamAndBody(url,
-		// jsonwrapper.toString(), contextKey,
-		// "GENERATE_RESIDENTS_DATA");
+
 		Response response = postRequest(url, jsonwrapper.toString(), "GENERATE_RESIDENTS_DATA",step);
 
 		return response;
