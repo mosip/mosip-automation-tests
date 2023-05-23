@@ -11,6 +11,7 @@ public enum ResidentAttribute {
 	RA_State,
 	RA_City,
 	RA_Age,
+	RA_Infant,
 	RA_Minor,
 	RA_Adult,
 	RA_Senior,

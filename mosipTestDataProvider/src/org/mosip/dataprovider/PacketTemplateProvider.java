@@ -329,7 +329,7 @@ public class PacketTemplateProvider {
 					continue;
 				} else if ((s.getGroup().toLowerCase().equals("guardiandetails") || s.getGroup().toLowerCase().equals("introducerdetails")) && 
 						(s.getSubType().toLowerCase().matches(".*guard.*uin") || s.getSubType().toLowerCase().equals("uin"))) {
-					if (resident.isMinor()) {
+					if (resident.isMinor() || resident.isInfant()) {
 						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
 							// skip if null
 							// identity.put(s.getId(), JSONObject.NULL);
@@ -339,7 +339,7 @@ public class PacketTemplateProvider {
 					continue;
 				} else if ((s.getGroup().toLowerCase().equals("guardiandetails") || s.getGroup().toLowerCase().equals("introducerdetails")) 
 						&& (s.getId().toLowerCase().matches(".*guard.*rid") || s.getSubType().toLowerCase().equals("rid"))) {
-					if (resident.isMinor()) {
+					if (resident.isMinor() || resident.isInfant()) {
 						if (resident.getGuardian() != null && (resident.getGuardian().getRID() == null
 								|| resident.getGuardian().getRID().equals(""))) {
 							// As per MONO, skip
@@ -350,7 +350,7 @@ public class PacketTemplateProvider {
 					continue;
 				} else if ((s.getGroup().toLowerCase().equals("guardiandetails") || s.getGroup().toLowerCase().equals("introducerdetails")) 
 						&& (s.getId().toLowerCase().matches(".*guard.*name") || s.getSubType().toLowerCase().equals("introducername"))) {
-					if (resident.isMinor()) {
+					if (resident.isMinor() || resident.isInfant()) {
 						String primValue = "";
 						String secValue = "";
 						// JSONArray arr = new JSONArray();
@@ -456,7 +456,7 @@ public class PacketTemplateProvider {
 					continue;
 				} else if (prop.getProperty("introduceruin") != null
 						&& s.getId().equals(prop.getProperty("introduceruin"))) {
-					if (resident.isMinor()) {
+					if (resident.isMinor() || resident.isInfant()) {
 						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
 							// skip if null
 							// identity.put(s.getId(), JSONObject.NULL);
@@ -466,7 +466,7 @@ public class PacketTemplateProvider {
 					continue;
 				} else if (prop.getProperty("introducerrid") != null
 						&& s.getId().equals(prop.getProperty("introducerrid"))) {
-					if (resident.isMinor()) {
+					if (resident.isMinor() || resident.isInfant()) {
 						if (resident.getGuardian() != null && (resident.getGuardian().getRID() == null
 								|| resident.getGuardian().getRID().equals(""))) {
 							// As per MONO, skip
@@ -477,7 +477,7 @@ public class PacketTemplateProvider {
 					continue;
 				} else if (prop.getProperty("introducername") != null
 						&& s.getId().equals(prop.getProperty("introducername"))) {
-					if (resident.isMinor()) {
+					if (resident.isMinor() || resident.isInfant()) {
 						String primValue = "";
 						String secValue = "";
 						JSONObject o = new JSONObject();
@@ -1119,7 +1119,7 @@ public class PacketTemplateProvider {
 						&& (s.getGroup() != null && s.getGroup().equals("Biometrics"))
 						&& s.getSubType().equals("introducer")) {
 
-					if (resident.isMinor() && resident.getGuardian() != null) {
+					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
 						JSONObject o = new JSONObject();
 						o.put("format", "cbeff");
 						o.put("version", 1.0f);
@@ -1473,7 +1473,7 @@ public class PacketTemplateProvider {
 				} else if (prop.getProperty("introducerbiometric") != null
 						&& s.getId().equals(prop.getProperty("introducerbiometric"))) {
 
-					if (resident.isMinor() && resident.getGuardian() != null) {
+					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
 						JSONObject o = new JSONObject();
 						o.put("format", "cbeff");
 						o.put("version", 1.0f);
