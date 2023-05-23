@@ -36,6 +36,7 @@ public class ResidentModel  implements Serializable {
 	private Gender gender;
 	private String dob;
 	private boolean minor;
+	private boolean infant;
 	private DynamicFieldValueModel bloodgroup;
 	//private List<MosipLocationModel> location;
 	private Hashtable<String, MosipLocationModel> location;
