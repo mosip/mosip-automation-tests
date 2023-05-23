@@ -93,10 +93,12 @@ public class BiometricDataProvider {
 			// e("others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
 			// e("others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up().
 
-					e("others").e("entry").a("key", "EXCEPTION").t("false").up().e("entry").a("key", "RETRIES").t("1")
-					.up().e("entry").a("key", "SDK_SCORE").t("0.0").up().e("entry").a("key", "FORCE_CAPTURED")
-					.t("false").up().e("entry").a("key", "PAYLOAD").t(payload).up().e("entry").a("key", "SPEC_VERSION")
-					.t("0.9.5").up().up();
+					e("others").e("entry").a("key", "EXCEPTION").t("false").up().
+					e("entry").a("key", "RETRIES").t("1").up().
+					e("entry").a("key", "SDK_SCORE").t("0.0").up().
+					e("entry").a("key", "FORCE_CAPTURED").t("false").up().
+					e("entry").a("key", "PAYLOAD").t(payload).up().
+					e("entry").a("key", "SPEC_VERSION").t("0.9.5").up().up();
 		}
 
 		// PrintWriter writer = new PrintWriter(new
