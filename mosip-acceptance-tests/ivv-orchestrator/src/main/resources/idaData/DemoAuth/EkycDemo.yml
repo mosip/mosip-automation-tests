@@ -1,0 +1,14 @@
+DemoAuth:
+  auth_DemoAuth_Valid_Smoke_deg:
+      endPoint: /v1/identity/authenticate?moduleName=$MODULENAME$&certsDir=$CERTSDIR$&id=uinnumber&partnerUrlSuffix=$PartnerKeyURL$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
+      role: resident
+      restMethod: post
+      inputTemplate: idaData/DemoAuth/DemoIdentityEncrypt
+      outputTemplate: idaData/DemoAuth/demoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "1234567890"
+    }'
+      output: '{
+  "authStatus": "true"
+}'
