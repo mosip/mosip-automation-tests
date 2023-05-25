@@ -3,6 +3,7 @@ package io.mosip.ivv.e2e.methods;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import org.apache.log4j.Logger;
@@ -19,56 +20,84 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		//cleanData();
+		
 		int nofResident=1;
-		Boolean bAdult=false;
+		String ageCategory="";
 		Boolean bSkipGuardian=false;
-		Boolean isForChildPacket=false;
-		String gender=null;
-		String missFields = null;
-			if (!step.getParameters().isEmpty() && step.getParameters().size()>3) {
-				nofResident=Integer.parseInt(step.getParameters().get(0));
-				bAdult = Boolean.parseBoolean(step.getParameters().get(1));
-				bSkipGuardian = Boolean.parseBoolean(step.getParameters().get(2));
-				gender = step.getParameters().get(3);
-				if(step.getParameters().size()>4)
-				missFields = step.getParameters().get(4).replaceAll("@@", ",");	
-				if(step.getParameters().size()>5)
-				isForChildPacket = Boolean.parseBoolean(step.getParameters().get(5));
-				
-				if(isForChildPacket) { //  used for child packet processing  [1,true,false,Any,-1,true]
-					step.getScenario().setGeneratedResidentData( packetUtility.generateResidents(nofResident, bAdult, 
-							bSkipGuardian, gender, (missFields.equalsIgnoreCase("-1")) ? null : missFields, step.getScenario().getCurrentStep(),step));
-				} else {
-					 cleanData();
-					Response response = packetUtility.generateResident(nofResident,bAdult,bSkipGuardian,gender,missFields,step.getScenario().getCurrentStep(),step);
-					JSONArray resp = new JSONObject(response.getBody().asString()).getJSONArray("response");
-					//neeha List<String> residentPaths = new ArrayList<>();
-					for (int i = 0; i < resp.length(); i++) {
-						JSONObject obj = resp.getJSONObject(i);
-						String resFilePath = obj.get("path").toString();
-						String id = obj.get("id").toString();
-						if(step.getOutVarName()!=null)
-						 step.getScenario().getVariables().put(step.getOutVarName(), resFilePath);
-						
-						
-					//neeha	residentPaths.add(resFilePath);
-						//TODO : REMOVE AFTER TESTING
-						step.getScenario().getResidentTemplatePaths().put(resFilePath, null);  //step.getScenario().getResidentTemplatePaths().put(resFilePath, null);
-						//step.getScenario().getResidentTemplatePaths().put("C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_3868007285188428668\\3717670314.json", null);
-						
-						step.getScenario().getResidentPersonaIdPro().put(id, resFilePath); //step.getScenario().getResidentPersonaIdPro().put(id, resFilePath);
-						//step.getScenario().getResidentPersonaIdPro().put("3717670314", "C:\\Users\\ALOK~1.KUM\\AppData\\Local\\Temp\\residents_3868007285188428668\\3717670314.json");
-					}
-					if(!step.getScenario().getResidentPersonaIdPro().isEmpty())
-					storeProp(step.getScenario().getResidentPersonaIdPro());
 
-				}	
-			} else {
-				logger.warn("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");
-				throw new RigInternalError("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");
+		
+		String missFields = null;
+		String[] bioFlag = null;
+		HashMap<String, String> genderAndBioFlag = new HashMap<String, String>();
+		
+		
+		if (!step.getParameters().isEmpty() && step.getParameters().size()>3) {
+			nofResident=Integer.parseInt(step.getParameters().get(0));
+			ageCategory = step.getParameters().get(1);
+			bSkipGuardian = Boolean.parseBoolean(step.getParameters().get(2));
+			
+			
+			/// Get Gender and Bio attributes miss flag
+			
+			if (step.getParameters().get(3).contains("@@")) {
+				bioFlag = step.getParameters().get(3).split("@@");
+				genderAndBioFlag.put("Gender", bioFlag[0]);
+				genderAndBioFlag.put("Iris", bioFlag[1]);
+				genderAndBioFlag.put("Finger", bioFlag[2]);
+				genderAndBioFlag.put("Face", bioFlag[3]);
+				
 			}
+			else {
+
+				genderAndBioFlag.put("Gender", step.getParameters().get(3));
+				genderAndBioFlag.put("Iris", "true");
+				genderAndBioFlag.put("Finger", "true");
+				genderAndBioFlag.put("Face", "true");
+
+			}
+			
+			
+			
+			// Get Miss attrobutes list
+			
+			if(step.getParameters().size()>4)
+				missFields = step.getParameters().get(4).replaceAll("@@", ",");	
+
+		} else {
+			logger.warn("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");
+			throw new RigInternalError("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");
+		}
+		
+		
+		
+		
+		
+			// Generate Resident for all ages
+			cleanData();
+			Response response = packetUtility.generateResident(nofResident,ageCategory,bSkipGuardian,missFields,genderAndBioFlag,step);
+			JSONArray resp = new JSONObject(response.getBody().asString()).getJSONArray("response");
+
+			for (int i = 0; i < resp.length(); i++) {
+				JSONObject obj = resp.getJSONObject(i);
+				String resFilePath = obj.get("path").toString();
+				String id = obj.get("id").toString();
+				if(step.getOutVarName()!=null)
+					step.getScenario().getVariables().put(step.getOutVarName(), resFilePath);
+
+
+				step.getScenario().getResidentTemplatePaths().put(resFilePath, null);
+
+				step.getScenario().getResidentPersonaIdPro().put(id, resFilePath); 
+			}
+			if(!step.getScenario().getResidentPersonaIdPro().isEmpty())
+				storeProp(step.getScenario().getResidentPersonaIdPro());
+
+
+		
 	}
+
+	
+	
 	
 	private static void storeProp(Properties prop) {
 		String filePath=TestRunner.getExternalResourcePath()
@@ -83,8 +112,8 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 
 	private void cleanData() {
 		step.getScenario().getPridsAndRids().clear(); //step.getScenario().getPridsAndRids().clear();

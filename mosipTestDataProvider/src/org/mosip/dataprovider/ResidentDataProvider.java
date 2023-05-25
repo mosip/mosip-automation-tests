@@ -463,13 +463,22 @@ public class ResidentDataProvider {
 			res.setDob( DateOfBirthProvider.generate((ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age)));
 			ResidentAttribute age =  (ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age);
 			Boolean skipGaurdian = false;
-			if(age == ResidentAttribute.RA_Minor) {
+			if(age == ResidentAttribute.RA_Minor)  {
 				res.setMinor(true);
 				if(attributeList.containsKey(ResidentAttribute.RA_SKipGaurdian))
 					skipGaurdian =   Boolean.valueOf(attributeList.get(ResidentAttribute.RA_SKipGaurdian).toString());
 				if(!skipGaurdian)
 					res.setGuardian( genGuardian(attributeList, contextKey));
 			}
+			
+			else if(age == ResidentAttribute.RA_Infant )  {
+				res.setInfant(true);
+				if(attributeList.containsKey(ResidentAttribute.RA_SKipGaurdian))
+					skipGaurdian =   Boolean.valueOf(attributeList.get(ResidentAttribute.RA_SKipGaurdian).toString());
+				if(!skipGaurdian)
+					res.setGuardian( genGuardian(attributeList, contextKey));
+			}
+			
 			res.setAppConfigIdSchema( locations);
 			res.setAppConfigIdSchema_secLang(locations_secLang);
 			
