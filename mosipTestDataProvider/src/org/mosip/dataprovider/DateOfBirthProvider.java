@@ -27,9 +27,11 @@ public class DateOfBirthProvider {
 		if(ageAttribute == ResidentAttribute.RA_Adult)
 			return generateDob(DataProviderConstants.Age_Adult_Min_Age, 100);
 		else if(ageAttribute == ResidentAttribute.RA_Minor)
-			return generateDob(0, DataProviderConstants.Age_Minor_Max_Age);
+			return generateDob(DataProviderConstants.Age_Minor_Min_Age, DataProviderConstants.Age_Adult_Min_Age);
 		else if(ageAttribute == ResidentAttribute.RA_Senior)
 			return generateDob( DataProviderConstants.Age_Senior_Citizen_Min_Age, 100);
+		else if(ageAttribute == ResidentAttribute.RA_Infant)
+			return generateDob( 0, 5);
 			
 		 SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");  
 		 return formatter.format(new Date());
