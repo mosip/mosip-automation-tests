@@ -28,6 +28,7 @@ public class UserHelper extends BaseTestCaseUtil {
 	private static final String UpdateZoneUserStatus = "ivv_masterdata/UpdateZoneUserStatus/UpdateZoneUserStatus.yml";
 	private static final String UpdateUserCenterMappingStatus = "ivv_masterdata/UpdateUserCenterMappingStatus/UpdateUserCenterMappingStatus.yml";
 	private static final String ZoneUserSearch = "ivv_masterdata/ZoneUser/ZoneUserSearch.yml";
+	private static final String LostRid = "ivv_masterdata/LostRid/LostRid.yml";
 	
 	DeleteWithParam DeleteWithParam=new DeleteWithParam(); 
 	SimplePost simplepost=new SimplePost();
@@ -242,6 +243,41 @@ public class UserHelper extends BaseTestCaseUtil {
 
 		}
 		return map;	
+	}
+	
+	public void retrieveLostRid(HashMap<String, String> map, String user) throws RigInternalError {
+
+		try {
+			Object[] testObjPutDcom=simplepost.getYmlTestData(LostRid);
+
+			TestCaseDTO testPutDcom=(TestCaseDTO)testObjPutDcom[0];
+			String input=testPutDcom.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					user, "userId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					map.get("zoneCode"), "zoneCode");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					BaseTestCase.languageCode,"langCode");
+						testPutDcom.setInput(input);
+						
+						String output=testPutDcom.getOutput();
+						output = JsonPrecondtion.parseAndReturnJsonContent(input,
+								user, "userId");
+						output = JsonPrecondtion.parseAndReturnJsonContent(input,
+								map.get("zoneCode"), "zoneCode");
+									testPutDcom.setOutput(output);
+						
+			simplepost.test(testPutDcom);
+			Response response= simplepost.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				logger.info( jsonResp.getJSONObject("response"));}
+
+		} catch (Exception e) {
+			
+		}
 	}
 }
 
