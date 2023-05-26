@@ -1,0 +1,28 @@
+{
+  "version": "{{version}}",
+  "requesttime": "{{requesttime}}",
+  "filters": [
+    {{#each filters}}
+      {
+        "columnName": "{{columnName}}",
+        "type": "{{type}}",
+         {{#if value}}
+        "value": "{{value}}",
+        {{/if}}
+        {{#if fromValue}}
+        "fromValue": "{{fromValue}}",
+        {{/if}}
+        {{#if toValue}}
+        "toValue": "{{toValue}}"
+        {{/if}}
+      }
+      {{#unless @last}},{{/unless}}
+    {{/each}}
+  ],
+  "sort": [
+    {
+      "sortType": "{{sort.[0].sortType}}",
+      "sortField": "{{sort.[0].sortField}}"
+    }
+  ]
+}

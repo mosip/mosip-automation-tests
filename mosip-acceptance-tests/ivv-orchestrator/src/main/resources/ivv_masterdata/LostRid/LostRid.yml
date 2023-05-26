@@ -1,0 +1,53 @@
+LostRid:
+   LostRid_All_Valid_Smoke_sid:
+      endPoint: /v1/admin/lostRid
+      role: admin
+      restMethod: post
+      inputTemplate: ivv_masterdata/LostRid/LostRid
+      outputTemplate: ivv_masterdata/LostRid/LostRidResult
+      input: '{
+	 "version": "1.0",
+     "requesttime": "$TIMESTAMP$",
+   "filters": [
+    {
+	 "columnName": "registrationDate",
+      "type": "between",
+     "fromValue": "2023-05-24",
+     "toValue": "2023-05-24"
+    },
+    {
+	 "columnName": "name",
+     "type": "contains",
+     "value": "$NAME$",
+    },
+    {
+	 "columnName":"email",
+     "type": "contains",
+     "value": "$EMAIL$"
+    },
+    {
+	 "columnName": "phone",
+     "type": "contains",
+      "value": "$PHONE$"
+    },
+    {
+	 "columnName": "locationCode",
+      "type": "equals",
+     "value": "$LOCATION$"
+    },   
+    {
+	 "columnName": "centerId",
+      "type": "equals",     
+      "value": "$CENTER$"
+    }],
+      sort:[
+	{
+     "sortType": "desc",
+     "sortField": "registrationDate"
+	}
+    ]
+    }'
+      output: '{
+      "data": "$IGNORE$",
+      "message": "RID Not Found"
+    }'
