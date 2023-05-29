@@ -14,7 +14,7 @@ OtpAuth:
       output: '{
   "authStatus": "true",
  "sendOtpResp":{
-        "transactionID": "1234567890",
+        "transactionID": "$IGNORE$",
         "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"idaData/OtpAuth/sendOtpRes",
         "maskedEmail": "$IGNORE$"
