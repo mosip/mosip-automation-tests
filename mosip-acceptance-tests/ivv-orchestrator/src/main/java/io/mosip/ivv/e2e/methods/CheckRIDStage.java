@@ -22,14 +22,14 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 		Boolean flag = false;
 		String transactionTypeCode = null;
 		String statusCode = null;
-		String statusComment = null;
+		String subStatusCode = null;
 		if (step.getParameters().size() >= 3) {
 			ridStage = step.getScenario().getVariables().get(step.getParameters().get(0));
 			transactionTypeCode = step.getParameters().get(1);
 			statusCode = step.getParameters().get(2);
 
 			if (step.getParameters().size() == 4) {
-				statusComment = step.getParameters().get(3);
+				subStatusCode = step.getParameters().get(3);
 			}
 
 		}
@@ -48,8 +48,8 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 					flag = true;
 					break;
 				} 
-				else if (statusComment != null
-						&& statusComment.equalsIgnoreCase(myJSONObject.getString("statusComment"))) {
+				else if (subStatusCode != null
+						&& subStatusCode.equalsIgnoreCase(myJSONObject.getString("subStatusCode"))) {
 					flag = true;
 					break;
 				}
@@ -62,7 +62,7 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 		logger.info(res.toString());
 		if (flag.equals(true)) {
 			logger.info("RESPONSE= contains" + transactionTypeCode + statusCode);
-			logger.info("StatusComment= " + myJSONObject.getString("statusComment"));
+			logger.info("subStatusCode= " + myJSONObject.getString("subStatusCode"));
 
 		} else {
 			logger.error("RESPONSE= doesn't contain" + arr);
