@@ -17,42 +17,53 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 
-		
-		String ridStage =null;
-		Boolean flag=false;
-		 String transactionTypeCode =null;
-		   String statusCode =null;
-			if (step.getParameters().size() >= 3) {
-				 ridStage = step.getScenario().getVariables().get(step.getParameters().get(0));
-				transactionTypeCode=step.getParameters().get(1);
-				statusCode=step.getParameters().get(2);
-			}
-			Response response = getRequest(baseUrl+props.getProperty("ridStatus")+ridStage, "Get Stages by rid",step);
-			
-		// Check these two keys	statusCode,transactionTypeCode
-			
-		JSONObject res = new JSONObject(response.getBody().asString());
-		JSONArray arr=res.getJSONObject("response").getJSONArray("packetStatusUpdateList");
-		  for (Object myObject : arr) {
+		JSONObject myJSONObject = null;
+		String ridStage = null;
+		Boolean flag = false;
+		String transactionTypeCode = null;
+		String statusCode = null;
+		String subStatusCode = null;
+		if (step.getParameters().size() >= 3) {
+			ridStage = step.getScenario().getVariables().get(step.getParameters().get(0));
+			transactionTypeCode = step.getParameters().get(1);
+			statusCode = step.getParameters().get(2);
 
-		       		 JSONObject myJSONObject = (JSONObject) myObject;
-	        if(transactionTypeCode.equalsIgnoreCase(myJSONObject.getString("transactionTypeCode")))
-	        {
-		        	if(statusCode.equalsIgnoreCase(myJSONObject.getString("statusCode")))
-		        	{
-		        	 System.out.println("matching statusCode");
-		        	 flag=true;
-		        	 break;
-		        	}
-		        	else
-		        	{
-		        		flag=false;
-		        	}
-		    }
-		  }
-		  logger.info(res.toString());
+			if (step.getParameters().size() == 4) {
+				subStatusCode = step.getParameters().get(3);
+			}
+
+		}
+		Response response = getRequest(baseUrl + props.getProperty("ridStatus") + ridStage, "Get Stages by rid", step);
+
+		// Check these two keys statusCode,transactionTypeCode
+
+		JSONObject res = new JSONObject(response.getBody().asString());
+		JSONArray arr = res.getJSONObject("response").getJSONArray("packetStatusUpdateList");
+		for (Object myObject : arr) {
+			myJSONObject = (JSONObject) myObject;
+
+			if (transactionTypeCode.equalsIgnoreCase(myJSONObject.getString("transactionTypeCode"))) {
+				if (statusCode.equalsIgnoreCase(myJSONObject.getString("statusCode"))) {
+					System.out.println("matching statusCode");
+					flag = true;
+					break;
+				} 
+				else if (subStatusCode != null
+						&& subStatusCode.equalsIgnoreCase(myJSONObject.getString("subStatusCode"))) {
+					flag = true;
+					break;
+				}
+				
+				else {
+					flag = false;
+				}
+			}
+		}
+		logger.info(res.toString());
 		if (flag.equals(true)) {
 			logger.info("RESPONSE= contains" + transactionTypeCode + statusCode);
+			logger.info("subStatusCode= " + myJSONObject.getString("subStatusCode"));
+
 		} else {
 			logger.error("RESPONSE= doesn't contain" + arr);
 			throw new RuntimeException("RESPONSE= doesn't contain" + transactionTypeCode + statusCode);
