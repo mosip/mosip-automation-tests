@@ -23,7 +23,7 @@ import io.mosip.testscripts.DemoAuthSimplePostForAutoGenId;
 
 public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EkycDemo.class);
-	private static final String DEMOPATH = "idaData/DemoAuth/EkycDemo.yml";
+	private static final String DEMOPATH = "idaData/DemoAuth/DemoKYC.yml";
 	DemoAuthSimplePostForAutoGenId demoAuth = new DemoAuthSimplePostForAutoGenId();
 
 	@Override
@@ -41,7 +41,6 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 		Object[] casesListVID = null;
 
-
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
 			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
@@ -52,10 +51,10 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 
 		}
 		if (step.getParameters().size() == 2) {
-			uins = step.getParameters().get(1); // "e2e_ekycDemo(name,$$uin,$$personaFilePath,$$vid)"
+			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else if (step.getParameters().size() > 2) { 
+		} else if (step.getParameters().size() > 2) {
 			uins = step.getParameters().get(1);
 			_personFilePath = step.getParameters().get(2);
 			if (uins.startsWith("$$") && _personFilePath.startsWith("$$")) {
@@ -67,10 +66,10 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		if (step.getParameters().size() == 2) {
-			vids = step.getParameters().get(1); // "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
+			vids = step.getParameters().get(1);
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
-		} else if (step.getParameters().size() > 2) { // "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
+		} else if (step.getParameters().size() > 2) {
 			vids = step.getParameters().get(3);
 			_personFilePath = step.getParameters().get(2);
 			if (vids.startsWith("$$") && _personFilePath.startsWith("$$")) {
@@ -83,8 +82,6 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 
 		Object[] testObj = demoAuth.getYmlTestData(DEMOPATH);
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
-		// test.setEndPoint(test.getEndPoint().replace("$PartnerKey$",
-		// props.getProperty("partnerKey")));
 
 		for (String uin : uinList) {
 			String personFilePathvalue = null;
@@ -97,18 +94,13 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 
 			List<String> demoFetchList = new ArrayList<String>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
-			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList,step);
+			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList, step);
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
-			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList,step);
+			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList, step);
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 			JSONObject inputJson = new JSONObject(input);
-			/*
-			 * if(inputJson.has("identityRequest")) { identityRequest =
-			 * inputJson.get("identityRequest").toString(); }
-			 */
-			// JSONObject identityReqJson = new JSONObject(identityRequest);
 			for (String demoField : demofieldList) {
 				String demoFieldValueKey = null;
 				String demoValue = null;
@@ -117,7 +109,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 				case E2EConstants.DEMODOB:
 					demoFieldValueKey = E2EConstants.DEMODOB;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey);
 					if (demoValue == null)
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
@@ -127,7 +119,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 				case E2EConstants.DEMOEMAIL:
 					demoFieldValueKey = E2EConstants.DEMOEMAIL;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey);
 					if (demoValue == null)
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
@@ -279,18 +271,13 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 
 			List<String> demoFetchList = new ArrayList<String>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
-			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList,step);
+			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList, step);
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
-			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList,step);
+			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList, step);
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
 			JSONObject inputJson = new JSONObject(input);
-			/*
-			 * if(inputJson.has("identityRequest")) { identityRequest =
-			 * inputJson.get("identityRequest").toString(); }
-			 */
-			// JSONObject identityReqJson = new JSONObject(identityRequest);
 			for (String demoField : demofieldList) {
 				String demoFieldValueKey = null;
 				String demoValue = null;

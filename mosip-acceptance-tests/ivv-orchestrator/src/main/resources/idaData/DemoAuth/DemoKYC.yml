@@ -10,5 +10,5 @@ DemoAuth:
         "transactionId": "1234567890"
     }'
       output: '{
-  "authStatus": "true"
+  "kycStatus": "true"
 }'
