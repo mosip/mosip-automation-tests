@@ -107,38 +107,41 @@ public class BiometricDataProvider {
 
 		return builder.asString(null);
 	}
+	
+	/*
+	 * static String buildBirFinger(String fingerInfo, String fingerName, String
+	 * jtwSign, String payload, String qualityScore) throws
+	 * ParserConfigurationException, FactoryConfigurationError,
+	 * TransformerException, FileNotFoundException { return
+	 * buildBirFinger(fingerInfo, fingerName, jtwSign, payload, qualityScore, true);
+	 * 
+	 * }
+	 */
 
 	static String buildBirFinger(String fingerInfo, String fingerName, String jtwSign, String payload,
-			String qualityScore) throws ParserConfigurationException, FactoryConfigurationError, TransformerException,
-			FileNotFoundException {
+			String qualityScore, boolean generateValidCbeff) throws ParserConfigurationException,
+			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
-		// fingerInfo= Base64.getEncoder().encodeToString(fingerInfo.getBytes());
-		XMLBuilder builder = XMLBuilder.create("BIR").a("xmlns", "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+		XMLBuilder builder = null;
+		String bdbKey= "BDB";
+		if (generateValidCbeff==false)
+			bdbKey = "invalidBDB";
+		 builder = XMLBuilder.create("BIR").a("xmlns", "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
 				.e("Version").e("Major").t("1").up().e("Minor").t("1").up().up().e("CBEFFVersion").e("Major").t("1")
 				.up().e("Minor").t("1").up().up().e("BIRInfo").e("Integrity").t("false").up().up().e("BDBInfo")
 				.e("Format").e("Organization").t("Mosip").up().e("Type").t("7").up().up().e("CreationDate").t(today)
 				.up().e("Type").t("Finger").up().e("Subtype").t(fingerName).up().e("Level").t("Raw").up().e("Purpose")
 				.t("Enroll").up().e("Quality").e("Algorithm").e("Organization").t("HMAC").up().e("Type").t("SHA-256")
-				.up().up().e("Score").t(qualityScore).up().up().up().e("BDB").t(fingerInfo).up().up();
+				.up().up().e("Score").t(qualityScore).up().up().up().e(bdbKey).t(fingerInfo).up().up();
 		if (jtwSign != null && payload != null) {
 			jtwSign = Base64.getEncoder().encodeToString(jtwSign.getBytes());
 			builder.e("SB").t(jtwSign).up().
-			// e("others").e("Key").t("EXCEPTION").up().e("Value").t("false").up().up().
-			// e("others").e("Key").t("RETRIES").up().e("Value").t("1").up().up().
-			// e("others").e("Key").t("SDK_SCORE").up().e("Value").t("0.0").up().up().
-			// e("others").e("Key").t("FORCE_CAPTURED").up().e("Value").t("false").up().up().
-			// e("others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
-			// e("others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up();
 
 					e("others").e("entry").a("key", "EXCEPTION").t("false").up().e("entry").a("key", "RETRIES").t("1")
 					.up().e("entry").a("key", "SDK_SCORE").t("0.0").up().e("entry").a("key", "FORCE_CAPTURED")
 					.t("false").up().e("entry").a("key", "PAYLOAD").t(payload).up().e("entry").a("key", "SPEC_VERSION")
 					.t("0.9.5").up().up();
 		}
-
-		// PrintWriter writer = new PrintWriter(new FileOutputStream("cbeffout-finger"+
-		// fingerName+ ".xml"));
-		// builder.toWriter(true, writer, null);
 
 		return builder.asString(null);
 	}
@@ -404,8 +407,8 @@ public class BiometricDataProvider {
 		return capture;
 	}
 
-	public static String toCBEFFFromCapture(List<String> bioFilter, MDSRCaptureModel capture, String toFile,List<String> missAttribs)
-			throws Exception {
+	public static String toCBEFFFromCapture(List<String> bioFilter, MDSRCaptureModel capture, String toFile,
+			List<String> missAttribs, boolean genarateValidCbeff) throws Exception {
 
 		String retXml = "";
 
@@ -453,7 +456,7 @@ public class BiometricDataProvider {
 			if (i >= 0 && fingerData != null) {
 				String strFinger = DataProviderConstants.displayFingerName[i];
 				String strFingerXml = buildBirFinger(fingerData, strFinger, currentCM.getSb(), currentCM.getPayload(),
-						currentCM.getQualityScore());
+						currentCM.getQualityScore(),genarateValidCbeff);
 				XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 				builder = builder.importXMLBuilder(fbuilder);
 			}
@@ -556,7 +559,7 @@ public class BiometricDataProvider {
 	/*
 	 * Construct CBEFF format XML file from biometric data
 	 */
-	public static String toCBEFF(List<String> bioFilter, BiometricDataModel biometricDataModel, String toFile)
+	public static String toCBEFF(List<String> bioFilter, BiometricDataModel biometricDataModel, String toFile, boolean genarateValidCbeff)
 			throws Exception {
 		String retXml = "";
 
@@ -588,7 +591,7 @@ public class BiometricDataProvider {
 			if (i >= 0) {
 				String strFinger = DataProviderConstants.displayFingerName[i];
 				// TODO : THIS NEED TO IMPLEMENTED WHEN WILL WORK WITH MDS
-				String strFingerXml = buildBirFinger(fingerPrint[i], strFinger, null, null, qualityScore);
+				String strFingerXml = buildBirFinger(fingerPrint[i], strFinger, null, null, qualityScore,genarateValidCbeff);
 				XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 				builder = builder.importXMLBuilder(fbuilder);
 			}
@@ -1112,7 +1115,7 @@ public class BiometricDataProvider {
 	public static void main(String[] args) {
 
 		try {
-			String value = buildBirFinger("addfdfd", "finger", "jwtSign", "payload", null);
+			String value = buildBirFinger("addfdfd", "finger", "jwtSign", "payload", null, true);
 			System.out.println(value);
 		} catch (FileNotFoundException e2) {
 			// TODO Auto-generated catch block
@@ -1167,7 +1170,7 @@ public class BiometricDataProvider {
 		lstBioAttributes.add("rightEye");
 
 		try {
-			xml = toCBEFF(lstBioAttributes, bio, "cbeffallfingersOut.xml");
+			xml = toCBEFF(lstBioAttributes, bio, "cbeffallfingersOut.xml",true);
 			/*
 			 * CbeffContainerImpl cbeffContainer = new CbeffContainerImpl();
 			 * //C:\temp\10002300012\REGISTRATION_CLIENT\NEW\rid_id\
