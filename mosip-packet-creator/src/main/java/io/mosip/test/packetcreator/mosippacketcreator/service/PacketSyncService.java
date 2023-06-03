@@ -264,11 +264,11 @@ public class PacketSyncService {
 	public JSONObject makePacketAndSync(String preregId, String templateLocation, String personaPath, String contextKey,
 			String additionalInfoReqId) throws Exception {
 		// By default , get the rid from packet sync
-		return makePacketAndSync(preregId, templateLocation, personaPath, contextKey, additionalInfoReqId, true);
+		return makePacketAndSync(preregId, templateLocation, personaPath, contextKey, additionalInfoReqId, true, true);
 	}
 
 	public JSONObject makePacketAndSync(String preregId, String templateLocation, String personaPath, String contextKey,
-			String additionalInfoReqId, boolean getRidFromSync) throws Exception {
+			String additionalInfoReqId, boolean getRidFromSync, boolean genarateValidCbeff) throws Exception {
 
 		logger.info("makePacketAndSync for PRID : {}", preregId);
 
@@ -772,7 +772,7 @@ public class PacketSyncService {
 	}
 
 	public String createPacket(PersonaRequestDto personaRequest, String process, String preregId, String contextKey,
-			String purpose,String qualityScore) throws IOException {
+			String purpose,String qualityScore,boolean genarateValidCbeff) throws IOException {
 
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
@@ -800,7 +800,7 @@ public class PacketSyncService {
 
 			Properties props = contextUtils.loadServerContext(contextKey);
 			packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId, machineId,
-					centerId, contextKey, props, new JSONObject(), purpose,qualityScore);
+					centerId, contextKey, props, new JSONObject(), purpose,qualityScore, genarateValidCbeff);
 
 			JSONObject obj = new JSONObject();
 			obj.put("id", resident.getId());
@@ -816,7 +816,7 @@ public class PacketSyncService {
 	}
 
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
-			String contextKey, String purpose,String qualityScore) throws IOException {
+			String contextKey, String purpose,String qualityScore,boolean genarateValidCbeff) throws IOException {
 
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
@@ -861,7 +861,7 @@ public class PacketSyncService {
 				centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 
 				packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
-						machineId, centerId, contextKey, props, preregResponse, purpose,qualityScore);
+						machineId, centerId, contextKey, props, preregResponse, purpose,qualityScore, genarateValidCbeff);
 				JSONObject obj = new JSONObject();
 				obj.put("id", resident.getId());
 				obj.put("path", packetPath);
@@ -882,9 +882,9 @@ public class PacketSyncService {
 	}
 
 	public String preRegToRegister(String templatePath, String preRegId, String personaPath, String contextKey,
-			String additionalInfoReqId, boolean getRidFromSync) throws Exception {
+			String additionalInfoReqId, boolean getRidFromSync, boolean genarateValidCbeff) throws Exception {
 
-		return makePacketAndSync(preRegId, templatePath, personaPath, contextKey, additionalInfoReqId, getRidFromSync)
+		return makePacketAndSync(preRegId, templatePath, personaPath, contextKey, additionalInfoReqId, getRidFromSync, genarateValidCbeff)
 				.toString();
 
 	}
