@@ -18,12 +18,13 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 	@Override
 	public void run() throws RigInternalError {
 		String qualityScore = "80";
+		boolean genarateValidCbeff = true;
 		String process = null;
 		String personaPath=null;
 		Properties personaIdValue = null;
 		if (step.getParameters().isEmpty() && !step.getScenario().getGeneratedResidentData().isEmpty()) {  //  used to child packet processing
 			JSONArray jsonArray = packetUtility.getTemplate(new HashSet<String>(step.getScenario().getGeneratedResidentData()), "NEW",
-					step.getScenario().getCurrentStep(),step,qualityScore);
+					step.getScenario().getCurrentStep(),step,qualityScore,genarateValidCbeff);
 			JSONObject obj = jsonArray.getJSONObject(0);
 			step.getScenario().setTemplatPath_updateResident( obj.get("path").toString());
 		} else {
@@ -32,6 +33,9 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 				String personaId = step.getParameters().get(1);
 				if(step.getParameters().size()==3) {
 					qualityScore = step.getParameters().get(2);
+				}
+				if(step.getParameters().size()==4) {
+					genarateValidCbeff = Boolean.parseBoolean(step.getParameters().get(3));
 				}
 				if(personaId.startsWith("$$")) {
 					personaPath=step.getScenario().getVariables().get(personaId);
@@ -49,7 +53,8 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 				step.getScenario().getResidentTemplatePaths().put(personaPath, null);
 			}
 
-			JSONArray resp = packetUtility.getTemplate(step.getScenario().getResidentTemplatePaths().keySet(), process, step.getScenario().getCurrentStep(),step,qualityScore);
+			JSONArray resp = packetUtility.getTemplate(step.getScenario().getResidentTemplatePaths().keySet(), process,
+					step.getScenario().getCurrentStep(), step, qualityScore,genarateValidCbeff);
 
 			for (int i = 0; i < resp.length(); i++) {
 				JSONObject obj = resp.getJSONObject(i);

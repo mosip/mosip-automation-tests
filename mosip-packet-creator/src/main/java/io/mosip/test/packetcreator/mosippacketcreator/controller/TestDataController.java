@@ -201,6 +201,7 @@ public class TestDataController {
     @GetMapping(value = "/makepacketandsync/{preregId}/{getRidFromSync}/{contextKey}")
     public @ResponseBody String makePacketAndSync(@PathVariable("preregId") String preregId,
     		@PathVariable("getRidFromSync") boolean getRidFromSync,
+    		
     		@PathVariable("contextKey") String contextKey
     		) {
 
@@ -209,7 +210,7 @@ public class TestDataController {
     			DataProviderConstants.RESOURCE = personaConfigPath;
     		}
     	
-			return packetSyncService.makePacketAndSync(preregId,null, null,contextKey,null,getRidFromSync ).toString();
+			return packetSyncService.makePacketAndSync(preregId,null, null,contextKey,null,getRidFromSync,true ).toString();
     	
     	} catch (Exception ex){
              logger.error("makePacketAndSync", ex);
@@ -371,10 +372,11 @@ public class TestDataController {
     /*
      * Download from pre-reg, merge with the given packet template and upload to register
      */
-    @PostMapping(value = "/packet/sync/{preregId}/{getRidFromSync}/{contextKey}")
+    @PostMapping(value = "/packet/sync/{preregId}/{getRidFromSync}/{genarateValidCbeff}/{contextKey}")
     public @ResponseBody String preRegToRegister(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
     		@PathVariable("preregId") String preregId, 
     		@PathVariable("getRidFromSync") boolean getRidFromSync,
+    		@PathVariable("genarateValidCbeff") boolean genarateValidCbeff,
     @PathVariable("contextKey") String contextKey){
 
     	try{    	
@@ -393,7 +395,8 @@ public class TestDataController {
     		logger.info("packet-Sync: personaPath="+ (personaPath == null ? "N/A": personaPath));
     		logger.info("packet-Sync: TemplatePath="+ preRegisterRequestDto.getPersonaFilePath().get(0));
     		
-    		return packetSyncService.preRegToRegister(preRegisterRequestDto.getPersonaFilePath().get(0),preregId, personaPath, contextKey,preRegisterRequestDto.getAdditionalInfoReqId(),getRidFromSync);
+			return packetSyncService.preRegToRegister(preRegisterRequestDto.getPersonaFilePath().get(0), preregId,
+					personaPath, contextKey, preRegisterRequestDto.getAdditionalInfoReqId(), getRidFromSync, genarateValidCbeff);
     	
     	} catch (Exception ex){
              logger.error("createPacket", ex);
