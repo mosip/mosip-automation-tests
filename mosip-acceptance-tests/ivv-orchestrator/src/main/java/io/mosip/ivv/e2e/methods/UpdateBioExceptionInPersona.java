@@ -13,7 +13,7 @@ public class UpdateBioExceptionInPersona extends BaseTestCaseUtil implements Ste
 
 	@Override
 	public void run() throws RigInternalError {
-		String[] subStatusCode = new String[2];  
+		List<String> exceptionArray = new ArrayList<String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			throw new RigInternalError("bioType paramter is  missing in step: " + step.getName());
@@ -22,13 +22,16 @@ public class UpdateBioExceptionInPersona extends BaseTestCaseUtil implements Ste
 			String personaFilePath = step.getParameters().get(0);
 			
 			if (step.getParameters().size()<=2) {
-				subStatusCode = step.getParameters().get(1).split("@@");
+				String [] str=step.getParameters().get(1).split("@@");
+				for(String s: str)
+				exceptionArray.add(s);
+				// Finger:Left IndexFinger@@Finger:Right IndexFinger@@Iris:Left
 			}
 
 			
 			if (personaFilePath.startsWith("$$")) {
 				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
-				packetUtility.updateBioException(personaFilePath,subStatusCode,step);
+				packetUtility.updateBioException(personaFilePath,exceptionArray,step);
 			}
 				}
 	}

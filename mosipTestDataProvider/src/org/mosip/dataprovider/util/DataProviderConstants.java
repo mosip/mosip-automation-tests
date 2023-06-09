@@ -38,6 +38,23 @@ public class DataProviderConstants {
 			"rightEye",
 			"face"
 	};
+	
+	public static String [] displayFullName = {
+			"Left Thumb",
+			"Left IndexFinger",
+			"Left MiddleFinger",
+			"Left RingFinger",
+			"Left LittleFinger",
+			"Right Thumb",
+			"Right IndexFinger",
+			"Right MiddleFinger",
+			"Right RingFinger",
+			"Right LittleFinger",
+			"Left",
+			"Right",
+			"Face"
+	};
+	
 	public static String [] schemaFingerNames = {
 			"leftThumb",
 			"leftIndex",
