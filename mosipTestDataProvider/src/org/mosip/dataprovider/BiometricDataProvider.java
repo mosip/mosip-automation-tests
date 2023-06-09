@@ -509,7 +509,6 @@ public class BiometricDataProvider {
 		}
 
 
-/*
 		try {	
 			//Step 4 : Exceptionphoto face capture
 			if (bioExceptions != null && !bioExceptions.isEmpty())
@@ -536,7 +535,6 @@ public class BiometricDataProvider {
 			t.getStackTrace();
 		}
 
-*/
 		mds.removeProfile(mdsprofilePath, profileName, port,contextKey);
 		CentralizedMockSBI.stopSBI(contextKey);
 		return capture;
