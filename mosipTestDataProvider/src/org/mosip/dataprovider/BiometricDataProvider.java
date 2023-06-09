@@ -302,10 +302,10 @@ public class BiometricDataProvider {
 						
 						mds = new MDSClient(port);
 						profileName = "res" + resident.getId();
-						mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-						mds.setProfile(profileName, port,contextKey);
-						
-						//mds.setProfile("Default", port,contextKey);
+//						mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
+//						mds.setProfile(profileName, port,contextKey);
+//						
+						mds.setProfile("Default", port,contextKey);
 						
 						
 			} else {
@@ -661,10 +661,10 @@ public class BiometricDataProvider {
 			if(exceptionlist!=null && !exceptionlist.isEmpty()) 
 			{
 				List<MDSDeviceCaptureModel> lstFaceData = capture.getLstBiometrics()
-						.get("face");
+						.get("exception");
 				bioSubType.add("exceptionphoto");
-				String faceXml = buildBirExceptionPhoto(lstFaceData.get(0).getBioValue(), lstFaceData.get(0).getSb(),
-						lstFaceData.get(0).getPayload(), lstFaceData.get(0).getQualityScore(),genarateValidCbeff,"false");
+				String faceXml = buildBirExceptionPhoto(lstFaceData.get(1).getBioValue(), lstFaceData.get(1).getSb(),
+						lstFaceData.get(1).getPayload(), lstFaceData.get(1).getQualityScore(),genarateValidCbeff,"false");
 				builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
 			}
 		}
@@ -698,21 +698,29 @@ public class BiometricDataProvider {
 	private static XMLBuilder xmlbuilderIris(List<String> bioFilter, List<MDSDeviceCaptureModel> lstIrisData,List<String> bioSubType,XMLBuilder builder,boolean genarateValidCbeff,List<BioModality> exceptionlst)
 
 	{
-
-
 		List<String> withoutExceptionList=bioFilter;
-		logger.info("lstIrisData is: "+lstIrisData);
+		
+		Iterator<String> iterator=null; 
+		String searchkey=null;
+		
 		try {
-			for (BioModality finger : exceptionlst) {
-				for(String list: bioFilter)
+			for (BioModality eyeName : exceptionlst) { //loop on exception modality
+				for(String displayName: bioFilter)//loop on 13 modality names
 				{
-					if(finger.getSubType().equalsIgnoreCase(list))
+					if(getschemaName(eyeName.getSubType()).equalsIgnoreCase(displayName))
 					{
-						withoutExceptionList.remove(list);
+						iterator = withoutExceptionList.iterator();
+						while (iterator.hasNext()) {
+							searchkey = iterator.next(); // must be called before you can call i.remove()
+						   if(searchkey.equalsIgnoreCase(displayName))
+						   iterator.remove();
+						}
+											
 					}
 				}
 			}
 		}
+		
 		catch(Exception e)
 		{
 			e.printStackTrace();
@@ -784,33 +792,40 @@ public class BiometricDataProvider {
 		return builder;
 	}
 
-
-	private static XMLBuilder xmlbuilderFinger(List<String> bioFilter, List<MDSDeviceCaptureModel> lstFingerData,List<String> bioSubType,XMLBuilder builder,List<BioModality> exceptionlst,boolean genarateValidCbeff)
+	private static String getschemaName(String name)
 	{
+		// First check if it falls in all modaities
+		for(int i=0; i < 13; i++) {
+			String displayFingerName = DataProviderConstants.displayFullName[i];
+			if (displayFingerName.equalsIgnoreCase(name) == true)
+				return  DataProviderConstants.schemaNames[i];
+		}
+		
+		// Other wise just return
+		return name;
+	}
 
-		//	List<MDSDeviceCaptureModel> lstFingerData = capture.getLstBiometrics().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
-		// String [] fingerPrint = biometricDataModel.getFingerPrint();
-		// for(int i=0; i< fingerPrint.length; i++) {
+	private static XMLBuilder xmlbuilderFinger(List<String> bioFilter, List<MDSDeviceCaptureModel> lstFingerData,
+			List<String> bioSubType,XMLBuilder builder,List<BioModality> exceptionlst,boolean genarateValidCbeff)
+	{
+	
 		List<String> withoutExceptionList=bioFilter;
 		logger.info("lstFingerData is: "+lstFingerData);
-		int i = 0;
+		int i = 0; Iterator<String> iterator=null; String searchkey=null;
 		String fingerData = null;
 		try {
-			for (BioModality finger : exceptionlst) {
-				for(String list: bioFilter)
+			for (BioModality fingerName : exceptionlst) { //loop on exception modality
+				for(String displayName: bioFilter)//loop on 13 modality names
 				{
-					if(finger.getSubType().equalsIgnoreCase(list))
+					if(getschemaName(fingerName.getSubType()).equalsIgnoreCase(displayName))
 					{
-						String elementToRemove = list;
-
-				        int index = withoutExceptionList.indexOf(elementToRemove);
-				        if (index >= 0) {
-				            withoutExceptionList.remove(index);
-				            System.out.println("Element removed: " + elementToRemove);
-				        } else {
-				            System.out.println("Element not found: " + elementToRemove);
-				        }
-						
+						iterator = withoutExceptionList.iterator();
+						while (iterator.hasNext()) {
+							searchkey = iterator.next(); // must be called before you can call i.remove()
+						   if(searchkey.equalsIgnoreCase(displayName))
+						   iterator.remove();
+						}
+											
 					}
 				}
 			}

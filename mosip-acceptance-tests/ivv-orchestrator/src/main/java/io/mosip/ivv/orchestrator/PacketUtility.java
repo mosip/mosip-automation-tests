@@ -934,7 +934,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public void updateBioException(String resFilePath,String exceptionatt[], Scenario.Step step) throws RigInternalError {
+	public void updateBioException(String resFilePath,List<String> exceptionatt, Scenario.Step step) throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePersonabioexceptions");
 		
 		
@@ -958,21 +958,41 @@ public class PacketUtility extends BaseTestCaseUtil {
 		 * 
 		 */
 		
-		//(ExceptionPhoto@@injured@@Left IndexFinger@@Finger)
-		
 JSONObject jsonObject = new JSONObject();
         
         // Create exceptions array
         JSONArray exceptionsArray = new JSONArray();
         
-        JSONObject bioModality=new JSONObject();
-        if(exceptionatt!=null && exceptionatt.length<=4 ) {
-        bioModality.put("exceptionType", exceptionatt[0]);
-        bioModality.put("reason", exceptionatt[1]);
-        bioModality.put("subType", exceptionatt[2]);
-        bioModality.put("type", exceptionatt[3]);
-        }
-        exceptionsArray.put(bioModality);
+//        if(exceptionatt!=null && exceptionatt.length<=4 ) {
+//        bioModality.put("exceptionType", exceptionatt[0]);
+//        bioModality.put("reason", exceptionatt[1]);
+//        bioModality.put("subType", exceptionatt[2]);
+//        bioModality.put("type", exceptionatt[3]);
+//        }
+//        
+        
+        
+     // Finger:Left IndexFinger@@Finger:Right IndexFinger@@Iris:Left
+       
+        
+     	String[] modalitytye=null;	
+        for(String s:exceptionatt) {
+        	modalitytye=s.split(":");	
+        	
+        	JSONObject addmodality=new JSONObject();
+        	addmodality.put("exceptionType", "exceptionType");
+        	addmodality.put("reason", "injurred");
+        	addmodality.put("type", modalitytye[0]);
+        	addmodality.put("subType",modalitytye[1]);
+        	
+        	
+        	 exceptionsArray.put(addmodality );
+        	 
+     		}
+        
+        
+        
+       
         
         // Add exceptions array and personaFilePath to the JSON object
         jsonObject.put("exceptions", exceptionsArray);
