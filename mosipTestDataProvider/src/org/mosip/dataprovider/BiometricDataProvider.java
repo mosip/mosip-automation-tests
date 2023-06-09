@@ -302,10 +302,10 @@ public class BiometricDataProvider {
 						
 						mds = new MDSClient(port);
 						profileName = "res" + resident.getId();
-//						mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-//						mds.setProfile(profileName, port,contextKey);
-//						
-						mds.setProfile("Default", port,contextKey);
+						mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
+						mds.setProfile(profileName, port,contextKey);
+						
+//						mds.setProfile("Default", port,contextKey);
 						
 						
 			} else {
