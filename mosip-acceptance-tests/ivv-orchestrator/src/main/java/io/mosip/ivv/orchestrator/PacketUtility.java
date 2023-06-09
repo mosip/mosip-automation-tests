@@ -934,8 +934,64 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String packetSync(String personaPath, HashMap<String, String> map, Scenario.Step step)
-			throws RigInternalError {
+	public void updateBioException(String resFilePath,String exceptionatt[], Scenario.Step step) throws RigInternalError {
+		String url = baseUrl + props.getProperty("updatePersonabioexceptions");
+		
+		
+		/*
+		 * 
+		 * {
+  "exceptions": [
+    {
+      "exceptionType": "ExceptionPhoto",
+      "reason": "injurred",
+      "subType": "Left IndexFinger",
+      "type": "Finger"
+    }
+  ],
+  "personaFilePath": "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_15128614473707231247\\2362256295.json"
+}
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 */
+		
+		//(ExceptionPhoto@@injured@@Left IndexFinger@@Finger)
+		
+JSONObject jsonObject = new JSONObject();
+        
+        // Create exceptions array
+        JSONArray exceptionsArray = new JSONArray();
+        
+        JSONObject bioModality=new JSONObject();
+        if(exceptionatt!=null && exceptionatt.length<=4 ) {
+        bioModality.put("exceptionType", exceptionatt[0]);
+        bioModality.put("reason", exceptionatt[1]);
+        bioModality.put("subType", exceptionatt[2]);
+        bioModality.put("type", exceptionatt[3]);
+        }
+        exceptionsArray.put(bioModality);
+        
+        // Add exceptions array and personaFilePath to the JSON object
+        jsonObject.put("exceptions", exceptionsArray);
+        jsonObject.put("personaFilePath", resFilePath);
+        
+        // Print JSON object
+        System.out.println(jsonObject.toString());
+		
+		
+		
+		
+				Response response = putRequestWithBody(url, jsonObject.toString(),step);
+				if(!(response.getStatusCode()==200))
+			throw new RigInternalError("Unable to update bio exception  from packet utility");
+		
+	}
+	
+	public String packetSync(String personaPath, HashMap<String, String> map,Scenario.Step step) throws RigInternalError {
+
 		String url = baseUrl + props.getProperty("packetsyncUrl");
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();

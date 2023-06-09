@@ -664,8 +664,8 @@ public class PacketTemplateProvider {
 				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident, contextKey, purpose,
 						qualityScore);
 				resident.getBiometric().setCapture(capture.getLstBiometrics());
+				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile, missAttribs, genarateValidCbeff,resident.getBioExceptions());
 
-				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile, missAttribs, genarateValidCbeff);
 
 				resident.getBiometric().setCbeff(strCBeff);
 

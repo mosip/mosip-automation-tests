@@ -192,7 +192,16 @@ public class BaseTestCaseUtil extends BaseStep{
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"+ puttResponse.getBody().asString() + "</pre>");
 		return puttResponse;
 	}
-	
+	public Response putRequestWithBody(String url,String body,Scenario.Step step) {
+		url=addContextToUrl(url,step);
+		Reporter.log("<pre> <b>"+""+" </b> <br/>"+body + "</pre>");
+		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+				.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"+ puttResponse.getBody().asString() + "</pre>");
+		return puttResponse;
+	}
+
+
 	public Response putRequest(String url,String opsToLog,Scenario.Step step) {
 		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");

@@ -80,6 +80,6 @@ public class DataProviderConstants {
 	public static String MDS_DEVICE_TYPE_FINGER="Finger";
 	public static String MDS_DEVICE_TYPE_IRIS="Iris";
 	public static String MDS_DEVICE_TYPE_FACE="Face";
-	
+	public static String MDS_DEVICE_TYPE_EXCEPTION_PHOTO="ExceptionPhoto";
 	public static int MAX_ADDRESS_LINES = 5;
 }
