@@ -335,6 +335,7 @@ public class MDSClient implements MDSClientInterface {
 		bio.put("requestedScore", reqScore);
 		//bio.put("deviceId", Integer.valueOf(device.getDeviceId()));
 		bio.put("deviceId", device.getDeviceId());
+		if(listbioexception!=null && !listbioexception.isEmpty())
 		bio.put("exception",listbioexception );
 	
 		JSONArray arr = new JSONArray();
