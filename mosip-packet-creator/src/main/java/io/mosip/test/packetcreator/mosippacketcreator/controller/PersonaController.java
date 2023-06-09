@@ -64,8 +64,10 @@ public class PersonaController {
 	    	
 	}
 	@ApiOperation(value = "Update given persona record with the given list of biometric exceptions", response = String.class)
-	@PutMapping(value = "/persona/bioexceptions/{id}/{contextKey}")
-	public @ResponseBody String updatePersonaBioExceptions(@RequestBody BioExceptionDto personaBERequestDto , @PathVariable("id") String id,
+	@PutMapping(value = "/persona/bioexceptions/{contextKey}")
+	public @ResponseBody String updatePersonaBioExceptions(@RequestBody BioExceptionDto personaBERequestDto 
+			,
+			//@PathVariable("id") String id,
 			@PathVariable("contextKey") String contextKey) {
 	    	try{    	
 	    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
