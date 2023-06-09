@@ -661,7 +661,7 @@ public class PacketTemplateProvider {
 				resident.getBiometric().setCapture(capture.getLstBiometrics());
 				
 				
-				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile,missAttribs);
+				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile,missAttribs,resident.getBioExceptions());
 				
 				resident.getBiometric().setCbeff(strCBeff);
 

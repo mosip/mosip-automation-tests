@@ -101,7 +101,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 
 	@Override
 	public MDSRCaptureModel captureFromRegDevice(MDSDevice device, MDSRCaptureModel rCaptureModel, String bioType,
-			String bioSubType, int reqScore, String deviceSubId,int port,String contextKey) {
+			String bioSubType, int reqScore, String deviceSubId,int port,String contextKey,List<String> bioException) {
 
 		List<String> lstSubtype = null;
 		
