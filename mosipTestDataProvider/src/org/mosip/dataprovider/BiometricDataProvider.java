@@ -299,14 +299,15 @@ public class BiometricDataProvider {
 
 
 						portmap.put("port_" + contextKey, port);
-						// CentralizedMockSBI.stopSBI(contextKey);
+						
 						mds = new MDSClient(port);
 						profileName = "res" + resident.getId();
-						//mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-						//mds.setProfile(profileName, port,contextKey);
-						mds.setProfile("Default", port,contextKey);
-						// mds.setProfile("Default");
-
+						mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
+						mds.setProfile(profileName, port,contextKey);
+						
+						//mds.setProfile("Default", port,contextKey);
+						
+						
 			} else {
 				mds = new MDSClientNoMDS();
 				bNoMDS = false;
@@ -336,10 +337,10 @@ public class BiometricDataProvider {
 
 
 		// Get Exceptions modalities abd add them to list of string
-
+		if (bioExceptions != null && !bioExceptions.isEmpty()) {
 		for(int modalityCount=0;modalityCount<bioExceptions.size();modalityCount++)
 			bioexceptionlist.add(bioExceptions.get(modalityCount).getSubType().toString());
-
+		}
 
 		// Step 1 : Face get capture  
 		try {
@@ -370,17 +371,20 @@ public class BiometricDataProvider {
 				List<BioModality> irisExceptions = null;
 				List<String> listexceptionBio=new ArrayList<String>();
 				
-				if (bioExceptions != null && !bioExceptions.isEmpty())
+				if (bioExceptions != null && !bioExceptions.isEmpty()) {
 					irisExceptions = getModalitiesByType(bioExceptions, "Iris");
+					for(BioModality modality: bioExceptions)
+					{
+						listexceptionBio.add(modality.getSubType());
+						
+					}
+					
+				}
+					
 				
 				List<MDSDevice> irisDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
 				MDSDevice irisDevice = irisDevices.get(0);
 			
-				for(BioModality modality: bioExceptions)
-				{
-					listexceptionBio.add(modality.getSubType());
-					
-				}
 				
 				
 
@@ -438,16 +442,21 @@ public class BiometricDataProvider {
 			if (biodata.getFingerPrint() != null) {
 				List<BioModality> fingerExceptions = null;
 				List<MDSDeviceCaptureModel> lstToRemove = new ArrayList<MDSDeviceCaptureModel>();
-				if (bioExceptions != null && !bioExceptions.isEmpty())
-					fingerExceptions = getModalitiesByType(bioExceptions, "Finger");
-
 				List<String> listFingerExceptionBio=new ArrayList<String>();
 				
-				for(BioModality modality: bioExceptions)
-				{
-					listFingerExceptionBio.add(modality.getSubType());
+				if (bioExceptions != null && !bioExceptions.isEmpty()) {
 					
+				
+					fingerExceptions = getModalitiesByType(bioExceptions, "Finger");
+					
+					for(BioModality modality: bioExceptions)
+					{
+						listFingerExceptionBio.add(modality.getSubType());
+						
+					}
 				}
+
+				
 				
 				
 				
@@ -566,7 +575,7 @@ public class BiometricDataProvider {
 
 			builder = xmlbuilderFinger(bioFilter,lstFingerData,bioSubType,builder,exceptionlist,genarateValidCbeff);
 
-			if(!exceptionlist.isEmpty()) 
+			if(exceptionlist!=null && !exceptionlist.isEmpty()) 
 			{
 				builder = xmlbuilderFingerExep(bioFilter,exceptionlist,bioSubType,builder,genarateValidCbeff);
 			}
@@ -632,7 +641,7 @@ public class BiometricDataProvider {
 
 			builder = xmlbuilderIris(bioFilter,lstIrisData,bioSubType,builder,genarateValidCbeff,exceptionlist);
 
-			if(!exceptionlist.isEmpty()) 
+			if(exceptionlist!=null && !exceptionlist.isEmpty()) 
 			{
 				builder = xmlbuilderIrisExcep(bioFilter,exceptionlist,bioSubType,builder,genarateValidCbeff);
 			}
@@ -649,7 +658,7 @@ public class BiometricDataProvider {
 		// Step 4: Add Face as an Exception photo
 
 		try {
-			if(!exceptionlist.isEmpty()) 
+			if(exceptionlist!=null && !exceptionlist.isEmpty()) 
 			{
 				List<MDSDeviceCaptureModel> lstFaceData = capture.getLstBiometrics()
 						.get("face");
