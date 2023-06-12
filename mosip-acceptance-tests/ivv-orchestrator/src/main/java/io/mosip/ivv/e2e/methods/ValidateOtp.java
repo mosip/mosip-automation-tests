@@ -27,7 +27,7 @@ public class ValidateOtp extends BaseTestCaseUtil implements StepInterface {
 			// emailOrPhone =step.getParameters().get(0);
 			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
 				packetUtility.verifyOtp(resDataPath, step.getScenario().getCurrentStep(), emailId, step,
-						MockSMTPListener.getOtp(1, emailId));
+						MockSMTPListener.getOtp(emailId));
 			}
 		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 1
 				&& !step.getParameters().get(0).startsWith("$$")) { // used for child packet processing
@@ -35,13 +35,13 @@ public class ValidateOtp extends BaseTestCaseUtil implements StepInterface {
 			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty())
 				packetUtility.verifyOtp(step.getScenario().getGeneratedResidentData().get(0),
 						step.getScenario().getCurrentStep(), emailId, step,
-						MockSMTPListener.getOtp(1, emailId));
+						MockSMTPListener.getOtp(emailId));
 		} else {
 			String personaFilePath = step.getParameters().get(0); // "$$var=e2e_validateOtp($$personaFilePath)"
 			if (personaFilePath.startsWith("$$")) {
 				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
 				packetUtility.verifyOtp(personaFilePath, step.getScenario().getCurrentStep(), emailId, step,
-						MockSMTPListener.getOtp(10, emailId));
+						MockSMTPListener.getOtp(emailId));
 			}
 		}
 	}
