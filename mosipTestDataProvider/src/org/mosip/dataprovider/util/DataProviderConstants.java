@@ -38,6 +38,23 @@ public class DataProviderConstants {
 			"rightEye",
 			"face"
 	};
+	
+	public static String [] displayFullName = {
+			"Left Thumb",
+			"Left IndexFinger",
+			"Left MiddleFinger",
+			"Left RingFinger",
+			"Left LittleFinger",
+			"Right Thumb",
+			"Right IndexFinger",
+			"Right MiddleFinger",
+			"Right RingFinger",
+			"Right LittleFinger",
+			"Left",
+			"Right",
+			"Face"
+	};
+	
 	public static String [] schemaFingerNames = {
 			"leftThumb",
 			"leftIndex",
@@ -80,6 +97,6 @@ public class DataProviderConstants {
 	public static String MDS_DEVICE_TYPE_FINGER="Finger";
 	public static String MDS_DEVICE_TYPE_IRIS="Iris";
 	public static String MDS_DEVICE_TYPE_FACE="Face";
-	
+	public static String MDS_DEVICE_TYPE_EXCEPTION_PHOTO="ExceptionPhoto";
 	public static int MAX_ADDRESS_LINES = 5;
 }

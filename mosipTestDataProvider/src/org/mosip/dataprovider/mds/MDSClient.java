@@ -5,6 +5,7 @@ import static io.restassured.RestAssured.given;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -275,10 +277,15 @@ public class MDSClient implements MDSClientInterface {
 		}
     	return devices;
 	}
+	
+	
+//	capture = mds.captureFromRegDevice(exceptionDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_EXCEPTION_PHOTO,
+//			null, 60, exceptionDevice.getDeviceSubId().get(0), port,contextKey,bioexceptionlist);
+	
 	public  MDSRCaptureModel captureFromRegDevice(MDSDevice device, 
 			MDSRCaptureModel rCaptureModel,
 			String type,
-			String bioSubType, int reqScore,String deviceSubId,int port,String contextKey) {
+			String bioSubType, int reqScore,String deviceSubId,int port,String contextKey,List<String> listbioexception) {
 		String mosipVersion=null;;
 		try {
 	      mosipVersion=VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.version").toString();
@@ -328,7 +335,8 @@ public class MDSClient implements MDSClientInterface {
 		bio.put("requestedScore", reqScore);
 		//bio.put("deviceId", Integer.valueOf(device.getDeviceId()));
 		bio.put("deviceId", device.getDeviceId());
-		
+		if(listbioexception!=null && !listbioexception.isEmpty())
+		bio.put("exception",listbioexception );
 	
 		JSONArray arr = new JSONArray();
 		arr.put(bio);
@@ -349,8 +357,14 @@ public class MDSClient implements MDSClientInterface {
 			List<MDSDeviceCaptureModel> lstBiometrics  = rCaptureModel.getLstBiometrics().get(type);
 			if(lstBiometrics == null)
 				lstBiometrics = new ArrayList<MDSDeviceCaptureModel>();
+			
+			if(!CollectionUtils.isEmpty(listbioexception) && type.equalsIgnoreCase("face"))
+				rCaptureModel.getLstBiometrics().put("exception", lstBiometrics);
+			else
 			rCaptureModel.getLstBiometrics().put(type, lstBiometrics);
 			
+				
+				
 			List<String> retriableErrorCodes=new  ArrayList<String>();
 			retriableErrorCodes.add("703");
 			retriableErrorCodes.add("710");
