@@ -194,7 +194,8 @@ public class PreRegistrationSteps {
 	
 		String response = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
-		VariableManager.getVariableValue(contextKey, "postapplication").toString().trim();
+		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "deleteApplication").toString().trim();
+		System.out.println("url is:");
 		url = url + "/" + preregId;		
 		try {
 			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject(),contextKey);
