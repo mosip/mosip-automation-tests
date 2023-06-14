@@ -222,6 +222,15 @@ public class BaseTestCaseUtil extends BaseStep{
 		return deleteResponse;
 	}
 	
+	public Response deleteRequestWithoutStep(String url,String opsToLog) {
+		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		Response deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract().response();
+		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
+				+ deleteResponse.getBody().asString() + "</pre>");
+		return deleteResponse;
+	}
+	
 	public Response deleteRequestWithQueryParam(String url,HashMap<String,String> map,String opsToLog,Scenario.Step step) {
 		url=addContextToUrl(url,step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");

@@ -431,5 +431,15 @@ public class TestDataController {
     	}
     	return "{Failed}";
     }
+	
+	@ApiOperation(value = "Discard Applications for a given pre-registration-Id", response = String.class)
+    @DeleteMapping(value = "/preregistration/v1/applications/{preregid}/{contextKey}")
+    public @ResponseBody String discardApplication(
+    		@PathVariable("preregid") String preregId,
+    		@PathVariable("contextKey") String contextKey) {
+    	
+    	return packetSyncService.deleteApplication(preregId, contextKey);
+    	
+    }
 
 }
