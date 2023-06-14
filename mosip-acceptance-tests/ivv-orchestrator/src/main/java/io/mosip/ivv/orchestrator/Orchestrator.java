@@ -145,6 +145,7 @@ public class Orchestrator {
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
 	public static Object[][] dataProvider() throws RigInternalError {
 		String scenarioSheet = null;
+		
 		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
 		Properties properties = Utils.getProperties(configFile);
 		// Properties propsKernel=ConfigManager.propsKernel;
