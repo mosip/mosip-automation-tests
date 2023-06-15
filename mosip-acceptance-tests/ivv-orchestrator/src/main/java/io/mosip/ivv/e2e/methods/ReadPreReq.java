@@ -62,7 +62,7 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 				step.getScenario().getVariables().putAll(prereqDataSet.get(path));
 			}
 			
-			Reporter.log(propertylist.toString(), true);
+			Reporter.log(prereqDataSet.get(path).toString(), true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -301,11 +301,16 @@ public class BiometricDataProvider {
 						portmap.put("port_" + contextKey, port);
 						
 						mds = new MDSClient(port);
-						profileName = "res" + resident.getId();
-						mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-						mds.setProfile(profileName, port,contextKey);
-						
-//						mds.setProfile("Default", port,contextKey);
+						if(resident.getBioExceptions()!=null && !resident.getBioExceptions().isEmpty()){
+							mds.setProfile("Default", port,contextKey);
+						}					
+						else
+					{
+							profileName = "res" + resident.getId();
+							mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
+							mds.setProfile(profileName, port,contextKey);
+					}
+
 						
 						
 			} else {
