@@ -7,7 +7,7 @@ CreateVID:
       outputTemplate: idaData/CreateVID/createVidResult
       input: '{
      "vidType": "Perpetual",
-     "UIN": "2140571908",
+     "UIN": "$UIN$",
      "version": "v1",
      "id": "mosip.vid.create",
      "requesttime": "$TIMESTAMP$"
