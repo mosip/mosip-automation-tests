@@ -6,12 +6,12 @@ CreateVID:
       inputTemplate: idaData/CreateVID/createVid
       outputTemplate: idaData/CreateVID/createVidResult
       input: '{
-    "vidType": "Temporary",
-    "UIN": "UIN",
-    "version": "v1",
-    "id": "mosip.vid.create",
-    "requesttime": "$TIMESTAMP$"
-}'
+     "vidType": "Perpetual",
+     "UIN": "2140571908",
+     "version": "v1",
+     "id": "mosip.vid.create",
+     "requesttime": "$TIMESTAMP$"
+ }'
       output: '{
-  "vidStatus":"ACTIVE"
-}'
+     "vidStatus":"ACTIVE"
+ }'
