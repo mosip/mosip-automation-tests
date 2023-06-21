@@ -49,16 +49,18 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
                         System.out.println("matching statusCode");
                         flag = true;
                         break;
-                    } else if (subStatusCode != null && subStatusCode.equalsIgnoreCase(myJSONObject.getString("subStatusCode"))) {
+                    }
+                     else if (subStatusCode != null && subStatusCode.equalsIgnoreCase(myJSONObject.getString("subStatusCode"))) {
                         flag = true;
                         break;
                     } else {
                         flag = false;
                     }
                 }
+                
             }
 
-            if (!myJSONObject.has("transactionTypeCode") || !myJSONObject.has("subStatusCode")) {
+            if (!myJSONObject.getString("transactionTypeCode").equalsIgnoreCase(transactionTypeCode) || myJSONObject.getString("subStatusCode").equalsIgnoreCase(subStatusCode)) {
             	logger.info("Waiting for " +Long.parseLong(waitTime)/1000+ " sec to get desired response");
                 counter++;
                 try {
