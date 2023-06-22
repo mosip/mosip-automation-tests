@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -111,7 +113,7 @@ public class BiometricDataProvider {
 
 		return builder.asString(null);
 	}
-	
+
 	/*
 	 * static String buildBirFinger(String fingerInfo, String fingerName, String
 	 * jtwSign, String payload, String qualityScore) throws
@@ -125,13 +127,13 @@ public class BiometricDataProvider {
 	static String buildBirFinger(String fingerInfo, String fingerName, String jtwSign, String payload,
 
 			String qualityScore, boolean generateValidCbeff,String exception) throws ParserConfigurationException,
-			FactoryConfigurationError, TransformerException, FileNotFoundException {
+	FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
 		XMLBuilder builder = null;
 		String bdbKey= "BDB";
 		if (generateValidCbeff==false)
 			bdbKey = "invalidBDB";
-		 builder = XMLBuilder.create("BIR").a("xmlns", "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+		builder = XMLBuilder.create("BIR").a("xmlns", "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
 				.e("Version").e("Major").t("1").up().e("Minor").t("1").up().up().e("CBEFFVersion").e("Major").t("1")
 				.up().e("Minor").t("1").up().up().e("BIRInfo").e("Integrity").t("false").up().up().e("BDBInfo")
 				.e("Format").e("Organization").t("Mosip").up().e("Type").t("7").up().up().e("CreationDate").t(today)
@@ -299,15 +301,20 @@ public class BiometricDataProvider {
 
 
 						portmap.put("port_" + contextKey, port);
-						
+
 						mds = new MDSClient(port);
-						profileName = "res" + resident.getId();
-						mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-						mds.setProfile(profileName, port,contextKey);
-						
-//						mds.setProfile("Default", port,contextKey);
-						
-						
+						if(resident.getBioExceptions()!=null && !resident.getBioExceptions().isEmpty()){
+							mds.setProfile("Default", port,contextKey);
+						}					
+						else
+						{
+							profileName = "res" + resident.getId();
+							mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
+							mds.setProfile(profileName, port,contextKey);
+						}
+
+
+
 			} else {
 				mds = new MDSClientNoMDS();
 				bNoMDS = false;
@@ -338,8 +345,8 @@ public class BiometricDataProvider {
 
 		// Get Exceptions modalities abd add them to list of string
 		if (bioExceptions != null && !bioExceptions.isEmpty()) {
-		for(int modalityCount=0;modalityCount<bioExceptions.size();modalityCount++)
-			bioexceptionlist.add(bioExceptions.get(modalityCount).getSubType().toString());
+			for(int modalityCount=0;modalityCount<bioExceptions.size();modalityCount++)
+				bioexceptionlist.add(bioExceptions.get(modalityCount).getSubType().toString());
 		}
 
 		// Step 1 : Face get capture  
@@ -370,23 +377,23 @@ public class BiometricDataProvider {
 			{
 				List<BioModality> irisExceptions = null;
 				List<String> listexceptionBio=new ArrayList<String>();
-				
+
 				if (bioExceptions != null && !bioExceptions.isEmpty()) {
 					irisExceptions = getModalitiesByType(bioExceptions, "Iris");
 					for(BioModality modality: bioExceptions)
 					{
 						listexceptionBio.add(modality.getSubType());
-						
+
 					}
-					
+
 				}
-					
-				
+
+
 				List<MDSDevice> irisDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
 				MDSDevice irisDevice = irisDevices.get(0);
-			
-				
-				
+
+
+
 
 				if (irisExceptions == null || irisExceptions.isEmpty()) {
 					if (filteredAttribs != null && filteredAttribs.contains("leftEye")) {
@@ -443,23 +450,23 @@ public class BiometricDataProvider {
 				List<BioModality> fingerExceptions = null;
 				List<MDSDeviceCaptureModel> lstToRemove = new ArrayList<MDSDeviceCaptureModel>();
 				List<String> listFingerExceptionBio=new ArrayList<String>();
-				
+
 				if (bioExceptions != null && !bioExceptions.isEmpty()) {
-					
-				
+
+
 					fingerExceptions = getModalitiesByType(bioExceptions, "Finger");
-					
+
 					for(BioModality modality: bioExceptions)
 					{
 						listFingerExceptionBio.add(modality.getSubType());
-						
+
 					}
 				}
 
-				
-				
-				
-				
+
+
+
+
 				List<MDSDevice> fingerDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 				MDSDevice fingerDevice = fingerDevices.get(0);
 
@@ -698,65 +705,36 @@ public class BiometricDataProvider {
 	private static XMLBuilder xmlbuilderIris(List<String> bioFilter, List<MDSDeviceCaptureModel> lstIrisData,List<String> bioSubType,XMLBuilder builder,boolean genarateValidCbeff,List<BioModality> exceptionlst)
 
 	{
-		List<String> withoutExceptionList=bioFilter;
-		
-		Iterator<String> iterator=null; 
-		String searchkey=null;
-		
-		try {
-			for (BioModality eyeName : exceptionlst) { //loop on exception modality
-				for(String displayName: bioFilter)//loop on 13 modality names
-				{
-					if(getschemaName(eyeName.getSubType()).equalsIgnoreCase(displayName))
-					{
-						iterator = withoutExceptionList.iterator();
-						while (iterator.hasNext()) {
-							searchkey = iterator.next(); // must be called before you can call i.remove()
-						   if(searchkey.equalsIgnoreCase(displayName))
-						   iterator.remove();
-						}
-											
-					}
-				}
+		List<String> listWithoutExceptions =bioFilter;
+		if(exceptionlst!=null && !exceptionlst.isEmpty()) {
+			List<String> exceptions = exceptionlst.stream().map(BioModality::getSubType).collect(Collectors.toList());
+			List<String> schemaName=new ArrayList<String>();
+			for(String ex: exceptions)
+			{
+				schemaName.add(getschemaName(ex));
 			}
+			listWithoutExceptions= bioFilter.stream().filter(bioAttribute -> !schemaName.contains(bioAttribute)).collect(Collectors.toList());
 		}
-		
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		logger.info("withoutExceptionList is: "+withoutExceptionList);
+			
+		logger.info("withoutExceptionList is: "+listWithoutExceptions);
 
 		try {
 			if (lstIrisData != null) {
 				String irisXml = "";
 				for (MDSDeviceCaptureModel cm : lstIrisData) {
 
-					if (withoutExceptionList.contains("leftEye") && cm.getBioSubType().equals("Left")) {
+					if (listWithoutExceptions.contains("leftEye") && cm.getBioSubType().equals("Left")) {
 						irisXml = buildBirIris(cm.getBioValue(), "Left", cm.getSb(), cm.getPayload(), cm.getQualityScore(),genarateValidCbeff,"false");
 						builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 						bioSubType.add("Left");
 					}
-					if (withoutExceptionList.contains("rightEye") && cm.getBioSubType().equals("Right")) {
+					if (listWithoutExceptions.contains("rightEye") && cm.getBioSubType().equals("Right")) {
 
 						irisXml = buildBirIris(cm.getBioValue(), "Right", cm.getSb(), cm.getPayload(),
 								cm.getQualityScore(),genarateValidCbeff,"false");
 						builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 						bioSubType.add("Right");
 					}
-					//				if(missAttribs!=null && missAttribs.contains("leftEye"))
-					//				{
-					//					irisXml = buildBirIris(cm.getBioValue(), "Left", cm.getSb(), cm.getPayload(), cm.getQualityScore(),"true");
-					//					builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
-					//					bioSubType.add("Left");
-					//				}
-					//				if(missAttribs!=null && missAttribs.contains("rightEye"))
-					//				{
-					//					irisXml = buildBirIris(cm.getBioValue(), "Right", cm.getSb(), cm.getPayload(),
-					//							cm.getQualityScore(),"true");
-					//					builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
-					//					bioSubType.add("Right");
-					//				}
 				}
 			}
 		}catch(Exception e)
@@ -773,7 +751,7 @@ public class BiometricDataProvider {
 		try {
 			if(lstIrisData!=null) {
 				for (BioModality finger : lstIrisData) {
-					if (!finger.getType().equalsIgnoreCase("eye"))
+					if (!finger.getType().equalsIgnoreCase("Iris"))
 						continue;
 
 					String strFingerXml = buildBirIris(finger.getType(), finger.getSubType(), new byte[0].toString(), "",
@@ -800,7 +778,7 @@ public class BiometricDataProvider {
 			if (displayFingerName.equalsIgnoreCase(name) == true)
 				return  DataProviderConstants.schemaNames[i];
 		}
-		
+
 		// Other wise just return
 		return name;
 	}
@@ -808,35 +786,27 @@ public class BiometricDataProvider {
 	private static XMLBuilder xmlbuilderFinger(List<String> bioFilter, List<MDSDeviceCaptureModel> lstFingerData,
 			List<String> bioSubType,XMLBuilder builder,List<BioModality> exceptionlst,boolean genarateValidCbeff)
 	{
-	
-		List<String> withoutExceptionList=bioFilter;
-		logger.info("lstFingerData is: "+lstFingerData);
-		int i = 0; Iterator<String> iterator=null; String searchkey=null;
-		String fingerData = null;
-		try {
-			for (BioModality fingerName : exceptionlst) { //loop on exception modality
-				for(String displayName: bioFilter)//loop on 13 modality names
-				{
-					if(getschemaName(fingerName.getSubType()).equalsIgnoreCase(displayName))
-					{
-						iterator = withoutExceptionList.iterator();
-						while (iterator.hasNext()) {
-							searchkey = iterator.next(); // must be called before you can call i.remove()
-						   if(searchkey.equalsIgnoreCase(displayName))
-						   iterator.remove();
-						}
-											
-					}
-				}
+		List<String> listWithoutExceptions =bioFilter;
+		if(exceptionlst!=null && !exceptionlst.isEmpty()) {
+			List<String> exceptions = exceptionlst.stream().map(BioModality::getSubType).collect(Collectors.toList());
+			logger.info("exceptions" +exceptions);
+			List<String> schemaName=new ArrayList<String>();
+			for(String ex: exceptions)
+			{
+				schemaName.add(getschemaName(ex));
 			}
+			listWithoutExceptions= bioFilter.stream().filter(bioAttribute -> !schemaName.contains(bioAttribute)).collect(Collectors.toList());
 		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
+
+		
+		//getschemaName(BioModality::getSubType)
+		
+		int i = 0; 
+		String fingerData = null;
+
 		try {
 			if(lstFingerData!=null) {
-				for (String finger : withoutExceptionList) {
+				for (String finger : listWithoutExceptions) {
 					if (finger.toLowerCase().contains("eye") || finger.toLowerCase().equals("face"))
 						continue;
 					i = Arrays.asList(DataProviderConstants.schemaNames).indexOf(finger);
