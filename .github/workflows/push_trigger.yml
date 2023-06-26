@@ -68,7 +68,8 @@ jobs:
           cp -r src/main/resources/application.properties build_files/config/
           cp -r ${{env.CONFIG_LOCATION}}/resource build_files/resource
           cp -r ${{env.CONFIG_LOCATION}}/application.properties build_files/application.properties
-          zip -r release.zip build_files/*
+          cp -r ./src/main/resources/dockersupport/centralized/mountvolume/profile_resource ./profile_resource
+          zip -r release.zip build_files/* profile_resource
 
       - name: Upload the springboot jars
         uses: actions/upload-artifact@v1
@@ -128,6 +129,7 @@ jobs:
           mkdir docker-image-build
           cp -r ./build_files ./docker-image-build/build_files
           cp -r ./entrypoint.sh ./docker-image-build/entrypoint.sh
+          cp -r ./profile_resource ./docker-image-build/profile_resource
           cp ./Dockerfile  ./docker-image-build/Dockerfile
           
           cd docker-image-build
@@ -209,7 +211,8 @@ jobs:
           cp $( find -name 'ivv-orchestrator-*-dependencies.jar' -type f ) build_files
           cp -r ./ivv-orchestrator/target/classes/config build_files/
           cp -r ./ivv-orchestrator/target/classes/local build_files/
-          zip -r ${{env.ZIP_FILE_NAME}}.zip build_files/*
+          cp -r ./ivv-orchestrator/src/main/resources/local/scenarios scenarios
+          zip -r ${{env.ZIP_FILE_NAME}}.zip build_files/* scenarios/*
 
       - name: Upload the springboot jars
         uses: actions/upload-artifact@v1
@@ -269,6 +272,7 @@ jobs:
           mkdir docker-image-build
           cp -r ./build_files ./docker-image-build/build_files
           cp -r ./entrypoint.sh ./docker-image-build/entrypoint.sh
+          cp -r ./scenarios ./docker-image-build/scenarios
           cp ./Dockerfile  ./docker-image-build/Dockerfile
           
           cd docker-image-build
