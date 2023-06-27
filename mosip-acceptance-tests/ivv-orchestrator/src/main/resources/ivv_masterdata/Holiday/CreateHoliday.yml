@@ -1,0 +1,24 @@
+CreateHoliday:
+   MasterData_CreateHoliday_All_Valid_Smoke_sid:
+      endPoint: /v1/masterdata/holidays
+      role: admin
+      templateFields: ["holidayDesc","holidayName"]
+      restMethod: post
+      inputTemplate: masterdata/Holiday/holiday
+      outputTemplate: masterdata/Holiday/holidayResult
+      input: '{
+    "holidayDate": "2020-08-15",
+    "holidayDesc": "AutoTest user Holiday",
+    "holidayId": "$REMOVE$",
+    "holidayName": "AutoTest user Eng",
+    "isActive": true,
+    "langCode": "eng",
+    "locationCode": "KTA",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+     "locationCode": "KTA",
+     "holidayDate": "2020-08-15",
+     "holidayName": "AutoTest user Eng",
+     "langCode": "eng"
+    }'
