@@ -59,6 +59,7 @@ public class Orchestrator {
 	public static ExtentReports extent;
 	private Properties properties;
 
+	public static Boolean beforeSuiteFailed = false;
 	public static Boolean beforeSuiteExeuted = false;
 	public static final Object lock = new Object();
 
@@ -231,9 +232,34 @@ public class Orchestrator {
 
 	}
 
+	
+	private void updateRunStatistics(Scenario scenario) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        System.out.println(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
+        if (scenario.getId().equalsIgnoreCase("0")) {
+            beforeSuiteExeuted = true;
+      
+            ///Check if all steps in Before are passed or not 
+            for (Scenario.Step step : scenario.getSteps()) {
+                 StepInterface st = getInstanceOf(step);
+	             if (st.hasError() == true) {
+		            beforeSuiteFailed = true;
+		            System.out.println("Before suite failed");
+		            break;
+		        
+	             }
+             } 
+            System.out.println("Before Suite executed");
+        }
+
+        System.out.println(
+                " Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
+
+    }
+	
+	
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
-			Properties properties) throws SQLException, InterruptedException {
+			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException, IllegalAccessException, InstantiationException {
 		// Another scenario execution kicked-off before BEFORE_SUITE execution
 
 		if (!scenario.getId().equalsIgnoreCase("0")) {
@@ -257,6 +283,10 @@ public class Orchestrator {
 					System.out.println(" Thread ID: " + Thread.currentThread().getId()
 							+ " inside beforeSuiteExecuted == false " + counterLock.get() + "- " + scenario.getId());
 				}
+				// Check if the beforeSuite is successful. If not skip the scenario execution 
+                if (beforeSuiteFailed == true)
+                     throw new SkipException((" Thread ID: " + Thread.currentThread().getId() + " Skipping scenarios execution - "
+							 + scenario.getId()));
 			}
 		}
 
@@ -377,18 +407,6 @@ public class Orchestrator {
 
 		}
 		updateRunStatistics(scenario);
-
-	}
-
-	static void updateRunStatistics(Scenario scenario) {
-		System.out.println(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
-		if (scenario.getId().equalsIgnoreCase("0")) {
-			beforeSuiteExeuted = true;
-			System.out.println("Before Suite executed");
-		}
-
-		System.out.println(
-				" Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
 
 	}
 
