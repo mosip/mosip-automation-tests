@@ -6,12 +6,15 @@
         <artifactId>ivv-parent</artifactId>
         <groupId>io.mosip.ivv</groupId>
         <version>1.2.1-SNAPSHOT</version>
+        
     </parent>
 
     <groupId>io.mosip.ivv.orchestrator</groupId>
     <artifactId>ivv-orchestrator</artifactId>
+    <name>mosip-dsl-test</name>
     <properties>
         <suiteXmlFile>testng.xml</suiteXmlFile>
+        <maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
     </properties>
     <build>
         <plugins>           
@@ -25,6 +28,8 @@
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
 			</plugin>
+			
+			
 			
 			
 			
@@ -124,4 +129,36 @@
 		<!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-jaxrs -->
 
     </dependencies>
+    
+     <profiles>
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.sources>.</sonar.sources>
+                <sonar.inclusions>src/main/java/**,src/main/resources/**</sonar.inclusions>
+                <sonar.exclusions>${sonar.coverage.exclusions}</sonar.exclusions>
+                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+            </properties>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                        <version>${maven.sonar.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sonar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
