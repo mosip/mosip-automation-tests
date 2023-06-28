@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 public class Utils {
     public static Logger auditLog = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     public static Logger requestAndresponseLog = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static Random generator = new Random();
     /*
      * public static void deleteDirectoryPath(String directoryName, String folderName) { folderPath = directoryName; theDir = new File(folderPath);
      * theDir.delete(); }
@@ -78,7 +79,10 @@ public class Utils {
         if (file.isDirectory()) {
             String fileList[] = file.list();
             if (fileList.length == 0) {
-                file.delete();
+                //file.delete();
+                if (!file.delete()) {
+                    System.out.println("Files deleted");
+                   }
             } else {
                 int size = fileList.length;
                 for (int i = 0; i < size; i++) {
@@ -89,7 +93,10 @@ public class Utils {
                 }
             }
         } else {
-            file.delete();
+        	//file.delete();
+            if (!file.delete()) {
+               System.out.println("Files deleted");
+              }
         }
     }
 
@@ -162,18 +169,27 @@ public class Utils {
         return returnString;
     }
 
+	/*
+	 * public static Properties getProperties(String path) { Properties prop = new
+	 * Properties(); try { FileInputStream file = new FileInputStream(path);
+	 * prop.load(file); } catch (FileNotFoundException e) { e.printStackTrace(); }
+	 * catch (IOException e) { e.printStackTrace(); } return prop; }
+	 */
+    
     public static Properties getProperties(String path) {
-        Properties prop = new Properties();
-        try {
-            FileInputStream file = new FileInputStream(path);
-            prop.load(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return prop;
-    }
+		Properties prop = new Properties();
+		FileInputStream inputStream = null;
+		try {
+			File file = new File(path);
+			inputStream = new FileInputStream(file);
+			prop.load(inputStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			closeInputStream(inputStream);
+		}
+		return prop;
+	}
 
     public static HashMap getMap(String path) {
         Object obj = new Object();
@@ -312,7 +328,6 @@ public class Utils {
     }
 
     public static String getRandom(int min, int max){
-        Random generator = new Random();
         return (generator.nextInt((max - min) + 1) + min)+"";
     }
 
@@ -397,5 +412,15 @@ public class Utils {
             }
         }
     }
+    
+    public static void closeInputStream(FileInputStream inputStream) {
+		if (inputStream != null) {
+	        try {
+	            inputStream.close();
+	        } catch (IOException e) {
+	            // Handle the exception
+	        }
+	    }
+	}
 
 }

@@ -95,9 +95,17 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 					FileReader reader = new FileReader(file);
 					Object obj = jsonParser.parse(reader);
 					org.json.simple.JSONObject jsonRequestInput = (org.json.simple.JSONObject) obj;
-					getDeviceRequestBody = JsonPrecondtion.parseAndReturnJsonContent(JSONValue.toJSONString(jsonRequestInput), arrayValue[0], "request.(filters)[0].columnName");
-					getDeviceRequestBody = JsonPrecondtion.parseAndReturnJsonContent(getDeviceRequestBody,arrayValue[1], "request.(filters)[0].value");
-					Response responseDevice = packetUtility.postReqestWithCookiesAndBody(GETDEVICEURL, getDeviceRequestBody, token, "Get device detail by deviceId");
+					if(arrayValue.length > 0) {
+						getDeviceRequestBody = JsonPrecondtion.parseAndReturnJsonContent(
+								JSONValue.toJSONString(jsonRequestInput), arrayValue[0], "request.(filters)[0].columnName");
+						getDeviceRequestBody = JsonPrecondtion.parseAndReturnJsonContent(getDeviceRequestBody,
+								arrayValue[1], "request.(filters)[0].value");
+						
+					}
+					
+					Response responseDevice = packetUtility.postReqestWithCookiesAndBody(GETDEVICEURL,
+							getDeviceRequestBody, token, "Get device detail by deviceId");
+					
 					if (responseDevice.getBody().asString().toLowerCase().contains("errorcode")) {
 						logger.error("deviceId :[" + arrayValue[1] + "] not found");
 						throw new RigInternalError("deviceId :[" + arrayValue[1] + "] not found");

@@ -45,6 +45,7 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 			Thread.sleep(30000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
     	String fileName = CredentialIssue_YML;
     	PostWithBodyWithOtpGenerate postWithOtp= new PostWithBodyWithOtpGenerate();

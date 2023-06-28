@@ -26,47 +26,52 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(ReadPreReq.class);
 
 	@Override
-	public void run()  throws RigInternalError {
+	public void run() throws RigInternalError {
 
-		HashMap<String, String> map=new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<String, String>();
 		Properties propertylist = new Properties();
-		String path =null;
+		String path = null;
 		String appendedkey = null;
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("PreRequisite Arugemnt is  Missing : Please pass the argument from DSL sheet");
-		} else 
-			if(step.getParameters().size() >= 1) {appendedkey=step.getParameters().get(0);
-			}
-		path= (TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
+		} else if (step.getParameters().size() >= 1) {
+			appendedkey = step.getParameters().get(0);
+		}
+		path = (TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
 				+ appendedkey + ".properties");
 
 		logger.info("ReadPreReq :" + path);
-
+		FileReader reader = null;
 		try {
-	//	map=(HashMap<String, String>) prereqDataSet.get(path);
-		if(prereqDataSet.get(path)==null) {
-		    
-				FileReader reader = new FileReader(path);
+			// map=(HashMap<String, String>) prereqDataSet.get(path);
+			if (prereqDataSet.get(path) == null) {
+
+				reader = new FileReader(path);
 				propertylist.load(reader);
-			
-			for (String propertykey : propertylist.stringPropertyNames()) {
-				String val = propertylist.getProperty(propertykey);
-				map.put(propertykey, val);
+
+				for (String propertykey : propertylist.stringPropertyNames()) {
+					String val = propertylist.getProperty(propertykey);
+					map.put(propertykey, val);
+				}
+
+				prereqDataSet.put(path, map);
 			}
-			
-			prereqDataSet.put(path, map);
-		}
 			if (step.getOutVarName() != null) {
-				
+
 				step.getScenario().getVariables().putAll(prereqDataSet.get(path));
 			}
-			
+
 			Reporter.log(prereqDataSet.get(path).toString(), true);
 		} catch (Exception e) {
-			this.hasError=true;
-			// TODO Auto-generated catch block
+			this.hasError = true;
+			e.printStackTrace();
 			throw new RigInternalError("PreRequisite Data is not set properly");
-		}}
+
+		} finally {
+			PacketUtility.closeFileReader(reader);
+		}
+
+	}
 
 }

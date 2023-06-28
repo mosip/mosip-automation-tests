@@ -30,7 +30,7 @@ public class CancelBooking extends BaseTestCaseUtil implements StepInterface {
 			String prid = step.getScenario().getResidentPathsPrid().get(resDataPath);
 			if (!StringUtils.isEmpty(prid)) {
 				Map<String, String> retrieveBookingByPrid = retrieveBookingByPrid(prid);
-				if(!retrieveBookingByPrid.isEmpty())
+				if(!retrieveBookingByPrid.isEmpty() && bookingStatus!=null)
 				cancelBookingByPrid(retrieveBookingByPrid,prid,bookingStatus);
 			} else
 				{
