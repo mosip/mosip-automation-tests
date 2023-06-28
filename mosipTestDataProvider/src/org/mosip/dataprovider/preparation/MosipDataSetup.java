@@ -545,11 +545,17 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		String responseStr = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"bulkupload").toString();
+		
+		String centerID = VariableManager.getVariableValue(contextKey,"mosip.test.regclient.centerid").toString();
 
 		JSONObject req = new JSONObject();
 		req.put("category","packet");
 		req.put("tableName","");
 		req.put("operation","insert");
+		req.put("centerId",centerID);
+		req.put("process","NEW");
+		req.put("source","REGISTRATION_CLIENT");
+		req.put("supervisorStatus","APPROVED");
 		
 		
 		try {
