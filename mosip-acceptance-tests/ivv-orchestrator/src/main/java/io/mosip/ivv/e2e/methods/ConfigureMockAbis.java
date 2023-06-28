@@ -52,12 +52,13 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			if (!personaId.equals("-1")) {
 				if (step.getScenario().getResidentPersonaIdPro().get(personaId) == null) {
 					logger.error("Persona id : [" + personaId + "] is not present is the system");
-					throw new RigInternalError("Persona id : [" + personaId + "] is not present is the system");
+					this.hasError=true;throw new RigInternalError("Persona id : [" + personaId + "] is not present is the system");
 				}
 				personaPath = step.getScenario().getResidentPersonaIdPro().get(personaId).toString();
-				if (StringUtils.isBlank(personaPath))
+				if (StringUtils.isBlank(personaPath)) {
+					this.hasError=true;
 					throw new RigInternalError(
-							"PersonaPath is not present in the system for persona id : [" + personaId + "]");
+							"PersonaPath is not present in the system for persona id : [" + personaId + "]");}
 			} else {
 				for (String personaid : step.getScenario().getResidentPersonaIdPro().stringPropertyNames()) {
 					personaId = personaid;
@@ -77,7 +78,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 				personaPath = step.getScenario().getVariables().get(personaPath);
 				isFound = true;
 			}
-		} else {
+		} else {this.hasError=true;
 			throw new RigInternalError(
 					"missing input param [personaid,List<String> modalitySubType,duplicate,List<String> hashModality]");
 		}

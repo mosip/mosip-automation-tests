@@ -47,6 +47,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transactionId parameter is  missing from DSL step");
+			this.hasError=true;
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
@@ -58,6 +59,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transa from DSL step");
+			this.hasError=true;
 			throw new RigInternalError(
 					"transactionId parameter is  missingctionId paramter is  missing in step: " + step.getName());
 		} else {

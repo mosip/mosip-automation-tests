@@ -26,7 +26,7 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(ReadPreReq.class);
 
 	@Override
-	public void run() {
+	public void run()  throws RigInternalError {
 
 		HashMap<String, String> map=new HashMap<String, String>();
 		Properties propertylist = new Properties();
@@ -63,9 +63,10 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 			}
 			
 			Reporter.log(prereqDataSet.get(path).toString(), true);
-		} catch (IOException e) {
+		} catch (Exception e) {
+			this.hasError=true;
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RigInternalError("PreRequisite Data is not set properly");
 		}}
 
 }

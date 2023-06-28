@@ -80,6 +80,7 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 			}
 		} catch (AuthenticationTestException | AdminTestException e) {
 			logger.error(e.getMessage());
+			this.hasError=true;
 			//assertFalse(true, "Failed at credential issuance Response validation");
 			throw new RigInternalError("Failed at credential issuance Response validation");
 		}

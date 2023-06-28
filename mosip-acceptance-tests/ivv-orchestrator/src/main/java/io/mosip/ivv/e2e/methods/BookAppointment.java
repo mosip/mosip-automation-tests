@@ -34,6 +34,7 @@ public class BookAppointment extends BaseTestCaseUtil implements StepInterface {
 			if (isForChildPacket && step.getScenario().getPrid_updateResident() != null)
 				packetUtility.bookAppointment(step.getScenario().getPrid_updateResident(), slotNumber, step.getScenario().getCurrentStep(), bookOnHolidays,step);
 		} else {
+			this.hasError=true;
 			throw new RigInternalError("Input parmeter is missiing [true/false]");
 		}
 	}

@@ -57,6 +57,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transactionId parameter is  missing from DSL step");
+			this.hasError=true;
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
 
@@ -119,6 +120,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 				}
 
 			} catch (AuthenticationTestException | AdminTestException e) {
+				this.hasError=true;
 				throw new RigInternalError(e.getMessage());
 
 			}
@@ -146,6 +148,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 				}
 
 			} catch (AuthenticationTestException | AdminTestException e) {
+				this.hasError=true;
 				throw new RigInternalError(e.getMessage());
 
 			}
@@ -245,7 +248,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			System.out.println(response2.toString());
 
 		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
+			this.hasError=true;throw new RigInternalError(e.getMessage());
 
 		}
 

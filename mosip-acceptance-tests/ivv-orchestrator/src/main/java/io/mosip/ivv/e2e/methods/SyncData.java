@@ -37,6 +37,7 @@ public class SyncData extends BaseTestCaseUtil implements StepInterface {
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
+			this.hasError=true;
 			throw new RigInternalError("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step: " + step.getName());
 		} else {
 			calltype = step.getParameters().get(0); 

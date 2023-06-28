@@ -58,10 +58,12 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 				logger.info("waiting for 10 Sec");
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
+				this.hasError=true;
 				logger.error(e.getMessage());
 			}
 		}
 		logger.error("AdditionalInfoReqId not found even after " + repeats + " retries");
+		this.hasError=true;
 		throw new RigInternalError("Failed to retrieve the value for addtionalInfoRequestId from email");
 
 	}

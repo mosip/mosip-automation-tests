@@ -42,7 +42,7 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 		}
 		

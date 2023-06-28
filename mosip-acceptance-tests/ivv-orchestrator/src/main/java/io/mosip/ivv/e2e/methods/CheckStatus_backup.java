@@ -103,7 +103,10 @@ public class CheckStatus_backup extends BaseTestCaseUtil implements StepInterfac
 					}
 					//assertTrue(postScript.response.asString().contains("PROCESSED"), "Failed at status check Response validation");
 						if(!postScript.response.getBody().asString().toLowerCase().contains(status_param.toLowerCase())) 
-						throw new RigInternalError("Failed at Packet Processing");
+						{
+
+							this.hasError=true;throw new RigInternalError("Failed at Packet Processing");
+						}
 				}
 			}
 		} catch (InterruptedException e) {

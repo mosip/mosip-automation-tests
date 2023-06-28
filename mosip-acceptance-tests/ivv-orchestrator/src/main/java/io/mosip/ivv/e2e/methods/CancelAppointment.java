@@ -29,8 +29,9 @@ public class CancelAppointment extends BaseTestCaseUtil implements StepInterface
 			if(prid1!=null)
 				cancelAppointment(prid1,cancelStatus);
 			else
-				throw new RigInternalError("PRID cannot be null or empty");
-		}
+				{
+				this.hasError=true;throw new RigInternalError("PRID cannot be null or empty");
+		}}
 
 	}
 
@@ -53,7 +54,8 @@ public class CancelAppointment extends BaseTestCaseUtil implements StepInterface
 		Response response = putRequest(url, "CancelAppointment",step);
 		if (!response.getBody().asString().toLowerCase()
 				.contains(message))
-			throw new RigInternalError("Unable to CancelAppointment");
-	}
+			{
+			this.hasError=true;throw new RigInternalError("Unable to CancelAppointment");
+	}}
 
 }
