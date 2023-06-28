@@ -67,6 +67,7 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
                     Thread.sleep(Long.parseLong(waitTime));
                 } catch (NumberFormatException | InterruptedException e) {
                     e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             } else {
                 // Exit the loop if the desired result is achieved
@@ -80,6 +81,7 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
             logger.info("subStatusCode= " + myJSONObject.getString("subStatusCode"));
         } else {
             logger.error("RESPONSE= doesn't contain" + arr);
+            this.hasError=true;
             throw new RuntimeException("RESPONSE= doesn't contain" + transactionTypeCode + statusCode);
         }
     }

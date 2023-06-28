@@ -45,6 +45,7 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 			Thread.sleep(30000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
     	String fileName = CredentialIssue_YML;
     	PostWithBodyWithOtpGenerate postWithOtp= new PostWithBodyWithOtpGenerate();
@@ -80,6 +81,7 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 			}
 		} catch (AuthenticationTestException | AdminTestException e) {
 			logger.error(e.getMessage());
+			this.hasError=true;
 			//assertFalse(true, "Failed at credential issuance Response validation");
 			throw new RigInternalError("Failed at credential issuance Response validation");
 		}

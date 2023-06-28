@@ -62,8 +62,8 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 		String waitTime=props.getProperty("waitTime");
 		List<String> allowedParam = Arrays.asList("processed", "rejected", "failed","reregister");
 		if (!(allowedParam.contains(_ridStatusParam.toLowerCase())))
-			throw new RigInternalError(
-					"Parameter : " + _ridStatusParam + "not supported only allowed are [processed/rejected/failed/reregister]");
+			{this.hasError=true;throw new RigInternalError(
+					"Parameter : " + _ridStatusParam + "not supported only allowed are [processed/rejected/failed/reregister]");}
 		try {
 			for (String rid : tempPridAndRid.values()) {
 				int counter = 0;
@@ -97,7 +97,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			}
 			if (ridStatusMap.size() == 1) {
 				if (!ridStatusMap.entrySet().iterator().next().getValue().contains(_ridStatusParam.toLowerCase()))
-					throw new RigInternalError("Failed at Packet Processing");
+					{this.hasError=true;throw new RigInternalError("Failed at Packet Processing");}
 			} else if (ridStatusMap.size() > 1 && !_expectedRidProcessed.isEmpty()) {
 				List<String> params = Arrays.asList("any", "all");
 				params.stream().filter(p -> p.equalsIgnoreCase(_expectedRidProcessed)).findFirst()
@@ -106,13 +106,14 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				long packetProcessed = ridStatusMap.values().stream()
 						.filter(v -> v.equalsIgnoreCase(_ridStatusParam.toLowerCase())).count();
 				if (_expectedRidProcessed.equalsIgnoreCase("any") && packetProcessed != 1)
-					throw new RigInternalError("Failed at Packet Processing");
+				{	this.hasError=true;throw new RigInternalError("Failed at Packet Processing");}
 				else if (_expectedRidProcessed.equalsIgnoreCase("all") && packetProcessed != ridStatusMap.size())
-					throw new RigInternalError("Failed at Packet Processing");
-			}
+					{this.hasError=true;throw new RigInternalError("Failed at Packet Processing");
+			}}
 			
 		} catch (InterruptedException e) {
 			logger.error("Failed due to thread sleep: " + e.getMessage());
+			Thread.currentThread().interrupt();
 		}
 
 	}

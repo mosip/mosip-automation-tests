@@ -50,6 +50,7 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 			status_Message=E2EConstants.FAILED_MSG;
 			break;
 		default:
+			this.hasError=true;
 			throw new RigInternalError("Parameter not supported only allowed are [processed/rejected/failed]");
 		}
 		if(tempPridAndRid ==null)
@@ -92,22 +93,33 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 							ridStatusMap.put(rid, JsonPrecondtion.getValueFromJson(postScript.response.getBody().asString(), "response.ridStatus"));
 							if(tempPridAndRid.size()==1) {
 								if(!ridStatusMap.containsValue(E2EConstants.UNDER_PROCESSING_MSG))
-									throw new RigInternalError(ridStatusMap.get(rid));
+									{
+
+									this.hasError=true;throw new RigInternalError(ridStatusMap.get(rid));
+									}
 							}
 						}
 					}
 					}	
 		} catch (InterruptedException e) {
 			logger.error("Failed due to thread sleep: " + e.getMessage());
+			Thread.currentThread().interrupt();
 		}
 		List<String> valuesList =ridStatusMap.values().stream().collect(Collectors.toList());
-		if (tempPridAndRid != null && tempPridAndRid.size() > 1) {
-			if (valuesList.size() != new HashSet<String>(ridStatusMap.values()).size())
+		if(tempPridAndRid != null) {
+			if (tempPridAndRid.size() > 1) {
+				if (valuesList.size() != new HashSet<String>(ridStatusMap.values()).size())
+					assertTrue(false, "Testcase is failed");
+				else
+					assertTrue(true, "Testcase is passed");
+			}else if( tempPridAndRid.size()==1 && !valuesList.contains(status_Message.toUpperCase()))
 				assertTrue(false, "Testcase is failed");
-			else
-				assertTrue(true, "Testcase is passed");
-		}else if( tempPridAndRid.size()==1 && !valuesList.contains(status_Message.toUpperCase()))
-			assertTrue(false, "Testcase is failed");
+		}
+		else {
+			System.out.println("tempPridAndRid is Null");
+		}
+		
+		
 	}
 
 }

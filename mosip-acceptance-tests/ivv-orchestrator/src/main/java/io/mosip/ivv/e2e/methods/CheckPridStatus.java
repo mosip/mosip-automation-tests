@@ -28,7 +28,9 @@ public class CheckPridStatus extends BaseTestCaseUtil implements StepInterface {
 			if (!StringUtils.isEmpty(prid))
 				checkPridStatus(prid, pridStatus);
 			else
-				throw new RigInternalError("PRID cannot be null or empty");
+				{
+				this.hasError=true;throw new RigInternalError("PRID cannot be null or empty");
+				}
 		}
 	}
 
@@ -38,12 +40,15 @@ public class CheckPridStatus extends BaseTestCaseUtil implements StepInterface {
 		if ((pridStatus != null && !pridStatus.isEmpty()) && statusList.contains(pridStatus.toLowerCase())) {
 			status = pridStatus.toLowerCase();
 		} else {
-			throw new RigInternalError("DSL argument cannot be null or empty or not supported");
+
+			this.hasError=true;throw new RigInternalError("DSL argument cannot be null or empty or not supported");
 		}
 		String url = BaseTestCase.ApplnURI + props.getProperty("checkPridStatus") + prid;
 		Response response = getRequest(url, "CheckPridStatus",step);
 		if (!response.getBody().asString().toLowerCase().contains(status))
-			throw new RigInternalError("Falied to check status of prid :" + prid);
+			{
+			this.hasError=true;throw new RigInternalError("Falied to check status of prid :" + prid);
+			}
 	}
 
 }

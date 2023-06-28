@@ -23,6 +23,7 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 		if (status.equals("false")) {
 			String message = "RegCenter [" + value + "] already De-Activate";
 			Reporter.log("<pre> <b>" + message + "</b></pre>");
+			this.hasError=true;
 			throw new RigInternalError(message);
 		}
 		Reporter.log("<pre> <b> assuming  RegCenter is de-active [isActive=false] </b></pre>");
@@ -32,12 +33,14 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 		Response putResponse = packetUtility.putReqestWithCookiesAndBody(url, jsonregCenterReq.toString(), token,
 				"Update RegCenter details with status[isActive=" + status + "]",step);
 		if (putResponse.getBody().asString().toLowerCase().contains("errorcode")) {
+			this.hasError=true;
 			throw new RigInternalError("unable to update RegCenter detail");
 		}
 		JSONObject jsonResp = new JSONObject(putResponse.getBody().asString());
 		Boolean regCenterStatus = jsonResp.getJSONObject("response").getBoolean("isActive");
 		if (!(regCenterStatus == Boolean.parseBoolean(status))) {
 			String message = (status.equals("true")) ? "Activate RegCenter" : "DeActivate RegCenter";
+			this.hasError=true;
 			throw new RigInternalError("Unable to " + message);
 		}
 	}
@@ -52,6 +55,7 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 		JSONObject patchJsonResp = new JSONObject(patchUserResponse.getBody().asString());
 		String responseStatus = patchJsonResp.getJSONObject("response").getString("status");
 		if ((responseStatus.equals("Status updated successfully for User"))) {
+			this.hasError=true;
 			throw new RigInternalError("unable to update userid :[" + prop.getProperty("value") + "]");
 		}
 	}
@@ -65,6 +69,7 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 		if (status.equals("false")) {
 			String message = "Machine [" + value + "] already De-Activate";
 			Reporter.log("<pre> <b>" + message + "</b></pre>");
+			this.hasError=true;
 			throw new RigInternalError(message);
 		}
 		JSONObject jsonPutReq = packetUtility.machineRequestBuilder(null, prop.getProperty("machineSpecId"), value,
@@ -72,6 +77,7 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 		Boolean machineStatus = packetUtility.updateMachineDetail(jsonPutReq, token, status,step);
 		if (!(machineStatus == Boolean.parseBoolean(status))) {
 			String message = (status.equals("true")) ? "Activate machine" : "DeActivate machine";
+			this.hasError=true;
 			throw new RigInternalError("Unable to " + message);
 		}
 	}
@@ -102,13 +108,15 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 			String url = System.getProperty("env.endpoint") + props.getProperty("deviceSearch");
 			Response filterResponse = packetUtility.postReqestWithCookiesAndBody(url, json, token,
 					"Filter/Search device by columnName :" + columnName + " value: " + value);
-			if (filterResponse.getBody().asString().toLowerCase().contains("errorcode"))
-				throw new RigInternalError("Failed to fetch the device details");
+			if (filterResponse.getBody().asString().toLowerCase().contains("errorcode")) {
+				this.hasError=true;
+				throw new RigInternalError("Failed to fetch the device details");}
 			jsonResp = new JSONObject(filterResponse.getBody().asString());
 			String reponseisActive = JsonPrecondtion.getValueFromJson(jsonResp.toString(),
 					"response.(data)[0].isActive");
 			if (reponseisActive.equals(String.valueOf(isActive))) {
 				String message = (isActive) ? "Device is already active" : "Device is already de-active";
+				this.hasError=true;
 				throw new RigInternalError(message);
 			}
 		} catch (FileNotFoundException e) {

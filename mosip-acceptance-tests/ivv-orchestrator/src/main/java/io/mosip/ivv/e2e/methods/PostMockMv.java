@@ -20,7 +20,7 @@ public class PostMockMv extends BaseTestCaseUtil implements StepInterface {
 		HashMap<String, String> context=null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			throw new RigInternalError("PostMockMv paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("PostMockMv paramter is  missing in step: " + step.getName());
 		} else {
 			rid = step.getParameters().get(0);
 			rid = step.getScenario().getVariables().get(rid);

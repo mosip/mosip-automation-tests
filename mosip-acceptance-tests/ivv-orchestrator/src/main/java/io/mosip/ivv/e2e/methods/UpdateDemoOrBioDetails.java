@@ -18,6 +18,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 		String updateAttribute = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
+			this.hasError=true;
 			throw new RigInternalError("bioType paramter is  missing in step: " + step.getName());
 		} else {
 			bioType = step.getParameters().get(0);

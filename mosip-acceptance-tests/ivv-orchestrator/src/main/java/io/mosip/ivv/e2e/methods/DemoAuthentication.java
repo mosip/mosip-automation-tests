@@ -47,7 +47,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 			demofields = step.getParameters().get(0);
 			if (!StringUtils.isBlank(demofields))
@@ -96,7 +96,9 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			} else if (step.getScenario().getUinPersonaProp().containsKey(uin))
 				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
-				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				{
+				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				}
 
 			List<String> demoFetchList = new ArrayList<String>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
@@ -122,8 +124,11 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
 					if (demoValue == null)
-						throw new RigInternalError(
+						{
+						this.hasError=true;throw new RigInternalError(
+						
 								"Unable to get the Demo value for field " + demoField + " from Persona");
+						}
 					inputJson.put(demoField, demoValue);
 					break;
 
@@ -132,8 +137,9 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
 					if (demoValue == null)
-						throw new RigInternalError(
+						{this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
+						}
 					inputJson.put(demoField, demoValue);
 					break;
 
@@ -142,8 +148,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
 					if (demoValue == null)
-						throw new RigInternalError(
-								"Unable to get the Demo value for field " + demoField + " from Persona");
+						{this.hasError=true;throw new RigInternalError(
+							"Unable to get the Demo value for field " + demoField + " from Persona");}
 					inputJson.put(demoField, demoValue);
 					break;
 
@@ -157,12 +163,15 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						addLine3 = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
 								E2EConstants.DEMOADDRESSLINE3);
 					} catch (Exception e) {
-						throw new RigInternalError(e.getMessage());
+						this.hasError=true;throw new RigInternalError(e.getMessage());
 					}
 					if (addLine1 == null || addLine2 == null || addLine3 == null)
+						{
+						this.hasError=true;
 						throw new RigInternalError(
+						
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-
+						}
 					JSONArray addressLine1Array = new JSONArray();
 					JSONObject addressLine1Obj = new JSONObject();
 					addressLine1Obj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -194,9 +203,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
 					if (firstNm == null || midNm == null || lastNm == null)
-						throw new RigInternalError(
+						{
+						this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					fullname = firstNm + " " + midNm + " " + lastNm;
+						}fullname = firstNm + " " + midNm + " " + lastNm;
 					JSONArray nameArray = new JSONArray();
 					JSONObject nameObj = new JSONObject();
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -215,9 +225,11 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					genderObj.put("value", demoValue);
 					genArray.put(genderObj);
 					if (demoValue == null)
+						{
+						this.hasError=true;
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, genArray);
+						}inputJson.put(demoField, genArray);
 					break;
 
 				default:
@@ -263,7 +275,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 							e.printStackTrace();
 						}
 					} catch (AuthenticationTestException | AdminTestException e) {
-						throw new RigInternalError(e.getMessage());
+
+						this.hasError=true;throw new RigInternalError(e.getMessage());
 
 					}
 				}
@@ -278,7 +291,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			} else if (step.getScenario().getVidPersonaProp().containsKey(vid))
 				personFilePathvalue = step.getScenario().getVidPersonaProp().getProperty(vid);
 			else
-				throw new RigInternalError("Persona doesn't exist for the given UIN " + vid);
+				{
+
+				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + vid);
+				}
 
 			List<String> demoFetchList = new ArrayList<String>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
@@ -304,9 +320,11 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
 					if (demoValue == null)
-						throw new RigInternalError(
+						{
+
+						this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, demoValue);
+						}inputJson.put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOEMAIL:
@@ -314,9 +332,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
 					if (demoValue == null)
-						throw new RigInternalError(
+						{
+						this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, demoValue);
+						}inputJson.put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOYMLPHONE:
@@ -324,9 +343,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
 					if (demoValue == null)
-						throw new RigInternalError(
+						{
+						this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, demoValue);
+						}	inputJson.put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOADDRESSFETCH:
@@ -338,13 +358,15 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 								E2EConstants.DEMOADDRESSLINE2);
 						addLine3 = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
 								E2EConstants.DEMOADDRESSLINE3);
-					} catch (Exception e) {
-						throw new RigInternalError(e.getMessage());
+					} catch (Exception e) 
+						{
+							this.hasError=true;throw new RigInternalError(e.getMessage());
 					}
 					if (addLine1 == null || addLine2 == null || addLine3 == null)
-						throw new RigInternalError(
+						{
+						this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-
+						}
 					JSONArray addressLine1Array = new JSONArray();
 					JSONObject addressLine1Obj = new JSONObject();
 					addressLine1Obj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -376,9 +398,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
 					if (firstNm == null || midNm == null || lastNm == null)
-						throw new RigInternalError(
+						{
+						this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					fullname = firstNm + " " + midNm + " " + lastNm;
+						}fullname = firstNm + " " + midNm + " " + lastNm;
 					JSONArray nameArray = new JSONArray();
 					JSONObject nameObj = new JSONObject();
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -397,9 +420,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					genderObj.put("value", demoValue);
 					genArray.put(genderObj);
 					if (demoValue == null)
-						throw new RigInternalError(
+						{
+						this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, genArray);
+						}inputJson.put(demoField, genArray);
 					break;
 
 				default:
@@ -445,7 +469,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 							e.printStackTrace();
 						}
 					} catch (AuthenticationTestException | AdminTestException e) {
-						throw new RigInternalError(e.getMessage());
+
+						this.hasError=true;throw new RigInternalError(e.getMessage());
 
 					}
 				}
