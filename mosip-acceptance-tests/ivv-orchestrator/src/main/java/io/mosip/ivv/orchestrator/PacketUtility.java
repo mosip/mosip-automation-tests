@@ -962,17 +962,8 @@ JSONObject jsonObject = new JSONObject();
         
         // Create exceptions array
         JSONArray exceptionsArray = new JSONArray();
-        
-//        if(exceptionatt!=null && exceptionatt.length<=4 ) {
-//        bioModality.put("exceptionType", exceptionatt[0]);
-//        bioModality.put("reason", exceptionatt[1]);
-//        bioModality.put("subType", exceptionatt[2]);
-//        bioModality.put("type", exceptionatt[3]);
-//        }
-//        
-        
-        
-     // Finger:Left IndexFinger@@Finger:Right IndexFinger@@Iris:Left
+    
+        // Finger:Left IndexFinger@@Finger:Right IndexFinger@@Iris:Left
        
         
      	String[] modalitytye=null;	
@@ -980,8 +971,8 @@ JSONObject jsonObject = new JSONObject();
         	modalitytye=s.split(":");	
         	
         	JSONObject addmodality=new JSONObject();
-        	addmodality.put("exceptionType", "exceptionType");
-        	addmodality.put("reason", "injurred");
+        	addmodality.put("exceptionType", "Temporary");
+        	addmodality.put("reason", "Temporary");
         	addmodality.put("type", modalitytye[0]);
         	addmodality.put("subType",modalitytye[1]);
         	

@@ -57,6 +57,7 @@ public class OTPReader {
             }
         } catch (Exception mex) {
             mex.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         return otp;
     }
@@ -95,6 +96,7 @@ public class OTPReader {
             store.close();
         } catch (Exception mex) {
             mex.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -139,6 +141,7 @@ public class OTPReader {
             }
         } catch (Exception mex) {
             mex.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         return otp;
     }
