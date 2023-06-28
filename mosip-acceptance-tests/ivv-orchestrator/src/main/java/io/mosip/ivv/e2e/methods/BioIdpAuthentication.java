@@ -49,16 +49,16 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 			deviceInfoFilePath = step.getParameters().get(0);
 			if (!StringUtils.isBlank(deviceInfoFilePath)) {
 				deviceInfoFilePath = TestRunner.getExternalResourcePath()
 						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
-			} else
-				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
-		}
+			} else {
+				this.hasError=true;	throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
+		}}
 		if (step.getParameters().size() == 4) { // "e2e_BioIdpAuthentication(faceDevice,$$uin,$$personaFilePath,$$transactionId,$$vid)"
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
@@ -97,7 +97,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transactionId parameter is  missing from DSL step");
-			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
 			// transactionId1 = step.getParameters().get(3);
@@ -108,7 +108,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transactionId parameter is  missing from DSL step");
-			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
 			// transactionId2 = step.getParameters().get(5);
@@ -122,7 +122,9 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 			if (step.getScenario().getUinPersonaProp().containsKey(uin))
 				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
-				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				{
+				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				}
 
 			String bioType = null, bioSubType = null;
 			List<String> modalityList = new ArrayList<>();
@@ -149,7 +151,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
-					throw new RigInternalError("Given BIO Type in device property file is not valid");
+					this.hasError=true;throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
 
@@ -182,9 +184,10 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 				String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
 
 				if (bioValue == null || bioValue.length() < 100)
-					throw new RigInternalError(
+					{this.hasError=true;throw new RigInternalError(
 							"Not able to get the bio value for field " + modalityToLog + " from persona");
-				if (idType.contains("UIN") || idType.contains("uin")) {
+				
+					}if (idType.contains("UIN") || idType.contains("uin")) {
 					casesListUIN = idpBioAuth.getYmlTestData(fileName);
 				}
 
@@ -209,7 +212,9 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 			if (step.getScenario().getVidPersonaProp().containsKey(vid))
 				personFilePathvalue = step.getScenario().getVidPersonaProp().getProperty(vid);
 			else
-				throw new RigInternalError("Persona doesn't exist for the given UIN " + vid);
+				{
+				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + vid);
+				}
 
 			String bioType = null, bioSubType = null;
 			List<String> modalityList = new ArrayList<>();
@@ -236,7 +241,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
-					throw new RigInternalError("Given BIO Type in device property file is not valid");
+					this.hasError=true;throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
 
@@ -269,9 +274,9 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 				String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
 
 				if (bioValue == null || bioValue.length() < 100)
-					throw new RigInternalError(
+					{this.hasError=true;throw new RigInternalError(
 							"Not able to get the bio value for field " + modalityToLog + " from persona");
-				if (idType.contains("VID") || idType.contains("vid")) {
+					}if (idType.contains("VID") || idType.contains("vid")) {
 					casesListVID = idpBioAuth.getYmlTestData(fileName);
 				}
 

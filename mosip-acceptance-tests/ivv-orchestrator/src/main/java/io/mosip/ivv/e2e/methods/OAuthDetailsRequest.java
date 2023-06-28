@@ -101,7 +101,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 			}
 
 		} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException e) {
-			throw new RigInternalError(e.getMessage());
+			this.hasError=true;throw new RigInternalError(e.getMessage());
 
 		}
 

@@ -54,7 +54,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 		List<String> uinList = null;
 		List<String> vidList = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
-			logger.error("Parameter is  missing from DSL step");
+			logger.error("Parameter is  missing from DSL step");this.hasError=true;
 			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 			deviceInfoFilePath = step.getParameters().get(0);
@@ -62,9 +62,9 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 				deviceInfoFilePath = TestRunner.getExternalResourcePath()
 						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
-			} else
-				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
-		}
+			} else {
+				this.hasError=true;	throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
+		}}
 		if (step.getParameters().size() == 2) {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
@@ -104,7 +104,9 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 			if (step.getScenario().getUinPersonaProp().containsKey(uin))
 				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
-				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				{
+				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				}
 
 			String bioType = null, bioSubType = null;
 			List<String> modalityList = new ArrayList<>();
@@ -131,7 +133,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
-					throw new RigInternalError("Given BIO Type in device property file is not valid");
+					this.hasError=true;throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
 
@@ -171,9 +173,9 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 				bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
 
 				if (bioValue == null || bioValue.length() < 100)
-					throw new RigInternalError(
+					{this.hasError=true;throw new RigInternalError(
 							"Not able to get the bio value for field " + modalityToLog + " from persona");
-
+					}
 				if (idType.contains("UIN") || idType.contains("uin")) {
 					casesListUIN = bioAuth.getYmlTestData(fileName);
 				}
@@ -220,7 +222,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
-					throw new RigInternalError("Given BIO Type in device property file is not valid");
+					this.hasError=true;throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
 
@@ -260,9 +262,9 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 				bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
 
 				if (bioValue == null || bioValue.length() < 100)
-					throw new RigInternalError(
+					{this.hasError=true;throw new RigInternalError(
 							"Not able to get the bio value for field " + modalityToLog + " from persona");
-
+					}
 				if (idType.contains("VID") || idType.contains("vid")) {
 					casesListVID = bioAuth.getYmlTestData(fileName);
 				}

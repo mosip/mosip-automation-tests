@@ -53,7 +53,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("VID Type[Perpetual/Temporary] parameter is  missing from DSL step");
-			throw new RigInternalError("VID Type[Perpetual/Temporary] paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("VID Type[Perpetual/Temporary] paramter is  missing in step: " + step.getName());
 		} else {
 			vidtype = step.getParameters().get(0);
 
@@ -109,7 +109,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 				}
 
 			} catch (AuthenticationTestException | AdminTestException e) {
-				throw new RigInternalError(e.getMessage());
+				this.hasError=true;throw new RigInternalError(e.getMessage());
 
 			}
 		}

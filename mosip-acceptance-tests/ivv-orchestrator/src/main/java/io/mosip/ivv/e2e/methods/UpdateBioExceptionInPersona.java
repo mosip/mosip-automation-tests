@@ -16,6 +16,7 @@ public class UpdateBioExceptionInPersona extends BaseTestCaseUtil implements Ste
 		List<String> exceptionArray = new ArrayList<String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
+			this.hasError=true;
 			throw new RigInternalError("bioType paramter is  missing in step: " + step.getName());
 		} 
 		if (!step.getParameters().isEmpty()) {   // "var1=e2e_updateDemoOrBioDetails(0,0,0,$$personaPath)"

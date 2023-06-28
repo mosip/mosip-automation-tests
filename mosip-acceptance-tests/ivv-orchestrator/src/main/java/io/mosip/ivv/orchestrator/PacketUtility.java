@@ -99,8 +99,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// assertTrue(response.getBody().asString().contains("SUCCESS"),"Unable to get
 		// residentData from packet utility");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
+			 {this.hasError=true;
 			throw new RigInternalError("Unable to get residentData from packet utility");
-		// assertTrue(response.getBody().asString().contains("Failure"),"Unable to get
+			 }
+			// assertTrue(response.getBody().asString().contains("Failure"),"Unable to get
 		// residentData from packet utility");
 		JSONArray resp = new JSONObject(response.getBody().asString()).getJSONArray("response");
 		List<String> residentPaths = new ArrayList<>();
@@ -170,8 +172,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject jsonResponse = new JSONObject(templateResponse.asString());
 		JSONArray resp = jsonResponse.getJSONArray("packets");
 		if ((resp.length() <= 0))
+		{
+			 this.hasError=true;
 			throw new RigInternalError("Unable to get Template from packet utility");
-		return resp;
+		}
+			return resp;
 	}
 
 	public void requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone, Scenario.Step step)
@@ -184,7 +189,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// postReqest(url,jsonReq.toString(),"Send Otp");
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Send Otp", step);
 		if (!response.getBody().asString().toLowerCase().contains("email request submitted"))
+			{
+			 this.hasError=true;
 			throw new RigInternalError("Unable to Send OTP");
+			}
 
 	}
 
@@ -200,9 +208,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// contextKey, "Verify Otp"); //docker comment
 		// assertTrue(response.getBody().asString().contains("VALIDATION_SUCCESSFUL"),"Unable
 		// to Verify Otp from packet utility");
-		if (!response.getBody().asString().toLowerCase().contains("validation_successful"))
+		if (!response.getBody().asString().toLowerCase().contains("validation_successful")) {
+			 this.hasError=true;
+		
 			throw new RigInternalError("Unable to Verify Otp from packet utility");
-
+		}
 	}
 
 	public String preReg(String resFilePath, HashMap<String, String> contextKey, Scenario.Step step)
@@ -219,7 +229,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// assertTrue((int)prid.charAt(0)>47 && (int)prid.charAt(0)<58 ,"Unable to
 		// pre-register from packet utility");
 		if (!((int) prid.charAt(0) > 47 && (int) prid.charAt(0) < 58))
+			{ this.hasError=true;
 			throw new RigInternalError("Unable to pre-register using packet utility");
+			}
 		return prid;
 
 	}
@@ -259,7 +271,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public void preRegStatusInValidResponse(String response) throws RigInternalError {
 		if (response != "") {
-
+			 this.hasError=true;
 			throw new RigInternalError("Expectations :  Empty response");
 		} else {
 			Reporter.log(response);
@@ -269,6 +281,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public void preRegStatusValidResponse(String response) throws RigInternalError {
 		if (!response.toLowerCase().contains("status_updated_sucessfully")) {
+			 this.hasError=true;
 			Reporter.log("STATUS_NOT_UPDATED_SUCESSFULLY");
 			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
 		} else {
@@ -288,6 +301,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(),
 		// contextKey, "BookAppointment");
 		if (!response.getBody().asString().toLowerCase().contains("appointment booked successfully")) {
+			 this.hasError=true;
 			System.out.println("bookAppointment Response is:" + response + " url: " + url);
 			throw new RigInternalError("Unable to BookAppointment from packet utility");
 		}
@@ -315,7 +329,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// Generate And UploadPacket from packet utility");
 		// if (!response.getBody().asString().toLowerCase().contains("success"))
 		if (!response.getBody().asString().toLowerCase().contains(responseStatus))
-			throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
+			{
+			 this.hasError=true;
+			 throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
+			}
 		return rid;
 	}
 
@@ -338,7 +355,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 				"link Resident data with RID", step);
 
 		if (!response.getBody().asString().toLowerCase().contains("success"))
-			throw new RigInternalError("Unable to add Resident RID in resident data");
+			{
+			 this.hasError=true;
+			 throw new RigInternalError("Unable to add Resident RID in resident data");
+			}
 		String ret = response.getBody().asString();
 		return ret;
 
@@ -366,7 +386,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
 				"link Resident data with UIN", step);
 		if (!response.getBody().asString().toLowerCase().contains("success"))
-			throw new RigInternalError("Unable to add UIN in resident data");
+			{
+			 this.hasError=true;
+			 throw new RigInternalError("Unable to add UIN in resident data");
+			}
 		String ret = response.getBody().asString();
 		return ret;
 
@@ -429,7 +452,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// update Resident Guardian from packet utility");
 		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + rid + " And linked to child </u></b>");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
-			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
+			{
+			 this.hasError=true;
+			 throw new RigInternalError("Unable to update Resident Guardian from packet utility");
+			}
 		return rid;
 
 	}
@@ -448,7 +474,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + step.getScenario().getRid_updateResident()
 				+ " And linked to child </u></b>");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
-			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
+			{
+			 this.hasError=true;
+			 throw new RigInternalError("Unable to update Resident Guardian from packet utility");
+			}
 		return step.getScenario().getRid_updateResident();
 
 	}
@@ -502,7 +531,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// assertTrue(response.getBody().asString().contains("SUCCESS") ,"Unable to
 		// update Resident Guardian from packet utility");
 		if (!response.getBody().asString().toLowerCase().contains("success"))
-			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
+			{
+			 this.hasError=true;
+			 throw new RigInternalError("Unable to update Resident Guardian from packet utility");
+			
+			}
 		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + rid + " And linked to child </u></b>");
 		return rid;
 
@@ -522,7 +555,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + props.getProperty("updateResidentUrl");
 		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
 		if (!response.getBody().asString().toLowerCase().contains("success"))
+			{
+			 this.hasError=true;
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
+			}
 		Reporter.log("<b><u>Generated GuardianPacket And linked to child </u></b>");
 		return step.getScenario().getRid_updateResident();
 
@@ -578,7 +614,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 			rid = jsonResp.getJSONObject("response").getString("registrationId");
 		}
 		if (!response.getBody().asString().toLowerCase().contains(responseStatus))
+			{
+			 this.hasError=true;
 			throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
+			}
 		return rid;
 	}
 
@@ -601,7 +640,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// Response response =
 		// given().contentType(ContentType.JSON).body(jsonReq.toString()).post(url);
 		if (!response.getBody().asString().toLowerCase().contains("true"))
+			{
+			 this.hasError=true;
 			throw new RigInternalError("Unable to set context from packet utility");
+			}
 		return response.getBody().asString();
 
 	}
@@ -673,7 +715,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		Response response = postRequest(url, jsonReq.toString(), "SetContext", step);
 		if (!response.getBody().asString().toLowerCase().contains("true"))
+		{
+			 this.hasError=true;
 			throw new RigInternalError("Unable to set context from packet utility");
+		}
 		return response.getBody().asString();
 
 	}
@@ -849,14 +894,17 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		JSONObject JO = new JSONObject(map);
 
-		Response response = postRequest(url, mergeJSONObjects(JO, jsonReq).toString(), "SetContext", step);
+		Response response = postRequest(url, mergeJSONObjects(JO, jsonReq,step).toString(), "SetContext", step);
 		if (!response.getBody().asString().toLowerCase().contains("true"))
-			throw new RigInternalError("Unable to set context from packet utility");
+			{
+			 this.hasError=true;
+			 throw new RigInternalError("Unable to set context from packet utility");
+			}
 		return response.getBody().asString();
 
 	}
 
-	public static JSONObject mergeJSONObjects(JSONObject json1, JSONObject json2) {
+	public  JSONObject mergeJSONObjects(JSONObject json1, JSONObject json2, Scenario.Step step) {
 		JSONObject mergedJSON = new JSONObject();
 		try {
 			// getNames(): Get an array of field names from a JSONObject.
@@ -870,6 +918,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			// detail message.
 			// The cause is not initialized, and may subsequently be initialized by a call
 			// to initCause.
+			 this.hasError=true;
 			throw new RuntimeException("JSON Exception" + e);
 		}
 		return mergedJSON;
@@ -914,7 +963,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 					}
 					if (arr[0].trim().equalsIgnoreCase("residencestatus")) {
 						if (StringUtils.isEmpty(langcode))
-							throw new RigInternalError("LangCode is missing in paramter");
+							{
+							
+							 this.hasError=true;
+							 throw new RigInternalError("LangCode is missing in paramter");
+							
+							}
 						updateAttribute.put(arr[0].trim(), langcode + "=" + arr[1].trim());
 					} else
 						// updateAttribute.put(arr[0].trim(),
@@ -931,9 +985,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
 		Response response = putRequestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail", step);
-		if (!response.getBody().asString().toLowerCase().contains("sucess"))
+		if (!response.getBody().asString().toLowerCase().contains("sucess")) {
+			
+			 this.hasError=true;
 			throw new RigInternalError("Unable to update DemoOrBioDetail " + attributeList + " from packet utility");
-		return response.getBody().asString();
+		}
+			return response.getBody().asString();
 
 	}
 
@@ -999,9 +1056,9 @@ JSONObject jsonObject = new JSONObject();
 		
 		
 				Response response = putRequestWithBody(url, jsonObject.toString(),step);
-				if(!(response.getStatusCode()==200))
+				if(!(response.getStatusCode()==200)) { this.hasError=true;
 			throw new RigInternalError("Unable to update bio exception  from packet utility");
-		
+				}
 	}
 	
 	public String packetSync(String personaPath, HashMap<String, String> map,Scenario.Step step) throws RigInternalError {
@@ -1013,7 +1070,9 @@ JSONObject jsonObject = new JSONObject();
 		jsonReq.put("personaFilePath", arr);
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Packet Sync:", step);
 		if (!response.getBody().asString().toLowerCase().contains("packet has reached"))
+		{ this.hasError=true;
 			throw new RigInternalError("Unable to do sync packet from packet utility");
+		}
 		return response.getBody().asString();
 	}
 
@@ -1053,6 +1112,7 @@ JSONObject jsonObject = new JSONObject();
 		try {
 			bioAuth.test(test);
 		} catch (AuthenticationTestException | AdminTestException e) {
+			 this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
 			// AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
@@ -1102,6 +1162,7 @@ JSONObject jsonObject = new JSONObject();
 		try {
 			idpBioAuth.test(test);
 		} catch (AuthenticationTestException | AdminTestException e) {
+			 this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
 			// AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
@@ -1121,9 +1182,9 @@ JSONObject jsonObject = new JSONObject();
 		Response response = getReqest(url, jsonReq.toString(), "Retrive BiometricData", step);
 
 		if (response.getBody().asString().equals(""))
-			throw new RigInternalError(
+			{this.hasError=true;throw new RigInternalError(
 					"Unable to retrive BiometricData " + retriveAttributeList + " from packet utility");
-		logger.info("Response : " + response.getBody().asString());
+			}logger.info("Response : " + response.getBody().asString());
 
 		return response.getBody().asString();
 
@@ -1179,7 +1240,7 @@ JSONObject jsonObject = new JSONObject();
 		HashMap<String, String> getHMapQParam = createGetRequest();
 		String url = baseUrl + props.getProperty("statusCheck");
 		Response getResponse = getRequestWithQueryParam(url, getHMapQParam, "Get server status", step);
-		if (getResponse == null) {
+		if (getResponse == null) {this.hasError=true;
 			throw new RigInternalError("Packet utility get method doesn't return any response");
 		}
 		respnseStatus = getResponse.getBody().asString();
@@ -1187,10 +1248,10 @@ JSONObject jsonObject = new JSONObject();
 			if (respnseStatus.toLowerCase().contains(responsePattern.toLowerCase())) {
 				HashMap<String, String> putHMapQParam = createPutReqeust(status);
 				putRequestWithQueryParam(url, putHMapQParam, "Update server key", step);
-			} else {
+			} else {this.hasError=true;
 				throw new RigInternalError("execution status alrady in use");
 			}
-		} else {
+		} else {this.hasError=true;
 			throw new RigInternalError("got empty status");
 		}
 	}
@@ -1215,7 +1276,9 @@ JSONObject jsonObject = new JSONObject();
 				step);
 		System.out.println("****" + response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("success"))
-			throw new RigInternalError("Unable to set mockabis expectaion from packet utility");
+			{
+			this.hasError=true;throw new RigInternalError("Unable to set mockabis expectaion from packet utility");
+			}
 	}
 
 	//// Activate/DeActivate machine--- start
@@ -1248,7 +1311,7 @@ JSONObject jsonObject = new JSONObject();
 				"Update machine detail with status[isActive=" + status + "]", step);
 		if (puttResponse.getBody().asString().toLowerCase().contains("errorcode")) {
 			logger.error("unable to update machine detail");
-			throw new RigInternalError("unable to update machine detail");
+			this.hasError=true;throw new RigInternalError("unable to update machine detail");
 		}
 		JSONObject jsonResp = new JSONObject(puttResponse.getBody().asString());
 		Boolean isActive = jsonResp.getJSONObject("response").getBoolean("isActive");
@@ -1333,7 +1396,7 @@ JSONObject jsonObject = new JSONObject();
 		Response getResponse = getRequestWithCookiesAndPathParam(url, token, "Get zoneCode by regCenterId");
 		if (getResponse.getBody().asString().toLowerCase().contains("errorcode")) {
 			logger.error("zoneCode not found for  :[" + regCenterId + "]");
-			throw new RigInternalError("zoneCode not found for  :[" + regCenterId + "]");
+			this.hasError=true;throw new RigInternalError("zoneCode not found for  :[" + regCenterId + "]");
 		}
 		JSONObject jsonResp = new JSONObject(getResponse.getBody().asString());
 		zoneCode = !zoneCode.equals("0") ? zoneCode
@@ -1432,7 +1495,7 @@ JSONObject jsonObject = new JSONObject();
 		List<String> statusList = Arrays.asList("Active", " De-activate");
 		if (!(statusList.contains(status))) {
 			logger.error(status + " is not supported only allowed status[Active/De-Active]");
-			throw new RigInternalError(status + " is not supported only allowed status[Active/De-Active]");
+			this.hasError=true;throw new RigInternalError(status + " is not supported only allowed status[Active/De-Active]");
 		}
 		JSONObject jsonOutterReq = new JSONObject();
 		jsonOutterReq.put("id", "string");
@@ -1453,7 +1516,7 @@ JSONObject jsonObject = new JSONObject();
 		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token,
 				"Update RegCenter details with status[isActive=]" + status, step);
 		if (puttResponse.getBody().asString().toLowerCase().contains("errorcode")) {
-			logger.error("unable to update RegCenter detail");
+			logger.error("unable to update RegCenter detail");this.hasError=true;
 			throw new RigInternalError("unable to update RegCenter detail");
 		}
 		JSONObject jsonResp = new JSONObject(puttResponse.getBody().asString());
@@ -1514,6 +1577,7 @@ JSONObject jsonObject = new JSONObject();
 				step);
 		if (puttResponse.getBody().asString().toLowerCase().contains("errorcode")) {
 			logger.error("unable to update machine detail");
+			this.hasError=true;
 			throw new RigInternalError("unable to update machine detail");
 		}
 		JSONObject jsonResp = new JSONObject(puttResponse.getBody().asString());
@@ -1525,7 +1589,7 @@ JSONObject jsonObject = new JSONObject();
 		Response puttResponse = putReqestWithCookiesAndNoBody(url, token, "Update user detail", step);
 		if (puttResponse.getBody().asString().toLowerCase().contains("errorcode")) {
 			logger.error("unable to update user detail");
-			throw new RigInternalError("unable to update user detail");
+			this.hasError=true;throw new RigInternalError("unable to update user detail");
 		}
 		JSONObject jsonResp = new JSONObject(puttResponse.getBody().asString());
 		String regCenterId = jsonResp.getJSONObject("response").getString("regCenterId");
@@ -1578,7 +1642,7 @@ JSONObject jsonObject = new JSONObject();
 		try {
 			bioAuth.test(test);
 		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
+			this.hasError=true;throw new RigInternalError(e.getMessage());
 		} finally {
 			// AuthPartnerProcessor.authPartherProcessor.destroyForcibly();
 
