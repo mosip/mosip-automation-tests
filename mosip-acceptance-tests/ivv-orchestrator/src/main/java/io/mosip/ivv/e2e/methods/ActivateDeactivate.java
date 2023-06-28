@@ -49,7 +49,9 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 				}
 			}
 		} else {
+			 this.hasError=true;
 			throw new RigInternalError(helper.missingInputParameter());
+			
 		}
 
 		String token = kernelAuthLib.getTokenByRole("admin");
@@ -164,6 +166,7 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 						(Boolean.valueOf(status)) ? "Unable to Activate device" : "Unable to Deactivate Device");
 			break;
 		default:
+			 this.hasError=true;
 			throw new RigInternalError(
 					type + "is not supported only allowed [machine/operator/partner/device/regcenter]");
 		}

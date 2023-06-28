@@ -29,7 +29,7 @@ public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
 				_zipPacketPath = step.getScenario().getVariables().get(_zipPacketPath);
 				corruptPacket(_zipPacketPath, offset, dataToEncdoeInBase64);
 			}
-		} else {
+		} else {this.hasError=true;
 			throw new RigInternalError("Parameter is missing");
 		}
 	}
@@ -43,7 +43,9 @@ public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
 		jsonReq.put("base64data", Base64.getEncoder().encodeToString(dataToEncdoeInBase64.getBytes()));
 		Response response = postRequest(url, jsonReq.toString(), "Corrupt Packet",step);
 		if (!response.getBody().asString().toLowerCase().contains(".zip"))
-			throw new RigInternalError("Unable to Corrupt Packet");
+			{
+			this.hasError=true;throw new RigInternalError("Unable to Corrupt Packet");
+			}
 	}
 
 }

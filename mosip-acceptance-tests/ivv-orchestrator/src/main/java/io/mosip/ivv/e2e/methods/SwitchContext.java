@@ -46,8 +46,9 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 				
 				step.getScenario().getCurrentStep().put(contextKeyValue, "true");
 			} else {
-				if (!step.getScenario().getCurrentStep().containsKey(contextKeyValue))
-					throw new RigInternalError(contextKeyValue + " is not present in the system");
+				if (!step.getScenario().getCurrentStep().containsKey(contextKeyValue)) {
+					this.hasError=true;
+					throw new RigInternalError(contextKeyValue + " is not present in the system");}
 				step.getScenario().getCurrentStep().clear();
 
 			}

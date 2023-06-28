@@ -61,8 +61,8 @@ public class DiscardBooking extends BaseTestCaseUtil implements StepInterface {
 		Response response =postRequestWithQueryParamAndBody(url,jsonReq.toString(),step.getScenario().getCurrentStep(),"CancelBookingByPrid",step);
 		if (!response.getBody().asString().toLowerCase()
 				.contains(message))
-			throw new RigInternalError("Unable to CancelAppointment");
-	}
+		{this.hasError=true;	throw new RigInternalError("Unable to CancelAppointment");
+	}}
 
 	private Map<String, String> retrieveBookingByPrid(String prid) throws RigInternalError {
 		Map<String,String> bookingMetadata=new HashMap<String, String>();
@@ -74,7 +74,7 @@ public class DiscardBooking extends BaseTestCaseUtil implements StepInterface {
 			return bookingMetadata;
 		}
 		else if (!response.getBody().asString().contains(prid))
-			throw new RigInternalError("Unable to RetrieveBooking for Prid: " + prid);
+			{this.hasError=true;throw new RigInternalError("Unable to RetrieveBooking for Prid: " + prid);}
 		JSONObject jsonResp = new JSONObject(response.getBody().asString());
 		bookingMetadata=getBookingDetail(jsonResp);
 		return bookingMetadata;

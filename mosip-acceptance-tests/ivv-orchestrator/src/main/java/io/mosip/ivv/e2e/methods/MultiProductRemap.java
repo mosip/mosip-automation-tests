@@ -57,7 +57,7 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 				Response responseMachine = packetUtility.getRequestWithCookiesAndPathParam(GETMACHINEURL, token,
 						"Get machine detail by machineId");
 				if (responseMachine.getBody().asString().toLowerCase().contains("errorcode")) {
-					logger.error("machineId :[" + value + "] not found");
+					this.hasError=true;logger.error("machineId :[" + value + "] not found");
 					throw new RigInternalError("machineId :[" + value + "] not found");
 				}
 				JSONObject jsonRespMachine = new JSONObject(responseMachine.getBody().asString());
@@ -65,7 +65,9 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 				if (machineID != null)
 					message = machineID.equals(value) ? "Reampped "+type : "Remap Fail "+type;
 				else
-					throw new RigInternalError("Unable to " + message);
+					{this.hasError=true;throw new RigInternalError("Unable to " + message);
+					}
+					
 			break;
 				
 			case "user":
@@ -73,7 +75,7 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 				Response responseUser = packetUtility.getRequestWithCookiesAndPathParam(GETUSERURL, token,
 						"Get machine detail by machineId");
 				if (responseUser.getBody().asString().toLowerCase().contains("errorcode")) {
-					logger.error("machineId :[" + value + "] not found");
+					this.hasError=true;logger.error("machineId :[" + value + "] not found");
 					throw new RigInternalError("machineId :[" + value + "] not found");
 				}
 				JSONObject jsonRespUser = new JSONObject(responseUser.getBody().asString());
@@ -81,7 +83,7 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 				if (userStatus != null)
 					message = userStatus ? "Reampped "+type : "Remap Fail "+type;
 				else
-					throw new RigInternalError("Unable to " + message);
+					{this.hasError=true;throw new RigInternalError("Unable to " + message);}
 			break;
 			
 			case "device":
@@ -105,8 +107,8 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 					if (deviceStatus != null)
 						message = deviceStatus ? "Reampped "+type : "Remap Fail "+type;
 					else
-						throw new RigInternalError("Unable to " + message);
-					
+						{this.hasError=true;throw new RigInternalError("Unable to " + message);
+						}
 				}catch(Exception ex) {
 					ex.printStackTrace();
 				}

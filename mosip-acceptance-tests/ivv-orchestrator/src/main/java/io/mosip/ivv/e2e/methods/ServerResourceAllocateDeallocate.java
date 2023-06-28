@@ -14,6 +14,7 @@ public class ServerResourceAllocateDeallocate extends BaseTestCaseUtil implement
 		String allocateOrDeallocate = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter[allocate/deallocate] is  missing from DSL step");
+			this.hasError=true;
 			throw new RigInternalError("Parameter[allocate/deallocate] is  missing from DSL step");
 		} else {
 			allocateOrDeallocate = step.getParameters().get(0);
@@ -26,6 +27,7 @@ public class ServerResourceAllocateDeallocate extends BaseTestCaseUtil implement
 				break;
 			default: {
 				logger.error("Parameter: " + allocateOrDeallocate + " is not allowed");
+				this.hasError=true;
 				throw new RigInternalError("Parameter: " + allocateOrDeallocate + " is not allowed");
 			}
 

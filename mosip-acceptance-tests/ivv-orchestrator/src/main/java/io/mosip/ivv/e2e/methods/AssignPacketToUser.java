@@ -56,6 +56,7 @@ public class AssignPacketToUser extends BaseTestCaseUtil implements StepInterfac
 					}
 				}
 		} catch (Exception e) {
+			 this.hasError=true;
 			logger.error(e.getMessage());
 			throw new RigInternalError("Failed at manual verification Response validation");
 		}

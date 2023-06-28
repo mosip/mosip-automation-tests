@@ -53,6 +53,7 @@ public class UpdateUINDetail extends BaseTestCaseUtil implements StepInterface {
 
 				} catch (AuthenticationTestException | AdminTestException e) {
 					logger.error("Failed at downloading card: " + e.getMessage());
+					this.hasError=true;
 					//assertFalse(true, "Failed at downloading card");
 					throw new RigInternalError("Failed at Update UIN api response validation");
 				}

@@ -71,6 +71,7 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 			
 			return keyIndex;
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -113,6 +114,7 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 //				
 				}return errcodemsg;
 			} catch (Exception e) {
+				this.hasError=true;
 				throw new RigInternalError(e.getMessage());
 
 			}
@@ -143,6 +145,7 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 			}
 			
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -178,6 +181,7 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 			
 			
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -204,6 +208,7 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 			}
 			
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -231,6 +236,7 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 			}
 			
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -256,6 +262,7 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 				}
 			
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -281,6 +288,7 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 			}
 			
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}

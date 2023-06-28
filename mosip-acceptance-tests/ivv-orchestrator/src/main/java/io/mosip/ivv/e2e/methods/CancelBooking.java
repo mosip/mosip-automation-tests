@@ -33,8 +33,9 @@ public class CancelBooking extends BaseTestCaseUtil implements StepInterface {
 				if(!retrieveBookingByPrid.isEmpty())
 				cancelBookingByPrid(retrieveBookingByPrid,prid,bookingStatus);
 			} else
-				throw new RigInternalError("PRID cannot be null or empty");
-		}
+				{
+				this.hasError=true;throw new RigInternalError("PRID cannot be null or empty");
+		}}
 	}
 
 	private void cancelBookingByPrid(Map<String, String> retrieveBookingByPrid,String prid,String bookingStatus) throws RigInternalError {
@@ -59,8 +60,9 @@ public class CancelBooking extends BaseTestCaseUtil implements StepInterface {
 		Response response =postRequestWithQueryParamAndBody(url,jsonReq.toString(),step.getScenario().getCurrentStep(),"CancelBookingByPrid",step);
 		if (!response.getBody().asString().toLowerCase()
 				.contains(message))
-			throw new RigInternalError("Unable to CancelAppointment");
-	}
+		{
+			this.hasError=true;	throw new RigInternalError("Unable to CancelAppointment");
+	}}
 
 	private Map<String, String> retrieveBookingByPrid(String prid) throws RigInternalError {
 		Map<String,String> bookingMetadata=new HashMap<String, String>();
@@ -72,7 +74,9 @@ public class CancelBooking extends BaseTestCaseUtil implements StepInterface {
 			return bookingMetadata;
 		}
 		else if (!response.getBody().asString().contains(prid))
-			throw new RigInternalError("Unable to RetrieveBooking for Prid: " + prid);
+			{
+			this.hasError=true;throw new RigInternalError("Unable to RetrieveBooking for Prid: " + prid);
+			}
 		JSONObject jsonResp = new JSONObject(response.getBody().asString());
 		bookingMetadata=getBookingDetail(jsonResp);
 		return bookingMetadata;

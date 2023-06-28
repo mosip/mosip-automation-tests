@@ -70,7 +70,7 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 						step.getScenario().getUinPersonaProp().put(uin, step.getScenario().getRidPersonaPath().get(rid));
 				} else {
 					logger.error("Issue while fetching identity for RID: " + rid + " Response: " + response.toString());
-					throw new RigInternalError("Not able to Fetch identity for RID: " + rid);
+					this.hasError=true;	throw new RigInternalError("Not able to Fetch identity for RID: " + rid);
 				}
 			}
 		}
