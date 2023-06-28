@@ -75,6 +75,7 @@ public class MailHelper {
             store.close();
         } catch (Exception mex) {
             mex.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         return null;
     }
@@ -118,6 +119,7 @@ public class MailHelper {
             store.close();
         } catch (Exception mex) {
             mex.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         return emailBody;
     }
@@ -156,6 +158,7 @@ public class MailHelper {
             store.close();
         } catch (Exception mex) {
             mex.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -200,6 +203,7 @@ public class MailHelper {
             }
         } catch (Exception mex) {
             mex.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         return otp;
     }

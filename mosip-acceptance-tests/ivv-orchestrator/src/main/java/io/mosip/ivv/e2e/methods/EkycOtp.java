@@ -65,11 +65,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 			}
-		} else if (step.getParameters().size() == 5) {
-			uins = step.getParameters().get(1);
-			if (!StringUtils.isBlank(uins))
-				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else
+		}  else
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		// Fetching VID
@@ -80,11 +76,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 				vids = step.getScenario().getVariables().get(vids);
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
 			}
-		} else if (step.getParameters().size() == 5) {
-			vids = step.getParameters().get(3);
-			if (!StringUtils.isBlank(vids))
-				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
-		} else
+		}  else
 			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")

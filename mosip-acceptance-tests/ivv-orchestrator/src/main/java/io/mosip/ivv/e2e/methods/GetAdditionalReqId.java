@@ -60,6 +60,7 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 			} catch (InterruptedException e) {
 				this.hasError=true;
 				logger.error(e.getMessage());
+				Thread.currentThread().interrupt();
 			}
 		}
 		logger.error("AdditionalInfoReqId not found even after " + repeats + " retries");
