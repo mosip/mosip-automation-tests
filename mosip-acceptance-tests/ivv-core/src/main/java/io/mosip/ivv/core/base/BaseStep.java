@@ -132,8 +132,7 @@ public class BaseStep {
                     return;
                 }
             } catch (PathNotFoundException e) {
-                e.printStackTrace();
-                logSevere("Assert [failed]: Response status - "+e.getMessage());
+                logSevere("Assert [failed]: Response status - "+e.getStackTrace());
                 this.hasError=true;
                 return;
             }
