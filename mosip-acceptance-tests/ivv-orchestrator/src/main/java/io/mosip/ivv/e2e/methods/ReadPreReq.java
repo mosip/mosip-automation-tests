@@ -42,12 +42,12 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 				+ appendedkey + ".properties");
 
 		logger.info("ReadPreReq :" + path);
-
+		FileReader reader = null;
 		try {
 	//	map=(HashMap<String, String>) prereqDataSet.get(path);
 		if(prereqDataSet.get(path)==null) {
 		    
-				FileReader reader = new FileReader(path);
+				 reader = new FileReader(path);
 				propertylist.load(reader);
 			
 			for (String propertykey : propertylist.stringPropertyNames()) {
@@ -66,6 +66,11 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}}
+		}
+		finally {
+			PacketUtility.closeFileReader(reader);
+		}
+		
+	}
 
 }

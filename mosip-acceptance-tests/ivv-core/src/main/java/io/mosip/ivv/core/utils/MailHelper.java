@@ -9,8 +9,11 @@ import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
+import org.apache.log4j.Logger;
 
 public class MailHelper {
+	
+	private static final Logger logger = Logger.getLogger(MailHelper.class);
 
     @Getter
     @Setter
@@ -75,6 +78,7 @@ public class MailHelper {
             store.close();
         } catch (Exception mex) {
             mex.printStackTrace();
+            logger.error("Assert [failed]: Response status - "+mex.getStackTrace());
             Thread.currentThread().interrupt();
         }
         return null;

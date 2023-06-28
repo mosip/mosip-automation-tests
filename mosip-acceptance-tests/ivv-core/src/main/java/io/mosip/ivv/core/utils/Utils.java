@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 public class Utils {
     public static Logger auditLog = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     public static Logger requestAndresponseLog = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static Random generator = new Random();
     /*
      * public static void deleteDirectoryPath(String directoryName, String folderName) { folderPath = directoryName; theDir = new File(folderPath);
      * theDir.delete(); }
@@ -78,7 +79,7 @@ public class Utils {
         if (file.isDirectory()) {
             String fileList[] = file.list();
             if (fileList.length == 0) {
-                file.delete();
+                //file.delete();
                 if (!file.delete()) {
                     System.out.println("Files deleted");
                    }
@@ -92,7 +93,7 @@ public class Utils {
                 }
             }
         } else {
-        	file.delete();
+        	//file.delete();
             if (!file.delete()) {
                System.out.println("Files deleted");
               }
@@ -327,7 +328,6 @@ public class Utils {
     }
 
     public static String getRandom(int min, int max){
-        Random generator = new Random();
         return (generator.nextInt((max - min) + 1) + min)+"";
     }
 
