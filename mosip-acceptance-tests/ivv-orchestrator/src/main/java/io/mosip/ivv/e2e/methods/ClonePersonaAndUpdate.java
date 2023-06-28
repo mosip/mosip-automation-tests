@@ -25,7 +25,7 @@ public class ClonePersonaAndUpdate extends BaseTestCaseUtil implements StepInter
 		String originalPersonaPath = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
-			throw new RigInternalError(
+			this.hasError=true;throw new RigInternalError(
 					"Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step: " + step.getName());
 		}
 		if (step.getParameters().size() >= 2 && step.getParameters().get(0).startsWith("$$")) {

@@ -45,8 +45,9 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 					for (String id : personaIdValue.stringPropertyNames()) {
 						String value = personaIdValue.get(id).toString();
 						if (step.getScenario().getResidentPersonaIdPro().get(value) == null)
-							throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
-						personaPath = step.getScenario().getResidentPersonaIdPro().get(value).toString();
+							{this.hasError=true;throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
+							}
+							personaPath = step.getScenario().getResidentPersonaIdPro().get(value).toString();
 					}
 					
 				}
@@ -72,7 +73,9 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 			}
 			for (String residentPath : step.getScenario().getResidentTemplatePaths().keySet()) {
 				if (step.getScenario().getResidentTemplatePaths().get(residentPath) == null)
-					throw new RigInternalError("Unable to get packetTemplate from packet utility");
+					{
+					this.hasError=true;throw new RigInternalError("Unable to get packetTemplate from packet utility");
+					}
 			}
 		}
 

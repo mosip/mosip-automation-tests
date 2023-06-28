@@ -14,6 +14,7 @@ import java.util.Random;
 import static io.mosip.ivv.core.utils.Utils.regex;
 
 public class MutationEngine {
+	private static Random generator = new Random();
 
     private String key = "";
 
@@ -101,7 +102,6 @@ public class MutationEngine {
     }
 
     private String generatePhone(){
-        Random generator = new Random();
         int first_digit = generator.nextInt((9 - 6) + 1) + 6; //add 1 so there is no 0 to begin
         int second_digit = generator.nextInt(8); //randomize to 8 becuase 0 counts as a number in the generator
         int third_digit = generator.nextInt(8);
@@ -128,7 +128,6 @@ public class MutationEngine {
     }
 
     private String generatePostalCode(){
-        Random generator = new Random();
         int first_digit = generator.nextInt(7) + 1;
         int set1 = generator.nextInt(8999) + 1000;
         return first_digit+""+set1;

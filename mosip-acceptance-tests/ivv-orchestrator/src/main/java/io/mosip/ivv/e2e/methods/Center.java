@@ -32,7 +32,11 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 		HashMap<String, String> map=new HashMap<String, String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
-			throw new RigInternalError("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step: " + step.getName());
+			{
+
+				this.hasError=true;
+				throw new RigInternalError("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step: " + step.getName());
+			}
 		} else {
 			calltype = step.getParameters().get(0); 
 
