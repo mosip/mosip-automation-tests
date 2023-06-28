@@ -71,6 +71,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 			}
 		} catch (InterruptedException e) {
 			logger.error("Failed due to thread sleep: " + e.getMessage());
+			Thread.currentThread().interrupt();
 		}
 
 	}

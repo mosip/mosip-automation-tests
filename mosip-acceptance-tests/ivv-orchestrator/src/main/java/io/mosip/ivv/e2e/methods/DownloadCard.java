@@ -17,6 +17,7 @@ import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.ivv.orchestrator.PacketUtility;
 import io.mosip.ivv.orchestrator.TestResources;
 import io.mosip.testscripts.GetWithParamForDownloadCard;
 
@@ -61,9 +62,14 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 						Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 						// checking pdf file size
 						//assertTrue(getWithPathParam.pdf.length>0);
-						if(getWithPathParam.pdf.length<0)
+						if(getWithPathParam.pdf.length>=0) {
+							download(getWithPathParam.pdf,requestid);
+						}
+						else {
 							throw new RigInternalError("downloaded pdf size is less than 0");
-						download(getWithPathParam.pdf,requestid);
+						}
+							
+						
 					} catch (AuthenticationTestException | AdminTestException e) {
 						logger.error("Failed at downloading card: "+e.getMessage());
 						//assertFalse(true, "Failed at downloading card");
@@ -81,16 +87,17 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
     
     
   	private  void download(byte[] pdfFile,String requestid) {
-  	    FileOutputStream fos;
+  	    FileOutputStream fos = null;
   	    try {
-  	            fos = new FileOutputStream(TestResources.getResourcePath()+PDFFILEPATH+"/"+requestid+".pdf");
+  	            
+  	    	fos = new FileOutputStream(TestResources.getResourcePath()+PDFFILEPATH+"/"+requestid+".pdf");
   	            fos.write(pdfFile);
-  	            fos.close();
-  	        } catch (FileNotFoundException e) {
+  	        } catch (IOException e ) {
   	        	logger.error("Failed to download the pdf Exception: "+e.getMessage());
-  	        } catch (IOException e) {
-  	        	logger.error("Failed to download the pdf Exception: "+e.getMessage());
-  	        }
+  	        } 
+  	  finally {
+			PacketUtility.closeOutputStream(fos);
+		}
   	    }
   	
 
