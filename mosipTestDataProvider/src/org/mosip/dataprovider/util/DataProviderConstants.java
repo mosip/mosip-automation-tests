@@ -1,5 +1,11 @@
 package org.mosip.dataprovider.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.mosip.dataprovider.models.BioModality;
+
 public class DataProviderConstants {
 
 	public static final int DEFAULT_ABIS_DELAY = 3;
@@ -99,4 +105,33 @@ public class DataProviderConstants {
 	public static String MDS_DEVICE_TYPE_FACE="Face";
 	public static String MDS_DEVICE_TYPE_EXCEPTION_PHOTO="ExceptionPhoto";
 	public static int MAX_ADDRESS_LINES = 5;
+	
+	public static String getschemaName(String name)
+	{
+		// First check if it falls in all modaities
+		for(int i=0; i < 13; i++) {
+			String displayFingerName = DataProviderConstants.displayFullName[i];
+			if (displayFingerName.equalsIgnoreCase(name) == true)
+				return  DataProviderConstants.schemaNames[i];
+		}
+
+		// Other wise just return
+		return name;
+	}
+	
+	public static List<String> getListWithoutExceptions(List<BioModality> exceptionlst,List<String> bioFilter)
+	{
+		List<String> listWithoutExceptions =bioFilter;
+	
+	if(exceptionlst!=null && !exceptionlst.isEmpty()) {
+		List<String> exceptions = exceptionlst.stream().map(BioModality::getSubType).collect(Collectors.toList());
+		List<String> schemaName=new ArrayList<String>();
+		for(String ex: exceptions)
+		{
+			schemaName.add(getschemaName(ex));
+		}
+		listWithoutExceptions= bioFilter.stream().filter(bioAttribute -> !schemaName.contains(bioAttribute)).collect(Collectors.toList());
+	}
+	return listWithoutExceptions;
+	}
 }

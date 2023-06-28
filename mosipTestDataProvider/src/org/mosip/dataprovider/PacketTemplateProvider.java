@@ -534,7 +534,7 @@ public class PacketTemplateProvider {
 	JSONObject constructExceptnNode(BioModality modality) {
 		JSONObject node = new JSONObject();
 		node.put("type", modality.getType());
-		node.put("missingBiometric", modality.getSubType());
+		node.put("missingBiometric", DataProviderConstants.getschemaName(modality.getSubType()));
 		node.put("reason", modality.getReason());
 		node.put("exceptionType", modality.getExceptionType());
 		node.put("individualType", "applicant");
@@ -565,8 +565,45 @@ public class PacketTemplateProvider {
 			biometrics.put("introducer", new JSONObject());
 			biometrics.put("applicant-auth", new JSONObject());
 
-			biometrics.put("applicant", applicant);
+			biometrics.put("individualBiometrics", applicant);
 			identity.put("biometrics", biometrics);
+
+		}
+		return identity;
+	}
+
+	JSONObject constructBioException(ResidentModel resident, JSONObject identity, List<MosipIDSchema> mosipIDSchema) {
+		// update biometric exceptions
+		
+		
+		List<BioModality> exceptionAttrib = resident.getBioExceptions();
+		if (exceptionAttrib != null) {
+			JSONObject exceptionBiometrics = new JSONObject();
+			JSONObject applicant = new JSONObject();
+
+			for (BioModality bm : exceptionAttrib) {
+
+				applicant.put(DataProviderConstants.getschemaName(bm.getSubType()), constructExceptnNode(bm));
+
+			}
+
+			/*
+			 * if(exceptionAttrib.contains("leftEye")) { applicant.put("leftEye",
+			 * constructExceptnNode("Iris","leftEye")); }
+			 * if(exceptionAttrib.contains("rightEye")) { applicant.put("rightEye",
+			 * constructExceptnNode("Iris","rightEye")); } for(String n:
+			 * DataProviderConstants.schemaNames) { if(n.contains("Eye") ) continue; if(
+			 * n.equals("face")) applicant.put(n, constructExceptnNode("Face",n));
+			 * 
+			 * if(exceptionAttrib.contains(n)) { applicant.put(n,
+			 * constructExceptnNode("Finger",n)); } }
+			 */
+
+			exceptionBiometrics.put("introducer", new JSONObject());
+			exceptionBiometrics.put("applicant-auth", new JSONObject());
+
+			exceptionBiometrics.put("individualBiometrics", applicant);
+			identity.put("exceptionBiometrics", exceptionBiometrics);
 
 		}
 		return identity;
@@ -606,7 +643,7 @@ public class PacketTemplateProvider {
 		}
 		return identity;
 	}
-
+	
 	JSONObject updateSimpleType(String id, JSONObject identity, String primValue, String secValue, String primLang,
 			String secLang, String thirdLang, String contextKey) {
 
@@ -1716,13 +1753,13 @@ public class PacketTemplateProvider {
 		}
 		identity.put("documents", docArray);
 		identity.put("capturedRegisteredDevices", new JSONArray());
-		identity.put("exceptionBiometrics", new JSONObject());
+	
 		identity.put("creationDate", CommonUtil.getUTCDateTime(null));
 		// identity.put("capturedRegisteredDevices",templateIdentity.getJSONArray("capturedRegisteredDevices")
 		// );
-
-		constructBioException(resident, identity);
-		constructBioMetaData(resident, identity);
+		//identity.put("exceptionBiometrics",constructBioException(resident, identity));
+		identity=constructBioException(resident, identity,contextSchemaDetail.getSchema());
+		identity=constructBioMetaData(resident, identity);
 		identity.put("operationsData", templateIdentity.getJSONArray("operationsData"));
 
 		JSONArray metadata = new JSONArray();

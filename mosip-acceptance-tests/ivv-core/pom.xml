@@ -11,7 +11,9 @@
 
     <groupId>io.mosip.ivv.core</groupId>
     <artifactId>ivv-core</artifactId>
-
+<properties>
+        <maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>javax.mail</groupId>
@@ -25,5 +27,38 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+
+<profiles>
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.sources>.</sonar.sources>
+                <sonar.inclusions>src/main/java/**,src/main/resources/**</sonar.inclusions>
+                <sonar.exclusions>${sonar.coverage.exclusions}</sonar.exclusions>
+                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+            </properties>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                        <version>${maven.sonar.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sonar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
