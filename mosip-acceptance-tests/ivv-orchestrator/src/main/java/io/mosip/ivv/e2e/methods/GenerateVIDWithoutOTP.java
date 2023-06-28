@@ -33,7 +33,7 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 		List<String> uinList = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("VID Type[Perpetual/Temporary] parameter is  missing from DSL step");
-			throw new RigInternalError("VID Type[Perpetual/Temporary] paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("VID Type[Perpetual/Temporary] paramter is  missing in step: " + step.getName());
 		} else {
 			vidtype = step.getParameters().get(0);
 
@@ -84,7 +84,7 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 				}
 
 			} catch (AuthenticationTestException | AdminTestException e) {
-				throw new RigInternalError(e.getMessage());
+				this.hasError=true;throw new RigInternalError(e.getMessage());
 
 			}
 		}

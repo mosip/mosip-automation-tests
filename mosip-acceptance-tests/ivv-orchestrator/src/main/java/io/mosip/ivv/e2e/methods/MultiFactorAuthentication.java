@@ -68,7 +68,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		}
 		
 		if (step.getParameters().size() > 1 && step.getParameters().get(6).startsWith("$$")) { 
@@ -273,7 +273,8 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 		} else if (step.getScenario().getUinPersonaProp().containsKey(individualIdAuth))
 			personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(individualIdAuth);
 		else
-			throw new RigInternalError("Persona doesn't exist for the given UIN " + individualIdAuth);
+		{this.hasError=true;	throw new RigInternalError("Persona doesn't exist for the given UIN " + individualIdAuth);
+		}
 		demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList,step);
 
 		// testInput.setEndPoint(testInput.getEndPoint().replace("$PartnerKey$",
@@ -298,13 +299,13 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				demoFieldValueKey = E2EConstants.DEMOAGE;
 				break;
 			default:
-				throw new RigInternalError("Given DEMO doesn't match with the options in the script");
+				this.hasError=true;throw new RigInternalError("Given DEMO doesn't match with the options in the script");
 			}
 
 			demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 					E2EConstants.DEMOFETCH + "." + demoFieldValueKey);
 			if (demoValue == null)
-				throw new RigInternalError("Received null value from Persona for" + demoField);
+				{this.hasError=true;throw new RigInternalError("Received null value from Persona for" + demoField);}
 			input = testInput.getInput();
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, demoField, "key");
@@ -325,8 +326,8 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 			} else
-				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
-			String personFilePathvalue = null;
+				{this.hasError=true;throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
+				}String personFilePathvalue = null;
 			if (step.getParameters().size() > 4) {
 				String _personFilePath = step.getParameters().get(4);
 				if (_personFilePath.startsWith("$$")) {
@@ -336,7 +337,9 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 			} else if (step.getScenario().getUinPersonaProp().containsKey(uin))
 				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
-				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				{
+				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				}
 
 			String bioType = null, bioSubType = null;
 			List<String> modalityList = new ArrayList<>();
@@ -363,7 +366,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
-					throw new RigInternalError("Given BIO Type in device property file is not valid");
+					this.hasError=true;throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
 

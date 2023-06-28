@@ -236,7 +236,7 @@ public class Orchestrator {
 	private void updateRunStatistics(Scenario scenario) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         System.out.println(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
         if (scenario.getId().equalsIgnoreCase("0")) {
-            beforeSuiteExeuted = true;
+            
       
             ///Check if all steps in Before are passed or not 
             for (Scenario.Step step : scenario.getSteps()) {
@@ -248,6 +248,7 @@ public class Orchestrator {
 		        
 	             }
              } 
+            beforeSuiteExeuted = true;
             System.out.println("Before Suite executed");
         }
 
@@ -284,9 +285,14 @@ public class Orchestrator {
 							+ " inside beforeSuiteExecuted == false " + counterLock.get() + "- " + scenario.getId());
 				}
 				// Check if the beforeSuite is successful. If not skip the scenario execution 
-                if (beforeSuiteFailed == true)
+				
+                if (beforeSuiteFailed == true) {
+                
                      throw new SkipException((" Thread ID: " + Thread.currentThread().getId() + " Skipping scenarios execution - "
 							 + scenario.getId()));
+                }
+                
+                	
 			}
 		}
 
@@ -373,6 +379,7 @@ public class Orchestrator {
 			} catch (ClassNotFoundException e) {
 				extentTest.error(identifier + " - ClassNotFoundException --> " + e.toString());
 				e.printStackTrace();
+			
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 

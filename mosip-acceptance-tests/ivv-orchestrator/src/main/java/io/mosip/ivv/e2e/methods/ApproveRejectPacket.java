@@ -60,6 +60,7 @@ public class ApproveRejectPacket extends BaseTestCaseUtil implements StepInterfa
 
 			}
 		} catch (Exception e) {
+			 this.hasError=true;
 			logger.error(e.getMessage());
 			throw new RigInternalError("Failed at decission data(approved or reject) Response validation");
 		}

@@ -56,6 +56,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 		List<String> vidList = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
+this.hasError=true;
 			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 			deviceInfoFilePath = step.getParameters().get(0);
@@ -64,8 +65,8 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 			} else
-				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
-		}
+				{this.hasError=true;throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
+		}}
 		if (step.getParameters().size() == 2) {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
@@ -105,7 +106,9 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			if (step.getScenario().getUinPersonaProp().containsKey(uin))
 				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
-				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				{
+				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				}
 
 			String bioType = null, bioSubType = null;
 			List<String> modalityList = new ArrayList<>();
@@ -132,6 +135,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
+					 this.hasError=true;
 					throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
@@ -171,10 +175,10 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 				byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
 				bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
 
-				if (bioValue == null || bioValue.length() < 100)
-					throw new RigInternalError(
+				if (bioValue == null || bioValue.length() < 100) {
+					this.hasError=true;	throw new RigInternalError(
 							"Not able to get the bio value for field " + modalityToLog + " from persona");
-
+				}
 				if (idType.contains("UIN") || idType.contains("uin")) {
 					casesListUIN = bioAuth.getYmlTestData(fileName);
 				}
@@ -194,8 +198,8 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			if (step.getScenario().getVidPersonaProp().containsKey(vid))
 				personFilePathvalue = step.getScenario().getVidPersonaProp().getProperty(vid);
 			else
-				throw new RigInternalError("Persona doesn't exist for the given VID " + vid);
-
+				{this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given VID " + vid);
+				}
 			String bioType = null, bioSubType = null;
 			List<String> modalityList = new ArrayList<>();
 			String modalityToLog = null;
@@ -221,7 +225,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
-					throw new RigInternalError("Given BIO Type in device property file is not valid");
+					this.hasError=true;throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
 
@@ -261,9 +265,9 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 				bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
 
 				if (bioValue == null || bioValue.length() < 100)
-					throw new RigInternalError(
+					{this.hasError=true;throw new RigInternalError(
 							"Not able to get the bio value for field " + modalityToLog + " from persona");
-
+					}
 				if (idType.contains("VID") || idType.contains("vid")) {
 					casesListVID = bioAuth.getYmlTestData(fileName);
 				}
