@@ -67,6 +67,7 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
                     Thread.sleep(Long.parseLong(waitTime));
                 } catch (NumberFormatException | InterruptedException e) {
                     e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             } else {
                 // Exit the loop if the desired result is achieved

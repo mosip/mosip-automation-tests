@@ -113,6 +113,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			
 		} catch (InterruptedException e) {
 			logger.error("Failed due to thread sleep: " + e.getMessage());
+			Thread.currentThread().interrupt();
 		}
 
 	}

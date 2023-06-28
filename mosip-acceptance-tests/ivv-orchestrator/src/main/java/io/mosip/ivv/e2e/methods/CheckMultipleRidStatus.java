@@ -99,15 +99,23 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 					}	
 		} catch (InterruptedException e) {
 			logger.error("Failed due to thread sleep: " + e.getMessage());
+			Thread.currentThread().interrupt();
 		}
 		List<String> valuesList =ridStatusMap.values().stream().collect(Collectors.toList());
-		if (tempPridAndRid != null && tempPridAndRid.size() > 1) {
-			if (valuesList.size() != new HashSet<String>(ridStatusMap.values()).size())
+		if(tempPridAndRid != null) {
+			if (tempPridAndRid.size() > 1) {
+				if (valuesList.size() != new HashSet<String>(ridStatusMap.values()).size())
+					assertTrue(false, "Testcase is failed");
+				else
+					assertTrue(true, "Testcase is passed");
+			}else if( tempPridAndRid.size()==1 && !valuesList.contains(status_Message.toUpperCase()))
 				assertTrue(false, "Testcase is failed");
-			else
-				assertTrue(true, "Testcase is passed");
-		}else if( tempPridAndRid.size()==1 && !valuesList.contains(status_Message.toUpperCase()))
-			assertTrue(false, "Testcase is failed");
+		}
+		else {
+			System.out.println("tempPridAndRid is Null");
+		}
+		
+		
 	}
 
 }

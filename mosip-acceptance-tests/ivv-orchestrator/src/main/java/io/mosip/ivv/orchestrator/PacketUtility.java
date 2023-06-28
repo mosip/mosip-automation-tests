@@ -2,6 +2,9 @@ package io.mosip.ivv.orchestrator;
 
 import static io.restassured.RestAssured.given;
 
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -1653,6 +1656,27 @@ JSONObject jsonObject = new JSONObject();
 
 		int waitFromActuator = commonDifference * 60;
 		return waitFromActuator;
+	}
+	
+	public static void closeOutputStream(FileOutputStream outputStream) {
+		if (outputStream != null) {
+	        try {
+	        	outputStream.flush();
+	        	outputStream.close();
+	        } catch (IOException e) {
+	            // Handle the exception
+	        }
+	    }
+	}
+	
+	public static void closeFileReader(FileReader fileReader) {
+		if (fileReader != null) {
+	        try {
+	        	fileReader.close();
+	        } catch (IOException e) {
+	            // Handle the exception
+	        }
+	    }
 	}
 
 }
