@@ -36,7 +36,7 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 		List<String> vidList = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 			deviceInfoFilePath = step.getParameters().get(0);
 			if (!StringUtils.isBlank(deviceInfoFilePath)) {
@@ -44,8 +44,8 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 			} else
-				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
-		}
+				{this.hasError=true;throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
+		}}
 		if (step.getParameters().size() == 2) {
 			vids = step.getParameters().get(1);
 			if (!StringUtils.isBlank(vids))
@@ -73,8 +73,8 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 				//personFilePathvalue = vidAndstep.getScenario().getUinPersonaProp().getProperty(vid);
 			}	
 			else
-				throw new RigInternalError("Persona doesn't exist for the given VID " + vid);
-
+				{this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given VID " + vid);
+				}
 			String bioType=null, bioSubType=null;
 			List<String> modalityList = new ArrayList<>();
 			String modalityToLog = null;
@@ -99,6 +99,7 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
+					this.hasError=true;
 					throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
@@ -122,8 +123,5 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth,step);
 				}
 			}
-		}
-	}
-
-
-}
+		}}}
+	

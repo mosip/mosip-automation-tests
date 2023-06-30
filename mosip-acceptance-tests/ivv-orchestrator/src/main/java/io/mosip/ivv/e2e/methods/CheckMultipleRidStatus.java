@@ -50,6 +50,7 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 			status_Message=E2EConstants.FAILED_MSG;
 			break;
 		default:
+			this.hasError=true;
 			throw new RigInternalError("Parameter not supported only allowed are [processed/rejected/failed]");
 		}
 		if(tempPridAndRid ==null)
@@ -92,7 +93,10 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 							ridStatusMap.put(rid, JsonPrecondtion.getValueFromJson(postScript.response.getBody().asString(), "response.ridStatus"));
 							if(tempPridAndRid.size()==1) {
 								if(!ridStatusMap.containsValue(E2EConstants.UNDER_PROCESSING_MSG))
-									throw new RigInternalError(ridStatusMap.get(rid));
+									{
+
+									this.hasError=true;throw new RigInternalError(ridStatusMap.get(rid));
+									}
 							}
 						}
 					}

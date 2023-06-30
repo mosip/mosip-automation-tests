@@ -67,9 +67,12 @@ public class RidSyncRejected extends BaseTestCaseUtil implements StepInterface {
 		JSONArray jsonArray = new JSONArray(response.asString());
 		JSONObject responseJson = new JSONObject(jsonArray.get(0).toString());
 		//assertTrue(response.getBody().asString().contains("SUCCESS"),"Unable to do RID sync from packet utility");
-		if(!response.getBody().asString().toLowerCase().contains("success"))
+		if(!response.getBody().asString().toLowerCase().contains("success")) {
+			this.hasError=true;
+		
 			throw new RigInternalError("Unable to do RID sync from packet utility");
-		return responseJson.get("registrationId").toString();
+		}
+			return responseJson.get("registrationId").toString();
 
 	}
 

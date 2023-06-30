@@ -34,9 +34,10 @@ public class BookSpecificSlotForPrid extends BaseTestCaseUtil implements StepInt
 			String prid = step.getScenario().getResidentPathsPrid().get(resDataPath);
 			if (!StringUtils.isEmpty(prid)) {
 				bookSlotForPrid(prid);
-			} else
-				throw new RigInternalError("PRID cannot be null or empty");
-		}
+			} else {
+
+				this.hasError=true;	throw new RigInternalError("PRID cannot be null or empty");
+		}}
 	}
 	
 	private void bookSlotForPrid(String prid) throws RigInternalError {
@@ -50,7 +51,10 @@ public class BookSpecificSlotForPrid extends BaseTestCaseUtil implements StepInt
 		Response response =postRequestWithQueryParamAndBody(url,jsonReq.toString(),step.getScenario().getCurrentStep(),"BookSlotForPrid",step);
 		if (!response.getBody().asString().toLowerCase()
 				.contains("appointment booked successfully"))
-			throw new RigInternalError("Unable to Book Appointment for Prid :"+prid);
+			{
+
+			this.hasError=true;throw new RigInternalError("Unable to Book Appointment for Prid :"+prid);
+			}
 	}
 
 }

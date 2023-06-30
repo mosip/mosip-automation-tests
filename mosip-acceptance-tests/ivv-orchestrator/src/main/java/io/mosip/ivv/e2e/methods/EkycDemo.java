@@ -43,6 +43,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
+			this.hasError=true;
 			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 			demofields = step.getParameters().get(0);
@@ -90,7 +91,10 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 			} else if (step.getScenario().getUinPersonaProp().containsKey(uin))
 				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
+				{
+				this.hasError=true;
 				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+				}
 
 			List<String> demoFetchList = new ArrayList<String>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
@@ -111,18 +115,23 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey);
 					if (demoValue == null)
-						throw new RigInternalError(
+					{this.hasError=true;
+					throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, demoValue);
+					
+				}inputJson.put(demoField, demoValue);
+					
 					break;
 
 				case E2EConstants.DEMOEMAIL:
 					demoFieldValueKey = E2EConstants.DEMOEMAIL;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey);
-					if (demoValue == null)
+					if (demoValue == null) {
+						this.hasError=true;
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
+					}
 					inputJson.put(demoField, demoValue);
 					break;
 
@@ -131,9 +140,9 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
 					if (demoValue == null)
-						throw new RigInternalError(
+						{this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, demoValue);
+						}inputJson.put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOADDRESSFETCH:
@@ -183,9 +192,9 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 					lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
 					if (firstNm == null || midNm == null || lastNm == null)
-						throw new RigInternalError(
+					{this.hasError=true;	throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					fullname = firstNm + " " + midNm + " " + lastNm;
+					}fullname = firstNm + " " + midNm + " " + lastNm;
 					JSONArray nameArray = new JSONArray();
 					JSONObject nameObj = new JSONObject();
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -210,7 +219,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 					break;
 
 				default:
-					throw new RigInternalError("Given DEMO doesn't match with the options in the script");
+					this.hasError=true;throw new RigInternalError("Given DEMO doesn't match with the options in the script");
 				}
 			}
 
@@ -252,7 +261,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 							e.printStackTrace();
 						}
 					} catch (AuthenticationTestException | AdminTestException e) {
-						throw new RigInternalError(e.getMessage());
+						this.hasError=true;throw new RigInternalError(e.getMessage());
 
 					}
 				}
@@ -267,8 +276,8 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 			} else if (step.getScenario().getVidPersonaProp().containsKey(vid))
 				personFilePathvalue = step.getScenario().getVidPersonaProp().getProperty(vid);
 			else
-				throw new RigInternalError("Persona doesn't exist for the given UIN " + vid);
-
+				{this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + vid);
+				}
 			List<String> demoFetchList = new ArrayList<String>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
 			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList, step);
@@ -288,9 +297,9 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
 					if (demoValue == null)
-						throw new RigInternalError(
+						{this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, demoValue);
+						}inputJson.put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOEMAIL:
@@ -298,19 +307,19 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
 					if (demoValue == null)
-						throw new RigInternalError(
+						{this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, demoValue);
+						}inputJson.put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOYMLPHONE:
 					demoFieldValueKey = E2EConstants.DEMOPHONE;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
-					if (demoValue == null)
-						throw new RigInternalError(
+					if (demoValue == null) {
+						this.hasError=true;	throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, demoValue);
+					}inputJson.put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOADDRESSFETCH:
@@ -323,12 +332,12 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 						addLine3 = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
 								E2EConstants.DEMOADDRESSLINE3);
 					} catch (Exception e) {
-						throw new RigInternalError(e.getMessage());
+						this.hasError=true;throw new RigInternalError(e.getMessage());
 					}
 					if (addLine1 == null || addLine2 == null || addLine3 == null)
-						throw new RigInternalError(
+						{this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-
+						}
 					JSONArray addressLine1Array = new JSONArray();
 					JSONObject addressLine1Obj = new JSONObject();
 					addressLine1Obj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -360,9 +369,9 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 					lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
 					if (firstNm == null || midNm == null || lastNm == null)
-						throw new RigInternalError(
+						{this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					fullname = firstNm + " " + midNm + " " + lastNm;
+						}fullname = firstNm + " " + midNm + " " + lastNm;
 					JSONArray nameArray = new JSONArray();
 					JSONObject nameObj = new JSONObject();
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -381,13 +390,13 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 					genderObj.put("value", demoValue);
 					genArray.put(genderObj);
 					if (demoValue == null)
-						throw new RigInternalError(
+						{this.hasError=true;throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-					inputJson.put(demoField, genArray);
+						}inputJson.put(demoField, genArray);
 					break;
 
 				default:
-					throw new RigInternalError("Given DEMO doesn't match with the options in the script");
+					this.hasError=true;throw new RigInternalError("Given DEMO doesn't match with the options in the script");
 				}
 			}
 
@@ -429,7 +438,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 							e.printStackTrace();
 						}
 					} catch (AuthenticationTestException | AdminTestException e) {
-						throw new RigInternalError(e.getMessage());
+						this.hasError=true;throw new RigInternalError(e.getMessage());
 
 					}
 				}

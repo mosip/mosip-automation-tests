@@ -91,7 +91,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
+			this.hasError=true;throw new RigInternalError(e.getMessage());
 
 		}
 
@@ -124,7 +124,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
+			this.hasError=true;throw new RigInternalError(e.getMessage());
 
 		}
 
@@ -151,7 +151,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
+			this.hasError=true;throw new RigInternalError(e.getMessage());
 
 		}
 
@@ -183,7 +183,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
+			this.hasError=true;throw new RigInternalError(e.getMessage());
 
 		}
 
@@ -215,7 +215,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
+			this.hasError=true;throw new RigInternalError(e.getMessage());
 
 		}
 
@@ -242,7 +242,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
+			this.hasError=true;throw new RigInternalError(e.getMessage());
 
 		}
 
@@ -302,7 +302,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
-			throw new RigInternalError(e.getMessage());
+			this.hasError=true;throw new RigInternalError(e.getMessage());
 
 		}
 
@@ -434,7 +434,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 					}
 
 				} catch (AuthenticationTestException | AdminTestException e) {
-					throw new RigInternalError(e.getMessage());
+					this.hasError=true;throw new RigInternalError(e.getMessage());
 
 				}
 
