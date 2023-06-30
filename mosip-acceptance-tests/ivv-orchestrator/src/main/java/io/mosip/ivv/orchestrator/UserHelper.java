@@ -109,6 +109,7 @@ public class UserHelper extends BaseTestCaseUtil {
 				logger.info( jsonResp.getJSONObject("response"));}
 
 		} catch (Exception e) {
+this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -172,6 +173,7 @@ public class UserHelper extends BaseTestCaseUtil {
 				logger.info( jsonResp.getJSONObject("response"));}
 
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -199,6 +201,7 @@ public class UserHelper extends BaseTestCaseUtil {
 				logger.info( jsonResp.getJSONObject("response"));}
 
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}

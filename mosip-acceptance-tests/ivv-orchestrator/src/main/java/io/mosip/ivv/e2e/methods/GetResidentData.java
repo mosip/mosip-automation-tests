@@ -66,7 +66,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 
 		} else {
 			logger.warn("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");
-			throw new RigInternalError("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");
+			this.hasError=true;throw new RigInternalError("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");
 		}
 		
 		

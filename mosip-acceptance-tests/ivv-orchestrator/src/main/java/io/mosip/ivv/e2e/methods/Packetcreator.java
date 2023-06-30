@@ -18,7 +18,8 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		if (step.getParameters().isEmpty()) {
-			throw new RigInternalError(
+			this.hasError=true;
+			this.hasError=true;throw new RigInternalError(
 					"Arugemnt is  missing pass the argument (NEW/LOST/UPDATE) from DSL scenario sheet");
 		} else if(step.getParameters().size()==2 && !step.getParameters().get(1).startsWith("$$")) {
 			process = step.getParameters().get(0);
@@ -30,7 +31,10 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 				for (String id : personaIdValue.stringPropertyNames()) {
 					String value = personaIdValue.get(id).toString();
 					if (step.getScenario().getResidentPersonaIdPro().get(value) == null)
+						{
+						this.hasError=true;
 						throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
+						}
 					String personaPath = step.getScenario().getResidentPersonaIdPro().get(value).toString();
 					step.getScenario().getResidentTemplatePaths().put(personaPath, step.getScenario().getResidentTemplatePaths().get(personaPath));
 				}
@@ -77,7 +81,11 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 		//Response response = postRequestWithPathParamAndBody(url, jsonReq.toString(), step.getScenario().getContextInuse(), "CreatePacket");
 		Response response = postRequest(url, jsonReq.toString(), "CreatePacket",step);
 		if (!response.getBody().asString().toLowerCase().contains("zip"))
+			{
+			this.hasError=true;
 			throw new RigInternalError("Unable to get packet from packet utility");
+			
+			}
 		return response.getBody().asString().replaceAll("\\\\", "\\\\\\\\");
 
 	}

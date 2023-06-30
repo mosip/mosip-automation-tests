@@ -49,7 +49,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 		List<String> uinList = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 			deviceInfoFilePath = step.getParameters().get(0);
 			if (!StringUtils.isBlank(deviceInfoFilePath)) {
@@ -57,7 +57,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 			} else
-				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
+				{this.hasError=true;throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");}
 		}
 		if (step.getParameters().size() == 2) {
 			uins = step.getParameters().get(1);
@@ -84,8 +84,8 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 			if (step.getScenario().getUinPersonaProp().containsKey(uin))
 				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
 			else
-				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
-
+			{this.hasError=true;	throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+			}
 			String bioType=null, bioSubType=null;
 
 			String modalityToLog = null;
@@ -111,7 +111,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
-					throw new RigInternalError("Given BIO Type in device property file is not valid");
+					this.hasError=true;throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
 
@@ -138,7 +138,9 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue!= null) {
 				String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
 				if(bioValue== null || bioValue.length()<100)
-					throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
+					{
+					this.hasError=true;throw new RigInternalError("Not able to get the bio value for field "+modalityToLog+" from persona");
+					}
 				for (Object object : casesList) {
 					TestCaseDTO test = (TestCaseDTO) object;
 					packetUtility.operatorOnboardAuth(modalityToLog, bioValue, "dsl1", test, bioAuth,"USERID",deviceProp,step);

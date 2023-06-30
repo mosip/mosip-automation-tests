@@ -14,9 +14,9 @@ public class DeleteApplication extends BaseTestCaseUtil implements StepInterface
 			String prid = step.getScenario().getResidentPathsPrid().get(resDataPath);
 			if (!StringUtils.isEmpty(prid))
 				deleteApplication(prid);
-			else
-				throw new RigInternalError("PRID cannot be null or empty");
-		}
+			else {this.hasError=true;
+						throw new RigInternalError("PRID cannot be null or empty");
+		}}
 
 	}
 
@@ -24,7 +24,10 @@ public class DeleteApplication extends BaseTestCaseUtil implements StepInterface
 		String url = baseUrl + props.getProperty("deleteApplication") + prid;
 		Response response = deleteRequestWithQueryParam(url, step.getScenario().getCurrentStep(),"DeleteApplication",step);
 		if (!response.getBody().asString().contains(prid))
-			throw new RigInternalError("Unable to DeleteApplication for Prid: "+prid);
+			{
+
+			this.hasError=true;throw new RigInternalError("Unable to DeleteApplication for Prid: "+prid);
+			}
 	}
 
 }

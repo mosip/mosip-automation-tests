@@ -81,6 +81,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 			return code;
 
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -116,7 +117,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 			return status;
 
 		} catch (Exception e) {
-
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -163,6 +164,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 			return id;
 
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -198,7 +200,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 			return status;
 
 		} catch (Exception e) {
-
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -251,6 +253,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				}logger.info("id -"+ id);
 				return machineDetailsmap;
 			} catch (Exception e) {
+				this.hasError=true;
 				throw new RigInternalError(e.getMessage());
 
 			}
@@ -286,7 +289,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 			return status;
 
 		} catch (Exception e) {
-
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}
@@ -335,6 +338,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				}logger.info("id -"+ id);
 				return map;
 			} catch (Exception e) {
+				this.hasError=true;
 				throw new RigInternalError(e.getMessage());
 
 			}
@@ -361,6 +365,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				logger.info( jsonResp.getJSONObject("response"));}
 
 		} catch (Exception e) {
+			this.hasError=true;
 			throw new RigInternalError(e.getMessage());
 
 		}

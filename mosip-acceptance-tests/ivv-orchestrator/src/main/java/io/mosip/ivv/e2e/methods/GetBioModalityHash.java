@@ -28,13 +28,14 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 			if (!personaId.equals("-1")) {
 				if (step.getScenario().getResidentPersonaIdPro().get(personaId) == null) {
 					logger.error("Persona id : [" + personaId + "] is not present is the system");
-					throw new RigInternalError("Persona id : [" + personaId + "] is not present is the system");
+					this.hasError=true;throw new RigInternalError("Persona id : [" + personaId + "] is not present is the system");
 				}
 				personaPath = step.getScenario().getResidentPersonaIdPro().get(personaId).toString();
 				if (StringUtils.isBlank(personaPath))
-					throw new RigInternalError(
-							"PersonaPath is not present in the system for persona id : [" + personaId + "]");
-			} else {
+					{
+					this.hasError=true;
+					throw new RigInternalError(		"PersonaPath is not present in the system for persona id : [" + personaId + "]");
+			}} else {
 				for (String id : step.getScenario().getResidentPersonaIdPro().stringPropertyNames()) {
 					personaPath = step.getScenario().getResidentPersonaIdPro().getProperty(id);
 					personaId = id;
@@ -47,7 +48,7 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 				personaPath=step.getScenario().getVariables().get(personaPath);
 			}
 		}else {
-			throw new RigInternalError("missing input param [personaid,List<String> modalitySubType]");
+			this.hasError=true;throw new RigInternalError("missing input param [personaid,List<String> modalitySubType]");
 		}
 		  inputList = PacketUtility.getParamsArg(step.getParameters().get(1), "@@"); // List<String> ModalitysubTypeList
 		   inputList.stream().forEach(key -> modalitySubTypeList.add(key));
@@ -79,7 +80,7 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 					modalityKeyTogetHashValue = modalitysubType;
 					break;
 				default:
-					throw new RigInternalError("Given Bio subType:[" + modalitysubType + "] is not valid");
+					this.hasError=true;throw new RigInternalError("Given Bio subType:[" + modalitysubType + "] is not valid");
 				}
 				String hashResponse = packetUtility.retrieveBiometric(personaPath, modalityHashList,step);
 				if (hashResponse != null && !hashResponse.isEmpty() && modalityKeyTogetHashValue != null) {

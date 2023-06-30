@@ -65,7 +65,7 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
     			{
     				logger.error("Issue while fetching identity for RID: "+rid+" Response: "+res.toString());
     				//assertFalse(true, "Not able to Fetch identity for RID: "+rid);
-    				throw new RigInternalError("Not able to Fetch identity for RID: "+rid);
+    				this.hasError=true;throw new RigInternalError("Not able to Fetch identity for RID: "+rid);
     			}
     			
     		}
