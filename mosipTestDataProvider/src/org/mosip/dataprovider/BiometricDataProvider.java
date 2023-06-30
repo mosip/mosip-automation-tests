@@ -824,7 +824,7 @@ public class BiometricDataProvider {
 					if (i >= 0 && fingerData != null) {
 						String strFinger = DataProviderConstants.displayFingerName[i];
 						String strFingerXml = buildBirFinger(fingerData, strFinger, currentCM.getSb(), currentCM.getPayload(),
-								currentCM.getQualityScore(),genarateValidCbeff,"");
+								currentCM.getQualityScore(),genarateValidCbeff,"false");
 						XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 						builder = builder.importXMLBuilder(fbuilder);
 					}
