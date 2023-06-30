@@ -2,6 +2,7 @@ package io.mosip.ivv.orchestrator;
 
 import static io.restassured.RestAssured.given;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.core.MediaType;
 
@@ -410,6 +412,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 				Thread.sleep(30000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+				Thread.currentThread().interrupt();
 			}
 			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
 			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid, step);
@@ -484,6 +487,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 				Thread.sleep(30000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+				Thread.currentThread().interrupt();
 			}
 			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
 			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid, step);
@@ -1673,6 +1677,26 @@ JSONObject jsonObject = new JSONObject();
 		if (fileReader != null) {
 	        try {
 	        	fileReader.close();
+	        } catch (IOException e) {
+	            // Handle the exception
+	        }
+	    }
+	}
+	
+	public static void closeInputStream(FileInputStream inputStream) {
+		if (inputStream != null) {
+	        try {
+	            inputStream.close();
+	        } catch (IOException e) {
+	            // Handle the exception
+	        }
+	    }
+	}
+	
+	public static void closeZipInputStream(ZipInputStream zipInputStream) {
+	    if (zipInputStream != null) {
+	        try {
+	            zipInputStream.close();
 	        } catch (IOException e) {
 	            // Handle the exception
 	        }

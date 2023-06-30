@@ -15,6 +15,7 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.ivv.orchestrator.PacketUtility;
 import io.mosip.ivv.orchestrator.TestRunner;
 import io.restassured.response.Response;
 
@@ -93,14 +94,15 @@ public class RidSyncRejected extends BaseTestCaseUtil implements StepInterface {
 			prop.put(key, map.get(key));
 		String filePath=TestRunner.getExternalResourcePath()
 				+ props.getProperty("ivv.path.deviceinfo.folder") +"ridPersonaPathProp.properties";
-		OutputStream output = null;
+		FileOutputStream output = null;
 		try {
 			output = new FileOutputStream(filePath,true);
 			prop.store(output, null);
-			output.close();
-			output.flush();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		finally {
+			PacketUtility.closeOutputStream(output);
 		}
 	}
 

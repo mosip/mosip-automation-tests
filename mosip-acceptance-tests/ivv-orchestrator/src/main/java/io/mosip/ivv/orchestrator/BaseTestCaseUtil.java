@@ -83,6 +83,9 @@ public class BaseTestCaseUtil extends BaseStep{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		finally {
+			PacketUtility.closeInputStream(inputStrem);
+		}
 		return preRegistrationId;
 	}
 	
