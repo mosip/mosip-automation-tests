@@ -132,11 +132,12 @@ public class TestRunner {
 	}
 
 	public static void getListOfFilesFromJarAndCopyToExternalResource(String key) {
+		ZipInputStream zip = null;
 		try {
 			CodeSource src = TestRunner.class.getProtectionDomain().getCodeSource();
 			if (src != null) {
 				URL jar = src.getLocation();
-				ZipInputStream zip = new ZipInputStream(jar.openStream());
+				 zip = new ZipInputStream(jar.openStream());
 				while (true) {
 					ZipEntry e = zip.getNextEntry();
 					if (e == null)
@@ -154,6 +155,10 @@ public class TestRunner {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Exception occured in extracting resource: " + e.getMessage());
+		}
+		
+		finally {
+			PacketUtility.closeZipInputStream(zip);
 		}
 	}
 
