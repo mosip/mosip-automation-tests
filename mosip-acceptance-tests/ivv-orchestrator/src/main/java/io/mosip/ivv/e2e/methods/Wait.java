@@ -45,6 +45,7 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 	}
 
