@@ -62,7 +62,7 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 						Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 						// checking pdf file size
 						//assertTrue(getWithPathParam.pdf.length>0);
-						if(getWithPathParam.pdf.length>=0) {
+						if(getWithPathParam.pdf.length>0) {
 							download(getWithPathParam.pdf,requestid);
 						}
 						else {this.hasError=true;
