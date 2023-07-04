@@ -1,6 +1,7 @@
 package io.mosip.ivv.orchestrator;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;
@@ -158,8 +159,18 @@ public class TestRunner {
 		}
 		
 		finally {
-			PacketUtility.closeZipInputStream(zip);
+			closeZipInputStream(zip);
 		}
+	}
+	
+	public static void closeZipInputStream(ZipInputStream zipInputStream) {
+	    if (zipInputStream != null) {
+	        try {
+	            zipInputStream.close();
+	        } catch (IOException e) {
+	            // Handle the exception
+	        }
+	    }
 	}
 
 	public static String getGlobalResourcePath() {
@@ -213,5 +224,6 @@ public class TestRunner {
 		}
 		return "Global Resource File Path Not Found";
 	}
+	
 
 }
