@@ -1487,7 +1487,7 @@ public class RestClient {
 
 	public static boolean checkActuatorNoAuth(String url) {
 
-		String urlAct = url + "/actuator/health";
+		String urlAct = url;
 
 		Response response =null;
 
