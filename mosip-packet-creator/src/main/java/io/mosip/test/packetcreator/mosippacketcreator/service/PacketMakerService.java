@@ -745,14 +745,7 @@ public class PacketMakerService {
 	}
 
 	private String getPacketRoot(String processRootFolder, String rid, String type) {
-		if (process.equals("BIOMETRIC_CORRECTION")) {
-			// return Path.of(processRootFolder, rid+ "-BIOMETRIC_CORRECTION-1"+UNDERSCORE +
-			// type.toLowerCase()).toString();
-
 			return Path.of(processRootFolder, rid + UNDERSCORE + type.toLowerCase()).toString();
-		} else {
-			return Path.of(processRootFolder, rid + UNDERSCORE + type.toLowerCase()).toString();
-		}
 	}
 
 	private String getContainerMetadataJSONFileLocation(String processRootFolder, String rid, String type) {
@@ -775,11 +768,14 @@ public class PacketMakerService {
 		String finalPath = templateRootPath + File.separator + src + File.separator + process;
 		File rootFolder = new File(finalPath);
 		File[] listFiles = rootFolder.listFiles();
+		boolean assignValue = false;
 		if (listFiles != null) {
 			for (File f : listFiles) {
 				String name = f.getName();
 				String finalName = name.replace("rid", regId);
-				f.renameTo(new File(finalPath + File.separator + finalName));
+				assignValue= f.renameTo(new File(finalPath + File.separator + finalName));
+				if(assignValue)
+				   System.out.println();
 			}
 		}
 	}
