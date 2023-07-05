@@ -54,17 +54,20 @@ public class ZipUtils {
             while (zipEntry != null) {
                 String fileName = zipEntry.getName();
                 Path file = Path.of(targetDirectory,fileName);
-                file.toFile().createNewFile();
-                try (OutputStream os = Files.newOutputStream(file)) {
-                    byte[] buffer = new byte[1024];
-                    int len;
-                    while ((len = zipInputStream.read(buffer)) > 0) {
-                        os.write(buffer, 0, len);
-                        os.flush();
+                if(file.toFile().createNewFile()) {
+                	try (OutputStream os = Files.newOutputStream(file)) {
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = zipInputStream.read(buffer)) > 0) {
+                            os.write(buffer, 0, len);
+                            os.flush();
+                        }
                     }
+                    zipEntry = zipInputStream.getNextEntry();
+                    unzipped = true;
                 }
-                zipEntry = zipInputStream.getNextEntry();
-                unzipped = true;
+                
+                
             }
         } catch (IOException e) {
             logger.error("Error while unzip", e);

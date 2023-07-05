@@ -33,297 +33,290 @@ import org.mosip.dataprovider.test.partnerManagement.CertificateGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @Component
 public class CertificateService {
-    
-    private static final Logger logger = LoggerFactory.getLogger(CertificateService.class);
 
-    public String uploadCACertificate(String certificateData,String contextKey){
+	private static final Logger logger = LoggerFactory.getLogger(CertificateService.class);
 
-        String resp;
-        try{
-            // String certificateData = readCertificate(certificateFile);
-            resp = CertificateUploader.uploadCACertificate(certificateData, "Auth",contextKey);
-            return resp;
-        }
-        // catch(IOException e){
-        //     return "certificate file not found";
-        // }
-        catch(Exception e){
-            logger.error("uploadCACertificate",e);
-            return "Failed at service";
-        }
-        
-    }
+	public String uploadCACertificate(String certificateData, String contextKey) {
 
-    public String uploadStoredCACertificate(String certificateFile,String contextKey){
+		String resp;
+		try {
+			// String certificateData = readCertificate(certificateFile);
+			resp = CertificateUploader.uploadCACertificate(certificateData, "Auth", contextKey);
+			return resp;
+		}
+		// catch(IOException e){
+		// return "certificate file not found";
+		// }
+		catch (Exception e) {
+			logger.error("uploadCACertificate", e);
+			return "Failed at service";
+		}
 
-        String certificateData;
-        try{
-            certificateData = readCertificate(certificateFile,contextKey);
-        }
-        catch(IOException e){
-            return "certificate file not found";
-        }
+	}
 
-        return CertificateUploader.uploadCACertificate(certificateData, "Auth",contextKey);
+	public String uploadStoredCACertificate(String certificateFile, String contextKey) {
 
-    }
+		String certificateData;
+		try {
+			certificateData = readCertificate(certificateFile, contextKey);
+		} catch (IOException e) {
+			return "certificate file not found";
+		}
 
-    public String generateAndUploadRootCertificate(String issuer, String alias, int validYears,String contextKey){
+		return CertificateUploader.uploadCACertificate(certificateData, "Auth", contextKey);
 
-        KeyPairGenerator kpg;
-        try{
-            kpg = KeyPairGenerator.getInstance("RSA");
-        }
-        catch(NoSuchAlgorithmException ex){
-            return "No such algorithm exception";
-        }
+	}
 
-        kpg.initialize(2048);
-        Security.addProvider(new BouncyCastleProvider());
-        KeyPair keyPair = kpg.generateKeyPair();
+	public String generateAndUploadRootCertificate(String issuer, String alias, int validYears, String contextKey) {
 
-        PublicKey publicKey = keyPair.getPublic();
-        PrivateKey privateKey = keyPair.getPrivate();
-        String certificateString;
-        Certificate certificate;
-        try{
-            certificate = CertificateGenerator.createRootCertificate(publicKey, privateKey, issuer, alias, validYears);
-            // certificate = CertificateGenerator.createMasterCert(publicKey, privateKey, issuer, alias, validYears);
-            certificateString = CertificateGenerator.exportPublicKeyPem(certificate);
-        }
-        catch(Exception ex){
-            return "certificate generation failed\n" + ex.toString();
-        }
+		KeyPairGenerator kpg;
+		try {
+			kpg = KeyPairGenerator.getInstance("RSA");
+		} catch (NoSuchAlgorithmException ex) {
+			return "No such algorithm exception";
+		}
 
-        try{
-            KeyStore keyStore = KeyStore.getInstance("PKCS12");
-            keyStore.load(null, null);
-            keyStore.setKeyEntry(alias, privateKey, alias.toCharArray(), new Certificate []{certificate});
+		kpg.initialize(2048);
+		Security.addProvider(new BouncyCastleProvider());
+		KeyPair keyPair = kpg.generateKeyPair();
 
-            String file_path = VariableManager.getVariableValue(contextKey,"certificatePath").toString() + "CA/" + alias + ".p12";
+		PublicKey publicKey = keyPair.getPublic();
+		PrivateKey privateKey = keyPair.getPrivate();
+		String certificateString;
+		Certificate certificate;
+		boolean generatedCertificate = false;
 
-            FileOutputStream fOut = new FileOutputStream(file_path);
-		 
-            keyStore.store(fOut, alias.toCharArray());
+		String file_path = VariableManager.getVariableValue(contextKey, "certificatePath").toString() + "CA/" + alias
+				+ ".p12";
 
-        }
-        catch(Exception ex){
-            return "local keyStore failure " + ex.getMessage();
-        }
+		try (FileOutputStream fOut = new FileOutputStream(file_path);) {
+			certificate = CertificateGenerator.createRootCertificate(publicKey, privateKey, issuer, alias, validYears);
+			certificateString = CertificateGenerator.exportPublicKeyPem(certificate);
+			generatedCertificate = true;
+			
+			KeyStore keyStore = KeyStore.getInstance("PKCS12");
+			keyStore.load(null, null);
+			keyStore.setKeyEntry(alias, privateKey, alias.toCharArray(), new Certificate[] { certificate });
+			keyStore.store(fOut, alias.toCharArray());
 
+		} catch (Exception ex) {
+			if (!generatedCertificate) {
+				return "certificate generation failed\n" + ex.toString();
+			} else {
+				return "local keyStore failure " + ex.getMessage();
+			}
 
-        return uploadCACertificate(certificateString,contextKey);
-        // return "done";
-        
-    }
+		}
 
-    public String generateAndUploadIntCertificate(String issuer, String alias, int validYears, String rootAlias,String contextKey){
+		return uploadCACertificate(certificateString, contextKey);
 
-        PrivateKey rootPrivateKey;
-        X509Certificate rootCertificate; 
+	}
 
-        //load root cert
-        try{
-            KeyStore keyStore = KeyStore.getInstance("PKCS12");
-            
-            String file_path = VariableManager.getVariableValue(contextKey,"certificatePath").toString() + "CA/" + rootAlias + ".p12";
-            FileInputStream fIn = new FileInputStream(file_path);
+	public String generateAndUploadIntCertificate(String issuer, String alias, int validYears, String rootAlias,
+			String contextKey) {
 
-            keyStore.load(fIn, rootAlias.toCharArray());
-            rootPrivateKey = (PrivateKey) keyStore.getKey(rootAlias, rootAlias.toCharArray());
-            rootCertificate = (X509Certificate) keyStore.getCertificate(rootAlias);
+		PrivateKey rootPrivateKey;
+		X509Certificate rootCertificate;
 
-        }
-        catch(FileNotFoundException ex){
-            return "Root certificate does not exist locally.";
-        }
-        catch(Exception ex){
-            return "rootKeyStore failure";
-        }
+		// load root cert
+		try {
+			KeyStore keyStore = KeyStore.getInstance("PKCS12");
 
-        //generate new keyPair
-        KeyPairGenerator kpg;
-        try{
-            kpg = KeyPairGenerator.getInstance("RSA");
-        }
-        catch(NoSuchAlgorithmException ex){
-            return "No such algorithm exception";
-        }
+			String file_path = VariableManager.getVariableValue(contextKey, "certificatePath").toString() + "CA/"
+					+ rootAlias + ".p12";
+			FileInputStream fIn = new FileInputStream(file_path);
 
-        kpg.initialize(2048);
-        Security.addProvider(new BouncyCastleProvider());
-        KeyPair keyPair = kpg.generateKeyPair();
+			keyStore.load(fIn, rootAlias.toCharArray());
+			rootPrivateKey = (PrivateKey) keyStore.getKey(rootAlias, rootAlias.toCharArray());
+			rootCertificate = (X509Certificate) keyStore.getCertificate(rootAlias);
 
-        PublicKey publicKey = keyPair.getPublic();
-        PrivateKey privateKey = keyPair.getPrivate();
-        String certificateString;
-        Certificate certificate;
+		} catch (FileNotFoundException ex) {
+			return "Root certificate does not exist locally.";
+		} catch (Exception ex) {
+			return "rootKeyStore failure";
+		}
 
-        //create new certificate
-        try{
-            certificate = CertificateGenerator.createIntCertificate(publicKey, rootPrivateKey, rootCertificate, issuer, alias, validYears);
-            // certificate = CertificateGenerator.createIntermediateCert(publicKey, rootPrivateKey, rootCertificate, issuer, alias, validYears);
-            certificateString = CertificateGenerator.exportPublicKeyPem(certificate);
-        }
-        catch(Exception ex){
-            return "certificate generation failed\n" + ex.toString();
-        }
+		// generate new keyPair
+		KeyPairGenerator kpg;
+		try {
+			kpg = KeyPairGenerator.getInstance("RSA");
+		} catch (NoSuchAlgorithmException ex) {
+			return "No such algorithm exception";
+		}
 
-        //store new certificate
-        try{
-            KeyStore keyStore = KeyStore.getInstance("PKCS12");
-            keyStore.load(null, null);
-            
-            keyStore.setKeyEntry(alias, privateKey, alias.toCharArray(), new Certificate []{certificate});
+		kpg.initialize(2048);
+		Security.addProvider(new BouncyCastleProvider());
+		KeyPair keyPair = kpg.generateKeyPair();
 
-            String file_path = VariableManager.getVariableValue(contextKey,"certificatePath").toString() + "CA/" + alias + ".p12";
+		PublicKey publicKey = keyPair.getPublic();
+		PrivateKey privateKey = keyPair.getPrivate();
+		String certificateString;
+		Certificate certificate;
 
-            FileOutputStream fOut = new FileOutputStream(file_path);
-		 
-            keyStore.store(fOut, alias.toCharArray());
+		// create new certificate
+		try {
+			certificate = CertificateGenerator.createIntCertificate(publicKey, rootPrivateKey, rootCertificate, issuer,
+					alias, validYears);
+			// certificate = CertificateGenerator.createIntermediateCert(publicKey,
+			// rootPrivateKey, rootCertificate, issuer, alias, validYears);
+			certificateString = CertificateGenerator.exportPublicKeyPem(certificate);
+		} catch (Exception ex) {
+			return "certificate generation failed\n" + ex.toString();
+		}
 
-        }
-        catch(Exception ex){
-            return "local keyStore failure";
-        }
-        
+		// store new certificate
+		try {
+			KeyStore keyStore = KeyStore.getInstance("PKCS12");
+			keyStore.load(null, null);
 
-        return uploadCACertificate(certificateString,contextKey);
-        // return "done";
+			keyStore.setKeyEntry(alias, privateKey, alias.toCharArray(), new Certificate[] { certificate });
 
-    }
+			String file_path = VariableManager.getVariableValue(contextKey, "certificatePath").toString() + "CA/"
+					+ alias + ".p12";
 
-    public String generateAndUploadPartnerCertificate(String issuer, String alias, int validYears, String rootAlias, String PartnerID,String contextKey){
+			FileOutputStream fOut = new FileOutputStream(file_path);
 
-        PrivateKey rootPrivateKey;
-        X509Certificate rootCertificate; 
+			keyStore.store(fOut, alias.toCharArray());
 
-        //load signing cert
-        try{
-            KeyStore keyStore = KeyStore.getInstance("PKCS12");
-            
-            String file_path = VariableManager.getVariableValue(contextKey,"certificatePath").toString() + "CA/" + rootAlias + ".p12";
-            FileInputStream fIn = new FileInputStream(file_path);
+		} catch (Exception ex) {
+			return "local keyStore failure";
+		}
 
-            keyStore.load(fIn, rootAlias.toCharArray());
-            rootPrivateKey = (PrivateKey) keyStore.getKey(rootAlias, rootAlias.toCharArray());
-            rootCertificate = (X509Certificate) keyStore.getCertificate(rootAlias);
+		return uploadCACertificate(certificateString, contextKey);
+		// return "done";
 
-        }
-        catch(FileNotFoundException ex){
-            return "Root certificate does not exist locally.";
-        }
-        catch(Exception ex){
-            return "rootKeyStore failure";
-        }
+	}
 
-        //generate new keyPair
-        KeyPairGenerator kpg;
-        try{
-            kpg = KeyPairGenerator.getInstance("RSA");
-        }
-        catch(NoSuchAlgorithmException ex){
-            return "No such algorithm exception";
-        }
+	public String generateAndUploadPartnerCertificate(String issuer, String alias, int validYears, String rootAlias,
+			String PartnerID, String contextKey) {
 
-        kpg.initialize(2048);
-        Security.addProvider(new BouncyCastleProvider());
-        KeyPair keyPair = kpg.generateKeyPair();
+		PrivateKey rootPrivateKey;
+		X509Certificate rootCertificate;
 
-        PublicKey publicKey = keyPair.getPublic();
-        PrivateKey privateKey = keyPair.getPrivate();
-        String certificateString;
-        Certificate certificate;
+		// load signing cert
+		try {
+			KeyStore keyStore = KeyStore.getInstance("PKCS12");
 
-        //create new certificate
-        try{
-            // certificate = CertificateGenerator.createRootCertificate(publicKey, privateKey, issuer, alias, validYears);
-            // certificate = CertificateGenerator.createIntCertificate(publicKey, rootPrivateKey, rootCertificate, issuer, alias, validYears);
-            certificate = CertificateGenerator.createPartnerCertificate(publicKey, rootPrivateKey, rootCertificate, issuer, alias, validYears);
-            certificateString = CertificateGenerator.exportPublicKeyPem(certificate);
-        }
-        catch(Exception ex){
-            return "certificate generation failed\n" + ex.toString();
-        }
+			String file_path = VariableManager.getVariableValue(contextKey, "certificatePath").toString() + "CA/"
+					+ rootAlias + ".p12";
+			FileInputStream fIn = new FileInputStream(file_path);
 
-        //store new certificate
-        try{
-            KeyStore keyStore = KeyStore.getInstance("PKCS12");
-            keyStore.load(null, null);
-            keyStore.setKeyEntry(alias, privateKey, alias.toCharArray(), new Certificate []{certificate});
+			keyStore.load(fIn, rootAlias.toCharArray());
+			rootPrivateKey = (PrivateKey) keyStore.getKey(rootAlias, rootAlias.toCharArray());
+			rootCertificate = (X509Certificate) keyStore.getCertificate(rootAlias);
 
-            String file_path = VariableManager.getVariableValue(contextKey,"certificatePath").toString() + "partner/" + alias + ".p12";
+		} catch (FileNotFoundException ex) {
+			return "Root certificate does not exist locally.";
+		} catch (Exception ex) {
+			return "rootKeyStore failure";
+		}
 
-            FileOutputStream fOut = new FileOutputStream(file_path);
-		 
-            keyStore.store(fOut, alias.toCharArray());
+		// generate new keyPair
+		KeyPairGenerator kpg;
+		try {
+			kpg = KeyPairGenerator.getInstance("RSA");
+		} catch (NoSuchAlgorithmException ex) {
+			return "No such algorithm exception";
+		}
 
-        }
-        catch(Exception ex){
-            return "local keyStore failure " + ex.getMessage();
-        }
+		kpg.initialize(2048);
+		Security.addProvider(new BouncyCastleProvider());
+		KeyPair keyPair = kpg.generateKeyPair();
 
-        return uploadPartnerCertificate(certificateString, alias, PartnerID,contextKey);
-        // return "done";
-        
+		PublicKey publicKey = keyPair.getPublic();
+		PrivateKey privateKey = keyPair.getPrivate();
+		String certificateString;
+		Certificate certificate;
 
+		// create new certificate
+		try {
+			// certificate = CertificateGenerator.createRootCertificate(publicKey,
+			// privateKey, issuer, alias, validYears);
+			// certificate = CertificateGenerator.createIntCertificate(publicKey,
+			// rootPrivateKey, rootCertificate, issuer, alias, validYears);
+			certificate = CertificateGenerator.createPartnerCertificate(publicKey, rootPrivateKey, rootCertificate,
+					issuer, alias, validYears);
+			certificateString = CertificateGenerator.exportPublicKeyPem(certificate);
+		} catch (Exception ex) {
+			return "certificate generation failed\n" + ex.toString();
+		}
 
-    }
+		// store new certificate
+		try {
+			KeyStore keyStore = KeyStore.getInstance("PKCS12");
+			keyStore.load(null, null);
+			keyStore.setKeyEntry(alias, privateKey, alias.toCharArray(), new Certificate[] { certificate });
 
-    public String uploadPartnerCertificate(String certificateData, String orgName, String partnerID,String contextKey){
-        
-        String resp;
-        try{
-            resp = CertificateUploader.uploadPartnerString(certificateData, orgName, partnerID, "Auth",contextKey);
-            return resp;
-        }
-        catch(Exception e){
-            logger.error("UploadPartnerCertificate", e);
-            return "Failed at service";
-        }
-    }
+			String file_path = VariableManager.getVariableValue(contextKey, "certificatePath").toString() + "partner/"
+					+ alias + ".p12";
 
+			FileOutputStream fOut = new FileOutputStream(file_path);
 
-    // public String uploadPartnerCertificate(MultipartFile certificateFile, String orgName, String partnerID){
+			keyStore.store(fOut, alias.toCharArray());
 
-    //     String resp;
-        
-    //     try{
-    //         String certificateData = readCertificate(certificateFile);
-    //         // resp = CertificateUploader.uploadPartnerString(certificateData, orgName, partnerID, "Auth");
-    //         return certificateData;
-    //     }
-    //     catch(IOException e){
-    //         return "certificate file not found";
-    //     }
-    //     catch(Exception e){
-    //         logger.error("UploadPartnerCertificate", e);
-    //         return "Failed at service";
-    //     }
-    // }
+		} catch (Exception ex) {
+			return "local keyStore failure " + ex.getMessage();
+		}
 
-    public String readCertificate(MultipartFile file) throws IOException{
+		return uploadPartnerCertificate(certificateString, alias, PartnerID, contextKey);
+		// return "done";
 
-        String fileExtension = "";
-        String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
-        fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+	}
 
-        if(!fileExtension.equals(".cer")){
-            throw new IOException("wrong filetype");
-        }
+	public String uploadPartnerCertificate(String certificateData, String orgName, String partnerID,
+			String contextKey) {
 
-        InputStream fileStream = file.getInputStream();
-        return IOUtils.toString(fileStream, StandardCharsets.UTF_8);
-    }
+		String resp;
+		try {
+			resp = CertificateUploader.uploadPartnerString(certificateData, orgName, partnerID, "Auth", contextKey);
+			return resp;
+		} catch (Exception e) {
+			logger.error("UploadPartnerCertificate", e);
+			return "Failed at service";
+		}
+	}
 
-    public String readCertificate(String name,String contextKey) throws IOException{
+	// public String uploadPartnerCertificate(MultipartFile certificateFile, String
+	// orgName, String partnerID){
 
-        String path = VariableManager.getVariableValue(contextKey,"certificatePath") + name;
-        String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
-        return content;
-        
-    }
+	// String resp;
+
+	// try{
+	// String certificateData = readCertificate(certificateFile);
+	// // resp = CertificateUploader.uploadPartnerString(certificateData, orgName,
+	// partnerID, "Auth");
+	// return certificateData;
+	// }
+	// catch(IOException e){
+	// return "certificate file not found";
+	// }
+	// catch(Exception e){
+	// logger.error("UploadPartnerCertificate", e);
+	// return "Failed at service";
+	// }
+	// }
+
+	public String readCertificate(MultipartFile file) throws IOException {
+
+		String fileExtension = "";
+		String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
+		fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+
+		if (!fileExtension.equals(".cer")) {
+			throw new IOException("wrong filetype");
+		}
+
+		InputStream fileStream = file.getInputStream();
+		return IOUtils.toString(fileStream, StandardCharsets.UTF_8);
+	}
+
+	public String readCertificate(String name, String contextKey) throws IOException {
+
+		String path = VariableManager.getVariableValue(contextKey, "certificatePath") + name;
+		String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+		return content;
+
+	}
 }

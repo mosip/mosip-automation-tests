@@ -77,98 +77,79 @@ public class CommandsService {
 		///v1/keymanager/encrypt
 
 		File file=new File(pinglistfile);      
-		FileReader fr=new FileReader(file);   
-		BufferedReader br=new BufferedReader(fr);  
-
-		String line;  
-
-		List<String> failedAPIs = new ArrayList<String>();
-		boolean allModules = false;
-		if(module == null ||  module.equals("")) {
-			allModules = true;
-		}
-		while((line=br.readLine())!=null)  
-		{
-			if(line.trim().equals(""))
-				continue;
-			boolean bcheck = false;
-			//enhanced to support module
-			String controllerPath = line.trim();
-			String modName = null;
-			String [] parts = controllerPath.split("=");
-			if(parts.length > 1) {
-				controllerPath = parts[1];
-				modName = parts[0].trim();
-			}
-			if(allModules )
-					bcheck = true;
-			else {
-				if(modName == null || module.equalsIgnoreCase(modName))
-					bcheck = true;
-			}
-			if(bcheck) {
-				logger.info(controllerPath);
-				Boolean bRet1 = RestClient.checkActuatorNoAuth( baseUrl + controllerPath.trim() );
-				if(bRet1 == false) {
-					failedAPIs.add(line);	
-				}
-			}
-		}  
-		fr.close();
+		//FileReader fr=new FileReader(file);   
+		//BufferedReader br=new BufferedReader(fr);  
 		JSONObject retJson = new JSONObject();
+		String line;  
+       try(FileReader fr=new FileReader(file);BufferedReader br=new BufferedReader(fr)){
+    	   
+    	   List<String> failedAPIs = new ArrayList<String>();
+   		boolean allModules = false;
+   		if(module == null ||  module.equals("")) {
+   			allModules = true;
+   		}
+   		while((line=br.readLine())!=null)  
+   		{
+   			if(line.trim().equals(""))
+   				continue;
+   			boolean bcheck = false;
+   			//enhanced to support module
+   			String controllerPath = line.trim();
+   			String modName = null;
+   			String [] parts = controllerPath.split("=");
+   			if(parts.length > 1) {
+   				controllerPath = parts[1];
+   				modName = parts[0].trim();
+   			}
+   			if(allModules )
+   					bcheck = true;
+   			else {
+   				if(modName == null || module.equalsIgnoreCase(modName))
+   					bcheck = true;
+   			}
+   			if(bcheck) {
+   				logger.info(controllerPath);
+   				Boolean bRet1 = RestClient.checkActuatorNoAuth( baseUrl + controllerPath.trim() );
+   				if(bRet1 == false) {
+   					failedAPIs.add(line);	
+   				}
+   			}
+   		}  
+   		fr.close();
+   		
+   		
+   		if(failedAPIs.isEmpty())
+   			retJson.put("status", true);
+   		else {
+   			retJson.put("status", false);
+   			retJson.put("failed",failedAPIs);
+   		}
+       }
+       catch(Exception ex){
+    	   logger.error(ex.getMessage()); 
+       }
 		
-		if(failedAPIs.isEmpty())
-			retJson.put("status", true);
-		else {
-			retJson.put("status", false);
-			retJson.put("failed",failedAPIs);
-		}
 		return retJson.toString();
 	 }
-	public String writeToFile(String contextKey, Properties requestData, long offset) throws IOException {
-		
-		//take file name
-		String filePath = requestData.getProperty("filePath");
-		String base64data =  requestData.getProperty("base64data");
-		byte[] data = Base64.decode(base64data.getBytes());
-		File myFile = new File (filePath);
-		//Create the accessor with read-write access.
-		RandomAccessFile accessor = new RandomAccessFile (myFile, "rws");
 
-		accessor.seek(offset);
+		public String writeToFile(String contextKey, Properties requestData, long offset) throws IOException {
 
-		accessor.write(data);
-		accessor.close();
-		return filePath;
-	}
-	// public String getAllPods(String contextKey) throws ApiException, IOException {
- 	// 	Properties props = contextUtils.loadServerContext(contextKey);
- 	// 	if(props.contains("mosip.test.baseurl")) {
- 			
- 	// 		baseUrl = props.getProperty("mosip.test.baseUrl");
- 			
- 	// 	}
- 	// 	 String kubeConfigPath =  "../deploy/kube/mzcluster.config";
-
- 	// 	Reader reader = new FileReader(kubeConfigPath);
-
-
- 	//     // loading the out-of-cluster config, a kubeconfig from file-system
- 	//     ApiClient client =
- 	//         ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(reader)).build();
-
- 	//     // set the global default api-client to the in-cluster one from above
- 	//     Configuration.setDefaultApiClient(client);
-
- 	//     // the CoreV1Api loads default api-client from global configuration.
- 	//     CoreV1Api api = new CoreV1Api();
-
-    //     V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
-    //     for (V1Pod item : list.getItems()) {
-    //         System.out.println(item.getMetadata().getName());
-    //     }
-    //     return "";
-	// }
+			// take file name
+			String filePath = requestData.getProperty("filePath");
+			String base64data = requestData.getProperty("base64data");
+			byte[] data = Base64.decode(base64data.getBytes());
+			File myFile = new File(filePath);
+			// Create the accessor with read-write access.
+			
+			try(RandomAccessFile accessor = new RandomAccessFile(myFile, "rws");) {
+				accessor.seek(offset);
+				accessor.write(data);
+			}
+			catch(Exception ex) {
+				 logger.error(ex.getMessage()); 
+			}
+			return filePath;
+		}
 	public String execute(String testcaseId, boolean bSync) {
 		String result = "Success";
 		Properties props = new Properties();
