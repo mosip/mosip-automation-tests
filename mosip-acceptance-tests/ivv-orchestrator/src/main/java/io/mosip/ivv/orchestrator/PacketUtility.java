@@ -732,7 +732,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		// OLD //String url = this.baseUrl + "/context/server/" + key; //this.baseUrl +
 		// "/context/server/" + key?contextKey=Ckey
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
-
+          logger.info("packet utility base url : " +url);
+		
 		String centerId = "centerId" + map.get("appendedkey");
 
 		// machineid=10082@@centerid=10002@@userid=110126@@password=Techno@123@@supervisorid=110126
