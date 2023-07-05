@@ -99,6 +99,9 @@ public class CryptoUtil {
     
     @Value("${mosip.test.crypto.prependthumbprint}")
     private boolean prependthumbprint;
+    
+    @Value("${mosip.test.p12.secret}")
+	private String p12Secret;
 
     @Autowired
     private APIRequestUtil apiUtil;
@@ -338,8 +341,10 @@ public class CryptoUtil {
     public PrivateKeyEntry loadP12() throws Exception {
     	KeyStore mosipKeyStore = KeyStore.getInstance("PKCS12");
     	InputStream in = getClass().getClassLoader().getResourceAsStream("partner.p12");
-    	mosipKeyStore.load(in, "password@123".toCharArray());
-    	ProtectionParameter password = new PasswordProtection("password@123".toCharArray());
+    	//subscriptionRequest.setSecret(websubSecret);
+    	
+    	mosipKeyStore.load(in, p12Secret.toCharArray());
+    	ProtectionParameter password = new PasswordProtection(p12Secret.toCharArray());
     	PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) mosipKeyStore.getEntry("partner", password);
     	return privateKeyEntry;
     }
