@@ -776,6 +776,7 @@ public class PacketSyncService {
 
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
+		boolean isFileCreated = false;
 
 		// loadServerContextProperties(contextKey);
 
@@ -790,7 +791,10 @@ public class PacketSyncService {
 		}
 
 		if (!packetDir.toFile().exists()) {
-			packetDir.toFile().createNewFile();
+			isFileCreated = packetDir.toFile().createNewFile();
+			if(isFileCreated)
+				System.out.println("isFileCreated"+ isFileCreated);
+			
 		}
 		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
 
@@ -817,7 +821,7 @@ public class PacketSyncService {
 
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose,String qualityScore,boolean genarateValidCbeff) throws IOException {
-
+		boolean packetDirCreated = false;
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
 
@@ -837,7 +841,9 @@ public class PacketSyncService {
 			logger.info("packetDir=" + packetDir);
 		}
 		if (!packetDir.toFile().exists()) {
-			packetDir.toFile().createNewFile();
+			packetDirCreated = packetDir.toFile().createNewFile();
+			if(packetDirCreated)
+				System.out.println("packetDirCreated:" + packetDirCreated);
 		}
 		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
 
