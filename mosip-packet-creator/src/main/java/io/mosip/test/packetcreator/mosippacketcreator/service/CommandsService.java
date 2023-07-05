@@ -193,6 +193,7 @@ public class CommandsService {
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						 Thread.currentThread().interrupt();
 					}
 				}
 			}
@@ -250,15 +251,9 @@ public class CommandsService {
 						}
 					}
 				} finally {
-					if (t == null) {
 						final Throwable exception = null;
 						t = exception;
-					} else {
-						final Throwable exception = null;
-						if (t != exception) {
-							t.addSuppressed(exception);
-						}
-					}
+					
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

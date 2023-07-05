@@ -88,13 +88,15 @@ public class PrintController {
 		}
 		JSONObject jsonCred = new JSONObject(creds);
 		String fileName = credsPath.getAbsolutePath() + "/"+ jsonCred.getJSONObject("credentialSubject").getString("UIN") + ".cred";
-		try { 
-			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));		
+		
+		
+		try  (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))){
+			
+					
 			writer.write(creds);
 			writer.close();
 
 		 } catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		    
