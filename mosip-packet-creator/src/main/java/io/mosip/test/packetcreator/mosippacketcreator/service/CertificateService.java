@@ -311,7 +311,7 @@ public class CertificateService {
         String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
         fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
 
-        if(fileExtension != ".cer"){
+        if(!fileExtension.equals(".cer")){
             throw new IOException("wrong filetype");
         }
 
