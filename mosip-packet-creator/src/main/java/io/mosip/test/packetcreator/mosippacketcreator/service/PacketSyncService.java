@@ -568,7 +568,7 @@ public class PacketSyncService {
 
 	public String preRegisterGetApplications(String status, String preregId, String contextKey) {
 		loadServerContextProperties(contextKey);
-		logger.debug("preRegisterGetApplications preregId=" + preregId);
+		//logger.debug("preRegisterGetApplications preregId=" + preregId);
 		return PreRegistrationSteps.getApplications(status, preregId, contextKey);
 	}
 
