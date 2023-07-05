@@ -573,23 +573,32 @@ public class PacketSyncService {
 	}
 
 	void saveRegIDMap(String preRegId, String personaFilePath) {
-
+		FileReader reader = null;
+		FileWriter writer = null;
 		Properties p = new Properties();
 		try {
-			FileReader reader = new FileReader(preRegMapFile);
+			reader = new FileReader(preRegMapFile);
 			p.load(reader);
+			p.put(preRegId, personaFilePath);
+			writer = new FileWriter(preRegMapFile);
+			p.store(writer, "PreRegID to persona mapping file");
 
-		} catch (IOException e) {
-			// TODO: handle exception
-			logger.error("saveRegIDMap " + e.getMessage());
-		}
-		p.put(preRegId, personaFilePath);
-		try {
-
-			p.store(new FileWriter(preRegMapFile), "PreRegID to persona mapping file");
 		} catch (IOException e) {
 			logger.error("saveRegIDMap " + e.getMessage());
 		}
+		finally {
+			try {
+				if(reader!=null)
+				reader.close();
+				if(writer!=null) {
+					writer.flush();
+					writer.close();
+				}
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+			}
+		}
+		
 	}
 
 	String getPersona(String preRegId) {
@@ -1276,11 +1285,16 @@ public class PacketSyncService {
 				guardian = ResidentModel.readPersona(filePathParent);
 			}
 		}
-		if (guardian != null)
+		if (guardian != null && persona!= null ) {
 			persona.setGuardian(guardian);
 
-		Files.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
-		return "{\"response\":\"SUCCESS\"}";
+			Files.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
+			return "{\"response\":\"SUCCESS\"}";
+		}
+		else {
+			return "{\"response\":\"FAIL\"}";
+		}
+			
 	}
 
 	public String updatePersonaBioExceptions(BioExceptionDto personaBERequestDto, String contextKey) {

@@ -27,201 +27,213 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.preparation.MosipDataSetup;
+
 @Component
 public class ContextUtils {
 
-	private String machineId=null;
+	private String machineId = null;
 
-	 @Value("${mosip.test.persona.configpath}")
-	    private String personaConfigPath;
-	   
-	  Logger logger = LoggerFactory.getLogger(ContextUtils.class);
-	   public Properties loadServerContext(String ctxName) {
-	    	String filePath =  personaConfigPath + "/server.context."+  ctxName + ".properties";
-	    	Properties p=new Properties();
-	        
-	    	FileReader reader;
+	@Value("${mosip.test.persona.configpath}")
+	private String personaConfigPath;
+
+	Logger logger = LoggerFactory.getLogger(ContextUtils.class);
+
+	public Properties loadServerContext(String ctxName) {
+		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
+		Properties p = new Properties();
+
+		FileReader reader = null;
+		try {
+			reader = new FileReader(filePath);
+			p.load(reader);
+		} catch (IOException e) {
+
+			logger.error("loadServerContext " + e.getMessage());
+		}
+
+		finally {
 			try {
-				reader = new FileReader(filePath);
-				p.load(reader);
+				if (reader != null)
+					reader.close();
 			} catch (IOException e) {
-				
-				logger.error("loadServerContext " + e.getMessage());
-			}  
-		
-			return p;
-	    }
-	   public Boolean  createUpdateServerContext(Properties props, String ctxName) {
-	    	
-	    	Boolean bRet = true;
-	    	  	String filePath =  personaConfigPath + "/server.context."+  ctxName + ".properties";
-	    	  	
-	    	  
-	  /*  	Properties p=new Properties();
-	    	Properties mergedProperties = new Properties();
-	    	try {
-	    		FileReader reader=new FileReader(filePath);  
-	    		
-	    			try {
-	    				if (props.getProperty("generatePrivateKey").equals("true")) {	// empty context file if true else use older context data
-	    					p.load(reader);
-	    					p.clear();
-	    				}
-	    				else
-	    				{
-	    					p.load(reader);
-	    				}
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}  
-	    		reader.close();
-	    		
-	    	}catch (IOException e) {
-				
-	    		logger.error("read:createUpdateServerContext " + e.getMessage());
-	    		bRet = false;
-			}
-	    */	
-	    	try {
-//	    		mergedProperties.putAll(p);
-//	    		mergedProperties.putAll(props);
-//	    		
-	    		//FileReader reader=new FileReader(filePath);  
-	    		props.store(new FileWriter(filePath),"Server Context Attributes");  
-	    		bRet = true;
-	    	
-	    	
-	    	
-	    	Properties pp = loadServerContext(ctxName);
-	    	pp.forEach( (k,v)->{
-	    		VariableManager.setVariableValue(ctxName,k.toString(), v.toString());
-	    	});
-	    	
-	    	
-	    	String generatePrivateKey = VariableManager.getVariableValue(ctxName, "generatePrivateKey").toString();//pp.getProperty("generatePrivateKey");
-	    	
-            boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
-            if (isRequired)
-                generateKeyAndUpdateMachineDetail(pp, ctxName);
-	    	}catch (IOException e) {
-	    		logger.error("write:createUpdateServerContext " + e.getMessage());
-	    		bRet = false;
-			}
-	    	return bRet;
-	    }
-	    public String createExecutionContext(String serverContextKey) {
-	    	
-	    	String uid = UUID.randomUUID().toString();
-	    	ExecContext context = new ExecContext();
-	    	context.setKey(uid);
-	    	Properties  p =loadServerContext(serverContextKey);
-	    	context.setProperties(p);
-	    	//Hashtable tbl = null;
-	    	return uid;
-	    }
-	    public static String  ProcessFromTemplate(String src, String templatePacketLocation) {
-	    	String process = null;
-	    	if(templatePacketLocation == null)
-	    		return process;
-	    	Path fPath = Path.of(templatePacketLocation +"/" + src.toUpperCase());
-	    	for(File f: fPath.toFile().listFiles()) {
-	    		//logger.info("subfolder "+ f.getName());
-	    		if(f.isDirectory()) {
-	    			process = f.getName();
-	    			break;
-	    		}
-	    			
-	    	}
-	    	return process;
-	    }
-	    public static Path idJsonPathFromTemplate(String src, String templatePacketLocation) {
-	    	Path fPath = Path.of(templatePacketLocation +"/" + src.toUpperCase());
-	    	String process = null;
-	    	
-	    	for(File f: fPath.toFile().listFiles()) {
-	    		//logger.info("subfolder "+ f.getName());
-	    		if(f.isDirectory()) {
-	    			process = f.getName();
-	    			break;
-	    		}
-	    			
-	    	}    	
-	    	if(process != null) {
-	    		fPath = Path.of(templatePacketLocation +"/" + src.toUpperCase() + "/" + process + "/rid_id/ID.json");
-	    		return fPath;
-	    	}
-	    	return null;
-	    }
-
-
-		public void generateKeyAndUpdateMachineDetail(Properties contextProperties,String contextKey) {
-			KeyPairGenerator keyGenerator = null;
-			boolean isMachineDetailFound=false;
-			machineId = contextProperties.getProperty("mosip.test.regclient.machineid");
-			if (machineId == null || machineId.isEmpty())
-				throw new RuntimeException("MachineId is null or empty!");
-			
-			try {
-				keyGenerator = KeyPairGenerator.getInstance("RSA");
-				keyGenerator.initialize(2048, new SecureRandom());
-				final KeyPair keypair = keyGenerator.generateKeyPair();
-				
-				createKeyFile(String.valueOf(personaConfigPath) + File.separator + 
-						"privatekeys"+ File.separator+VariableManager.getVariableValue(contextKey, "db-server").toString()+ "." + machineId + ".reg.key", keypair.getPrivate().getEncoded());
-				
-				final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
-				System.out.println("publicKey: "+publicKey);
-				if (publicKey != null && !publicKey.isEmpty()) {
-					List<MosipMachineModel> machines =null;
-					String status = contextProperties.getProperty("machineStatus");
-					if(status != null && status.equalsIgnoreCase("deactive"))
-						machines =MosipDataSetup.searchMachineDetail(machineId, "eng",contextKey);
-					else
-					 machines = MosipDataSetup.getMachineDetail(machineId, " ",contextKey);
-					if (machines != null && !machines.isEmpty()) {
-						for(MosipMachineModel mosipMachineModel:machines) {
-							//if(mosipMachineModel!=null && mosipMachineModel.isActive() && mosipMachineModel.getId().equalsIgnoreCase(machineId)) {
-								if(mosipMachineModel!=null && mosipMachineModel.getId().equalsIgnoreCase(machineId)) {  //  removed isActive check so, that inactive machine can also be updated (required due to deactive regcenter scenario)
-								mosipMachineModel.setSignPublicKey(publicKey);
-								mosipMachineModel.setPublicKey(publicKey);
-								mosipMachineModel.setName(RandomStringUtils.randomAlphanumeric(10).toUpperCase());
-							//	mosipMachineModel.setZoneCode("NTH");
-								MosipDataSetup.updateMachine(mosipMachineModel,contextKey);
-								isMachineDetailFound=true;
-								break;
-							}
-						}
-						if(!isMachineDetailFound)
-							throw new RuntimeException("MachineId : " + machineId + " details not found in DB.");						
-					} else
-						throw new RuntimeException("MachineId : " + machineId + " details not found in DB.");
-				}
-			} catch (NoSuchAlgorithmException e) {
 				e.printStackTrace();
 			}
 		}
-	    
-		private static void createKeyFile(final String fileName, final byte[] key) {
-			System.out.println("Creating file : " + fileName);
-			try {
-				Throwable t = null;
+
+		return p;
+	}
+
+	public Boolean createUpdateServerContext(Properties props, String ctxName) {
+
+		Boolean bRet = true;
+		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
+		FileWriter fr =null;
+		try {
+			fr = new FileWriter(filePath);
+			props.store(fr, "Server Context Attributes");
+			bRet = true;
+
+			Properties pp = loadServerContext(ctxName);
+			pp.forEach((k, v) -> {
+				VariableManager.setVariableValue(ctxName, k.toString(), v.toString());
+			});
+
+			String generatePrivateKey = VariableManager.getVariableValue(ctxName, "generatePrivateKey").toString();// pp.getProperty("generatePrivateKey");
+
+			boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
+			if (isRequired)
+				generateKeyAndUpdateMachineDetail(pp, ctxName);
+		} catch (IOException e) {
+			logger.error("write:createUpdateServerContext " + e.getMessage());
+			bRet = false;
+		}
+		finally {
+			if(fr!=null) {
 				try {
-					final FileOutputStream os = new FileOutputStream(fileName);
-					try {
-						os.write(key);
-					} finally {
-						if (os != null) {
-							os.close();
+					fr.flush();
+					fr.close();
+				} catch (IOException e) {
+					logger.error(e.getMessage());
+				}
+				
+			}
+				
+			
+		}
+		return bRet;
+	}
+
+	public String createExecutionContext(String serverContextKey) {
+
+		String uid = UUID.randomUUID().toString();
+		ExecContext context = new ExecContext();
+		context.setKey(uid);
+		Properties p = loadServerContext(serverContextKey);
+		context.setProperties(p);
+		// Hashtable tbl = null;
+		return uid;
+	}
+
+	public static String ProcessFromTemplate(String src, String templatePacketLocation) {
+		String process = null;
+		if (templatePacketLocation == null)
+			return process;
+		Path fPath = Path.of(templatePacketLocation + "/" + src.toUpperCase());
+		for (File f : fPath.toFile().listFiles()) {
+			// logger.info("subfolder "+ f.getName());
+			if (f.isDirectory()) {
+				process = f.getName();
+				break;
+			}
+
+		}
+		return process;
+	}
+
+	public static Path idJsonPathFromTemplate(String src, String templatePacketLocation) {
+		Path fPath = Path.of(templatePacketLocation + "/" + src.toUpperCase());
+		String process = null;
+
+		for (File f : fPath.toFile().listFiles()) {
+			// logger.info("subfolder "+ f.getName());
+			if (f.isDirectory()) {
+				process = f.getName();
+				break;
+			}
+
+		}
+		if (process != null) {
+			fPath = Path.of(templatePacketLocation + "/" + src.toUpperCase() + "/" + process + "/rid_id/ID.json");
+			return fPath;
+		}
+		return null;
+	}
+
+	public void generateKeyAndUpdateMachineDetail(Properties contextProperties, String contextKey) {
+		KeyPairGenerator keyGenerator = null;
+		boolean isMachineDetailFound = false;
+		machineId = contextProperties.getProperty("mosip.test.regclient.machineid");
+		if (machineId == null || machineId.isEmpty())
+			throw new RuntimeException("MachineId is null or empty!");
+
+		try {
+			keyGenerator = KeyPairGenerator.getInstance("RSA");
+			keyGenerator.initialize(2048, new SecureRandom());
+			final KeyPair keypair = keyGenerator.generateKeyPair();
+
+			createKeyFile(String.valueOf(personaConfigPath) + File.separator + "privatekeys" + File.separator
+					+ VariableManager.getVariableValue(contextKey, "db-server").toString() + "." + machineId
+					+ ".reg.key", keypair.getPrivate().getEncoded());
+
+			final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
+			System.out.println("publicKey: " + publicKey);
+			if (publicKey != null && !publicKey.isEmpty()) {
+				List<MosipMachineModel> machines = null;
+				String status = contextProperties.getProperty("machineStatus");
+				if (status != null && status.equalsIgnoreCase("deactive"))
+					machines = MosipDataSetup.searchMachineDetail(machineId, "eng", contextKey);
+				else
+					machines = MosipDataSetup.getMachineDetail(machineId, " ", contextKey);
+				if (machines != null && !machines.isEmpty()) {
+					for (MosipMachineModel mosipMachineModel : machines) {
+						// if(mosipMachineModel!=null && mosipMachineModel.isActive() &&
+						// mosipMachineModel.getId().equalsIgnoreCase(machineId)) {
+						if (mosipMachineModel != null && mosipMachineModel.getId().equalsIgnoreCase(machineId)) { // removed
+																													// isActive
+																													// check
+																													// so,
+																													// that
+																													// inactive
+																													// machine
+																													// can
+																													// also
+																													// be
+																													// updated
+																													// (required
+																													// due
+																													// to
+																													// deactive
+																													// regcenter
+																													// scenario)
+							mosipMachineModel.setSignPublicKey(publicKey);
+							mosipMachineModel.setPublicKey(publicKey);
+							mosipMachineModel.setName(RandomStringUtils.randomAlphanumeric(10).toUpperCase());
+							// mosipMachineModel.setZoneCode("NTH");
+							MosipDataSetup.updateMachine(mosipMachineModel, contextKey);
+							isMachineDetailFound = true;
+							break;
 						}
 					}
-				} finally {
-						final Throwable exception = null;
-						t = exception;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+					if (!isMachineDetailFound)
+						throw new RuntimeException("MachineId : " + machineId + " details not found in DB.");
+				} else
+					throw new RuntimeException("MachineId : " + machineId + " details not found in DB.");
 			}
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
 		}
-	 	   
+	}
+
+	private static void createKeyFile(final String fileName, final byte[] key) {
+		System.out.println("Creating file : " + fileName);
+		try {
+			Throwable t = null;
+			try {
+				final FileOutputStream os = new FileOutputStream(fileName);
+				try {
+					os.write(key);
+				} finally {
+					if (os != null) {
+						os.close();
+					}
+				}
+			} finally {
+				final Throwable exception = null;
+				t = exception;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 }
