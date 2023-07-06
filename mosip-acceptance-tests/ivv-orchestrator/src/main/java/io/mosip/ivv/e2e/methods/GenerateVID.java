@@ -49,7 +49,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 		String vidtype = null;
 		List<String> uinList = null;
 		String emailId ="";
-		String transactionID = step.getScenario().getId() + RandomStringUtils.randomNumeric(8);
+		String transactionID = (step.getScenario().getId() + RandomStringUtils.randomNumeric(8)).substring(0, 10);
 		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("VID Type[Perpetual/Temporary] parameter is  missing from DSL step");
