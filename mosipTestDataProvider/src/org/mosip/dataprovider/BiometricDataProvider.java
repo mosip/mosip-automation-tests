@@ -749,19 +749,19 @@ public class BiometricDataProvider {
 	private static XMLBuilder xmlbuilderIrisExcep(List<String> bioFilter, List<BioModality> lstIrisData,List<String> bioSubType,XMLBuilder builder,boolean genarateValidCbeff) 
 	{
 		try {
-			if(lstIrisData!=null) {
+			if (lstIrisData != null) {
 				for (BioModality finger : lstIrisData) {
 					if (!finger.getType().equalsIgnoreCase("Iris"))
 						continue;
 
-					String strFingerXml = buildBirIris(finger.getType(), finger.getSubType(), new byte[0].toString(), "",
-							"0", genarateValidCbeff,"true");
+					String strFingerXml = buildBirIris(finger.getType(), finger.getSubType(), Arrays.toString(new byte[0]),
+                            "", "0", genarateValidCbeff, "true");
 					XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 					builder = builder.importXMLBuilder(fbuilder);
 				}
 
-
-			}}
+			}
+		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
@@ -821,7 +821,7 @@ public class BiometricDataProvider {
 						}
 					}
 					logger.info("fingerData is: "+fingerData);
-					if (i >= 0 && fingerData != null) {
+					if (i >= 0 && fingerData != null && currentCM != null) {
 						String strFinger = DataProviderConstants.displayFingerName[i];
 						String strFingerXml = buildBirFinger(fingerData, strFinger, currentCM.getSb(), currentCM.getPayload(),
 								currentCM.getQualityScore(),genarateValidCbeff,"false");
@@ -847,7 +847,7 @@ public class BiometricDataProvider {
 				if (finger.getType().equalsIgnoreCase("eye") || finger.getType().equalsIgnoreCase("face"))
 					continue;
 
-				String strFingerXml = buildBirFinger(finger.getType(), finger.getSubType(), new byte[0].toString(), "",
+				String strFingerXml = buildBirFinger(finger.getType(), finger.getSubType(), Arrays.toString(new byte[0]), "",
 						"0",genarateValidCbeff,"true");
 				XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 				builder = builder.importXMLBuilder(fbuilder);
@@ -1012,7 +1012,7 @@ public class BiometricDataProvider {
 		 * lst = CommonUtil.listFiles(dirPath + String.format("/Impression_%d/fp_1/",
 		 * i)); tblFiles.put(i, lst); }
 		 */
-		lst = CommonUtil.listFiles(dirPath + String.format("/Impression_%d/fp_1/", Integer.toString(impressionToPick)));
+		lst = CommonUtil.listFiles(dirPath + String.format("/Impression_%d/fp_1/", impressionToPick));
 		tblFiles.put(impressionToPick, lst);
 		return tblFiles;
 	}

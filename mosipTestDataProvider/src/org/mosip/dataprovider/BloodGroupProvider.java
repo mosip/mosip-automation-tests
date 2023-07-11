@@ -23,7 +23,7 @@ public class BloodGroupProvider {
 			DynamicFieldModel bgModel = null;
 			List<DynamicFieldValueModel> bgs =null;
 			String key = keyLangs.next();
-			
+			Random rand = new Random();
 			for(DynamicFieldModel fm: dynaFields.get(key)) {
 				if(fm.getName().contains("blood")) {
 					bgModel = fm;
@@ -33,7 +33,7 @@ public class BloodGroupProvider {
 			}
 			if(bgModel !=null && bgModel.getFieldVal().size()==count) {
 				bgs = new ArrayList<DynamicFieldValueModel>();
-				Random rand = new Random();
+				//Random rand = new Random();
 				for( int i=0; i < count; i++) {
 					
 					int idx = rand.nextInt(bgModel.getFieldVal().size());
