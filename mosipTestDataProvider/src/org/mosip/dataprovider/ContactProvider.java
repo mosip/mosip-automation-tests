@@ -1,6 +1,7 @@
 package org.mosip.dataprovider;
 
 import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Random;
 
@@ -8,15 +9,18 @@ import org.mosip.dataprovider.models.Contact;
 import org.mosip.dataprovider.models.Name;
 import org.mosip.dataprovider.util.DataProviderConstants;
 
+
+
 public class ContactProvider {
+	private static Random rand = new Random();
 
 	
 	static int MAX_NUM = 9999;
+	
 	public static List<Contact> generate(List<Name> names,int count) {
 		
 		List<Contact> contacts = new ArrayList<Contact>();
 		
-		Random rand = new Random();
 		for(int i=0; i < count; i++) {
 			
 			Contact contact = new Contact();
@@ -24,18 +28,19 @@ public class ContactProvider {
 					 names.get(i).getSurName().substring(0, 28),rand.nextInt(MAX_NUM));
 			
 			contact.setEmailId(emailId);
-			contact.setMobileNumber( generateMobileNumber());
+			contact.setMobileNumber( generateMobileNumber(rand));
 			contacts.add(contact);
 		}
 		return contacts;
 	}
-	static String generateMobileNumber() {
+	
+	static String generateMobileNumber(Random rand) {
 		
 		StringBuilder mobNumber = new StringBuilder();
-		Random rand = new Random();
+		//Random rand = new Random();
 		int idx = rand.nextInt(4);
 		
-		long val = DataProviderConstants.mobNumber_prefix[idx] * 1000;
+		long val = (long) DataProviderConstants.mobNumber_prefix[idx] * 1000;
 		val += rand.nextInt(999);
 		mobNumber.append( String.format("%d",val));
 		

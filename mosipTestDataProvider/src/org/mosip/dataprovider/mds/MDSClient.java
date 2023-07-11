@@ -214,12 +214,18 @@ public class MDSClient implements MDSClientInterface {
 	public void removeProfile(String profilePath,String profile,int port,String contextKey) {
 		setProfile("Default",port,contextKey);
 		File profDir = new File(profilePath + "/"+ profile);
+		
 		if(profDir.exists()) {
 			 // list all the files in an array
 		      File[] files = profDir.listFiles();
 
 		      // delete each file from the directory
 		      for(File file : files) {
+		    	  boolean isDeleted = file.delete();
+	                if (!isDeleted) {
+	                	System.out.println("File Deleted successfully");
+	                	
+	                }
 		        file.delete();
 		      }
 		      profDir.delete();

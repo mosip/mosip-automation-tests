@@ -19,6 +19,8 @@ import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
 
 public class LocationProvider {
+	private static Random rand = new Random();
+
 
 	public static ApplicationConfigIdSchema generate( String langCode, int count,String contextKey) {
 
@@ -101,7 +103,6 @@ public class LocationProvider {
 			List<StateModel> states =StateProvider.load(country.getIso2());
 			List<CityModel> cities = CityProvider.load(countryIsoCode,contextKey);
 
-			Random rand = new Random();
 	
 			int [] zipcode = CommonUtil.generateRandomNumbers(count, 99999, 1111);
 					

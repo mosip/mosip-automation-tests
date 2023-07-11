@@ -63,6 +63,7 @@ import variables.VariableManager;
 
 @SuppressWarnings("unchecked")
 public class PacketTemplateProvider {
+	private static Random rand = new Random();
 	private static final Logger logger = LoggerFactory.getLogger(PacketTemplateProvider.class);
 
 //	 HashMap<String, String[]> fileInfo = new HashMap<String, String[]>();
@@ -655,25 +656,26 @@ public class PacketTemplateProvider {
 
 		String thirdValue = "";
 		if (thirdLang != null && !thirdLang.equals(""))
-			thirdValue = Translator.translate(thirdLang, primValue,contextKey);
+		    thirdValue = Translator.translate(thirdLang, primValue, contextKey);
 
 		// array
 		JSONArray ar = new JSONArray();
 		JSONObject o = new JSONObject();
 		o.put("language", primLang);
 		if (primValue != null && primValue.equals(""))
-			o.put("value", Json.NULL);
+		    o.put("value", Json.NULL);
 		else
-			o.put("value", primValue);
+		    o.put("value", primValue);
 		ar.put(o);
+
 		if (secLang != null) {
-			o = new JSONObject();
-			o.put("language", secLang);
-			if (secValue.equals(""))
-				o.put("value", Json.NULL);
-			else
-				o.put("value", secValue);
-			ar.put(o);
+		    o = new JSONObject();
+		    o.put("language", secLang);
+		    if (secValue != null && secValue.equals(""))
+		        o.put("value", Json.NULL);
+		    else
+		        o.put("value", secValue);
+		    ar.put(o);
 		}
 		if (thirdLang != null) {
 			o = new JSONObject();
@@ -842,7 +844,7 @@ public class PacketTemplateProvider {
 			if(index > -1)
 				addr = addressLines[index];
 			if(addr == null  ) {
-				Random rand = new Random();
+				//Random rand = new Random();
 				addr = "#%d, %d Street, %d block" ;//+ schemaItem.getId();
 				addr = String.format(addr, (100+ rand.nextInt(999)),
 					(1 + rand.nextInt(99)),
@@ -1090,7 +1092,7 @@ public class PacketTemplateProvider {
 						|| s.getId().toLowerCase().equals("birthdate")) {
 					primaryValue = resident.getDob();
 					secValue = primaryValue;
-				} else if (s.getId().toLowerCase().equals("gender")) {
+				} else if (s.getId().equalsIgnoreCase("gender")) {
 					primaryValue = "Female";
 					if (resident.getGender().equals("Male"))
 						primaryValue = "Male";
