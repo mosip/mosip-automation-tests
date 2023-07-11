@@ -10,6 +10,7 @@ import org.mosip.dataprovider.models.DynamicFieldModel;
 import org.mosip.dataprovider.models.DynamicFieldValueModel;
 
 public class BloodGroupProvider {
+	private static Random rand = new Random();
 	//static String [] bloodGroups = { "A+","A-","B+","B-","O+","O-","AB+","AB-"};
 	
 	//generate language specific blood group data
@@ -23,7 +24,6 @@ public class BloodGroupProvider {
 			DynamicFieldModel bgModel = null;
 			List<DynamicFieldValueModel> bgs =null;
 			String key = keyLangs.next();
-			Random rand = new Random();
 			for(DynamicFieldModel fm: dynaFields.get(key)) {
 				if(fm.getName().contains("blood")) {
 					bgModel = fm;

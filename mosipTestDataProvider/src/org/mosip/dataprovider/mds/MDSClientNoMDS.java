@@ -23,6 +23,7 @@ import org.mosip.dataprovider.util.DataProviderConstants;
 import variables.VariableManager;
 
 public class MDSClientNoMDS implements MDSClientInterface {
+	private static Random rand = new Random();
 
 	Hashtable<String,MDSDataModel> profileData;
 	MDSDataModel current;
@@ -183,10 +184,10 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		}
 
 		if (segmentsToCapture == null || segmentsToCapture.isEmpty()) {
-			// Throw exception
+		    // Throw exception
 		}
 
-		if (segmentsToCapture.size() == bioSubType.length) {
+		if (bioSubType != null && segmentsToCapture.size() == 2 * bioSubType.length) {
 			// TODO - validate requested Score, if deviceSubId is 3 then take the average of
 
 			for (String segment : segmentsToCapture) {
@@ -217,7 +218,6 @@ public class MDSClientNoMDS implements MDSClientInterface {
 			return segmentsToCapture;
 		}
 		else {
-			Random rand = new Random();
 			for(String bioSubType : bioSubTypes) {
 				if(localCopy.contains(bioSubType)) {
 					segmentsToCapture.add(bioSubType);
