@@ -285,7 +285,7 @@ public class PacketTemplateProvider {
 			String secVal = "";
 			if (s.getFieldCategory().equals("evidence") && (s.getInputRequired() || s.getRequired())) {
 
-				if (! (!s.getRequired()) && (s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
+				if (s.getRequired() && s.getRequiredOn() != null && !s.getRequiredOn().isEmpty()) {
 					continue;
 				}
 
@@ -412,7 +412,7 @@ public class PacketTemplateProvider {
 			String secVal = "";
 			if (s.getFieldCategory().equals("evidence") && (s.getInputRequired() || s.getRequired())) {
 
-				if (!(!s.getRequired()) && (s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
+				if (s.getRequired() && s.getRequiredOn() != null && !s.getRequiredOn().isEmpty()) {
 					
 					continue;
 				}

@@ -33,6 +33,8 @@ import com.mifmif.common.regex.Generex;
 
 
 public class CommonUtil {
+	
+	private static Random rand = new Random();
 
 	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     
@@ -67,7 +69,6 @@ public class CommonUtil {
 	public static int[] generateRandomNumbers(int count, int max, int min) {
 		int [] rand_nums = new int[ count];
 		 
-		Random rand = new Random(); 
 	     
 		for(int i=0; i < count; i++) {
 			rand_nums[i] = rand.nextInt((max - min) + 1) + min;
@@ -152,7 +153,6 @@ public class CommonUtil {
             });
 	}
 	public static String generateRandomString(int len) {
-		Random rand = new Random();
 		StringBuilder builder = new StringBuilder();
 		String alphabet = "abcdefghijklmn opqrstuvwxyz_123456789";
 		

@@ -211,6 +211,9 @@ public class RestClient {
 				//new Gson().fromJson(pathParam.toString(), HashMap.class);
 
 				response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,mapPathParam );
+				
+				
+				
 				if(response.getStatusCode() == 401) {
 					if(nLoop >= 1)
 						bDone = true;
@@ -223,11 +226,12 @@ public class RestClient {
 					bDone = true;
 			}
 
-			if(isDebugEnabled(contextKey) && response != null ) {
-				System.out.println(response.getBody().asString());
-
+			if (response != null) {
+			    if (isDebugEnabled(contextKey)) {
+			        System.out.println(response.getBody().asString());
+			    }
+			    checkErrorResponse(response.getBody().asString());
 			}
-			checkErrorResponse(response.getBody().asString());
 
 		}
 		catch(Exception e)
@@ -281,16 +285,12 @@ public class RestClient {
 					bDone = true;
 			}
 
-			if(isDebugEnabled(contextKey) && response != null ) {
-				System.out.println(response.getBody().asString());
-
-			}
-			checkErrorResponse(response.getBody().asString());
-
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
+			if (isDebugEnabled(contextKey) && response != null) {
+		        System.out.println(response.getBody().asString());
+		        checkErrorResponse(response.getBody().asString());
+		    }
+		} catch (Exception e) {
+		    e.printStackTrace();
 		}
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
@@ -364,9 +364,13 @@ public class RestClient {
 
 		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,mapPathParam );
 
-		if(isDebugEnabled(contextKey) && response != null ) {	System.out.println(response.getBody().asString());        	
+		if (isDebugEnabled(contextKey) && response != null) {
+		    System.out.println(response.getBody().asString());
 		}
-		checkErrorResponse(response.getBody().asString());
+
+		if (response != null) {
+		    checkErrorResponse(response.getBody().asString());
+		}
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
@@ -505,18 +509,23 @@ public class RestClient {
 		//String token = tokens.get(role);
 		String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
 
-		Response response =null;
-		if(isDebugEnabled(contextKey ) )
-		System.out.println("Request:"+ jsonRequest.toString());
-		try {
-			response = given()
-					.contentType(ContentType.JSON)
-					.body(jsonRequest.toString()).post(url);
-
-		}catch(Exception e) {
-			e.printStackTrace();
+		Response response = null;
+		if (isDebugEnabled(contextKey)) {
+		    System.out.println("Request: " + jsonRequest.toString());
 		}
-		System.out.println("Response:"+response.getBody().asString());
+		try {
+		    response = given()
+		            .contentType(ContentType.JSON)
+		            .body(jsonRequest.toString())
+		            .post(url);
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+		if (response != null) {
+		    System.out.println("Response: " + response.getBody().asString());
+		} else {
+		    System.out.println("Response: null");
+		}
 
 		for(Header h: response.getHeaders()) {
 			System.out.println(h.getName() +"="+ h.getValue());
@@ -553,25 +562,25 @@ public class RestClient {
 
 		}
 
-		//String token = tokens.get(role);
-		String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+role);
+		String token = tokens.get(VariableManager.getVariableValue(contextKey, "urlBase").toString().trim() + role);
 
-		Response response =null;
-
-		System.out.println("Request:"+ jsonRequest.toString());
-
+		Response response = null;
+		System.out.println("Request: " + jsonRequest.toString());
 		try {
-			Cookie kukki = new Cookie.Builder("Authorization", token).build();
-
-			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
-
-
-
-		}catch(Exception e) {
-			e.printStackTrace();
+		    Cookie kukki = new Cookie.Builder("Authorization", token).build();
+		    response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+		} catch (Exception e) {
+		    e.printStackTrace();
 		}
-		if(isDebugEnabled(contextKey ) )
-		System.out.println("Response:"+response.getBody().asString());
+
+		if (isDebugEnabled(contextKey)) {
+		    if (response != null) {
+		        System.out.println("Response: " + response.getBody().asString());
+		    } else {
+		        System.out.println("Response: null");
+		    }
+		}
+
 
 		for(Header h: response.getHeaders()) {
 			System.out.println(h.getName() +"="+ h.getValue());
@@ -1060,47 +1069,36 @@ public class RestClient {
 		}
 	}
 
-	public  static boolean initPreregToken(String url,JSONObject requestBody,String contextKey){
-		try {		
+	public static boolean initPreregToken(String url, JSONObject requestBody, String contextKey) {
+	    try {
+	        String jsonBody = requestBody.toString();
+	        logger.info("Prereg logger " + jsonBody);
 
-			String jsonBody = requestBody.toString(); 
-			logger.info("Prereg logger " +  jsonBody);
-			Response response =null;
-			try {
-				response = given()
-						.contentType("application/json")
-						.body(jsonBody)
-						.post(url);
+	        Response response = null;
+	        try {
+	            response = given()
+	                    .contentType("application/json")
+	                    .body(jsonBody)
+	                    .post(url);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
 
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-
-			if (response.getStatusCode() != 200 || response.toString().contains("errorCode")) {
-				//            	boolean bSlackit = VariableManager.getVariableValue(contextKey,"post2slack") == null ? false : Boolean.parseBoolean(VariableManager.getVariableValue(contextKey,"post2slack").toString()) ;
-				//            	if(bSlackit)
-				//            		SlackIt.postMessage(null,
-				//            				authUrl  + " Failed to authenticate, Is " +  VariableManager.getVariableValue(contextKey,"urlBase").toString() + " down ?");
-				//            	
-				return false;
-			}
-			//String responseBody = response.getBody().asString();
-			//String token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
-			//refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
-
-			String token=response.getCookie("Authorization");
-			if( token==null) return false;
-			tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"prereg", token);
-			//tokens.put("admin", token);
-			return true;	
-		}
-		catch(Exception  ex){
-
-		}
-		return false;
-
-		//https://dev.mosip.net/v1/authmanager/authenticate/internal/useridPwd
+	        if (response != null) {
+	            if (response.getStatusCode() != 200 || response.toString().contains("errorCode")) {
+	                return false;
+	            } else {
+	                return true;
+	            }
+	        } else {
+	            return false;
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false;
+	    }
 	}
+
 
 
 	public  static boolean initToken(String contextKey){
@@ -1123,29 +1121,31 @@ public class RestClient {
 			//String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
 			//VariableManager.NS_DEFAULT
 			//VariableManager.NS_DEFAULT
-			String authUrl = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"authManagerURL").toString().trim();
-			String jsonBody = requestBody.toString(); 
-			logger.info("Neeharika initToken logger " + authUrl + " Auth URL"+  jsonBody);
-			//System.out.println("Neeharika Syso " + authUrl + " Auth URL"+  jsonBody);
-			Response response =null;
+			String authUrl = VariableManager.getVariableValue(contextKey, "urlBase").toString().trim() +
+			        VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
+			String jsonBody = requestBody.toString();
+			logger.info("Neeharika initToken logger " + authUrl + " Auth URL" + jsonBody);
+
+			Response response = null;
 			try {
-				response = given()
-						.contentType("application/json")
-						.body(jsonBody)
-						.post(authUrl);
-
-			}catch(Exception e) {
-				e.printStackTrace();
+			    response = given()
+			            .contentType("application/json")
+			            .body(jsonBody)
+			            .post(authUrl);
+			} catch (Exception e) {
+			    e.printStackTrace();
 			}
+			if (response != null) {
+				if (response.getStatusCode() != 200 || response.toString().contains("errorCode")) {
+					boolean bSlackit = VariableManager.getVariableValue(contextKey,"post2slack") == null ? false : Boolean.parseBoolean(VariableManager.getVariableValue(contextKey,"post2slack").toString()) ;
+					if(bSlackit)
+						SlackIt.postMessage(null,
+								authUrl  + " Failed to authenticate, Is " +  VariableManager.getVariableValue(contextKey,"urlBase").toString() + " down ?");
 
-			if (response.getStatusCode() != 200 || response.toString().contains("errorCode")) {
-				boolean bSlackit = VariableManager.getVariableValue(contextKey,"post2slack") == null ? false : Boolean.parseBoolean(VariableManager.getVariableValue(contextKey,"post2slack").toString()) ;
-				if(bSlackit)
-					SlackIt.postMessage(null,
-							authUrl  + " Failed to authenticate, Is " +  VariableManager.getVariableValue(contextKey,"urlBase").toString() + " down ?");
-
-				return false;
+					return false;
+				}
 			}
+			
 			String responseBody = response.getBody().asString();
 			String token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
 			//refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
@@ -1195,11 +1195,12 @@ public class RestClient {
 				e.printStackTrace();
 			}
 
-			if (response.getStatusCode() != 200 || response.toString().contains("errorCode")) {
-				boolean bSlackit = VariableManager.getVariableValue(contextKey,"post2slack") == null ? false : Boolean.parseBoolean(VariableManager.getVariableValue(contextKey,"post2slack").toString()) ;
-				if(bSlackit)
-					SlackIt.postMessage(null,
-							authUrl  + " Failed to authenticate, Is " +  VariableManager.getVariableValue(contextKey,"urlBase").toString() + " down ?");
+			if (response != null && (response.getStatusCode() != 200 || response.toString().contains("errorCode"))) {
+				boolean bSlackit = VariableManager.getVariableValue(contextKey, "post2slack") == null ? false
+						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, "post2slack").toString());
+				if (bSlackit)
+					SlackIt.postMessage(null, authUrl + " Failed to authenticate, Is "
+							+ VariableManager.getVariableValue(contextKey, "urlBase").toString() + " down ?");
 
 				return false;
 			}
@@ -1254,11 +1255,12 @@ public class RestClient {
 				e.printStackTrace();
 			}
 
-			if (response.getStatusCode() != 200 || response.toString().contains("errorCode")) {
-				boolean bSlackit = VariableManager.getVariableValue(contextKey,"post2slack") == null ? false : Boolean.parseBoolean(VariableManager.getVariableValue(contextKey,"post2slack").toString()) ;
-				if(bSlackit)
-					SlackIt.postMessage(null,
-							authUrl  + " Failed to authenticate, Is " +  VariableManager.getVariableValue(contextKey,"urlBase").toString() + " down ?");
+			if (response != null && (response.getStatusCode() != 200 || response.toString().contains("errorCode"))) {
+				boolean bSlackit = VariableManager.getVariableValue(contextKey, "post2slack") == null ? false
+						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, "post2slack").toString());
+				if (bSlackit)
+					SlackIt.postMessage(null, authUrl + " Failed to authenticate, Is "
+							+ VariableManager.getVariableValue(contextKey, "urlBase").toString() + " down ?");
 
 				return false;
 			}
