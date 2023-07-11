@@ -56,6 +56,7 @@ import variables.VariableManager;
  *  
  */
 public class ResidentDataProvider {
+	private static Random rand = new Random();
 		Properties attributeList;
 	
 	
@@ -419,7 +420,7 @@ public class ResidentDataProvider {
 			e1.printStackTrace();
 		}
 		
-		Random rand = new Random();
+		//Random rand = new Random();
 		for(int i=0; i < count; i++) {
 			Gender res_gender = names_primary.get(i).getGender();
 			ResidentModel res= new ResidentModel();
