@@ -384,15 +384,10 @@ public class CertificateGenerator {
          props.forEach( (k,v) ->{
           	 if(k.equals("C"))
           		 attrs.put(X509Principal.C, v);
-          	else
-          	if(k.equals("O"))
-          		 attrs.put(X509Principal.O, v);	 
-          	else
-              if(k.equals("OU"))
-              	attrs.put(X509Principal.OU, v);	 
-          	else
-              if(k.equals("OU"))
-              	attrs.put(X509Principal.OU, v);	 
+          	else if (k.equals("O"))
+          	    attrs.put(X509Principal.O, v);
+          	else if (k.equals("OU"))
+          	    attrs.put(X509Principal.OU, v); 
             else
             if(k.equals("L"))
             	attrs.put(X509Principal.L, v);	 
