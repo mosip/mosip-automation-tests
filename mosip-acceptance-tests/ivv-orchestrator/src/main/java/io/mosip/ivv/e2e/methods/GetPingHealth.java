@@ -44,7 +44,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 			}
 		
 		}
-		else
+		else {
 		uri=baseUrl + "/ping";
 		
 		Response response = getRequest(uri, "Health Check",step);
@@ -56,7 +56,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 			logger.error("RESPONSE=" + res.toString());
 			throw new SkipException("Health check status" + res.toString());
 		}
-
+		}
 	}
 	
 	public static String checkActuatorNoAuth(String actuatorURL) {
