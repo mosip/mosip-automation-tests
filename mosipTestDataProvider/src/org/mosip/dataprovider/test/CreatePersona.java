@@ -24,6 +24,7 @@ import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataCallback;
+import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.RestClient;
 import org.mosip.dataprovider.util.Translator;
 import org.mvel2.MVEL;
@@ -320,7 +321,7 @@ public class CreatePersona {
 			else
 			if(schemaItem.getId().toLowerCase().equals("gender")){
 						String primaryValue ="Female";
-						if(resident.getGender().equals("Male"))
+						if(resident.getGender() == Gender.Male)
 							primaryValue = "Male";
 						String secValue = primaryValue;
 						

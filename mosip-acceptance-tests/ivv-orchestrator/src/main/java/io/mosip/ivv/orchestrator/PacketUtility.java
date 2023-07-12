@@ -434,7 +434,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			try {
 				Thread.sleep(30000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 				Thread.currentThread().interrupt();
 			}
 			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
@@ -515,7 +515,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			try {
 				Thread.sleep(30000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 				Thread.currentThread().interrupt();
 			}
 			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
@@ -1680,7 +1680,6 @@ JSONObject jsonObject = new JSONObject();
 			Context context = Context.newBuilder(map).build();
 			resultJson = compiledTemplate.apply(context);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		return resultJson;
 	}

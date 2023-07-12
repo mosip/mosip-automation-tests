@@ -1092,7 +1092,7 @@ public class PacketTemplateProvider {
 					secValue = primaryValue;
 				} else if (s.getId().equalsIgnoreCase("gender")) {
 					primaryValue = "Female";
-					if (resident.getGender().equals("Male"))
+					if (resident.getGender() == Gender.Male)
 						primaryValue = "Male";
 					secValue = primaryValue;
 				} else if (s.getId().toLowerCase().contains("address")

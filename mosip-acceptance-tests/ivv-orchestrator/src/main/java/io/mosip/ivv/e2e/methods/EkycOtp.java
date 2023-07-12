@@ -122,9 +122,9 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 					try {
 						otpauth.test(test);
 					} catch (AuthenticationTestException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					} catch (AdminTestException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 				}
 			}
@@ -154,9 +154,9 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 					try {
 						otpauth.test(test);
 					} catch (AuthenticationTestException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					} catch (AdminTestException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 				}
 			}

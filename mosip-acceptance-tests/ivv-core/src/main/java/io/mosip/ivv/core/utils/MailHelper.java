@@ -6,11 +6,16 @@ import lombok.Setter;
 
 import javax.mail.*;
 import javax.mail.internet.MimeMultipart;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 
 public class MailHelper {
+	private static final Logger logger = LoggerFactory.getLogger(MailHelper.class);
 
     @Getter
     @Setter
@@ -74,7 +79,7 @@ public class MailHelper {
             emailInbox.close(true);
             store.close();
         } catch (Exception mex) {
-            mex.printStackTrace();
+            logger.error(mex.getMessage());
             Thread.currentThread().interrupt();
         }
         return null;
@@ -118,7 +123,7 @@ public class MailHelper {
             emailInbox.close(true);
             store.close();
         } catch (Exception mex) {
-            mex.printStackTrace();
+            logger.error(mex.getMessage());
             Thread.currentThread().interrupt();
         }
         return emailBody;
@@ -157,7 +162,7 @@ public class MailHelper {
             emailInbox.close(true);
             store.close();
         } catch (Exception mex) {
-            mex.printStackTrace();
+            logger.error(mex.getMessage());
             Thread.currentThread().interrupt();
         }
     }
@@ -202,7 +207,7 @@ public class MailHelper {
                 store.close();
             }
         } catch (Exception mex) {
-            mex.printStackTrace();
+            logger.error(mex.getMessage());
             Thread.currentThread().interrupt();
         }
         return otp;

@@ -271,7 +271,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						try {
 							demoAuth.test(test);
 						} catch (NoSuchAlgorithmException e) {
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						}
 					} catch (AuthenticationTestException | AdminTestException e) {
 
@@ -464,7 +464,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						try {
 							demoAuth.test(test);
 						} catch (NoSuchAlgorithmException e) {
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						}
 					} catch (AuthenticationTestException | AdminTestException e) {
 

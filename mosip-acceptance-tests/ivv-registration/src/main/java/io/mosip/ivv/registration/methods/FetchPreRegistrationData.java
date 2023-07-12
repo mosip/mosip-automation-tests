@@ -1,11 +1,15 @@
 package io.mosip.ivv.registration.methods;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.ivv.core.base.BaseStep;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.dtos.RequestDataDTO;
 import io.mosip.ivv.core.dtos.ResponseDataDTO;
+import io.mosip.ivv.core.utils.MailHelper;
 import io.mosip.ivv.registration.config.Setup;
 import io.mosip.registration.context.SessionContext;
 import io.mosip.registration.dto.ErrorResponseDTO;
@@ -15,6 +19,7 @@ import io.mosip.registration.dto.SuccessResponseDTO;
 import io.mosip.registration.service.sync.PreRegistrationDataSyncService;
 
 public class FetchPreRegistrationData extends BaseStep implements StepInterface {
+	private static final Logger logger = LoggerFactory.getLogger(FetchPreRegistrationData.class);
 
     @Override
     public void run() {
@@ -44,7 +49,7 @@ public class FetchPreRegistrationData extends BaseStep implements StepInterface 
         try {
             String jsonInString = mapper.writeValueAsString(SessionContext.map().get("registrationDTOContent"));
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        	logger.error(e.getMessage());
             logSevere("Jackson ObjectMapper: "+e.getMessage());
         }
     }
