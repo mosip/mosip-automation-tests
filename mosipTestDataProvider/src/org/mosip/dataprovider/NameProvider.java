@@ -179,7 +179,7 @@ public class NameProvider {
 			}
 		
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return names;
 	}
