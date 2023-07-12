@@ -28,19 +28,22 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 		while (counter < repeats) {
 			m = MockSMTPListener.emailNotificationMapS;
 			if (m.get(email) != null) {
-				String html = (String) m.get(email);
-				StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1");
+//				String html = (String) m.get(email);
+//				StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1");
 				// String
 				// arr[]=html.split("AdditionalInfoRequestId","AdditionalInfoRequestId".indexOf(str)
 				// ;
 				// System.out.println(arr);
 
 				logger.info("*******Checking the email for AdditionalInfoReqId...*******");
+				
+				additonalInfoRequestId = MockSMTPListener.parseAdditionalReqId((String) m.get(email));
+				
 				// Response response = getRequest(url, "Get addtionalInfoRequestId");
 				// String additonalInfoRequestId = response.getBody().asString();
-				additonalInfoRequestId = StringUtils
-						.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1").trim()
-						+ "-BIOMETRIC_CORRECTION-1";
+//				additonalInfoRequestId = StringUtils
+//						.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1").trim()
+//						+ "-BIOMETRIC_CORRECTION-1";
 				// additonalInfoRequestId= StringUtils.substringBetween(html,
 				// "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1");
 
