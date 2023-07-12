@@ -40,11 +40,6 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		if (step.getParameters().size() >= 9 && step.getParameters().get(8).contains("true")) {
 			waitTimeFromActuator = PacketUtility.getActuatorDelay();
 			delaysec = TIME_IN_MILLISEC * waitTimeFromActuator;
-//			try {
-//				Thread.sleep(waitTime);
-//			} catch (InterruptedException e) { 
-//				e.printStackTrace();
-//			}
 		}
 
 		if (step.getParameters().size() == 4) { /// id=878787877

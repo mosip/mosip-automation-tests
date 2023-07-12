@@ -172,10 +172,10 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 							try {
 								multiFactorAuth.test(test);
 							} catch (AdminTestException e) {
-								e.printStackTrace();
+								logger.error(e.getMessage());
 							}
 						} catch (AuthenticationTestException e) {
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						}
 					}
 				}
@@ -218,10 +218,10 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 							try {
 								multiFactorAuth.test(test);
 							} catch (AdminTestException e) {
-								e.printStackTrace();
+								logger.error(e.getMessage());
 							}
 						} catch (AuthenticationTestException e) {
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						}
 					}
 				}

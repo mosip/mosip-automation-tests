@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.Reporter;
@@ -43,6 +45,7 @@ import io.mosip.ivv.core.dtos.RegistrationUser;
 import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.core.dtos.Store;
 import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.ivv.core.utils.MailHelper;
 import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.dg.DataGenerator;
 import io.mosip.ivv.parser.Parser;
@@ -51,6 +54,7 @@ import io.mosip.kernel.util.S3Adapter;
 import io.mosip.service.BaseTestCase;
 
 public class Orchestrator {
+	private static final Logger logger = LoggerFactory.getLogger(Orchestrator.class);
 	String message = null;
 	int countScenarioPassed = 0;
 	static int totalScenario = 0;
@@ -123,7 +127,7 @@ public class Orchestrator {
 				System.out.println("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {
 				System.out.println("error occured while pushing the object" + e.getLocalizedMessage());
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			if (isStoreSuccess) {
 				System.out.println("Pushed file to S3");
@@ -378,7 +382,7 @@ public class Orchestrator {
 				}
 			} catch (ClassNotFoundException e) {
 				extentTest.error(identifier + " - ClassNotFoundException --> " + e.toString());
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
@@ -386,27 +390,27 @@ public class Orchestrator {
 				return;
 			} catch (IllegalAccessException e) {
 				extentTest.error(identifier + " - IllegalAccessException --> " + e.toString());
-				e.printStackTrace();
+				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (InstantiationException e) {
 				extentTest.error(identifier + " - InstantiationException --> " + e.toString());
-				e.printStackTrace();
+				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 
 			} catch (RigInternalError e) {
 				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
-				e.printStackTrace();
+				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 
 			} catch (RuntimeException e) {
 				extentTest.error(identifier + " - RuntimeException --> " + e.toString());
-				e.printStackTrace();
+				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
