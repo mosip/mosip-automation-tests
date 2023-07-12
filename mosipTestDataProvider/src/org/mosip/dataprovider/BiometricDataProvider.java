@@ -589,8 +589,7 @@ public class BiometricDataProvider {
 		}
 		catch(Exception e)
 		{
-			logger.error("xmlbuilderFinger failed");
-			e.printStackTrace();
+			logger.error("xmlbuilderFinger failed" + e.getMessage());
 		}
 
 
@@ -611,7 +610,7 @@ public class BiometricDataProvider {
 		catch(Exception e)
 		{
 			logger.error("buildBirFace failed");
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		//		else if(missAttribs!=null && missAttribs.contains("face")) 
@@ -656,7 +655,7 @@ public class BiometricDataProvider {
 		catch(Exception e)
 		{
 			logger.error("xmlbuilderIris failed");
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 
@@ -678,7 +677,7 @@ public class BiometricDataProvider {
 		catch(Exception e)
 		{
 			logger.error("buildBirExceptionPhoto failed");
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		//Print builder
@@ -739,7 +738,7 @@ public class BiometricDataProvider {
 			}
 		}catch(Exception e)
 		{
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 
@@ -764,7 +763,7 @@ public class BiometricDataProvider {
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		return builder;
@@ -894,7 +893,6 @@ public class BiometricDataProvider {
 
 			if (i >= 0) {
 				String strFinger = DataProviderConstants.displayFingerName[i];
-				// TODO : THIS NEED TO IMPLEMENTED WHEN WILL WORK WITH MDS
 				String strFingerXml = buildBirFinger(fingerPrint[i], strFinger, null, null, qualityScore,genarateValidCbeff,"false");
 
 				XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
@@ -906,7 +904,6 @@ public class BiometricDataProvider {
 		// Step 2: Add Face
 		if (bioFilter.contains("Face")) {
 			if (biometricDataModel.getEncodedPhoto() != null) {
-				// TODO : THIS NEED TO IMPLEMENTED WHEN WILL WORK WITH MDS
 				String faceXml = buildBirFace(biometricDataModel.getEncodedPhoto(), null, null, qualityScore,genarateValidCbeff,"true");
 				builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
 			}
@@ -917,12 +914,10 @@ public class BiometricDataProvider {
 		if (irisInfo != null) {
 			String irisXml = "";
 			if (bioFilter.contains("leftEye")) {
-				// TODO : THIS NEED TO IMPLEMENTED WHEN WILL WORK WITH MDS
 				irisXml = buildBirIris(irisInfo.getLeft(), "Left", null, null, qualityScore,genarateValidCbeff,"true");
 				builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 			}
 			if (bioFilter.contains("rightEye")) {
-				// TODO : THIS NEED TO IMPLEMENTED WHEN WILL WORK WITH MDS
 				irisXml = buildBirIris(irisInfo.getRight(), "Right", null, null, qualityScore,genarateValidCbeff,"true");
 				builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 			}
@@ -963,8 +958,8 @@ public class BiometricDataProvider {
 	 * 
 	 * createList.add(finger);
 	 * 
-	 * } catch (Exception e) { // TODO Auto-generated catch block
-	 * e.printStackTrace(); }
+	 * } catch (Exception e) { 
+	 * logger.error(e.getMessage()); }
 	 * 
 	 * } //CbeffImpl cbeffImpl = new CbeffImpl(); CbeffContainerImpl cbeffContainer
 	 * = new CbeffContainerImpl(); BIRType bir =
@@ -1049,8 +1044,7 @@ public class BiometricDataProvider {
 						fingerPrintHash[i] = CommonUtil.getHexEncodedHash(fdata);
 
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 					data.setFingerPrint(fingerPrints);
 					data.setFingerHash(fingerPrintHash);
@@ -1094,8 +1088,7 @@ public class BiometricDataProvider {
 							fingerPrintHash[index] = CommonUtil.getHexEncodedHash(fdata);
 
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						}
 
 						index++;
@@ -1107,8 +1100,7 @@ public class BiometricDataProvider {
 					tmpDir.deleteOnExit();
 
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			} else {
 				// reach cached finger prints from folder
@@ -1166,8 +1158,7 @@ public class BiometricDataProvider {
 						fingerPrintHash[index] = CommonUtil.getHexEncodedHash(fdata);
 
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 					index++;
 
@@ -1204,8 +1195,8 @@ public class BiometricDataProvider {
 			 * 
 			 * fingerPrintHash[index] =CommonUtil.getHexEncodedHash(fdata);
 			 * 
-			 * } catch ( Exception e) { // TODO Auto-generated catch block
-			 * e.printStackTrace(); } index++;
+			 * } catch ( Exception e) { 
+			 * logger.error(e.getMessage()); } index++;
 			 * 
 			 * } data.setFingerPrint(fingerPrints); data.setFingerHash(fingerPrintHash);
 			 * data.setFingerRaw(fingerPrintRaw);
@@ -1249,8 +1240,7 @@ public class BiometricDataProvider {
 				tblFiles.put(i, lst);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return tblFiles;
 	}
@@ -1424,16 +1414,12 @@ public class BiometricDataProvider {
 			String value = buildBirFinger("addfdfd", "finger", "jwtSign", "payload", null, true,"false");
 			System.out.println(value);
 		} catch (FileNotFoundException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		} catch (ParserConfigurationException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		} catch (FactoryConfigurationError e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		} catch (TransformerException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 
@@ -1445,7 +1431,6 @@ public class BiometricDataProvider {
 
 			});
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -1453,7 +1438,6 @@ public class BiometricDataProvider {
 		try {
 			bio = getBiometricData(true, "contextkey");
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -1496,8 +1480,7 @@ public class BiometricDataProvider {
 			 */
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		System.out.println(xml);
 	}

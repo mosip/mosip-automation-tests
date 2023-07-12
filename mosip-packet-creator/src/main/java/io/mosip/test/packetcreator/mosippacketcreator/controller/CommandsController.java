@@ -52,7 +52,6 @@ public class CommandsController {
 		try {
 			 fileName = commandsService.storeFile(file);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return fileName;
@@ -107,7 +106,6 @@ public class CommandsController {
 			return commandsService.writeToFile(contextKey,reqestData, offset);
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return "{Failed}";

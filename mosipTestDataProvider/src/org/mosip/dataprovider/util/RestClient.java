@@ -167,7 +167,7 @@ public class RestClient {
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return response;
 	}
@@ -236,7 +236,7 @@ public class RestClient {
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
@@ -290,7 +290,7 @@ public class RestClient {
 		        checkErrorResponse(response.getBody().asString());
 		    }
 		} catch (Exception e) {
-		    e.printStackTrace();
+		    logger.error(e.getMessage());
 		}
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
@@ -519,7 +519,7 @@ public class RestClient {
 		            .body(jsonRequest.toString())
 		            .post(url);
 		} catch (Exception e) {
-		    e.printStackTrace();
+		    logger.error(e.getMessage());
 		}
 		if (response != null) {
 		    System.out.println("Response: " + response.getBody().asString());
@@ -570,7 +570,7 @@ public class RestClient {
 		    Cookie kukki = new Cookie.Builder("Authorization", token).build();
 		    response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
 		} catch (Exception e) {
-		    e.printStackTrace();
+		    logger.error(e.getMessage());
 		}
 
 		if (isDebugEnabled(contextKey)) {
@@ -1081,7 +1081,7 @@ public class RestClient {
 	                    .body(jsonBody)
 	                    .post(url);
 	        } catch (Exception e) {
-	            e.printStackTrace();
+	            logger.error(e.getMessage());
 	        }
 
 	        if (response != null) {
@@ -1094,7 +1094,7 @@ public class RestClient {
 	            return false;
 	        }
 	    } catch (Exception e) {
-	        e.printStackTrace();
+	        logger.error(e.getMessage());
 	        return false;
 	    }
 	}
@@ -1133,7 +1133,7 @@ public class RestClient {
 			            .body(jsonBody)
 			            .post(authUrl);
 			} catch (Exception e) {
-			    e.printStackTrace();
+			    logger.error(e.getMessage());
 			}
 			if (response != null) {
 				if (response.getStatusCode() != 200 || response.toString().contains("errorCode")) {
@@ -1192,7 +1192,7 @@ public class RestClient {
 						.post(authUrl);
 
 			}catch(Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 
 			if (response != null && (response.getStatusCode() != 200 || response.toString().contains("errorCode"))) {
@@ -1252,7 +1252,7 @@ public class RestClient {
 						.post(authUrl);
 
 			}catch(Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 
 			if (response != null && (response.getStatusCode() != 200 || response.toString().contains("errorCode"))) {

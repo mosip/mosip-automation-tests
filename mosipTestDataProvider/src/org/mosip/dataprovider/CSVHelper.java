@@ -9,8 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.opencsv.CSVReader;
@@ -19,6 +22,7 @@ import com.opencsv.CSVReaderBuilder;
 import variables.VariableManager;
 
 public class CSVHelper {
+	private static final Logger logger = LoggerFactory.getLogger(CSVHelper.class);
 
 	String fileName;
 	CSVReader csvReader;
@@ -124,8 +128,7 @@ public class CSVHelper {
 			}
 			helper.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 	}

@@ -36,7 +36,6 @@ public class SlackChannelIntegration {
 				return true;
 			
 	    } catch (IOException | SlackApiException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	    return false;

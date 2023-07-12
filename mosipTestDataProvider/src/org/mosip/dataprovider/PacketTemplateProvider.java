@@ -152,7 +152,7 @@ public class PacketTemplateProvider {
 		}
 		catch(Throwable e) {
 			logger.error("generate", e);
-//			e.printStackTrace();
+//			logger.error(e.getMessage());
 		}
 		JSONObject processMVEL = processMVEL(resident, idJson, process,contextSchemaDetail);
 		idJson = processMVEL.toString();
@@ -317,8 +317,7 @@ public class PacketTemplateProvider {
 								Files.copy(Paths.get(docFile), Paths.get(outFile));
 
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.error(e.getMessage());
 							}
 							break;
 						}
@@ -445,7 +444,7 @@ public class PacketTemplateProvider {
 
 
 							} catch (Exception e) {
-								e.printStackTrace();
+								logger.error(e.getMessage());
 							}
 							break;
 						}
@@ -884,8 +883,7 @@ public class PacketTemplateProvider {
 						try {
 							someVal = CommonUtil.genStringAsperRegex(regexpr);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						}
 				}
 			}
@@ -915,7 +913,7 @@ public class PacketTemplateProvider {
 						jsonO = new JSONArray(value);
 						identity.put(s.getId(), jsonO);
 					}catch(Exception e) {
-					//	e.printStackTrace();
+					//	logger.error(e.getMessage());
 					}
 					if(jsonO == null) {
 						String secValue = Translator.translate(resident.getSecondaryLanguage(),value,contextKey);
@@ -1159,8 +1157,7 @@ public class PacketTemplateProvider {
 						generateCBEFF(resident, bioAttrib, outFile,contextKey,purpose,qualityScore,missAttribs,genarateValidCbeff);
 
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 					continue;
 				} else if (s.getType().equals("biometricsType")
@@ -1191,8 +1188,7 @@ public class PacketTemplateProvider {
 							// resident.getGuardian().getBiometric(), outFile);
 
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						}
 
 					}
@@ -1237,8 +1233,7 @@ public class PacketTemplateProvider {
 								Files.copy(Paths.get(docFile), Paths.get(outFile));
 
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.error(e.getMessage());
 							}
 							break;
 						}
@@ -1519,7 +1514,7 @@ public class PacketTemplateProvider {
 						
 					} catch (Exception e) {
 						logger.error("generateIDJsonV2", e);
-//						e.printStackTrace();
+//						logger.error(e.getMessage());
 					}
 					continue;
 				} else if (prop.getProperty("introducerbiometric") != null
@@ -1547,7 +1542,7 @@ public class PacketTemplateProvider {
 
 						} catch (Exception e) {
 							logger.error("generateIDJsonV2", e);
-//							e.printStackTrace();
+//							logger.error(e.getMessage());
 						}
 
 					} else if (resident.getGuardian() != null) {
@@ -1597,7 +1592,7 @@ public class PacketTemplateProvider {
 
 							} catch (Exception e) {
 								logger.error("generateIDJsonV2", e);
-//								e.printStackTrace();
+//								logger.error(e.getMessage());
 							}
 							break;
 						}
@@ -1858,8 +1853,7 @@ public class PacketTemplateProvider {
 			new PacketTemplateProvider().generate("registration_client", "new", residents.get(0), "/temp/newpacket",
 					null, null, null,null,null,null,null,null,true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		// System.out.println(generateIDJson(residents.get(0)));
 

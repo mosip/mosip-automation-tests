@@ -2,12 +2,17 @@ package org.mosip.dataprovider.models;
 
 import java.io.Serializable;
 
+import org.mosip.dataprovider.models.mds.MDSDevice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 @Data
 public class IrisDataModel implements Serializable{
+	private static final Logger logger = LoggerFactory.getLogger(IrisDataModel.class);
 	 private static final long serialVersionUID = 1L;
 	 String left;
 	 String right;
@@ -26,7 +31,7 @@ public class IrisDataModel implements Serializable{
 					jsonStr = mapper.writeValueAsString(this);
 			} catch (JsonProcessingException e) {
 					
-					e.printStackTrace();
+				logger.error(e.getMessage());
 			}	
 			return jsonStr;
 		}

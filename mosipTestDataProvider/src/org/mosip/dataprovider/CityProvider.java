@@ -7,8 +7,11 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.mosip.dataprovider.models.CityModel;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -19,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import variables.VariableManager;
 
 public class CityProvider extends LocationProviderBase {
+	private static final Logger logger = LoggerFactory.getLogger(CityProvider.class);
 
 	public CityProvider() {
 		super();
@@ -68,15 +72,14 @@ public class CityProvider extends LocationProviderBase {
 					myWriter.write( Obj.writeValueAsString(cities));
 					myWriter.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			    
 			});
 
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 	}
@@ -97,7 +100,7 @@ public class CityProvider extends LocationProviderBase {
 					objectMapper.getTypeFactory().constructCollectionType(List.class, CityModel.class));
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 	}

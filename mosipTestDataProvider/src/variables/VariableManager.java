@@ -18,9 +18,13 @@ import javax.cache.expiry.AccessedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.spi.CachingProvider;
 
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.DataProviderConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class VariableManager {
+	private static final Logger logger = LoggerFactory.getLogger(VariableManager.class);
 	public static String CONFIG_PATH = DataProviderConstants.RESOURCE+"config/";
 	public static String NS_DEFAULT = "mosipdefault";
 //	public static String NS_PREREG = "prereg";
@@ -149,7 +153,7 @@ public final class VariableManager {
 //		}
 		}catch(Exception e) {
 			
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return ret;
 		}
@@ -172,7 +176,7 @@ public final class VariableManager {
 			
 		} catch (IOException e) {
 			String err = e.getMessage();
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 		return bRet;
