@@ -381,7 +381,6 @@ public class CreatePersona {
 								try {
 									someVal = CommonUtil.genStringAsperRegex(regexpr);
 								} catch (Exception e) {
-									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 						}
@@ -675,7 +674,6 @@ public class CreatePersona {
 			//JSONObject resp = RestClient.post (url, obj,"admin",contextKey);
 			response = resp.toString();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 			

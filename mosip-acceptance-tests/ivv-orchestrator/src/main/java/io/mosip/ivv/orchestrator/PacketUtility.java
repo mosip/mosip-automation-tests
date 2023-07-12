@@ -1707,7 +1707,6 @@ JSONObject jsonObject = new JSONObject();
 			signedJWT.sign(signer);
 			clientAssertionToken = signedJWT.serialize();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// logger.error("Exception while signing oidcJWKKey for client assertion: " +
 			// e.getMessage());
 		}

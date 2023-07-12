@@ -39,6 +39,7 @@ import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.MosipPreRegLoginConfig;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.models.SchemaRule;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.models.setup.MosipDeviceModel;
 import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.test.CreatePersona;
@@ -50,6 +51,8 @@ import org.mosip.dataprovider.util.RestClient;
 import org.mvel2.MVEL;
 import org.mvel2.integration.VariableResolverFactory;
 import org.mvel2.integration.impl.MapVariableResolverFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,6 +61,7 @@ import io.restassured.http.ContentType;
 import variables.VariableManager;
 
 public  class MosipMasterData {
+	private static final Logger logger = LoggerFactory.getLogger(MosipMasterData.class);
 
 
 /*	static {
@@ -100,8 +104,7 @@ public  class MosipMasterData {
 				setCache(url,  biotypes,contextKey);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
         return  biotypes;
 		
@@ -130,8 +133,7 @@ public  class MosipMasterData {
 				setCache(url,  biotypes,contextKey);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
         return  biotypes;
 		
@@ -158,8 +160,7 @@ public  class MosipMasterData {
 				setCache(url, langs,contextKey);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
         return langs;
 		
@@ -216,8 +217,7 @@ public  class MosipMasterData {
 					pageno++;
 				}
 			} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			}
 		}while(pageno <= nPages);
 			
@@ -276,8 +276,7 @@ public  class MosipMasterData {
 				
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return locationHierarchy;
 		
@@ -313,7 +312,7 @@ public  class MosipMasterData {
 			}
 		} catch (Exception e) {
 			if(RestClient.isDebugEnabled(contextKey))
-			     e.printStackTrace();
+			     logger.error(e.getMessage());
 		}
 		return locList;
 	
@@ -374,8 +373,7 @@ public  class MosipMasterData {
 				setCache(url, config, contextKey);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return config;
 	}
@@ -404,8 +402,7 @@ public  class MosipMasterData {
 				
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return config;
 	}
@@ -439,8 +436,7 @@ public  class MosipMasterData {
 				setCache(url, locList,contextKey);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return locList;
 	}
@@ -523,8 +519,7 @@ public  class MosipMasterData {
 				
 						
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 	        return tbl;
 		}
@@ -581,8 +576,7 @@ public  class MosipMasterData {
 
 	
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	    return schemaJson;
 	}
@@ -736,8 +730,7 @@ public  class MosipMasterData {
 			}
 					
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
         return tbl;
 	}
@@ -798,8 +791,7 @@ public  class MosipMasterData {
 			}
 					
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
         return tbl;
 	}
@@ -832,8 +824,7 @@ public  class MosipMasterData {
 				
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return docCatList;
 	}
@@ -868,8 +859,7 @@ public  class MosipMasterData {
 				return newDocTypeList;
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return docTypeList;
 	}
@@ -902,8 +892,7 @@ public  class MosipMasterData {
 				return newDocTypeList;
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return docTypeList;
 	}
@@ -990,8 +979,7 @@ public  class MosipMasterData {
 						
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return tbl;
 
@@ -1027,8 +1015,7 @@ public  class MosipMasterData {
 											
 								}
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.error(e.getMessage());
 							}
 							return genderTypeList;
 		}
@@ -1093,7 +1080,7 @@ public  class MosipMasterData {
 				return genderTypeList;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return genderTypeList;
 		
@@ -1231,8 +1218,7 @@ public  class MosipMasterData {
 
 		
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return "{\"Failed\"}";
 		
@@ -1267,7 +1253,7 @@ public  class MosipMasterData {
 			return resp.toString();
 		}
 		catch(Exception e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "{\"post failed\"}";
 		}
 
@@ -1359,8 +1345,7 @@ public  class MosipMasterData {
 				setCache(url, array, contextKey);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return array;
 	}
@@ -1402,8 +1387,7 @@ public  class MosipMasterData {
 			System.out.println(ss.toJSONString());
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		System.exit(0);
 		

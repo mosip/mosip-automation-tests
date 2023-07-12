@@ -58,7 +58,6 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 			try {
 				oAuthDetails.test(test);
 			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

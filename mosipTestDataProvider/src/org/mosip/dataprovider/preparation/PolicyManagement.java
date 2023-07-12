@@ -16,11 +16,15 @@ import javax.print.DocFlavor.STRING;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.util.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
 
 import variables.VariableManager;
 
 public class PolicyManagement {
+	private static final Logger logger = LoggerFactory.getLogger(PolicyManagement.class);
     
 
     public static Object getCache(String key,String contextKey) {
@@ -59,7 +63,7 @@ public class PolicyManagement {
 			return resp.toString();
 		}
 		catch(Exception e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "{\"post failed\"}";
 		}
 
@@ -86,7 +90,7 @@ public class PolicyManagement {
 
 		} catch (Exception e) {
 			//TODO: handle exception
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "{\"post failed\"}";
 		}
 		
@@ -122,7 +126,7 @@ public class PolicyManagement {
 			
 		} catch (Exception e) {
 			//TODO: handle exception
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "{\"post failed\"}";
 		}
 
@@ -139,7 +143,7 @@ public class PolicyManagement {
 			
 		} catch (Exception e) {
 			//TODO: handle exception
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "{\"post failed\"}";
 		}
 

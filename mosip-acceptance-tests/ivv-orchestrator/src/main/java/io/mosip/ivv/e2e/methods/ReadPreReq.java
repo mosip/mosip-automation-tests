@@ -68,9 +68,11 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 			e.printStackTrace();
 			throw new RigInternalError("PreRequisite Data is not set properly");
 
-		} finally {
-			PacketUtility.closeFileReader(reader);
-		}
+		} 
+		
+		/*
+		 * finally { PacketUtility.closeFileReader(reader); }
+		 */
 
 	}
 

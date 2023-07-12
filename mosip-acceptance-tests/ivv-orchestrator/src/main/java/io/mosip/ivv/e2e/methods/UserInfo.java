@@ -200,7 +200,6 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 				data = PacketUtility.signJWKKey(clientId, oidcJWKKey1);
 				System.out.println("oidcJWKKey1 =" + oidcJWKKey1);
 			} catch (java.text.ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -220,7 +219,6 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		try {
 			generateToken.test(testGenerateToken);
 		} catch (NoSuchAlgorithmException | AuthenticationTestException | AdminTestException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

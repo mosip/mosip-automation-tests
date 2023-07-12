@@ -68,8 +68,7 @@ public class MDSClient implements MDSClientInterface {
 			try {
 				Files.copy(f, new File(profDir.getAbsolutePath() +"\\"+ f.getName()));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		}
 		ISOConverter convert = new ISOConverter();
@@ -101,8 +100,7 @@ public class MDSClient implements MDSClientInterface {
 			}
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 			
@@ -170,8 +168,7 @@ public class MDSClient implements MDSClientInterface {
 			try {
 				Files.copy(f, new File(profDir.getAbsolutePath() +"/"+ f.getName()));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		}
 		ISOConverter convert = new ISOConverter();
@@ -203,8 +200,7 @@ public class MDSClient implements MDSClientInterface {
 			}
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 			
@@ -283,8 +279,7 @@ public class MDSClient implements MDSClientInterface {
 							objectMapper.getTypeFactory().constructCollectionType(List.class, MDSDevice.class));
 					
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
@@ -427,8 +422,7 @@ public class MDSClient implements MDSClientInterface {
 			}
 				
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 		return rCaptureModel;

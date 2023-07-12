@@ -250,7 +250,6 @@ public class PacketSyncService {
 				outIds.put(id);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -954,8 +953,6 @@ public class PacketSyncService {
 				try {
 					bioData.setFaceHash(CommonUtil.getHexEncodedHash(faceData[1]));
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					// e1.printStackTrace();
 				}
 
 				break;
@@ -969,7 +966,6 @@ public class PacketSyncService {
 						persona.getBiometric().setIris(imUpdated);
 
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -984,7 +980,6 @@ public class PacketSyncService {
 						persona.getBiometric().setIris(imUpdated1);
 
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 

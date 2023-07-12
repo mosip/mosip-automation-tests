@@ -108,7 +108,6 @@ public class ResidentPreRegistration {
 				try {
 					Thread.sleep(30000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				List<String> otps = ReadEmail.getOtps();

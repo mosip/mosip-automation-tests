@@ -19,11 +19,14 @@ import org.mosip.dataprovider.models.setup.MosipDeviceModel;
 import org.mosip.dataprovider.preparation.MosipDataSetup;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import variables.VariableManager;
 
 public class MDSClientNoMDS implements MDSClientInterface {
 	private static Random rand = new Random();
+	private static final Logger logger = LoggerFactory.getLogger(MDSClientNoMDS.class);
 
 	Hashtable<String,MDSDataModel> profileData;
 	MDSDataModel current;
@@ -60,8 +63,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 			data.setFingersISO(fingersISO);
 			profileData.put(profile, data);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 	

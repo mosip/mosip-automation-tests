@@ -28,6 +28,7 @@ import org.mosip.dataprovider.models.MosipLanguage;
 import org.mosip.dataprovider.models.MosipPreRegLoginConfig;
 import org.mosip.dataprovider.models.Name;
 import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
@@ -35,8 +36,8 @@ import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ResidentAttribute;
 import org.mosip.dataprovider.util.RestClient;
 import org.mosip.dataprovider.util.Translator;
-
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.DocumentException;
@@ -56,6 +57,7 @@ import variables.VariableManager;
  *  
  */
 public class ResidentDataProvider {
+	private static final Logger logger = LoggerFactory.getLogger(ResidentDataProvider.class);
 	private static Random rand = new Random();
 		Properties attributeList;
 	
@@ -139,7 +141,7 @@ public class ResidentDataProvider {
 		try {
 			allLang = MosipMasterData.getConfiguredLanguages(contextKey);
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 		MosipPreRegLoginConfig  preregconfig = MosipMasterData.getPreregLoginConfig(contextKey);
@@ -154,7 +156,7 @@ public class ResidentDataProvider {
 					i++;
 				}
 			}catch(Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			return lang_arr;
 		}
@@ -416,7 +418,6 @@ public class ResidentDataProvider {
 			if(bIrisRequired)
 				irisList = BiometricDataProvider.generateIris(count,contextKey);
 		} catch (  Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
@@ -563,7 +564,6 @@ public class ResidentDataProvider {
 			try {
 				bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger,contextKey);
 			} catch (IOException e2) {
-				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
 			if(bIrisRequired)
@@ -583,7 +583,6 @@ public class ResidentDataProvider {
 				try {
 					bioData.setFaceHash(CommonUtil.getHexEncodedHash( faceData[1]));
 				} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				//e1.printStackTrace();
 				}
 			}
@@ -599,7 +598,7 @@ public class ResidentDataProvider {
 					res.setDocuments(DocumentProvider.generateDocuments(res,contextKey));
 				} catch (DocumentException | IOException  | ParseException e) {
 					
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 			

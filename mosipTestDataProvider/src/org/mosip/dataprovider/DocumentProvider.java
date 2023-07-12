@@ -229,7 +229,6 @@ public class DocumentProvider {
 		try {
 			generatePdfFromHtml(html,new File("out.pdf"));
 		} catch (DocumentException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		*/

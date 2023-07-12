@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import org.mosip.dataprovider.CSVHelper;
 import org.mosip.dataprovider.models.Name;
+import org.mosip.dataprovider.models.mds.MDSDevice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.ibm.icu.text.Transliterator;
@@ -11,6 +14,7 @@ import com.ibm.icu.text.Transliterator;
 import variables.VariableManager;
 
 public class Translator {
+	private static final Logger logger = LoggerFactory.getLogger(Translator.class);
 	static String IDlookupFile;
 	
 	public static void main(String[] args) {
@@ -38,7 +42,7 @@ public class Translator {
 			}
 			csv.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return v;
 	}

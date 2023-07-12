@@ -28,12 +28,15 @@ import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.mosip.dataprovider.models.mds.MDSDevice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mifmif.common.regex.Generex;
 
 
 public class CommonUtil {
-	
+	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 	private static Random rand = new Random();
 
 	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
@@ -128,7 +131,6 @@ public class CommonUtil {
 			}
 			reader.close();
 		} catch (IOException e) {
-		//	e.printStackTrace();
 		}
 		
 		return builder.toString();
@@ -146,8 +148,7 @@ public class CommonUtil {
                     try {
 						Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
               
             });
@@ -227,8 +228,6 @@ public class CommonUtil {
 		try {
 			Files.write(Paths.get("/temp/"+fileName), data.getBytes());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
 		}
 	}
 

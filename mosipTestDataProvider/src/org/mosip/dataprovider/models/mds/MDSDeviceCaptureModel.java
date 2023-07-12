@@ -1,5 +1,8 @@
 package org.mosip.dataprovider.models.mds;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -7,6 +10,8 @@ import lombok.Data;
 
 @Data
 public class MDSDeviceCaptureModel {
+	
+	private static final Logger logger = LoggerFactory.getLogger(MDSDeviceCaptureModel.class);
 
 	String bioType;
 	String bioSubType;
@@ -27,7 +32,7 @@ public class MDSDeviceCaptureModel {
 				jsonStr = mapper.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
 				
-				e.printStackTrace();
+			logger.error(e.getMessage());
 		}	
 		return jsonStr;
 	}

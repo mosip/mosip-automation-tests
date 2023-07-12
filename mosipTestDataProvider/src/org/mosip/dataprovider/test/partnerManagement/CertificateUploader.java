@@ -2,13 +2,16 @@ package org.mosip.dataprovider.test.partnerManagement;
 
 import java.time.LocalDateTime;
 import org.json.JSONObject;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import variables.VariableManager;
 
 public class CertificateUploader{
-
+	private static final Logger logger = LoggerFactory.getLogger(CertificateUploader.class);
     public static String uploadCACertificate(String certificateData ,String partnerDomain, String contextKey){
 
         String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()+
@@ -35,7 +38,7 @@ public class CertificateUploader{
             return resp.toString();
         }
         catch(Exception e){
-            e.printStackTrace();
+            logger.error(e.getMessage());
             return e.getMessage();
         }
 
@@ -70,7 +73,7 @@ public class CertificateUploader{
             return resp.toString();
         }
         catch(Exception e){
-            e.printStackTrace();
+            logger.error(e.getMessage());
             return e.getMessage();
         }
 
