@@ -10,12 +10,16 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import variables.VariableManager;
 
 
 public class PhotoProvider {
+	private static final Logger logger = LoggerFactory.getLogger(PhotoProvider.class);
 	static String Photo_File_Format = "/face%04d.jpg";
 	//static byte[][] getPhoto(int idx, String gender,String contextKey) {
 		static byte[][] getPhoto(String contextKey) {
@@ -92,7 +96,7 @@ public class PhotoProvider {
 			
 		} catch (Exception e) {
 			
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}             
 		return new byte[][] {bencoded, bData};
 	}
@@ -107,8 +111,7 @@ public class PhotoProvider {
 				}
 			}			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 	}
@@ -204,8 +207,7 @@ public class PhotoProvider {
 		
 	    
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	         
 		return new byte[][] {bencoded, bData};

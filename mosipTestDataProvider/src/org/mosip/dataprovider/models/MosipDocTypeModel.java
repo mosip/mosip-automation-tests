@@ -2,10 +2,15 @@ package org.mosip.dataprovider.models;
 
 import java.io.Serializable;
 
+import org.mosip.dataprovider.models.mds.MDSDevice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MosipDocTypeModel  implements Serializable{
+	private static final Logger logger = LoggerFactory.getLogger(MosipDocTypeModel.class);
 
 	 private static final long serialVersionUID = 1L;
 	String code;
@@ -120,8 +125,7 @@ public class MosipDocTypeModel  implements Serializable{
 		try {
 				jsonStr = Obj.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			logger.error(e.getMessage());
 		}	
 		return jsonStr;
 	}

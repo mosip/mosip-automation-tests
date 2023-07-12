@@ -118,10 +118,8 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 					try {
 						otpauth.test(test);
 					} catch (AuthenticationTestException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (AdminTestException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -151,10 +149,8 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 					try {
 						otpauth.test(test);
 					} catch (AuthenticationTestException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (AdminTestException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}

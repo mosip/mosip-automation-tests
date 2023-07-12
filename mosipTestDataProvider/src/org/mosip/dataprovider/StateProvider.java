@@ -10,7 +10,10 @@ import java.util.List;
 
 import org.mosip.dataprovider.models.CountryModel;
 import org.mosip.dataprovider.models.StateModel;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -18,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class StateProvider extends LocationProviderBase{
+	private static final Logger logger = LoggerFactory.getLogger(StateProvider.class);
 
 	List<StateModel> stateDetail;
 	
@@ -53,8 +57,7 @@ public class StateProvider extends LocationProviderBase{
 				myWriter.write( Obj.writeValueAsString(states));
 				myWriter.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		    
 		});
@@ -89,7 +92,7 @@ public class StateProvider extends LocationProviderBase{
 					objectMapper.getTypeFactory().constructCollectionType(List.class, StateModel.class));
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 	}

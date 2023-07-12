@@ -10,9 +10,12 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.json.JSONObject;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 //import org.apache.commons.lang3.tuple.Pair;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.Gender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +25,7 @@ import lombok.Data;
 
 @Data
 public class ResidentModel  implements Serializable {
-	
+	private static final Logger logger = LoggerFactory.getLogger(ResidentModel.class);
 	private static final long serialVersionUID = 1L;
 	private String id;
 	private String primaryLanguage;
@@ -109,7 +112,7 @@ public class ResidentModel  implements Serializable {
 				jsonStr = mapper.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
 				
-				e.printStackTrace();
+			logger.error(e.getMessage());
 		}	
 		return jsonStr;
 	}
@@ -140,7 +143,6 @@ public class ResidentModel  implements Serializable {
 		try {
 			Files.write(Paths.get("test.json"), model.toJSONString().getBytes());
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
@@ -152,8 +154,7 @@ public class ResidentModel  implements Serializable {
 			System.out.println(m.getName().getFirstName());
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}			
     

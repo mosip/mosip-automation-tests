@@ -26,8 +26,12 @@ import jakarta.mail.Store;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMultipart;*/
 import org.jsoup.Jsoup;
+import org.mosip.dataprovider.models.mds.MDSDevice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReadEmail {
+	private static final Logger logger = LoggerFactory.getLogger(ReadEmail.class);
 	public static String FROM_MATH ="info@mosip.io";
 	public static String FROM_MATH1 ="Alok Tiwari <alok.tiwari@technoforte.co.in>";
 	public static String gmailPOPHost = "pop.gmail.com";
@@ -120,7 +124,7 @@ public class ReadEmail {
 					emailStore.close();
 				}
 			} catch (MessagingException | IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 
 			return mailMessage;

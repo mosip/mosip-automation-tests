@@ -16,6 +16,7 @@ import java.util.Properties;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.models.setup.MosipDeviceModel;
 import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.models.setup.MosipMachineSpecModel;
@@ -23,6 +24,8 @@ import org.mosip.dataprovider.models.setup.MosipMachineTypeModel;
 import org.mosip.dataprovider.models.setup.MosipRegistrationCenterTypeModel;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -32,6 +35,7 @@ import io.restassured.response.Response;
 import variables.VariableManager;
 
 public class MosipDataSetup {
+	private static final Logger logger = LoggerFactory.getLogger(MosipDataSetup.class);
 
 	public static Properties getConfig(String contextKey) {
 		Properties props = new Properties();
@@ -51,8 +55,7 @@ public class MosipDataSetup {
     			props.load(new StringReader(response.getBody().asString()));
     		}
     	} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+    		logger.error(e.getMessage());
 		}
 		return props;
 	}
@@ -84,8 +87,7 @@ public class MosipDataSetup {
 		
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 	}
@@ -118,7 +120,7 @@ public class MosipDataSetup {
 			}
 			
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return machines;
 	}
@@ -179,7 +181,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			}
 			
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return machines;
 	}
@@ -212,7 +214,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			}
 		} catch (Exception e) {
 
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 	}
@@ -243,7 +245,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			}
 		} catch (Exception e) {
 
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 	}
@@ -270,8 +272,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				setCache(url, machineTypes,contextKey);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return machineTypes;
 	}
@@ -298,8 +299,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				setCache(url, machineTypes,contextKey);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return machineTypes;
 	}
@@ -333,8 +333,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				System.out.println(r);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		
@@ -375,8 +374,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				System.out.println(r);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 	}
@@ -423,8 +421,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 				System.out.println(r);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 	}
@@ -447,7 +444,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 				System.out.println(response);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return response;
 
@@ -479,8 +476,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 				setCache(url, devices,contextKey);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	
 		return devices;
@@ -531,8 +527,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 				responseStr = resp.toString();
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			responseStr = e.getMessage();
 		}
 
@@ -564,8 +559,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 				responseStr = resp.toString();
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			responseStr = e.getMessage();
 		}
 		return responseStr;
@@ -583,7 +577,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 			
 		} catch (Exception e) {
 			
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			response = e.getMessage();
 		}
 		return response;

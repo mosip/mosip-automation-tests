@@ -75,7 +75,6 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			try {
 				createPolicyGroup.test(test1);
 			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			Response response = createPolicyGroup.response;
@@ -110,7 +109,6 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			try {
 				definePolicy.test(test2);
 			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			Response response = definePolicy.response;
@@ -171,7 +169,6 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			try {
 				createPartner.test(test4);
 			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			Response response = createPartner.response;
@@ -290,7 +287,6 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			try {
 				requestAPIKeyForAuthPartner.test(test8);
 			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			Response response = requestAPIKeyForAuthPartner.response;
@@ -422,7 +418,6 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 					try {
 						oidcClient.test(test11);
 					} catch (NoSuchAlgorithmException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					Response response = oidcClient.response;
