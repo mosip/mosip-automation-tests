@@ -2,13 +2,16 @@ package org.mosip.dataprovider.test;
 
 
 import org.json.JSONObject;
-
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.cucumber.java.en.Then;
 import variables.VariableManager;
 
 public class ResidentRegistration {
+	private static final Logger logger = LoggerFactory.getLogger(ResidentRegistration.class);
 
 	@Then("^register$")
 	public static void register(String contextKey) {
@@ -24,8 +27,7 @@ public class ResidentRegistration {
 			retVal = response.toString();
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		System.out.println(rid);
 	}

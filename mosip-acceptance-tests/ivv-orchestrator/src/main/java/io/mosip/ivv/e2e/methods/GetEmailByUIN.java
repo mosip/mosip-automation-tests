@@ -49,10 +49,8 @@ public class GetEmailByUIN extends BaseTestCaseUtil implements StepInterface {
 				try {
 					getEmail.test(test);
 				} catch (AuthenticationTestException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (AdminTestException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 

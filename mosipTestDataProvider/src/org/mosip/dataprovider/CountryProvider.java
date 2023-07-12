@@ -9,8 +9,11 @@ import java.util.List;
 
 import org.mosip.dataprovider.models.CountryLookup;
 import org.mosip.dataprovider.models.CountryModel;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -22,6 +25,7 @@ import variables.VariableManager;
 
 
 public class CountryProvider extends LocationProviderBase{
+	private static final Logger logger = LoggerFactory.getLogger(CountryProvider.class);
 
 	CountryModel countryDetail;
 	
@@ -46,7 +50,7 @@ public class CountryProvider extends LocationProviderBase{
 			
 		} catch (IOException e) {
 			
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 		return tbl;
@@ -122,7 +126,7 @@ public class CountryProvider extends LocationProviderBase{
 					
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 	}
@@ -137,7 +141,7 @@ public class CountryProvider extends LocationProviderBase{
 			city.dump("contextKey");
 			
 		//} catch (IOException e) {
-		//	e.printStackTrace();
+		//	logger.error(e.getMessage());
 		//}
 		/*
 		c.load("IN");

@@ -20,17 +20,21 @@ import org.mosip.dataprovider.models.MosipIDSchema;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.models.SchemaValidator;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataCallback;
 import org.mosip.dataprovider.util.RestClient;
 import org.mosip.dataprovider.util.Translator;
 import org.mvel2.MVEL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import variables.VariableManager;
 
 public class CreatePersona {
+	private static final Logger logger = LoggerFactory.getLogger(CreatePersona.class);
 
 	static 	Hashtable<Double,Properties> tbl;
 	
@@ -381,8 +385,7 @@ public class CreatePersona {
 								try {
 									someVal = CommonUtil.genStringAsperRegex(regexpr);
 								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+									logger.error(e.getMessage());
 								}
 						}
 					}
@@ -637,7 +640,7 @@ public class CreatePersona {
 			response = resp.toString();
 		} catch (Exception e) {
 			
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return response;
 	}
@@ -675,8 +678,7 @@ public class CreatePersona {
 			//JSONObject resp = RestClient.post (url, obj,"admin",contextKey);
 			response = resp.toString();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 			
 		return response;

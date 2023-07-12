@@ -29,9 +29,12 @@ import org.apache.commons.codec.binary.Hex;
 //import org.apache.commons.lang3.tuple.Pair;
 import org.mosip.dataprovider.models.BiometricDataModel;
 import org.mosip.dataprovider.models.IrisDataModel;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.FPClassDistribution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.jamesmurty.utils.XMLBuilder;
@@ -57,7 +60,7 @@ import io.mosip.kernel.core.cbeffutil.jaxbclasses.RegistryIDType;
 import io.mosip.kernel.core.cbeffutil.jaxbclasses.SingleType;
 */
 public class BiometricFingerPrintProvider {
-	
+	private static final Logger logger = LoggerFactory.getLogger(BiometricFingerPrintProvider.class);
 	
 	public static String [] fingerName = {"Left Thumb",
 			"Left IndexFinger",
@@ -213,8 +216,7 @@ public class BiometricFingerPrintProvider {
 				createList.add(finger);
 		
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			
 		}
@@ -269,8 +271,7 @@ public class BiometricFingerPrintProvider {
 					tmpDir.deleteOnExit();
 					
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 			else
@@ -297,8 +298,7 @@ public class BiometricFingerPrintProvider {
 						fdata = Files.readAllBytes(path);
 						 fingerPrints[index]= Base64.getEncoder().encodeToString(fdata);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 					index++;
 					 
@@ -343,8 +343,7 @@ public class BiometricFingerPrintProvider {
 				tblFiles.put(i,lst);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return tblFiles;
 	}
@@ -425,8 +424,7 @@ public class BiometricFingerPrintProvider {
 
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		System.out.println(xml);
 	}

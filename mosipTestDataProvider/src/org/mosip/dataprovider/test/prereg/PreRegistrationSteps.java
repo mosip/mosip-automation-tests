@@ -73,8 +73,7 @@ public class PreRegistrationSteps {
 			}
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		if(preregId == null || preregId.equals(""))
 			return  newArray.toString();
@@ -102,7 +101,7 @@ public class PreRegistrationSteps {
 			result = resp.get("preRegistrationId").toString();
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return  result;
 	}
@@ -126,7 +125,7 @@ public class PreRegistrationSteps {
 			result = resp.get("preRegistrationId").toString();
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return  result;
 		
@@ -156,7 +155,7 @@ public class PreRegistrationSteps {
 				appointmentSlot = objectMapper.readValue(resp.toString(),  AppointmentModel.class);	
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}		
 		return appointmentSlot;
 	}
@@ -183,8 +182,7 @@ public class PreRegistrationSteps {
 			JSONObject resp = RestClient.putAdminPrereg(url, obj,contextKey); 
 			response = resp.toString();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			response = e.getMessage();
 		}
 		return response;
@@ -202,7 +200,7 @@ public class PreRegistrationSteps {
 			response = resp.toString();
 		} catch (Exception e) {
 			
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			response = e.getMessage();
 		}
 		return response;
@@ -220,7 +218,7 @@ public class PreRegistrationSteps {
 			response = resp.toString();
 		} catch (Exception e) {
 			
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			response = e.getMessage();
 		}
 		
@@ -239,7 +237,7 @@ public class PreRegistrationSteps {
 				response = resp.toString();
 			} catch (Exception e) {
 				
-				e.printStackTrace();
+				logger.error(e.getMessage());
 				response = e.getMessage();
 			}
 			
@@ -291,7 +289,7 @@ public class PreRegistrationSteps {
 
 				
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}		
 			return result;
 	}
@@ -314,8 +312,7 @@ public class PreRegistrationSteps {
 			response = RestClient.uploadFile(url + preRegID,docFilePath,obj,contextKey);
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-		//	e.printStackTrace();
+		//	logger.error(e.getMessage());
 		}
 		
 		

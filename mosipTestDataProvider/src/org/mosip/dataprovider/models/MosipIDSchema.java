@@ -4,6 +4,10 @@ package org.mosip.dataprovider.models;
 import java.io.Serializable;
 import java.util.List;
 
+import org.mosip.dataprovider.models.mds.MDSDevice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,6 +22,7 @@ import lombok.Data;
 	"parentLocCode","locationHierarchyLevel"
 })*/
 public class MosipIDSchema  implements Serializable{
+	private static final Logger logger = LoggerFactory.getLogger(MosipIDSchema.class);
 
 	 private static final long serialVersionUID = 1L;
 	//Boolean visible;
@@ -54,8 +59,7 @@ public class MosipIDSchema  implements Serializable{
 		try {
 				jsonStr = Obj.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			logger.error(e.getMessage());
 		}	
 		return jsonStr;
 	}

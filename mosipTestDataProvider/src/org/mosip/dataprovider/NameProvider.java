@@ -4,16 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mosip.dataprovider.models.Name;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import variables.VariableManager;
 
 public class NameProvider {
-
+	private static final Logger logger = LoggerFactory.getLogger(NameProvider.class);
 	private static String resourceName_male ;
 	//= VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.namesdatapath").toString()+"/%s/boy_names.csv";
 	private static String resourceName_female ;
@@ -46,7 +49,7 @@ public class NameProvider {
 			
 			helper.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return values;
 		
@@ -176,7 +179,7 @@ public class NameProvider {
 			}
 		
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return names;
 	}

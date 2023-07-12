@@ -10,12 +10,15 @@ import org.mosip.dataprovider.models.CenterDetailsModel;
 import org.mosip.dataprovider.models.MosipDocument;
 import org.mosip.dataprovider.models.MosipLanguage;
 import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.test.prereg.PreRegistrationSteps;
 import org.mosip.dataprovider.util.Gender;
 import org.mosip.dataprovider.util.ReadEmail;
 import org.mosip.dataprovider.util.ResidentAttribute;
 //import org.mosip.dataprovider.util.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -25,7 +28,7 @@ import variables.VariableManager;
 
 public class ResidentPreRegistration {
 
-
+	private static final Logger logger = LoggerFactory.getLogger(ResidentPreRegistration.class);
 	String preRegID;
 	ResidentModel person;
 	String otpTarget;
@@ -108,8 +111,7 @@ public class ResidentPreRegistration {
 				try {
 					Thread.sleep(30000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 				List<String> otps = ReadEmail.getOtps();
 				//get last one
@@ -132,7 +134,7 @@ public class ResidentPreRegistration {
 			try {
 				Thread.sleep(waitTimeInMillis);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			List<String> additionalInfoReqIds = ReadEmail.getadditionalInfoReqIds();
 			// get last one

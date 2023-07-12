@@ -99,7 +99,6 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 			
 			Reporter.log("This is path where file is created" + path, true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		finally {

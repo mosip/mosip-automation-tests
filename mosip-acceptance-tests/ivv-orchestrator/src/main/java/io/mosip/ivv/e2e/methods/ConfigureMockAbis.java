@@ -42,7 +42,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			delaysec = TIME_IN_MILLISEC * waitTimeFromActuator;
 //			try {
 //				Thread.sleep(waitTime);
-//			} catch (InterruptedException e) { // TODO Auto-generated catch block
+//			} catch (InterruptedException e) { 
 //				e.printStackTrace();
 //			}
 		}

@@ -257,7 +257,6 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 						try {
 							demoAuth.test(test);
 						} catch (NoSuchAlgorithmException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					} catch (AuthenticationTestException | AdminTestException e) {
@@ -434,7 +433,6 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 						try {
 							demoAuth.test(test);
 						} catch (NoSuchAlgorithmException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					} catch (AuthenticationTestException | AdminTestException e) {

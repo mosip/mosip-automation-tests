@@ -15,12 +15,15 @@ import org.mosip.dataprovider.models.Location;
 import org.mosip.dataprovider.models.LocationHierarchyModel;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.StateModel;
+import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocationProvider {
 	private static Random rand = new Random();
-
+	private static final Logger logger = LoggerFactory.getLogger(LocationProvider.class);
 
 	public static ApplicationConfigIdSchema generate( String langCode, int count,String contextKey) {
 
@@ -119,7 +122,7 @@ public class LocationProvider {
 				locations.add(location);
 			}	
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 		return locations;
