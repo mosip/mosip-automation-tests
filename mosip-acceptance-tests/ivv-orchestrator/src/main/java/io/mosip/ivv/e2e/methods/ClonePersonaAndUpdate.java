@@ -66,11 +66,11 @@ public class ClonePersonaAndUpdate extends BaseTestCaseUtil implements StepInter
 						System.out.println("Successfully updated json object to file...!!");
 					}
 				} catch (JsonParseException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				} catch (JsonMappingException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 
 			}

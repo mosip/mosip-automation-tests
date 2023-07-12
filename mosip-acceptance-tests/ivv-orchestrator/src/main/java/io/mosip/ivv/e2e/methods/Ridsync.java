@@ -109,7 +109,7 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 			output.close();
 			output.flush();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		finally {
 			PacketUtility.closeOutputStream(output);

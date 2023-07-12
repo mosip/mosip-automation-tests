@@ -5,17 +5,22 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.ivv.core.utils.MailHelper;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testscripts.GetWithParam;
 import io.restassured.response.Response;
 
 public class GetEmailByUIN extends BaseTestCaseUtil implements StepInterface {
+	private static final Logger logger = LoggerFactory.getLogger(GetEmailByUIN.class);
 
 	private static final String GetEmail = "idaData/RetrieveIdentityByUin/RetrieveIdentityByUin.yml";
 	GetWithParam getEmail = new GetWithParam();
@@ -49,9 +54,9 @@ public class GetEmailByUIN extends BaseTestCaseUtil implements StepInterface {
 				try {
 					getEmail.test(test);
 				} catch (AuthenticationTestException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				} catch (AdminTestException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 
 				Response response = getEmail.response;

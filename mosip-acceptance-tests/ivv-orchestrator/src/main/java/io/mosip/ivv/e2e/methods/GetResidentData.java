@@ -17,7 +17,7 @@ import io.mosip.ivv.orchestrator.TestRunner;
 import io.restassured.response.Response;
 
 public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(GetResidentData.class);
+	static Logger logger = Logger.getLogger(GetResidentData.class);
 
 	@Override
 	public void run() throws RigInternalError {
@@ -108,7 +108,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 			output = new FileOutputStream(filePath);
 			prop.store(output, null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		finally {
 			PacketUtility.closeOutputStream(output);

@@ -21,6 +21,8 @@ import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Reporter;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -32,6 +34,7 @@ import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.RestClient;
 import io.mosip.ivv.core.base.BaseStep;
 import io.mosip.ivv.core.dtos.Scenario;
+import io.mosip.ivv.core.utils.MailHelper;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
@@ -39,6 +42,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class BaseTestCaseUtil extends BaseStep{
+	private static final Logger logger = LoggerFactory.getLogger(BaseTestCaseUtil.class);
 
 	public static Properties props = new AdminTestUtil().getproperty(TestRunner.getExternalResourcePath()+"/config/test-orchestrator_mz.properties");
 	public static Properties propsKernel = new AdminTestUtil().getproperty(TestRunner.getExternalResourcePath()+ "config/Kernel.properties");
@@ -81,7 +85,7 @@ public class BaseTestCaseUtil extends BaseStep{
 			props.load(inputStrem);
 			preRegistrationId=props.getProperty("CreatePrereg_All_Valid_Smoke_sid_preRegistrationId");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		finally {
 			PacketUtility.closeInputStream(inputStrem);
@@ -313,13 +317,13 @@ public class BaseTestCaseUtil extends BaseStep{
 			String jsonObj = new String(Files.readAllBytes(Paths.get(filePath)), "UTF-8");
 			bioMetricData = JsonPrecondtion.getValueFromJson(jsonObj, "response.(documents)[0].value");
 		} catch (JsonParseException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		return bioMetricData;

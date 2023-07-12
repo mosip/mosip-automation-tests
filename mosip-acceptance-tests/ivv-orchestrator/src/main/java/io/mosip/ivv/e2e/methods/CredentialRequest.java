@@ -44,7 +44,7 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
     	try {
 			Thread.sleep(30000);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Thread.currentThread().interrupt();
 		}
     	String fileName = CredentialIssue_YML;

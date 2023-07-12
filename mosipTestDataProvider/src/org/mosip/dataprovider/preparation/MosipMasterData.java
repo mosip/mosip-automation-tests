@@ -228,15 +228,20 @@ public  class MosipMasterData {
 		
 		HashMap<String,LocationHierarchyModel[]> locationHierarchies = new HashMap<String,LocationHierarchyModel[]>();
 		List<MosipLanguage> langs =  getConfiguredLanguages(contextKey);
-		langs.forEach( (l) ->{
-//			System.out.println(l.getCode() + " "+ l.getName());
-			try {
-				LocationHierarchyModel[] locationPerLanguage = getLocationHierarchy(l.getCode(),contextKey);
-				locationHierarchies.put(l.getCode(), locationPerLanguage);
-			}catch(Exception ex) {
-				ex.printStackTrace();
-			}
-		});
+		if(langs != null) {
+			langs.forEach( (l) ->{
+				try {
+					LocationHierarchyModel[] locationPerLanguage = getLocationHierarchy(l.getCode(),contextKey);
+					locationHierarchies.put(l.getCode(), locationPerLanguage);
+				}catch(Exception ex) {
+					logger.error("Failed to get LocationHierarchyModel" + ex.getMessage());
+				}
+			});
+        }
+		else {
+			 logger.error("Failed to get configured languages");
+		}
+		
 		return locationHierarchies;
 	}
 	public static LocationHierarchyModel[] getLocationHierarchy(String langCode,String contextKey) {
@@ -694,39 +699,22 @@ public  class MosipMasterData {
 					 MosipIDSchema schema = objectMapper.readValue(idSchema.get(i).toString(),
 							 MosipIDSchema.class);
 					 listSchema.add(schema);
-					 /*
-					if(schema.getId().toLowerCase().contains("uin") || schema.getId().toLowerCase().contains("rid") )
-						listSchema.add(schema);
-					else
-					{
-						for(int ii = 0; ii < reqdFields.length(); ii++){
-						     String reqdField = reqdFields.getString(ii);
-						     if(reqdField.equals(schema.getId())) {
-						    	
-						    	 listSchema.add(schema);
-						     }
-						}
-					}*/
 				}
 				List<String> requiredAttributes = new ArrayList<String>();
-				
 				JSONObject idschemaProps = getIdentityPropsFromIDSchema(resp);
-				Iterator<String> propNames = idschemaProps.keys();
-				while(propNames.hasNext()) {
-					String key = propNames.next();
-					requiredAttributes.add(key);
-				}
+				if(idschemaProps!=null) {
+					Iterator<String> propNames = idschemaProps.keys();
+					while(propNames.hasNext()) {
+						String key = propNames.next();
+						requiredAttributes.add(key);
+					}
+					Properties prop = new Properties();
+					prop.put("schemaList", listSchema);
+					prop.put("requiredAttributes",requiredAttributes);
+					tbl.put(schemaVersion, prop);
 					
-				/*
-				for(int i=0; i < reqdFields.length(); i++)
-					requiredAttributes.add(reqdFields.getString(i).trim());
-				*/
-				Properties prop = new Properties();
-				prop.put("schemaList", listSchema);
-				prop.put("requiredAttributes",requiredAttributes);
-				tbl.put(schemaVersion, prop);
-				
-				setCache(url, tbl,contextKey);
+					setCache(url, tbl,contextKey);
+				}
 			}
 					
 		} catch (Exception e) {

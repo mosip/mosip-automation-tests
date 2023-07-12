@@ -49,7 +49,7 @@ public class CreatePacket extends BaseStep implements StepInterface {
             logInfo("Meta data: "+mapper.writeValueAsString(registrationDTO.getRegistrationMetaDataDTO()));
             extentInstance.info("Registration id: "+registrationDTO.getRegistrationId());
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        	logger.error(e.getMessage());
         }
         PacketHandlerService packetHandlerService = store.getRegApplicationContext().getBean(PacketHandlerService.class);
 
