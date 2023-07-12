@@ -46,7 +46,6 @@ public class GetPreRegistration extends BaseStep implements StepInterface {
         try {
             String jsonInString = mapper.writeValueAsString(SessionContext.map().get("registrationDTOContent"));
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
             logSevere("Jackson ObjectMapper: "+e.getMessage());
         }
     }

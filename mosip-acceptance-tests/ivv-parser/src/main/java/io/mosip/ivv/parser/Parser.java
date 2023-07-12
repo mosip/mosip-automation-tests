@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.ivv.core.utils.MailHelper;
 import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.parser.Utils.Helper;
 import io.mosip.ivv.parser.Utils.StepParser;
@@ -15,6 +16,8 @@ import org.apache.commons.lang3.EnumUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -25,6 +28,7 @@ import java.util.regex.Pattern;
 import static io.mosip.ivv.core.utils.Utils.regex;
 
 public class Parser implements ParserInterface {
+	private static final Logger logger = LoggerFactory.getLogger(Parser.class);
     private ParserInputDTO inputDTO;
     Properties properties = null;
 
@@ -98,7 +102,7 @@ public class Parser implements ParserInterface {
             try {
                 rootNode = oMapper.readTree(idObjectSchema);
             } catch (IOException e) {
-                e.printStackTrace();
+            	logger.error(e.getMessage());
                 throw new RigInternalError("Parser - error in id object schema: "+e.getMessage());
             }
             Map<String, Object> idObjectMap = oMapper.convertValue(rootNode.path("properties").path("identity").path("properties"), new TypeReference<Map<String, Object>>(){});

@@ -104,7 +104,7 @@ public class EmailableReport implements IReporter {
 				System.out.println("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {
 				System.out.println("error occured while pushing the object" + e.getLocalizedMessage());
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			if (isStoreSuccess) {
 				System.out.println("Pushed file to S3");

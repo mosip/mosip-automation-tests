@@ -200,7 +200,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 				data = PacketUtility.signJWKKey(clientId, oidcJWKKey1);
 				System.out.println("oidcJWKKey1 =" + oidcJWKKey1);
 			} catch (java.text.ParseException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			
 			inputForGenerateToken = JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, data,
@@ -219,7 +219,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		try {
 			generateToken.test(testGenerateToken);
 		} catch (NoSuchAlgorithmException | AuthenticationTestException | AdminTestException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		Response response = generateToken.response;

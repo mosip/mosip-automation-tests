@@ -9,6 +9,7 @@ import io.mosip.ivv.core.dtos.RequestDataDTO;
 import io.mosip.ivv.core.dtos.ResponseDataDTO;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.core.dtos.PersonaDef;
+import io.mosip.ivv.core.utils.MailHelper;
 import io.mosip.ivv.core.utils.Utils;
 import io.mosip.registration.context.ApplicationContext;
 import io.mosip.registration.dto.RegistrationDTO;
@@ -16,12 +17,15 @@ import io.mosip.registration.dto.demographic.CBEFFFilePropertiesDTO;
 import io.mosip.registration.dto.demographic.IndividualIdentity;
 import io.mosip.registration.dto.demographic.ValuesDTO;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Map;
 
 public class AddApplicantDemographics extends BaseStep implements StepInterface {
+	private static final Logger logger = LoggerFactory.getLogger(AddApplicantDemographics.class);
 
     @Override
     public void validateStep() throws RigInternalError{
@@ -94,7 +98,7 @@ public class AddApplicantDemographics extends BaseStep implements StepInterface 
         try {
             Utils.auditLog.info(mapper.writeValueAsString(registrationDTO));
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        	logger.error(e.getMessage());
         }
     }
 
@@ -103,10 +107,7 @@ public class AddApplicantDemographics extends BaseStep implements StepInterface 
         return null;
     }
 
-    @Override
-    public ResponseDataDTO call(RequestDataDTO requestData) {
-        return null;
-    }
+    
 
     @Override
     public void process(ResponseDataDTO res) {

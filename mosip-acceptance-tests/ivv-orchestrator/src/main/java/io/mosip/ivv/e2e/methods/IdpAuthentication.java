@@ -157,9 +157,9 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 						try {
 							authenticateUser.test(testForOtp);
 						} catch (AuthenticationTestException e) {
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						} catch (AdminTestException e) {
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						}
 					}
 				}
@@ -187,9 +187,9 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 						try {
 							authenticateUser.test(testForOtp);
 						} catch (AuthenticationTestException e) {
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						} catch (AdminTestException e) {
-							e.printStackTrace();
+							logger.error(e.getMessage());
 						}
 					}
 				}
@@ -240,9 +240,9 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 					try {
 						authenticateUser.test(test);
 					} catch (AuthenticationTestException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					} catch (AdminTestException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 				}
 			}
@@ -289,9 +289,9 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 					try {
 						authenticateUser.test(test);
 					} catch (AuthenticationTestException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					} catch (AdminTestException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 				}
 			}
