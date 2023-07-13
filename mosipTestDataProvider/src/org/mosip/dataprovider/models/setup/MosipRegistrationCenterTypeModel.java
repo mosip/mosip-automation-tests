@@ -2,8 +2,6 @@ package org.mosip.dataprovider.models.setup;
 
 import java.io.Serializable;
 
-import org.junit.Ignore;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Data;

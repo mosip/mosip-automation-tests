@@ -2,12 +2,7 @@ package org.mosip.dataprovider.mds;
 
 
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 

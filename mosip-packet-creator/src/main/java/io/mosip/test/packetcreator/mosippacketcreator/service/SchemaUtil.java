@@ -1,11 +1,5 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +7,12 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class SchemaUtil {

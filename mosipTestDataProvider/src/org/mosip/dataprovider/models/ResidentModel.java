@@ -3,14 +3,11 @@ package org.mosip.dataprovider.models;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
-
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.mosip.dataprovider.models.mds.MDSDevice;
 //import org.apache.commons.lang3.tuple.Pair;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.Gender;

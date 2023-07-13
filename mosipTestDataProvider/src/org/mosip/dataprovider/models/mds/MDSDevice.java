@@ -2,7 +2,6 @@ package org.mosip.dataprovider.models.mds;
 
 import java.util.List;
 
-import org.mosip.dataprovider.mds.MDSClientNoMDS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

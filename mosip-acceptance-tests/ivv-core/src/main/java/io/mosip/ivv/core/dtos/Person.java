@@ -1,13 +1,13 @@
 package io.mosip.ivv.core.dtos;
 
-import jdk.nashorn.internal.objects.Global;
-import lombok.Getter;
-import lombok.Setter;
-import org.json.simple.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.json.simple.JSONObject;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

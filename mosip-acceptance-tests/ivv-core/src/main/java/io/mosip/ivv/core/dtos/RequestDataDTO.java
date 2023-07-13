@@ -3,8 +3,6 @@ package io.mosip.ivv.core.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-
 @Getter
 @Setter
 public class RequestDataDTO {

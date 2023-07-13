@@ -4,31 +4,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import org.apache.commons.lang.StringUtils;
+
 import org.apache.log4j.Logger;
+
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.authentication.fw.util.AuthPartnerProcessor;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.service.BaseTestCase;
-import io.mosip.testscripts.OtpAuth;
 import io.mosip.testscripts.OtpAuthNew;
 
 public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EkycOtp.class);
-	private static final String OTPAUTH = "idaData/OtpAuth/OtpAuth.yml";
+	private static final String OTPAUTHYml = "idaData/OtpAuth/OtpAuth.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
 	OtpAuthNew otpauth = new OtpAuthNew();
 
 	@Override
 	public void run() throws RigInternalError {
-		// AuthPartnerProcessor.startProcess();
-		// step.getScenario().getUinPersonaProp().put("7209149850",
-		// "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
 
 		String uins = null;
 		String vids = null;
@@ -78,30 +74,28 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 		if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 				|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
 
-			casesListUIN = otpauth.getYmlTestData(OTPAUTH);
+			casesListUIN = otpauth.getYmlTestData(OTPAUTHYml);
 
 		}
 
 		else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 				|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
-			casesListVID = otpauth.getYmlTestData(OTPAUTH);
+			casesListVID = otpauth.getYmlTestData(OTPAUTHYml);
 		}
 
 		else {
-			casesListUIN = otpauth.getYmlTestData(OTPAUTH);
-			casesListVID = otpauth.getYmlTestData(OTPAUTH);
+			casesListUIN = otpauth.getYmlTestData(OTPAUTHYml);
+			casesListVID = otpauth.getYmlTestData(OTPAUTHYml);
 		}
 
-		// test.setEndPoint(test.getEndPoint().replace("$PartnerKey$",
-		// props.getProperty("partnerKey")));
 
 		for (String uin : uinList) {
-			Object[] testObj = otpauth.getYmlTestData(OTPAUTH);
+			Object[] testObj = otpauth.getYmlTestData(OTPAUTHYml);
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
 			String input = test.getInput();
 
 			if (idType.contains("UIN") || idType.contains("uin")) {
-				casesListUIN = otpauth.getYmlTestData(OTPAUTH);
+				casesListUIN = otpauth.getYmlTestData(OTPAUTHYml);
 			}
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
@@ -114,7 +108,6 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {
 					test.setInput(input);
-//					test = (TestCaseDTO) object;
 					try {
 						otpauth.test(test);
 					} catch (AuthenticationTestException e) {
@@ -128,12 +121,12 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 		}
 
 		for (String vid : vidList) {
-			Object[] testObj = otpauth.getYmlTestData(OTPAUTH);
+			Object[] testObj = otpauth.getYmlTestData(OTPAUTHYml);
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
 			String input = test.getInput();
 
 			if (idType.contains("VID") || idType.contains("vid")) {
-				casesListVID = otpauth.getYmlTestData(OTPAUTH);
+				casesListVID = otpauth.getYmlTestData(OTPAUTHYml);
 			}
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
@@ -145,7 +138,6 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 			if (casesListVID != null) {
 				for (Object object : casesListVID) {
 					test.setInput(input);
-//					test = (TestCaseDTO) object;
 					try {
 						otpauth.test(test);
 					} catch (AuthenticationTestException e) {

@@ -1,12 +1,7 @@
 package io.mosip.ivv.e2e.methods;
 
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
-
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.testng.Reporter;

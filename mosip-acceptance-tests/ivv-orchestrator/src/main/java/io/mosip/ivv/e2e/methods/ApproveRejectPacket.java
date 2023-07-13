@@ -1,9 +1,11 @@
 package io.mosip.ivv.e2e.methods;
 
 import static org.testng.Assert.assertTrue;
+
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;
+
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;

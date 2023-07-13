@@ -1,12 +1,12 @@
 package io.mosip.ivv.parser.Utils;
 
-import io.mosip.ivv.core.policies.AssertionPolicy;
-import io.mosip.ivv.core.dtos.Scenario;
-import io.mosip.ivv.core.utils.Utils;
-import io.mosip.ivv.parser.exceptions.StepParsingException;
-
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+
+import io.mosip.ivv.core.dtos.Scenario;
+import io.mosip.ivv.core.policies.AssertionPolicy;
+import io.mosip.ivv.core.utils.Utils;
+import io.mosip.ivv.parser.exceptions.StepParsingException;
 
 public class StepParser {
 

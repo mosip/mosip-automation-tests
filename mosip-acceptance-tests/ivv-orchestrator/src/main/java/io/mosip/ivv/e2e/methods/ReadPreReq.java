@@ -1,26 +1,17 @@
 package io.mosip.ivv.e2e.methods;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
-import io.mosip.admin.fw.util.AdminTestUtil;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.ivv.orchestrator.PacketUtility;
 import io.mosip.ivv.orchestrator.TestRunner;
 import io.mosip.service.BaseTestCase;
-import kotlin.jvm.Synchronized;
 
 public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(ReadPreReq.class);
@@ -42,12 +33,10 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 				+ appendedkey + ".properties");
 
 		logger.info("ReadPreReq :" + path);
-		FileReader reader = null;
-		try {
-			// map=(HashMap<String, String>) prereqDataSet.get(path);
+		try(FileReader reader = new FileReader(path);) {
 			if (prereqDataSet.get(path) == null) {
 
-				reader = new FileReader(path);
+				
 				propertylist.load(reader);
 
 				for (String propertykey : propertylist.stringPropertyNames()) {
@@ -70,9 +59,6 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 
 		} 
 		
-		/*
-		 * finally { PacketUtility.closeFileReader(reader); }
-		 */
 
 	}
 

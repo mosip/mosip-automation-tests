@@ -1,8 +1,8 @@
 package org.mosip.dataprovider.test.partnerManagement;
 
 import java.time.LocalDateTime;
+
 import org.json.JSONObject;
-import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.RestClient;
 import org.slf4j.Logger;

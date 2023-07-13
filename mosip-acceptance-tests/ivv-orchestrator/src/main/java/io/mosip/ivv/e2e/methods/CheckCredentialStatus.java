@@ -1,11 +1,8 @@
 package io.mosip.ivv.e2e.methods;
 
-import static org.testng.Assert.assertTrue;
-
-import java.util.HashMap;
-
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
+
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.util.AuthenticationTestException;

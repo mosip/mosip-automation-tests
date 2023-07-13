@@ -5,13 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Hashtable;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.mosip.dataprovider.models.mds.MDSDevice;
-import org.mosip.dataprovider.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

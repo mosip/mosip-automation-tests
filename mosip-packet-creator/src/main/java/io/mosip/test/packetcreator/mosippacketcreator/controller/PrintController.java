@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import io.mosip.kernel.core.websub.spi.SubscriptionClient;
 import io.mosip.kernel.websub.api.annotation.PreAuthenticateContentAndVerifyIntent;
 //import io.mosip.kernel.websub.api.annotation.PreAuthenticateContentAndVerifyIntent;
@@ -37,7 +36,6 @@ import io.mosip.kernel.websub.api.model.SubscriptionChangeResponse;
 import io.mosip.kernel.websub.api.model.UnsubscriptionRequest;
 import io.mosip.test.packetcreator.mosippacketcreator.dto.webSubEventModel;
 import io.mosip.test.packetcreator.mosippacketcreator.service.CryptoCoreUtil;
-
 import io.swagger.annotations.Api;
 import variables.VariableManager;
 

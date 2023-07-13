@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import org.apache.commons.lang.StringUtils;
+
 import org.apache.log4j.Logger;
+
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.authentication.fw.util.AuthPartnerProcessor;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.service.BaseTestCase;
-import io.mosip.testscripts.OtpAuth;
 import io.mosip.testscripts.OtpAuthNew;
 
 public class EkycOtp extends BaseTestCaseUtil implements StepInterface {

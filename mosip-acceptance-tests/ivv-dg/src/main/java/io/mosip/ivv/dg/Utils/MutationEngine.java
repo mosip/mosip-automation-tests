@@ -1,17 +1,18 @@
 package io.mosip.ivv.dg.Utils;
 
-import com.google.gson.Gson;
-import io.mosip.ivv.core.dtos.IDObjectField;
-import io.mosip.ivv.core.dtos.Person;
-import io.mosip.ivv.core.dtos.Persona;
-import org.apache.commons.lang3.RandomStringUtils;
+import static io.mosip.ivv.core.utils.Utils.regex;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import static io.mosip.ivv.core.utils.Utils.regex;
+import org.apache.commons.lang3.RandomStringUtils;
+
+import com.google.gson.Gson;
+
+import io.mosip.ivv.core.dtos.IDObjectField;
+import io.mosip.ivv.core.dtos.Person;
+import io.mosip.ivv.core.dtos.Persona;
 
 public class MutationEngine {
 	private static Random generator = new Random();

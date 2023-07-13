@@ -3,15 +3,12 @@ package org.mosip.dataprovider.test.prereg;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 
-import org.apache.commons.validator.Var;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mosip.dataprovider.models.AppointmentModel;
 import org.mosip.dataprovider.models.AppointmentTimeSlotModel;
 import org.mosip.dataprovider.models.CenterDetailsModel;
-
-
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.test.CreatePersona;

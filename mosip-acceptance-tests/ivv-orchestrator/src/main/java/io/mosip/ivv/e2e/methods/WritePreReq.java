@@ -1,21 +1,15 @@
 package io.mosip.ivv.e2e.methods;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
-import io.mosip.admin.fw.util.AdminTestUtil;
 import io.mosip.ivv.core.base.StepInterface;
-import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.PacketUtility;
 import io.mosip.ivv.orchestrator.TestRunner;

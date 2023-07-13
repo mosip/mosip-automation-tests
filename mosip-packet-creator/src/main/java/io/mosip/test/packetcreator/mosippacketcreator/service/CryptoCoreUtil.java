@@ -37,7 +37,6 @@ import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.encodings.OAEPEncoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
@@ -47,9 +46,6 @@ public class CryptoCoreUtil {
 	private final static String RSA_ECB_OAEP_PADDING = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
 
 	private final static int THUMBPRINT_LENGTH = 32;
-	
-	@Value("${mosip.test.p12.secret}")
-	private String p12Secret;
 
 	public String decrypt(String data) throws Exception {
 		PrivateKeyEntry privateKeyEntry = loadP12();
@@ -63,8 +59,8 @@ public class CryptoCoreUtil {
 			IOException, UnrecoverableEntryException {
 		KeyStore mosipKeyStore = KeyStore.getInstance("PKCS12");
 		InputStream in = getClass().getClassLoader().getResourceAsStream("partner.p12");
-		mosipKeyStore.load(in, p12Secret.toCharArray());
-		ProtectionParameter password = new PasswordProtection(p12Secret.toCharArray());
+		mosipKeyStore.load(in, "password@123".toCharArray());
+		ProtectionParameter password = new PasswordProtection("password@123".toCharArray());
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) mosipKeyStore.getEntry("partner", password);
 		return privateKeyEntry;
 	}

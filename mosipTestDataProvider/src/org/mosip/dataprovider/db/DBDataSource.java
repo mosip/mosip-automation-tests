@@ -12,14 +12,6 @@ import java.util.Map;
 public class DBDataSource {
 
 	 public static void main(String[] args) throws SQLException {
-	   /* 	        
-		 createAndFillDatabase();
-	     Map<String, String> allData = getData();
-	     String oneData = this.getOneName("A");
-	        String noData = this.getOneName("D");
-	        System.out.println("allData = " + allData);
-	        System.out.println("oData   = " + oneData);
-	        System.out.println("noData  = " + noData);*/
 	    }
 
 	    private Connection getConnection() throws SQLException {

@@ -5,12 +5,10 @@ import static io.restassured.RestAssured.given;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.assertj.core.util.Arrays;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mosip.dataprovider.models.IrisDataModel;
@@ -29,7 +27,6 @@ import org.springframework.util.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.cucumber.messages.internal.com.google.common.io.Files;
-import io.mosip.mock.sbi.service.SBIMockService;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import variables.VariableManager;

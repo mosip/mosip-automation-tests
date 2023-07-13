@@ -1,5 +1,6 @@
 package org.mosip.dataprovider.models;
 import java.io.Serializable;
+
 import lombok.Data;
 @Data
 public class SchemaRule  implements Serializable {

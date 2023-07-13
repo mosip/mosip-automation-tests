@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import org.testng.IAlterSuiteListener;
 import org.testng.xml.XmlSuite;
 
-import io.mosip.ivv.e2e.methods.ApproveRejectPacket;
 import io.mosip.kernel.util.ConfigManager;
 
 public class ThreadCountChanger implements IAlterSuiteListener  {

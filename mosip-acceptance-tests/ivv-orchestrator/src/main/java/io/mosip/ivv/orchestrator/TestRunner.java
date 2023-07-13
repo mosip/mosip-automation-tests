@@ -5,12 +5,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 import org.apache.log4j.Logger;
-import org.testng.Reporter;
 import org.testng.TestNG;
 
 import io.mosip.kernel.util.ConfigManager;
@@ -60,9 +59,6 @@ public class TestRunner {
 			homeDir = new File(TestResources.getResourcePath() + "testngFile");
 			System.out.println("IDE Home Dir=" + homeDir);
 		} else {
-//			File dir=new File(System.getProperty("user.dir"));
-//			System.out.println("Dir="+dir);
-//		homeDir = new File(dir.getParent() + "/testngFile");
 			homeDir = new File(System.getProperty("user.dir") + "/MosipTestResource/testngFile");
 			System.out.println("Jar Home Dir=" + homeDir);
 		}
@@ -144,7 +140,7 @@ public class TestRunner {
 					if (e == null)
 						break;
 					String name = e.getName();
-					if (name.startsWith(key) & name.contains(".")) {
+					if (name.startsWith(key) && name.contains(".")) {
 						if (copyFilesFromJarToOutsideResource(name))
 							LOGGER.info("Copied the file: " + name + " to external resource successfully..!");
 						else
@@ -168,7 +164,6 @@ public class TestRunner {
 	        try {
 	            zipInputStream.close();
 	        } catch (IOException e) {
-	            // Handle the exception
 	        }
 	    }
 	}
