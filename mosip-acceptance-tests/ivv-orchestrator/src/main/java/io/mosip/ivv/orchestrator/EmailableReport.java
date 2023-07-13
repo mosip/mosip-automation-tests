@@ -78,16 +78,15 @@ public class EmailableReport implements IReporter {
         if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
         	logger.info("Running with PushReportsToS3: "+ConfigManager.getPushReportsToS3());
         	
-        	//D:\GITDSLFresh121Snap1\mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\testng-report
 			File repotFile = new File(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
 					+ "/" + System.getProperty("emailable.report2.name"));
-			System.out.println("reportFile is::" + System.getProperty("user.dir") + "/"
+			logger.info("reportFile is::" + System.getProperty("user.dir") + "/"
 					+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report2.name"));
 			
 			// EXTENT REPORT
 			File repotFile2 = new File(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
 					+ "/" + System.getProperty("emailable.report3.name"));
-			System.out.println("reportFile is::" + System.getProperty("user.dir") + "/"
+			logger.info("reportFile is::" + System.getProperty("user.dir") + "/"
 					+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report2.name"));
 			
 			
@@ -101,15 +100,15 @@ public class EmailableReport implements IReporter {
 				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
 						null, System.getProperty("emailable.report3.name"), repotFile2);
 				
-				System.out.println("isStoreSuccess:: " + isStoreSuccess);
+				logger.info("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {
-				System.out.println("error occured while pushing the object" + e.getLocalizedMessage());
+				logger.info("error occured while pushing the object" + e.getLocalizedMessage());
 				logger.error(e.getMessage());
 			}
 			if (isStoreSuccess) {
-				System.out.println("Pushed file to S3");
+				logger.info("Pushed file to S3");
 			} else {
-				System.out.println("Failed while pushing file to S3");
+				logger.info("Failed while pushing file to S3");
 			}
 		}
     }
@@ -119,9 +118,6 @@ public class EmailableReport implements IReporter {
 		try (InputStream is = EmailableReport.class.getClassLoader().getResourceAsStream("git.properties")) {
 			properties.load(is);
 			
-			//commitId = properties.getProperty("git.commit.id.abbrev");
-			
-			//branch = properties.getProperty("git.branch");
 			return "Commit Id is: " + properties.getProperty("git.commit.id.abbrev") + " & Branch Name is:" + properties.getProperty("git.branch");
 
 		} catch (IOException io) {

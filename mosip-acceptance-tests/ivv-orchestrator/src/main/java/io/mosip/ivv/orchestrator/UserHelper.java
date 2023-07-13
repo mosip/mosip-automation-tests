@@ -12,9 +12,7 @@ import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.DeleteWithParam;
 import io.mosip.testscripts.PatchWithPathParam;
-import io.mosip.testscripts.PutWithPathParam;
 import io.mosip.testscripts.SimplePost;
-import io.mosip.testscripts.SimplePut;
 import io.restassured.response.Response;
 
 public class UserHelper extends BaseTestCaseUtil {

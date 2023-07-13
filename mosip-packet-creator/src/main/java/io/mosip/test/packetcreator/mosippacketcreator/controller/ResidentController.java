@@ -1,12 +1,8 @@
 package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 
-import java.util.HashMap;
 import java.util.List;
 
-import org.mosip.dataprovider.BiometricDataProvider;
-import org.mosip.dataprovider.mds.MDSClient;
-import org.mosip.dataprovider.test.registrationclient.RegistrationSteps;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.ReadEmail;
 import org.slf4j.Logger;
@@ -16,15 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.mosip.test.packetcreator.mosippacketcreator.dto.UpdatePersonaDto;
 import io.mosip.test.packetcreator.mosippacketcreator.service.ResidentService;
-import io.restassured.response.Response;
 import io.swagger.annotations.ApiOperation;
 
 

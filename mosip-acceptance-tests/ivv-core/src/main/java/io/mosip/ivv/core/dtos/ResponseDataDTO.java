@@ -1,10 +1,9 @@
 package io.mosip.ivv.core.dtos;
 
+import java.util.Map;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Collection;
-import java.util.Map;
 
 @Getter
 @Setter

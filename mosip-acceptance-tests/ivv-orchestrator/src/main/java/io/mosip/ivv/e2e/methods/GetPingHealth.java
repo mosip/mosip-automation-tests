@@ -1,36 +1,50 @@
 package io.mosip.ivv.e2e.methods;
 
+import static io.restassured.RestAssured.given;
+
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.testng.SkipException;
+
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(GetPingHealth.class);
+	  private static final Logger logger = Logger.getLogger(GetPingHealth.class);
 
 	@Override
 	public void run() throws RigInternalError {
 
 		String modules = null,uri=null;
-		HashMap<String, String> context=null;
+		
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
-			context = step.getScenario().getCurrentStep();
+		
 			modules = "";
 		} else {
-			context = step.getScenario().getCurrentStep();
+			
 			if (step.getParameters().size() == 1)
 				modules = step.getParameters().get(0);
 			else
 				modules = "";
 		}
-		//String uri=baseUrl + "/ping?contextKey="+context.get(E2EConstants.CONTEXTKEY)+"&module="+modules;
-		if(modules.length()>0)
-		uri=baseUrl + "/ping&module="+modules;
-		else
+		if(modules.length()>0 && modules.equalsIgnoreCase("packetcreator")) {
+			
+			// Check packet creator up or not..
+			String packetcreatorUri=baseUrl +"/actuator/health";
+			String serviceStatus = checkActuatorNoAuth(packetcreatorUri);
+			
+			if (serviceStatus.equalsIgnoreCase("UP") == false) {
+				throw new SkipException("Packet creator Not responding");
+				
+			}
+		
+		}
+		else {
 		uri=baseUrl + "/ping";
 		
 		Response response = getRequest(uri, "Health Check",step);
@@ -40,8 +54,19 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 			logger.info("RESPONSE=" + res.toString());
 		} else {
 			logger.error("RESPONSE=" + res.toString());
-			throw new RuntimeException("Health check status" + res.toString());
+			throw new SkipException("Health check status" + res.toString());
 		}
-
+		}
+	}
+	
+	public static String checkActuatorNoAuth(String actuatorURL) {
+		Response response =null;
+		response = given().contentType(ContentType.JSON).get(actuatorURL);
+		if(response != null && 	response.getStatusCode() == 200 ) {
+			logger.info(response.getBody().asString());        	
+			JSONObject jsonResponse = new JSONObject(response.getBody().asString());
+			return jsonResponse.getString("status");
+		}
+		return "No Response";
 	}
 }

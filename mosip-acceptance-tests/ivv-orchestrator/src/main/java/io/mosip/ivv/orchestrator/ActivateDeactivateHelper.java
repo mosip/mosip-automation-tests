@@ -6,10 +6,12 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.testng.Reporter;
+
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.restassured.response.Response;

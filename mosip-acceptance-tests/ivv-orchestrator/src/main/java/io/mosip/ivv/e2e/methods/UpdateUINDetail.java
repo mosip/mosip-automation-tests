@@ -1,7 +1,5 @@
 package io.mosip.ivv.e2e.methods;
 
-import static org.testng.Assert.assertFalse;
-
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;

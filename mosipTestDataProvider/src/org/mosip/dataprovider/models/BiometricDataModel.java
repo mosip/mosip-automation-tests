@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
 
-
 import lombok.Data;
 
 @Data

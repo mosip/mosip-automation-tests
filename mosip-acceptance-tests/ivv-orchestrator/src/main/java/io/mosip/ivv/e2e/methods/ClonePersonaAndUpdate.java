@@ -7,13 +7,14 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
-import io.mosip.ivv.core.base.StepInterface;
-import io.mosip.ivv.core.exceptions.RigInternalError;
-import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 
 public class ClonePersonaAndUpdate extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(ClonePersonaAndUpdate.class);

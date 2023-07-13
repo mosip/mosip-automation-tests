@@ -1,17 +1,15 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
+import java.io.File;
+import java.nio.file.Path;
+
 import org.jobrunr.jobs.annotations.Job;
-
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.nio.file.Path;
 
 @Service
 public class PacketJobService {

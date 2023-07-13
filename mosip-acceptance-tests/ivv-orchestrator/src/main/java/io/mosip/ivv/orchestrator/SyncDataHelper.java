@@ -1,21 +1,16 @@
 package io.mosip.ivv.orchestrator;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Assert;
-import org.testng.Reporter;
 
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.testscripts.GetWithParam;
-import io.mosip.testscripts.GetWithParamForAutoGenId;
 import io.mosip.testscripts.GetWithQueryParam;
 import io.mosip.testscripts.PatchWithPathParam;
 import io.mosip.testscripts.PutWithPathParam;

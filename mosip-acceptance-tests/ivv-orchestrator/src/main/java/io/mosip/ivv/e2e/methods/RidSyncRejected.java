@@ -3,13 +3,13 @@ package io.mosip.ivv.e2e.methods;
 import static org.testng.Assert.assertTrue;
 
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
@@ -20,7 +20,7 @@ import io.mosip.ivv.orchestrator.TestRunner;
 import io.restassured.response.Response;
 
 public class RidSyncRejected extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(RidSyncRejected.class);
+	private static final Logger logger = LoggerFactory.getLogger(RidSyncRejected.class);
 	public static String _additionalInfo=null;
 	@Override
 	public void run() throws RigInternalError {
@@ -66,7 +66,6 @@ public class RidSyncRejected extends BaseTestCaseUtil implements StepInterface {
 
 		JSONArray jsonArray = new JSONArray(response.asString());
 		JSONObject responseJson = new JSONObject(jsonArray.get(0).toString());
-		//assertTrue(response.getBody().asString().contains("SUCCESS"),"Unable to do RID sync from packet utility");
 		if(!response.getBody().asString().toLowerCase().contains("success")) {
 			this.hasError=true;
 		
@@ -102,7 +101,7 @@ public class RidSyncRejected extends BaseTestCaseUtil implements StepInterface {
 			output = new FileOutputStream(filePath,true);
 			prop.store(output, null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		finally {
 			PacketUtility.closeOutputStream(output);

@@ -1,9 +1,9 @@
 package io.mosip.ivv.core.dtos;
 
+import java.util.Properties;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Properties;
 
 @Getter
 @Setter

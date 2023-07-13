@@ -1,14 +1,15 @@
 package io.mosip.ivv.core.base;
 
 
-import com.aventstack.extentreports.ExtentTest;
-import io.mosip.ivv.core.dtos.*;
-import io.mosip.ivv.core.exceptions.RigInternalError;
-
 import java.util.ArrayList;
 import java.util.Properties;
 
-import org.testng.ITestContext;
+import com.aventstack.extentreports.ExtentTest;
+
+import io.mosip.ivv.core.dtos.CallRecord;
+import io.mosip.ivv.core.dtos.Scenario;
+import io.mosip.ivv.core.dtos.Store;
+import io.mosip.ivv.core.exceptions.RigInternalError;
 
 public interface StepInterface {
     Boolean hasError();

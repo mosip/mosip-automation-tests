@@ -1,18 +1,25 @@
 package io.mosip.ivv.core.utils;
 
-import com.sun.mail.imap.protocol.FLAGS;
-import lombok.Getter;
-import lombok.Setter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Properties;
 
-import javax.mail.*;
+import javax.mail.Address;
+import javax.mail.BodyPart;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
 import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Properties;
+import com.sun.mail.imap.protocol.FLAGS;
+
+import lombok.Getter;
+import lombok.Setter;
 
 public class MailHelper {
 	private static final Logger logger = LoggerFactory.getLogger(MailHelper.class);

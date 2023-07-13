@@ -1,7 +1,6 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
 import org.json.JSONObject;
-
 import org.mosip.dataprovider.test.partnerManagement.PartnerRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

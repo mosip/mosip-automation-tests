@@ -1,21 +1,25 @@
 package io.mosip.ivv.core.utils;
 
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.aventstack.extentreports.ExtentTest;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
-import io.mosip.ivv.core.policies.ErrorPolicy;
+
 import io.mosip.ivv.core.dtos.ExtentLogger;
 import io.mosip.ivv.core.dtos.Scenario;
-import io.restassured.response.Response;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.ArrayList;
 
 @Getter
 @Setter
 public class ErrorMiddleware {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ErrorMiddleware.class);
 
     private ArrayList<Scenario.Step.Error> ers;
     private String rs;
@@ -53,27 +57,27 @@ public class ErrorMiddleware {
         if (ctx.read("$['errors']") != null) {
             try {
                 if (!ctx.read("$['errors'][0]['errorCode']").equals(errorCode)) {
-                    Utils.auditLog.info("Error code expected "+errorCode+" but found "+ctx.read("$['errors'][0]['errorCode']"));
+                	logger.info("Error code expected "+errorCode+" but found "+ctx.read("$['errors'][0]['errorCode']"));
                     extentInstance.info("Error code expected "+errorCode+" but found "+ctx.read("$['errors'][0]['errorCode']"));
                     return false;
                 } else {
-                    Utils.auditLog.info("Expected: "+errorCode+",  Actual: "+ctx.read("$['errors'][0]['errorCode']").toString());
+                	logger.info("Expected: "+errorCode+",  Actual: "+ctx.read("$['errors'][0]['errorCode']").toString());
                     extentInstance.info("Expected: "+errorCode+",  Actual: "+ctx.read("$['errors'][0]['errorCode']").toString());
                     return true;
                 }
             } catch (PathNotFoundException pathNotFoundException) {
                 if (!ctx.read("$['errors']['errorCode']").equals(errorCode)) {
-                    Utils.auditLog.info("Error code expected "+errorCode+" but found "+ctx.read("$['errors']['errorCode']"));
+                	logger.info("Error code expected "+errorCode+" but found "+ctx.read("$['errors']['errorCode']"));
                     extentInstance.info("Error code expected "+errorCode+" but found "+ctx.read("$['errors']['errorCode']"));
                     return false;
                 } else {
-                    Utils.auditLog.info("Expected: "+errorCode+",  Actual: "+ctx.read("$['errors'['errorCode']").toString());
+                	logger.info("Expected: "+errorCode+",  Actual: "+ctx.read("$['errors'['errorCode']").toString());
                     extentInstance.info("Expected: "+errorCode+",  Actual: "+ctx.read("$['errors']['errorCode']").toString());
                     return true;
                 }
             }
         } else {
-            Utils.auditLog.info("Error code expected "+errorCode+" but no error code returned");
+        	logger.info("Error code expected "+errorCode+" but no error code returned");
             extentInstance.info( "Error code expected "+errorCode+" but no error code returned");
             return false;
         }

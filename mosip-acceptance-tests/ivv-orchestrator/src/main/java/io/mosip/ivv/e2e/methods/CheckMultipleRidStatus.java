@@ -1,13 +1,16 @@
 package io.mosip.ivv.e2e.methods;
 
 import static org.testng.Assert.assertTrue;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
+
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
@@ -77,7 +80,7 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 						Reporter.log("<b><u>" + test.getTestCaseName() + "</u></b>");
 						long startTime = System.currentTimeMillis();
 						logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
-						Utils.auditLog.info(this.getClass().getSimpleName()+" Rid :"+rid);
+						logger.info(this.getClass().getSimpleName()+" Rid :"+rid);
 						postScript.test(test);
 						ridStatusMap.put(rid, JsonPrecondtion.getValueFromJson(postScript.response.getBody().asString(), "response.ridStatus"));
 						long stopTime = System.currentTimeMillis();
