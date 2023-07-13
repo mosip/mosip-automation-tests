@@ -326,7 +326,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			}
 
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AdminTestException e) {
 			throw new RigInternalError(e.getMessage());
 
 		}
