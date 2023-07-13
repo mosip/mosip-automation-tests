@@ -69,7 +69,7 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 							throw new RigInternalError("downloaded pdf size is less than 0");
 						}
 
-					} catch (AuthenticationTestException | AdminTestException e) {
+					} catch (AdminTestException e) {
 						logger.error("Failed at downloading card: "+e.getMessage());
 						//assertFalse(true, "Failed at downloading card");
 						this.hasError=true;throw new RigInternalError("Failed at downloading card");
