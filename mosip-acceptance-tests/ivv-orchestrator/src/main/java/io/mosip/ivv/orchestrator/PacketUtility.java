@@ -689,7 +689,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
-			Boolean generatePrivateKey, String status, String baseUrl, Scenario.Step step) throws RigInternalError {
+
+			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step) throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
 
@@ -713,7 +714,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		jsonReq.put("enableDebug", ConfigManager.getEnableDebug());
 		logger.info("Running suite with enableDebug : " + ConfigManager.getEnableDebug());
-		jsonReq.put(URLBASE, baseUrl);
+		jsonReq.put(URLBASE, envbaseUrl);
 		jsonReq.put(MOSIP_TEST_BASEURL, baseUrl);
 		jsonReq.put(MOSIP_TEST_REGCLIENT_MACHINEID,
 				(map.get(MACHINEID) != null) ? map.get(MACHINEID) : E2EConstants.MACHINE_ID);
