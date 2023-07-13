@@ -37,7 +37,7 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 
 				logger.info("*******Checking the email for AdditionalInfoReqId...*******");
 				
-				additonalInfoRequestId = MockSMTPListener.parseAdditionalReqId((String) m.get(email));
+				additonalInfoRequestId = MockSMTPListener.parseAdditionalReqId((String) m.get(email)).trim()+ "-BIOMETRIC_CORRECTION-1";
 				
 				// Response response = getRequest(url, "Get addtionalInfoRequestId");
 				// String additonalInfoRequestId = response.getBody().asString();
