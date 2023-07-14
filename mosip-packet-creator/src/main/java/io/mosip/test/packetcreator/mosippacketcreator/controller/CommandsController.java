@@ -113,13 +113,14 @@ public class CommandsController {
 	
 	@ApiOperation(value = "Verify target environment (context) is available", response = String.class)
 	
-	@GetMapping("/ping/{contextKey}")
+	@GetMapping("/ping/{eSignetDeployed}/{contextKey}")
 	public @ResponseBody String checkContext(@RequestParam(name="module", required = false) String module,
+			@PathVariable String eSignetDeployed,
 			@PathVariable("contextKey") String contextKey) {
 	
 		try {
 
-			return commandsService.checkContext(contextKey, module);
+			return commandsService.checkContext(contextKey, module,eSignetDeployed);
 			
 		} catch (Exception e) {
 			

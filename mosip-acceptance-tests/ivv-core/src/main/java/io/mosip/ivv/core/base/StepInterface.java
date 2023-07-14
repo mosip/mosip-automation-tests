@@ -3,10 +3,14 @@ package io.mosip.ivv.core.base;
 
 import com.aventstack.extentreports.ExtentTest;
 import io.mosip.ivv.core.dtos.*;
+import io.mosip.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 
 import java.util.ArrayList;
 import java.util.Properties;
+
+
+
 
 import org.testng.ITestContext;
 
@@ -36,7 +40,7 @@ public interface StepInterface {
     void setup() throws RigInternalError;
 
     CallRecord getCallRecord();
-    void run() throws RigInternalError;
+    void run() throws RigInternalError, FeatureNotSupportedError;
 
 
 

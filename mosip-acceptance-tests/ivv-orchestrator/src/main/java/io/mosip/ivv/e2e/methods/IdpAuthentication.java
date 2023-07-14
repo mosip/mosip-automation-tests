@@ -14,8 +14,10 @@ import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.SimplePost;
 import io.restassured.response.Response;
@@ -27,7 +29,12 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 	SimplePost authenticateUser = new SimplePost();
 
 	@Override
-	public void run() throws RigInternalError {
+	public void run() throws RigInternalError, FeatureNotSupportedError {
+		
+		// check if esignet is installed on the target system
+		if (!ConfigManager.IseSignetDeployed()) {
+			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
+		}
 
 		String uins = null;
 		String vids = null;
