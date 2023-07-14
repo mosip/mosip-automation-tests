@@ -129,12 +129,9 @@ public class PacketSyncService {
 
 	@Value("${packetmanager.zip.datetime.pattern:yyyyMMddHHmmss}")
 	private String zipDatetimePattern;
-	
-	
 
 	// @Value("${mosip.test.env.mapperpath}")
 	// private String mapperFilePath;
-	
 
 	@Value("${mosip.test.idrepo.idvidpath}")
 	private String idvid;
@@ -312,16 +309,16 @@ public class PacketSyncService {
 		if (templateLocation != null) {
 			process = ContextUtils.ProcessFromTemplate(src, templateLocation);
 		}
-		 String packetPath = packetMakerService.createContainer( idJsonPath.toString(),
-				templateLocation, src, process, preregId, contextKey, true, additionalInfoReqId);
+		String packetPath = packetMakerService.createContainer(idJsonPath.toString(), templateLocation, src, process,
+				preregId, contextKey, true, additionalInfoReqId);
 
 		String response = null;
 		logger.info("Packet created : {}", packetPath);
 
 		if (getRidFromSync) {
 
-			response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", null,
-					contextKey, additionalInfoReqId);
+			response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", null, contextKey,
+					additionalInfoReqId);
 
 			logger.info("RID Sync response : {}", response);
 			JSONObject functionResponse = new JSONObject();
@@ -356,7 +353,7 @@ public class PacketSyncService {
 			return functionResponse;
 
 		} else {
-          
+
 			JSONObject functionResponse = new JSONObject();
 			JSONObject nobj = new JSONObject();
 			response = packetSyncService.uploadPacket(packetPath, contextKey);
@@ -366,9 +363,9 @@ public class PacketSyncService {
 				// {"status":"Packet has reached Packet Receiver"}
 				functionResponse.put("response", nobj);
 				nobj.put("status", "SUCCESS");
-				
+
 				// Get the rid from the packet template
-				nobj.put("registrationId",packetMakerService.getNewRegId());
+				nobj.put("registrationId", packetMakerService.getNewRegId());
 				return functionResponse;
 			}
 
@@ -567,7 +564,7 @@ public class PacketSyncService {
 
 	public String preRegisterGetApplications(String status, String preregId, String contextKey) {
 		loadServerContextProperties(contextKey);
-		//logger.debug("preRegisterGetApplications preregId=" + preregId);
+		// logger.debug("preRegisterGetApplications preregId=" + preregId);
 		return PreRegistrationSteps.getApplications(status, preregId, contextKey);
 	}
 
@@ -584,12 +581,11 @@ public class PacketSyncService {
 
 		} catch (IOException e) {
 			logger.error("saveRegIDMap " + e.getMessage());
-		}
-		finally {
+		} finally {
 			try {
-				if(reader!=null)
-				reader.close();
-				if(writer!=null) {
+				if (reader != null)
+					reader.close();
+				if (writer != null) {
 					writer.flush();
 					writer.close();
 				}
@@ -597,7 +593,7 @@ public class PacketSyncService {
 				logger.error(e.getMessage());
 			}
 		}
-		
+
 	}
 
 	String getPersona(String preRegId) {
@@ -780,7 +776,7 @@ public class PacketSyncService {
 	}
 
 	public String createPacket(PersonaRequestDto personaRequest, String process, String preregId, String contextKey,
-			String purpose,String qualityScore,boolean genarateValidCbeff) throws IOException {
+			String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
 
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
@@ -800,9 +796,9 @@ public class PacketSyncService {
 
 		if (!packetDir.toFile().exists()) {
 			isFileCreated = packetDir.toFile().createNewFile();
-			if(isFileCreated)
-				System.out.println("isFileCreated"+ isFileCreated);
-			
+			if (isFileCreated)
+				System.out.println("isFileCreated" + isFileCreated);
+
 		}
 		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
 
@@ -812,7 +808,7 @@ public class PacketSyncService {
 
 			Properties props = contextUtils.loadServerContext(contextKey);
 			packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId, machineId,
-					centerId, contextKey, props, new JSONObject(), purpose,qualityScore, genarateValidCbeff);
+					centerId, contextKey, props, new JSONObject(), purpose, qualityScore, genarateValidCbeff);
 
 			JSONObject obj = new JSONObject();
 			obj.put("id", resident.getId());
@@ -828,7 +824,7 @@ public class PacketSyncService {
 	}
 
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
-			String contextKey, String purpose,String qualityScore,boolean genarateValidCbeff) throws IOException {
+			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
 		boolean packetDirCreated = false;
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
@@ -850,7 +846,7 @@ public class PacketSyncService {
 		}
 		if (!packetDir.toFile().exists()) {
 			packetDirCreated = packetDir.toFile().createNewFile();
-			if(packetDirCreated)
+			if (packetDirCreated)
 				System.out.println("packetDirCreated:" + packetDirCreated);
 		}
 		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
@@ -875,7 +871,8 @@ public class PacketSyncService {
 				centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 
 				packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
-						machineId, centerId, contextKey, props, preregResponse, purpose,qualityScore, genarateValidCbeff);
+						machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
+						genarateValidCbeff);
 				JSONObject obj = new JSONObject();
 				obj.put("id", resident.getId());
 				obj.put("path", packetPath);
@@ -898,8 +895,8 @@ public class PacketSyncService {
 	public String preRegToRegister(String templatePath, String preRegId, String personaPath, String contextKey,
 			String additionalInfoReqId, boolean getRidFromSync, boolean genarateValidCbeff) throws Exception {
 
-		return makePacketAndSync(preRegId, templatePath, personaPath, contextKey, additionalInfoReqId, getRidFromSync, genarateValidCbeff)
-				.toString();
+		return makePacketAndSync(preRegId, templatePath, personaPath, contextKey, additionalInfoReqId, getRidFromSync,
+				genarateValidCbeff).toString();
 
 	}
 
@@ -1280,16 +1277,16 @@ public class PacketSyncService {
 				guardian = ResidentModel.readPersona(filePathParent);
 			}
 		}
-		if (guardian != null && persona!= null ) {
+		if (guardian != null)
 			persona.setGuardian(guardian);
 
+		if (persona != null) {
 			Files.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
 			return "{\"response\":\"SUCCESS\"}";
-		}
-		else {
+		} else {
 			return "{\"response\":\"FAIL\"}";
 		}
-			
+
 	}
 
 	public String updatePersonaBioExceptions(BioExceptionDto personaBERequestDto, String contextKey) {
