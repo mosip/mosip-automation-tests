@@ -63,14 +63,14 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 			String centerId=centerHelper.centerCreate(id);
 			centerHelper.centerUpdate(centerId,id);
 			centerHelper.centerStatusUpdate(centerId,activeFlag);
-			map.put("centerId"+centerCount, centerId);
+			map.put("centerid"+centerCount, centerId);
 			map.put("zoneCode", id);
 			map.put("langCode", BaseTestCase.languageCode);
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().putAll(map);
 			break;
 		case "ACTIVE_FLAG":
-			centerHelper.centerStatusUpdate(map.get("centerId"+centerCount),activeFlag);
+			centerHelper.centerStatusUpdate(map.get("centerid"+centerCount),activeFlag);
 			break;
 		case "UPDATE_NONLANG":
 			break;
@@ -79,7 +79,7 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 		
 			break;
 		case "DCOM":
-			centerHelper.centerDcom(map.get("centerId"+centerCount));
+			centerHelper.centerDcom(map.get("centerid"+centerCount));
 			break;
 	
 		default:

@@ -1201,15 +1201,14 @@ public class PacketSyncService {
 				guardian = ResidentModel.readPersona(filePathParent);
 			}
 		}
-		if (guardian != null && persona != null) {
+		if (guardian != null)
 			persona.setGuardian(guardian);
-
+		if (persona != null) {
 			Files.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
 			return "{\"response\":\"SUCCESS\"}";
 		} else {
 			return "{\"response\":\"FAIL\"}";
 		}
-
 	}
 
 	public String updatePersonaBioExceptions(BioExceptionDto personaBERequestDto, String contextKey) {

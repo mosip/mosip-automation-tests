@@ -84,7 +84,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 	public List<MDSDevice> getRegDeviceInfo(String type,String contextKey) {
 		// TODO Auto-generated method stub
 		//get configured Center ID  the devices belonging to that center
-		String centerId = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"centerId").toString();
+		String centerId = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"centerid").toString();
 		
 		List<MosipDeviceModel> deviceModels = MosipDataSetup.getDevices(centerId,contextKey);
 		List<MDSDevice> lstRet = new ArrayList<MDSDevice>();
