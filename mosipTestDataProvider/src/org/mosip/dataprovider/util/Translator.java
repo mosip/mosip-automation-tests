@@ -4,10 +4,8 @@ import java.io.IOException;
 
 import org.mosip.dataprovider.CSVHelper;
 import org.mosip.dataprovider.models.Name;
-import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.ibm.icu.text.Transliterator;
 

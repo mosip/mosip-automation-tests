@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 
 import org.mosip.dataprovider.models.IrisDataModel;
@@ -17,7 +16,6 @@ import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
 import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
 import org.mosip.dataprovider.models.setup.MosipDeviceModel;
 import org.mosip.dataprovider.preparation.MosipDataSetup;
-import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

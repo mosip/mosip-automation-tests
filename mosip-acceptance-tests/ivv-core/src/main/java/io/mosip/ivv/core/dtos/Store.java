@@ -1,12 +1,13 @@
 package io.mosip.ivv.core.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.context.ApplicationContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
+
+import org.springframework.context.ApplicationContext;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

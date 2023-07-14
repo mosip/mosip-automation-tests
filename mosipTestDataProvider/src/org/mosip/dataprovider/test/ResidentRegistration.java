@@ -2,7 +2,6 @@ package org.mosip.dataprovider.test;
 
 
 import org.json.JSONObject;
-import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

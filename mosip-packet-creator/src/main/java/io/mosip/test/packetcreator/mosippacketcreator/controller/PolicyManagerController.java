@@ -1,7 +1,6 @@
 package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 import org.json.JSONObject;
-
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

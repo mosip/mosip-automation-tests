@@ -13,7 +13,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -75,6 +74,16 @@ public class PacketSyncService {
 	private static final String UNDERSCORE = "_";
 	private static final Logger logger = LoggerFactory.getLogger(PacketSyncService.class);
 
+	// String constants
+	private static final String STATUS = "status";
+	private static final String SUCCESS = "SUCCESS";
+	private static final String RESPONSE = "response";
+	private static final String REGISTRATIONID = "registrationId";
+	private static final String MOSIP_TEST_REGCLIENT_CENTERID = "mosip.test.regclient.centerid";
+	private static final String MOSIP_TEST_REGCLIENT_MACHINEID = "mosip.test.regclient.machineid";
+	private static final String STATUS_SUCCESS = "{\"status\":\"Success\"}";
+	private static final String MODALITY = "Modality : ";
+
 	@Autowired
 	private APIRequestUtil apiRequestUtil;
 
@@ -130,9 +139,6 @@ public class PacketSyncService {
 	@Value("${packetmanager.zip.datetime.pattern:yyyyMMddHHmmss}")
 	private String zipDatetimePattern;
 
-	// @Value("${mosip.test.env.mapperpath}")
-	// private String mapperFilePath;
-
 	@Value("${mosip.test.idrepo.idvidpath}")
 	private String idvid;
 
@@ -154,9 +160,6 @@ public class PacketSyncService {
 		}
 	}
 
-	// this will generate the requested number of resident data
-	// Save the data in configured path as JSON
-	// return list of resident Ids
 	public String generateResidentData(int count, PersonaRequestDto residentRequestDto, String contextKey) {
 
 		loadServerContextProperties(contextKey);
@@ -225,7 +228,6 @@ public class PacketSyncService {
 		List<ResidentModel> lst = provider.generate(contextKey);
 		logger.info("After Genrate");
 
-		// ObjectMapper Obj = new ObjectMapper();
 		JSONArray outIds = new JSONArray();
 
 		try {
@@ -247,14 +249,13 @@ public class PacketSyncService {
 				outIds.put(id);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		JSONObject response = new JSONObject();
-		response.put("status", "SUCCESS");
-		response.put("response", outIds);
+		response.put(STATUS, SUCCESS);
+		response.put(RESPONSE, outIds);
 		return response.toString();
-		// "{\"status\":\"SUCCESS\"}";
 	}
 
 	public JSONObject makePacketAndSync(String preregId, String templateLocation, String personaPath, String contextKey,
@@ -282,18 +283,6 @@ public class PacketSyncService {
 				throw new Exception("Failed to unzip pre-reg packet >> " + preregId);
 
 			idJsonPath = Path.of(targetDirectory.getAbsolutePath(), "ID.json");
-			/*
-			 * String idJsonContent = new String(Files.readAllBytes(idJsonPath)); JSONObject
-			 * json = new JSONObject(idJsonContent); json=json.getJSONObject("identity");
-			 * 
-			 * String path = targetDirectory.getAbsolutePath(); docPath =
-			 * Files.createDirectories(Paths.get(path + "tempDir")); try {
-			 * FileUtils.copyDirectory(new File(path), docPath.toFile()); //
-			 * Files.delete(Paths.get(docPath+"/ID.json")); for (File f :
-			 * docPath.toFile().listFiles()) { if (f.getName().startsWith("POE_Passport") ||
-			 * f.getName().startsWith("ID.json")) f.delete(); } } catch (IOException e) {
-			 * e.printStackTrace(); }
-			 */
 
 			logger.info("Unzipped the prereg packet {}, ID.json exists : {}", preregId, idJsonPath.toFile().exists());
 
@@ -327,28 +316,23 @@ public class PacketSyncService {
 			JSONArray packets = new JSONArray(response);
 			if (packets.length() > 0) {
 				JSONObject resp = (JSONObject) packets.get(0);
-				if (resp.getString("status").equals("SUCCESS")) {
-					// RID Sync response :
-					// [{"registrationId":"10010100241000120201214134111","status":"SUCCESS"}]
+				if (resp.getString(STATUS).equals(SUCCESS)) {
 
-					String rid = resp.getString("registrationId");
+					String rid = resp.getString(REGISTRATIONID);
 					response = packetSyncService.uploadPacket(packetPath, contextKey);
 					logger.info("Packet Sync response : {}", response);
 					JSONObject obj = new JSONObject(response);
-					if (obj.getString("status").equals("Packet has reached Packet Receiver")) {
+					if (obj.getString(STATUS).equals("Packet has reached Packet Receiver")) {
 
-						// {"status":"Packet has reached Packet Receiver"}
-
-						functionResponse.put("response", nobj);
-						nobj.put("status", "SUCCESS");
-						nobj.put("registrationId", rid);
+						functionResponse.put(RESPONSE, nobj);
+						nobj.put(STATUS, SUCCESS);
+						nobj.put(REGISTRATIONID, rid);
 						return functionResponse;
 					}
 				}
 			}
-			functionResponse.put("response", nobj);
-			nobj.put("status", "Failed");
-			// {"status": "Failed"} or {"status": "Passed"} instead of "Failed"
+			functionResponse.put(RESPONSE, nobj);
+			nobj.put(STATUS, "Failed");
 
 			return functionResponse;
 
@@ -359,19 +343,18 @@ public class PacketSyncService {
 			response = packetSyncService.uploadPacket(packetPath, contextKey);
 			logger.info("Packet Upload response : {}", response);
 			JSONObject obj = new JSONObject(response);
-			if (obj.getString("status").equals("Packet has reached Packet Receiver")) {
-				// {"status":"Packet has reached Packet Receiver"}
-				functionResponse.put("response", nobj);
-				nobj.put("status", "SUCCESS");
+			if (obj.getString(STATUS).equals("Packet has reached Packet Receiver")) {
+				functionResponse.put(RESPONSE, nobj);
+				nobj.put(STATUS, SUCCESS);
 
 				// Get the rid from the packet template
-				nobj.put("registrationId", packetMakerService.getNewRegId());
+				nobj.put(REGISTRATIONID, packetMakerService.getNewRegId());
+
 				return functionResponse;
 			}
 
-			functionResponse.put("response", nobj);
-			nobj.put("status", "Failed");
-			// {"status": "Failed"} or {"status": "Passed"} instead of "Failed"
+			functionResponse.put(RESPONSE, nobj);
+			nobj.put(STATUS, "Failed");
 
 			return functionResponse;
 
@@ -417,13 +400,12 @@ public class PacketSyncService {
 
 		Properties props = contextUtils.loadServerContext(contextKey);
 		for (Entry<Object, Object> entrySet : props.entrySet()) {
-			if (entrySet.getKey().equals("mosip.test.regclient.centerid"))
+			if (entrySet.getKey().equals(MOSIP_TEST_REGCLIENT_CENTERID))
 				centerId = entrySet.getValue().toString();
-			else if (entrySet.getKey().equals("mosip.test.regclient.machineid"))
+			else if (entrySet.getKey().equals(MOSIP_TEST_REGCLIENT_MACHINEID))
 				machineId = entrySet.getValue().toString();
 		}
 
-		// loadContext(contextKey);
 		Map<String, String> headers = new HashMap<>();
 		headers.put("timestamp", APIRequestUtil.getUTCDateTime(ridSyncRequestData.getTimestamp()));
 		headers.put("Center-Machine-RefId", centerId + UNDERSCORE + machineId);
@@ -441,11 +423,11 @@ public class PacketSyncService {
 			props.forEach((k, v) -> {
 				if (k.toString().equals("mosip.test.packet.syncapi")) {
 					syncapi = v.toString();
-				} else if (k.toString().equals("mosip.test.regclient.machineid")) {
+				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_MACHINEID)) {
 					machineId = v.toString();
 				} else if (k.toString().equals("mosip.test.primary.langcode")) {
 					primaryLangCode = v.toString();
-				} else if (k.toString().equals("mosip.test.regclient.centerid")) {
+				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_CENTERID)) {
 					centerId = v.toString();
 				} else if (k.toString().equals("mosip.test.baseurl")) {
 					baseUrl = v.toString();
@@ -462,16 +444,13 @@ public class PacketSyncService {
 		} else {
 			rid = container.getName(container.getNameCount() - 1).toString().replace(".zip", "");
 		}
-		// String rid =
-		// container.getName(container.getNameCount()-1).toString().replace(".zip", "");
-		// String rid =PacketMakerService.getRegIdFromPacketPath(containerFile);
 		if (proc != null && !proc.equals(""))
 			process = proc;
 		logger.info("Syncing data for RID : {}", rid);
 		logger.info("Syncing data: process:", process);
 
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("registrationId", rid);
+		jsonObject.put(REGISTRATIONID, rid);
 		jsonObject.put("langCode", primaryLangCode);
 		jsonObject.put("name", name);
 		jsonObject.put("email", "");
@@ -487,16 +466,10 @@ public class PacketSyncService {
 
 		if (mosipVersion != null && !mosipVersion.isEmpty() && mosipVersion.equals("1.2")) {
 			String id = StringUtils.isNotBlank(additionalInfoReqId) ? additionalInfoReqId : rid;
-			// String refId = centerId + "_" + machineId;
-			/*
-			 * String packetId = new StringBuilder() .append(id) .append("-") .append(refId)
-			 * .append("-") .append(getcurrentTimeStamp()) .toString();
-			 */
 			String packetId = (container.getName(container.getNameCount() - 1).toString()).replace(".zip", "");
 
 			jsonObject.put("packetId", packetId);
 			jsonObject.put("additionalInfoReqId", id);
-			// syncapi=syncapi+"V2";
 		}
 
 		JSONArray list = new JSONArray();
@@ -564,34 +537,20 @@ public class PacketSyncService {
 
 	public String preRegisterGetApplications(String status, String preregId, String contextKey) {
 		loadServerContextProperties(contextKey);
-		// logger.debug("preRegisterGetApplications preregId=" + preregId);
 		return PreRegistrationSteps.getApplications(status, preregId, contextKey);
 	}
 
 	void saveRegIDMap(String preRegId, String personaFilePath) {
-		FileReader reader = null;
-		FileWriter writer = null;
 		Properties p = new Properties();
-		try {
-			reader = new FileReader(preRegMapFile);
+		try (FileReader reader = new FileReader(preRegMapFile); FileWriter writer = new FileWriter(preRegMapFile);) {
+
 			p.load(reader);
 			p.put(preRegId, personaFilePath);
-			writer = new FileWriter(preRegMapFile);
+
 			p.store(writer, "PreRegID to persona mapping file");
 
 		} catch (IOException e) {
 			logger.error("saveRegIDMap " + e.getMessage());
-		} finally {
-			try {
-				if (reader != null)
-					reader.close();
-				if (writer != null) {
-					writer.flush();
-					writer.close();
-				}
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
 		}
 
 	}
@@ -603,7 +562,7 @@ public class PacketSyncService {
 			p.load(reader);
 			return p.getProperty(preRegId);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return null;
 	}
@@ -761,11 +720,8 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 
-		// System.out.println("uploadProof " + docCategory);
-
 		for (MosipDocument a : resident.getDocuments()) {
 			JSONObject respObject = PreRegistrationSteps.UploadDocument(a.getDocCategoryCode(),
-					// a.getType().get(0).getCode(),
 					a.getType().get(0).getDocTypeCode(), a.getDocCategoryLang(), a.getDocs().get(0), preregId,
 					contextKey);
 			if (respObject != null)
@@ -782,8 +738,6 @@ public class PacketSyncService {
 		JSONArray packetPaths = new JSONArray();
 		boolean isFileCreated = false;
 
-		// loadServerContextProperties(contextKey);
-
 		packetDir = Files.createTempDirectory("packets_");
 		Properties personaFiles = personaRequest.getRequests().get(PersonaRequestType.PR_ResidentList);
 		Properties options = personaRequest.getRequests().get(PersonaRequestType.PR_Options);
@@ -797,7 +751,7 @@ public class PacketSyncService {
 		if (!packetDir.toFile().exists()) {
 			isFileCreated = packetDir.toFile().createNewFile();
 			if (isFileCreated)
-				System.out.println("isFileCreated" + isFileCreated);
+				logger.info("isFileCreated" + isFileCreated);
 
 		}
 		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
@@ -832,8 +786,6 @@ public class PacketSyncService {
 		logger.info("createPacketTemplates->outDir:" + outDir);
 
 		loadServerContextProperties(contextKey);
-		// VariableManager.setVariableValue(contextKey,"mosip.test.env.mapperpath",
-		// mapperFilePath);
 		if (process != null) {
 			VariableManager.setVariableValue(contextKey, "process", process);
 		}
@@ -847,7 +799,7 @@ public class PacketSyncService {
 		if (!packetDir.toFile().exists()) {
 			packetDirCreated = packetDir.toFile().createNewFile();
 			if (packetDirCreated)
-				System.out.println("packetDirCreated:" + packetDirCreated);
+				logger.info("packetDirCreated:" + packetDirCreated);
 		}
 		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
 
@@ -866,9 +818,9 @@ public class PacketSyncService {
 				ResidentModel resident = ResidentModel.readPersona(path);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				logger.info("packetPath=" + packetPath);
-				machineId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.machineid").toString();
+				machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
 
-				centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+				centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
 
 				packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
 						machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
@@ -883,7 +835,6 @@ public class PacketSyncService {
 			}
 		} catch (Exception e) {
 			logger.error("createPacketTemplates", e);
-//			e.printStackTrace();
 		}
 
 		JSONObject response = new JSONObject();
@@ -943,7 +894,6 @@ public class PacketSyncService {
 			case "photo":
 				bioData = persona.getBiometric();
 				byte[][] faceData = PhotoProvider.loadPhoto(value);
-				// bioData.setEncodedPhoto(Base64.encodeBase64String(faceData[0]));
 				bioData.setEncodedPhoto(Base64.encodeBase64URLSafeString(faceData[0]));
 				bioData.setRawFaceData(faceData[1]);
 
@@ -963,7 +913,7 @@ public class PacketSyncService {
 						persona.getBiometric().setIris(imUpdated);
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 
 				break;
@@ -977,25 +927,13 @@ public class PacketSyncService {
 						persona.getBiometric().setIris(imUpdated1);
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 
 				break;
-			/*
-			 * case "firstname": persona.getName().setFirstName(value); break; case
-			 * "midname": persona.getName().setMidName(value); break;
-			 * 
-			 * case "lastname": case "surname": persona.getName().setSurName(value); break;
-			 */
 			case "gender":
 				persona.setGender(Gender.valueOf(value));
 				break;
-			/*
-			 * case "phone": case "mobile": case "mobilephone": case "mobilenumber":
-			 * persona.getContact().setMobileNumber(value);
-			 * 
-			 * break;
-			 */
 			case "email":
 			case "emailid":
 				persona.getContact().setEmailId(value);
@@ -1087,7 +1025,6 @@ public class PacketSyncService {
 						break;
 					case "iris_encrypted":
 						IrisDataModel irisvalue = null;
-						// String strval = "";
 						if (persona.getBiometric().getCapture() != null) {
 							irisvalue = new IrisDataModel();
 
@@ -1100,7 +1037,7 @@ public class PacketSyncService {
 								else if (cm.getBioSubType().equals("Right"))
 									irisvalue.setRight(cm.getBioValue());
 							}
-							val = irisvalue; // .toJSONString();
+							val = irisvalue;
 						}
 
 						retProp.put(key, val);
@@ -1134,20 +1071,14 @@ public class PacketSyncService {
 							List<MDSDeviceCaptureModel> lstFingerData = persona.getBiometric().getCapture()
 									.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 							for (MDSDeviceCaptureModel cm : lstFingerData) {
-								// retProp.put(cm.getBioSubType() , CommonUtil.getSHA(cm.getBioValue()));
 								byte[] valBytes = java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
 								retProp.put(cm.getBioSubType(), CommonUtil.getSHAFromBytes(valBytes));
-
-								// byte[] valBytesHash=java.util.Base64.getUrlDecoder().decode(cm.getHash());
-
-								// retProp.put(cm.getBioSubType() , CommonUtil.getSHAFromBytes(valBytesHash));
 							}
 						}
 					}
 						break;
 					case "iris_hash":
 						IrisDataModel irisvalueh = null;
-						// String strval = "";
 						if (persona.getBiometric().getCapture() != null) {
 							irisvalueh = new IrisDataModel();
 
@@ -1156,16 +1087,14 @@ public class PacketSyncService {
 							for (MDSDeviceCaptureModel cm : lstIrisData) {
 
 								if (cm.getBioSubType().equals("Left")) {
-									// irisvalueh.setLeft(CommonUtil.getSHA( cm.getBioValue()));
 									byte[] valBytes = java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
 									irisvalueh.setLeft(CommonUtil.getSHAFromBytes(valBytes));
 								} else if (cm.getBioSubType().equals("Right")) {
-									// irisvalueh.setRight(CommonUtil.getSHA( cm.getBioValue()));
 									byte[] valBytes = java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
 									irisvalueh.setRight(CommonUtil.getSHAFromBytes(valBytes));
 								}
 							}
-							val = irisvalueh; // .toJSONString();
+							val = irisvalueh;
 						}
 
 						retProp.put(key, val);
@@ -1175,7 +1104,6 @@ public class PacketSyncService {
 							val = persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FACE)
 									.get(0).getBioValue();
 							byte[] valBytes = java.util.Base64.getUrlDecoder().decode(val.toString());
-							// val = CommonUtil.getSHA(new String(valBytes));
 							val = CommonUtil.getSHAFromBytes(valBytes);
 						}
 						retProp.put(key, val);
@@ -1214,8 +1142,6 @@ public class PacketSyncService {
 		}
 		JSONObject jsonProps = new JSONObject(retProp);
 		return jsonProps.toString();
-		// throw new Exception("TODO: Implement");
-		// return "";
 	}
 
 	public String updatePersonaData(List<UpdatePersonaDto> updatePersonaRequest, String contextKey) throws Exception {
@@ -1242,7 +1168,6 @@ public class PacketSyncService {
 
 			} catch (IOException e) {
 				logger.error("updatePersonaData:" + e.getMessage());
-				// e.printStackTrace();
 			}
 
 		}
@@ -1279,14 +1204,12 @@ public class PacketSyncService {
 		}
 		if (guardian != null)
 			persona.setGuardian(guardian);
-
 		if (persona != null) {
 			Files.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
 			return "{\"response\":\"SUCCESS\"}";
 		} else {
 			return "{\"response\":\"FAIL\"}";
 		}
-
 	}
 
 	public String updatePersonaBioExceptions(BioExceptionDto personaBERequestDto, String contextKey) {
@@ -1331,10 +1254,6 @@ public class PacketSyncService {
 					.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 			bdbString = capDetails.get(0).getBioValue();
 
-			/*
-			 * "gallery": { "referenceIds": [ { "referenceId": "<hash of biometric>" }, {
-			 * "referenceId": "<hash of biometric>" } ] }
-			 */
 			if (bDuplicate) {
 				duplicateBdbs = new String[2];
 				duplicateBdbs[0] = capDetails.get(1).getBioValue();
@@ -1344,7 +1263,7 @@ public class PacketSyncService {
 			MosipDataSetup.configureMockABISBiometric(bdbString, bDuplicate, duplicateBdbs,
 					DataProviderConstants.DEFAULT_ABIS_DELAY, null, contextKey, statusCode, failureReason);
 		}
-		return "{\"status\":\"Success\"}";
+		return STATUS_SUCCESS;
 	}
 
 	String getRegIdFromPacketPath(String packetPath) {
@@ -1355,7 +1274,7 @@ public class PacketSyncService {
 	public String validatePacket(String packetPath, String processArg, String contextKey) {
 
 		JSONObject ret = new JSONObject();
-		ret.put("status", "Success");
+		ret.put(STATUS, SUCCESS);
 		loadServerContextProperties(contextKey);
 		String regId = getRegIdFromPacketPath(packetPath);
 		String tempPacketRootFolder = Path.of(packetPath).toString();
@@ -1369,7 +1288,7 @@ public class PacketSyncService {
 
 		} catch (ValidationException ex) {
 
-			ret.put("status", "Error");
+			ret.put(STATUS, "Error");
 			ret.put("message", ex.getMessage());
 
 		}
@@ -1399,13 +1318,12 @@ public class PacketSyncService {
 				for (String m : modalities) {
 					if (m.toLowerCase().contains("finger") || m.toLowerCase().contains("right thumb")
 							|| m.toLowerCase().contains("left thumb")) {
-						// int pos = ISOConverter.getFingerPos(m.trim());
 						for (int i = 0; i < capFingers.size(); i++) {
 							MDSDeviceCaptureModel mds = capFingers.get(i);
 							if (mds.getBioSubType().equals(m)) {
 								bdbString = capFingers.get(i).getBioValue();
 								subTypeBdbStr.add(bdbString);
-								System.out.println("Modality : " + m);
+								logger.info(MODALITY + m);
 								break;
 							}
 						}
@@ -1416,29 +1334,22 @@ public class PacketSyncService {
 							if (mds.getBioSubType().equals(m)) {
 								bdbString = capIris.get(i).getBioValue();
 								subTypeBdbStr.add(bdbString);
-								System.out.println("Modality : " + m);
+								logger.info(MODALITY + m);
 								break;
 							}
 						}
-						/*
-						 * 
-						 * //int pos =
-						 * m.toLowerCase().equals(capIris.get(0).getBioSubType().toLowerCase()) ? 0: 1;
-						 * bdbString = capIris.get(0).getBioValue(); subTypeBdbStr.add(bdbString);
-						 * System.out.println("Modality : "+m);
-						 */
 
 					} else if (m.toLowerCase().contains("face")) {
 						bdbString = capFace.get(0).getBioValue();
 						subTypeBdbStr.add(bdbString);
-						System.out.println("Modality : " + m);
+						logger.info(MODALITY + m);
 					}
 
 				}
 
 			} else {
 				bdbString = capFingers.get(0).getBioValue();
-				System.out.println("else part -->bdbString : " + bdbString);
+				logger.info("else part -->bdbString : " + bdbString);
 				subTypeBdbStr.add(bdbString);
 			}
 
@@ -1462,16 +1373,16 @@ public class PacketSyncService {
 						expct.getOperation(), contextKey, expct.getStatusCode(), expct.getFailureReason());
 				reponse.add(responseStr);
 			}
-			System.out.println(String.join(", ", reponse));
+			logger.info(String.join(", ", reponse));
 		}
 
-		return "{\"status\":\"Success\"}";
+		return STATUS_SUCCESS;
 	}
 
 	public String updateMachine(MosipMachineModel machine, String contextKey) {
 		loadServerContextProperties(contextKey);
 		MosipDataSetup.updateMachine(machine, contextKey);
-		return "{\"status\":\"Success\"}";
+		return STATUS_SUCCESS;
 	}
 
 	public String updatePreRegistrationStatus(String preregId, String statusCode, String contextKey) {
@@ -1486,7 +1397,6 @@ public class PacketSyncService {
 	}
 
 	public String deleteMockAbisExpectations(String contextKey) {
-		// TODO Auto-generated method stub
 
 		return MosipDataSetup.deleteMockAbisExpectations(contextKey);
 

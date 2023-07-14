@@ -1,12 +1,15 @@
 package io.mosip.ivv.e2e.methods;
 
 import static org.testng.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
+
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.core.exceptions.RigInternalError;
@@ -74,7 +77,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 					Thread.sleep(Long.parseLong(waitTime));
 					long startTime = System.currentTimeMillis();
 					logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
-					Utils.auditLog.info(this.getClass().getSimpleName() + " Rid :" + rid);
+					logger.info(this.getClass().getSimpleName() + " Rid :" + rid);
 					if(rid==null) 
 						System.out.println("NEeha");
 					Response response = getRequest(baseUrl + getRidStatusUrl + rid,

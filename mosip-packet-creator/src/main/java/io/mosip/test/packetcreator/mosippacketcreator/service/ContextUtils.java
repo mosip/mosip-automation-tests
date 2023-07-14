@@ -1,32 +1,29 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FileOutputStream;
-import java.util.*;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import java.security.KeyPairGenerator;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.mosip.dataprovider.models.ExecContext;
+import org.mosip.dataprovider.models.setup.MosipMachineModel;
+import org.mosip.dataprovider.preparation.MosipDataSetup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import variables.VariableManager;
-
-import java.security.SecureRandom;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import org.mosip.dataprovider.models.setup.MosipMachineModel;
-import org.mosip.dataprovider.preparation.MosipDataSetup;
 
 @Component
 public class ContextUtils {
@@ -67,9 +64,8 @@ public class ContextUtils {
 
 		Boolean bRet = true;
 		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
-		FileWriter fr =null;
-		try {
-			fr = new FileWriter(filePath);
+		try (FileWriter fr = new FileWriter(filePath);) {
+
 			props.store(fr, "Server Context Attributes");
 			bRet = true;
 
@@ -87,19 +83,6 @@ public class ContextUtils {
 			logger.error("write:createUpdateServerContext " + e.getMessage());
 			bRet = false;
 		}
-		finally {
-			if(fr!=null) {
-				try {
-					fr.flush();
-					fr.close();
-				} catch (IOException e) {
-					logger.error(e.getMessage());
-				}
-				
-			}
-				
-			
-		}
 		return bRet;
 	}
 
@@ -110,7 +93,6 @@ public class ContextUtils {
 		context.setKey(uid);
 		Properties p = loadServerContext(serverContextKey);
 		context.setProperties(p);
-		// Hashtable tbl = null;
 		return uid;
 	}
 
@@ -120,7 +102,6 @@ public class ContextUtils {
 			return process;
 		Path fPath = Path.of(templatePacketLocation + "/" + src.toUpperCase());
 		for (File f : fPath.toFile().listFiles()) {
-			// logger.info("subfolder "+ f.getName());
 			if (f.isDirectory()) {
 				process = f.getName();
 				break;
@@ -135,7 +116,6 @@ public class ContextUtils {
 		String process = null;
 
 		for (File f : fPath.toFile().listFiles()) {
-			// logger.info("subfolder "+ f.getName());
 			if (f.isDirectory()) {
 				process = f.getName();
 				break;
@@ -176,29 +156,10 @@ public class ContextUtils {
 					machines = MosipDataSetup.getMachineDetail(machineId, " ", contextKey);
 				if (machines != null && !machines.isEmpty()) {
 					for (MosipMachineModel mosipMachineModel : machines) {
-						// if(mosipMachineModel!=null && mosipMachineModel.isActive() &&
-						// mosipMachineModel.getId().equalsIgnoreCase(machineId)) {
 						if (mosipMachineModel != null && mosipMachineModel.getId().equalsIgnoreCase(machineId)) { // removed
-																													// isActive
-																													// check
-																													// so,
-																													// that
-																													// inactive
-																													// machine
-																													// can
-																													// also
-																													// be
-																													// updated
-																													// (required
-																													// due
-																													// to
-																													// deactive
-																													// regcenter
-																													// scenario)
 							mosipMachineModel.setSignPublicKey(publicKey);
 							mosipMachineModel.setPublicKey(publicKey);
 							mosipMachineModel.setName(RandomStringUtils.randomAlphanumeric(10).toUpperCase());
-							// mosipMachineModel.setZoneCode("NTH");
 							MosipDataSetup.updateMachine(mosipMachineModel, contextKey);
 							isMachineDetailFound = true;
 							break;
@@ -210,16 +171,16 @@ public class ContextUtils {
 					throw new RuntimeException("MachineId : " + machineId + " details not found in DB.");
 			}
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
 	private static void createKeyFile(final String fileName, final byte[] key) {
 		System.out.println("Creating file : " + fileName);
-		try {
+		try (final FileOutputStream os = new FileOutputStream(fileName);) {
 			Throwable t = null;
 			try {
-				final FileOutputStream os = new FileOutputStream(fileName);
+
 				try {
 					os.write(key);
 				} finally {
@@ -232,7 +193,7 @@ public class ContextUtils {
 				t = exception;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			// logger.error(e.getMessage());
 		}
 	}
 

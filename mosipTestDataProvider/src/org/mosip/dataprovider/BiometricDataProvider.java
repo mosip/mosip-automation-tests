@@ -1,8 +1,5 @@
 package org.mosip.dataprovider;
 
-import java.awt.image.BufferedImage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.File;
 //import java.io.FileInputStream;
@@ -16,32 +13,24 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
 //import java.time.LocalDateTime;
 //import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 //import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.collections.map.HashedMap;
-import org.json.JSONObject;
 import org.mosip.dataprovider.mds.MDSClient;
 import org.mosip.dataprovider.mds.MDSClientInterface;
 import org.mosip.dataprovider.mds.MDSClientNoMDS;
@@ -50,22 +39,18 @@ import org.mosip.dataprovider.models.BioModality;
 //import org.apache.commons.lang3.tuple.Pair;
 import org.mosip.dataprovider.models.BiometricDataModel;
 import org.mosip.dataprovider.models.IrisDataModel;
-import org.mosip.dataprovider.models.MosipIDSchema;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
 import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
-import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.test.registrationclient.RegistrationSteps;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.mosip.dataprovider.util.FPClassDistribution;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.HashBiMap;
 import com.jamesmurty.utils.XMLBuilder;
 //import java.util.Date;
 
@@ -77,159 +62,139 @@ public class BiometricDataProvider {
 	public static HashMap<String, Integer> portmap = new HashMap();
 	private static final Logger logger = LoggerFactory.getLogger(BiometricDataProvider.class);
 
-	static String buildBirIris(String irisInfo, String irisName, String jtwSign, String payload, String qualityScore,boolean genarateValidCbeff,String exception)
-			throws ParserConfigurationException, FactoryConfigurationError, TransformerException,
-			FileNotFoundException {
+	// String constants
+	private static final String XMLNS = "xmlns";
+	private static final String MAJOR = "Major";
+	private static final String MINOR = "Minor";
+	private static final String CBEFFVERSION = "CBEFFVersion";
+	private static final String VERSION = "Version";
+	private static final String FALSE = "false";
+	private static final String BDBINFO = "BDBInfo";
+	private static final String BIRINFO = "BIRInfo";
+	private static final String INTEGRITY = "Integrity";
+	private static final String FORMAT = "Format";
+	private static final String CREATIONDATE = "CreationDate";
+	private static final String ORGANIZATION = "Organization";
+	private static final String MOSIP = "Mosip";
+	private static final String SUBTYPE = "Subtype";
+	private static final String PURPOSE = "Purpose";
+	private static final String LEVEL = "Level";
+	private static final String SHA_256 = "SHA-256";
+	private static final String ENROLL = "Enroll";
+	private static final String QUALITY = "Quality";
+	private static final String ALGORITHM = "Algorithm";
+	private static final String SCORE = "Score";
+	private static final String EXCEPTION = "EXCEPTION";
+	private static final String OTHERS = "others";
+	private static final String ENTRY = "entry";
+	private static final String RETRIES = "RETRIES";
+	private static final String SDK_SCORE = "SDK_SCORE";
+	private static final String FORCE_CAPTURED = "FORCE_CAPTURED";
+	private static final String PAYLOAD = "PAYLOAD";
+	private static final String SPEC_VERSION = "SPEC_VERSION";
+	private static final String AUTHCERTSPATH = "authCertsPath";
+	private static final String LEFTEYE = "leftEye";
+	private static final String RIGHTEYE = "rightEye";
+	private static final String RIGHT = "Right";
+	private static final String MOUNTPATH = "mountPath";
+	private static final String DIRPATH = "dirPath ";
+	private static final String SCENARIO = "scenario";
+
+	static String buildBirIris(String irisInfo, String irisName, String jtwSign, String payload, String qualityScore,
+			boolean genarateValidCbeff, String exception) throws ParserConfigurationException,
+			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
-		// irisInfo= Base64.getEncoder().encodeToString(irisInfo.getBytes());
-		XMLBuilder builder = XMLBuilder.create("BIR").a("xmlns", "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
-				.e("Version").e("Major").t("1").up().e("Minor").t("1").up().up().e("CBEFFVersion").e("Major").t("1")
-				.up().e("Minor").t("1").up().up().e("BIRInfo").e("Integrity").t("false").up().up().e("BDBInfo")
-				.e("Format").e("Organization").t("Mosip").up().e("Type").t("9").up().up().e("CreationDate").t(today)
-				.up().e("Type").t("Iris").up().e("Subtype").t(irisName).up().e("Level").t("Raw").up().e("Purpose")
-				.t("Enroll").up().e("Quality").e("Algorithm").e("Organization").t("HMAC").up().e("Type").t("SHA-256")
-				.up().up().e("Score").t(qualityScore).up().up().up().e("BDB").t(irisInfo).up().up();
+		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+				.e(VERSION).e(MAJOR).t("1").up().e(MINOR).t("1").up().up().e(CBEFFVERSION).e(MAJOR).t("1").up().e(MINOR)
+				.t("1").up().up().e(BIRINFO).e(INTEGRITY).t(FALSE).up().up().e(BDBINFO).e(FORMAT).e(ORGANIZATION)
+				.t(MOSIP).up().e("Type").t("9").up().up().e(CREATIONDATE).t(today).up().e("Type").t("Iris").up()
+				.e(SUBTYPE).t(irisName).up().e(LEVEL).t("Raw").up().e(PURPOSE).t(ENROLL).up().e(QUALITY).e(ALGORITHM)
+				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t(qualityScore).up().up().up()
+				.e("BDB").t(irisInfo).up().up();
 		if (jtwSign != null && payload != null) {
 			jtwSign = Base64.getEncoder().encodeToString(jtwSign.getBytes());
 			builder.e("SB").t(jtwSign).up().
-			// e("others").e("Key").t("EXCEPTION").up().e("Value").t("false").up().up().
-			// e("others").e("Key").t("RETRIES").up().e("Value").t("1").up().up().
-			// e("others").e("Key").t("SDK_SCORE").up().e("Value").t("0.0").up().up().
-			// e("others").e("Key").t("FORCE_CAPTURED").up().e("Value").t("false").up().up().
-			// e("others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
-			// e("others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up().
 
-			e("others").e("entry").a("key", "EXCEPTION").t(exception).up().
-			e("entry").a("key", "RETRIES").t("1").up().
-			e("entry").a("key", "SDK_SCORE").t("0.0").up().
-			e("entry").a("key", "FORCE_CAPTURED").t("false").up().
-			e("entry").a("key", "PAYLOAD").t(payload).up().
-			e("entry").a("key", "SPEC_VERSION").t("0.9.5").up().up();
+					e(OTHERS).e(ENTRY).a("key", EXCEPTION).t(exception).up().e(ENTRY).a("key", RETRIES).t("1").up()
+					.e(ENTRY).a("key", SDK_SCORE).t("0.0").up().e(ENTRY).a("key", FORCE_CAPTURED).t(FALSE).up().e(ENTRY)
+					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 		}
-
-		// PrintWriter writer = new PrintWriter(new
-		// FileOutputStream("cbeffout-Iris"+irisName+".xml"));
-		// builder.toWriter(true, writer, null);
 
 		return builder.asString(null);
 	}
-
-	/*
-	 * static String buildBirFinger(String fingerInfo, String fingerName, String
-	 * jtwSign, String payload, String qualityScore) throws
-	 * ParserConfigurationException, FactoryConfigurationError,
-	 * TransformerException, FileNotFoundException { return
-	 * buildBirFinger(fingerInfo, fingerName, jtwSign, payload, qualityScore, true);
-	 * 
-	 * }
-	 */
 
 	static String buildBirFinger(String fingerInfo, String fingerName, String jtwSign, String payload,
 
-			String qualityScore, boolean generateValidCbeff,String exception) throws ParserConfigurationException,
-	FactoryConfigurationError, TransformerException, FileNotFoundException {
+			String qualityScore, boolean generateValidCbeff, String exception) throws ParserConfigurationException,
+			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
 		XMLBuilder builder = null;
-		String bdbKey= "BDB";
-		if (generateValidCbeff==false)
+		String bdbKey = "BDB";
+		if (generateValidCbeff == false)
 			bdbKey = "invalidBDB";
-		builder = XMLBuilder.create("BIR").a("xmlns", "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
-				.e("Version").e("Major").t("1").up().e("Minor").t("1").up().up().e("CBEFFVersion").e("Major").t("1")
-				.up().e("Minor").t("1").up().up().e("BIRInfo").e("Integrity").t("false").up().up().e("BDBInfo")
-				.e("Format").e("Organization").t("Mosip").up().e("Type").t("7").up().up().e("CreationDate").t(today)
-				.up().e("Type").t("Finger").up().e("Subtype").t(fingerName).up().e("Level").t("Raw").up().e("Purpose")
-				.t("Enroll").up().e("Quality").e("Algorithm").e("Organization").t("HMAC").up().e("Type").t("SHA-256")
-				.up().up().e("Score").t(qualityScore).up().up().up().e(bdbKey).t(fingerInfo).up().up();
+		builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/").e(VERSION)
+				.e(MAJOR).t("1").up().e(MINOR).t("1").up().up().e(CBEFFVERSION).e(MAJOR).t("1").up().e(MINOR).t("1")
+				.up().up().e(BIRINFO).e(INTEGRITY).t(FALSE).up().up().e(BDBINFO).e(FORMAT).e(ORGANIZATION).t(MOSIP).up()
+				.e("Type").t("7").up().up().e(CREATIONDATE).t(today).up().e("Type").t("Finger").up().e(SUBTYPE)
+				.t(fingerName).up().e(LEVEL).t("Raw").up().e(PURPOSE).t(ENROLL).up().e(QUALITY).e(ALGORITHM)
+				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t(qualityScore).up().up().up()
+				.e(bdbKey).t(fingerInfo).up().up();
 		if (jtwSign != null && payload != null) {
 			jtwSign = Base64.getEncoder().encodeToString(jtwSign.getBytes());
 			builder.e("SB").t(jtwSign).up().
 
-			e("others").e("entry").a("key", "EXCEPTION").t(exception).up().e("entry").a("key", "RETRIES").t("1")
-			.up().e("entry").a("key", "SDK_SCORE").t("0.0").up().e("entry").a("key", "FORCE_CAPTURED")
-			.t("false").up().e("entry").a("key", "PAYLOAD").t(payload).up().e("entry").a("key", "SPEC_VERSION")
-			.t("0.9.5").up().up();
+					e(OTHERS).e(ENTRY).a("key", EXCEPTION).t(exception).up().e(ENTRY).a("key", RETRIES).t("1").up()
+					.e(ENTRY).a("key", SDK_SCORE).t("0.0").up().e(ENTRY).a("key", FORCE_CAPTURED).t(FALSE).up().e(ENTRY)
+					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 		}
 
 		return builder.asString(null);
 	}
 
-	static String buildBirFace(String faceInfo, String jtwSign, String payload, String qualityScore,boolean genarateValidCbeff,String exception)
-			throws ParserConfigurationException, FactoryConfigurationError, TransformerException,
-			FileNotFoundException {
+	static String buildBirFace(String faceInfo, String jtwSign, String payload, String qualityScore,
+			boolean genarateValidCbeff, String exception) throws ParserConfigurationException,
+			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
-		// faceInfo= Base64.getEncoder().encodeToString(faceInfo.getBytes());
-		XMLBuilder builder = XMLBuilder.create("BIR").a("xmlns", "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
-				.e("Version").e("Major").t("1").up().e("Minor").t("1").up().up().e("CBEFFVersion").e("Major").t("1")
-				.up().e("Minor").t("1").up().up().e("BIRInfo").e("Integrity").t("false").up().up().e("BDBInfo")
-				.e("Format").e("Organization").t("Mosip").up().e("Type").t("8").up().up().e("CreationDate").t(today)
-				.up().e("Type").t("Face").up().e("Subtype").t("").up().e("Level").t("Raw").up().e("Purpose").t("Enroll")
-				.up().e("Quality").e("Algorithm").e("Organization").t("HMAC").up().e("Type").t("SHA-256").up().up()
-				.e("Score").t(qualityScore).up().up().up().e("BDB").t(faceInfo).up().up();
+		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+				.e(VERSION).e(MAJOR).t("1").up().e(MINOR).t("1").up().up().e(CBEFFVERSION).e(MAJOR).t("1").up().e(MINOR)
+				.t("1").up().up().e(BIRINFO).e(INTEGRITY).t(FALSE).up().up().e(BDBINFO).e(FORMAT).e(ORGANIZATION)
+				.t(MOSIP).up().e("Type").t("8").up().up().e(CREATIONDATE).t(today).up().e("Type").t("Face").up()
+				.e(SUBTYPE).t("").up().e(LEVEL).t("Raw").up().e(PURPOSE).t(ENROLL).up().e(QUALITY).e(ALGORITHM)
+				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t(qualityScore).up().up().up()
+				.e("BDB").t(faceInfo).up().up();
 		if (jtwSign != null && payload != null) {
 			jtwSign = Base64.getEncoder().encodeToString(jtwSign.getBytes());
 			builder.e("SB").t(jtwSign).up().
 
-			// <Others>
-			// <Key>EXCEPTION</Key>
-			// <Value>false</Value>
-			// </Others>
-			// e("others").e("Key").t("EXCEPTION").up().e("Value").t("false").up().up().
-			// e("others").e("Key").t("RETRIES").up().e("Value").t("1").up().up().
-			// e("others").e("Key").t("SDK_SCORE").up().e("Value").t("0.0").up().up().
-			// e("others").e("Key").t("FORCE_CAPTURED").up().e("Value").t("false").up().up().
-			// e("others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
-			// e("others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up();
-
-			e("others").e("entry").a("key", "EXCEPTION").t(exception).up().e("entry").a("key", "RETRIES").t("1")
-			.up().e("entry").a("key", "SDK_SCORE").t("0.0").up().e("entry").a("key", "FORCE_CAPTURED")
-			.t("false").up().e("entry").a("key", "PAYLOAD").t(payload).up().e("entry").a("key", "SPEC_VERSION")
-			.t("0.9.5").up().up();
+					e(OTHERS).e(ENTRY).a("key", EXCEPTION).t(exception).up().e(ENTRY).a("key", RETRIES).t("1").up()
+					.e(ENTRY).a("key", SDK_SCORE).t("0.0").up().e(ENTRY).a("key", FORCE_CAPTURED).t(FALSE).up().e(ENTRY)
+					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 
 		}
-		// PrintWriter writer = new PrintWriter(new
-		// FileOutputStream("cbeffout-face"+".xml")); builder.toWriter(true, writer,
-		// null);
 
 		return builder.asString(null);
 	}
 
-
-	static String buildBirExceptionPhoto(String faceInfo, String jtwSign, String payload, String qualityScore,boolean genarateValidCbeff,String exception)
-			throws ParserConfigurationException, FactoryConfigurationError, TransformerException,
-			FileNotFoundException {
+	static String buildBirExceptionPhoto(String faceInfo, String jtwSign, String payload, String qualityScore,
+			boolean genarateValidCbeff, String exception) throws ParserConfigurationException,
+			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
-		// faceInfo= Base64.getEncoder().encodeToString(faceInfo.getBytes());
-		XMLBuilder builder = XMLBuilder.create("BIR").a("xmlns", "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
-				.e("Version").e("Major").t("1").up().e("Minor").t("1").up().up().e("CBEFFVersion").e("Major").t("1")
-				.up().e("Minor").t("1").up().up().e("BIRInfo").e("Integrity").t("false").up().up().e("BDBInfo")
-				.e("Format").e("Organization").t("Mosip").up().e("Type").t("8").up().up().e("CreationDate").t(today)
-				.up().e("Type").t("ExceptionPhoto").up().e("Subtype").t("").up().e("Level").t("Raw").up().e("Purpose").t("Enroll")
-				.up().e("Quality").e("Algorithm").e("Organization").t("HMAC").up().e("Type").t("SHA-256").up().up()
-				.e("Score").t(qualityScore).up().up().up().e("BDB").t(faceInfo).up().up();
+		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+				.e(VERSION).e(MAJOR).t("1").up().e(MINOR).t("1").up().up().e(CBEFFVERSION).e(MAJOR).t("1").up().e(MINOR)
+				.t("1").up().up().e(BIRINFO).e(INTEGRITY).t(FALSE).up().up().e(BDBINFO).e(FORMAT).e(ORGANIZATION)
+				.t(MOSIP).up().e("Type").t("8").up().up().e(CREATIONDATE).t(today).up().e("Type").t("ExceptionPhoto")
+				.up().e(SUBTYPE).t("").up().e(LEVEL).t("Raw").up().e(PURPOSE).t(ENROLL).up().e(QUALITY).e(ALGORITHM)
+				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t(qualityScore).up().up().up()
+				.e("BDB").t(faceInfo).up().up();
 		if (jtwSign != null && payload != null) {
 			jtwSign = Base64.getEncoder().encodeToString(jtwSign.getBytes());
 			builder.e("SB").t(jtwSign).up().
 
-			// <Others>
-			// <Key>EXCEPTION</Key>
-			// <Value>false</Value>
-			// </Others>
-			// e("others").e("Key").t("EXCEPTION").up().e("Value").t("false").up().up().
-			// e("others").e("Key").t("RETRIES").up().e("Value").t("1").up().up().
-			// e("others").e("Key").t("SDK_SCORE").up().e("Value").t("0.0").up().up().
-			// e("others").e("Key").t("FORCE_CAPTURED").up().e("Value").t("false").up().up().
-			// e("others").e("Key").t("PAYLOAD").up().e("Value").t(payload).up().up().
-			// e("others").e("Key").t("SPEC_VERSION").up().e("Value").t("0.9.5").up().up();
-
-			e("others").e("entry").a("key", "EXCEPTION").t(exception).up().e("entry").a("key", "RETRIES").t("1")
-			.up().e("entry").a("key", "SDK_SCORE").t("0.0").up().e("entry").a("key", "FORCE_CAPTURED")
-			.t("false").up().e("entry").a("key", "PAYLOAD").t(payload).up().e("entry").a("key", "SPEC_VERSION")
-			.t("0.9.5").up().up();
+					e(OTHERS).e(ENTRY).a("key", EXCEPTION).t(exception).up().e(ENTRY).a("key", RETRIES).t("1").up()
+					.e(ENTRY).a("key", SDK_SCORE).t("0.0").up().e(ENTRY).a("key", FORCE_CAPTURED).t(FALSE).up().e(ENTRY)
+					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 
 		}
-		// PrintWriter writer = new PrintWriter(new
-		// FileOutputStream("cbeffout-face"+".xml")); builder.toWriter(true, writer,
-		// null);
 
 		return builder.asString(null);
 	}
@@ -245,8 +210,8 @@ public class BiometricDataProvider {
 		return lst;
 	}
 
-	public  static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey, String purpose,String qualityScore)
-			throws Exception {
+	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey, String purpose,
+			String qualityScore) throws Exception {
 
 		BiometricDataModel biodata = null;
 		MDSRCaptureModel capture = null;
@@ -260,80 +225,64 @@ public class BiometricDataProvider {
 		val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsbypass").toString();
 		List<String> filteredAttribs = resident.getFilteredBioAttribtures();
 		List<BioModality> bioExceptions = resident.getBioExceptions();
-		List<String> bioexceptionlist=new ArrayList<String>();
+		List<String> bioexceptionlist = new ArrayList<String>();
 
 		try {
-			if (val == null || val.equals("") || val.equals("false")) {
+			if (val == null || val.equals("") || val.equals(FALSE)) {
 
 				val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsport").toString();
 				mdsprofilePath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsprofilepath")
 						.toString();
 
+				String certsDir = System.getenv(AUTHCERTSPATH) == null
+						? VariableManager.getVariableValue(contextKey, AUTHCERTSPATH).toString()
+						: System.getenv(AUTHCERTSPATH);
 
-				String certsDir = System.getenv("authCertsPath") == null
-						? VariableManager.getVariableValue(contextKey, "authCertsPath").toString()
-								: System.getenv("authCertsPath");
+				if (certsDir == null || certsDir.length() == 0) {
+					certsDir = System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS";
+				}
 
-						if (certsDir == null || certsDir.length() == 0) {
-							certsDir = System.getProperty("java.io.tmpdir")+File.separator+"AUTHCERTS";
-						}
+				Path p12path = Paths.get(certsDir,
+						"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
 
+				logger.info("p12path" + p12path);
 
-						// C:\Users\Sohan.Dey\AppData\Local\Temp\AUTHCERTS\DSL-IDA-api-internal.qa-1201-b2.mosip.net
+				port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device", p12path.toString());
 
-						Path p12path = Paths.get(certsDir,
-								"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
+				// Need to check with Anusha is this below line correct wrt multi run of
+				// scenarios for each env.
+				// port =
+				// CentralizedMockSBI.startSBI(VariableManager.getVariableValue(contextKey,
+				// "db-server").toString(), "Registration", "Biometric Device",
+				// p12path.toString());
 
-						/*
-						 * String certsTargetDir = System.getProperty("java.io.tmpdir")+ File.separator
-						 * + "AUTHCERTS"; Path p12path =
-						 * Paths.get(VariableManager.getVariableValue(contextKey, "authCertsPath")
-						 * "AUTHCERTS", "DSL-IDA-" + VariableManager.getVariableValue(contextKey,
-						 * "db-server"));
-						 */
+				portmap.put("port_" + contextKey, port);
 
-						System.out.println("p12path" + p12path);
-
-						port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device", p12path.toString());
-
-						//Need to check with Anusha is this below line correct wrt multi run of scenarios for each env.
-						//port = CentralizedMockSBI.startSBI(VariableManager.getVariableValue(contextKey, "db-server").toString(), "Registration", "Biometric Device", p12path.toString());
-
-
-						portmap.put("port_" + contextKey, port);
-
-						mds = new MDSClient(port);
-						if(resident.getBioExceptions()!=null && !resident.getBioExceptions().isEmpty()){
-							mds.setProfile("Default", port,contextKey);
-						}					
-						else
-						{
-							profileName = "res" + resident.getId();
-							mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-							mds.setProfile(profileName, port,contextKey);
-						}
-
-
+				mds = new MDSClient(port);
+				if (resident.getBioExceptions() != null && !resident.getBioExceptions().isEmpty()) {
+					mds.setProfile("Default", port, contextKey);
+				} else {
+					profileName = "res" + resident.getId();
+					mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
+					mds.setProfile(profileName, port, contextKey);
+				}
 
 			} else {
 				mds = new MDSClientNoMDS();
 				bNoMDS = false;
 				profileName = "res" + resident.getId();
 				mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-				mds.setProfile(profileName, port,contextKey);
+				mds.setProfile(profileName, port, contextKey);
 			}
 
 			// Change mockmds quality score
 
 			HashMap<String, Integer> portAsPerKey = BiometricDataProvider.portmap;
 			RegistrationSteps steps = new RegistrationSteps();
-			steps.setMDSscore(portAsPerKey.get("port_"+contextKey),"Biometric Device", qualityScore, contextKey);
-			logger.info("mds score is changed to : "+qualityScore );
-
+			steps.setMDSscore(portAsPerKey.get("port_" + contextKey), "Biometric Device", qualityScore, contextKey);
+			logger.info("mds score is changed to : " + qualityScore);
 
 			biodata = resident.getBiometric();
-
-
 
 		}
 
@@ -342,23 +291,21 @@ public class BiometricDataProvider {
 			t.getStackTrace();
 		}
 
-
 		// Get Exceptions modalities abd add them to list of string
 		if (bioExceptions != null && !bioExceptions.isEmpty()) {
-			for(int modalityCount=0;modalityCount<bioExceptions.size();modalityCount++)
+			for (int modalityCount = 0; modalityCount < bioExceptions.size(); modalityCount++)
 				bioexceptionlist.add(bioExceptions.get(modalityCount).getSubType().toString());
 		}
 
-		// Step 1 : Face get capture  
+		// Step 1 : Face get capture
 		try {
 			if ((filteredAttribs != null && filteredAttribs.contains("face")) && biodata.getRawFaceData() != null) {
 
 				List<MDSDevice> faceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
 				MDSDevice faceDevice = faceDevices.get(0);
-				// client.captureFromRegDevice(d.get(0),r, "Face",null,60,1,1);
 
 				capture = mds.captureFromRegDevice(faceDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_FACE,
-						null, 60, faceDevice.getDeviceSubId().get(0), port,contextKey,null);
+						null, 60, faceDevice.getDeviceSubId().get(0), port, contextKey, null);
 
 			}
 		}
@@ -368,46 +315,37 @@ public class BiometricDataProvider {
 			t.getStackTrace();
 		}
 
-
-
-
-		// Step 2 : IRIS get capture 
+		// Step 2 : IRIS get capture
 		try {
-			if (biodata.getIris() != null) 
-			{
+			if (biodata.getIris() != null) {
 				List<BioModality> irisExceptions = null;
-				List<String> listexceptionBio=new ArrayList<String>();
+				List<String> listexceptionBio = new ArrayList<String>();
 
 				if (bioExceptions != null && !bioExceptions.isEmpty()) {
 					irisExceptions = getModalitiesByType(bioExceptions, "Iris");
-					for(BioModality modality: bioExceptions)
-					{
+					for (BioModality modality : bioExceptions) {
 						listexceptionBio.add(modality.getSubType());
 
 					}
 
 				}
 
-
 				List<MDSDevice> irisDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
 				MDSDevice irisDevice = irisDevices.get(0);
 
-
-
-
 				if (irisExceptions == null || irisExceptions.isEmpty()) {
-					if (filteredAttribs != null && filteredAttribs.contains("leftEye")) {
+					if (filteredAttribs != null && filteredAttribs.contains(LEFTEYE)) {
 						capture = mds.captureFromRegDevice(irisDevice, capture,
 								DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
-								irisDevice.getDeviceSubId().get(0), port,contextKey,null);
+								irisDevice.getDeviceSubId().get(0), port, contextKey, null);
 					}
 
 					if (irisDevice.getDeviceSubId().size() > 1) {
-						if (filteredAttribs != null && filteredAttribs.contains("rightEye")) {
+						if (filteredAttribs != null && filteredAttribs.contains(RIGHTEYE)) {
 
 							capture = mds.captureFromRegDevice(irisDevice, capture,
 									DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
-									irisDevice.getDeviceSubId().get(1), port,contextKey,null);
+									irisDevice.getDeviceSubId().get(1), port, contextKey, null);
 						}
 					}
 				} else {
@@ -419,23 +357,22 @@ public class BiometricDataProvider {
 					}
 					for (String f : irisSubTypes) {
 
-						if (f.equalsIgnoreCase("right")
-								&& (filteredAttribs != null && filteredAttribs.contains("leftEye"))) {
+						if (f.equalsIgnoreCase(RIGHT)
+								&& (filteredAttribs != null && filteredAttribs.contains(LEFTEYE))) {
 							capture = mds.captureFromRegDevice(irisDevice, capture,
 									DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
-									irisDevice.getDeviceSubId().get(0), port,contextKey,null);
+									irisDevice.getDeviceSubId().get(0), port, contextKey, null);
 						} else if (f.equalsIgnoreCase("left")
-								&& (filteredAttribs != null && filteredAttribs.contains("rightEye"))) {
+								&& (filteredAttribs != null && filteredAttribs.contains(RIGHTEYE))) {
 
 							if (irisDevice.getDeviceSubId().size() > 1)
 								capture = mds.captureFromRegDevice(irisDevice, capture,
 										DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
-										irisDevice.getDeviceSubId().get(1), port,contextKey,null);
+										irisDevice.getDeviceSubId().get(1), port, contextKey, null);
 						}
 					}
 				}
 			}
-
 
 		}
 
@@ -444,28 +381,21 @@ public class BiometricDataProvider {
 			t.getStackTrace();
 		}
 
-
 		try {
 			if (biodata.getFingerPrint() != null) {
 				List<BioModality> fingerExceptions = null;
 				List<MDSDeviceCaptureModel> lstToRemove = new ArrayList<MDSDeviceCaptureModel>();
-				List<String> listFingerExceptionBio=new ArrayList<String>();
+				List<String> listFingerExceptionBio = new ArrayList<String>();
 
 				if (bioExceptions != null && !bioExceptions.isEmpty()) {
 
-
 					fingerExceptions = getModalitiesByType(bioExceptions, "Finger");
 
-					for(BioModality modality: bioExceptions)
-					{
+					for (BioModality modality : bioExceptions) {
 						listFingerExceptionBio.add(modality.getSubType());
 
 					}
 				}
-
-
-
-
 
 				List<MDSDevice> fingerDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 				MDSDevice fingerDevice = fingerDevices.get(0);
@@ -473,22 +403,10 @@ public class BiometricDataProvider {
 				for (int i = 0; i < fingerDevice.getDeviceSubId().size(); i++) {
 					capture = mds.captureFromRegDevice(fingerDevice, capture,
 							DataProviderConstants.MDS_DEVICE_TYPE_FINGER, null, 60,
-							fingerDevice.getDeviceSubId().get(i), port,contextKey,null);
+							fingerDevice.getDeviceSubId().get(i), port, contextKey, null);
 				}
 				List<MDSDeviceCaptureModel> lstFingers = capture.getLstBiometrics()
 						.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
-				//			if (fingerExceptions != null && !fingerExceptions.isEmpty()) {
-				//				// remove the fingers listed
-				//
-				//				for (BioModality bm : fingerExceptions) {
-				//					for (MDSDeviceCaptureModel mdc : lstFingers) {
-				//						if (bm.getSubType().equalsIgnoreCase(mdc.getBioSubType().toLowerCase())) {
-				//							lstToRemove.remove(mdc);
-				//						}
-				//					}
-				//				}
-				//				lstFingers.removeAll(lstToRemove);
-				//			}
 				if (filteredAttribs != null) {
 					// schemaNames
 					String attr = null;
@@ -524,20 +442,18 @@ public class BiometricDataProvider {
 			t.getStackTrace();
 		}
 
-
-		try {	
-			//Step 4 : Exceptionphoto face capture
-			if (bioExceptions != null && !bioExceptions.isEmpty())
-			{
-
+		try {
+			// Step 4 : Exceptionphoto face capture
+			if (bioExceptions != null && !bioExceptions.isEmpty()) {
 
 				List<MDSDevice> exceptionfaceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
 				MDSDevice exceptionDevice = exceptionfaceDevices.get(0);
 				try {
-					capture = mds.captureFromRegDevice(exceptionDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_FACE,
-							null, 60, exceptionDevice.getDeviceSubId().get(0), port,contextKey,bioexceptionlist);
-					//rename the key with exception_photo
-				}catch (Throwable t) {
+					capture = mds.captureFromRegDevice(exceptionDevice, capture,
+							DataProviderConstants.MDS_DEVICE_TYPE_FACE, null, 60,
+							exceptionDevice.getDeviceSubId().get(0), port, contextKey, bioexceptionlist);
+					// rename the key with exception_photo
+				} catch (Throwable t) {
 					logger.error("Exception photo capture failure", t);
 					t.getStackTrace();
 				}
@@ -551,14 +467,13 @@ public class BiometricDataProvider {
 			t.getStackTrace();
 		}
 
-		mds.removeProfile(mdsprofilePath, profileName, port,contextKey);
+		mds.removeProfile(mdsprofilePath, profileName, port, contextKey);
 		CentralizedMockSBI.stopSBI(contextKey);
 		return capture;
 	}
 
 	public static String toCBEFFFromCapture(List<String> bioFilter, MDSRCaptureModel capture, String toFile,
-			List<String> missAttribs, boolean genarateValidCbeff,List<BioModality> exceptionlist) throws Exception {
-
+			List<String> missAttribs, boolean genarateValidCbeff, List<BioModality> exceptionlist) throws Exception {
 
 		String retXml = "";
 
@@ -569,8 +484,8 @@ public class BiometricDataProvider {
 
 		}
 
-		XMLBuilder builder = XMLBuilder.create("BIR").a("xmlns", "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
-				.e("BIRInfo").e("Integrity").t("false").up().up();
+		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+				.e(BIRINFO).e(INTEGRITY).t(FALSE).up().up();
 
 		builder.getDocument().setXmlStandalone(true);
 
@@ -578,20 +493,18 @@ public class BiometricDataProvider {
 
 		// Step 1: convert finger print
 		try {
-			List<MDSDeviceCaptureModel> lstFingerData = capture.getLstBiometrics().get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
+			List<MDSDeviceCaptureModel> lstFingerData = capture.getLstBiometrics()
+					.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 
-			builder = xmlbuilderFinger(bioFilter,lstFingerData,bioSubType,builder,exceptionlist,genarateValidCbeff);
+			builder = xmlbuilderFinger(bioFilter, lstFingerData, bioSubType, builder, exceptionlist,
+					genarateValidCbeff);
 
-			if(exceptionlist!=null && !exceptionlist.isEmpty()) 
-			{
-				builder = xmlbuilderFingerExep(bioFilter,exceptionlist,bioSubType,builder,genarateValidCbeff);
+			if (exceptionlist != null && !exceptionlist.isEmpty()) {
+				builder = xmlbuilderFingerExep(bioFilter, exceptionlist, bioSubType, builder, genarateValidCbeff);
 			}
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			logger.error("xmlbuilderFinger failed" + e.getMessage());
 		}
-
 
 		// Step 2: Add Face
 
@@ -602,91 +515,52 @@ public class BiometricDataProvider {
 						.get(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
 				bioSubType.add("face");
 				String faceXml = buildBirFace(lstFaceData.get(0).getBioValue(), lstFaceData.get(0).getSb(),
-						lstFaceData.get(0).getPayload(), lstFaceData.get(0).getQualityScore(),genarateValidCbeff,"false");
+						lstFaceData.get(0).getPayload(), lstFaceData.get(0).getQualityScore(), genarateValidCbeff,
+						FALSE);
 				builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
 
 			}
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			logger.error("buildBirFace failed");
 			logger.error(e.getMessage());
 		}
-
-		//		else if(missAttribs!=null && missAttribs.contains("face")) 
-		//			//Marking missing attribute as an exception
-		//			
-		////			List<MDSDeviceCaptureModel> lstFaceData = capture.getLstBiometrics()
-		////					.get(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
-		//			bioSubType.add("face");
-		////			String faceXml = buildBirFace(lstFaceData.get(0).getBioValue(), lstFaceData.get(0).getSb(),
-		////					lstFaceData.get(0).getPayload(), lstFaceData.get(0).getQualityScore(),"true");
-		//			
-		//			String faceXml = buildBirFace("", "",
-		//					"", "","true");
-		//			
-		//			builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
-		//		}
-
-
-		//		if(missAttribs!=null && missAttribs.contains("face")) {
-		//			List<MDSDeviceCaptureModel> lstFaceData = capture.getLstBiometrics()
-		//					.get(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
-		//			bioSubType.add("face");
-		//			String faceXml = buildBirFace(lstFaceData.get(0).getBioValue(), lstFaceData.get(0).getSb(),
-		//					lstFaceData.get(0).getPayload(), lstFaceData.get(0).getQualityScore(),"true");
-		//			builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
-		//		}
 
 		// Step 3: Add IRIS
 		try {
 			List<MDSDeviceCaptureModel> lstIrisData = capture.getLstBiometrics()
 					.get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
 
+			builder = xmlbuilderIris(bioFilter, lstIrisData, bioSubType, builder, genarateValidCbeff, exceptionlist);
 
-
-			builder = xmlbuilderIris(bioFilter,lstIrisData,bioSubType,builder,genarateValidCbeff,exceptionlist);
-
-			if(exceptionlist!=null && !exceptionlist.isEmpty()) 
-			{
-				builder = xmlbuilderIrisExcep(bioFilter,exceptionlist,bioSubType,builder,genarateValidCbeff);
+			if (exceptionlist != null && !exceptionlist.isEmpty()) {
+				builder = xmlbuilderIrisExcep(bioFilter, exceptionlist, bioSubType, builder, genarateValidCbeff);
 			}
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			logger.error("xmlbuilderIris failed");
 			logger.error(e.getMessage());
 		}
 
-
-
-
 		// Step 4: Add Face as an Exception photo
 
 		try {
-			if(exceptionlist!=null && !exceptionlist.isEmpty()) 
-			{
-				List<MDSDeviceCaptureModel> lstFaceData = capture.getLstBiometrics()
-						.get("exception");
+			if (exceptionlist != null && !exceptionlist.isEmpty()) {
+				List<MDSDeviceCaptureModel> lstFaceData = capture.getLstBiometrics().get(EXCEPTION);
 				bioSubType.add("exceptionphoto");
 				String faceXml = buildBirExceptionPhoto(lstFaceData.get(1).getBioValue(), lstFaceData.get(1).getSb(),
-						lstFaceData.get(1).getPayload(), lstFaceData.get(1).getQualityScore(),genarateValidCbeff,"false");
+						lstFaceData.get(1).getPayload(), lstFaceData.get(1).getQualityScore(), genarateValidCbeff,
+						FALSE);
 				builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
 			}
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			logger.error("buildBirExceptionPhoto failed");
 			logger.error(e.getMessage());
 		}
 
-		//Print builder
-
-
+		// Print builder
 
 		if (mosipVersion != null && mosipVersion.startsWith("1.2") && !bioSubType.isEmpty()) {
-			builder.e("Others").e("Key").t("CONFIGURED").up().e("Value")
-			.t(bioSubType.toString().substring(1, bioSubType.toString().length() - 1)).up().up();
+			builder.e(OTHERS).e("Key").t("CONFIGURED").up().e("Value")
+					.t(bioSubType.toString().substring(1, bioSubType.toString().length() - 1)).up().up();
 		}
 		if (toFile != null) {
 			PrintWriter writer = new PrintWriter(new FileOutputStream(toFile));
@@ -694,88 +568,81 @@ public class BiometricDataProvider {
 		}
 
 		retXml = builder.asString(null);
-		// PrintWriter writer = new PrintWriter(new
-		// FileOutputStream("cbeffout-cbeff-ALL"+ ".xml"));
-		// builder.toWriter(true, writer, null);
 		return retXml;
 	}
 
-
-	private static XMLBuilder xmlbuilderIris(List<String> bioFilter, List<MDSDeviceCaptureModel> lstIrisData,List<String> bioSubType,XMLBuilder builder,boolean genarateValidCbeff,List<BioModality> exceptionlst)
+	private static XMLBuilder xmlbuilderIris(List<String> bioFilter, List<MDSDeviceCaptureModel> lstIrisData,
+			List<String> bioSubType, XMLBuilder builder, boolean genarateValidCbeff, List<BioModality> exceptionlst)
 
 	{
-		List<String> listWithoutExceptions =bioFilter;
-		if(exceptionlst!=null && !exceptionlst.isEmpty()) {
+		List<String> listWithoutExceptions = bioFilter;
+		if (exceptionlst != null && !exceptionlst.isEmpty()) {
 			List<String> exceptions = exceptionlst.stream().map(BioModality::getSubType).collect(Collectors.toList());
-			List<String> schemaName=new ArrayList<String>();
-			for(String ex: exceptions)
-			{
+			List<String> schemaName = new ArrayList<String>();
+			for (String ex : exceptions) {
 				schemaName.add(getschemaName(ex));
 			}
-			listWithoutExceptions= bioFilter.stream().filter(bioAttribute -> !schemaName.contains(bioAttribute)).collect(Collectors.toList());
+			listWithoutExceptions = bioFilter.stream().filter(bioAttribute -> !schemaName.contains(bioAttribute))
+					.collect(Collectors.toList());
 		}
-			
-		logger.info("withoutExceptionList is: "+listWithoutExceptions);
+
+		logger.info("withoutExceptionList is: " + listWithoutExceptions);
 
 		try {
 			if (lstIrisData != null) {
 				String irisXml = "";
 				for (MDSDeviceCaptureModel cm : lstIrisData) {
 
-					if (listWithoutExceptions.contains("leftEye") && cm.getBioSubType().equals("Left")) {
-						irisXml = buildBirIris(cm.getBioValue(), "Left", cm.getSb(), cm.getPayload(), cm.getQualityScore(),genarateValidCbeff,"false");
+					if (listWithoutExceptions.contains(LEFTEYE) && cm.getBioSubType().equals("Left")) {
+						irisXml = buildBirIris(cm.getBioValue(), "Left", cm.getSb(), cm.getPayload(),
+								cm.getQualityScore(), genarateValidCbeff, FALSE);
 						builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 						bioSubType.add("Left");
 					}
-					if (listWithoutExceptions.contains("rightEye") && cm.getBioSubType().equals("Right")) {
+					if (listWithoutExceptions.contains(RIGHTEYE) && cm.getBioSubType().equals(RIGHT)) {
 
-						irisXml = buildBirIris(cm.getBioValue(), "Right", cm.getSb(), cm.getPayload(),
-								cm.getQualityScore(),genarateValidCbeff,"false");
+						irisXml = buildBirIris(cm.getBioValue(), RIGHT, cm.getSb(), cm.getPayload(),
+								cm.getQualityScore(), genarateValidCbeff, FALSE);
 						builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
-						bioSubType.add("Right");
+						bioSubType.add(RIGHT);
 					}
 				}
 			}
-		}catch(Exception e)
-		{
+		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-
 
 		return builder;
 	}
 
-	private static XMLBuilder xmlbuilderIrisExcep(List<String> bioFilter, List<BioModality> lstIrisData,List<String> bioSubType,XMLBuilder builder,boolean genarateValidCbeff) 
-	{
+	private static XMLBuilder xmlbuilderIrisExcep(List<String> bioFilter, List<BioModality> lstIrisData,
+			List<String> bioSubType, XMLBuilder builder, boolean genarateValidCbeff) {
 		try {
 			if (lstIrisData != null) {
 				for (BioModality finger : lstIrisData) {
 					if (!finger.getType().equalsIgnoreCase("Iris"))
 						continue;
 
-					String strFingerXml = buildBirIris(finger.getType(), finger.getSubType(), Arrays.toString(new byte[0]),
-                            "", "0", genarateValidCbeff, "true");
+					String strFingerXml = buildBirIris(finger.getType(), finger.getSubType(),
+							Arrays.toString(new byte[0]), "", "0", genarateValidCbeff, "true");
 					XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 					builder = builder.importXMLBuilder(fbuilder);
 				}
 
 			}
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 
 		return builder;
 	}
 
-	private static String getschemaName(String name)
-	{
+	private static String getschemaName(String name) {
 		// First check if it falls in all modaities
-		for(int i=0; i < 13; i++) {
+		for (int i = 0; i < 13; i++) {
 			String displayFingerName = DataProviderConstants.displayFullName[i];
 			if (displayFingerName.equalsIgnoreCase(name) == true)
-				return  DataProviderConstants.schemaNames[i];
+				return DataProviderConstants.schemaNames[i];
 		}
 
 		// Other wise just return
@@ -783,28 +650,26 @@ public class BiometricDataProvider {
 	}
 
 	private static XMLBuilder xmlbuilderFinger(List<String> bioFilter, List<MDSDeviceCaptureModel> lstFingerData,
-			List<String> bioSubType,XMLBuilder builder,List<BioModality> exceptionlst,boolean genarateValidCbeff)
-	{
-		List<String> listWithoutExceptions =bioFilter;
-		if(exceptionlst!=null && !exceptionlst.isEmpty()) {
+			List<String> bioSubType, XMLBuilder builder, List<BioModality> exceptionlst, boolean genarateValidCbeff) {
+		List<String> listWithoutExceptions = bioFilter;
+		if (exceptionlst != null && !exceptionlst.isEmpty()) {
 			List<String> exceptions = exceptionlst.stream().map(BioModality::getSubType).collect(Collectors.toList());
-			logger.info("exceptions" +exceptions);
-			List<String> schemaName=new ArrayList<String>();
-			for(String ex: exceptions)
-			{
+			logger.info("exceptions" + exceptions);
+			List<String> schemaName = new ArrayList<String>();
+			for (String ex : exceptions) {
 				schemaName.add(getschemaName(ex));
 			}
-			listWithoutExceptions= bioFilter.stream().filter(bioAttribute -> !schemaName.contains(bioAttribute)).collect(Collectors.toList());
+			listWithoutExceptions = bioFilter.stream().filter(bioAttribute -> !schemaName.contains(bioAttribute))
+					.collect(Collectors.toList());
 		}
 
-		
-		//getschemaName(BioModality::getSubType)
-		
-		int i = 0; 
+		// getschemaName(BioModality::getSubType)
+
+		int i = 0;
 		String fingerData = null;
 
 		try {
-			if(lstFingerData!=null) {
+			if (lstFingerData != null) {
 				for (String finger : listWithoutExceptions) {
 					if (finger.toLowerCase().contains("eye") || finger.toLowerCase().equals("face"))
 						continue;
@@ -819,11 +684,11 @@ public class BiometricDataProvider {
 							break;
 						}
 					}
-					logger.info("fingerData is: "+fingerData);
+					logger.info("fingerData is: " + fingerData);
 					if (i >= 0 && fingerData != null && currentCM != null) {
 						String strFinger = DataProviderConstants.displayFingerName[i];
-						String strFingerXml = buildBirFinger(fingerData, strFinger, currentCM.getSb(), currentCM.getPayload(),
-								currentCM.getQualityScore(),genarateValidCbeff,"false");
+						String strFingerXml = buildBirFinger(fingerData, strFinger, currentCM.getSb(),
+								currentCM.getPayload(), currentCM.getQualityScore(), genarateValidCbeff, FALSE);
 						XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 						builder = builder.importXMLBuilder(fbuilder);
 					}
@@ -831,43 +696,43 @@ public class BiometricDataProvider {
 				}
 			}
 
-		}catch(Exception e1)
-		{
+		} catch (Exception e1) {
 			e1.printStackTrace();
-		}	
+		}
 
 		return builder;
 	}
 
-	private static XMLBuilder xmlbuilderFingerExep(List<String> bioFilter, List<BioModality> lstFingerData,List<String> bioSubType,XMLBuilder builder,boolean genarateValidCbeff) throws ParserConfigurationException, FactoryConfigurationError, TransformerException, SAXException, IOException {
+	private static XMLBuilder xmlbuilderFingerExep(List<String> bioFilter, List<BioModality> lstFingerData,
+			List<String> bioSubType, XMLBuilder builder, boolean genarateValidCbeff)
+			throws ParserConfigurationException, FactoryConfigurationError, TransformerException, SAXException,
+			IOException {
 
-		if(lstFingerData!=null) {
+		if (lstFingerData != null) {
 			for (BioModality finger : lstFingerData) {
 				if (finger.getType().equalsIgnoreCase("eye") || finger.getType().equalsIgnoreCase("face"))
 					continue;
 
-				String strFingerXml = buildBirFinger(finger.getType(), finger.getSubType(), Arrays.toString(new byte[0]), "",
-						"0",genarateValidCbeff,"true");
+				String strFingerXml = buildBirFinger(finger.getType(), finger.getSubType(),
+						Arrays.toString(new byte[0]), "", "0", genarateValidCbeff, "true");
 				XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 				builder = builder.importXMLBuilder(fbuilder);
 			}
-
 
 		}
 
 		return builder;
 	}
 
-
 	/*
 	 * Construct CBEFF format XML file from biometric data
 	 */
-	public static String toCBEFF(List<String> bioFilter, BiometricDataModel biometricDataModel, String toFile, boolean genarateValidCbeff)
-			throws Exception {
+	public static String toCBEFF(List<String> bioFilter, BiometricDataModel biometricDataModel, String toFile,
+			boolean genarateValidCbeff) throws Exception {
 		String retXml = "";
 
-		XMLBuilder builder = XMLBuilder.create("BIR").a("xmlns", "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
-				.e("BIRInfo").e("Integrity").t("false").up().up();
+		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+				.e(BIRINFO).e(INTEGRITY).t(FALSE).up().up();
 
 		builder.getDocument().setXmlStandalone(true);
 
@@ -884,7 +749,6 @@ public class BiometricDataProvider {
 			break;
 		}
 
-		// for(int i=0; i< fingerPrint.length; i++) {
 		int i = 0;
 		for (String finger : bioFilter) {
 			if (finger.toLowerCase().contains("eye") || finger.toLowerCase().equals("face"))
@@ -893,7 +757,8 @@ public class BiometricDataProvider {
 
 			if (i >= 0) {
 				String strFinger = DataProviderConstants.displayFingerName[i];
-				String strFingerXml = buildBirFinger(fingerPrint[i], strFinger, null, null, qualityScore,genarateValidCbeff,"false");
+				String strFingerXml = buildBirFinger(fingerPrint[i], strFinger, null, null, qualityScore,
+						genarateValidCbeff, FALSE);
 
 				XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 				builder = builder.importXMLBuilder(fbuilder);
@@ -904,7 +769,8 @@ public class BiometricDataProvider {
 		// Step 2: Add Face
 		if (bioFilter.contains("Face")) {
 			if (biometricDataModel.getEncodedPhoto() != null) {
-				String faceXml = buildBirFace(biometricDataModel.getEncodedPhoto(), null, null, qualityScore,genarateValidCbeff,"true");
+				String faceXml = buildBirFace(biometricDataModel.getEncodedPhoto(), null, null, qualityScore,
+						genarateValidCbeff, "true");
 				builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
 			}
 		}
@@ -913,12 +779,14 @@ public class BiometricDataProvider {
 		IrisDataModel irisInfo = biometricDataModel.getIris();
 		if (irisInfo != null) {
 			String irisXml = "";
-			if (bioFilter.contains("leftEye")) {
-				irisXml = buildBirIris(irisInfo.getLeft(), "Left", null, null, qualityScore,genarateValidCbeff,"true");
+			if (bioFilter.contains(LEFTEYE)) {
+				irisXml = buildBirIris(irisInfo.getLeft(), "Left", null, null, qualityScore, genarateValidCbeff,
+						"true");
 				builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 			}
-			if (bioFilter.contains("rightEye")) {
-				irisXml = buildBirIris(irisInfo.getRight(), "Right", null, null, qualityScore,genarateValidCbeff,"true");
+			if (bioFilter.contains(RIGHTEYE)) {
+				irisXml = buildBirIris(irisInfo.getRight(), RIGHT, null, null, qualityScore, genarateValidCbeff,
+						"true");
 				builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 			}
 		}
@@ -931,53 +799,11 @@ public class BiometricDataProvider {
 		return retXml;
 	}
 
-	/*
-	 * 
-	 * public static String toCBEFF(String [] prints) throws Exception { String
-	 * retXml = ""; RegistryIDType format = new RegistryIDType();
-	 * format.setOrganization("257"); format.setType("7"); QualityType Qtype = new
-	 * QualityType(); Qtype.setScore(new Long(90)); RegistryIDType algorithm = new
-	 * RegistryIDType(); algorithm.setOrganization("HMAC");
-	 * algorithm.setType("SHA-256"); Qtype.setAlgorithm(algorithm); ArrayList<BIR>
-	 * createList = new ArrayList<BIR>(); int i=0; Finger [] fingerType =
-	 * Finger.values();
-	 * 
-	 * for(i=0; i < prints.length; i++) { byte[] byteArray = prints[i].getBytes();
-	 * try {
-	 * 
-	 * BIR finger = new BIR.BIRBuilder().withBdb(byteArray ) .withVersion(new
-	 * BIRVersion.BIRVersionBuilder().withMinor(1).withMajor(1).build())
-	 * .withCbeffversion(new
-	 * BIRVersion.BIRVersionBuilder().withMinor(1).withMajor(1).build())
-	 * .withBirInfo(new BIRInfo.BIRInfoBuilder().withIntegrity(false).build())
-	 * .withBdbInfo(new BDBInfo.BDBInfoBuilder().withFormat(format)
-	 * .withQuality(Qtype).withType(Arrays.asList(SingleType.FINGER))
-	 * .withSubtype(Arrays.asList(fingerName[i])) // fingerType[i].name()))
-	 * .withPurpose(PurposeType.ENROLL).withLevel(ProcessedLevelType.RAW)
-	 * .withCreationDate(LocalDateTime.now(ZoneId.of("UTC"))).build()) .build();
-	 * 
-	 * createList.add(finger);
-	 * 
-	 * } catch (Exception e) { 
-	 * logger.error(e.getMessage()); }
-	 * 
-	 * } //CbeffImpl cbeffImpl = new CbeffImpl(); CbeffContainerImpl cbeffContainer
-	 * = new CbeffContainerImpl(); BIRType bir =
-	 * cbeffContainer.createBIRType(createList); byte[] xsd; try (InputStream
-	 * xsdBytes = new FileInputStream("src/main/resource/schema/updatedcbeff.xsd"))
-	 * { xsd = IOUtils.toByteArray(xsdBytes); } byte[] createXml =
-	 * CbeffValidator.createXMLBytes(bir, xsd); //cbeffImpl.loadXSD(); //byte[]
-	 * createXml = cbeffImpl.createXML(createList); retXml = new String(createXml);
-	 * 
-	 * return retXml;
-	 * 
-	 * }
-	 */
 	public static Hashtable<Integer, List<File>> impressionCaptureList(String contextKey) {
 		// reach cached finger prints from folder
-		String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+		String dirPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
-		System.out.println("dirPath " + dirPath);
+		logger.info(DIRPATH + dirPath);
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 		File dir = new File(dirPath);
 
@@ -987,7 +813,7 @@ public class BiometricDataProvider {
 		int min = 1;
 		int max = numberOfSubfolders;
 		int randomNumber = (int) (Math.random() * (max - min)) + min;
-		String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
+		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
 
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
@@ -998,15 +824,9 @@ public class BiometricDataProvider {
 		// otherwise pick the impression of same of scenario number
 		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
-		System.out.println("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
-				+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
+		logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders=" + numberOfSubfolders
+				+ " impressionToPick=" + impressionToPick);
 		List<File> lst = new LinkedList<File>();
-		/*
-		 * for (int i = min; i <= max; i++) {
-		 * 
-		 * lst = CommonUtil.listFiles(dirPath + String.format("/Impression_%d/fp_1/",
-		 * i)); tblFiles.put(i, lst); }
-		 */
 		lst = CommonUtil.listFiles(dirPath + String.format("/Impression_%d/fp_1/", impressionToPick));
 		tblFiles.put(impressionToPick, lst);
 		return tblFiles;
@@ -1080,9 +900,6 @@ public class BiometricDataProvider {
 						fingerPrintRaw[index] = fdata;
 						fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
 
-						// fingerPrints[index]= Hex.encodeHexString( fdata ) ;
-						// fingerPrints[index]= fingerPrints[index].toUpperCase();
-
 						// delete file
 						try {
 							fingerPrintHash[index] = CommonUtil.getHexEncodedHash(fdata);
@@ -1104,9 +921,9 @@ public class BiometricDataProvider {
 				}
 			} else {
 				// reach cached finger prints from folder
-				String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString() + VariableManager
+				String dirPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString() + VariableManager
 						.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
-				System.out.println("dirPath " + dirPath);
+				logger.info(DIRPATH + dirPath);
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				File dir = new File(dirPath);
 
@@ -1116,7 +933,7 @@ public class BiometricDataProvider {
 				int min = 1;
 				int max = numberOfSubfolders;
 				int randomNumber = (int) (Math.random() * (max - min)) + min;
-				String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
+				String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 				String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
 
 				int currentScenarioNumber = Integer.valueOf(afterscenario);
@@ -1128,7 +945,7 @@ public class BiometricDataProvider {
 				int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber
 						: randomNumber;
 
-				System.out.println("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
+				logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
 						+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
 
 				for (int i = min; i <= max; i++) {
@@ -1141,7 +958,7 @@ public class BiometricDataProvider {
 				String[] fingerPrintHash = new String[10];
 				byte[][] fingerPrintRaw = new byte[10][1];
 				List<File> firstSet = tblFiles.get(impressionToPick);
-				System.out.println("Impression used " + impressionToPick);
+				logger.info("Impression used " + impressionToPick);
 
 				int index = 0;
 				for (File f : firstSet) {
@@ -1169,46 +986,11 @@ public class BiometricDataProvider {
 
 			}
 
-			/*
-			 * else { //reach cached finger prints from folder
-			 * //DataProviderConstants.RESOURCE +"/fingerprints/"; String dirPath =
-			 * VariableManager.getVariableValue(contextKey,
-			 * "mosip.test.persona.fingerprintdatapath").toString();
-			 * System.out.println("dirPath " + dirPath); Hashtable<Integer, List<File>>
-			 * tblFiles = new Hashtable<Integer, List<File>>(); int min=1; int max=2; int
-			 * randomNumber = (int) (Math.random()*(max-min)) + min;
-			 * 
-			 * for(int i=min; i <= max; i++) {
-			 * 
-			 * List<File> lst = CommonUtil.listFiles(dirPath +
-			 * String.format("/Impression_%d/fp_1/", i)); tblFiles.put(i,lst); } String []
-			 * fingerPrints = new String[10]; String [] fingerPrintHash = new String[10];
-			 * byte[][] fingerPrintRaw = new byte[10][1]; List<File> firstSet =
-			 * tblFiles.get(randomNumber); System.out.println("Random Numer used "+
-			 * randomNumber);
-			 * 
-			 * int index = 0; for(File f: firstSet) {
-			 * 
-			 * if(index >9) break; Path path = Paths.get(f.getAbsolutePath()); byte[] fdata;
-			 * try { fdata = Files.readAllBytes(path); fingerPrintRaw[index] = fdata;
-			 * fingerPrints[index]= Base64.getEncoder().encodeToString(fdata);
-			 * 
-			 * fingerPrintHash[index] =CommonUtil.getHexEncodedHash(fdata);
-			 * 
-			 * } catch ( Exception e) { 
-			 * logger.error(e.getMessage()); } index++;
-			 * 
-			 * } data.setFingerPrint(fingerPrints); data.setFingerHash(fingerPrintHash);
-			 * data.setFingerRaw(fingerPrintRaw);
-			 * 
-			 * 
-			 * }
-			 */
 		}
 		return data;
 	}
 
-	//generate using Anguli
+	// generate using Anguli
 
 	static Hashtable<Integer, List<File>> generateFingerprint(String outDir, int nFingerPrints,
 			int nImpressionsPerPrints, int nThreads, FPClassDistribution classDist) {
@@ -1219,7 +1001,7 @@ public class BiometricDataProvider {
 		String[] commands = { DataProviderConstants.ANGULI_PATH + "/Anguli.exe", "-outdir", outDir, "-numT",
 				String.format("%d", nThreads), "-num", String.format("%d", nFingerPrints), "-ni",
 				String.format("%d", nImpressionsPerPrints), "-cdist", classDist.name() };
-		System.out.println("Anguli commands" + commands);
+		logger.info("Anguli commands" + commands);
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(new File(DataProviderConstants.ANGULI_PATH));
 
@@ -1227,11 +1009,11 @@ public class BiometricDataProvider {
 			Process proc = pb.start(); // rt.exec(commands);
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 			// Read any errors from the attempted command
-			// System.out.println("Error:\n");
+			// logger.info("Error:\n");
 			String s;
 
 			while ((s = stdError.readLine()) != null) {
-				System.out.println(s);
+				logger.info(s);
 			}
 			// read from outdir
 			for (int i = 1; i <= nImpressionsPerPrints; i++) {
@@ -1269,7 +1051,7 @@ public class BiometricDataProvider {
 		return m;
 	}
 
-	//Left Eye, Right Eye
+	// Left Eye, Right Eye
 	static List<IrisDataModel> generateIris(int count, String contextKey) throws Exception {
 
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
@@ -1321,7 +1103,7 @@ public class BiometricDataProvider {
 			m.setRawRight(frdata);
 			retVal.add(m);
 		} else {
-			String srcPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+			String srcPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString();
 
 			int num = new File(srcPath).list().length;
@@ -1329,7 +1111,7 @@ public class BiometricDataProvider {
 			String leftbmp = null;
 			String rightbmp = null;
 			// reach cached finger prints from folder
-			System.out.println("dirPath " + srcPath);
+			logger.info(DIRPATH + srcPath);
 			Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 			File dir = new File(srcPath);
 
@@ -1339,7 +1121,7 @@ public class BiometricDataProvider {
 			int min = 1;
 			int max = numberOfSubfolders;
 			int randomNumber = (int) (Math.random() * (max - min)) + min;
-			String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
+			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
 
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
@@ -1362,8 +1144,6 @@ public class BiometricDataProvider {
 				}
 			}
 
-			//			String fPathL = srcPath + "/"+String.format("%03d", index[i]) + "/01_L.bmp";
-			//			String fPathR = srcPath +"/"+ String.format("%03d", index[i]) + "/05_R.bmp";
 			if (leftbmp == null) {
 				leftbmp = rightbmp;
 			}
@@ -1411,8 +1191,8 @@ public class BiometricDataProvider {
 
 		try {
 
-			String value = buildBirFinger("addfdfd", "finger", "jwtSign", "payload", null, true,"false");
-			System.out.println(value);
+			String value = buildBirFinger("addfdfd", "finger", "jwtSign", PAYLOAD, null, true, FALSE);
+			logger.info(value);
 		} catch (FileNotFoundException e2) {
 			e2.printStackTrace();
 		} catch (ParserConfigurationException e2) {
@@ -1426,8 +1206,8 @@ public class BiometricDataProvider {
 		try {
 			List<IrisDataModel> m = generateIris(1, "contextKey");
 			m.forEach(im -> {
-				System.out.println(im.getLeftHash());
-				System.out.println(im.getRightHash());
+				logger.info(im.getLeftHash());
+				logger.info(im.getRightHash());
 
 			});
 		} catch (Exception e1) {
@@ -1441,47 +1221,17 @@ public class BiometricDataProvider {
 			e1.printStackTrace();
 		}
 
-		/*
-		 * Hashtable<Integer, List<File>> tblFiles
-		 * =generateFingerprint(DataProviderConstants.ANGULI_PATH+"/fps",10, 2,4,
-		 * FPClassDistribution.arch); Set<Integer> k = tblFiles.keySet();
-		 * 
-		 * k.forEach( (key)->{ List<File> lst = tblFiles.get(key); lst.forEach( (f)->{
-		 * System.out.println(f.getAbsolutePath());
-		 * 
-		 * });
-		 * 
-		 * });
-		 */
-
 		String xml = "";
 		List<String> lstBioAttributes = new ArrayList<String>();
-		lstBioAttributes.add("leftEye");
-		lstBioAttributes.add("rightEye");
+		lstBioAttributes.add(LEFTEYE);
+		lstBioAttributes.add(RIGHTEYE);
 
 		try {
-			xml = toCBEFF(lstBioAttributes, bio, "cbeffallfingersOut.xml",true);
-			/*
-			 * CbeffContainerImpl cbeffContainer = new CbeffContainerImpl();
-			 * //C:\temp\10002300012\REGISTRATION_CLIENT\NEW\rid_id\
-			 * individualBiometrics_bio_CBEFF.xml byte[] xsd, xmlData; try (InputStream
-			 * xsdBytes = new FileInputStream("src/main/resource/schema/updatedcbeff.xsd"))
-			 * { xsd = IOUtils.toByteArray(xsdBytes); }
-			 * 
-			 * try (InputStream xmlBytes = new FileInputStream(
-			 * "C:\\temp\\10002300012\\REGISTRATION_CLIENT\\NEW\\rid_id\\individualBiometrics_bio_CBEFF.xml"
-			 * )) { xmlData = IOUtils.toByteArray(xmlBytes); }
-			 * 
-			 * //Boolean bret = cbeffContainer.validateXML(xmlData, xsd);
-			 * 
-			 * Boolean bret = cbeffContainer.validateXML(xml.getBytes(), xsd);
-			 * System.out.println("Valid ?" + bret);
-			 * 
-			 */
+			xml = toCBEFF(lstBioAttributes, bio, "cbeffallfingersOut.xml", true);
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-		System.out.println(xml);
+		logger.info(xml);
 	}
 }

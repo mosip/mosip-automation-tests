@@ -2,13 +2,9 @@ package org.mosip.dataprovider.preparation;
 
 
 
-import java.security.MessageDigest;
-
 import static io.restassured.RestAssured.given;
 
-import java.io.Reader;
 import java.io.StringReader;
-
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Properties;
@@ -16,7 +12,6 @@ import java.util.Properties;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.models.setup.MosipDeviceModel;
 import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.models.setup.MosipMachineSpecModel;
@@ -29,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import variables.VariableManager;

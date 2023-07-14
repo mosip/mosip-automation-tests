@@ -26,7 +26,6 @@ import jakarta.mail.Store;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMultipart;*/
 import org.jsoup.Jsoup;
-import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

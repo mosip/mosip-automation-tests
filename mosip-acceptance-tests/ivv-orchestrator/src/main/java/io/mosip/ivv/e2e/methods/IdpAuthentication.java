@@ -1,13 +1,11 @@
 package io.mosip.ivv.e2e.methods;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 import io.mosip.admin.fw.util.AdminTestException;
 import io.mosip.admin.fw.util.TestCaseDTO;
@@ -20,12 +18,11 @@ import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.SimplePost;
-import io.restassured.response.Response;
 
 public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(IdpAuthentication.class);
-	private static final String AuthenticateUser = "idaData/AuthenticateUser/AuthenticateUser.yml";
-	private static final String OtpUser = "idaData/SendOtpForIdp/SendOtp.yml";
+	private static final String AuthenticateUserYml = "idaData/AuthenticateUser/AuthenticateUser.yml";
+	private static final String OtpUserYml = "idaData/SendOtpForIdp/SendOtp.yml";
 	SimplePost authenticateUser = new SimplePost();
 
 	@Override
@@ -48,7 +45,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 		Object[] casesListVID = null;
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 
-		Object[] testObj = authenticateUser.getYmlTestData(AuthenticateUser);
+		Object[] testObj = authenticateUser.getYmlTestData(AuthenticateUserYml);
 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
 
@@ -58,8 +55,6 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
-			// transactionId1 = step.getParameters().get(3);
-			// transactionId1 = step.getScenario().getVariables().get(transactionId1);
 			System.out.println(transactionId1);
 
 		}
@@ -71,8 +66,6 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 					"transactionId parameter is  missingctionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
-			// transactionId2 = step.getParameters().get(5);
-			// transactionId2 = step.getScenario().getVariables().get(transactionId2);
 			System.out.println(transactionId2);
 
 		}
@@ -91,7 +84,6 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 		// Fetching VID
 		if (step.getParameters().size() == 6 && step.getParameters().get(1).startsWith("$$")) {
-			//"e2e_IdpAuthentication($$transactionId1,$$uin,OTP,$$email,$$vid,$$transactionId2)"
 			vids = step.getParameters().get(4);
 			if (vids.startsWith("$$")) {
 				vids = step.getScenario().getVariables().get(vids);
@@ -120,23 +112,23 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 		if (step.getParameters().size() == 6 && step.getParameters().get(2).contains("OTP")) {
 
-			Object[] testObjForOtp = authenticateUser.getYmlTestData(OtpUser);
+			Object[] testObjForOtp = authenticateUser.getYmlTestData(OtpUserYml);
 
 			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
 
-				casesListUIN = authenticateUser.getYmlTestData(OtpUser);
+				casesListUIN = authenticateUser.getYmlTestData(OtpUserYml);
 
 			}
 
 			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
-				casesListVID = authenticateUser.getYmlTestData(OtpUser);
+				casesListVID = authenticateUser.getYmlTestData(OtpUserYml);
 			}
 
 			else {
-				casesListUIN = authenticateUser.getYmlTestData(OtpUser);
-				casesListVID = authenticateUser.getYmlTestData(OtpUser);
+				casesListUIN = authenticateUser.getYmlTestData(OtpUserYml);
+				casesListVID = authenticateUser.getYmlTestData(OtpUserYml);
 			}
 
 			TestCaseDTO testForOtp = (TestCaseDTO) testObjForOtp[0];
@@ -155,7 +147,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 				testForOtp.setInput(input);
 
 				if (idType.contains("UIN") || idType.contains("uin")) {
-					casesListUIN = authenticateUser.getYmlTestData(OtpUser);
+					casesListUIN = authenticateUser.getYmlTestData(OtpUserYml);
 				}
 				if (casesListUIN != null) {
 					for (Object object : casesListUIN) {
@@ -185,7 +177,7 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 				testForOtp.setInput(input);
 
 				if (idType.contains("VID") || idType.contains("vid")) {
-					casesListVID = authenticateUser.getYmlTestData(OtpUser);
+					casesListVID = authenticateUser.getYmlTestData(OtpUserYml);
 				}
 				if (casesListVID != null) {
 					for (Object object : casesListVID) {
@@ -208,28 +200,28 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 		for (String uin : uinList) {
 
 			if (idType.contains("UIN") || idType.contains("uin")) {
-				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUserYml);
 			}
 
 			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
 
-				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUserYml);
 
 			}
 
 			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
-				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUserYml);
 			}
 
 			else {
-				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
-				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUserYml);
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUserYml);
 			}
 
 			if (idType.contains("UIN") || idType.contains("uin")) {
-				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUserYml);
 			}
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {
@@ -258,24 +250,24 @@ public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface
 		for (String vid : vidList) {
 
 			if (idType.contains("VID") || idType.contains("vid")) {
-				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUserYml);
 			}
 
 			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
 
-				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUserYml);
 
 			}
 
 			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
-				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUserYml);
 			}
 
 			else {
-				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUser);
-				casesListVID = authenticateUser.getYmlTestData(AuthenticateUser);
+				casesListUIN = authenticateUser.getYmlTestData(AuthenticateUserYml);
+				casesListVID = authenticateUser.getYmlTestData(AuthenticateUserYml);
 			}
 
 			if (casesListVID != null) {

@@ -1,8 +1,8 @@
 package io.mosip.test.packetcreator.mosippacketcreator.service;
 
+import static io.restassured.RestAssured.given;
+
 import java.io.File;
-
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -10,14 +10,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import javax.annotation.PostConstruct;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.SlackIt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.response.Response;
 import variables.VariableManager;
-
-import static io.restassured.RestAssured.given;
 
 @Component
 public class APIRequestUtil {

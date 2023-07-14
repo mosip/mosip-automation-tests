@@ -25,7 +25,7 @@ import io.restassured.response.Response;
 
 public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(OAuthDetailsRequest.class);
-	private static final String OAuthDetails = "idaData/OAuthDetailsRequest/OAuthDetailsRequest.yml";
+	private static final String OAuthDetailsYml = "idaData/OAuthDetailsRequest/OAuthDetailsRequest.yml";
 	SimplePostForAutoGenId oAuthDetails = new SimplePostForAutoGenId();
 
 	@Override
@@ -38,7 +38,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 
 		String clientId = "";
 
-		Object[] testObj = oAuthDetails.getYmlTestData(OAuthDetails);
+		Object[] testObj = oAuthDetails.getYmlTestData(OAuthDetailsYml);
 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
 
@@ -106,11 +106,6 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 			throw new RigInternalError(e.getMessage());
 
 		}
-
-	}
-
-	private void elseif() {
-		// TODO Auto-generated method stub
 
 	}
 }

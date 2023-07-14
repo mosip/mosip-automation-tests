@@ -1,16 +1,28 @@
 package io.mosip.ivv.core.utils;
 
-import com.sun.mail.imap.protocol.FLAGS;
-
-import javax.mail.*;
-import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 import java.util.Properties;
+
+import javax.mail.Address;
+import javax.mail.BodyPart;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.internet.MimeMultipart;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.mail.imap.protocol.FLAGS;
 
 
 
 
 public class OTPReader {
+	
+	private static final Logger logger = LoggerFactory.getLogger(OTPReader.class);
 
     public static String readOTP(String recipient) {
         int emailFoundOrNot = 0;
@@ -49,7 +61,7 @@ public class OTPReader {
                             break;
                         }
                     } catch (MessagingException me) {
-                        //to do
+                        logger.error("error:"+me.getMessage());
                     }
                 }
                 emailInbox.close(true);
@@ -89,7 +101,7 @@ public class OTPReader {
                         break;
                     }
                 } catch (MessagingException me) {
-                    //to do
+                	 logger.error("error:"+me.getMessage());
                 }
             }
             emailInbox.close(true);
@@ -113,8 +125,6 @@ public class OTPReader {
             while (emailFoundOrNot < 1) {
                 Session session = Session.getInstance(sysProps, null);
                 Store store = session.getStore();
-                //store.connect(BaseHelper.email_hostname, BaseHelper.email_username, BaseHelper.email_password);
-                //store.connect("outlook.office365.com", 993, BaseHelper.email_username, BaseHelper.email_password);
                 store.connect("outlook.office365.com", 993, email, pass);
                 Thread.sleep(1000);
                 emailInbox = store.getFolder("Inbox");
@@ -133,14 +143,14 @@ public class OTPReader {
                             break;
                         }
                     } catch (MessagingException me) {
-                        //to do
+                    	 logger.error("error:"+me.getMessage());
                     }
                 }
                 emailInbox.close(true);
                 store.close();
             }
         } catch (Exception mex) {
-            mex.printStackTrace();
+        	 logger.error("error:"+mex.getMessage());
             Thread.currentThread().interrupt();
         }
         return otp;

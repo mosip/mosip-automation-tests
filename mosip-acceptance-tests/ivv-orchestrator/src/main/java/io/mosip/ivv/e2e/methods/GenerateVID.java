@@ -1,49 +1,33 @@
 package io.mosip.ivv.e2e.methods;
 
-import static io.restassured.RestAssured.given;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import javax.ws.rs.core.MediaType;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.testng.Reporter;
 
 import io.mosip.admin.fw.util.AdminTestException;
-import io.mosip.admin.fw.util.AdminTestUtil;
 import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.authentication.fw.util.AuthPartnerProcessor;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
-import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.ivv.orchestrator.TestRunner;
-import io.mosip.testrunner.MockSMTPListener;
-//import io.mosip.testscripts.BioAuthOld;
-import io.mosip.testscripts.DemoAuth;
-import io.mosip.testscripts.OtpAuth;
 import io.mosip.testscripts.PostWithBodyWithOtpGenerate;
 import io.restassured.response.Response;
 
 public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(GenerateVID.class);
-	private static final String GenerateVID = "idaData/GenerateVID/createGenerateVID.yml";
+	private static final String GenerateVIDYml = "idaData/GenerateVID/createGenerateVID.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
 	PostWithBodyWithOtpGenerate generatevid = new PostWithBodyWithOtpGenerate();
 
 	@Override
 	public void run() throws RigInternalError {
-		// step.getScenario().getUinPersonaProp().put("6471974360",
-		// "C:\\\\Users\\\\Sohan.Dey\\\\AppData\\\\Local\\\\Temp\\\\residents_1250718917110156783\\\\101681016810168.json");
 		step.getScenario().getVidPersonaProp().clear();
 		String uins = null;
 		String vidtype = null;
@@ -78,7 +62,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 			}
 		}
 
-		Object[] testObj = generatevid.getYmlTestData(GenerateVID);
+		Object[] testObj = generatevid.getYmlTestData(GenerateVIDYml);
 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
 		

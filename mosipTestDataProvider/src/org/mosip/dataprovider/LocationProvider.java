@@ -15,7 +15,6 @@ import org.mosip.dataprovider.models.Location;
 import org.mosip.dataprovider.models.LocationHierarchyModel;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.StateModel;
-import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.slf4j.Logger;

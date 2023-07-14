@@ -165,7 +165,7 @@
     "label" : "machineId",
     "value" : "10024"
   }, {
-    "label" : "centerId",
+    "label" : "centerid",
     "value" : "10003"
   }, {
     "label" : "dongleId",

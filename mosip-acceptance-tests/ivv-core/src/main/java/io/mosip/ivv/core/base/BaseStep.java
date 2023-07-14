@@ -1,9 +1,16 @@
 package io.mosip.ivv.core.base;
 
+import java.util.ArrayList;
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.aventstack.extentreports.ExtentTest;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
+
 import io.mosip.ivv.core.dtos.CallRecord;
 import io.mosip.ivv.core.dtos.RequestDataDTO;
 import io.mosip.ivv.core.dtos.ResponseDataDTO;
@@ -13,10 +20,8 @@ import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.core.utils.ErrorMiddleware;
 import io.mosip.ivv.core.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.Properties;
-
 public class BaseStep {
+	private static final Logger logger = LoggerFactory.getLogger(BaseStep.class);
     public Boolean hasError = false;
     public Properties properties;
     public Store store = null;
@@ -76,22 +81,22 @@ public class BaseStep {
     public void validateStep() throws RigInternalError {return;}
 
     public void logInfo(String msg){
-        Utils.auditLog.info(msg);
+    	logger.info(msg);
         extentInstance.info(msg);
     }
 
     public void logWarning(String msg){
-        Utils.auditLog.info(msg);
+        logger.info(msg);
         extentInstance.warning(msg);
     }
 
     public void logFail(String msg){
-        Utils.auditLog.severe(msg);
+        logger.error(msg);
         extentInstance.fail(msg);
     }
 
     public void logSevere(String msg){
-        Utils.auditLog.severe(msg);
+        logger.error(msg);
         extentInstance.info(msg);
     }
 

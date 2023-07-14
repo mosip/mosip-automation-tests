@@ -1,31 +1,39 @@
 package io.mosip.ivv.parser;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.ReadContext;
-import io.mosip.ivv.core.exceptions.RigInternalError;
-import io.mosip.ivv.core.utils.MailHelper;
-import io.mosip.ivv.core.utils.Utils;
-import io.mosip.ivv.parser.Utils.Helper;
-import io.mosip.ivv.parser.Utils.StepParser;
-import io.mosip.ivv.core.dtos.*;
-import org.apache.commons.lang3.EnumUtils;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Pattern;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.regex.Pattern;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static io.mosip.ivv.core.utils.Utils.regex;
+import io.mosip.ivv.core.dtos.BiometricsDTO;
+import io.mosip.ivv.core.dtos.IDObjectField;
+import io.mosip.ivv.core.dtos.ParserInputDTO;
+import io.mosip.ivv.core.dtos.Partner;
+import io.mosip.ivv.core.dtos.Person;
+import io.mosip.ivv.core.dtos.Persona;
+import io.mosip.ivv.core.dtos.PersonaDef;
+import io.mosip.ivv.core.dtos.ProofDocument;
+import io.mosip.ivv.core.dtos.RegistrationUser;
+import io.mosip.ivv.core.dtos.Scenario;
+import io.mosip.ivv.core.exceptions.RigInternalError;
+import io.mosip.ivv.core.utils.Utils;
+import io.mosip.ivv.parser.Utils.StepParser;
 
 public class Parser implements ParserInterface {
 	private static final Logger logger = LoggerFactory.getLogger(Parser.class);
