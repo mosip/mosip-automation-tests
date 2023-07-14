@@ -572,7 +572,7 @@ public class PacketMakerService {
 
 			updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", APIRequestUtil.getUTCDateTime(null), true);
 			updatePacketMetaInfo(packetRootFolder, METADATA, "machineId", machineId, false);
-			updatePacketMetaInfo(packetRootFolder, METADATA, "centerId", centerId, false);
+			updatePacketMetaInfo(packetRootFolder, METADATA, "centerid", centerId, false);
 			updatePacketMetaInfo(packetRootFolder, METADATA, "registrationType",
 					StringUtils.capitalize(process.toLowerCase()), false);
 

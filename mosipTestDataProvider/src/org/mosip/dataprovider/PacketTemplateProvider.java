@@ -1604,7 +1604,7 @@ public class PacketTemplateProvider {
 		}
 		if (centerId != null && !centerId.equals("")) {
 			obj = new JSONObject();
-			obj.put(LABEL, "centerId");
+			obj.put(LABEL, "centerid");
 			obj.put(VALUE, centerId);
 			metadata.put(obj);
 		}
