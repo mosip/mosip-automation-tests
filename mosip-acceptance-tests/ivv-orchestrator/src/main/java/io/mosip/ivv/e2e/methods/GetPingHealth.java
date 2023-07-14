@@ -11,6 +11,7 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.kernel.util.ConfigManager;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
@@ -45,7 +46,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 		
 		}
 		else {
-		uri=baseUrl + "/ping";
+		uri=baseUrl + "/ping/"+ ConfigManager.IseSignetDeployed();
 		
 		Response response = getRequest(uri, "Health Check",step);
 		JSONObject res = new JSONObject(response.asString());

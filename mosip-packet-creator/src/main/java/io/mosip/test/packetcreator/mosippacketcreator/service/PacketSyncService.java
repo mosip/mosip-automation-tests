@@ -349,6 +349,7 @@ public class PacketSyncService {
 
 				// Get the rid from the packet template
 				nobj.put(REGISTRATIONID, packetMakerService.getNewRegId());
+
 				return functionResponse;
 			}
 

@@ -66,7 +66,7 @@ public class CommandsService {
    
 	 private static final Logger logger = LoggerFactory.getLogger(CommandsService.class);
 		
-	 public String checkContext(String contextKey, String module) throws IOException {
+	 public String checkContext(String contextKey, String module , String eSignetDeployed) throws IOException {
 		 
 		Properties props = contextUtils.loadServerContext(contextKey);
 		baseUrl = props.getProperty("urlBase");
@@ -87,14 +87,22 @@ public class CommandsService {
    		}
    		while((line=br.readLine())!=null)  
    		{
-   			if(line.trim().equals(""))
-   				continue;
+
+   			
+   			if (line.trim().equals("") || line.trim().startsWith("#"))
+				continue;
+   			
    			boolean bcheck = false;
    			//enhanced to support module
    			String controllerPath = line.trim();
    			String modName = null;
    			String [] parts = controllerPath.split("=");
    			if(parts.length > 1) {
+   				
+				// Perform the health check only if esignet is deployed
+				if (parts[1].contains("esignet") && !eSignetDeployed.equalsIgnoreCase("true"))
+					continue;
+				
    				controllerPath = parts[1];
    				modName = parts[0].trim();
    			}
