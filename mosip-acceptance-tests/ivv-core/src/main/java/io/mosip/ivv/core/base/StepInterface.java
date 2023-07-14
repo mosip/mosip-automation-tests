@@ -9,6 +9,7 @@ import com.aventstack.extentreports.ExtentTest;
 import io.mosip.ivv.core.dtos.CallRecord;
 import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.core.dtos.Store;
+import io.mosip.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 
 public interface StepInterface {
@@ -37,7 +38,7 @@ public interface StepInterface {
     void setup() throws RigInternalError;
 
     CallRecord getCallRecord();
-    void run() throws RigInternalError;
+    void run() throws RigInternalError, FeatureNotSupportedError;
 
 
 

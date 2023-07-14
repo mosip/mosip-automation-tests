@@ -40,6 +40,7 @@ import io.mosip.ivv.core.dtos.ParserInputDTO;
 import io.mosip.ivv.core.dtos.RegistrationUser;
 import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.core.dtos.Store;
+import io.mosip.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.dg.DataGenerator;
@@ -373,6 +374,10 @@ public class Orchestrator {
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
+			}
+			catch (FeatureNotSupportedError e) {
+				logger.warn(e.getMessage());
+				Reporter.log(e.getMessage());
 			}
 
 		}
