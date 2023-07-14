@@ -1,9 +1,10 @@
  package io.mosip.ivv.e2e.methods;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
 import org.apache.log4j.Logger;
+
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;

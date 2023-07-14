@@ -14,7 +14,6 @@ import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
-import io.mosip.ivv.core.utils.MailHelper;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testscripts.GetWithParam;
 import io.restassured.response.Response;
@@ -22,7 +21,7 @@ import io.restassured.response.Response;
 public class GetEmailByUIN extends BaseTestCaseUtil implements StepInterface {
 	private static final Logger logger = LoggerFactory.getLogger(GetEmailByUIN.class);
 
-	private static final String GetEmail = "idaData/RetrieveIdentityByUin/RetrieveIdentityByUin.yml";
+	private static final String GetEmailYml = "idaData/RetrieveIdentityByUin/RetrieveIdentityByUin.yml";
 	GetWithParam getEmail = new GetWithParam();
 	
 	
@@ -34,7 +33,7 @@ public class GetEmailByUIN extends BaseTestCaseUtil implements StepInterface {
 		String uins = null;
 		List<String> uinList = null;
 		
-		Object[] testObj = getEmail.getYmlTestData(GetEmail);
+		Object[] testObj = getEmail.getYmlTestData(GetEmailYml);
 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
 

@@ -1,7 +1,6 @@
 package org.mosip.dataprovider.test;
 import java.util.List;
 
-
 import org.json.JSONException;
 import org.mosip.dataprovider.ResidentDataProvider;
 import org.mosip.dataprovider.models.AppointmentModel;
@@ -10,7 +9,6 @@ import org.mosip.dataprovider.models.CenterDetailsModel;
 import org.mosip.dataprovider.models.MosipDocument;
 import org.mosip.dataprovider.models.MosipLanguage;
 import org.mosip.dataprovider.models.ResidentModel;
-import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.preparation.MosipMasterData;
 import org.mosip.dataprovider.test.prereg.PreRegistrationSteps;
 import org.mosip.dataprovider.util.Gender;

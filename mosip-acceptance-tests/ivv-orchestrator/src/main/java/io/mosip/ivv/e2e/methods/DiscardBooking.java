@@ -4,9 +4,10 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;

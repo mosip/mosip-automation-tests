@@ -1,7 +1,6 @@
 package org.mosip.dataprovider.util;
 import java.io.IOException;
 
-import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

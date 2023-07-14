@@ -2,9 +2,6 @@ package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.websocket.server.PathParam;
-
 import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.util.DataProviderConstants;
 import org.slf4j.Logger;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 

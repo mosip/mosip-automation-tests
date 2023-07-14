@@ -2,11 +2,10 @@ package io.mosip.ivv.e2e.methods;
 
 import static org.testng.Assert.assertTrue;
 
-
 import org.apache.log4j.Logger;
+
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
-
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 
 

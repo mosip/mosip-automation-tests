@@ -4,7 +4,6 @@ package org.mosip.dataprovider.models;
 import java.io.Serializable;
 import java.util.List;
 
-import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

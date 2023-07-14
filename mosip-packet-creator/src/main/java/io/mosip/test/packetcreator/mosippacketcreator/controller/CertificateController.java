@@ -1,21 +1,18 @@
 package io.mosip.test.packetcreator.mosippacketcreator.controller;
 
+import org.mosip.dataprovider.util.DataProviderConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.test.packetcreator.mosippacketcreator.service.CertificateService;
 import io.swagger.annotations.Api;
-
-import org.mosip.dataprovider.util.DataProviderConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Api(value = "CertificateController", description = "REST API for uploading certificates")
 @RestController

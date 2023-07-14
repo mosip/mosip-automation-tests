@@ -22,8 +22,6 @@ import org.mosip.dataprovider.models.MosipIDSchema;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.preparation.MosipMasterData;
-import org.mosip.dataprovider.util.DataProviderConstants;
-import org.springframework.beans.factory.annotation.Value;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;

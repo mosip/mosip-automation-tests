@@ -1,6 +1,5 @@
 package org.mosip.dataprovider;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -10,7 +9,6 @@ import java.util.List;
 
 import org.mosip.dataprovider.models.CountryModel;
 import org.mosip.dataprovider.models.StateModel;
-import org.mosip.dataprovider.models.mds.MDSDevice;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

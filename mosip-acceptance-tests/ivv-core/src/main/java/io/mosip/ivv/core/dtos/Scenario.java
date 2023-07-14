@@ -1,15 +1,14 @@
 package io.mosip.ivv.core.dtos;
 
-import io.mosip.ivv.core.policies.AssertionPolicy;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+
+import io.mosip.ivv.core.policies.AssertionPolicy;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

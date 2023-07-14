@@ -4,9 +4,9 @@ package org.mosip.dataprovider.test.registrationclient;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+
 import org.json.JSONObject;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.util.CommonUtil;

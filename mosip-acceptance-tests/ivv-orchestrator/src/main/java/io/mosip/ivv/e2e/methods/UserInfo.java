@@ -1,11 +1,8 @@
 package io.mosip.ivv.e2e.methods;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -31,9 +28,9 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	
 	
 	static Logger logger = Logger.getLogger(UserInfo.class);
-	private static final String AuthorizationCode = "idaData/AuthorizationCode/AuthorizationCode.yml";
-	private static final String GenerateToken = "idaData/GenerateToken/GenerateToken.yml";
-	private static final String GetUserInfo = "idaData/GetOidcUserInfo/GetOidcUserInfo.yml";
+	private static final String AuthorizationCodeYml = "idaData/AuthorizationCode/AuthorizationCode.yml";
+	private static final String GenerateTokenYml = "idaData/GenerateToken/GenerateToken.yml";
+	private static final String GetUserInfoYml = "idaData/GetOidcUserInfo/GetOidcUserInfo.yml";
 	SimplePost authorizationCode = new SimplePost();
 	SimplePostForAutoGenIdForUrlEncoded generateToken = new SimplePostForAutoGenIdForUrlEncoded();
 	GetWithParam getUserInfo = new GetWithParam();
@@ -56,9 +53,9 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
 
-		Object[] testObjForAuthorizationCode = authorizationCode.getYmlTestData(AuthorizationCode);
-		Object[] testObjForGenerateToken = generateToken.getYmlTestData(GenerateToken);
-		Object[] testObjForGetUserInfo = generateToken.getYmlTestData(GetUserInfo);
+		Object[] testObjForAuthorizationCode = authorizationCode.getYmlTestData(AuthorizationCodeYml);
+		Object[] testObjForGenerateToken = generateToken.getYmlTestData(GenerateTokenYml);
+		Object[] testObjForGetUserInfo = generateToken.getYmlTestData(GetUserInfoYml);
 
 		TestCaseDTO testAuthorization = (TestCaseDTO) testObjForAuthorizationCode[0];
 		TestCaseDTO testGenerateToken = (TestCaseDTO) testObjForGenerateToken[0];
@@ -66,7 +63,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transactionId parameter is  missing from DSL step");
-			this.hasError=true;
+			this.hasError = true;
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
 
@@ -129,7 +126,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 				}
 
 			} catch (AuthenticationTestException | AdminTestException e) {
-				this.hasError=true;
+				this.hasError = true;
 				throw new RigInternalError(e.getMessage());
 
 			}
@@ -157,39 +154,11 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 				}
 
 			} catch (AuthenticationTestException | AdminTestException e) {
-				this.hasError=true;
+				this.hasError = true;
 				throw new RigInternalError(e.getMessage());
 
 			}
 		}
-
-		//
-		/*
-		 * String inputForAuthorization = testAuthorization.getInput();
-		 * inputForAuthorization =
-		 * JsonPrecondtion.parseAndReturnJsonContent(inputForAuthorization,
-		 * transactionId2, "transactionId");
-		 * 
-		 * testAuthorization.setInput(inputForAuthorization);
-		 * 
-		 * try { authorizationCode.test(testAuthorization);
-		 * 
-		 * Response response = authorizationCode.response; if (response != null) {
-		 * JSONObject jsonResp = new JSONObject(response.getBody().asString()); //
-		 * "$$transactionId=e2e_OAuthDetailsRequest($$clientId)" code =
-		 * jsonResp.getJSONObject("response").getString("code"); redirectUri =
-		 * jsonResp.getJSONObject("response").getString("redirectUri");
-		 * oidcClientProp.put("code", code);
-		 * 
-		 * System.out.println(code);
-		 * 
-		 * System.out.println(jsonResp.toString()); }
-		 * 
-		 * } catch (AuthenticationTestException | AdminTestException e) { throw new
-		 * RigInternalError(e.getMessage());
-		 * 
-		 * }
-		 */
 
 		String inputForGenerateToken = testGenerateToken.getInput();
 
@@ -197,32 +166,23 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		inputForGenerateToken = JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, code, "code");
 		inputForGenerateToken = JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, redirectUri,
 				"redirect_uri");
-		String oidcJwkKey = (String) step.getScenario().getOidcPmsProp().get("oidcJwkKey"+step.getScenario().getId());
-		
-		
-			String oidcJWKKeyString = oidcJwkKey;
-			// String oidcJWKKeyString = props.getProperty("privateKey");
-			System.out.println("oidcJWKKeyString =" + oidcJWKKeyString);
-			RSAKey oidcJWKKey1;
-			try {
-				oidcJWKKey1 = RSAKey.parse(oidcJWKKeyString);
-				data = PacketUtility.signJWKKey(clientId, oidcJWKKey1);
-				System.out.println("oidcJWKKey1 =" + oidcJWKKey1);
-			} catch (java.text.ParseException e) {
-				logger.error(e.getMessage());
-			}
-			
-			inputForGenerateToken = JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, data,
-					"client_assertion");
-			
+		String oidcJwkKey = (String) step.getScenario().getOidcPmsProp().get("oidcJwkKey" + step.getScenario().getId());
 
-		/*
-		 * inputForGenerateToken =
-		 * JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, oidcJwkKey,
-		 * "client_assertion");
-		 */
-		
-		
+		String oidcJWKKeyString = oidcJwkKey;
+		// String oidcJWKKeyString = props.getProperty("privateKey");
+		System.out.println("oidcJWKKeyString =" + oidcJWKKeyString);
+		RSAKey oidcJWKKey1;
+		try {
+			oidcJWKKey1 = RSAKey.parse(oidcJWKKeyString);
+			data = PacketUtility.signJWKKey(clientId, oidcJWKKey1);
+			System.out.println("oidcJWKKey1 =" + oidcJWKKey1);
+		} catch (java.text.ParseException e) {
+			logger.error(e.getMessage());
+		}
+
+		inputForGenerateToken = JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, data,
+				"client_assertion");
+
 		testGenerateToken.setInput(inputForGenerateToken);
 
 		try {
@@ -234,7 +194,6 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		Response response = generateToken.response;
 		if (response != null) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			// idpAccessToken = jsonResp.getString("access_token");
 			idpAccessToken = jsonResp.get("access_token").toString();
 			System.out.println(jsonResp.toString());
 		}
@@ -255,7 +214,8 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			System.out.println(response2.toString());
 
 		} catch (AuthenticationTestException | AdminTestException e) {
-			this.hasError=true;throw new RigInternalError(e.getMessage());
+			this.hasError = true;
+			throw new RigInternalError(e.getMessage());
 
 		}
 

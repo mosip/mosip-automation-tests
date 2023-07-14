@@ -2,7 +2,6 @@ package io.mosip.ivv.orchestrator;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -16,8 +15,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.util.BinaryUtils;
-import com.amazonaws.util.Md5Utils;
 
 import io.mosip.kernel.core.util.StringUtils;
 import io.mosip.kernel.util.ConfigManager;

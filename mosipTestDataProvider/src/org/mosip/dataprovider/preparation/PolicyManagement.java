@@ -2,24 +2,13 @@ package org.mosip.dataprovider.preparation;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-
-import javax.print.DocFlavor.STRING;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.mosip.dataprovider.models.mds.MDSDevice;
-import org.mosip.dataprovider.util.CommonUtil;
 
 import variables.VariableManager;
 

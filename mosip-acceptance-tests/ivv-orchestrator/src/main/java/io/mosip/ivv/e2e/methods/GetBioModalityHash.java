@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;

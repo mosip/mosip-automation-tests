@@ -70,7 +70,6 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 
 		JSONArray jsonArray = new JSONArray(response.asString());
 		JSONObject responseJson = new JSONObject(jsonArray.get(0).toString());
-		//assertTrue(response.getBody().asString().contains("SUCCESS"),"Unable to do RID sync from packet utility");
 		if(!response.getBody().asString().toLowerCase().contains("success"))
 			throw new RigInternalError("Unable to do RID sync from packet utility");
 		return responseJson.get("registrationId").toString();
@@ -98,9 +97,8 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 			prop.put(key, map.get(key));
 		String filePath=TestRunner.getExternalResourcePath()
 				+ props.getProperty("ivv.path.deviceinfo.folder") +"ridPersonaPathProp.properties";
-		OutputStream output = null;
-		try {
-			output = new FileOutputStream(filePath,true);
+		try(OutputStream output = new FileOutputStream(filePath,true);) {
+			
 			prop.store(output, null);
 			output.close();
 			output.flush();

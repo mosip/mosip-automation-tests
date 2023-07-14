@@ -3,24 +3,12 @@ package io.mosip.ivv.e2e.methods;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 import org.testng.Reporter;
 
-import io.mosip.admin.fw.util.TestCaseDTO;
-import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.MachineHelper;
-import io.mosip.testscripts.DeleteWithParam;
-import io.mosip.testscripts.GetWithParam;
-import io.mosip.testscripts.GetWithQueryParam;
-import io.mosip.testscripts.PatchWithPathParam;
-import io.mosip.testscripts.PutWithPathParam;
-import io.mosip.testscripts.SimplePost;
-import io.mosip.testscripts.SimplePostForAutoGenId;
-import io.mosip.testscripts.SimplePut;
-import io.restassured.response.Response;
 
 public class Machine extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(Machine.class);

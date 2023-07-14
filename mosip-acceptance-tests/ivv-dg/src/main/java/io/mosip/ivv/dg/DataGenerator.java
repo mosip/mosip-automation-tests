@@ -1,14 +1,11 @@
 package io.mosip.ivv.dg;
 
-import io.mosip.ivv.core.dtos.*;
-import io.mosip.ivv.core.dtos.BiometricsDTO.BIOMETRIC_CAPTURE;
-import io.mosip.ivv.core.dtos.ProofDocument.DOCUMENT_CATEGORY;
+import java.util.ArrayList;
+
+import io.mosip.ivv.core.dtos.Persona;
+import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.dg.Utils.MutationEngine;
 import io.mosip.ivv.dg.exceptions.PersonaNotFoundException;
-import io.mosip.ivv.parser.Parser;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class DataGenerator implements DataGeneratorInterface {
 

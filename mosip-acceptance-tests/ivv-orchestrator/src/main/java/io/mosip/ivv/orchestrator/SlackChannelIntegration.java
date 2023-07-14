@@ -10,8 +10,6 @@ import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
-import io.mosip.ivv.core.utils.MailHelper;
-
 public class SlackChannelIntegration {
 	private static final Logger logger = LoggerFactory.getLogger(SlackChannelIntegration.class);
 	static String reportUrl="http://automation.mosip.net/MosipTestResource/mosip_e2e_emailable_report.html";

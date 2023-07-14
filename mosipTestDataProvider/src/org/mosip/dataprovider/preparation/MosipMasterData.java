@@ -3,14 +3,10 @@ package org.mosip.dataprovider.preparation;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -22,10 +18,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mosip.dataprovider.ResidentDataProvider;
 import org.mosip.dataprovider.models.ApplicationConfigIdSchema;
-
 import org.mosip.dataprovider.models.DynamicFieldModel;
 import org.mosip.dataprovider.models.DynamicFieldValueModel;
-import org.mosip.dataprovider.models.MosipIdentity;
 import org.mosip.dataprovider.models.LocationHierarchyModel;
 import org.mosip.dataprovider.models.MosipBiometricAttributeModel;
 import org.mosip.dataprovider.models.MosipBiometricTypeModel;
@@ -33,15 +27,13 @@ import org.mosip.dataprovider.models.MosipDocCategoryModel;
 import org.mosip.dataprovider.models.MosipDocTypeModel;
 import org.mosip.dataprovider.models.MosipGenderModel;
 import org.mosip.dataprovider.models.MosipIDSchema;
+import org.mosip.dataprovider.models.MosipIdentity;
 import org.mosip.dataprovider.models.MosipIndividualTypeModel;
 import org.mosip.dataprovider.models.MosipLanguage;
 import org.mosip.dataprovider.models.MosipLocationModel;
 import org.mosip.dataprovider.models.MosipPreRegLoginConfig;
 import org.mosip.dataprovider.models.ResidentModel;
 import org.mosip.dataprovider.models.SchemaRule;
-import org.mosip.dataprovider.models.mds.MDSDevice;
-import org.mosip.dataprovider.models.setup.MosipDeviceModel;
-import org.mosip.dataprovider.models.setup.MosipMachineModel;
 import org.mosip.dataprovider.test.CreatePersona;
 import org.mosip.dataprovider.util.CommonUtil;
 import org.mosip.dataprovider.util.DataProviderConstants;
@@ -57,7 +49,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.restassured.http.ContentType;
 import variables.VariableManager;
 
 public  class MosipMasterData {
