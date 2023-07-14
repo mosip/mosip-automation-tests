@@ -94,7 +94,7 @@ public class UserHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					user, "id");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					map.get("centerid"+centerNum), "regCenterId");
+					map.get("centerId"+centerNum), "regCenterId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					BaseTestCase.languageCode,"langCode");
 			testPutDcom.setInput(input);

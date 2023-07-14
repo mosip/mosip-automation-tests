@@ -89,7 +89,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	private static final String SETCONTEXT = "SetContext";
 	private static final String SCENARIO = "scenario";
 	private static final String MACHINEID = "machineid";
-	private static final String CENTERID = "centerid";
+	private static final String CENTERID = "centerId";
 	private static final String USERID = "userid";
 	private static final String PASSWORD = "password";
 	private static final String MOSIP_TEST_REGCLIENT_SUPERVISORPWD = "mosip.test.regclient.supervisorpwd";
@@ -620,7 +620,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,
-			Boolean generatePrivateKey, String status, String baseUrl, Scenario.Step step) throws RigInternalError {
+			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step) throws RigInternalError {
 		String url = this.baseUrl + "/context/server/";
 		Map<String, String> map = new HashMap<String, String>();
 		if (userAndMachineDetailParam != null && !userAndMachineDetailParam.isEmpty()) {
@@ -652,8 +652,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 			jsonReq.put(SCENARIO, step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		}
 
-		jsonReq.put(URLBASE, baseUrl);
-		jsonReq.put(MOSIP_TEST_BASEURL, baseUrl);
+		jsonReq.put(URLBASE, envbaseUrl);
+		jsonReq.put(MOSIP_TEST_BASEURL, envbaseUrl);
 		jsonReq.put(MOSIP_TEST_REGCLIENT_MACHINEID,
 				(map.get(MACHINEID) != null) ? map.get(MACHINEID) : E2EConstants.MACHINE_ID);
 		jsonReq.put(MOSIP_TEST_REGCLIENT_CENTERID,
@@ -715,7 +715,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("enableDebug", ConfigManager.getEnableDebug());
 		logger.info("Running suite with enableDebug : " + ConfigManager.getEnableDebug());
 		jsonReq.put(URLBASE, envbaseUrl);
-		jsonReq.put(MOSIP_TEST_BASEURL, baseUrl);
+		jsonReq.put(MOSIP_TEST_BASEURL, envbaseUrl);
 		jsonReq.put(MOSIP_TEST_REGCLIENT_MACHINEID,
 				(map.get(MACHINEID) != null) ? map.get(MACHINEID) : E2EConstants.MACHINE_ID);
 

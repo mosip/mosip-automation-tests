@@ -82,7 +82,7 @@ public class RegistrationSteps {
 			
 		 JSONObject syncRequest = new JSONObject();
 		 syncRequest.put("registrationCenterId", 
-				 VariableManager.getVariableValue( "centerid",contextKey));
+				 VariableManager.getVariableValue( "centerId",contextKey));
 		 syncRequest.put("fromDate",CommonUtil.getUTCDateTime(lastSyncTime));
 		 syncRequest.put("toDate",CommonUtil.getUTCDateTime(currentSyncTime ));
 

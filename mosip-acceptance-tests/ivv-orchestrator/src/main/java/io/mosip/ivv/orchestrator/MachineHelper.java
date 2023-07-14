@@ -215,7 +215,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 					machineSpecId, "machineSpecId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "id");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "name");
-			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("centerid"+centerCount), "regCenterId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("centerId"+centerCount), "regCenterId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("zoneCode"), "zoneCode");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					BaseTestCase.languageCode,"langCode");
@@ -311,7 +311,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, "", "regCenterId");
 			else
-				input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("centerid"+centerCount), "regCenterId");
+				input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("centerId"+centerCount), "regCenterId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("zoneCode"), "zoneCode");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("publicKey"), "publicKey");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("signPublicKey"), "signPublicKey");
