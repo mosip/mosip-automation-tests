@@ -16,10 +16,12 @@ import io.mosip.admin.fw.util.TestCaseDTO;
 import io.mosip.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestRunner;
+import io.mosip.kernel.util.ConfigManager;
 import io.mosip.service.BaseTestCase;
 import io.mosip.testscripts.BioAuth;
 import io.mosip.testscripts.EsignetBioAuth;
@@ -34,7 +36,12 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 	String bioResponse = null;
 
 	@Override
-	public void run() throws RigInternalError {
+	public void run() throws RigInternalError, FeatureNotSupportedError {
+		
+		// check if esignet is installed on the target system
+		if (!ConfigManager.IseSignetDeployed()) {
+			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
+		}
 
 		String deviceInfoFilePath = null;
 		String transactionId1 = "";
@@ -46,6 +53,8 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 		Object[] casesListUIN = null;
 		Object[] casesListVID = null;
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
+		
+		
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");

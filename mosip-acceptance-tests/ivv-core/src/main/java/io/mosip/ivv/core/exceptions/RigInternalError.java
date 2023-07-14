@@ -5,3 +5,4 @@ public class RigInternalError extends Exception {
         super(errorMessage);
     }
 }
+
