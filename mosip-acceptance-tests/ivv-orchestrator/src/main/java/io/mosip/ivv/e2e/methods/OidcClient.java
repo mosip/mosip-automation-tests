@@ -2,6 +2,8 @@ package io.mosip.ivv.e2e.methods;
 
 import java.security.NoSuchAlgorithmException;
 
+import javax.transaction.NotSupportedException;
+
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -15,9 +17,11 @@ import io.mosip.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ida.certificate.CertificateGenerationUtil;
 import io.mosip.ida.certificate.PartnerRegistration;
 import io.mosip.ivv.core.base.StepInterface;
+import io.mosip.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.PacketUtility;
+import io.mosip.kernel.util.ConfigManager;
 import io.mosip.testrunner.MosipTestRunner;
 import io.mosip.testscripts.PostWithOnlyPathParam;
 import io.mosip.testscripts.PutWithPathParamsAndBody;
@@ -55,7 +59,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 	SimplePostForAutoGenId oidcClient=new SimplePostForAutoGenId();
 	
 	@Override
-	public void run() throws RigInternalError {
+	public void run() throws RigInternalError, FeatureNotSupportedError {
 
 		String name = null;
 		String policygroupId = null;
@@ -65,6 +69,11 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 		String mappingkey = null;
 		String clientId = null;
 
+	// check if esignet is installed on the target system
+		if(!ConfigManager.IseSignetDeployed()) {
+			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
+		}
+		
 		// CreatePolicyGroup Call
 
 		Object[] testObj1 = createPolicyGroup.getYmlTestData(CreatePolicyGroup);
