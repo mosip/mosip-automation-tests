@@ -13,7 +13,7 @@
         <!-- <module>ivv-registration</module> -->
 		<module>ivv-orchestrator</module>
         <!-- <module>ivv-preregistration</module> -->
-        <module>ivv-regprocessor</module>
+         <!--     <module>ivv-regprocessor</module>-->
         <module>ivv-kernel</module>
         <!-- <module>ivv-ida</module> -->
         <!-- <module>ivv-mutators</module> -->
@@ -24,8 +24,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 		</plugins>
