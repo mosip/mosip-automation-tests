@@ -9,7 +9,7 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.PacketUtility;
-import io.mosip.service.BaseTestCase;
+import io.mosip.testrig.apirig.service.BaseTestCase;
 
 public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(SwitchContext.class);

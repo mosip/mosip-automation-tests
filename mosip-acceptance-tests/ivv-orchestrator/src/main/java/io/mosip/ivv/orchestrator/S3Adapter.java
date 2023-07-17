@@ -17,7 +17,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import io.mosip.kernel.core.util.StringUtils;
-import io.mosip.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 
 public class S3Adapter {
 

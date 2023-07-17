@@ -11,11 +11,11 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.mosip.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.kernel.util.KernelAuthentication;
+import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
 import io.restassured.response.Response;
 
 public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface {

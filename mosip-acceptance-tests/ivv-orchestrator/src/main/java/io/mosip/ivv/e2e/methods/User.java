@@ -11,8 +11,8 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.UserHelper;
-import io.mosip.kernel.util.KeycloakUserManager;
-import io.mosip.service.BaseTestCase;
+import io.mosip.testrig.apirig.kernel.util.KeycloakUserManager;
+import io.mosip.testrig.apirig.service.BaseTestCase;
 
 public class User extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(User.class);

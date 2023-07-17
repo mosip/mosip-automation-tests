@@ -12,9 +12,9 @@ import java.util.zip.ZipInputStream;
 import org.apache.log4j.Logger;
 import org.testng.TestNG;
 
-import io.mosip.kernel.util.ConfigManager;
-import io.mosip.service.BaseTestCase;
-import io.mosip.testrunner.MockSMTPListener;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.testrunner.MockSMTPListener;
 
 public class TestRunner {
 	private static final Logger LOGGER = Logger.getLogger(TestRunner.class);

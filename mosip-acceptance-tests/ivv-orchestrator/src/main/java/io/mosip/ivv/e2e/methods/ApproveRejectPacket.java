@@ -6,11 +6,11 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;
 
-import io.mosip.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.testscripts.SimplePostForAutoGenId;
+import io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId;
 
 public class ApproveRejectPacket extends BaseTestCaseUtil implements StepInterface {
 	private static final String DECISSIONDATA_YML = "preReg/approveRejectPacket/decissionData.yml";

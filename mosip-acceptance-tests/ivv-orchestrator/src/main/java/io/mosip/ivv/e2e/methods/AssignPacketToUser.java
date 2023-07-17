@@ -6,11 +6,11 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;
 
-import io.mosip.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.testscripts.SimplePost;
+import io.mosip.testrig.apirig.testscripts.SimplePost;
 
 public class AssignPacketToUser extends BaseTestCaseUtil implements StepInterface {
 	private static final String ASSIGNDATA_YML = "preReg/assignPacketToUser/assignData.yml";
