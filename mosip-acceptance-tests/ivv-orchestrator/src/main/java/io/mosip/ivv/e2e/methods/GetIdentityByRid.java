@@ -9,15 +9,15 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;
 
-import io.mosip.authentication.fw.util.FileUtil;
-import io.mosip.authentication.fw.util.ReportUtil;
-import io.mosip.authentication.fw.util.RestClient;
+import io.mosip.testrig.apirig.authentication.fw.util.FileUtil;
+import io.mosip.testrig.apirig.authentication.fw.util.ReportUtil;
+import io.mosip.testrig.apirig.authentication.fw.util.RestClient;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestResources;
-import io.mosip.kernel.util.KernelAuthentication;
-import io.mosip.service.BaseTestCase;
+import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
+import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.restassured.response.Response;
 
 public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface {

@@ -11,7 +11,7 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.TestRunner;
-import io.mosip.service.BaseTestCase;
+import io.mosip.testrig.apirig.service.BaseTestCase;
 
 public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(ReadPreReq.class);

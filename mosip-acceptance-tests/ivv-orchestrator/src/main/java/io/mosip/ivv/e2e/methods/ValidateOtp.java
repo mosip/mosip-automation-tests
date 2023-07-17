@@ -7,8 +7,8 @@ import org.apache.log4j.Logger;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.kernel.util.ConfigManager;
-import io.mosip.testrunner.MockSMTPListener;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.testrunner.MockSMTPListener;
 
 public class ValidateOtp extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(ValidateOtp.class);

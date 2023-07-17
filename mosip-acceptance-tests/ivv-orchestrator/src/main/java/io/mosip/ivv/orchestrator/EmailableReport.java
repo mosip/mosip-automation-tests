@@ -25,9 +25,9 @@ import org.testng.collections.Lists;
 import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
 
-import io.mosip.kernel.util.ConfigManager;
-import io.mosip.kernel.util.S3Adapter;
-import io.mosip.service.BaseTestCase;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.kernel.util.S3Adapter;
+import io.mosip.testrig.apirig.service.BaseTestCase;
 
 /**
  * Reporter that generates a single-page HTML report of the test results.

@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.testrunner.MockSMTPListener;
+import io.mosip.testrig.apirig.testrunner.MockSMTPListener;
 
 public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterface { // $$additionalReqId=e2e_getAdditionalReqId(10)
 

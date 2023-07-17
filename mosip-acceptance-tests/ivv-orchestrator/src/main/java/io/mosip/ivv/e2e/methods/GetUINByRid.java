@@ -6,11 +6,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
-import io.mosip.authentication.fw.util.ReportUtil;
+import io.mosip.testrig.apirig.authentication.fw.util.ReportUtil;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.kernel.util.KernelAuthentication;
+import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
 import io.restassured.response.Response;
 
 public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {

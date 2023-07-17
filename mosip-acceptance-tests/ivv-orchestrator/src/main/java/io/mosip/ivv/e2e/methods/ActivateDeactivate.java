@@ -13,7 +13,7 @@ import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.ActivateDeactivateHelper;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.PacketUtility;
-import io.mosip.kernel.util.KernelAuthentication;
+import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
 import io.restassured.response.Response;
 
 public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterface {
