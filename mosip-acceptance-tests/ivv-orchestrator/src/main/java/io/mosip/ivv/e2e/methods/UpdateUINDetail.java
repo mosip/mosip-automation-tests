@@ -4,13 +4,13 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;
 
-import io.mosip.admin.fw.util.AdminTestException;
-import io.mosip.admin.fw.util.TestCaseDTO;
-import io.mosip.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
+import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.testscripts.PostWithBodyWithOtpGenerate;
+import io.mosip.testrig.apirig.testscripts.PostWithBodyWithOtpGenerate;
 
 public class UpdateUINDetail extends BaseTestCaseUtil implements StepInterface {
 	private static final String UPDATE_DEMOPHRAPIC_DETAIL = "preReg/updateUINDetail/UpdateUIN.yml";

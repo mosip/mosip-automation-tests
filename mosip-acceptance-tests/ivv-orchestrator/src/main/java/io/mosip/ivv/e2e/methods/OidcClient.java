@@ -7,21 +7,21 @@ import javax.transaction.NotSupportedException;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import io.mosip.admin.fw.util.AdminTestException;
-import io.mosip.admin.fw.util.TestCaseDTO;
-import io.mosip.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
+import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.PacketUtility;
-import io.mosip.kernel.util.ConfigManager;
-import io.mosip.testrunner.MosipTestRunner;
-import io.mosip.testscripts.PostWithOnlyPathParam;
-import io.mosip.testscripts.SimplePost;
-import io.mosip.testscripts.SimplePostForAutoGenId;
-import io.mosip.testscripts.SimplePut;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
+import io.mosip.testrig.apirig.testscripts.PostWithOnlyPathParam;
+import io.mosip.testrig.apirig.testscripts.SimplePost;
+import io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId;
+import io.mosip.testrig.apirig.testscripts.SimplePut;
 import io.restassured.response.Response;
 
 public class OidcClient extends BaseTestCaseUtil implements StepInterface {

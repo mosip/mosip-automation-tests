@@ -11,16 +11,16 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
-import io.mosip.admin.fw.util.AdminTestException;
-import io.mosip.admin.fw.util.TestCaseDTO;
-import io.mosip.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
+import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.e2e.constant.E2EConstants;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.testscripts.SimplePost;
+import io.mosip.testrig.apirig.testscripts.SimplePost;
 
 public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInterface {
 	private static final String check_status_YML = "preReg/checkStatus/checkstatus.yml";

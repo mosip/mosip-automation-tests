@@ -45,9 +45,9 @@ import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.core.utils.Utils;
 import io.mosip.ivv.dg.DataGenerator;
 import io.mosip.ivv.parser.Parser;
-import io.mosip.kernel.util.ConfigManager;
-import io.mosip.kernel.util.S3Adapter;
-import io.mosip.service.BaseTestCase;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.kernel.util.S3Adapter;
+import io.mosip.testrig.apirig.service.BaseTestCase;
 
 public class Orchestrator {
 	private static final Logger logger = LoggerFactory.getLogger(Orchestrator.class);

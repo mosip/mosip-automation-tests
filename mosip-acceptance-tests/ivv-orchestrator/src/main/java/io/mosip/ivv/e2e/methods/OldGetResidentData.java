@@ -9,12 +9,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Reporter;
 
-import io.mosip.admin.fw.util.TestCaseDTO;
-import io.mosip.authentication.fw.util.RestClient;
+import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.authentication.fw.util.RestClient;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.service.BaseTestCase;
-import io.mosip.testscripts.SimplePost;
+import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.restassured.response.Response;
 
 public class OldGetResidentData extends BaseTestCaseUtil implements StepInterface {

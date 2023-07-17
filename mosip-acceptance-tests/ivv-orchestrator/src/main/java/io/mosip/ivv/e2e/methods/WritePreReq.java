@@ -13,8 +13,8 @@ import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.ivv.orchestrator.PacketUtility;
 import io.mosip.ivv.orchestrator.TestRunner;
-import io.mosip.kernel.util.ConfigManager;
-import io.mosip.service.BaseTestCase;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.service.BaseTestCase;
 
 public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 	Logger logger = Logger.getLogger(WritePreReq.class);

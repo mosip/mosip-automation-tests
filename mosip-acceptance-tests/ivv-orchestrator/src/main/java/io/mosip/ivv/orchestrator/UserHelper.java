@@ -6,13 +6,13 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import io.mosip.admin.fw.util.TestCaseDTO;
-import io.mosip.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.exceptions.RigInternalError;
-import io.mosip.service.BaseTestCase;
-import io.mosip.testscripts.DeleteWithParam;
-import io.mosip.testscripts.PatchWithPathParam;
-import io.mosip.testscripts.SimplePost;
+import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.testscripts.DeleteWithParam;
+import io.mosip.testrig.apirig.testscripts.PatchWithPathParam;
+import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.restassured.response.Response;
 
 public class UserHelper extends BaseTestCaseUtil {
