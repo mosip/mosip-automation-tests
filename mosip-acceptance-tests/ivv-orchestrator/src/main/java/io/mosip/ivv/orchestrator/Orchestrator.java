@@ -71,7 +71,6 @@ public class Orchestrator {
 		}
 	};
 
-
 	@BeforeSuite
 	public void beforeSuite() {
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
@@ -84,24 +83,23 @@ public class Orchestrator {
 		extent = new ExtentReports();
 
 		extent.attachReporter(htmlReporter);
-		
-		
+
 		if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 			// EXTENT REPORT
 			File repotFile2 = new File(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
 					+ "/" + System.getProperty("emailable.report3.name"));
 			logger.info("reportFile is::" + System.getProperty("user.dir") + "/"
 					+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report3.name"));
-			
+
 			S3Adapter s3Adapter = new S3Adapter();
 			boolean isStoreSuccess = false;
 			try {
-				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
-						null, System.getProperty("emailable.report3.name"), repotFile2);
-				
-				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
-						null, System.getProperty("emailable.report3.name"), repotFile2);
-				
+				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null, null,
+						System.getProperty("emailable.report3.name"), repotFile2);
+
+				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null, null,
+						System.getProperty("emailable.report3.name"), repotFile2);
+
 				logger.info("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {
 				logger.info("error occured while pushing the object" + e.getLocalizedMessage());
@@ -128,7 +126,7 @@ public class Orchestrator {
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
 	public static Object[][] dataProvider() throws RigInternalError {
 		String scenarioSheet = null;
-		
+
 		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
 		Properties properties = Utils.getProperties(configFile);
 
@@ -137,14 +135,13 @@ public class Orchestrator {
 
 		Path path = Paths.get(scenarioSheet);
 
-		if (!Files.exists(path) ) {
+		if (!Files.exists(path)) {
 			scenarioSheet = ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-"
 					+ BaseTestCase.testLevel + "-" + "default" + ".csv";
-		}
-		else if(scenarioSheet == null || scenarioSheet.isEmpty()) {
+		} else if (scenarioSheet == null || scenarioSheet.isEmpty()) {
 			throw new RigInternalError("ScenarioSheet argument missing");
 		}
-		
+
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
 		parserInputDTO.setConfigProperties(properties);
 		parserInputDTO.setDocumentsFolder(
@@ -203,35 +200,44 @@ public class Orchestrator {
 
 	}
 
-	
-	private void updateRunStatistics(Scenario scenario) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        logger.info(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
-        if (scenario.getId().equalsIgnoreCase("0")) {
-            
-      
-            ///Check if all steps in Before are passed or not 
-            for (Scenario.Step step : scenario.getSteps()) {
-                 StepInterface st = getInstanceOf(step);
-	             if (st.hasError() == true) {
-		            beforeSuiteFailed = true;
-		            logger.info("Before suite failed");
-		            break;
-		        
-	             }
-             } 
-            beforeSuiteExeuted = true;
-            logger.info("Before Suite executed");
-        }
+	private void updateRunStatistics(Scenario scenario)
+			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+		logger.info(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
+		if (scenario.getId().equalsIgnoreCase("0")) {
 
-        logger.info(
-                " Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
+			/// Check if all steps in Before are passed or not
+			for (Scenario.Step step : scenario.getSteps()) {
+				StepInterface st = getInstanceOf(step);
+				if (st.hasError() == true) {
+					beforeSuiteFailed = true;
+					logger.info("Before suite failed");
+					break;
 
-    }
-	
-	
+				}
+			}
+			beforeSuiteExeuted = true;
+			logger.info("Before Suite executed");
+		}
+
+		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
+
+	}
+
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
-			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
+			IllegalAccessException, InstantiationException {
+
+		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
+			updateRunStatistics(scenario);
+			throw new SkipException("Skipping scenario due to known platform issue");
+		}
+
+		else if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
+			updateRunStatistics(scenario);
+			throw new SkipException("Skipping scenario due to known Automation issue");
+		}
+
 		// Another scenario execution kicked-off before BEFORE_SUITE execution
 
 		if (!scenario.getId().equalsIgnoreCase("0")) {
@@ -255,21 +261,19 @@ public class Orchestrator {
 					logger.info(" Thread ID: " + Thread.currentThread().getId()
 							+ " inside beforeSuiteExecuted == false " + counterLock.get() + "- " + scenario.getId());
 				}
-				// Check if the beforeSuite is successful. If not skip the scenario execution 
-				
-                if (beforeSuiteFailed == true) {
-                
-                     throw new SkipException((" Thread ID: " + Thread.currentThread().getId() + " Skipping scenarios execution - "
-							 + scenario.getId()));
-                }
-                
-                	
+				// Check if the beforeSuite is successful. If not skip the scenario execution
+
+				if (beforeSuiteFailed == true) {
+					updateRunStatistics(scenario);
+					throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
+							+ " Skipping scenarios execution - " + scenario.getId()));
+				}
+
 			}
 		}
 
 		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenario :- " + counterLock.get()
 				+ scenario.getId());
-
 
 		extent.flush();
 		String tags = System.getProperty("ivv.tags");
@@ -343,7 +347,7 @@ public class Orchestrator {
 			} catch (ClassNotFoundException e) {
 				extentTest.error(identifier + " - ClassNotFoundException --> " + e.toString());
 				logger.error(e.getMessage());
-			
+
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 
@@ -374,8 +378,7 @@ public class Orchestrator {
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
-			}
-			catch (FeatureNotSupportedError e) {
+			} catch (FeatureNotSupportedError e) {
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
 			}
