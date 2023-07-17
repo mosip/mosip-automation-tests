@@ -17,56 +17,27 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 
 	@Override
 	public void run() throws RigInternalError {
-		int counter = 0;
-		int repeats = 10; // taking from dsl argument
+
 		String email = null;
 		if (!step.getParameters().isEmpty() && step.getParameters().size() > 0)
 			email = step.getParameters().get(0) + "@mosip.io";
-		String url = baseUrl + props.getProperty("getAdditionalInfoReqId");
-		Map<Object, Object> m = new HashMap<Object, Object>();
-		String additonalInfoRequestId = null;
-		while (counter < repeats) {
-			m = MockSMTPListener.emailNotificationMapS;
-			if (m.get(email) != null) {
-//				String html = (String) m.get(email);
-//				StringUtils.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1");
-				// String
-				// arr[]=html.split("AdditionalInfoRequestId","AdditionalInfoRequestId".indexOf(str)
-				// ;
-				// System.out.println(arr);
+		
+			
+	
+		String additonalInfoRequestId = MockSMTPListener.getAdditionalReqId(email).trim();
+	
 
-				logger.info("*******Checking the email for AdditionalInfoReqId...*******");
-				
-				additonalInfoRequestId = MockSMTPListener.parseAdditionalReqId((String) m.get(email)).trim()+ "-BIOMETRIC_CORRECTION-1";
-				
-				// Response response = getRequest(url, "Get addtionalInfoRequestId");
-				// String additonalInfoRequestId = response.getBody().asString();
-//				additonalInfoRequestId = StringUtils
-//						.substringBetween(html, "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1").trim()
-//						+ "-BIOMETRIC_CORRECTION-1";
-				// additonalInfoRequestId= StringUtils.substringBetween(html,
-				// "AdditionalInfoRequestId", "-BIOMETRIC_CORRECTION-1");
-
-			}
 			if (additonalInfoRequestId != null && !additonalInfoRequestId.isEmpty()
 					&& !additonalInfoRequestId.equals("{Failed}")) {
-
-				logger.info("AdditionalInfoReqId retrieved: " + additonalInfoRequestId);
+            
+			logger.info("AdditionalInfoReqId retrieved for emailID: " + email + ": " + additonalInfoRequestId);
+			 additonalInfoRequestId = additonalInfoRequestId+ "-BIOMETRIC_CORRECTION-1";
+			 
 				if (step.getOutVarName() != null)
 					step.getScenario().getVariables().put(step.getOutVarName(), additonalInfoRequestId);
 				return;
 			}
-			counter++;
-			try {
-				logger.info("waiting for 10 Sec");
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				this.hasError=true;
-				logger.error(e.getMessage());
-				Thread.currentThread().interrupt();
-			}
-		}
-		logger.error("AdditionalInfoReqId not found even after " + repeats + " retries");
+
 		this.hasError=true;
 		throw new RigInternalError("Failed to retrieve the value for addtionalInfoRequestId from email");
 
