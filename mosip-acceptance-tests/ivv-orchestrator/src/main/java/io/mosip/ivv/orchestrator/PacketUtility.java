@@ -45,19 +45,19 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import io.mosip.admin.fw.util.AdminTestException;
-import io.mosip.admin.fw.util.AdminTestUtil;
-import io.mosip.admin.fw.util.TestCaseDTO;
-import io.mosip.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
+import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;
-import io.mosip.kernel.util.ConfigManager;
-import io.mosip.service.BaseTestCase;
-import io.mosip.testscripts.BioAuth;
-import io.mosip.testscripts.EsignetBioAuth;
-//import io.mosip.testscripts.BioAuthOld;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.testscripts.BioAuth;
+import io.mosip.testrig.apirig.testscripts.EsignetBioAuth;
+//import io.mosip.testrig.apirig.testscripts.BioAuthOld;
 import io.restassured.response.Response;
 
 public class PacketUtility extends BaseTestCaseUtil {

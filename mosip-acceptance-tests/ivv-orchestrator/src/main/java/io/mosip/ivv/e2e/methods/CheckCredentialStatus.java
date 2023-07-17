@@ -3,13 +3,13 @@ package io.mosip.ivv.e2e.methods;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
-import io.mosip.admin.fw.util.AdminTestException;
-import io.mosip.admin.fw.util.TestCaseDTO;
-import io.mosip.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
+import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.testscripts.GetWithParam;
+import io.mosip.testrig.apirig.testscripts.GetWithParam;
 
 public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInterface {
 	private static final String check_status_YML = "preReg/credentialStatus/credentialStatus.yml";

@@ -26,15 +26,15 @@ import org.testng.Reporter;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import io.mosip.admin.fw.util.AdminTestUtil;
-import io.mosip.admin.fw.util.TestCaseDTO;
-import io.mosip.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.authentication.fw.util.RestClient;
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
+import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.authentication.fw.util.RestClient;
 import io.mosip.ivv.core.base.BaseStep;
 import io.mosip.ivv.core.dtos.Scenario;
 import io.mosip.ivv.e2e.constant.E2EConstants;
-import io.mosip.kernel.util.ConfigManager;
-import io.mosip.service.BaseTestCase;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 

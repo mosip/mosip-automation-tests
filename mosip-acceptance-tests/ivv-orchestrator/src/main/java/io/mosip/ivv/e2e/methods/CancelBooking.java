@@ -9,7 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import io.mosip.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.e2e.constant.E2EConstants;

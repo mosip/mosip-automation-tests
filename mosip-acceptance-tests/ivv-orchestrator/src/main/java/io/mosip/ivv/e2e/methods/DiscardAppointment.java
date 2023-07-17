@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.testscripts.DeleteWithParam;
+import io.mosip.testrig.apirig.testscripts.DeleteWithParam;
 import io.restassured.response.Response;
 
 public class DiscardAppointment extends BaseTestCaseUtil implements StepInterface {

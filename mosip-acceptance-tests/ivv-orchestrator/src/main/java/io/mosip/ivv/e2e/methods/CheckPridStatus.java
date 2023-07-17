@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import io.mosip.ivv.core.base.StepInterface;
 import io.mosip.ivv.core.exceptions.RigInternalError;
 import io.mosip.ivv.orchestrator.BaseTestCaseUtil;
-import io.mosip.service.BaseTestCase;
+import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.restassured.response.Response;
 
 public class CheckPridStatus extends BaseTestCaseUtil implements StepInterface {
