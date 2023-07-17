@@ -28,7 +28,6 @@ regproc=v1/print/actuator/health
 regproc=registrationprocessor/v1/camelbridge/actuator/health
 resident_regproc=registrationprocessor/v1/packetreceiver/actuator/health
 regproc=registrationprocessor/v1/notification/actuator/health
-regproc=registrationprocessor/v1/reprocessor/actuator/health
 regproc_masterdata=registrationprocessor/v1/registrationstatus/actuator/health
 regproc=registrationprocessor/v1/registrationtransaction/actuator/health
 regproc=registrationprocessor/v1/workflowmanager/actuator/health
