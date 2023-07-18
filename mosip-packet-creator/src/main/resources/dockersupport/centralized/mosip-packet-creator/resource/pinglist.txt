@@ -37,7 +37,6 @@ regproc_masterdata=v1/syncdata/actuator/health
 idrepo_auth_mobileid_mimoto_esignet_resident_regproc=idrepository/v1/actuator/health
 auth_idrepo_resident_regproc=hub/actuator/health
 
-
 kernel=v1/keymanager/actuator/health
 kernel=v1/authmanager/actuator/health
 kernel=v1/datashare/actuator/health
