@@ -1,4 +1,4 @@
-package io.mosip.testrig.dslrig.dataprovider;
+package org.mosip.dataprovider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,29 +24,29 @@ import java.util.Set;
 import org.javatuples.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import io.mosip.testrig.dslrig.dataprovider.models.BioModality;
-import io.mosip.testrig.dslrig.dataprovider.models.ContextSchemaDetail;
-import io.mosip.testrig.dslrig.dataprovider.models.DocumentDto;
-import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldModel;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipDocument;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipGenderModel;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipIDSchema;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipLocationModel;
-import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
-import io.mosip.testrig.dslrig.dataprovider.models.SchemaRule;
-import io.mosip.testrig.dslrig.dataprovider.models.SchemaValidator;
-import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
-import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
-import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
-import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
-import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
-import io.mosip.testrig.dslrig.dataprovider.util.Gender;
-import io.mosip.testrig.dslrig.dataprovider.util.Translator;
+import org.mosip.dataprovider.models.BioModality;
+import org.mosip.dataprovider.models.ContextSchemaDetail;
+import org.mosip.dataprovider.models.DocumentDto;
+import org.mosip.dataprovider.models.DynamicFieldModel;
+import org.mosip.dataprovider.models.MosipDocument;
+import org.mosip.dataprovider.models.MosipGenderModel;
+import org.mosip.dataprovider.models.MosipIDSchema;
+import org.mosip.dataprovider.models.MosipLocationModel;
+import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.models.SchemaRule;
+import org.mosip.dataprovider.models.SchemaValidator;
+import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
+import org.mosip.dataprovider.preparation.MosipMasterData;
+import org.mosip.dataprovider.test.CreatePersona;
+import org.mosip.dataprovider.util.CommonUtil;
+import org.mosip.dataprovider.util.DataProviderConstants;
+import org.mosip.dataprovider.util.Gender;
+import org.mosip.dataprovider.util.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
-import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+import variables.VariableManager;
 
 /*
  * Generate Packet structure for a given Resident record
