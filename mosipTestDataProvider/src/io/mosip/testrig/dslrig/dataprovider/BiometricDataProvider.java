@@ -1,4 +1,4 @@
-package io.mosip.testrig.dslrig.dataprovider;
+package org.mosip.dataprovider;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,22 +31,22 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.codec.binary.Hex;
-import io.mosip.testrig.dslrig.dataprovider.mds.MDSClient;
-import io.mosip.testrig.dslrig.dataprovider.mds.MDSClientInterface;
-import io.mosip.testrig.dslrig.dataprovider.mds.MDSClientNoMDS;
-import io.mosip.testrig.dslrig.dataprovider.models.BioModality;
+import org.mosip.dataprovider.mds.MDSClient;
+import org.mosip.dataprovider.mds.MDSClientInterface;
+import org.mosip.dataprovider.mds.MDSClientNoMDS;
+import org.mosip.dataprovider.models.BioModality;
 //import org.apache.commons.io.IOUtils;
 //import org.apache.commons.lang3.tuple.Pair;
-import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
-import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
-import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
-import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSDevice;
-import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSDeviceCaptureModel;
-import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
-import io.mosip.testrig.dslrig.dataprovider.test.registrationclient.RegistrationSteps;
-import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
-import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
-import io.mosip.testrig.dslrig.dataprovider.util.FPClassDistribution;
+import org.mosip.dataprovider.models.BiometricDataModel;
+import org.mosip.dataprovider.models.IrisDataModel;
+import org.mosip.dataprovider.models.ResidentModel;
+import org.mosip.dataprovider.models.mds.MDSDevice;
+import org.mosip.dataprovider.models.mds.MDSDeviceCaptureModel;
+import org.mosip.dataprovider.models.mds.MDSRCaptureModel;
+import org.mosip.dataprovider.test.registrationclient.RegistrationSteps;
+import org.mosip.dataprovider.util.CommonUtil;
+import org.mosip.dataprovider.util.DataProviderConstants;
+import org.mosip.dataprovider.util.FPClassDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -55,7 +55,7 @@ import com.jamesmurty.utils.XMLBuilder;
 //import java.util.Date;
 
 import io.mosip.mock.sbi.test.CentralizedMockSBI;
-import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+import variables.VariableManager;
 
 public class BiometricDataProvider {
 
