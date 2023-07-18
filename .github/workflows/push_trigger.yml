@@ -208,7 +208,7 @@ jobs:
         run: |
           cd ./${{env.SERVICE_LOCATION}}
           mkdir build_files
-          cp $( find -name 'ivv-orchestrator-*-dependencies.jar' -type f ) build_files
+          cp $( find -name 'dslrig-ivv-orchestrator-*-dependencies.jar' -type f ) build_files
           cp -r ./ivv-orchestrator/target/classes/config build_files/
           cp -r ./ivv-orchestrator/target/classes/local build_files/
           cp -r ./ivv-orchestrator/src/main/resources/local/scenarios scenarios
