@@ -31,18 +31,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.codec.binary.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import com.jamesmurty.utils.XMLBuilder;
-//import java.util.Date;
-
-import io.mosip.mock.sbi.test.CentralizedMockSBI;
 import io.mosip.testrig.dslrig.dataprovider.mds.MDSClient;
 import io.mosip.testrig.dslrig.dataprovider.mds.MDSClientInterface;
 import io.mosip.testrig.dslrig.dataprovider.mds.MDSClientNoMDS;
 import io.mosip.testrig.dslrig.dataprovider.models.BioModality;
+//import org.apache.commons.io.IOUtils;
+//import org.apache.commons.lang3.tuple.Pair;
 import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
@@ -53,6 +47,14 @@ import io.mosip.testrig.dslrig.dataprovider.test.registrationclient.Registration
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.FPClassDistribution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import com.jamesmurty.utils.XMLBuilder;
+//import java.util.Date;
+
+import io.mosip.mock.sbi.test.CentralizedMockSBI;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class BiometricDataProvider {
@@ -437,7 +439,7 @@ public class BiometricDataProvider {
 		}
 
 		catch (Throwable t) {
-			logger.error("Finger get capture fail "+ contextKey, t);
+			logger.error("Finger get capture fail"+ contextKey, t);
 			t.getStackTrace();
 		}
 
@@ -462,7 +464,7 @@ public class BiometricDataProvider {
 		}
 
 		catch (Throwable t) {
-			logger.error("Exceptionphoto face capture "+ contextKey, t);
+			logger.error("Exceptionphoto face capture", t);
 			t.getStackTrace();
 		}
 

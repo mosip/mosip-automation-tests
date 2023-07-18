@@ -24,10 +24,6 @@ import java.util.Set;
 import org.javatuples.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import io.mosip.testrig.dslrig.dataprovider.models.BioModality;
 import io.mosip.testrig.dslrig.dataprovider.models.ContextSchemaDetail;
 import io.mosip.testrig.dslrig.dataprovider.models.DocumentDto;
@@ -46,6 +42,10 @@ import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 /*
@@ -674,7 +674,7 @@ public class PacketTemplateProvider {
 
 	Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile, String contextKey,
 			String purpose, String qualityScore, List<String> missAttribs, boolean genarateValidCbeff)
-					throws Exception {
+			throws Exception {
 
 		String strVal = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "usemds").toString();
 		boolean bMDS = Boolean.valueOf(strVal);
@@ -683,15 +683,15 @@ public class PacketTemplateProvider {
 			if (cbeff == null) {
 				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident, contextKey, purpose,
 						qualityScore);
-
+				
 				if(capture!=null) {
-					resident.getBiometric().setCapture(capture.getLstBiometrics());
-					String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile, missAttribs,
-							genarateValidCbeff, resident.getBioExceptions());
-
-					resident.getBiometric().setCbeff(strCBeff);
+				
+				resident.getBiometric().setCapture(capture.getLstBiometrics());
+				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile, missAttribs,
+						genarateValidCbeff, resident.getBioExceptions());
+				resident.getBiometric().setCbeff(strCBeff);
 				}
-
+  
 				else {
 					logger.error("Unable to generate cbeff file for: "+ contextKey);
 				}
@@ -1143,7 +1143,7 @@ public class PacketTemplateProvider {
 						&& (s.getSubType().equals("parentOrGuardianName") || s.getSubType().equals(INTRODUCERNAME)
 								|| (s.getGroup() != null && (s.getGroup().toLowerCase().equals(GUARDIANDETAILS)
 										|| s.getGroup().toLowerCase().contains(INTRODUCER))))) { // this line added by
-					// alok
+																									// alok
 					if (resident.getGuardian() != null) {
 
 						String primValue = null;
@@ -1364,13 +1364,13 @@ public class PacketTemplateProvider {
 							generateCBEFF(resident, bioAttrib,
 									fileInfo.get(RID_FOLDER)[0] + "/"
 											+ prop.get("mosip.test.regclient.officerBiometricFileName") + ".xml",
-											contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
+									contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
 						}
 						if (prop.containsKey("mosip.test.regclient.supervisorBiometricFileName")) {
 							generateCBEFF(resident, bioAttrib,
 									fileInfo.get(RID_FOLDER)[0] + "/"
 											+ prop.get("mosip.test.regclient.supervisorBiometricFileName") + ".xml",
-											contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
+									contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
 						}
 
 					} catch (Exception e) {
