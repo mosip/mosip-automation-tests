@@ -17,7 +17,7 @@ regproc=v1/mock-abis-service/actuator/health
 regproc=v1/mockmv/actuator/health
 auth_idrepo_resident_regproc=v1/notifier/actuator/health
 auth_mobileid=v1/otpmanager/actuator/health
-resident_esignet=v1/esignet/actuator/health
+
 
 regproc=commons/v1/packetmanager/actuator/health
 partner_auth_esignet_idrepo_resident_regproc=v1/partnermanager/actuator/health
@@ -36,7 +36,6 @@ idrepo_auth_mobileid_mimoto_esignet_resident=v1/ridgenerator/actuator/health
 regproc_masterdata=v1/syncdata/actuator/health
 idrepo_auth_mobileid_mimoto_esignet_resident_regproc=idrepository/v1/actuator/health
 auth_idrepo_resident_regproc=hub/actuator/health
-resident_esignet=v1/esignet/actuator/health
 
 kernel=v1/keymanager/actuator/health
 kernel=v1/authmanager/actuator/health
