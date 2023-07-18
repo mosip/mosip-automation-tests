@@ -683,12 +683,18 @@ public class PacketTemplateProvider {
 			if (cbeff == null) {
 				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident, contextKey, purpose,
 						qualityScore);
+				
+				if(capture!=null) {
+				
 				resident.getBiometric().setCapture(capture.getLstBiometrics());
 				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile, missAttribs,
 						genarateValidCbeff, resident.getBioExceptions());
-
 				resident.getBiometric().setCbeff(strCBeff);
-
+				}
+  
+				else {
+					logger.error("Unable to generate cbeff file for: "+ contextKey);
+				}
 			} else {
 				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
 				writer.print(cbeff);

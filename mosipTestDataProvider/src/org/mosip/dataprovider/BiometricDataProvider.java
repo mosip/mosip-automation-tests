@@ -287,8 +287,9 @@ public class BiometricDataProvider {
 		}
 
 		catch (Throwable t) {
-			logger.error(" Port issue ", t);
+			logger.error(" Port issue "+ contextKey, t);
 			t.getStackTrace();
+			return capture;
 		}
 
 		// Get Exceptions modalities abd add them to list of string
@@ -311,7 +312,7 @@ public class BiometricDataProvider {
 		}
 
 		catch (Throwable t) {
-			logger.error(" Face get capture   fail", t);
+			logger.error(" Face get capture   fail"+ contextKey, t);
 			t.getStackTrace();
 		}
 
@@ -377,7 +378,7 @@ public class BiometricDataProvider {
 		}
 
 		catch (Throwable t) {
-			logger.error(" IRIS get capture  fail", t);
+			logger.error(" IRIS get capture  fail"+ contextKey, t);
 			t.getStackTrace();
 		}
 
@@ -438,7 +439,7 @@ public class BiometricDataProvider {
 		}
 
 		catch (Throwable t) {
-			logger.error("Finger get capture fail", t);
+			logger.error("Finger get capture fail"+ contextKey, t);
 			t.getStackTrace();
 		}
 
@@ -454,7 +455,7 @@ public class BiometricDataProvider {
 							exceptionDevice.getDeviceSubId().get(0), port, contextKey, bioexceptionlist);
 					// rename the key with exception_photo
 				} catch (Throwable t) {
-					logger.error("Exception photo capture failure", t);
+					logger.error("Exception photo capture failure"+ contextKey, t);
 					t.getStackTrace();
 				}
 
