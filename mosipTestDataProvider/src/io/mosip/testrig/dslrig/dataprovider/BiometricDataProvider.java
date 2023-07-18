@@ -287,6 +287,7 @@ public class BiometricDataProvider {
 		catch (Throwable t) {
 			logger.error(" Port issue "+ contextKey, t);
 			t.getStackTrace();
+			return capture;
 		}
 
 		// Get Exceptions modalities abd add them to list of string
@@ -461,7 +462,7 @@ public class BiometricDataProvider {
 		}
 
 		catch (Throwable t) {
-			logger.error("Exceptionphoto face capture"+ contextKey, t);
+			logger.error("Exceptionphoto face capture "+ contextKey, t);
 			t.getStackTrace();
 		}
 
