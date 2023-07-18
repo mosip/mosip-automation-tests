@@ -5,7 +5,7 @@ on:
     branches:
       - '!release-branch'
       - release-1*
-      - master
+      - '!master'
       - 1.*
       - develop
       - MOSIP*
