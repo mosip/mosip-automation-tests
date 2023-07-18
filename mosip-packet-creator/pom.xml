@@ -8,11 +8,11 @@
 		<version>2.4.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>io.mosip.test.packetcreator</groupId>
-	<artifactId>mosip-packet-creator</artifactId>
+	<groupId>io.mosip.testrig.dslrig.packetcreator</groupId>
+	<artifactId>dslrig-packetcreator</artifactId>
 	<version>1.2.1-SNAPSHOT</version>
-	<name>mosip-packet-creator</name>
-	<description>Demo project for Spring Boot</description>
+	<name>dslrig-packetcreator</name>
+	<description>dslrig-packetcreator</description>
 
 	<properties>
 		<java.version>11</java.version>
@@ -120,8 +120,8 @@
 			<version>1.2.2</version>
 		</dependency>
 	   <dependency>
-		<groupId>io.mosip.test.dataprovider</groupId>
-  		<artifactId>dataprovider</artifactId>
+		<groupId>io.mosip.testrig.dslrig.dataprovider</groupId>
+  		<artifactId>dslrig-dataprovider</artifactId>
   		<version>1.2.1-SNAPSHOT</version>
 
 		</dependency>
