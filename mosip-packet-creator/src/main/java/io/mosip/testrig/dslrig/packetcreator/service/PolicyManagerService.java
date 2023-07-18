@@ -1,0 +1,66 @@
+package io.mosip.testrig.dslrig.packetcreator.service;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import io.mosip.testrig.dslrig.dataprovider.preparation.PolicyManagement;
+
+@Component
+public class PolicyManagerService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(PolicyManagerService.class);
+
+    public String createPolicyGroup(String name, String desc,String contextKey){
+
+        try{
+            return PolicyManagement.createNewPolicyGroup(name, desc,contextKey);
+        }
+        catch(Exception e){
+
+            logger.error("createPolicyGroupService", e);
+            return "{\"Failed\"}";
+        }
+        
+    }
+
+
+    public String getPolicyGroupID(String groupname,String contextKey){
+
+        try{
+            return PolicyManagement.getPolicyGroupIDByName(groupname,contextKey);
+        }
+        catch(Exception e){
+
+            logger.error("getPolicyaGroupIdService", e);
+            return "{\"Failed\"}";
+        }
+        
+    }
+
+    public String createPolicyUnderGroup(String groupname, String policyname, String policydesc, String policytype, JSONObject policyJson,String contextKey){
+
+        try{
+            return PolicyManagement.createPolicyUnderGroup(groupname, policyname, policydesc, policytype, policyJson,contextKey);
+        }
+        catch(Exception e){
+
+            logger.error("createPolicyUnderAGroupService", e);
+            return "{\"Failed\"}";
+        }
+    }
+
+   
+    public String publishPolicy(String policyId, String policygroupId,String contextKey){
+
+        try{
+            return PolicyManagement.publishPolicy(policyId, policygroupId,contextKey);
+        }
+        catch(Exception e){
+
+            logger.error("publishPolicyService", e);
+            return "{\"Failed\"}";
+        }
+    }
+}
