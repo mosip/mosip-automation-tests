@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -30,10 +31,21 @@ public class PhotoProvider {
 					String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString();
 					
-			File dir = new File(dirPath);
-
-			File listDir[] = dir.listFiles();
-			int numberOfSubfolders = listDir.length;
+//			File dir = new File(dirPath);
+//
+//			File listDir[] = dir.listFiles();
+//			int numberOfSubfolders = listDir.length;
+			
+			        File dir = new File(dirPath);
+			        FileFilter filter = new FileFilter() {
+			            @Override
+			            public boolean accept(File pathname) {
+			                return !pathname.isDirectory();
+			            }
+			        };
+			        File[] listDir = dir.listFiles(filter);
+			        int numberOfSubfolders = listDir.length;
+			        System.out.println(listDir.length);
 
 			int min = 1;
 			int max = numberOfSubfolders;
