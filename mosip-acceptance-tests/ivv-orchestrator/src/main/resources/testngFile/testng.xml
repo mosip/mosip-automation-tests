@@ -6,16 +6,16 @@
 	<parameter name="stopOnError" value="false" />
 	<test name="E2E-AUTOMATION-TEST" group-by-instances="true">
 		<classes>
-			<class name="io.mosip.ivv.orchestrator.Orchestrator" />
+			<class name="io.mosip.testrig.dslrig.ivvorchestrator.Orchestrator" />
 		</classes>
 	</test>
 		<listeners>
 		<listener
-			class-name="io.mosip.ivv.orchestrator.ThreadCountChanger" />
+			class-name="io.mosip.testrig.dslrig.ivvorchestrator.ThreadCountChanger" />
 	
 
 		<listener
-			  class-name="io.mosip.ivv.orchestrator.EmailableReport" />
+			  class-name="io.mosip.testrig.dslrig.ivvorchestrator.EmailableReport" />
 			
 	</listeners>
 
