@@ -556,8 +556,7 @@ public class PacketSyncService {
 	}
 
 	String getPersona(String preRegId) {
-		try {
-			FileReader reader = new FileReader(preRegMapFile);
+		try(FileReader reader = new FileReader(preRegMapFile)) {
 			Properties p = new Properties();
 			p.load(reader);
 			return p.getProperty(preRegId);
@@ -1161,7 +1160,7 @@ public class PacketSyncService {
 					updatePersona(updateAttrs, persona);
 				}
 				List<String> missList = req.getMissAttributeList();
-				if (missList != null && missList.size() >= 0)
+				if (missList != null && !missList.isEmpty())
 					persona.setMissAttributes(missList);
 
 				persona.writePersona(req.getPersonaFilePath());
@@ -1202,7 +1201,7 @@ public class PacketSyncService {
 				guardian = ResidentModel.readPersona(filePathParent);
 			}
 		}
-		if (guardian != null)
+		if (guardian != null && persona != null)
 			persona.setGuardian(guardian);
 		if (persona != null) {
 			Files.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
