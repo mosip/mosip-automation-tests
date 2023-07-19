@@ -13,7 +13,6 @@ import org.testng.Reporter;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
-import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.restassured.response.Response;
 
@@ -99,13 +98,18 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				 
 			}
 			if (ridStatusMap.size() == 1) {
-				if (!ridStatusMap.entrySet().iterator().next().getValue().contains(_ridStatusParam.toLowerCase()))
-					{this.hasError=true;throw new RigInternalError("Failed at Packet Processing");}
+			    if (!ridStatusMap.entrySet().iterator().next().getValue().contains(_ridStatusParam.toLowerCase())) {
+			        this.hasError = true;
+			        throw new RigInternalError("Failed at Packet Processing");
+			    }
 			} else if (ridStatusMap.size() > 1 && !_expectedRidProcessed.isEmpty()) {
-				List<String> params = Arrays.asList("any", "all");
-				params.stream().filter(p -> p.equalsIgnoreCase(_expectedRidProcessed)).findFirst()
-						.orElseThrow(() -> new RigInternalError(
-								"Parameter : " + _expectedRidProcessed + " not supported only allowed are " + params));
+			    List<String> params = Arrays.asList("any", "all");
+			    String matchingParam = params.stream()
+			            .filter(p -> p.equalsIgnoreCase(_expectedRidProcessed))
+			            .findFirst()
+			            .orElseThrow(() -> new RigInternalError(
+			                    "Parameter : " + _expectedRidProcessed + " not supported, only allowed are " + params));
+
 				long packetProcessed = ridStatusMap.values().stream()
 						.filter(v -> v.equalsIgnoreCase(_ridStatusParam.toLowerCase())).count();
 				if (_expectedRidProcessed.equalsIgnoreCase("any") && packetProcessed != 1)
