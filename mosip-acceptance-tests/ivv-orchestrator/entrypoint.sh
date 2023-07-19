@@ -15,4 +15,4 @@ fi
 
 ## Run DSL Orchestrator
 java --version
-java -jar -Denv.user="$USER" -Denv.endpoint="$ENDPOINT" -Denv.testLevel="$TESTLEVEL" dslrig-ivv-orchestrator*.jar-with-dependencies.jar
+java -jar -Denv.user="$USER" -Denv.endpoint="$ENDPOINT" -Denv.testLevel="$TESTLEVEL" dslrig-ivv-orchestrator-*-jar-with-dependencies.jar
