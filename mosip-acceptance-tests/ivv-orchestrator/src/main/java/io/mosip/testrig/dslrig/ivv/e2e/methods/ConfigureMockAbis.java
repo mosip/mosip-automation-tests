@@ -64,11 +64,6 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 				}
 			}
 		} else if (step.getParameters().size() >= 6) {
-			// "e2e_configureMockAbis(-1,Right IndexFinger,false,Right
-			// IndexFinger,$$personaFilePath,$$modalityHashValue,delaynum,successcode)"
-
-			// "e2e_configureMockAbis(-1,Right IndexFinger,false,Right
-			// IndexFinger,$$personaFilePath,$$modalityHashValue,delaynum,errorcode@@reason)"
 
 			personaPath = step.getParameters().get(4);
 			if (personaPath.startsWith("$$")) {

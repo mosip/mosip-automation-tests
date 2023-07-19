@@ -11,58 +11,62 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.SyncDataHelper;
 
 public class SyncData extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(SyncData.class);
-	
-	SyncDataHelper syncDataHelper=new SyncDataHelper();
+
+	SyncDataHelper syncDataHelper = new SyncDataHelper();
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run() throws RigInternalError {
 		String id = null;
-		HashMap<String, String> machineDetailsmap=null;
-	 String keycase=null;
+		HashMap<String, String> machineDetailsmap = new HashMap<>();
+		String keycase = "";
 		String calltype = null;
-		int centerCount=1;
+		int centerCount = 1;
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
-			this.hasError=true;
-			throw new RigInternalError("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step: " + step.getName());
+			this.hasError = true;
+			throw new RigInternalError(
+					"Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step: " + step.getName());
 		} else {
-			calltype = step.getParameters().get(0); 
+			calltype = step.getParameters().get(0);
 
 		}
-		if(step.getParameters().size() >= 2 && step.getParameters().get(1).startsWith("$$")) { 
+		if (step.getParameters().size() >= 2 && step.getParameters().get(1).startsWith("$$")) {
 			id = step.getParameters().get(1);
 			if (id.startsWith("$$")) {
 				machineDetailsmap = step.getScenario().getVariables();
 
 			}
 		}
-		if(step.getParameters().size() >=3) { 
-			keycase = step.getParameters().get(2);}
+		if (step.getParameters().size() >= 3) {
+			keycase = step.getParameters().get(2);
+		}
 		switch (calltype) {
 		case "TPM_VERIFY":
-			String keyindex=syncDataHelper.verifyPublicKey(machineDetailsmap);
-			if(keycase.equalsIgnoreCase("upper")) keyindex=keyindex.toUpperCase();
-			else if(keycase.equalsIgnoreCase("lower"))	 keyindex=keyindex.toLowerCase();
-			
+			String keyindex = syncDataHelper.verifyPublicKey(machineDetailsmap);
+			if (keycase.equalsIgnoreCase("upper"))
+				keyindex = keyindex.toUpperCase();
+			else if (keycase.equalsIgnoreCase("lower"))
+				keyindex = keyindex.toLowerCase();
+
 			if (step.getOutVarName() != null) {
 				machineDetailsmap.put("keyindex", keyindex);
-              // step.getScenario().getVariables().put(step.getOutVarName(), keyIndex);
-				 step.getScenario().getVariables().putAll(machineDetailsmap);
+				// step.getScenario().getVariables().put(step.getOutVarName(), keyIndex);
+				step.getScenario().getVariables().putAll(machineDetailsmap);
 			}
 			break;
 		case "TPM_VERIFY_INVALID":
-			 syncDataHelper.verifyPublicKeyInvalid(machineDetailsmap);
-			
+			syncDataHelper.verifyPublicKeyInvalid(machineDetailsmap);
+
 			break;
-		
+
 		case "CLIENT_SETTINGS_VALID":
-			centerCount= Integer.parseInt(keycase);
+			centerCount = Integer.parseInt(keycase);
 			syncDataHelper.getClientsettingsValid(machineDetailsmap, centerCount);
 			break;
 		case "CLIENT_SETTINGS_INVALID":
-			centerCount= Integer.parseInt(keycase);
+			centerCount = Integer.parseInt(keycase);
 			syncDataHelper.getClientsettingsInvalid(machineDetailsmap, centerCount);
 			break;
 		case "LATEST_ID_SCHEMA":
@@ -82,6 +86,5 @@ public class SyncData extends BaseTestCaseUtil implements StepInterface {
 		}
 
 	}
-
 
 }

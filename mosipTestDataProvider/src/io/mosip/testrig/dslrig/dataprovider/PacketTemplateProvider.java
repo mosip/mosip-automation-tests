@@ -2,7 +2,6 @@ package io.mosip.testrig.dslrig.dataprovider;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,6 +23,10 @@ import java.util.Set;
 import org.javatuples.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import io.mosip.testrig.dslrig.dataprovider.models.BioModality;
 import io.mosip.testrig.dslrig.dataprovider.models.ContextSchemaDetail;
 import io.mosip.testrig.dslrig.dataprovider.models.DocumentDto;
@@ -42,10 +45,6 @@ import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.Translator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 /*
@@ -683,18 +682,12 @@ public class PacketTemplateProvider {
 			if (cbeff == null) {
 				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident, contextKey, purpose,
 						qualityScore);
-				
-				if(capture!=null) {
-				
 				resident.getBiometric().setCapture(capture.getLstBiometrics());
 				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile, missAttribs,
 						genarateValidCbeff, resident.getBioExceptions());
+
 				resident.getBiometric().setCbeff(strCBeff);
-				}
-  
-				else {
-					logger.error("Unable to generate cbeff file for: "+ contextKey);
-				}
+
 			} else {
 				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
 				writer.print(cbeff);
@@ -1526,28 +1519,28 @@ public class PacketTemplateProvider {
 		String propPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.env.mapperpath")
 				.toString();
 		logger.info(propPath);
-		try {
-			File folder = new File(String.valueOf(propPath) + File.separator);
-			File[] listOfFiles = folder.listFiles();
-			for (File file : listOfFiles) {
-				if (file.isFile()) {
-					if (file.getName().contains(hostName + DOMAIN_NAME)) {
-						propPath = file.getAbsolutePath();
-						contextMapperFound = true;
-						break;
-					}
+		File folder = new File(String.valueOf(propPath) + File.separator);
+		File[] listOfFiles = folder.listFiles();
+		for (File file : listOfFiles) {
+			if (file.isFile()) {
+				if (file.getName().contains(hostName + DOMAIN_NAME)) {
+					propPath = file.getAbsolutePath();
+					contextMapperFound = true;
+					break;
 				}
 			}
-			if (contextMapperFound) {
-				prop.load(new FileInputStream(propPath));
-			} else {
-				prop.load(new FileInputStream(propPath + "/default.properties"));
-			}
-
-		} catch (FileNotFoundException fnf) {
-			fnf.printStackTrace();
-		} catch (IOException io) {
-			io.printStackTrace();
+		}
+		String filePath = propPath + "/default.properties";
+		if (contextMapperFound) {
+			filePath = propPath;
+			
+		} 
+		
+		try(FileInputStream fis= new FileInputStream(filePath)) {
+			prop.load(fis);
+		}
+		catch(Exception e) {
+			logger.error(e.getMessage());
 		}
 	}
 
