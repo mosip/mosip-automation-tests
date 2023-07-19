@@ -54,7 +54,7 @@ Response response = postRequest(baseUrl + props.getProperty("reprocessPacket"),j
 
 		}
 		logger.info(res.toString());
-		if (flag.equals(true)) {
+		if (flag.equals(true) && myJSONObject!=null ) {
 			logger.info("RESPONSE= contains" );
 			logger.info("subStatusCode= " + myJSONObject.getString("subStatusCode"));
 
