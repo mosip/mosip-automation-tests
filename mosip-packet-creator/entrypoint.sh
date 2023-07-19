@@ -10,4 +10,4 @@ for file in $files; do
 done
 
 java --version
-java -Dfile.encoding=UTF-8  -jar mosip-packet-creator-*-SNAPSHOT.jar --spring.config.location=./config/application.properties
+java -Dfile.encoding=UTF-8  -jar dslrig-packetcreator*.jar --spring.config.location=./config/application.properties
