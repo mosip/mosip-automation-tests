@@ -67,7 +67,7 @@ public class Orchestrator {
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
-			put("e2e", "io.mosip.testrig.dslrig.ivve2e.methods");
+			put("e2e", "io.mosip.testrig.dslrig.ivv.e2e.methods");
 		}
 	};
 
