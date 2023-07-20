@@ -187,7 +187,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		    // Throw exception
 		}
 
-		if (bioSubType != null && segmentsToCapture.size() == 2 * bioSubType.length) {
+		if (bioSubType != null && segmentsToCapture!= null && segmentsToCapture.size() == 2 * bioSubType.length) {
 			// TODO - validate requested Score, if deviceSubId is 3 then take the average of
 
 			for (String segment : segmentsToCapture) {

@@ -288,7 +288,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public void preRegStatusInValidResponse(String response) throws RigInternalError {
-		if (response != "") {
+		if (!response.isEmpty()) {
 			this.hasError = true;
 			throw new RigInternalError("Expectations :  Empty response");
 		} else {

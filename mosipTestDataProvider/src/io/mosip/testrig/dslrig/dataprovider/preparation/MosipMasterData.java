@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.dataprovider.preparation;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -964,7 +965,7 @@ public  class MosipMasterData {
 
 	}
 	public static List<MosipGenderModel> getGenderTypes(String lang,String contextKey) {
-		List<MosipGenderModel> genderTypeList = null;
+		List<MosipGenderModel> genderTypeList = Collections.emptyList();
 
 		String mosipVersion = "legacy";
 		Object obj = VariableManager.getVariableValue(contextKey,"mosip.version");
@@ -1165,8 +1166,7 @@ public  class MosipMasterData {
 					break;
 				MosipLocationModel lc = rootLocs.get(idx );
 				stk.push(rootLocs)	;
-				levelName = lc.getHierarchyName();
-				tbl.put(levelName, lc);
+				tbl.put(lc.getHierarchyName(), lc);
 				
 				levelCode = lc.getCode();
 			//	if(lc.getHierarchyLevel() >= maxLevel)
