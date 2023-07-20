@@ -36,7 +36,6 @@ import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.kernel.util.S3Adapter;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
@@ -70,6 +69,12 @@ public class Orchestrator {
 			put("e2e", "io.mosip.testrig.dslrig.ivv.e2e.methods");
 		}
 	};
+	 
+
+	/*
+	 * HashMap<String, String> packages = (HashMap<String, String>)
+	 * Collections.singletonMap("e2e", "io.mosip.testrig.dslrig.ivv.e2e.methods");
+	 */
 
 	@BeforeSuite
 	public void beforeSuite() {
@@ -224,17 +229,6 @@ public class Orchestrator {
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
 			IllegalAccessException, InstantiationException {
-
-		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
-			updateRunStatistics(scenario);
-			throw new SkipException("Skipping scenario due to known platform issue");
-		}
-
-		else if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
-			updateRunStatistics(scenario);
-			throw new SkipException("Skipping scenario due to known Automation issue");
-		}
-
 		// Another scenario execution kicked-off before BEFORE_SUITE execution
 
 		if (!scenario.getId().equalsIgnoreCase("0")) {
@@ -261,7 +255,7 @@ public class Orchestrator {
 				// Check if the beforeSuite is successful. If not skip the scenario execution
 
 				if (beforeSuiteFailed == true) {
-					updateRunStatistics(scenario);
+
 					throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
 							+ " Skipping scenarios execution - " + scenario.getId()));
 				}
