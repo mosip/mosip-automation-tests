@@ -101,7 +101,7 @@ public class EmailableReport implements IReporter {
 					boolean isStoreSuccess = false;
 					try {
 						isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
-								null, System.getProperty("emailable.report2.name"), newReportFile);
+								null, newString, newReportFile);
 						logger.info("isStoreSuccess:: " + isStoreSuccess);
 						/* Need to figure how to handle EXTENT report handling */
 						// EXTENT REPORT
