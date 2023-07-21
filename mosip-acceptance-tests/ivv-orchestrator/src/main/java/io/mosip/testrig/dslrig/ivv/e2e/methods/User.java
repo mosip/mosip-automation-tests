@@ -101,7 +101,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			List<String> list=new ArrayList<String>();
 			String val=map.get("$$uin")!=null ?map.get("$$uin") : "11000000";
 			list.add(val);
-			attrmap.put("individualid",list);
+			attrmap.put("individualId",list);
 			KeycloakUserManager.removeUser(user);
 			KeycloakUserManager.createUsers(user, pwd,"roles", attrmap);
 			BaseTestCase.mapUserToZone(user,"CSB");
@@ -119,7 +119,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			List<String> list1=new ArrayList<String>();
 			String val1=map.get("$$uin")!=null ?map.get("$$uin") : "11000000";
 			list1.add(val1);
-			attrmap1.put("individualid",list1);
+			attrmap1.put("individualId",list1);
 			KeycloakUserManager.createUsers(user, pwd,"roles", attrmap1);
 			//BaseTestCase.mapUserToZone(user,"CSB");
 			//BaseTestCase.mapZone(user);
