@@ -136,7 +136,11 @@ public class CenterHelper extends BaseTestCaseUtil {
 			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
 			String input=testPost.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
-					getDateTime(), "name");
+					"DSL"+BaseTestCase.generateRandomAlphaNumericString(7), "name");
+			
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					"DSL"+BaseTestCase.generateRandomAlphaNumericString(7), "addressLine1");
+			
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					zone,"zoneCode");
 			
