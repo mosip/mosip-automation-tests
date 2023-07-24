@@ -587,7 +587,7 @@ public class PacketMakerService {
 				reader.close();
 
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				logger.error(e1.getMessage());
 			}
 			officerId = p.getProperty(MOSIP_TEST_REGCLIENT_USERID);
 
@@ -647,7 +647,7 @@ public class PacketMakerService {
 				updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return true;
 	}

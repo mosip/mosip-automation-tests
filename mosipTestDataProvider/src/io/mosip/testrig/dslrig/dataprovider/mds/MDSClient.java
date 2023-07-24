@@ -248,7 +248,7 @@ public class MDSClient implements MDSClientInterface {
 
 		}catch(Exception ex) {
 			System.out.println(ex.getMessage());
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
 		}
 
 	}
@@ -450,8 +450,7 @@ public class MDSClient implements MDSClientInterface {
 			System.out.println(resp);
 
 		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
 		}
 
 	}
