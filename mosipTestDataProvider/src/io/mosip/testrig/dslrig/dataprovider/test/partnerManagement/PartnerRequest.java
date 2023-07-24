@@ -3,14 +3,18 @@ package io.mosip.testrig.dslrig.dataprovider.test.partnerManagement;
 import java.time.LocalDateTime;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class PartnerRequest {
-    
+	private static final Logger logger = LoggerFactory.getLogger(PartnerRequest.class);
     public static String submitAPIKeyRequest(String partnerID, String policyName, String useCaseDesc,String contextKey){
+    	
 
         String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
         VariableManager.getVariableValue(contextKey,"partner").toString() +
@@ -38,7 +42,7 @@ public class PartnerRequest {
             return resp.toString();
         }
         catch(Exception ex){
-            ex.printStackTrace();
+            logger.error(ex.getMessage());
             return ex.getMessage();
         }
     }
@@ -69,7 +73,7 @@ public class PartnerRequest {
             return resp.toString();
         }
         catch(Exception ex){
-            ex.printStackTrace();
+            logger.error(ex.getMessage());
             return ex.getMessage();
         }
         
@@ -91,7 +95,7 @@ public class PartnerRequest {
 			return resp.toString();
 		}
 		catch(Exception ex){
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
             return ex.getMessage();
 		}
 
@@ -120,7 +124,7 @@ public class PartnerRequest {
 			return resp.toString();
 		}
 		catch(Exception ex){
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
             return ex.getMessage();
 		}
 

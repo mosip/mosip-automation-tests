@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.Properties;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.mosip.testrig.dslrig.dataprovider.test.partnerManagement.PartnerRequest;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.service.CommandsService;
@@ -25,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 @Api(value = "CommandsController", description = "REST APIs for Command Center,x Kubernetes Control")
 @RestController
 public class CommandsController {
+	private static final Logger logger = LoggerFactory.getLogger(CommandsController.class);
 	
 	
 	@Autowired
@@ -54,7 +58,7 @@ public class CommandsController {
 		try {
 			 fileName = commandsService.storeFile(file);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return fileName;
 	}
@@ -108,7 +112,7 @@ public class CommandsController {
 			return commandsService.writeToFile(contextKey,reqestData, offset);
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return "{Failed}";
 	}
@@ -126,7 +130,7 @@ public class CommandsController {
 			
 		} catch (Exception e) {
 			
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return "{Failed}";
 	}
@@ -139,7 +143,7 @@ public class CommandsController {
 			return commandsService.generatekey(contextKey,machineId);
 		} catch (Exception e) {
 
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return "{Failed}";
 	}
