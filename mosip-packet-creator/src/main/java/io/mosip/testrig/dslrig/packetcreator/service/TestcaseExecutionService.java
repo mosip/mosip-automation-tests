@@ -43,7 +43,7 @@ public class TestcaseExecutionService {
 						p.waitFor();
 						logger.info("Exec Testcase:"+ testcaseId + " execution completed");
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 						Thread.currentThread().interrupt();
 					}
 				}
@@ -52,7 +52,7 @@ public class TestcaseExecutionService {
 				result = "{Failed : testcaseID not found}";
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			result = "{Failed}";
 		} 
 		return result;
