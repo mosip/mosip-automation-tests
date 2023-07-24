@@ -68,7 +68,7 @@ public class OTPReader {
                 store.close();
             }
         } catch (Exception mex) {
-            mex.printStackTrace();
+            logger.error(mex.getMessage());
             Thread.currentThread().interrupt();
         }
         return otp;
@@ -107,7 +107,7 @@ public class OTPReader {
             emailInbox.close(true);
             store.close();
         } catch (Exception mex) {
-            mex.printStackTrace();
+            logger.error(mex.getMessage());
             Thread.currentThread().interrupt();
         }
     }

@@ -31,7 +31,7 @@ public class LocationProvider {
 		try {
 			ret = MosipMasterData.getPreregLocHierarchy(langCode,count,contextKey);
 		}catch(Exception ex){
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
 		}
 		return ret;
 	}

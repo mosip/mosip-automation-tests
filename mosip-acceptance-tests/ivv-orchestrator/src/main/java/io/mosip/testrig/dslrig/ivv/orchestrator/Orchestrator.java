@@ -178,7 +178,7 @@ public class Orchestrator {
 		try {
 			scenarios = dg.prepareScenarios(parser.getScenarios(), parser.getPersonas());
 		} catch (RigInternalError rigInternalError) {
-			rigInternalError.printStackTrace();
+			logger.error(rigInternalError.getMessage());
 		}
 
 		for (int i = 0; i < scenarios.size(); i++) {
