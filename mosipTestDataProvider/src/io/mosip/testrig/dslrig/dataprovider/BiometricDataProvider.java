@@ -698,7 +698,7 @@ public class BiometricDataProvider {
 			}
 
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			logger.error(e1.getMessage());
 		}
 
 		return builder;
@@ -1195,13 +1195,13 @@ public class BiometricDataProvider {
 			String value = buildBirFinger("addfdfd", "finger", "jwtSign", PAYLOAD, null, true, FALSE);
 			logger.info(value);
 		} catch (FileNotFoundException e2) {
-			e2.printStackTrace();
+			logger.error(e2.getMessage());
 		} catch (ParserConfigurationException e2) {
-			e2.printStackTrace();
+			logger.error(e2.getMessage());
 		} catch (FactoryConfigurationError e2) {
-			e2.printStackTrace();
+			logger.error(e2.getMessage());
 		} catch (TransformerException e2) {
-			e2.printStackTrace();
+			logger.error(e2.getMessage());
 		}
 
 		try {
@@ -1212,14 +1212,14 @@ public class BiometricDataProvider {
 
 			});
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			logger.error(e1.getMessage());
 		}
 
 		BiometricDataModel bio = null;
 		try {
 			bio = getBiometricData(true, "contextkey");
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			logger.error(e1.getMessage());
 		}
 
 		String xml = "";

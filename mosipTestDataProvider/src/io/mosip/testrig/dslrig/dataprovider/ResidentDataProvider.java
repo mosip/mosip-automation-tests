@@ -411,7 +411,7 @@ public class ResidentDataProvider {
 			if(bIrisRequired)
 				irisList = BiometricDataProvider.generateIris(count,contextKey);
 		} catch (  Exception e1) {
-			e1.printStackTrace();
+			logger.error(e1.getMessage());
 		}
 		
 		//Random rand = new Random();
@@ -557,7 +557,7 @@ public class ResidentDataProvider {
 			try {
 				bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger,contextKey);
 			} catch (IOException e2) {
-				e2.printStackTrace();
+				logger.error(e2.getMessage());
 			}
 			if(bIrisRequired)
 				bioData.setIris(irisList.get(i));
@@ -576,7 +576,7 @@ public class ResidentDataProvider {
 				try {
 					bioData.setFaceHash(CommonUtil.getHexEncodedHash( faceData[1]));
 				} catch (Exception e1) {
-				//e1.printStackTrace();
+				//logger.error(e1.getMessage());
 				}
 			}
 //			res.setEncodedPhoto( );

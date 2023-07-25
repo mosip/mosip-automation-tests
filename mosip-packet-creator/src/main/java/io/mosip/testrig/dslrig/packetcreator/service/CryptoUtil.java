@@ -281,7 +281,6 @@ public class CryptoUtil {
 			symmetricKey = new SecretKeySpec(decryptedSymmetricKey, 0, decryptedSymmetricKey.length, "AES");
 			return symmetricDecrypt(symmetricKey, encryptedData, null);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		throw new Exception("Not able to decrypt the data.");
 	}
