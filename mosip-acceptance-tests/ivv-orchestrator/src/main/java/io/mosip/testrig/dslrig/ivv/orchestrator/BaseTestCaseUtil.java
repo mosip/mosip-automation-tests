@@ -44,7 +44,7 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static Properties props = new AdminTestUtil()
 			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
 	public static Properties propsKernel = new AdminTestUtil()
-			.getproperty(TestRunner.getExternalResourcePath() + "config/Kernel.properties");
+			.getproperty(TestRunner.getExternalResourcePath() + "/config/Kernel.properties");
 	public String baseUrl = ConfigManager.getpacketUtilityBaseUrl();
 
 	public static final long DEFAULT_WAIT_TIME = 30000l;

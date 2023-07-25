@@ -9,7 +9,14 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.mosip.testrig.dslrig.dataprovider.test.partnerManagement.PartnerRequest;
+
 public class DBDataSource {
+
+	private static final Logger logger = LoggerFactory.getLogger(DBDataSource.class);
 
 	 public static void main(String[] args) throws SQLException {
 	    }

@@ -2,7 +2,7 @@
   "id": "string",
   "metadata": {},
   "request": {
-    "zoneCode": "CSB",
+    "zoneCode": "",
     "userId": "110123",
     "isActive": true,
     "langCode": "eng"

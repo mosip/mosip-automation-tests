@@ -25,7 +25,7 @@ CreateRegistrationCenter:
    "perKioskProcessTime":"00:30:00",
    "timeZone":"(GTM+01:00) CENTRAL EUROPEAN TIME",
    "workingHours":3.5,
-   "zoneCode":"CSB",
+   "zoneCode":"",
    "id":"",
    "isActive":"false",
    "numberOfKiosks":0,
@@ -36,5 +36,5 @@ CreateRegistrationCenter:
    "requesttime":"$TIMESTAMP$"
 }'
       output: '{
-   "zoneCode":"CSB"
+   "zoneCode":""
 }'   

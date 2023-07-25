@@ -7,7 +7,7 @@ UpdateRegistrationCenterNonLanguage:
       outputTemplate: ivv_masterdata/UpdateRegistrationCenterNonLanguage/updateRegistrationCenterResult
       input: '{
     "contactPerson": "sudeep",
-     "zoneCode": "CSB",
+     "zoneCode": "",
     "id": "$id$",
     "requesttime": "$TIMESTAMP$"
 }'
@@ -15,5 +15,5 @@ UpdateRegistrationCenterNonLanguage:
     "id": "$id$",
     "contactPhone": "9663089998",
     "centerTypeCode": "REG",
-     "zoneCode": "CSB"
+     "zoneCode": ""
 }'
