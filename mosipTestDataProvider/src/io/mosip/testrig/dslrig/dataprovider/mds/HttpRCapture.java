@@ -2,10 +2,16 @@ package io.mosip.testrig.dslrig.dataprovider.mds;
 import java.net.URI;
 
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class HttpRCapture extends HttpEntityEnclosingRequestBase
+import io.mosip.testrig.dslrig.dataprovider.db.DBDataSource;
+
+public class HttpRCapture extends HttpEntityEnclosingRequestBase{
+private static final Logger logger = LoggerFactory.getLogger(HttpRCapture.class);
+
 //HttpRequestBase 
-{
+
 
 	    String METHOD_NAME ;
 

@@ -16,7 +16,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.UserHelper;
 
 public class User extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(User.class);
-	private static final String PostCenter = "ivv_masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
 	
 	UserHelper userHelper=new UserHelper();
 	
@@ -26,6 +25,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		String id = null;
 		String user=null;
 		String pwd=null;
+		String zone=null;
 		String calltype = null;
 		int centerNum=0;
 		
@@ -47,6 +47,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				 	String userDetails[]=user.split("@@");
 				 	user=userDetails[0];
 				 	pwd=userDetails[1];
+				 	if(userDetails.length==3)zone=userDetails[2];
 				 	}
 			 if (user.startsWith("$$")) {
 				 map = step.getScenario().getVariables();
@@ -104,7 +105,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			attrmap.put("individualId",list);
 			KeycloakUserManager.removeUser(user);
 			KeycloakUserManager.createUsers(user, pwd,"roles", attrmap);
-			BaseTestCase.mapUserToZone(user,"CSB");
+			BaseTestCase.mapUserToZone(user,zone);
 			BaseTestCase.mapZone(user);
 			HashMap<String, String> userdetails=new HashMap<String, String>();
 			userdetails.put("user", user);
@@ -121,7 +122,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			list1.add(val1);
 			attrmap1.put("individualId",list1);
 			KeycloakUserManager.createUsers(user, pwd,"roles", attrmap1);
-			//BaseTestCase.mapUserToZone(user,"CSB");
+			//BaseTestCase.mapUserToZone(user,zone);
 			//BaseTestCase.mapZone(user);
 			HashMap<String, String> userdetails1=new HashMap<String, String>();
 			userdetails1.put("user", user);

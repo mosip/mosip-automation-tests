@@ -11,8 +11,10 @@ import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
+
 public class PartnerRequest {
 	private static final Logger logger = LoggerFactory.getLogger(PartnerRequest.class);
+
     public static String submitAPIKeyRequest(String partnerID, String policyName, String useCaseDesc,String contextKey){
     	
 
@@ -42,6 +44,7 @@ public class PartnerRequest {
             return resp.toString();
         }
         catch(Exception ex){
+
             logger.error(ex.getMessage());
             return ex.getMessage();
         }
