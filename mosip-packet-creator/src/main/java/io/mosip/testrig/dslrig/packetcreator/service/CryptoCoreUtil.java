@@ -37,11 +37,16 @@ import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.encodings.OAEPEncoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 
 
 @Component
 public class CryptoCoreUtil {
+	private static final Logger logger = LoggerFactory.getLogger(CryptoCoreUtil.class);
 
 	private final static String RSA_ECB_OAEP_PADDING = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
 
@@ -93,7 +98,7 @@ public class CryptoCoreUtil {
 			symmetricKey = new SecretKeySpec(decryptedSymmetricKey, 0, decryptedSymmetricKey.length, "AES");
 			return symmetricDecrypt(symmetricKey, encryptedData, null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		throw new Exception("Not able to decrypt the data.");
 	}
@@ -165,7 +170,7 @@ public class CryptoCoreUtil {
 			}
 			output = cipher.doFinal(Arrays.copyOf(data, data.length - cipher.getBlockSize()));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return output;
 	}
@@ -174,7 +179,7 @@ public class CryptoCoreUtil {
 		try {
 			return DigestUtils.sha256(cert.getEncoded());
 		} catch (java.security.cert.CertificateEncodingException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return null;
 	}

@@ -178,7 +178,7 @@ public class CommandsService {
 						p.waitFor();
 						logger.info("Exec Testcase:"+ testcaseId + " execution completed");
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 						 Thread.currentThread().interrupt();
 					}
 				}
@@ -187,7 +187,7 @@ public class CommandsService {
 				result = "{Failed : testcaseID not found}";
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			result = "{Failed}";
 		} 
 		return result;
@@ -217,7 +217,7 @@ public class CommandsService {
 				final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
 				return publicKey;
 			} catch (NoSuchAlgorithmException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			return null;
 		 
@@ -241,7 +241,7 @@ public class CommandsService {
 					
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		}
 }

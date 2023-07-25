@@ -139,7 +139,7 @@ public class ResidentModel  implements Serializable {
 		try {
 			Files.write(Paths.get("test.json"), model.toJSONString().getBytes());
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			logger.error(e1.getMessage());
 		}
 		
     	ObjectMapper mapper = new ObjectMapper();

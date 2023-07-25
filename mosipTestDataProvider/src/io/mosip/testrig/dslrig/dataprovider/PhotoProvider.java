@@ -185,7 +185,7 @@ public class PhotoProvider {
 			dout.write(representationData, 0, representationData.length);
 		
 		}catch(Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
 		}
 		return baos.toByteArray();
 		
