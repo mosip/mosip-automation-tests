@@ -77,6 +77,7 @@ public class PacketTemplateProvider {
 	private static final String INTRODUCERDETAILS = "introducerdetails";
 	private static final String GUARDIANDETAILS = "guardiandetails";
 	private static final String INTRODUCERNAME = "introducername";
+	private static final String PARENTORGUARDIANNAME = "parentOrGuardianname";
 	private static final String LANGUAGE = "language";
 	private static final String CHECKBOX = "checkbox";
 	private static final String SIMPLETYPE = "simpleType";
@@ -490,9 +491,36 @@ public class PacketTemplateProvider {
 							identity.put(s.getId(), resident.getGuardian().getRID());
 					}
 					continue;
-				} else if (prop.getProperty(INTRODUCERNAME) != null
-						&& s.getId().equals(prop.getProperty(INTRODUCERNAME))) {
-					if (resident.isMinor() || resident.isInfant()) {
+				} 
+				
+				
+				 else if (prop.getProperty("parentOrGuardianuin") != null
+							&& s.getId().equals(prop.getProperty("parentOrGuardianuin"))) {
+						if (resident.isMinor() || resident.isInfant()) {
+							if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
+							} else
+								identity.put(s.getId(), resident.getGuardian().getUIN());
+						}
+						continue;
+					} else if (prop.getProperty("parentOrGuardianrid") != null
+							&& s.getId().equals(prop.getProperty("parentOrGuardianrid"))) {
+						if (resident.isMinor() || resident.isInfant()) {
+							if (resident.getGuardian() != null && (resident.getGuardian().getRID() == null
+									|| resident.getGuardian().getRID().equals(""))) {
+							} else
+								identity.put(s.getId(), resident.getGuardian().getRID());
+						}
+						continue;
+					} 
+				
+				else if (
+						(prop.getProperty(PARENTORGUARDIANNAME) != null && s.getId().equals(prop.getProperty(PARENTORGUARDIANNAME))) 
+						
+						|| (prop.getProperty(INTRODUCERNAME) != null && s.getId().equals(prop.getProperty(INTRODUCERNAME))))
+						{
+					
+							
+							if (resident.isMinor() || resident.isInfant()) {
 						String primValue = "";
 						String secValue = "";
 						JSONObject o = new JSONObject();
