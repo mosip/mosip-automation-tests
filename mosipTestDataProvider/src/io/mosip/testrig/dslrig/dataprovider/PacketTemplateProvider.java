@@ -77,6 +77,7 @@ public class PacketTemplateProvider {
 	private static final String INTRODUCERDETAILS = "introducerdetails";
 	private static final String GUARDIANDETAILS = "guardiandetails";
 	private static final String INTRODUCERNAME = "introducername";
+	private static final String PARENTORGUARDIANNAME = "parentOrGuardianname";
 	private static final String LANGUAGE = "language";
 	private static final String CHECKBOX = "checkbox";
 	private static final String SIMPLETYPE = "simpleType";
@@ -490,8 +491,33 @@ public class PacketTemplateProvider {
 							identity.put(s.getId(), resident.getGuardian().getRID());
 					}
 					continue;
-				} else if (prop.getProperty(INTRODUCERNAME) != null
-						&& s.getId().equals(prop.getProperty(INTRODUCERNAME))) {
+				}
+
+				else if (prop.getProperty("parentOrGuardianuin") != null
+						&& s.getId().equals(prop.getProperty("parentOrGuardianuin"))) {
+					if (resident.isMinor() || resident.isInfant()) {
+						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
+						} else
+							identity.put(s.getId(), resident.getGuardian().getUIN());
+					}
+					continue;
+				} else if (prop.getProperty("parentOrGuardianrid") != null
+						&& s.getId().equals(prop.getProperty("parentOrGuardianrid"))) {
+					if (resident.isMinor() || resident.isInfant()) {
+						if (resident.getGuardian() != null && (resident.getGuardian().getRID() == null
+								|| resident.getGuardian().getRID().equals(""))) {
+						} else
+							identity.put(s.getId(), resident.getGuardian().getRID());
+					}
+					continue;
+				}
+
+				else if ((prop.getProperty(PARENTORGUARDIANNAME) != null
+						&& s.getId().equals(prop.getProperty(PARENTORGUARDIANNAME)))
+
+						|| (prop.getProperty(INTRODUCERNAME) != null
+								&& s.getId().equals(prop.getProperty(INTRODUCERNAME)))) {
+
 					if (resident.isMinor() || resident.isInfant()) {
 						String primValue = "";
 						String secValue = "";
@@ -1370,9 +1396,12 @@ public class PacketTemplateProvider {
 						logger.error(GENERATEIDJSONV2, e);
 					}
 					continue;
-				} else if (prop.getProperty("introducerbiometric") != null
-						&& s.getId().equals(prop.getProperty("introducerbiometric"))) {
+				} else if ((prop.getProperty("parentOrGuardianbiometric") != null
+						&& s.getId().equals(prop.getProperty("parentOrGuardianbiometric")))
+						|| (prop.getProperty("introducerbiometric") != null
+								&& s.getId().equals(prop.getProperty("introducerbiometric"))))
 
+				{
 					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
 						JSONObject o = new JSONObject();
 						o.put(FORMAT, CBEFF);
@@ -1533,13 +1562,12 @@ public class PacketTemplateProvider {
 		String filePath = propPath + "/default.properties";
 		if (contextMapperFound) {
 			filePath = propPath;
-			
-		} 
-		
-		try(FileInputStream fis= new FileInputStream(filePath)) {
-			prop.load(fis);
+
 		}
-		catch(Exception e) {
+
+		try (FileInputStream fis = new FileInputStream(filePath)) {
+			prop.load(fis);
+		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 	}
