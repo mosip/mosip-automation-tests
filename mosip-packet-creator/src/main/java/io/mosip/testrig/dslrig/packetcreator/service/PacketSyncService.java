@@ -821,9 +821,12 @@ public class PacketSyncService {
 
 				centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
 
-				packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
+				if(packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
 						machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
-						genarateValidCbeff);
+						genarateValidCbeff)== false)
+			      return "{\"Failed\"}";
+				
+				
 				JSONObject obj = new JSONObject();
 				obj.put("id", resident.getId());
 				obj.put("path", packetPath);

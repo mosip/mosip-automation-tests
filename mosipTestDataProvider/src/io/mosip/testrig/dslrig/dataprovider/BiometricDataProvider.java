@@ -215,6 +215,7 @@ public class BiometricDataProvider {
 
 		BiometricDataModel biodata = null;
 		MDSRCaptureModel capture = null;
+		
 
 		MDSClientInterface mds = null;
 		String val;
@@ -246,9 +247,29 @@ public class BiometricDataProvider {
 						"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
 
 				logger.info("p12path" + p12path);
-
-				port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device", p12path.toString());
-
+				
+				int maxLoopCount =  Integer.parseInt(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsPortLoopCount").toString());
+				
+				
+				while(maxLoopCount > 0) {
+					try {
+					port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device", p12path.toString());
+					}
+					catch(Exception e){
+						logger.error("Exception occured during startSBI " + contextKey);
+					}
+					if(port != 0) {
+						logger.info("Found the port " +  contextKey + " port number is: "+ port);
+						break;
+					}
+					
+					maxLoopCount--;
+				}
+				
+				if(port == 0) {
+					logger.error("Unable to find the port " +  contextKey + " port number is: "+ port);
+					return null;
+				}
 				// Need to check with Anusha is this below line correct wrt multi run of
 				// scenarios for each env.
 				// port =
@@ -286,191 +307,201 @@ public class BiometricDataProvider {
 
 		}
 
-		catch (Throwable t) {
+	catch(
+
+	Throwable t)
+	{
 			logger.error(" Port issue "+ contextKey, t);
 			t.getStackTrace();
 			return capture;
 		}
 
-		// Get Exceptions modalities abd add them to list of string
-		if (bioExceptions != null && !bioExceptions.isEmpty()) {
-			for (int modalityCount = 0; modalityCount < bioExceptions.size(); modalityCount++)
-				bioexceptionlist.add(bioExceptions.get(modalityCount).getSubType().toString());
+	// Get Exceptions modalities abd add them to list of string
+	if(bioExceptions!=null&&!bioExceptions.isEmpty())
+	{
+		for (int modalityCount = 0; modalityCount < bioExceptions.size(); modalityCount++)
+			bioexceptionlist.add(bioExceptions.get(modalityCount).getSubType().toString());
+	}
+
+	// Step 1 : Face get capture
+	try
+	{
+		if ((filteredAttribs != null && filteredAttribs.contains("face")) && biodata.getRawFaceData() != null) {
+
+			List<MDSDevice> faceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
+			MDSDevice faceDevice = faceDevices.get(0);
+
+			capture = mds.captureFromRegDevice(faceDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_FACE, null,
+					60, faceDevice.getDeviceSubId().get(0), port, contextKey, null);
+
 		}
+	}
 
-		// Step 1 : Face get capture
-		try {
-			if ((filteredAttribs != null && filteredAttribs.contains("face")) && biodata.getRawFaceData() != null) {
+	catch(
+	Throwable t)
+	{
+		logger.error(" Face get capture   fail" + contextKey, t);
+		t.getStackTrace();
+	}
 
-				List<MDSDevice> faceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
-				MDSDevice faceDevice = faceDevices.get(0);
+	// Step 2 : IRIS get capture
+	try
+	{
+		if (biodata.getIris() != null) {
+			List<BioModality> irisExceptions = null;
+			List<String> listexceptionBio = new ArrayList<String>();
 
-				capture = mds.captureFromRegDevice(faceDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_FACE,
-						null, 60, faceDevice.getDeviceSubId().get(0), port, contextKey, null);
-
-			}
-		}
-
-		catch (Throwable t) {
-			logger.error(" Face get capture   fail"+ contextKey, t);
-			t.getStackTrace();
-		}
-
-		// Step 2 : IRIS get capture
-		try {
-			if (biodata.getIris() != null) {
-				List<BioModality> irisExceptions = null;
-				List<String> listexceptionBio = new ArrayList<String>();
-
-				if (bioExceptions != null && !bioExceptions.isEmpty()) {
-					irisExceptions = getModalitiesByType(bioExceptions, "Iris");
-					for (BioModality modality : bioExceptions) {
-						listexceptionBio.add(modality.getSubType());
-
-					}
+			if (bioExceptions != null && !bioExceptions.isEmpty()) {
+				irisExceptions = getModalitiesByType(bioExceptions, "Iris");
+				for (BioModality modality : bioExceptions) {
+					listexceptionBio.add(modality.getSubType());
 
 				}
 
-				List<MDSDevice> irisDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
-				MDSDevice irisDevice = irisDevices.get(0);
+			}
 
-				if (irisExceptions == null || irisExceptions.isEmpty()) {
-					if (filteredAttribs != null && filteredAttribs.contains(LEFTEYE)) {
+			List<MDSDevice> irisDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
+			MDSDevice irisDevice = irisDevices.get(0);
+
+			if (irisExceptions == null || irisExceptions.isEmpty()) {
+				if (filteredAttribs != null && filteredAttribs.contains(LEFTEYE)) {
+					capture = mds.captureFromRegDevice(irisDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_IRIS,
+							null, 60, irisDevice.getDeviceSubId().get(0), port, contextKey, null);
+				}
+
+				if (irisDevice.getDeviceSubId().size() > 1) {
+					if (filteredAttribs != null && filteredAttribs.contains(RIGHTEYE)) {
+
+						capture = mds.captureFromRegDevice(irisDevice, capture,
+								DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
+								irisDevice.getDeviceSubId().get(1), port, contextKey, null);
+					}
+				}
+			} else {
+				String[] irisSubTypes = new String[irisExceptions.size()];
+				int i = 0;
+				for (BioModality bm : irisExceptions) {
+					irisSubTypes[i] = bm.getSubType();
+					i++;
+				}
+				for (String f : irisSubTypes) {
+
+					if (f.equalsIgnoreCase(RIGHT) && (filteredAttribs != null && filteredAttribs.contains(LEFTEYE))) {
 						capture = mds.captureFromRegDevice(irisDevice, capture,
 								DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
 								irisDevice.getDeviceSubId().get(0), port, contextKey, null);
-					}
+					} else if (f.equalsIgnoreCase("left")
+							&& (filteredAttribs != null && filteredAttribs.contains(RIGHTEYE))) {
 
-					if (irisDevice.getDeviceSubId().size() > 1) {
-						if (filteredAttribs != null && filteredAttribs.contains(RIGHTEYE)) {
-
+						if (irisDevice.getDeviceSubId().size() > 1)
 							capture = mds.captureFromRegDevice(irisDevice, capture,
 									DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
 									irisDevice.getDeviceSubId().get(1), port, contextKey, null);
-						}
-					}
-				} else {
-					String[] irisSubTypes = new String[irisExceptions.size()];
-					int i = 0;
-					for (BioModality bm : irisExceptions) {
-						irisSubTypes[i] = bm.getSubType();
-						i++;
-					}
-					for (String f : irisSubTypes) {
-
-						if (f.equalsIgnoreCase(RIGHT)
-								&& (filteredAttribs != null && filteredAttribs.contains(LEFTEYE))) {
-							capture = mds.captureFromRegDevice(irisDevice, capture,
-									DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
-									irisDevice.getDeviceSubId().get(0), port, contextKey, null);
-						} else if (f.equalsIgnoreCase("left")
-								&& (filteredAttribs != null && filteredAttribs.contains(RIGHTEYE))) {
-
-							if (irisDevice.getDeviceSubId().size() > 1)
-								capture = mds.captureFromRegDevice(irisDevice, capture,
-										DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
-										irisDevice.getDeviceSubId().get(1), port, contextKey, null);
-						}
 					}
 				}
 			}
-
 		}
 
-		catch (Throwable t) {
-			logger.error(" IRIS get capture  fail"+ contextKey, t);
-			t.getStackTrace();
-		}
+	}
 
-		try {
-			if (biodata.getFingerPrint() != null) {
-				List<BioModality> fingerExceptions = null;
-				List<MDSDeviceCaptureModel> lstToRemove = new ArrayList<MDSDeviceCaptureModel>();
-				List<String> listFingerExceptionBio = new ArrayList<String>();
+	catch(
+	Throwable t)
+	{
+		logger.error(" IRIS get capture  fail" + contextKey, t);
+		t.getStackTrace();
+	}
 
-				if (bioExceptions != null && !bioExceptions.isEmpty()) {
+	try
+	{
+		if (biodata.getFingerPrint() != null) {
+			List<BioModality> fingerExceptions = null;
+			List<MDSDeviceCaptureModel> lstToRemove = new ArrayList<MDSDeviceCaptureModel>();
+			List<String> listFingerExceptionBio = new ArrayList<String>();
 
-					fingerExceptions = getModalitiesByType(bioExceptions, "Finger");
+			if (bioExceptions != null && !bioExceptions.isEmpty()) {
 
-					for (BioModality modality : bioExceptions) {
-						listFingerExceptionBio.add(modality.getSubType());
+				fingerExceptions = getModalitiesByType(bioExceptions, "Finger");
 
+				for (BioModality modality : bioExceptions) {
+					listFingerExceptionBio.add(modality.getSubType());
+
+				}
+			}
+
+			List<MDSDevice> fingerDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
+			MDSDevice fingerDevice = fingerDevices.get(0);
+
+			for (int i = 0; i < fingerDevice.getDeviceSubId().size(); i++) {
+				capture = mds.captureFromRegDevice(fingerDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_FINGER,
+						null, 60, fingerDevice.getDeviceSubId().get(i), port, contextKey, null);
+			}
+			List<MDSDeviceCaptureModel> lstFingers = capture.getLstBiometrics()
+					.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
+			if (filteredAttribs != null) {
+				// schemaNames
+				String attr = null;
+
+				for (MDSDeviceCaptureModel mdc : lstFingers) {
+					int indx = 0;
+					boolean bFound = false;
+					for (indx = 0; indx < DataProviderConstants.schemaNames.length; indx++) {
+						if (DataProviderConstants.displayFingerName[indx].equals(mdc.getBioSubType())) {
+							attr = DataProviderConstants.schemaNames[indx];
+							break;
+						}
 					}
-				}
-
-				List<MDSDevice> fingerDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
-				MDSDevice fingerDevice = fingerDevices.get(0);
-
-				for (int i = 0; i < fingerDevice.getDeviceSubId().size(); i++) {
-					capture = mds.captureFromRegDevice(fingerDevice, capture,
-							DataProviderConstants.MDS_DEVICE_TYPE_FINGER, null, 60,
-							fingerDevice.getDeviceSubId().get(i), port, contextKey, null);
-				}
-				List<MDSDeviceCaptureModel> lstFingers = capture.getLstBiometrics()
-						.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
-				if (filteredAttribs != null) {
-					// schemaNames
-					String attr = null;
-
-					for (MDSDeviceCaptureModel mdc : lstFingers) {
-						int indx = 0;
-						boolean bFound = false;
-						for (indx = 0; indx < DataProviderConstants.schemaNames.length; indx++) {
-							if (DataProviderConstants.displayFingerName[indx].equals(mdc.getBioSubType())) {
-								attr = DataProviderConstants.schemaNames[indx];
+					if (attr != null) {
+						for (String a : filteredAttribs) {
+							if (a.equals(attr)) {
+								bFound = true;
 								break;
 							}
 						}
-						if (attr != null) {
-							for (String a : filteredAttribs) {
-								if (a.equals(attr)) {
-									bFound = true;
-									break;
-								}
-							}
-						}
-						if (!bFound)
-							lstToRemove.add(mdc);
 					}
-					lstFingers.removeAll(lstToRemove);
+					if (!bFound)
+						lstToRemove.add(mdc);
 				}
-
-			}
-		}
-
-		catch (Throwable t) {
-			logger.error("Finger get capture fail"+ contextKey, t);
-			t.getStackTrace();
-		}
-
-		try {
-			// Step 4 : Exceptionphoto face capture
-			if (bioExceptions != null && !bioExceptions.isEmpty()) {
-
-				List<MDSDevice> exceptionfaceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
-				MDSDevice exceptionDevice = exceptionfaceDevices.get(0);
-				try {
-					capture = mds.captureFromRegDevice(exceptionDevice, capture,
-							DataProviderConstants.MDS_DEVICE_TYPE_FACE, null, 60,
-							exceptionDevice.getDeviceSubId().get(0), port, contextKey, bioexceptionlist);
-					// rename the key with exception_photo
-				} catch (Throwable t) {
-					logger.error("Exception photo capture failure"+ contextKey, t);
-					t.getStackTrace();
-				}
-
+				lstFingers.removeAll(lstToRemove);
 			}
 
 		}
+	}
 
-		catch (Throwable t) {
-			logger.error("Exceptionphoto face capture", t);
-			t.getStackTrace();
+	catch(
+	Throwable t)
+	{
+		logger.error("Finger get capture fail" + contextKey, t);
+		t.getStackTrace();
+	}
+
+	try
+	{
+		// Step 4 : Exceptionphoto face capture
+		if (bioExceptions != null && !bioExceptions.isEmpty()) {
+
+			List<MDSDevice> exceptionfaceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
+			MDSDevice exceptionDevice = exceptionfaceDevices.get(0);
+			try {
+				capture = mds.captureFromRegDevice(exceptionDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_FACE,
+						null, 60, exceptionDevice.getDeviceSubId().get(0), port, contextKey, bioexceptionlist);
+				// rename the key with exception_photo
+			} catch (Throwable t) {
+				logger.error("Exception photo capture failure" + contextKey, t);
+				t.getStackTrace();
+			}
+
 		}
 
-		mds.removeProfile(mdsprofilePath, profileName, port, contextKey);
-		CentralizedMockSBI.stopSBI(contextKey);
-		return capture;
+	}
+
+	catch(
+	Throwable t)
+	{
+		logger.error("Exceptionphoto face capture", t);
+		t.getStackTrace();
+	}
+
+	mds.removeProfile(mdsprofilePath,profileName,port,contextKey);CentralizedMockSBI.stopSBI(contextKey);return capture;
 	}
 
 	public static String toCBEFFFromCapture(List<String> bioFilter, MDSRCaptureModel capture, String toFile,
