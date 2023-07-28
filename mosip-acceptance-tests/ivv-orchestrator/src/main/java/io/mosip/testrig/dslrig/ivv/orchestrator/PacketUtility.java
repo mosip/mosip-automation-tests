@@ -214,15 +214,22 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + props.getProperty("getTemplateUrl") + process + "/" + qualityScore + "/"
 				+ genarateValidCbeff;
 		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
+		
+		if ((templateResponse.getBody().asString().toLowerCase().contains("failed"))) {
+			this.hasError = true;
+			throw new RigInternalError("Unable to get Template from packet utility");
+	    }
+		
 		JSONObject jsonResponse = new JSONObject(templateResponse.asString());
 		JSONArray resp = jsonResponse.getJSONArray("packets");
 		if ((resp.length() <= 0)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to get Template from packet utility");
 		}
-		return resp;
-	}
 
+		return resp;
+	    }
+	
 	public void requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone, Scenario.Step step)
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("sendOtpUrl") + emailOrPhone;
