@@ -47,7 +47,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				 	String userDetails[]=user.split("@@");
 				 	user=userDetails[0];
 				 	pwd=userDetails[1];
-				 	if(userDetails.length==3)zone=userDetails[2];
+				 	if(userDetails.length==3) {zone=userDetails[2];}
 				 	}
 			 if (user.startsWith("$$")) {
 				 map = step.getScenario().getVariables();
@@ -105,6 +105,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			attrmap.put("individualId",list);
 			KeycloakUserManager.removeUser(user);
 			KeycloakUserManager.createUsers(user, pwd,"roles", attrmap);
+			//zone=userHelper.getLeafZones();
 			BaseTestCase.mapUserToZone(user,zone);
 			BaseTestCase.mapZone(user);
 			HashMap<String, String> userdetails=new HashMap<String, String>();
