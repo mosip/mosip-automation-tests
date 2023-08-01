@@ -1,0 +1,29 @@
+GetZoneOfUser:
+   Admin_GetLeafZones_allValid_smoke:
+      endPoint: /v1/masterdata/zones/zonename?userID=enteruserID&langCode=enterlangCode
+      role: admin
+      restMethod: get
+      inputTemplate: ivv_masterdata/GetZoneOfUser/getZoneOfUser
+      outputTemplate: ivv_masterdata/GetZoneOfUser/getZoneOfUserResult
+      input: '{
+     }'
+      output: '{
+     "response": [
+     {
+      "isActive": true,
+      "createdBy":  "$IGNORE$",
+      "createdDateTime":  "$IGNORE$",
+      "updatedBy":  "$IGNORE$",
+      "updatedDateTime":  "$IGNORE$",
+      "isDeleted": false,
+      "deletedDateTime":  "$IGNORE$",
+      "code": "$IGNORE$",
+      "langCode":  "$IGNORE$",
+      "name": "$IGNORE$",
+      "hierarchyLevel": "$IGNORE$",
+      "hierarchyName":  "$IGNORE$",
+      "parentZoneCode":  "$IGNORE$",
+      "hierarchyPath":  "$IGNORE$"
+    }],
+      "errors": "$IGNORE$"
+}'  
