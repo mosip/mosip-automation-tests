@@ -31,7 +31,7 @@ public class BloodGroupProvider {
 				}
 					
 			}
-			if(bgModel !=null && bgModel.getFieldVal().size()==count) {
+			if(bgModel !=null && bgModel.getFieldVal().size()>=count) {
 				bgs = new ArrayList<DynamicFieldValueModel>();
 				//Random rand = new Random();
 				for( int i=0; i < count; i++) {

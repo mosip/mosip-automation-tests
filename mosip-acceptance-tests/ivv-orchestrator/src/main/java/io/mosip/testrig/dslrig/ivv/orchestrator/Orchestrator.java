@@ -231,6 +231,17 @@ public class Orchestrator {
 			IllegalAccessException, InstantiationException {
 		// Another scenario execution kicked-off before BEFORE_SUITE execution
 
+		if (ConfigManager.isInTobeSkippedList("S-"+scenario.getId())) {
+			     updateRunStatistics(scenario);
+				throw new SkipException("Skipping scenario due to known platform issue");
+		     }
+
+				 if (ConfigManager.isInTobeSkippedList("A-"+scenario.getId())) {
+			     updateRunStatistics(scenario);
+				throw new SkipException("Skipping scenario due to known Automation issue");
+		    }
+		
+		
 		if (!scenario.getId().equalsIgnoreCase("0")) {
 
 			// AFTER_SUITE scenario execution kicked-off before all execution
@@ -255,7 +266,7 @@ public class Orchestrator {
 				// Check if the beforeSuite is successful. If not skip the scenario execution
 
 				if (beforeSuiteFailed == true) {
-
+					updateRunStatistics(scenario);
 					throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
 							+ " Skipping scenarios execution - " + scenario.getId()));
 				}

@@ -122,8 +122,8 @@ public class ResidentDataProvider {
 			bioData.setFaceHash(CommonUtil.getHexEncodedHash( faceData[1]));
 			bDirty = true;
 		}
-		if(bDirty)
-			model.getBiometric().setCbeff(null); 
+		
+		  if(bDirty) model.getBiometric().setCbeff(null);
 			 
 		return model;
 	}
