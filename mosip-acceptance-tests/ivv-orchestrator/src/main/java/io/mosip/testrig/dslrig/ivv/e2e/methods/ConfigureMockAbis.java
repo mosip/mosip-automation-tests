@@ -80,14 +80,16 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		hashProp = PacketUtility.getParamsArg(step.getParameters().get(3), "@@"); // List<String> hashModality
 		hashProp.stream().forEach(key -> hashModality.add(key));
 
-		if (step.getParameters().size() >= 9 && step.getParameters().get(8).contains("true")) {
+		if (step.getParameters().size() >= 7 && step.getParameters().get(6).contains("delay")) {
 			// If it is true , read the mockAbis delay time from actuator eg: Packet
 			// reprocessing interval
+			waitTimeFromActuator = PacketUtility.getActuatorDelay();
 			delaysec = TIME_IN_MILLISEC * waitTimeFromActuator;
 		} else if (step.getParameters().size() >= 7) {
 			// Otherwise , read value which is passed from dsl step
 			delaysec = Long.parseLong(step.getParameters().get(6));
 		}
+
 
 		if (step.getParameters().size() >= 7) {
 
