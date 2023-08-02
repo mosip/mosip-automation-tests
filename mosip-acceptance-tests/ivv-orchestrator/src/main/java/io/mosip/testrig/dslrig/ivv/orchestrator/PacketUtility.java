@@ -330,7 +330,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public String generateAndUploadPacket(String prid, String packetPath, HashMap<String, String> map,
 			String responseStatus, Scenario.Step step) throws RigInternalError {
 		String rid = null;
-		String url = baseUrl + "/packet/sync/" + prid + "/" + true;
+		String url = baseUrl + "/packet/sync/" + prid + "/" + true + "/"+ true;
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
 		arr.put(packetPath);
