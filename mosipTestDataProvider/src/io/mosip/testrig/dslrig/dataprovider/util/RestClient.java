@@ -969,7 +969,7 @@ public class RestClient {
 			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
 					+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString();
-			logger.info("Neeharika initToken logger " + authUrl + AUTHURL + jsonBody);
+			logger.info(contextKey +" InitToken logger " + authUrl + AUTHURL + jsonBody);
 
 			Response response = null;
 			try {
@@ -1021,7 +1021,7 @@ public class RestClient {
 			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
 					+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString();
-			logger.info("Neeharika initToken_admin logger " + authUrl + AUTHURL + jsonBody);
+			logger.info(contextKey +" InitToken_admin logger " + authUrl + AUTHURL + jsonBody);
 			Response response = null;
 			try {
 				response = given().contentType("application/json").body(jsonBody).post(authUrl);
@@ -1072,7 +1072,7 @@ public class RestClient {
 					+ "v1/authmanager/authenticate/clientidsecretkey";
 
 			String jsonBody = requestBody.toString();
-			logger.info("Neeharika initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
+			logger.info(contextKey  +" initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
 
 			Response response = null;
 			try {

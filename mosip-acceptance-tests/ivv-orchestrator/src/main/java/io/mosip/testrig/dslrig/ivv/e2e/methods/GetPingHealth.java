@@ -38,6 +38,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 			String serviceStatus = checkActuatorNoAuth(packetcreatorUri);
 			
 			if (serviceStatus.equalsIgnoreCase("UP") == false) {
+				this.hasError=true;
 				throw new SkipException("Packet creator Not responding");
 				
 			}
@@ -53,6 +54,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 			logger.info("RESPONSE=" + res.toString());
 		} else {
 			logger.error("RESPONSE=" + res.toString());
+			this.hasError=true;
 			throw new SkipException("Health check status" + res.toString());
 		}
 		}
