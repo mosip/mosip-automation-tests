@@ -346,7 +346,13 @@ public class Orchestrator {
 				} else {
 					extentTest.pass(identifier + " - passed");
 				}
-			} catch (ClassNotFoundException e) {
+			} 
+			catch (SkipException e) {
+				updateRunStatistics(scenario);
+				logger.error(e.getMessage());
+				Reporter.log(e.getMessage());
+				throw new SkipException(e.getMessage());
+			}catch (ClassNotFoundException e) {
 				extentTest.error(identifier + " - ClassNotFoundException --> " + e.toString());
 				logger.error(e.getMessage());
 
@@ -384,7 +390,7 @@ public class Orchestrator {
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
 			}
-
+			
 		}
 		updateRunStatistics(scenario);
 
