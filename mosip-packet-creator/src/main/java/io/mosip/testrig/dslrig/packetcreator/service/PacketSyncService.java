@@ -58,6 +58,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.ResidentAttribute;
+import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.AppointmentDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.BioExceptionDto;
@@ -508,6 +509,10 @@ public class PacketSyncService {
 		}
 		logger.info(baseUrl + uploadapi + ",path=" + path);
 		JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl + uploadapi, path, contextKey);
+		if (!RestClient.isDebugEnabled(contextKey)) {
+			String unEncPacketPath=VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString();
+			
+		}
 		return response.toString();
 	}
 
