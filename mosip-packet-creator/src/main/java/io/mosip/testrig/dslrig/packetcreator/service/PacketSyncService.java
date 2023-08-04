@@ -234,6 +234,8 @@ public class PacketSyncService {
 			String tmpDir;
 
 			tmpDir = Files.createTempDirectory("residents_").toFile().getAbsolutePath();
+			
+			VariableManager.setVariableValue(contextKey, "residents_", tmpDir);
 
 			for (ResidentModel r : lst) {
 				Path tempPath = Path.of(tmpDir, r.getId() + ".json");
@@ -372,6 +374,9 @@ public class PacketSyncService {
 
 		logger.info(jsonWrapper.toString());
 		String tmpDir = Files.createTempDirectory("preregIds_").toFile().getAbsolutePath();
+		
+		VariableManager.setVariableValue(contextKey, "preregIds_", tmpDir);
+		
 		Path tempPath = Path.of(tmpDir, resident.getId() + "_ID.json");
 		Files.write(tempPath, jsonWrapper.toString().getBytes());
 
@@ -738,6 +743,8 @@ public class PacketSyncService {
 		boolean isFileCreated = false;
 
 		packetDir = Files.createTempDirectory("packets_");
+		VariableManager.setVariableValue(contextKey, "packets_", packetDir.toFile().getAbsolutePath());
+		
 		Properties personaFiles = personaRequest.getRequests().get(PersonaRequestType.PR_ResidentList);
 		Properties options = personaRequest.getRequests().get(PersonaRequestType.PR_Options);
 
@@ -790,6 +797,8 @@ public class PacketSyncService {
 		}
 		if (outDir == null || outDir.trim().equals("")) {
 			packetDir = Files.createTempDirectory("packets_");
+			VariableManager.setVariableValue(contextKey, "packets_", packetDir.toFile().getAbsolutePath());
+			
 			logger.info("packetDir=" + packetDir);
 		} else {
 			packetDir = Paths.get(outDir);
