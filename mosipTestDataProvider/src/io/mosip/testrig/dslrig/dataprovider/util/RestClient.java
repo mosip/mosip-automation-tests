@@ -193,6 +193,8 @@ public class RestClient {
 		return debugEnabled;
 	}
 
+	
+	
 	// method used with admin role
 	public static JSONObject getAdminPreReg(String url, JSONObject requestParams, JSONObject pathParam,
 			String contextKey) throws Exception {

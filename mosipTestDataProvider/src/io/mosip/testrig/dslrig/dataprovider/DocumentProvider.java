@@ -137,11 +137,14 @@ public class DocumentProvider {
 	
 		File docFile = File.createTempFile("Passport_", ".pdf");
 		docs.add(docFile.getAbsolutePath());
+		VariableManager.setVariableValue(contextKey, "Passport_", docFile.getAbsolutePath());
+		
 		
 		generatePdfFromHtml(html,docFile);
 		
 		docFile = File.createTempFile("DrivingLic_", ".pdf");
 		docs.add(docFile.getAbsolutePath());
+		VariableManager.setVariableValue(contextKey, "DrivingLic_", docFile.getAbsolutePath());
 		
 		html = parseThymeleafTemplateDriverLicense(
 				res.getBiometric().getEncodedPhoto(),
