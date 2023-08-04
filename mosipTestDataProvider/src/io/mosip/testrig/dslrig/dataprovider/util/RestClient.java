@@ -67,7 +67,8 @@ public class RestClient {
 	private static final String POST2SLACK = "post2slack";
 
 	static {
-		RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
+		//RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
+		
 	}
 	String _urlBase;
 
@@ -192,6 +193,8 @@ public class RestClient {
 		return debugEnabled;
 	}
 
+	
+	
 	// method used with admin role
 	public static JSONObject getAdminPreReg(String url, JSONObject requestParams, JSONObject pathParam,
 			String contextKey) throws Exception {
