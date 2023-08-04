@@ -16,7 +16,7 @@ public class ThreadCountChanger implements IAlterSuiteListener  {
         System.err.println("**Alter is invoked**");
 
         //        int count = Integer.parseInt(System.getProperty("threadCount", "1"));
-        
+        ConfigManager.init();
         int count = Integer.parseInt(ConfigManager.getThreadCount());
         
         logger.info("Running suite with thread count : "+count);
