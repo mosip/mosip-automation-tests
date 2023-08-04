@@ -67,7 +67,8 @@ public class RestClient {
 	private static final String POST2SLACK = "post2slack";
 
 	static {
-		RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
+		//RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
+		
 	}
 	String _urlBase;
 
