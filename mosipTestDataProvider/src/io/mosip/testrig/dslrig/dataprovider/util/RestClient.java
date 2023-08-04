@@ -154,8 +154,13 @@ public class RestClient {
 				Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
 				Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
-				response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
-						mapPathParam);
+				if (isDebugEnabled(contextKey)) {
+					response = given().log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+							.get(url, mapPathParam).then().log().all().extract().response();
+				} else {
+					response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
+							mapPathParam);
+				}
 				if (response.getStatusCode() == 401) {
 					if (nLoop >= 1)
 						bDone = true;
@@ -210,8 +215,13 @@ public class RestClient {
 				Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
 				Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
-				response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
-						mapPathParam);
+				if (isDebugEnabled(contextKey)) {
+					response = given().log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+							.get(url, mapPathParam).then().log().all().extract().response();
+				} else {
+					response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
+							mapPathParam);
+				}
 
 				if (response.getStatusCode() == 401) {
 					if (nLoop >= 1)
@@ -259,8 +269,14 @@ public class RestClient {
 				Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
 				Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
-				response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
-						mapPathParam);
+				if (isDebugEnabled(contextKey)) {
+					response = given().log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+							.get(url, mapPathParam).then().log().all().extract().response();
+				} else {
+					response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
+							mapPathParam);
+				}
+
 				if (response.getStatusCode() == 401) {
 					if (nLoop >= 1)
 						bDone = true;
@@ -303,7 +319,14 @@ public class RestClient {
 			Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
 			Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
-			response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url, mapPathParam);
+			if (isDebugEnabled(contextKey)) {
+				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+						.get(url, mapPathParam).then().log().all().extract().response();
+			} else {
+				response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
+						mapPathParam);
+			}
+
 			if (response.getStatusCode() == 401) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -339,7 +362,12 @@ public class RestClient {
 
 		Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
-		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url, mapPathParam);
+		if (isDebugEnabled(contextKey)) {
+			response = given().log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+					.get(url, mapPathParam).then().log().all().extract().response();
+		} else {
+			response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url, mapPathParam);
+		}
 
 		if (isDebugEnabled(contextKey) && response != null) {
 			logger.info(response.getBody().asString());
@@ -373,11 +401,19 @@ public class RestClient {
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
 		if (requestData != null) {
-			response = given().cookie(kukki).multiPart("file", new File(filePath))
-					.param("Document request", requestData.toString()).post(url);
-
+			if (isDebugEnabled(contextKey))
+				response = given().log().all().cookie(kukki).multiPart("file", new File(filePath))
+						.param("Document request", requestData.toString()).post(url).then().log().all().extract()
+						.response();
+			else
+				response = given().cookie(kukki).multiPart("file", new File(filePath))
+						.param("Document request", requestData.toString()).post(url);
 		} else {
-			response = given().cookie(kukki).multiPart("file", new File(filePath)).post(url);
+			if (isDebugEnabled(contextKey))
+				response = given().log().all().cookie(kukki).multiPart("file", new File(filePath)).post(url).then()
+						.log().all().extract().response();
+			else
+				response = given().cookie(kukki).multiPart("file", new File(filePath)).post(url);
 		}
 
 		checkErrorResponse(response.getBody().asString());
@@ -399,12 +435,15 @@ public class RestClient {
 		}
 
 		Response response = null;
-
+		RequestSpecification spec = null;
 		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
-		RequestSpecification spec = given().cookie(kukki);
+		if (isDebugEnabled(contextKey))
+			spec = given().log().all().cookie(kukki);
+		else
+			spec = given().cookie(kukki);
 		for (String fName : filePaths)
 			spec = spec.multiPart("files", new File(fName));
 		if (requestData != null) {
@@ -415,7 +454,11 @@ public class RestClient {
 
 			}
 		}
-		response = spec.post(url);
+
+		if (isDebugEnabled(contextKey))
+			response = spec.post(url).then().log().all().extract().response();
+		else
+			response = spec.post(url);
 
 		checkErrorResponse(response.getBody().asString());
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -445,7 +488,11 @@ public class RestClient {
 			logger.info("Request: " + jsonRequest.toString());
 		}
 		try {
-			response = given().contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+			if (isDebugEnabled(contextKey))
+				response = given().log().all().contentType(ContentType.JSON).body(jsonRequest.toString()).post(url)
+						.then().log().all().extract().response();
+			else
+				response = given().contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -490,7 +537,12 @@ public class RestClient {
 		logger.info("Request: " + jsonRequest.toString());
 		try {
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
-			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+			if (isDebugEnabled(contextKey))
+				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+						.post(url).then().log().all().extract().response();
+			else
+				response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -542,7 +594,11 @@ public class RestClient {
 			logger.info("Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
-		response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+		if (isDebugEnabled(contextKey))
+			response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+					.put(url).then().log().all().extract().response();
+		else
+			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
@@ -570,7 +626,11 @@ public class RestClient {
 		logger.info("Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
-		response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
+		if (isDebugEnabled(contextKey))
+			response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+					.delete(url).then().log().all().extract().response();
+		else
+			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
 
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
@@ -596,9 +656,11 @@ public class RestClient {
 
 		logger.info("Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
-
-		response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
-
+		if (isDebugEnabled(contextKey))
+			response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+					.delete(url).then().log().all().extract().response();
+		else
+			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 			token = cookie.split("=")[1];
@@ -624,9 +686,11 @@ public class RestClient {
 
 		logger.info("Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
-
-		response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
-
+		if (isDebugEnabled(contextKey))
+			response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+					.delete(url).then().log().all().extract().response();
+		else
+			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 			token = cookie.split("=")[1];
@@ -655,7 +719,11 @@ public class RestClient {
 		logger.info("Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
-		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(jsonRequest.toMap()).delete(url);
+		if (isDebugEnabled(contextKey))
+			response = given().log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(jsonRequest.toMap())
+					.delete(url).then().log().all().extract().response();
+		else
+			response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(jsonRequest.toMap()).delete(url);
 
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
@@ -677,9 +745,14 @@ public class RestClient {
 	}
 
 	public static Response post(String url, String requestBody, String contextKey) throws Exception {
+		Response response = null;
+		if (isDebugEnabled(contextKey))
+			response = RestAssured.given().log().all().baseUri(url).contentType(ContentType.JSON).and()
+					.body(requestBody).when().post().then().log().all().extract().response();
+		else
+			response = RestAssured.given().baseUri(url).contentType(ContentType.JSON).and().body(requestBody).when()
+					.post().then().extract().response();
 
-		Response response = RestAssured.given().baseUri(url).contentType(ContentType.JSON).and().body(requestBody)
-				.when().post().then().extract().response();
 		return response;
 
 	}
@@ -703,8 +776,11 @@ public class RestClient {
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			logger.info("Request:" + jsonRequest.toString());
-
-			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+			if (isDebugEnabled(contextKey))
+				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+						.post(url).then().log().all().extract().response();
+			else
+				response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
 			if (response.getStatusCode() == 401 || response.getStatusCode() == 500) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -753,9 +829,12 @@ public class RestClient {
 			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
-			if (isDebugEnabled(contextKey))
+			if (isDebugEnabled(contextKey)) {
 				logger.info("Request:" + jsonRequest.toString());
-			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+						.put(url).then().log().all().extract().response();
+			} else
+				response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 			if (response.getStatusCode() == 401 || response.getStatusCode() == 500) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -799,9 +878,12 @@ public class RestClient {
 			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
-			if (isDebugEnabled(contextKey))
+			if (isDebugEnabled(contextKey)) {
 				logger.info("Request:" + jsonRequest.toString());
-			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+						.put(url).then().log().all().extract().response();
+			} else
+				response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 			if (response.getStatusCode() == 401 || response.getStatusCode() == 500) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -844,9 +926,12 @@ public class RestClient {
 			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
-			if (isDebugEnabled(contextKey))
+			if (isDebugEnabled(contextKey)) {
 				logger.info("Request:" + jsonRequest.toString());
-			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+						.put(url).then().log().all().extract().response();
+			} else
+				response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 			if (response.getStatusCode() == 401 || response.getStatusCode() == 500) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -890,8 +975,11 @@ public class RestClient {
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			logger.info("Request:" + jsonRequest.toString());
-
-			response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).patch(url);
+			if (isDebugEnabled(contextKey))
+				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+						.patch(url).then().log().all().extract().response();
+			else
+				response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).patch(url);
 			if (response.getStatusCode() == 401 || response.getStatusCode() == 500) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -929,7 +1017,11 @@ public class RestClient {
 
 			Response response = null;
 			try {
-				response = given().contentType("application/json").body(jsonBody).post(url);
+				if (isDebugEnabled(contextKey))
+					response = given().log().all().contentType("application/json").body(jsonBody).post(url).then().log()
+							.all().extract().response();
+				else
+					response = given().contentType("application/json").body(jsonBody).post(url);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
@@ -970,11 +1062,15 @@ public class RestClient {
 			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
 					+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString();
-			logger.info(contextKey +" InitToken logger " + authUrl + AUTHURL + jsonBody);
+			logger.info(contextKey + " InitToken logger " + authUrl + AUTHURL + jsonBody);
 
 			Response response = null;
 			try {
-				response = given().contentType("application/json").body(jsonBody).post(authUrl);
+				if (isDebugEnabled(contextKey))
+					response = given().log().all().contentType("application/json").body(jsonBody).post(authUrl).then()
+							.log().all().extract().response();
+				else
+					response = given().contentType("application/json").body(jsonBody).post(authUrl);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
@@ -1022,10 +1118,14 @@ public class RestClient {
 			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
 					+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString();
-			logger.info(contextKey +" InitToken_admin logger " + authUrl + AUTHURL + jsonBody);
+			logger.info(contextKey + " InitToken_admin logger " + authUrl + AUTHURL + jsonBody);
 			Response response = null;
 			try {
-				response = given().contentType("application/json").body(jsonBody).post(authUrl);
+				if (isDebugEnabled(contextKey))
+					response = given().log().all().contentType("application/json").body(jsonBody).post(authUrl).then()
+							.log().all().extract().response();
+				else
+					response = given().contentType("application/json").body(jsonBody).post(authUrl);
 
 			} catch (Exception e) {
 				logger.error(e.getMessage());
@@ -1073,12 +1173,15 @@ public class RestClient {
 					+ "v1/authmanager/authenticate/clientidsecretkey";
 
 			String jsonBody = requestBody.toString();
-			logger.info(contextKey  +" initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
+			logger.info(contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
 
 			Response response = null;
 			try {
-				response = given().contentType("application/json").body(jsonBody).post(authUrl);
-
+				if (isDebugEnabled(contextKey))
+					response = given().log().all().contentType("application/json").body(jsonBody).post(authUrl).then()
+							.log().all().extract().response();
+				else
+					response = given().contentType("application/json").body(jsonBody).post(authUrl);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
@@ -1169,7 +1272,14 @@ public class RestClient {
 			Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
 			Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
-			response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url, mapPathParam);
+			if (isDebugEnabled(contextKey))
+				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+						.get(url, mapPathParam).then().log().all().extract().response();
+
+			else
+				response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
+						mapPathParam);
+
 			if (response.getStatusCode() == 401) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -1229,8 +1339,11 @@ public class RestClient {
 			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
-
-			response = given().cookie(kukki).contentType(ContentType.JSON).get(url);
+			if (isDebugEnabled(contextKey))
+				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).get(url).then().log().all()
+						.extract().response();
+			else
+				response = given().cookie(kukki).contentType(ContentType.JSON).get(url);
 
 			if (response.getStatusCode() == 401) {
 				if (nLoop >= 1)
@@ -1257,14 +1370,16 @@ public class RestClient {
 			return false;
 	}
 
-	public static boolean checkActuatorNoAuth(String url) {
+	public static boolean checkActuatorNoAuth(String url, String contextKey) {
 
 		String urlAct = url;
 
 		Response response = null;
-
-		response = given().contentType(ContentType.JSON).get(urlAct);
-
+		if (isDebugEnabled(contextKey))
+			response = given().log().all().contentType(ContentType.JSON).get(urlAct).then().log().all().extract()
+					.response();
+		else
+			response = given().contentType(ContentType.JSON).get(urlAct);
 		if (response != null && response.getStatusCode() == 200) {
 
 			logger.info(response.getBody().asString());
