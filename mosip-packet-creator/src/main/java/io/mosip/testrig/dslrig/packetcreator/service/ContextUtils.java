@@ -81,21 +81,34 @@ public class ContextUtils {
 				generateKeyAndUpdateMachineDetail(pp, ctxName);
 			
 		// Remove the temp directories created for the same context 	
-			
-			if(VariableManager.getVariableValue(ctxName, "residents_")!=null)
-			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "residents_").toString());
-			
-			if(VariableManager.getVariableValue(ctxName, "packets_")!=null)
-			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "packets_").toString());
-			
-			if(VariableManager.getVariableValue(ctxName, "preregIds_")!=null)
-			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "preregIds_").toString());
+			clearPacketGenFolders(ctxName);
+
 			
 		} catch (IOException e) {
 			logger.error("write:createUpdateServerContext " + e.getMessage());
 			bRet = false;
 		}
 		return bRet;
+	}
+
+	private void clearPacketGenFolders(String ctxName) {
+		// TODO Auto-generated method stub
+		
+		if(VariableManager.getVariableValue(ctxName, "residents_")!=null)
+		deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "residents_").toString());
+		
+		if(VariableManager.getVariableValue(ctxName, "packets_")!=null)
+		deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "packets_").toString());
+		
+		if(VariableManager.getVariableValue(ctxName, "preregIds_")!=null)
+		deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "preregIds_").toString());
+		
+		
+		if(VariableManager.getVariableValue(ctxName, "Passport_")!=null)
+			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "Passport_").toString());
+		
+		if(VariableManager.getVariableValue(ctxName, "DrivingLic_")!=null)
+			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "DrivingLic_").toString());	
 	}
 
 	public String createExecutionContext(String serverContextKey) {

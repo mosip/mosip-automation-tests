@@ -515,12 +515,49 @@ public class PacketSyncService {
 		logger.info(baseUrl + uploadapi + ",path=" + path);
 		JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl + uploadapi, path, contextKey);
 		if (!RestClient.isDebugEnabled(contextKey)) {
-			String unEncPacketPath=VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString();
-			
+			if(VariableManager.getVariableValue(contextKey,"mosip.test.temp")!=null)
+				deleteDirectoryPath(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString()+"/"+contextKey);
 		}
 		return response.toString();
 	}
 
+
+	
+	public void deleteDirectoryPath(String path) {
+		if (path != null && !path.isEmpty()) {
+			File file = new File(path);
+			if (file.exists()) {
+				do {
+					deleteIt(file);
+				} while (file.exists());
+			} else {
+			}
+		}
+	}
+	
+	private void deleteIt(File file) {
+		if (file.isDirectory()) {
+			String fileList[] = file.list();
+			if (fileList.length == 0) {
+				if (!file.delete()) {
+					logger.info("Files deleted");
+				}
+			} else {
+				int size = fileList.length;
+				for (int i = 0; i < size; i++) {
+					String fileName = fileList[i];
+					String fullPath = file.getPath() + "/" + fileName;
+					File fileOrFolder = new File(fullPath);
+					deleteIt(fileOrFolder);
+				}
+			}
+		} else {
+			if (!file.delete()) {
+				logger.info("Files deleted");
+			}
+		}
+	}
+	
 	public String preRegisterResident(List<String> personaFilePath, String contextKey) throws IOException {
 		StringBuilder builder = new StringBuilder();
 
