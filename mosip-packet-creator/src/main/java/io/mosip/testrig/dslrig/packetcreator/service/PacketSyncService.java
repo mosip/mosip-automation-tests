@@ -235,7 +235,7 @@ public class PacketSyncService {
 			String tmpDir;
 
 			tmpDir = Files.createTempDirectory("residents_").toFile().getAbsolutePath();
-			
+
 			VariableManager.setVariableValue(contextKey, "residents_", tmpDir);
 
 			for (ResidentModel r : lst) {
@@ -375,9 +375,9 @@ public class PacketSyncService {
 
 		logger.info(jsonWrapper.toString());
 		String tmpDir = Files.createTempDirectory("preregIds_").toFile().getAbsolutePath();
-		
+
 		VariableManager.setVariableValue(contextKey, "preregIds_", tmpDir);
-		
+
 		Path tempPath = Path.of(tmpDir, resident.getId() + "_ID.json");
 		Files.write(tempPath, jsonWrapper.toString().getBytes());
 
@@ -515,14 +515,17 @@ public class PacketSyncService {
 		logger.info(baseUrl + uploadapi + ",path=" + path);
 		JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl + uploadapi, path, contextKey);
 		if (!RestClient.isDebugEnabled(contextKey)) {
-			if(VariableManager.getVariableValue(contextKey,"mosip.test.temp")!=null)
-				deleteDirectoryPath(VariableManager.getVariableValue(contextKey,"mosip.test.temp").toString()+"/"+contextKey);
+			if (VariableManager.getVariableValue(contextKey, "mosip.test.temp") != null
+					&& VariableManager.getVariableValue(contextKey, "mountPath") != null) {
+
+				deleteDirectoryPath(VariableManager.getVariableValue(contextKey, "mountPath").toString()
+						+ VariableManager.getVariableValue(contextKey, "mosip.test.temp").toString()
+						+ contextKey.substring(0, contextKey.lastIndexOf("_context")));
+			}
 		}
 		return response.toString();
 	}
 
-
-	
 	public void deleteDirectoryPath(String path) {
 		if (path != null && !path.isEmpty()) {
 			File file = new File(path);
@@ -534,7 +537,7 @@ public class PacketSyncService {
 			}
 		}
 	}
-	
+
 	private void deleteIt(File file) {
 		if (file.isDirectory()) {
 			String fileList[] = file.list();
@@ -557,7 +560,7 @@ public class PacketSyncService {
 			}
 		}
 	}
-	
+
 	public String preRegisterResident(List<String> personaFilePath, String contextKey) throws IOException {
 		StringBuilder builder = new StringBuilder();
 
@@ -603,7 +606,7 @@ public class PacketSyncService {
 	}
 
 	String getPersona(String preRegId) {
-		try(FileReader reader = new FileReader(preRegMapFile)) {
+		try (FileReader reader = new FileReader(preRegMapFile)) {
 			Properties p = new Properties();
 			p.load(reader);
 			return p.getProperty(preRegId);
@@ -786,7 +789,7 @@ public class PacketSyncService {
 
 		packetDir = Files.createTempDirectory("packets_");
 		VariableManager.setVariableValue(contextKey, "packets_", packetDir.toFile().getAbsolutePath());
-		
+
 		Properties personaFiles = personaRequest.getRequests().get(PersonaRequestType.PR_ResidentList);
 		Properties options = personaRequest.getRequests().get(PersonaRequestType.PR_Options);
 
@@ -840,7 +843,7 @@ public class PacketSyncService {
 		if (outDir == null || outDir.trim().equals("")) {
 			packetDir = Files.createTempDirectory("packets_");
 			VariableManager.setVariableValue(contextKey, "packets_", packetDir.toFile().getAbsolutePath());
-			
+
 			logger.info("packetDir=" + packetDir);
 		} else {
 			packetDir = Paths.get(outDir);
@@ -872,12 +875,11 @@ public class PacketSyncService {
 
 				centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
 
-				if(packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
+				if (packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
 						machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
-						genarateValidCbeff)== false)
-			      return "{\"Failed\"}";
-				
-				
+						genarateValidCbeff) == false)
+					return "{\"Failed\"}";
+
 				JSONObject obj = new JSONObject();
 				obj.put("id", resident.getId());
 				obj.put("path", packetPath);
