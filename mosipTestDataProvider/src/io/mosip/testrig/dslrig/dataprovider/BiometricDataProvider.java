@@ -242,9 +242,14 @@ public class BiometricDataProvider {
 				if (certsDir == null || certsDir.length() == 0) {
 					certsDir = System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS";
 				}
-
-				Path p12path = Paths.get(certsDir,
-						"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
+				
+				Path p12path = null;
+      			boolean invalidCertFlag = Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, "invalidCertFlag").toString());
+		
+      			if (invalidCertFlag)
+					p12path = Paths.get(certsDir,"invalid_cert");
+				else 
+					p12path = Paths.get(certsDir,"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server")); 
 
 				logger.info("p12path" + p12path);
 				
