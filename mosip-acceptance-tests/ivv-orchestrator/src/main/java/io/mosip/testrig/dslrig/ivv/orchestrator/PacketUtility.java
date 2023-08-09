@@ -697,7 +697,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
 
-			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step) throws RigInternalError {
+			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag) throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
 
@@ -718,7 +718,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} else {
 			jsonReq.put(SCENARIO, step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		}
-
+		jsonReq.put("invalidCertFlag", invalidCertFlag);
 		jsonReq.put("enableDebug", ConfigManager.getEnableDebug());
 		logger.info("Running suite with enableDebug : " + ConfigManager.getEnableDebug());
 		jsonReq.put(URLBASE, envbaseUrl);
