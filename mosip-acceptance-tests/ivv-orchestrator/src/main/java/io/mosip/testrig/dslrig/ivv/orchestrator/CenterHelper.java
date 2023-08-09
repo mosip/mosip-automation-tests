@@ -1,11 +1,14 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.testscripts.GetWithParam;
+import io.mosip.testrig.apirig.testscripts.GetWithQueryParam;
 import io.mosip.testrig.apirig.testscripts.PatchWithPathParam;
 import io.mosip.testrig.apirig.testscripts.PutWithPathParam;
 import io.mosip.testrig.apirig.testscripts.SimplePost;
@@ -22,12 +25,17 @@ public class CenterHelper extends BaseTestCaseUtil {
 	private static final String UpdateRegistrationCenterNonLanguage = "ivv_masterdata/UpdateRegistrationCenterNonLanguage/UpdateRegistrationCenterNonLanguage.yml";
 	private static final String UpdateRegistrationCenterLang = "ivv_masterdata/UpdateRegistrationCenterLang/UpdateRegistrationCenterLang.yml";
 	private static final String DecommissionRegCenter = "ivv_masterdata/DecommissionRegCenter/DecommissionRegCenter.yml";
+	private static final String GetLocationCodeHoliday = "ivv_masterdata/GetLocationCodeHoliday/GetLocationCodeHoliday.yml";
+	
+	private static final String GetPostalCode = "ivv_masterdata/GetPostalCode/GetPostalCode.yml";
 	
 	SimplePost simplepost=new SimplePost() ;
 	PatchWithPathParam patchwithpathparam=new PatchWithPathParam();
 	SimplePut simpleput=new SimplePut();
 	PutWithPathParam putwithpathparam=new PutWithPathParam();
-
+	GetWithParam getWithParam=new GetWithParam();
+	GetWithQueryParam getWithQueryParam=new GetWithQueryParam();
+	
 
 
 
@@ -128,7 +136,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 
 	}
 
-	public String centerCreate(String zone) throws RigInternalError {
+	public String centerCreate(String zone,String holidayLocationCode,String locationCode) throws RigInternalError {
 		try {
 			String id =null;
 			Object[] testObjPost=simplepost.getYmlTestData(CreateRegistrationCenter);
@@ -146,6 +154,17 @@ public class CenterHelper extends BaseTestCaseUtil {
 			
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					BaseTestCase.languageCode,"langCode");
+			
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					holidayLocationCode,"holidayLocationCode");
+			
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					locationCode,"locationCode");
+//			
+//			   "holidayLocationCode":"RSK",
+//		
+//			   "locationCode":"10114",
+//			
 			
 			testPost.setInput(input);
 			
@@ -178,5 +197,89 @@ public class CenterHelper extends BaseTestCaseUtil {
 	}
 
 
+
+	public String getLocationCodeHoliday() throws RigInternalError {
+
+		try {	String lastSyncTime =null;
+		Object[] testObjPost=getWithQueryParam.getYmlTestData(GetLocationCodeHoliday);
+
+		TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
+		getWithParam.test(testPost);
+		Response response= getWithParam.response;
+		String locationCode=null;
+		if(response!=null) 
+		{
+			JSONObject jsonObject = new JSONObject(response.getBody().asString());
+			JSONObject responseObj = jsonObject.getJSONObject("response");
+			JSONArray responseArray = responseObj.getJSONArray("holidays");
+			if (responseArray.length() > 0) {
+				JSONObject locationObject = responseArray.getJSONObject(0);
+				locationCode = locationObject.getString("locationCode");
+
+				// Traverse on the "code" field
+				System.out.println("Location Code: " + locationCode);
+				return locationCode;
+			} else {
+				logger.error("No location data found in the response.");
+			}
+
+
+		}
+		return locationCode;
+		}catch (Exception e)
+		{
+			this.hasError=true;
+			throw new RigInternalError(e.getMessage());
+
+		}
+
+
+	}
+
+
+
+	public String getPostalCode() throws RigInternalError {
+
+		try {	String lastSyncTime =null;
+		Object[] testObjPost=getWithParam.getYmlTestData(GetPostalCode);
+
+		TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
+		//String langCode=BaseTestCase.languageCode;
+		//testPost.setEndPoint(testPost.getEndPoint().replace("langcode", langCode));
+		getWithParam.test(testPost);
+		Response response= getWithParam.response;
+		String locationCode=null;
+		if(response!=null) 
+		{
+			JSONObject jsonObject = new JSONObject(response.getBody().asString());
+			JSONObject responseObj = jsonObject.getJSONObject("response");
+			JSONArray responseArray = responseObj.getJSONArray("locations");
+			if (responseArray.length() > 0) {
+				JSONObject locationObject = responseArray.getJSONObject(0);
+				locationCode = locationObject.getString("code");
+
+				// Traverse on the "code" field
+				System.out.println("Location Code: " + locationCode);
+				return locationCode;
+			} else {
+				logger.error("No location data found in the response.");
+			}
+
+
+		}
+		return locationCode;
+		}catch (Exception e)
+		{
+			this.hasError=true;
+			throw new RigInternalError(e.getMessage());
+
+		}
+
+
+	}
+
+
+
+	
 	
 }
