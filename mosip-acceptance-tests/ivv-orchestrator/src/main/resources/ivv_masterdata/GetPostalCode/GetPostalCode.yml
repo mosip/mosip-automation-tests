@@ -1,0 +1,22 @@
+GetPostalCode:
+   Admin_GetLeafZones_allValid_smoke:
+      endPoint: /v1/masterdata/locations/locationhierarchy/postal code
+      role: globalAdmin
+      restMethod: get
+      inputTemplate: ivv_masterdata/GetPostalCode/getPostalCode
+      outputTemplate: ivv_masterdata/GetPostalCode/getPostalCodeResult
+      input: '{
+     }'
+      output: '{
+     "response": [
+     "locations":{
+        "code": "14022",
+        "name": "$IGNORE$"
+        "hierarchyLevel": "$IGNORE$"
+        "hierarchyName": "Postal Code",
+        "parentLocCode": "$IGNORE$"
+        "langCode": "$IGNORE$"
+        "isActive": true
+    }],
+      "errors": "$IGNORE$"
+}' 
