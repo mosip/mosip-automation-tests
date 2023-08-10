@@ -3,10 +3,10 @@ BioAuth:
       endPoint: /v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
-      inputTemplate: idaData/BioAuthIdp/bioAuth
-      outputTemplate: idaData/BioAuthIdp/bioAuthResult
+      inputTemplate: idaData/BioAuthEsignet/bioAuth
+      outputTemplate: idaData/BioAuthEsignet/bioAuthResult
       input: '{
-	    "encodedHash": "encodedHash",
+        "encodedHash": "encodedHash",
         "requestTime": "$TIMESTAMP$",
         "transactionId": "transactionId",
         "individualId": "individualId",
@@ -29,7 +29,7 @@ BioAuth:
           "serialNo": "78467171",
           "type": "Face",
     "transactionId": "1234567890",
-    "identityRequestTemplate": "idaData/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestTemplate": "idaData/BioAuthEsignet/BioAuthIdentityEncrypt",
     "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
     }
     }'

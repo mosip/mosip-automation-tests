@@ -1004,8 +1004,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 	}
 
-	public void idpBioAuth(String modility, String bioValue, String uin, String transactionId, Properties deviceProps,
-			TestCaseDTO test, EsignetBioAuth idpBioAuth, String input, Scenario.Step step) throws RigInternalError {
+	public void esignetBioAuth(String modility, String bioValue, String uin, String transactionId, Properties deviceProps,
+			TestCaseDTO test, EsignetBioAuth esignetBioAuth, String input, Scenario.Step step) throws RigInternalError {
 
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, INDIVIDUALID);
 
@@ -1040,7 +1040,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		Reporter.log("<b><u>" + test.getTestCaseName() + "_" + modility + "</u></b>");
 
 		try {
-			idpBioAuth.test(test);
+			esignetBioAuth.test(test);
 		} catch (AuthenticationTestException | AdminTestException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());

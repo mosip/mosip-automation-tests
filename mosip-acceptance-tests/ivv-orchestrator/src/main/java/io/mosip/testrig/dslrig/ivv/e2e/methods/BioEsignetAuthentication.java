@@ -21,12 +21,12 @@ import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 
-public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterface {
-	static Logger logger = Logger.getLogger(BioIdpAuthentication.class);
-	private static final String AuthenticateUser = "idaData/BioAuthIdp/BioAuthIdp.yml";
+public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepInterface {
+	static Logger logger = Logger.getLogger(BioEsignetAuthentication.class);
+	private static final String AuthenticateUser = "idaData/BioAuthEsignet/BioAuthEsignet.yml";
 	Properties deviceProp = null;
 	Properties uinResidentDataPathFinalProps = new Properties();
-	EsignetBioAuth idpBioAuth = new EsignetBioAuth();
+	EsignetBioAuth esignetBioAuth = new EsignetBioAuth();
 	String bioResponse = null;
 
 	@Override
@@ -62,11 +62,11 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 			} else {
 				this.hasError=true;	throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
 		}}
-		if (step.getParameters().size() == 4) { // "e2e_BioIdpAuthentication(faceDevice,$$uin,$$personaFilePath,$$transactionId,$$vid)"
+		if (step.getParameters().size() == 4) { // "e2e_BioEsignetAuthentication(faceDevice,$$uin,$$personaFilePath,$$transactionId,$$vid)"
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else if (step.getParameters().size() == 6) { // "e2e_BioIdpAuthentication(faceDevice,$$uin,$$personaFilePath,$$transactionId,$$vid)"
+		} else if (step.getParameters().size() == 6) { // "e2e_BioEsignetAuthentication(faceDevice,$$uin,$$personaFilePath,$$transactionId,$$vid)"
 			uins = step.getParameters().get(1);
 			String _personaFilePath = step.getParameters().get(2);
 			if (uins.startsWith("$$") && _personaFilePath.startsWith("$$")) {
@@ -163,24 +163,24 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 			//System.out.println("bioMetricValue= " + bioResponse);
 
 			String fileName = AuthenticateUser;
-			idpBioAuth.isInternal = false;
-			Object[] casesList = idpBioAuth.getYmlTestData(fileName);
+			esignetBioAuth.isInternal = false;
+			Object[] casesList = esignetBioAuth.getYmlTestData(fileName);
 
 			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
 
-				casesListUIN = idpBioAuth.getYmlTestData(fileName);
+				casesListUIN = esignetBioAuth.getYmlTestData(fileName);
 
 			}
 
 			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
-				casesListVID = idpBioAuth.getYmlTestData(fileName);
+				casesListVID = esignetBioAuth.getYmlTestData(fileName);
 			}
 
 			else {
-				casesListUIN = idpBioAuth.getYmlTestData(fileName);
-				casesListVID = idpBioAuth.getYmlTestData(fileName);
+				casesListUIN = esignetBioAuth.getYmlTestData(fileName);
+				casesListVID = esignetBioAuth.getYmlTestData(fileName);
 			}
 
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue != null) {
@@ -191,7 +191,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 							"Not able to get the bio value for field " + modalityToLog + " from persona");
 				
 					}if (idType.contains("UIN") || idType.contains("uin")) {
-					casesListUIN = idpBioAuth.getYmlTestData(fileName);
+					casesListUIN = esignetBioAuth.getYmlTestData(fileName);
 				}
 
 				if (casesListUIN != null) {
@@ -202,8 +202,8 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 						
 						input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp1"), "encodedHash");
 						
-						packetUtility.idpBioAuth(modalityToLog, bioValue, uin, transactionId1, deviceProp, test,
-								idpBioAuth,input,step);
+						packetUtility.esignetBioAuth(modalityToLog, bioValue, uin, transactionId1, deviceProp, test,
+								esignetBioAuth,input,step);
 					}
 				}
 
@@ -253,24 +253,24 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 			//System.out.println("bioMetricValue= " + bioResponse);
 
 			String fileName = AuthenticateUser;
-			idpBioAuth.isInternal = false;
-			Object[] casesList = idpBioAuth.getYmlTestData(fileName);
+			esignetBioAuth.isInternal = false;
+			Object[] casesList = esignetBioAuth.getYmlTestData(fileName);
 
 			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
 
-				casesListUIN = idpBioAuth.getYmlTestData(fileName);
+				casesListUIN = esignetBioAuth.getYmlTestData(fileName);
 
 			}
 
 			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
-				casesListVID = idpBioAuth.getYmlTestData(fileName);
+				casesListVID = esignetBioAuth.getYmlTestData(fileName);
 			}
 
 			else {
-				casesListUIN = idpBioAuth.getYmlTestData(fileName);
-				casesListVID = idpBioAuth.getYmlTestData(fileName);
+				casesListUIN = esignetBioAuth.getYmlTestData(fileName);
+				casesListVID = esignetBioAuth.getYmlTestData(fileName);
 			}
 
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue != null) {
@@ -280,7 +280,7 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 					{this.hasError=true;throw new RigInternalError(
 							"Not able to get the bio value for field " + modalityToLog + " from persona");
 					}if (idType.contains("VID") || idType.contains("vid")) {
-					casesListVID = idpBioAuth.getYmlTestData(fileName);
+					casesListVID = esignetBioAuth.getYmlTestData(fileName);
 				}
 
 				if (casesListVID != null) {
@@ -291,8 +291,8 @@ public class BioIdpAuthentication extends BaseTestCaseUtil implements StepInterf
 						
 						input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp2"), "encodedHash");
 						
-						packetUtility.idpBioAuth(modalityToLog, bioValue, vid, transactionId2, deviceProp, test,
-								idpBioAuth, input,step);
+						packetUtility.esignetBioAuth(modalityToLog, bioValue, vid, transactionId2, deviceProp, test,
+								esignetBioAuth, input,step);
 					}
 				}
 
