@@ -19,8 +19,8 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
-public class IdpAuthentication extends BaseTestCaseUtil implements StepInterface {
-	static Logger logger = Logger.getLogger(IdpAuthentication.class);
+public class EsignetAuthentication extends BaseTestCaseUtil implements StepInterface {
+	static Logger logger = Logger.getLogger(EsignetAuthentication.class);
 	private static final String AuthenticateUserYml = "idaData/AuthenticateUser/AuthenticateUser.yml";
 	private static final String OtpUserYml = "idaData/SendOtpForIdp/SendOtp.yml";
 	SimplePost authenticateUser = new SimplePost();

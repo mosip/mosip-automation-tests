@@ -6,6 +6,6 @@ GetOidcUserInfo:
       inputTemplate: idaData/GetOidcUserInfo/GetOidcUserInfo
       outputTemplate: idaData/GetOidcUserInfo/GetOidcUserInfoResult
       input: '{
-        "idpAccessToken": "idpAccessToken"
+        "idpAccessToken": "esignetAccessToken"
 }'
       output: "200"
