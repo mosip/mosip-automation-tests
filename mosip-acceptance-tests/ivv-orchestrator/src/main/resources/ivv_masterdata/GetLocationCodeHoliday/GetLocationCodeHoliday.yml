@@ -1,0 +1,24 @@
+GetLocationCodeHoliday:
+   Admin_GetLocationCodeHoliday_allValid_smoke:
+      endPoint: /v1/masterdata/holidays
+      role: globalAdmin
+      restMethod: get
+      inputTemplate: ivv_masterdata/GetLocationCodeHoliday/getLocatioCodeHoliday
+      outputTemplate: ivv_masterdata/GetLocationCodeHoliday/getLocatioCodeHolidayResult
+      input: '{
+     }'
+      output: '{
+     "response":{
+     "holidays": [
+     {
+      "locationCode": "$IGNORE$",
+      "holidayDate":  "$IGNORE$",
+      "holidayName": "$IGNORE$",
+      "holidayDesc": "$IGNORE$",
+      "langCode":  "$IGNORE$",
+      "isActive":  "$IGNORE$",
+      "holidayId":  "$IGNORE$"
+    }]
+    },
+      "errors": "$IGNORE$"
+}'  

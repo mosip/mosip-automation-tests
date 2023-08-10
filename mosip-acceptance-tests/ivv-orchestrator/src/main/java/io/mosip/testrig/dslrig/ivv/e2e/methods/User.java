@@ -76,7 +76,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			Reporter.log(map.toString(), true);
 			break;
 		case "DELETE_ZONEMAPPING":
-			userHelper.deleteZoneMapping(user,map);
+			userHelper.deleteZoneMapping(user,zone);
 			break;
 		case "CREATE_CENTERMAPPING":
 			centerNum=Integer.parseInt(id);
@@ -103,11 +103,16 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			String val=map.get("$$uin")!=null ?map.get("$$uin") : "11000000";
 			list.add(val);
 			attrmap.put("individualId",list);
-			KeycloakUserManager.removeUser(user);
+			//Create User at Keycloak
+			//KeycloakUserManager.removeUser(user);
 			KeycloakUserManager.createUsers(user, pwd,"roles", attrmap);
-			//zone=userHelper.getLeafZones();
+			// Get the xone of the user if zone mapping already existing doubtt
+			zone=userHelper.getZoneOfUser(user);
+			if(zone!=null && zone.equalsIgnoreCase("NOTSET")) {
+			zone=userHelper.getLeafZones();
 			BaseTestCase.mapUserToZone(user,zone);
 			BaseTestCase.mapZone(user);
+			}
 			HashMap<String, String> userdetails=new HashMap<String, String>();
 			userdetails.put("user", user);
 			userdetails.put("pwd",pwd);
@@ -132,12 +137,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			
 		
 		break;
-		
-		case "REMOVE_User":
-			
-			KeycloakUserManager.createUsers();
-		
-			break;
+	
 		}
 
 	}
