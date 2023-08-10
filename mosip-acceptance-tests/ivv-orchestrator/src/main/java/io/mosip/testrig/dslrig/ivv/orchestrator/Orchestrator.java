@@ -470,6 +470,7 @@ public class Orchestrator {
 							+ BaseTestCase.testLevel + "-" + "default" + ".csv";
 					path = Paths.get(scenarioSheet);
 					if (!Files.exists(path)) {
+						logger.info("Scenario sheet path is: " +path);
 						throw new RigInternalError("ScenarioSheet missing");
 					}
 				}
