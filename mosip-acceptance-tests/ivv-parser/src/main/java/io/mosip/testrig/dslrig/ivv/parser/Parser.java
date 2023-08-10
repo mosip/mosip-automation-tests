@@ -370,7 +370,7 @@ public class Parser implements ParserInterface {
         ArrayList<Scenario.Step> steps = new ArrayList<Scenario.Step>();
         for (HashMap.Entry<String, String> entry : data_map.entrySet())
         {
-            boolean isMatching = entry.getKey().contains("field");
+            boolean isMatching = entry.getKey().contains("step");
             if(isMatching && entry.getValue() != null && !entry.getValue().isEmpty()){
                 if(entry.getValue() != null && !entry.getValue().equals("")) {
                     steps.add(StepParser.parse(entry.getValue()));
