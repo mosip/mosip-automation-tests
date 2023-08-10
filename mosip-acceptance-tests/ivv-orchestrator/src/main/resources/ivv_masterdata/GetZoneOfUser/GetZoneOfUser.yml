@@ -1,7 +1,7 @@
 GetZoneOfUser:
-   Admin_GetLeafZones_allValid_smoke:
+   Admin_GetZoneOfUser_allValid_smoke:
       endPoint: /v1/masterdata/zones/zonename?userID=enteruserID&langCode=enterlangCode
-      role: admin
+      role: globalAdmin
       restMethod: get
       inputTemplate: ivv_masterdata/GetZoneOfUser/getZoneOfUser
       outputTemplate: ivv_masterdata/GetZoneOfUser/getZoneOfUserResult

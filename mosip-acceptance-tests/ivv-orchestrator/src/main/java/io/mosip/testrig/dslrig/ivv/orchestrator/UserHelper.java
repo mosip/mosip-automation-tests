@@ -28,7 +28,8 @@ public class UserHelper extends BaseTestCaseUtil {
 	private static final String UpdateUserCenterMappingStatus = "ivv_masterdata/UpdateUserCenterMappingStatus/UpdateUserCenterMappingStatus.yml";
 	private static final String ZoneUserSearch = "ivv_masterdata/ZoneUser/ZoneUserSearch.yml";
 	private static final String LostRid = "ivv_masterdata/LostRid/LostRid.yml";
-	private static final String GetLeafZone = "ivv_masterdata/GetLeafZones/getLeafZones.yml";
+	private static final String GetLeafZone = "ivv_masterdata/GetLeafZones/GetLeafZones.yml";
+	private static final String GetZoneOfUser = "ivv_masterdata/GetZoneOfUser/GetZoneOfUser.yml";
 
 	DeleteWithParam DeleteWithParam=new DeleteWithParam(); 
 	SimplePost simplepost=new SimplePost();
@@ -63,7 +64,7 @@ public class UserHelper extends BaseTestCaseUtil {
 
 
 
-	public void deleteZoneMapping(String user,HashMap<String,String> map) throws RigInternalError {
+	public void deleteZoneMapping(String user,String zone) throws RigInternalError {
 		try {
 
 			//		https://api-internal.dev3.mosip.net/v1/masterdata/zones/zonename?userID=globaladmin&langCode=eng
@@ -75,7 +76,7 @@ public class UserHelper extends BaseTestCaseUtil {
 			String input=testPutDcom.getInput();
 			testPutDcom.setEndPoint(testPutDcom.getEndPoint().replace("changeid", user));
 
-			testPutDcom.setEndPoint(testPutDcom.getEndPoint().replace("changezone",map.get("userzonecode")));
+			testPutDcom.setEndPoint(testPutDcom.getEndPoint().replace("changezone",zone));
 
 			testPutDcom.setInput(input);
 			DeleteWithParam.test(testPutDcom);
@@ -310,7 +311,7 @@ public class UserHelper extends BaseTestCaseUtil {
 
 			if (responseArray.length() > 0) {
 				JSONObject locationObject = responseArray.getJSONObject(0);
-				 locationCode = locationObject.getString("code");
+				locationCode = locationObject.getString("code");
 
 				// Traverse on the "code" field
 				System.out.println("Location Code: " + locationCode);
@@ -328,9 +329,56 @@ public class UserHelper extends BaseTestCaseUtil {
 			throw new RigInternalError(e.getMessage());
 
 		}
-		
+
 
 	}
+
+
+	public String getZoneOfUser(String userId) throws RigInternalError {
+
+		try {	String lastSyncTime =null;
+		Object[] testObjPost=getWithParam.getYmlTestData(GetZoneOfUser);
+
+		TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
+		String langCode=BaseTestCase.languageCode;
+		testPost.setEndPoint(testPost.getEndPoint().replace("enteruserID", userId));
+		testPost.setEndPoint(testPost.getEndPoint().replace("enterlangCode", langCode));
+		getWithParam.test(testPost);
+		Response response= getWithParam.response;
+		String zoneCode="NOTSET";
+		if(response!=null) 
+		{
+			System.out.println(response.getBody().asString());
+			JSONObject jsonObject = new JSONObject(response.getBody().asString());
+			
+			if(jsonObject.getJSONArray("errors").toString().isEmpty())
+			{
+				JSONObject res = jsonObject.getJSONObject("response");
+
+				if(res!=null) {
+					zoneCode = res.getString("zoneCode");
+
+					System.out.println("zoneCode: " + zoneCode);
+					return zoneCode;
+				} else {
+
+					logger.error("No zoneCode found in the response.");
+				}
+			}
+
+		}
+		return zoneCode;
+		}catch (Exception e)
+		{
+			this.hasError=true;
+			throw new RigInternalError(e.getMessage());
+
+		}
+
+
+	}
+
+
 
 
 }
