@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +14,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -33,10 +36,12 @@ import org.testng.annotations.Test;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
 import io.mosip.testrig.dslrig.ivv.core.dtos.RegistrationUser;
@@ -69,7 +74,6 @@ public class Orchestrator {
 			put("e2e", "io.mosip.testrig.dslrig.ivv.e2e.methods");
 		}
 	};
-	 
 
 	/*
 	 * HashMap<String, String> packages = (HashMap<String, String>)
@@ -132,17 +136,21 @@ public class Orchestrator {
 		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
 		Properties properties = Utils.getProperties(configFile);
 
-		scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-" + BaseTestCase.testLevel
-				+ "-" + BaseTestCase.environment + ".csv";
+		scenarioSheet = getScenarioSheet();
 
-		Path path = Paths.get(scenarioSheet);
-
-		if (!Files.exists(path)) {
-			scenarioSheet = ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-"
-					+ BaseTestCase.testLevel + "-" + "default" + ".csv";
-		} else if (scenarioSheet == null || scenarioSheet.isEmpty()) {
-			throw new RigInternalError("ScenarioSheet argument missing");
-		}
+		/*
+		 * scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" +
+		 * "scenarios-" + BaseTestCase.testLevel + "-" + BaseTestCase.environment +
+		 * ".csv";
+		 * 
+		 * Path path = Paths.get(scenarioSheet);
+		 * 
+		 * if (!Files.exists(path)) { scenarioSheet =
+		 * ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-" +
+		 * BaseTestCase.testLevel + "-" + "default" + ".csv"; } else if (scenarioSheet
+		 * == null || scenarioSheet.isEmpty()) { throw new
+		 * RigInternalError("ScenarioSheet argument missing"); }
+		 */
 
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
 		parserInputDTO.setConfigProperties(properties);
@@ -231,17 +239,16 @@ public class Orchestrator {
 			IllegalAccessException, InstantiationException {
 		// Another scenario execution kicked-off before BEFORE_SUITE execution
 
-		if (ConfigManager.isInTobeSkippedList("S-"+scenario.getId())) {
-			     updateRunStatistics(scenario);
-				throw new SkipException("Skipping scenario due to known platform issue");
-		     }
+		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
+			updateRunStatistics(scenario);
+			throw new SkipException("Skipping scenario due to known platform issue");
+		}
 
-				 if (ConfigManager.isInTobeSkippedList("A-"+scenario.getId())) {
-			     updateRunStatistics(scenario);
-				throw new SkipException("Skipping scenario due to known Automation issue");
-		    }
-		
-		
+		if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
+			updateRunStatistics(scenario);
+			throw new SkipException("Skipping scenario due to known Automation issue");
+		}
+
 		if (!scenario.getId().equalsIgnoreCase("0")) {
 
 			// AFTER_SUITE scenario execution kicked-off before all execution
@@ -346,13 +353,12 @@ public class Orchestrator {
 				} else {
 					extentTest.pass(identifier + " - passed");
 				}
-			} 
-			catch (SkipException e) {
+			} catch (SkipException e) {
 				updateRunStatistics(scenario);
 				logger.error(e.getMessage());
 				Reporter.log(e.getMessage());
 				throw new SkipException(e.getMessage());
-			}catch (ClassNotFoundException e) {
+			} catch (ClassNotFoundException e) {
 				extentTest.error(identifier + " - ClassNotFoundException --> " + e.toString());
 				logger.error(e.getMessage());
 
@@ -390,7 +396,7 @@ public class Orchestrator {
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
 			}
-			
+
 		}
 		updateRunStatistics(scenario);
 
@@ -436,6 +442,116 @@ public class Orchestrator {
 	private static Boolean matchTags(String systemTags, ArrayList<String> scenarioTags) {
 		List<String> sys = Arrays.asList(systemTags.split(","));
 		return CollectionUtils.containsAny(sys, scenarioTags);
+	}
+
+	public static String getScenarioSheet() throws RigInternalError {
+		Boolean convesionRequired = true;
+
+		// Check first for the JSON file
+		String scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
+				+ BaseTestCase.testLevel + "-" + BaseTestCase.environment + ".json";
+		Path path = Paths.get(scenarioSheet);
+		if (!Files.exists(path)) {
+			scenarioSheet = ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-"
+					+ BaseTestCase.testLevel + "-" + "default" + ".json";
+
+			// default file JSON exist?
+			path = Paths.get(scenarioSheet);
+			if (!Files.exists(path)) {
+				// Check for the CSV file
+				scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
+						+ BaseTestCase.testLevel + "-" + BaseTestCase.environment + ".csv";
+
+				path = Paths.get(scenarioSheet);
+				if (!Files.exists(path)) {
+
+					// default file CSV exist?
+					scenarioSheet = ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-"
+							+ BaseTestCase.testLevel + "-" + "default" + ".csv";
+					path = Paths.get(scenarioSheet);
+					if (!Files.exists(path)) {
+						throw new RigInternalError("ScenarioSheet missing");
+					}
+				}
+				convesionRequired = false;
+			}
+		}
+
+		if (convesionRequired) {
+			scenarioSheet = JsonToCsvConverter(scenarioSheet);
+			if (scenarioSheet.isEmpty())
+				throw new RigInternalError("Failed to generated CSV from JSON file, for internal processing");
+		}
+		return scenarioSheet;
+	}
+
+	public static String JsonToCsvConverter(String jsonFilePath) {
+		String tempCSVPath = MosipTestRunner.getResourcePath() + "/scenarios.csv";
+		int maxSteps = 151;
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode rootNode = objectMapper.readTree(new File(jsonFilePath));
+			FileWriter fileWriter = new FileWriter(tempCSVPath);
+
+			List<String> headerList = new ArrayList<>();
+			headerList.add("tc_no");
+			headerList.add("tags");
+			headerList.add("persona_class");
+			headerList.add("persona");
+			headerList.add("group_name");
+			headerList.add("description");
+
+			// Add steps to the header list
+			for (int i = 0; i < maxSteps; i++) {
+				headerList.add("step" + i);
+			}
+
+			// Write header line
+			for (String string : headerList) {
+				fileWriter.write(string + ",");
+			}
+			fileWriter.write("\r\n");
+
+			// Write scenarios
+			for (JsonNode jsonNode : rootNode) {
+
+				List<String> stepList = new ArrayList<>();
+				stepList.add(jsonNode.get("tc_no").asText());
+				stepList.add(jsonNode.get("tags").asText());
+				stepList.add(jsonNode.get("persona_class").asText());
+				stepList.add(jsonNode.get("group_name").asText());
+				stepList.add(jsonNode.get("description").asText());
+
+				   Pattern pattern = Pattern.compile("(.*?)\\((.*?),(.*)\\)");
+
+				for (int stepIndex = 0; stepIndex < maxSteps; stepIndex++) {
+
+					String string = jsonNode.get("step" + stepIndex) == null ? ""
+							: jsonNode.get("step" + stepIndex).asText();
+					Matcher matcher = pattern.matcher(string);
+
+					if (matcher.matches()) {
+						System.out.println("The string contains a comma between parentheses");
+						stepList.add(jsonNode.get("step" + stepIndex) == null ? ""
+								: "\"" + jsonNode.get("step" + stepIndex).asText() + "\"");
+					} else {
+						stepList.add(jsonNode.get("step" + stepIndex) == null ? ""
+								:  jsonNode.get("step" + stepIndex).asText());
+						System.out.println("The string does not contain a comma between parentheses");
+					}
+				}
+
+				for (String string : stepList) {
+					fileWriter.write(string + ",");
+				}
+				fileWriter.write("\r\n");
+			}
+			fileWriter.close();
+		} catch (Exception e) {
+			// Log the error
+			return "";
+		}
+		return tempCSVPath;
 	}
 
 }
