@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.kernel.util.KeycloakUserManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -44,8 +45,13 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		if(step.getParameters().size() >= 2) { 
 			 user = step.getParameters().get(1);
 			 if(user.contains("@@")){
-				 	String userDetails[]=user.split("@@");
+				 String userDetails[]=user.split("@@");
+				 	
 				 	user=userDetails[0];
+				 	if(user.contains("masterdata-0"))
+				 		user = "masterdata-" + ConfigManager.getadminUserName();
+				 	else 
+				 		user = ConfigManager.getadminUserName().substring(0, ConfigManager.getadminUserName().length() - 1) + user;
 				 	pwd=userDetails[1];
 				 	if(userDetails.length==3) {zone=userDetails[2];}
 				 	}
