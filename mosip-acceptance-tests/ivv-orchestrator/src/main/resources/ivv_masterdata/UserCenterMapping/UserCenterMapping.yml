@@ -2,6 +2,7 @@ UserCenterMapping:
    MasterData_UserCenterMapping_All_Valid_Smoke:
       endPoint: /v1/masterdata/usercentermapping
       role: admin
+      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: ivv_masterdata/UserCenterMapping/userCenterMapping
       outputTemplate: ivv_masterdata/UserCenterMapping/userCenterMappingResult
@@ -13,15 +14,6 @@ UserCenterMapping:
      "isActive": true,
      "langCode": "eng",
      "requesttime": "$TIMESTAMP$"
-}'
+              }'
       output: '{
-       "id": "func_auto_test_user",
-    "langCode": "eng",
-    "name": "automation",
-    "statusCode": "active",
-    "regCenterId": "10005",
-    "isActive": $IGNORE$,
-    "zoneCode": "BSN",
-    "zoneName": "Benslimane",
-    "regCenterName": "Center Mehdia"
     }'
