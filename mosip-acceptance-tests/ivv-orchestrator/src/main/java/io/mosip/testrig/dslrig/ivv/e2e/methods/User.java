@@ -49,9 +49,9 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				 	
 				 	user=userDetails[0];
 				 	if(user.contains("masterdata-0"))
-				 		user = "masterdata-" + ConfigManager.getadminUserName();
+				 		user = "masterdata-" + ConfigManager.getUserAdminName();
 				 	else 
-				 		user = ConfigManager.getadminUserName().substring(0, ConfigManager.getadminUserName().length() - 1) + user;
+				 		user = ConfigManager.getUserAdminName().substring(0, ConfigManager.getUserAdminName().length() - 1) + user;
 				 	pwd=userDetails[1];
 				 	if(userDetails.length==3) {zone=userDetails[2];}
 				 	}
