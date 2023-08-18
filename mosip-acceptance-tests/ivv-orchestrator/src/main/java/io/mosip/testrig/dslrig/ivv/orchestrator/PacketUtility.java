@@ -214,12 +214,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + props.getProperty("getTemplateUrl") + process + "/" + qualityScore + "/"
 				+ genarateValidCbeff;
 		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
-		
+
 		if ((templateResponse.getBody().asString().toLowerCase().contains("failed"))) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to get Template from packet utility");
-	    }
-		
+		}
+
 		JSONObject jsonResponse = new JSONObject(templateResponse.asString());
 		JSONArray resp = jsonResponse.getJSONArray("packets");
 		if ((resp.length() <= 0)) {
@@ -228,8 +228,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 
 		return resp;
-	    }
-	
+	}
+
 	public void requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone, Scenario.Step step)
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("sendOtpUrl") + emailOrPhone;
@@ -330,7 +330,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public String generateAndUploadPacket(String prid, String packetPath, HashMap<String, String> map,
 			String responseStatus, Scenario.Step step) throws RigInternalError {
 		String rid = null;
-		String url = baseUrl + "/packet/sync/" + prid + "/" + true + "/"+ true;
+		String url = baseUrl + "/packet/sync/" + prid + "/" + true + "/" + true;
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
 		arr.put(packetPath);
@@ -697,7 +697,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
 
-			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag) throws RigInternalError {
+			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag)
+			throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
 
@@ -950,8 +951,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 	}
 
-	public String packetSync(String personaPath, HashMap<String, String> map, Scenario.Step step)
-			throws RigInternalError {
+	public String packetSync(String personaPath, HashMap<String, String> map, Scenario.Step step,
+			boolean expectedToPass) throws RigInternalError {
 
 		String url = baseUrl + props.getProperty("packetsyncUrl");
 		JSONObject jsonReq = new JSONObject();
@@ -959,10 +960,21 @@ public class PacketUtility extends BaseTestCaseUtil {
 		arr.put(personaPath);
 		jsonReq.put(PERSONAFILEPATH, arr);
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Packet Sync:", step);
+
+		if (expectedToPass == false) {
+			if (response.getBody().asString().contains("RPR-PKR-016")) {
+				return response.getBody().asString();
+			} else {
+				this.hasError = true;
+				throw new RigInternalError("Unable to do sync packet from packet utility");
+			}
+		}
+
 		if (!response.getBody().asString().toLowerCase().contains("packet has reached")) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to do sync packet from packet utility");
 		}
+
 		return response.getBody().asString();
 	}
 
@@ -1004,8 +1016,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 	}
 
-	public void esignetBioAuth(String modility, String bioValue, String uin, String transactionId, Properties deviceProps,
-			TestCaseDTO test, EsignetBioAuth esignetBioAuth, String input, Scenario.Step step) throws RigInternalError {
+	public void esignetBioAuth(String modility, String bioValue, String uin, String transactionId,
+			Properties deviceProps, TestCaseDTO test, EsignetBioAuth esignetBioAuth, String input, Scenario.Step step)
+			throws RigInternalError {
 
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, INDIVIDUALID);
 

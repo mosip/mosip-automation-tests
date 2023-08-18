@@ -39,8 +39,11 @@ public class TestRunner {
 
 		// Selecting the language based on index for example- eng,ara,fra (To run suite
 		// in ara lang pass 1 in langselect property)
-
-		BaseTestCase.languageCode = BaseTestCase.languageList.get(Integer.parseInt(ConfigManager.getLangselect()));
+		
+    if(ConfigManager.getLangselect() > BaseTestCase.languageList.size()-1)
+    	BaseTestCase.languageCode = BaseTestCase.languageList.get(0);
+    else
+		BaseTestCase.languageCode = BaseTestCase.languageList.get(ConfigManager.getLangselect());
 
 		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
 		
