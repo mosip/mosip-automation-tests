@@ -18,6 +18,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 		String bioType = null;
 		String missFields = null;
 		String updateAttribute = null;
+		String blocklistedWord = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			this.hasError = true;
@@ -28,6 +29,12 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 				missFields = step.getParameters().get(1);
 			if (step.getParameters().size() > 2)
 				updateAttribute = step.getParameters().get(2);
+
+			if (updateAttribute.substring(5).startsWith("$$")) {
+				blocklistedWord = updateAttribute.substring(5);
+				updateAttribute = updateAttribute.replace(blocklistedWord,
+						step.getScenario().getVariables().get(blocklistedWord));
+			}
 		}
 		List<String> regenAttributeList = (bioType != null) ? Arrays.asList(bioType.split("@@")) : new ArrayList<>();
 		List<String> missFieldsAttributeList = (missFields != null) ? Arrays.asList(missFields.split("@@"))

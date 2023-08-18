@@ -30,6 +30,7 @@ import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.RestClient;
+import io.mosip.testrig.apirig.global.utils.GlobalConstants;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
@@ -282,6 +283,22 @@ public class BaseTestCaseUtil extends BaseStep {
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ puttResponse.getBody().asString() + "</pre>");
 		return puttResponse;
+	}
+	
+	public static Response getRequestWithCookie(String url, String contentHeader, String acceptHeader,
+			String cookieName, String cookieValue) {
+		logger.info("REST-ASSURED: Sending a GET request to " + url);
+		Response getResponse;
+		if (ConfigManager.IsDebugEnabled()) {
+			getResponse = given().relaxedHTTPSValidation().cookie(cookieName, cookieValue).log().all()
+					.when().get(url).then().log().all().extract().response();
+		} else {
+			getResponse = given().relaxedHTTPSValidation().cookie(cookieName, cookieValue).when()
+					.get(url).then().extract().response();
+		}
+		logger.info(GlobalConstants.REST_ASSURED_STRING_2 + getResponse.asString());
+		logger.info(GlobalConstants.REST_ASSURED_STRING_3 + getResponse.time());
+		return getResponse;
 	}
 
 	public void constantIntializer() {
