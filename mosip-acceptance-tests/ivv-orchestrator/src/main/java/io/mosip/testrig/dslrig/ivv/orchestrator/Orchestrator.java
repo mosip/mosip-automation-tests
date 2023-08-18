@@ -481,7 +481,7 @@ public class Orchestrator {
 		if (convesionRequired) {
 			scenarioSheet = JsonToCsvConverter(scenarioSheet);
 			if (scenarioSheet.isEmpty())
-				throw new RigInternalError("Failed to generated CSV from JSON file, for internal processing");
+				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
 		}
 		return scenarioSheet;
 	}
@@ -493,7 +493,7 @@ public class Orchestrator {
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode rootNode = objectMapper.readTree(new File(jsonFilePath));
 			FileWriter fileWriter = new FileWriter(tempCSVPath);
-
+			
 			List<String> headerList = new ArrayList<>();
 			headerList.add("tc_no");
 			headerList.add("tags");
@@ -520,6 +520,7 @@ public class Orchestrator {
 				stepList.add(jsonNode.get("tc_no").asText());
 				stepList.add(jsonNode.get("tags").asText());
 				stepList.add(jsonNode.get("persona_class").asText());
+				stepList.add(jsonNode.get("persona").asText());
 				stepList.add(jsonNode.get("group_name").asText());
 				stepList.add(jsonNode.get("description").asText());
 
@@ -532,13 +533,13 @@ public class Orchestrator {
 					Matcher matcher = pattern.matcher(string);
 
 					if (matcher.matches()) {
-						System.out.println("The string contains a comma between parentheses");
+						logger.info("The string contains a comma between parentheses");
 						stepList.add(jsonNode.get("step" + stepIndex) == null ? ""
 								: "\"" + jsonNode.get("step" + stepIndex).asText() + "\"");
 					} else {
 						stepList.add(jsonNode.get("step" + stepIndex) == null ? ""
 								:  jsonNode.get("step" + stepIndex).asText());
-						System.out.println("The string does not contain a comma between parentheses");
+						logger.info("The string does not contain a comma between parentheses");
 					}
 				}
 
