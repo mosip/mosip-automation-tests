@@ -26,7 +26,7 @@ public class GetBlocklistedWord extends BaseTestCaseUtil implements StepInterfac
 	public void run() throws RigInternalError {
 		String token = kernelAuthLib.getTokenByRole("admin");
 
-		String url = BaseTestCase.ApplnURI + "/v1/masterdata/blocklistedwords/" + BaseTestCase.languageCode;
+		String url = BaseTestCase.ApplnURI + props.getProperty("blocklistedWord") + BaseTestCase.languageCode;
 
 		Response response = null;
 		String blocklistedWord = null;
