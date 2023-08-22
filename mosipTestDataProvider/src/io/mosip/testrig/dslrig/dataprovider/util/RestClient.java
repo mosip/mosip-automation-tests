@@ -27,6 +27,10 @@ import org.json.JSONArray;
 //import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import io.mosip.testrig.dslrig.dataprovider.mds.HttpRCapture;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.restassured.RestAssured;
@@ -88,11 +92,30 @@ public class RestClient {
 
 		if (urlBase != null) {
 			String token = tokens.get(urlBase.toString().trim() + role);
-			return !(null == token);
+			return isValidToken(token);
 		} else {
 			return false;
 		}
 	}
+	
+	public static boolean isValidToken(String cookie) {
+		boolean bReturn = false;
+		if (cookie == null)
+			return bReturn;
+        try {
+            DecodedJWT decodedJWT = JWT.decode(cookie);
+            long expirationTime = decodedJWT.getExpiresAt().getTime();
+            if (expirationTime < System.currentTimeMillis()) {
+            	logger.info("The token is expired");
+            } else {
+            	bReturn = true;
+            	logger.info("The token is not expired");
+            }
+        } catch (JWTDecodeException e) {
+        	logger.error("The token is invalid");
+        }
+        return bReturn;
+    }
 
 	public static void clearToken() {
 		tokens.clear();
