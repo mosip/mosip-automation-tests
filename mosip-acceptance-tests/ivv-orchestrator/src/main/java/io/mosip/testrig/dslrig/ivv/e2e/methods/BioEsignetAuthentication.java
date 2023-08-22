@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
@@ -22,12 +23,19 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 
 public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepInterface {
-	static Logger logger = Logger.getLogger(BioEsignetAuthentication.class);
+	public static Logger logger = Logger.getLogger(BioEsignetAuthentication.class);
 	private static final String AuthenticateUser = "idaData/BioAuthEsignet/BioAuthEsignet.yml";
 	Properties deviceProp = null;
 	Properties uinResidentDataPathFinalProps = new Properties();
 	EsignetBioAuth esignetBioAuth = new EsignetBioAuth();
 	String bioResponse = null;
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {

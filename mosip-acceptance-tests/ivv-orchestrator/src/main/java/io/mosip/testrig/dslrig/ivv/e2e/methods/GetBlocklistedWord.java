@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import javax.ws.rs.core.MediaType;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,8 +20,14 @@ import io.restassured.response.Response;
 public class GetBlocklistedWord extends BaseTestCaseUtil implements StepInterface {
 
 	static Logger logger = Logger.getLogger(GetBlocklistedWord.class);
-
 	KernelAuthentication kernelAuthLib = new KernelAuthentication();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError {

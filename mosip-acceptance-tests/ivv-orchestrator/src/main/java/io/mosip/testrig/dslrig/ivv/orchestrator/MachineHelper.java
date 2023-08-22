@@ -2,11 +2,13 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.util.HashMap;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.PatchWithPathParam;
 import io.mosip.testrig.apirig.testscripts.PatchWithPathParamsAndBody;
@@ -40,6 +42,13 @@ public class MachineHelper extends BaseTestCaseUtil {
 	PatchWithPathParamsAndBody patchWithPathParamsAndBody = new PatchWithPathParamsAndBody();
 	PatchWithQueryParam patchWithQueryParam=new PatchWithQueryParam();
 
+	public MachineHelper() {
+		  super();
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	public String createMachineType() throws RigInternalError {
 		try {
