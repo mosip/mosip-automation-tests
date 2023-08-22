@@ -139,8 +139,15 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static Response getRequest(String url, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+		Response getResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract().response();
+		}
+		else {
+			 getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON).when().get(url).then().extract().response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ getResponse.getBody().asString() + "</pre>");
 		return getResponse;
@@ -150,8 +157,16 @@ public class BaseTestCaseUtil extends BaseStep {
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response getResponse = given().relaxedHTTPSValidation().queryParams(contextKey).accept("*/*").log().all().when()
-				.get(url).then().log().all().extract().response();
+		Response getResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 getResponse = given().relaxedHTTPSValidation().queryParams(contextKey).accept("*/*").log().all().when()
+					.get(url).then().log().all().extract().response();
+		}
+		else {
+			 getResponse = given().relaxedHTTPSValidation().queryParams(contextKey).accept("*/*").when()
+						.get(url).then().extract().response();
+		}
+	
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ getResponse.getBody().asString() + "</pre>");
 		return getResponse;
@@ -170,8 +185,15 @@ public class BaseTestCaseUtil extends BaseStep {
 	public Response putRequestWithBody(String url, String body, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-				.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
+		Response puttResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
+		}
+		else {
+			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").when().put(url).then().extract().response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ puttResponse.getBody().asString() + "</pre>");
 		return puttResponse;
@@ -180,8 +202,15 @@ public class BaseTestCaseUtil extends BaseStep {
 	public Response putRequestWithBody(String url, String body, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Reporter.log("<pre> <b>" + "" + " </b> <br/>" + body + "</pre>");
-		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-				.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
+		Response puttResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
+		}
+		else {
+			 puttResponse =given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").when().put(url).then().extract().response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ puttResponse.getBody().asString() + "</pre>");
 		return puttResponse;
@@ -190,8 +219,15 @@ public class BaseTestCaseUtil extends BaseStep {
 	public Response putRequest(String url, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON).log().all().when().put(url).then().log().all().extract().response();
+		Response putResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON).log().all().when().put(url).then().log().all().extract().response();
+		}
+		else {
+			putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON).when().put(url).then().extract().response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ putResponse.getBody().asString() + "</pre>");
 		return putResponse;
@@ -200,9 +236,17 @@ public class BaseTestCaseUtil extends BaseStep {
 	public Response deleteRequest(String url, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract()
-				.response();
+		Response deleteResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract()
+						.response();
+		}
+		else {
+			 deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON).when().delete(url).then().extract()
+						.response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ deleteResponse.getBody().asString() + "</pre>");
 		return deleteResponse;
@@ -210,9 +254,18 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	public Response deleteRequestWithoutStep(String url, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract()
-				.response();
+		Response deleteResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract()
+						.response();
+		}
+		else {
+			 deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON).when().delete(url).then().extract()
+						.response();
+		}
+
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ deleteResponse.getBody().asString() + "</pre>");
 		return deleteResponse;
@@ -222,8 +275,16 @@ public class BaseTestCaseUtil extends BaseStep {
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").log().all().when()
-				.delete(url).then().log().all().extract().response();
+		
+		Response deleteResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").log().all().when()
+					.delete(url).then().log().all().extract().response();
+		}
+		else {
+			deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").when()
+					.delete(url).then().extract().response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ deleteResponse.getBody().asString() + "</pre>");
 		return deleteResponse;
@@ -255,8 +316,16 @@ public class BaseTestCaseUtil extends BaseStep {
 			String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response apiResponse = given().contentType(ContentType.JSON).pathParams(map).body(body).log().all().when()
-				.post(url).then().log().all().extract().response();
+		Response apiResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+		      apiResponse = given().contentType(ContentType.JSON).pathParams(map).body(body).log().all().when()
+						.post(url).then().log().all().extract().response();
+		}
+		else {
+		      apiResponse = given().contentType(ContentType.JSON).pathParams(map).body(body).when()
+						.post(url).then().extract().response();
+		}
+
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ apiResponse.getBody().asString() + "</pre>");
 		return apiResponse;
@@ -266,20 +335,35 @@ public class BaseTestCaseUtil extends BaseStep {
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-				.accept("*/*").log().all().when().cookie("Authorization", token).post(url).then().log().all().extract()
-				.response();
+		Response postResponse =null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 postResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").log().all().when().cookie("Authorization", token).post(url).then().log().all().extract()
+						.response();
+		}
+		else {
+			 postResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").when().cookie("Authorization", token).post(url).then().extract()
+						.response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ posttResponse.getBody().asString() + "</pre>");
-		return posttResponse;
+				+ postResponse.getBody().asString() + "</pre>");
+		return postResponse;
 	}
 
 	public Response putRequestWithQueryParam(String url, HashMap<String, String> map, String opsToLog,
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response puttResponse = given().queryParams(map).relaxedHTTPSValidation().log().all().when().put(url).then()
-				.log().all().extract().response();
+		Response puttResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 puttResponse = given().queryParams(map).relaxedHTTPSValidation().log().all().when().put(url).then()
+						.log().all().extract().response();
+		}
+		else {
+			 puttResponse = given().queryParams(map).relaxedHTTPSValidation().when().put(url).then()
+						.extract().response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ puttResponse.getBody().asString() + "</pre>");
 		return puttResponse;
@@ -288,7 +372,7 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static Response getRequestWithCookie(String url, String contentHeader, String acceptHeader,
 			String cookieName, String cookieValue) {
 		logger.info("REST-ASSURED: Sending a GET request to " + url);
-		Response getResponse;
+		Response getResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			getResponse = given().relaxedHTTPSValidation().cookie(cookieName, cookieValue).log().all()
 					.when().get(url).then().log().all().extract().response();

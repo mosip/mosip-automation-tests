@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import static io.restassured.RestAssured.given;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -15,12 +16,18 @@ import io.restassured.response.Response;
 
 public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 	  private static final Logger logger = Logger.getLogger(GetPingHealth.class);
+	  
+		static {
+			if (ConfigManager.IsDebugEnabled())
+				logger.setLevel(Level.ALL);
+			else
+				logger.setLevel(Level.ERROR);
+		}
 
 	@Override
 	public void run() throws RigInternalError {
 
 		String modules = null,uri=null;
-		
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 		
 			modules = "";

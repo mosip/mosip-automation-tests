@@ -2,11 +2,13 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import static org.testng.Assert.assertTrue;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -14,7 +16,14 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
 public class ApproveRejectPacket extends BaseTestCaseUtil implements StepInterface {
 	private static final String DECISSIONDATA_YML = "preReg/approveRejectPacket/decissionData.yml";
-	Logger logger = Logger.getLogger(ApproveRejectPacket.class);
+	public static Logger logger = Logger.getLogger(ApproveRejectPacket.class);
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 	
 	@Override
 	public void run() throws RigInternalError {
