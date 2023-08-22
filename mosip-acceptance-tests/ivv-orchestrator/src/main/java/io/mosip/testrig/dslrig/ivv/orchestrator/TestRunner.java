@@ -12,6 +12,8 @@ import java.util.zip.ZipInputStream;
 import org.apache.log4j.Logger;
 import org.testng.TestNG;
 
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
+import io.mosip.testrig.apirig.authentication.fw.util.OutputValidationUtil;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MockSMTPListener;
@@ -32,6 +34,8 @@ public class TestRunner {
 
 		// Initializing or setting up execution
 		ConfigManager.init();
+		AdminTestUtil.setLogLevel();
+		OutputValidationUtil.setLogLevel();
 		BaseTestCase.initialize();
 		
 
