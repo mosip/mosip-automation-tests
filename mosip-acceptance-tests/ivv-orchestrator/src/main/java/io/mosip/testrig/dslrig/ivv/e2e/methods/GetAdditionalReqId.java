@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.MockSMTPListener;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -13,7 +15,14 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
 public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterface { // $$additionalReqId=e2e_getAdditionalReqId(10)
 
-	Logger logger = Logger.getLogger(GetAdditionalReqId.class);
+	static Logger logger = Logger.getLogger(GetAdditionalReqId.class);
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError {

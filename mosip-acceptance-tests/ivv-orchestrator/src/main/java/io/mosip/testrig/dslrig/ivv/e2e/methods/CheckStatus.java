@@ -7,9 +7,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -18,14 +20,22 @@ import io.restassured.response.Response;
 
 public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 	private String getRidStatusUrl = "/resident/status/";
-	Logger logger = Logger.getLogger(CheckStatus.class);
+	public static Logger logger = Logger.getLogger(CheckStatus.class);
 	public HashMap<String, String> tempPridAndRid = null;
 	public HashMap<String, String> ridStatusMap = new LinkedHashMap<>();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
     public void run() throws RigInternalError {
 		String _ridStatusParam =null;
 		String _expectedRidProcessed="";
+		
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			assertTrue(false,"StatusCode paramter is  missing in step: "+step.getName());

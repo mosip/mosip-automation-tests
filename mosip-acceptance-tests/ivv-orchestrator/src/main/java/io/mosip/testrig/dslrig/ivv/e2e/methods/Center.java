@@ -2,8 +2,10 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.util.HashMap;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.PatchWithPathParam;
 import io.mosip.testrig.apirig.testscripts.PutWithPathParam;
@@ -16,13 +18,20 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.CenterHelper;
 import io.mosip.testrig.dslrig.ivv.orchestrator.UserHelper;
 
 public class Center extends BaseTestCaseUtil implements StepInterface {
-	static Logger logger = Logger.getLogger(Center.class);
+	public static Logger logger = Logger.getLogger(Center.class);
 	UserHelper userHelper=new UserHelper();
 	SimplePost simplepost=new SimplePost() ;
 	PatchWithPathParam patchwithpathparam=new PatchWithPathParam();
 	SimplePut simpleput=new SimplePut();
 	PutWithPathParam putwithpathparam=new PutWithPathParam();
 	CenterHelper centerHelper=new CenterHelper();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 	
 	//GetWithParam
 	@Override
@@ -32,6 +41,7 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 		Boolean activeFlag=false;
 		String calltype = null;
 		HashMap<String, String> map=new HashMap<String, String>();
+		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
 			{

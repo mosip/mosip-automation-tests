@@ -4,6 +4,7 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.transaction.NotSupportedException;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -46,6 +47,13 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 	SimplePostForAutoGenId requestAPIKeyForAuthPartner = new SimplePostForAutoGenId();
 	SimplePut approveAPIKey = new SimplePut();
 	SimplePostForAutoGenId oidcClient = new SimplePostForAutoGenId();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {

@@ -4,8 +4,10 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.HashMap;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.testscripts.DeleteWithParam;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -13,8 +15,15 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.restassured.response.Response;
 
 public class DiscardAppointment extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(DiscardAppointment.class);
+	static Logger logger = Logger.getLogger(DiscardAppointment.class);
 	DeleteWithParam discardAppointment = new DeleteWithParam();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError {

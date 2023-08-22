@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
@@ -24,6 +25,13 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 	private static final String AuthenticateUserYml = "idaData/AuthenticateUser/AuthenticateUser.yml";
 	private static final String OtpUserYml = "idaData/SendOtpForIdp/SendOtp.yml";
 	SimplePost authenticateUser = new SimplePost();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {

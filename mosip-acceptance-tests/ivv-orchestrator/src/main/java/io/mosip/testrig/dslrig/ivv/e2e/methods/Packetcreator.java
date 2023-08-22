@@ -2,9 +2,11 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.util.Properties;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
@@ -14,9 +16,16 @@ import io.restassured.response.Response;
 
 public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 	// Packetcreator take two argument (NEW/LOST/UPDATE,id1=23232@@id2=<personaId>)
-	Logger logger = Logger.getLogger(Packetcreator.class);
+	static Logger logger = Logger.getLogger(Packetcreator.class);
 	String process = null;
 	public String _additionalInfoReqId=null;
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 	@Override
 	public void run() throws RigInternalError {
 		if (step.getParameters().isEmpty()) {

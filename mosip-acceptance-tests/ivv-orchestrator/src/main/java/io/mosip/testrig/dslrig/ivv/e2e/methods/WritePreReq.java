@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
@@ -17,7 +18,14 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 
 public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(WritePreReq.class);
+	static Logger logger = Logger.getLogger(WritePreReq.class);
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() {
@@ -52,24 +60,22 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 			  File file = new File(path);
 			 if (file.createNewFile()) {
 		            
-				 Reporter.log("File has been created at this path : " +path,true);
+				 Reporter.log("File has been created at this path : " +path);
 		        } else {
 		        
-		        	Reporter.log("File already exists at the path : " + path,true);
+		        	Reporter.log("File already exists at the path : " + path);
 		        }
 			 outputStrem = new FileOutputStream(path);
 			props.store(outputStrem, "This is path where file is created" + path);
 			Reporter.log(props.toString(), true);
 			
-			Reporter.log("This is path where file is created" + path, true);
+			Reporter.log("This is path where file is created" + path);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
 		finally {
 			PacketUtility.closeOutputStream(outputStrem);
 		}
-		
-String inputJson=null;
 							
 	}
 }

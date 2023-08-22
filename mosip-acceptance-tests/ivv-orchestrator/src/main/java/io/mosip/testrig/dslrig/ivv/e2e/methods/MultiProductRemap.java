@@ -4,14 +4,13 @@ import static io.restassured.RestAssured.given;
 
 import java.io.File;
 import java.io.FileReader;
-
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -21,8 +20,15 @@ import io.restassured.response.Response;
 public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface {
 
 	KernelAuthentication kernelAuthLib = new KernelAuthentication();
-	private static final Logger logger = LoggerFactory.getLogger(MultiProductRemap.class);
+	private static final Logger logger = Logger.getLogger(MultiProductRemap.class);
 	String GETREQBODYDEVICEPATH = "src/main/resources/kernel/Device/Search.json";
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError {

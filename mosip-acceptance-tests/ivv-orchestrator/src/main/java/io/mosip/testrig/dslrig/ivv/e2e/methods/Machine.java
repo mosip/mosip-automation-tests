@@ -2,9 +2,11 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.util.HashMap;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -12,8 +14,13 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.MachineHelper;
 
 public class Machine extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(Machine.class);
-	
 	MachineHelper machineHelper=new MachineHelper();
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -44,7 +51,7 @@ public class Machine extends BaseTestCaseUtil implements StepInterface {
 			logger.info("Usage of this step :   $$machineDetails=e2e_Machine(CREATE,$$centerId1,T)");
 			String machinetypecode=machineHelper.createMachineType();
 			String machinetypestatus=machineHelper.activateMachineType(machinetypecode,activecheck);
-				System.out.println(machinetypecode + " " + machinetypestatus);
+			logger.info(machinetypecode + " " + machinetypestatus);
 				String machinespecId=machineHelper.createMachineSpecification(machinetypecode);
 			    machineHelper.activateMachineSpecification(machinespecId,activecheck);
 			    
@@ -53,7 +60,7 @@ public class Machine extends BaseTestCaseUtil implements StepInterface {
 				
 				if (step.getOutVarName() != null)
 					step.getScenario().getVariables().putAll(machineDetailsmap);
-				Reporter.log(machineDetailsmap.toString(), true);
+				Reporter.log(machineDetailsmap.toString());
 			break;
 		case "ACTIVE_FLAG":
 			machineHelper.activateMachine(machineDetailsmap.get("machineid"),activecheck);
@@ -63,7 +70,7 @@ public class Machine extends BaseTestCaseUtil implements StepInterface {
 			machineDetailsmap=machineHelper.updateMachine(machineDetailsmap,centerCount);
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().putAll(machineDetailsmap);
-			Reporter.log(machineDetailsmap.toString(), true);
+			Reporter.log(machineDetailsmap.toString());
 			break;
 			
 		case "DCOM":

@@ -2,8 +2,10 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.util.HashMap;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -13,6 +15,13 @@ public class SyncData extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(SyncData.class);
 
 	SyncDataHelper syncDataHelper = new SyncDataHelper();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override

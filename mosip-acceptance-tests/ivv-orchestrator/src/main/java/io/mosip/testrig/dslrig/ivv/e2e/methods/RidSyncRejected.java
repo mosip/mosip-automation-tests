@@ -5,12 +5,11 @@ import static org.testng.Assert.assertTrue;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Properties;
-
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
@@ -20,8 +19,15 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 import io.restassured.response.Response;
 
 public class RidSyncRejected extends BaseTestCaseUtil implements StepInterface {
-	private static final Logger logger = LoggerFactory.getLogger(RidSyncRejected.class);
+	private static final Logger logger = Logger.getLogger(RidSyncRejected.class);
 	public static String _additionalInfo=null;
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 	@Override
 	public void run() throws RigInternalError {
 		String process=null;
