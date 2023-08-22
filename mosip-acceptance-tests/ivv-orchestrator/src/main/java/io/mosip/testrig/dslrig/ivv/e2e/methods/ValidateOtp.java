@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.util.Properties;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
@@ -11,7 +12,14 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
 public class ValidateOtp extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(ValidateOtp.class);
+	static Logger logger = Logger.getLogger(ValidateOtp.class);
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError {
