@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
+import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.PacketCreateDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.PersonaRequestDto;
@@ -215,16 +216,16 @@ public class TestDataController {
 			@PathVariable("count") int count, @PathVariable("contextKey") String contextKey) {
 
 		try {
-			logger.info("Persona Config Path=" + personaConfigPath);
+			RestClient.logInfo(contextKey, "Persona Config Path=" + personaConfigPath);
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
 			if (personaAnguliPath != null && !personaAnguliPath.equals("")) {
 				DataProviderConstants.ANGULI_PATH = personaAnguliPath;
 			}
-			logger.info("personaAnguliPath =" + DataProviderConstants.ANGULI_PATH);
+			RestClient.logInfo(contextKey,"personaAnguliPath =" + DataProviderConstants.ANGULI_PATH);
 
-			logger.info("Resource Path=" + DataProviderConstants.RESOURCE);
+			RestClient.logInfo(contextKey,"Resource Path=" + DataProviderConstants.RESOURCE);
 			// logger.info("DOC_Template Path="+
 			// VariableManager.getVariableValue(contextKey,"mosip.test.persona.documentsdatapath").toString());
 
@@ -387,8 +388,8 @@ public class TestDataController {
 				personaPath = preRegisterRequestDto.getPersonaFilePath().get(1);
 			}
 
-			logger.info("packet-Sync: personaPath=" + (personaPath == null ? "N/A" : personaPath));
-			logger.info("packet-Sync: TemplatePath=" + preRegisterRequestDto.getPersonaFilePath().get(0));
+			RestClient.logInfo(contextKey,"packet-Sync: personaPath=" + (personaPath == null ? "N/A" : personaPath));
+			RestClient.logInfo(contextKey,"packet-Sync: TemplatePath=" + preRegisterRequestDto.getPersonaFilePath().get(0));
 
 			return packetSyncService.preRegToRegister(preRegisterRequestDto.getPersonaFilePath().get(0), preregId,
 					personaPath, contextKey, preRegisterRequestDto.getAdditionalInfoReqId(), getRidFromSync,

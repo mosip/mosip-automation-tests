@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.SlackIt;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.restassured.http.ContentType;
@@ -433,7 +434,8 @@ public class APIRequestUtil {
             //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
             Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
            // Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + preregAuthManagerURL);
-			logger.info("Authtoken generation request response: {}", response.asString());
+			if(RestClient.isDebugEnabled(contextKey))
+            logger.info("Authtoken generation request response: {}", response.asString());
 			if(response.getStatusCode() == 401) {
 				throw new Exception("401 - Unauthorized");
 				
@@ -495,7 +497,8 @@ public class APIRequestUtil {
             //authManagerURL
             //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
             Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
-			logger.info("Authtoken generation request response: {}", response.asString());
+            if(RestClient.isDebugEnabled(contextKey))
+            logger.info("Authtoken generation request response: {}", response.asString());
 			if(response.getStatusCode() == 401) {
 				throw new Exception("401 - Unauthorized");
 				
