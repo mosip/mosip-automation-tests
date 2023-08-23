@@ -11,69 +11,78 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+
 @Service
 public class PacketJobService {
 
-    private Logger logger = LoggerFactory.getLogger(PacketJobService.class);
+	private Logger logger = LoggerFactory.getLogger(PacketJobService.class);
 
-  
-    @Autowired
-    private PreregSyncService preregSyncService;
+	@Autowired
+	private PreregSyncService preregSyncService;
 
-    @Autowired
-    private PacketMakerService packetMakerService;
+	@Autowired
+	private PacketMakerService packetMakerService;
 
-    @Autowired
-    private PacketSyncService packetSyncService;
+	@Autowired
+	private PacketSyncService packetSyncService;
 
-    @Autowired
-    private ZipUtils zipUtils;
+	@Autowired
+	private ZipUtils zipUtils;
 
-    @Job(name = "Create Packet with pre-reg sync")
-    public void execute(String contextKey) {
-        try {
-            logger.info("started execute job");
-            JSONObject jb = preregSyncService.syncPrereg(contextKey);
+	@Job(name = "Create Packet with pre-reg sync")
+	public void execute(String contextKey) {
+		try {
+			RestClient.logInfo(contextKey, "started execute job");
+			JSONObject jb = preregSyncService.syncPrereg(contextKey);
 
-            JSONArray keys = jb.names();
-            for(int i=0; i< keys.length(); i++) {
-                logger.info("Started for PRID", keys.get(i));
-                String prid = keys.getString(i);
-                try {
-                    String location = preregSyncService.downloadPreregPacket(prid, null);
-                    logger.info("Downloaded the prereg packet in {} ", location);
+			JSONArray keys = jb.names();
+			for (int i = 0; i < keys.length(); i++) {
+				if (RestClient.isDebugEnabled(contextKey))
+					logger.info("Started for PRID", keys.get(i));
+				String prid = keys.getString(i);
+				try {
+					String location = preregSyncService.downloadPreregPacket(prid, null);
+					if (RestClient.isDebugEnabled(contextKey))
+						logger.info("Downloaded the prereg packet in {} ", location);
 
-                    File targetDirectory = Path.of(preregSyncService.getWorkDirectory(), prid).toFile();
-                    if(!targetDirectory.exists()  && !targetDirectory.mkdir())
-                        throw new Exception("Failed to create target directory ! PRID : " + prid);
+					File targetDirectory = Path.of(preregSyncService.getWorkDirectory(), prid).toFile();
+					if (!targetDirectory.exists() && !targetDirectory.mkdir())
+						throw new Exception("Failed to create target directory ! PRID : " + prid);
 
-                    if(!zipUtils.unzip(location, targetDirectory.getAbsolutePath()))
-                        throw new Exception("Failed to unzip pre-reg packet >> " + prid);
+					if (!zipUtils.unzip(location, targetDirectory.getAbsolutePath(), contextKey))
+						throw new Exception("Failed to unzip pre-reg packet >> " + prid);
 
-                    Path idJsonPath = Path.of(targetDirectory.getAbsolutePath(), "ID.json");
+					Path idJsonPath = Path.of(targetDirectory.getAbsolutePath(), "ID.json");
 
-                    logger.info("Unzipped the prereg packet {}, ID.json exists : {}", prid, idJsonPath.toFile().exists());
+					if (RestClient.isDebugEnabled(contextKey))
+						logger.info("Unzipped the prereg packet {}, ID.json exists : {}", prid,
+								idJsonPath.toFile().exists());
 
-                    String packetPath = packetMakerService.createContainer(idJsonPath.toString(),null,null,null,prid,null, true,null);
+					String packetPath = packetMakerService.createContainer(idJsonPath.toString(), null, null, null,
+							prid, null, true, null);
 
-                    logger.info("Packet created : {}", packetPath);
+					if (RestClient.isDebugEnabled(contextKey))
+						logger.info("Packet created : {}", packetPath);
 
-                    String response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED",
-                            "dummy", null,null,null);
+					String response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", null,
+							null, null);
 
-                    logger.info("RID Sync response : {}", response);
+					if (RestClient.isDebugEnabled(contextKey))
+						logger.info("RID Sync response : {}", response);
 
-                    response =  packetSyncService.uploadPacket(packetPath,null);
+					response = packetSyncService.uploadPacket(packetPath, null);
 
-                    logger.info("Packet Sync response : {}", response);
+					if (RestClient.isDebugEnabled(contextKey))
+						logger.info("Packet Sync response : {}", response);
 
-                } catch (Exception exception){
-                    logger.error("Failed for PRID : {}", prid, exception);
-                }
-            }
-        } catch (Throwable t) {
-            logger.error("Job Failed", t);
-        }
-    }
+				} catch (Exception exception) {
+					logger.error("Failed for PRID : {}", prid, exception);
+				}
+			}
+		} catch (Throwable t) {
+			logger.error("Job Failed", t);
+		}
+	}
 
 }
