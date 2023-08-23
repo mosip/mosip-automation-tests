@@ -31,7 +31,7 @@ public class StepParser {
         for( int i = 0; i < str_split.length; i++) {
             String func = str_split[i];
             if(i==0){
-                System.out.println(func);
+//                System.out.println(func);
                 String name_variant = Utils.regex("(\\w*)\\(", func);
                 String[] nv_split = name_variant.split("\\_");
                 if(nv_split.length < 2){

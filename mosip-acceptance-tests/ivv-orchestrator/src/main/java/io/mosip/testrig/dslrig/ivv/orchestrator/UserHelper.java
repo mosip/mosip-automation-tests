@@ -325,7 +325,7 @@ public class UserHelper extends BaseTestCaseUtil {
 				locationCode = locationObject.getString("code");
 
 				// Traverse on the "code" field
-				System.out.println("Location Code: " + locationCode);
+				logger.info("Location Code: " + locationCode);
 				return locationCode;
 			} else {
 				logger.error("No location data found in the response.");
@@ -359,7 +359,7 @@ public class UserHelper extends BaseTestCaseUtil {
 		String zoneCode="NOTSET";
 		if(response!=null) 
 		{
-			System.out.println(response.getBody().asString());
+			logger.info(response.getBody().asString());
 			JSONObject jsonObject = new JSONObject(response.getBody().asString());
 			
 			if(jsonObject.getJSONArray("errors").toString().isEmpty())
@@ -369,7 +369,7 @@ public class UserHelper extends BaseTestCaseUtil {
 				if(res!=null) {
 					zoneCode = res.getString("zoneCode");
 
-					System.out.println("zoneCode: " + zoneCode);
+					logger.info("zoneCode: " + zoneCode);
 					return zoneCode;
 				} else {
 

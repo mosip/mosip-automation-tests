@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.TestNG;
 
@@ -26,6 +27,7 @@ public class TestRunner {
 	public static String jarUrl = TestRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
 	public static void main(String[] args) {
+		
 		if (checkRunType().equalsIgnoreCase("JAR")) {
 			removeOldMosipTestTestResource();
 			extractResourceFromJar();
@@ -37,6 +39,12 @@ public class TestRunner {
 
 		// Initializing or setting up execution
 		ConfigManager.init();
+		
+		if (ConfigManager.IsDebugEnabled())
+			LOGGER.setLevel(Level.ALL);
+		else
+			LOGGER.setLevel(Level.ERROR);
+		
 		setLogLevels();
 		BaseTestCase.initialize();
 		
