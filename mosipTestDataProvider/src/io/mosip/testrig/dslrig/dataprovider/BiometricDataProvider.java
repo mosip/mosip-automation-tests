@@ -47,6 +47,8 @@ import io.mosip.testrig.dslrig.dataprovider.test.registrationclient.Registration
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.FPClassDistribution;
+import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -251,7 +253,7 @@ public class BiometricDataProvider {
 				else 
 					p12path = Paths.get(certsDir,"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server")); 
 
-				logger.info("p12path" + p12path);
+				RestClient.logInfo(contextKey, "p12path" + p12path);
 				
 				int maxLoopCount =  Integer.parseInt(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsPortLoopCount").toString());
 				
@@ -264,7 +266,7 @@ public class BiometricDataProvider {
 						logger.error("Exception occured during startSBI " + contextKey);
 					}
 					if(port != 0) {
-						logger.info("Found the port " +  contextKey + " port number is: "+ port);
+						RestClient.logInfo(contextKey,"Found the port " +  contextKey + " port number is: "+ port);
 						break;
 					}
 					
@@ -306,7 +308,7 @@ public class BiometricDataProvider {
 			HashMap<String, Integer> portAsPerKey = BiometricDataProvider.portmap;
 			RegistrationSteps steps = new RegistrationSteps();
 			steps.setMDSscore(portAsPerKey.get("port_" + contextKey), "Biometric Device", qualityScore, contextKey);
-			logger.info("mds score is changed to : " + qualityScore);
+			RestClient.logInfo(contextKey,"mds score is changed to : " + qualityScore);
 
 			biodata = resident.getBiometric();
 
@@ -510,7 +512,7 @@ public class BiometricDataProvider {
 	}
 
 	public static String toCBEFFFromCapture(List<String> bioFilter, MDSRCaptureModel capture, String toFile,
-			List<String> missAttribs, boolean genarateValidCbeff, List<BioModality> exceptionlist) throws Exception {
+			List<String> missAttribs, boolean genarateValidCbeff, List<BioModality> exceptionlist,String contextKey) throws Exception {
 
 		String retXml = "";
 
@@ -534,7 +536,7 @@ public class BiometricDataProvider {
 					.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 
 			builder = xmlbuilderFinger(bioFilter, lstFingerData, bioSubType, builder, exceptionlist,
-					genarateValidCbeff);
+					genarateValidCbeff,contextKey);
 
 			if (exceptionlist != null && !exceptionlist.isEmpty()) {
 				builder = xmlbuilderFingerExep(bioFilter, exceptionlist, bioSubType, builder, genarateValidCbeff);
@@ -567,7 +569,7 @@ public class BiometricDataProvider {
 			List<MDSDeviceCaptureModel> lstIrisData = capture.getLstBiometrics()
 					.get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
 
-			builder = xmlbuilderIris(bioFilter, lstIrisData, bioSubType, builder, genarateValidCbeff, exceptionlist);
+			builder = xmlbuilderIris(bioFilter, lstIrisData, bioSubType, builder, genarateValidCbeff, exceptionlist,contextKey);
 
 			if (exceptionlist != null && !exceptionlist.isEmpty()) {
 				builder = xmlbuilderIrisExcep(bioFilter, exceptionlist, bioSubType, builder, genarateValidCbeff);
@@ -609,7 +611,7 @@ public class BiometricDataProvider {
 	}
 
 	private static XMLBuilder xmlbuilderIris(List<String> bioFilter, List<MDSDeviceCaptureModel> lstIrisData,
-			List<String> bioSubType, XMLBuilder builder, boolean genarateValidCbeff, List<BioModality> exceptionlst)
+			List<String> bioSubType, XMLBuilder builder, boolean genarateValidCbeff, List<BioModality> exceptionlst,String contextKey)
 
 	{
 		List<String> listWithoutExceptions = bioFilter;
@@ -622,8 +624,7 @@ public class BiometricDataProvider {
 			listWithoutExceptions = bioFilter.stream().filter(bioAttribute -> !schemaName.contains(bioAttribute))
 					.collect(Collectors.toList());
 		}
-
-		logger.info("withoutExceptionList is: " + listWithoutExceptions);
+          RestClient.logInfo(contextKey, "withoutExceptionList is: " + listWithoutExceptions);
 
 		try {
 			if (lstIrisData != null) {
@@ -687,11 +688,11 @@ public class BiometricDataProvider {
 	}
 
 	private static XMLBuilder xmlbuilderFinger(List<String> bioFilter, List<MDSDeviceCaptureModel> lstFingerData,
-			List<String> bioSubType, XMLBuilder builder, List<BioModality> exceptionlst, boolean genarateValidCbeff) {
+			List<String> bioSubType, XMLBuilder builder, List<BioModality> exceptionlst, boolean genarateValidCbeff,String contextKey) {
 		List<String> listWithoutExceptions = bioFilter;
 		if (exceptionlst != null && !exceptionlst.isEmpty()) {
 			List<String> exceptions = exceptionlst.stream().map(BioModality::getSubType).collect(Collectors.toList());
-			logger.info("exceptions" + exceptions);
+			RestClient.logInfo(contextKey,"exceptions" + exceptions);
 			List<String> schemaName = new ArrayList<String>();
 			for (String ex : exceptions) {
 				schemaName.add(getschemaName(ex));
@@ -721,7 +722,7 @@ public class BiometricDataProvider {
 							break;
 						}
 					}
-					logger.info("fingerData is: " + fingerData);
+					RestClient.logInfo(contextKey,"fingerData is: " + fingerData);
 					if (i >= 0 && fingerData != null && currentCM != null) {
 						String strFinger = DataProviderConstants.displayFingerName[i];
 						String strFingerXml = buildBirFinger(fingerData, strFinger, currentCM.getSb(),
@@ -840,7 +841,7 @@ public class BiometricDataProvider {
 		// reach cached finger prints from folder
 		String dirPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
-		logger.info(DIRPATH + dirPath);
+		RestClient.logInfo(contextKey,DIRPATH + dirPath);
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 		File dir = new File(dirPath);
 
@@ -861,7 +862,7 @@ public class BiometricDataProvider {
 		// otherwise pick the impression of same of scenario number
 		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
-		logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders=" + numberOfSubfolders
+		RestClient.logInfo(contextKey,"currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders=" + numberOfSubfolders
 				+ " impressionToPick=" + impressionToPick);
 		List<File> lst = new LinkedList<File>();
 		lst = CommonUtil.listFiles(dirPath + String.format("/Impression_%d/fp_1/", impressionToPick));
@@ -920,7 +921,7 @@ public class BiometricDataProvider {
 				try {
 					tmpDir = Files.createTempDirectory("fps").toFile();
 					Hashtable<Integer, List<File>> prints = generateFingerprint(tmpDir.getAbsolutePath(), 10, 2, 4,
-							FPClassDistribution.arch);
+							FPClassDistribution.arch,contextKey);
 					List<File> firstSet = prints.get(1);
 
 					String[] fingerPrints = new String[10];
@@ -960,7 +961,7 @@ public class BiometricDataProvider {
 				// reach cached finger prints from folder
 				String dirPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString() + VariableManager
 						.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
-				logger.info(DIRPATH + dirPath);
+				RestClient.logInfo(contextKey,DIRPATH + dirPath);
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				File dir = new File(dirPath);
 
@@ -982,7 +983,7 @@ public class BiometricDataProvider {
 				int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber
 						: randomNumber;
 
-				logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
+				RestClient.logInfo(contextKey,"currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
 						+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
 
 				for (int i = min; i <= max; i++) {
@@ -995,7 +996,7 @@ public class BiometricDataProvider {
 				String[] fingerPrintHash = new String[10];
 				byte[][] fingerPrintRaw = new byte[10][1];
 				List<File> firstSet = tblFiles.get(impressionToPick);
-				logger.info("Impression used " + impressionToPick);
+				RestClient.logInfo(contextKey,"Impression used " + impressionToPick);
 
 				int index = 0;
 				for (File f : firstSet) {
@@ -1030,7 +1031,7 @@ public class BiometricDataProvider {
 	// generate using Anguli
 
 	static Hashtable<Integer, List<File>> generateFingerprint(String outDir, int nFingerPrints,
-			int nImpressionsPerPrints, int nThreads, FPClassDistribution classDist) {
+			int nImpressionsPerPrints, int nThreads, FPClassDistribution classDist,String contextKey) {
 
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 
@@ -1038,7 +1039,7 @@ public class BiometricDataProvider {
 		String[] commands = { DataProviderConstants.ANGULI_PATH + "/Anguli.exe", "-outdir", outDir, "-numT",
 				String.format("%d", nThreads), "-num", String.format("%d", nFingerPrints), "-ni",
 				String.format("%d", nImpressionsPerPrints), "-cdist", classDist.name() };
-		logger.info("Anguli commands" + commands);
+		RestClient.logInfo(contextKey, "Anguli commands" + commands);
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(new File(DataProviderConstants.ANGULI_PATH));
 
@@ -1050,7 +1051,7 @@ public class BiometricDataProvider {
 			String s;
 
 			while ((s = stdError.readLine()) != null) {
-				logger.info(s);
+				RestClient.logInfo(contextKey,s);
 			}
 			// read from outdir
 			for (int i = 1; i <= nImpressionsPerPrints; i++) {
@@ -1148,7 +1149,7 @@ public class BiometricDataProvider {
 			String leftbmp = null;
 			String rightbmp = null;
 			// reach cached finger prints from folder
-			logger.info(DIRPATH + srcPath);
+			RestClient.logInfo(contextKey,DIRPATH + srcPath);
 			Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 			File dir = new File(srcPath);
 

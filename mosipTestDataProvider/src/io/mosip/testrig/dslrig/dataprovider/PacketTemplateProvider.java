@@ -45,6 +45,7 @@ import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
+import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.Translator;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
@@ -118,7 +119,7 @@ public class PacketTemplateProvider {
 		String rootFolder = packetFilePath;
 		String ridFolder = "";
 		Path path = Paths.get(rootFolder);
-		logger.info("path1:" + path);
+		RestClient.logInfo(contextKey, "path1:" + path);
 		ContextSchemaDetail contextSchemaDetail = getSchema(contextKey);
 
 		if (!Files.exists(path)) {
@@ -126,12 +127,12 @@ public class PacketTemplateProvider {
 		}
 		String sourceFolder = rootFolder + File.separator + source.toUpperCase();
 		path = Paths.get(sourceFolder);
-		logger.info("path2:" + path);
+		RestClient.logInfo(contextKey,"path2:" + path);
 		if (!Files.exists(path)) {
 			Files.createDirectory(path);
 		}
 		String processFolder = sourceFolder + File.separator + process.toUpperCase();
-		logger.info("processFolder:" + processFolder);
+		RestClient.logInfo(contextKey,"processFolder:" + processFolder);
 		path = Paths.get(processFolder);
 		if (!Files.exists(path)) {
 			Files.createDirectory(path);
@@ -170,7 +171,7 @@ public class PacketTemplateProvider {
 		} catch (Throwable e) {
 			logger.error("generate", e);
 		}
-		JSONObject processMVEL = processMVEL(resident, idJson, process, contextSchemaDetail);
+		JSONObject processMVEL = processMVEL(resident, idJson, process, contextSchemaDetail,contextKey);
 		idJson = processMVEL.toString();
 		Files.write(Paths.get(ridFolder + ID_JSON), idJson.getBytes());
 		String metadataJson = generateMetaDataJson(resident, preregId, machineId, centerId, fileInfo, contextKey,
@@ -200,7 +201,7 @@ public class PacketTemplateProvider {
 	}
 
 	private JSONObject processMVEL(ResidentModel resident, String idJson, String process,
-			ContextSchemaDetail contextSchemaDetail) {
+			ContextSchemaDetail contextSchemaDetail,String contextKey) {
 		Map<String, Object> allIdentityDetails = new LinkedHashMap<String, Object>();
 		Map<String, DocumentDto> documents = getDocuments(resident, idJson, contextSchemaDetail);
 		allIdentityDetails.putAll(documents);
@@ -224,9 +225,9 @@ public class PacketTemplateProvider {
 			List<SchemaRule> rule = s.getRequiredOn();
 			if (rule != null) {
 				for (SchemaRule sr : rule) {
-					logger.info("rule:" + sr);
+					RestClient.logInfo(contextKey, "rule:" + sr);
 					boolean bval = MosipMasterData.executeMVEL(sr.getExpr(), (Object) allIdentityDetails);
-					logger.info("rule:result=" + bval);
+					RestClient.logInfo(contextKey,"rule:result=" + bval);
 					if (!bval) {
 						json = new JSONObject(idJson);
 						json.put(s.getId(), Json.NULL);
@@ -321,7 +322,7 @@ public class PacketTemplateProvider {
 						if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
 							index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size() - 1, 0)[0];
 							String docFile = doc.getDocs().get(index);
-							logger.info(DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
+							RestClient.logInfo(contextKey,DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
 
 							JSONObject o = new JSONObject();
 							o.put(FORMAT, "pdf");
@@ -429,7 +430,7 @@ public class PacketTemplateProvider {
 		List<String> missList = resident.getMissAttributes();
 
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
-			logger.info(s.toJSONString());
+			RestClient.logInfo(contextKey,s.toJSONString());
 			String primVal = "";
 			String secVal = "";
 			if (s.getFieldCategory().equals(EVIDENCE) && (s.getInputRequired() || s.getRequired())) {
@@ -462,7 +463,7 @@ public class PacketTemplateProvider {
 							String outFile = fileInfo.get(RID_EVIDENCE)[0] + "/" + fileInfo.get(RID_EVIDENCE)[1];
 							try {
 								Files.copy(Paths.get(docFile), Paths.get(outFile));
-								logger.info("contextkey" + contextKey + "Index= " + index + " File info= " + fileInfo
+								RestClient.logInfo(contextKey,"contextkey" + contextKey + "Index= " + index + " File info= " + fileInfo
 										+ " From-docFIle=" + docFile + " To-docFIle=" + outFile + DTYPE + s.getSubType()
 										+ "Proof of cat=" + s.getId());
 
@@ -723,7 +724,7 @@ public class PacketTemplateProvider {
 					
 				resident.getBiometric().setCapture(capture.getLstBiometrics());
 				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile, missAttribs,
-						genarateValidCbeff, resident.getBioExceptions());
+						genarateValidCbeff, resident.getBioExceptions(),contextKey);
 
 				resident.getBiometric().setCbeff(strCBeff);
 
@@ -981,7 +982,7 @@ public class PacketTemplateProvider {
 			locationSet_sec = locations_seclang.keySet();
 		List<String> lstMissedAttributes = resident.getMissAttributes();
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
-			logger.info(s.toJSONString());
+			RestClient.logInfo(contextKey,s.toJSONString());
 			// if not reqd field , skip it
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
@@ -1147,7 +1148,7 @@ public class PacketTemplateProvider {
 							index = resident.getDocIndexes().get(doc.getDocCategoryCode());
 
 							String docFile = doc.getDocs().get(0);
-							logger.info(DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
+							RestClient.logInfo(contextKey,DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
 
 							JSONObject o = new JSONObject();
 							o.put(FORMAT, "pdf");
@@ -1270,7 +1271,7 @@ public class PacketTemplateProvider {
 		loadMapperProp(contextKey, prop); // load mapped property
 
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
-			logger.info(s.toJSONString());
+			RestClient.logInfo(contextKey,s.toJSONString());
 			// if not reqd field , skip it
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
@@ -1381,7 +1382,7 @@ public class PacketTemplateProvider {
 						if (resident.getSkipFinger()) {
 							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
 						}
-						logger.info("Before Cbeff Generation contextkey=" + contextKey + " fileinfo=" + fileInfo
+						RestClient.logInfo(contextKey,"Before Cbeff Generation contextkey=" + contextKey + " fileinfo=" + fileInfo
 								+ " outFile=" + outFile);
 						
 					boolean bret = false;
@@ -1393,7 +1394,7 @@ public class PacketTemplateProvider {
 						return "";
 					
 						if (prop.containsKey("mosip.test.regclient.officerBiometricFileName")) {
-							logger.info(preregResponse.toString());
+							RestClient.logInfo(contextKey,preregResponse.toString());
 							JSONArray getArray = preregResponse.getJSONObject("response").getJSONArray(DOCUMENTS);
 							JSONObject objects = getArray.getJSONObject(0);
 							String value = (String) objects.get(VALUE);
@@ -1483,7 +1484,7 @@ public class PacketTemplateProvider {
 							index = resident.getDocIndexes().get(doc.getDocCategoryCode());
 
 							String docFile = doc.getDocs().get(0);
-							logger.info(DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
+							RestClient.logInfo(contextKey,DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
 
 							JSONObject o = new JSONObject();
 							o.put(FORMAT, "pdf");
@@ -1575,7 +1576,7 @@ public class PacketTemplateProvider {
 		Boolean contextMapperFound = false;
 		String propPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.env.mapperpath")
 				.toString();
-		logger.info(propPath);
+		RestClient.logInfo(contextKey,propPath);
 		File folder = new File(String.valueOf(propPath) + File.separator);
 		File[] listOfFiles = folder.listFiles();
 		for (File file : listOfFiles) {
@@ -1619,7 +1620,7 @@ public class PacketTemplateProvider {
 					if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
 						index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size() - 1, 0)[0];
 						String docFile = doc.getDocs().get(index);
-						logger.info(DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
+						RestClient.logInfo(contextKey,DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
 
 						JSONObject o = new JSONObject();
 						o.put("documentCategory", doc.getDocCategoryCode());
