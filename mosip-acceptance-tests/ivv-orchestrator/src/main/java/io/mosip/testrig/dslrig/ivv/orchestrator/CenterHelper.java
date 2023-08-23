@@ -227,7 +227,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 				locationCode = locationObject.getString("locationCode");
 
 				// Traverse on the "code" field
-				System.out.println("Location Code: " + locationCode);
+				logger.info("Location Code: " + locationCode);
 				return locationCode;
 			} else {
 				logger.error("No location data found in the response.");
@@ -269,7 +269,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 				locationCode = locationObject.getString("code");
 
 				// Traverse on the "code" field
-				System.out.println("Location Code: " + locationCode);
+				logger.info("Location Code: " + locationCode);
 				return locationCode;
 			} else {
 				logger.error("No location data found in the response.");
