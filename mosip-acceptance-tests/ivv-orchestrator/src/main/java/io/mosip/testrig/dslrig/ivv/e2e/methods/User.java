@@ -86,7 +86,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				step.getScenario().getVariables().putAll(map);
 			userHelper.deleteCenterMapping(user);
 			
-			Reporter.log(map.toString(), true);
+			Reporter.log(map.toString());
 			break;
 		case "DELETE_ZONEMAPPING":
 			userHelper.deleteZoneMapping(user,zone);
