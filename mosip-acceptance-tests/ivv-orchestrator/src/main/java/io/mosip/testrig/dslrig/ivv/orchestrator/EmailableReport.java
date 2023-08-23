@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.IReporter;
 import org.testng.ISuite;
@@ -33,7 +34,7 @@ import io.mosip.testrig.apirig.service.BaseTestCase;
  * Reporter that generates a single-page HTML report of the test results.
  */
 public class EmailableReport implements IReporter {
-	Logger logger = Logger.getLogger(EmailableReport.class);
+	static Logger logger = Logger.getLogger(EmailableReport.class);
 
 	protected PrintWriter writer;
 
@@ -49,6 +50,13 @@ public class EmailableReport implements IReporter {
 	int totalPassedTests = 0;
 	int totalSkippedTests = 0;
 	int totalFailedTests = 0;
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;

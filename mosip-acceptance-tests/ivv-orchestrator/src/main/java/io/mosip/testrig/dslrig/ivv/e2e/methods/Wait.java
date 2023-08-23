@@ -42,10 +42,10 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 		}
 
 		try {
-			Reporter.log("Total waiting for: " + waitTime / 1000 + " Sec", true);
-			Reporter.log("Starting Waiting: " + getDateTime(), true);
+			Reporter.log("Total waiting for: " + waitTime / 1000 + " Sec");
+			Reporter.log("Starting Waiting: " + getDateTime());
 			Thread.sleep(waitTime);
-			Reporter.log("Waiting Done: " + getDateTime(), true);
+			Reporter.log("Waiting Done: " + getDateTime());
 		} catch (NumberFormatException e) {
 			logger.error(e.getMessage());
 		} catch (InterruptedException e) {

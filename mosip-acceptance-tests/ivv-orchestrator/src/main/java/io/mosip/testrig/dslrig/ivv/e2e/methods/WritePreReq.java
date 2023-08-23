@@ -33,7 +33,7 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		String value = null;
 		String appendedkey = null;
 		HashMap<String, String> map = new HashMap<String, String>();
-		Reporter.log("==========STEP ====== WritePreReq ", true);
+		Reporter.log("==========STEP ====== WritePreReq ");
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("PreRequisite Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else if(step.getParameters().size() >= 1) {
@@ -67,7 +67,7 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		        }
 			 outputStrem = new FileOutputStream(path);
 			props.store(outputStrem, "This is path where file is created" + path);
-			Reporter.log(props.toString(), true);
+			Reporter.log(props.toString());
 			
 			Reporter.log("This is path where file is created" + path);
 		} catch (IOException e) {
