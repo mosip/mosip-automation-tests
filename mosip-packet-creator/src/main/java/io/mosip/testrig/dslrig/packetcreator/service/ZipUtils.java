@@ -17,22 +17,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+
 @Component
 public class ZipUtils {
     Logger logger = LoggerFactory.getLogger(ZipUtils.class);
     // Uses java.util.zip to create zip file
-    public void zipFolder(Path sourceFolderPath, Path zipPath) throws IOException {
+    public void zipFolder(Path sourceFolderPath, Path zipPath,String contextKey) throws IOException {
         try(ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipPath.toFile()))){
             Files.walkFileTree(sourceFolderPath, new SimpleFileVisitor<Path>() {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 	
                 	String targetFile = sourceFolderPath.relativize(file).toString();
-                	logger.info("OS=>"+System.getProperty("os.name"));
-                    
+                	RestClient.logInfo(contextKey, "OS=>"+System.getProperty("os.name"));
                 	if(System.getProperty("os.name").toLowerCase().contains("windows"))
                 		targetFile = targetFile.replace("\\", "/");
                 
-                	logger.info(" In ZipUtils : zipFolder ()--- sourceFolderPath : " + sourceFolderPath + " zipPath : " + zipPath + " targetFile : "  + targetFile  );
+                	RestClient.logInfo(contextKey," In ZipUtils : zipFolder ()--- sourceFolderPath : " + sourceFolderPath + " zipPath : " + zipPath + " targetFile : "  + targetFile  );
                     zos.putNextEntry(new ZipEntry(targetFile));
                     Files.copy(file, zos);
                     zos.closeEntry();
@@ -45,7 +46,7 @@ public class ZipUtils {
         
     }
 
-    public boolean unzip(String sourceFile, String targetDirectory) {
+    public boolean unzip(String sourceFile, String targetDirectory,String contextKey) {
         boolean unzipped = false;
         try(InputStream in = Files.newInputStream(Path.of(sourceFile));
             ZipInputStream zipInputStream = new ZipInputStream(in)){
