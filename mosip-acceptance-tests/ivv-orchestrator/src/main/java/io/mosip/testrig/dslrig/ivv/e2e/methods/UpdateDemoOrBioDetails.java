@@ -39,10 +39,12 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 			if (step.getParameters().size() > 2)
 				updateAttribute = step.getParameters().get(2);
 
-			if (updateAttribute.substring(5).startsWith("$$")) {
+			if (!updateAttribute.contentEquals("0")) {
+				if (updateAttribute.contains("$$")) {
 				blocklistedWord = updateAttribute.substring(5);
 				updateAttribute = updateAttribute.replace(blocklistedWord,
 						step.getScenario().getVariables().get(blocklistedWord));
+				}
 			}
 		}
 		List<String> regenAttributeList = (bioType != null) ? Arrays.asList(bioType.split("@@")) : new ArrayList<>();
