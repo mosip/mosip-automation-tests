@@ -254,12 +254,12 @@ public class Orchestrator {
 
 		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
 			updateRunStatistics(scenario);
-			throw new SkipException("Skipping scenario due to known platform issue");
+			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
 		}
 
 		if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
 			updateRunStatistics(scenario);
-			throw new SkipException("Skipping scenario due to known Automation issue");
+			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
 		}
 
 		if (!scenario.getId().equalsIgnoreCase("0")) {
