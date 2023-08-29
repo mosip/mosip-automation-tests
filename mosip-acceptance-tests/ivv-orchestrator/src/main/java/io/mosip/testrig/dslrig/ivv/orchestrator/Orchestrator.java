@@ -487,7 +487,7 @@ public class Orchestrator {
 	}
 
 	public static String JsonToCsvConverter(String jsonFilePath) {
-		String tempCSVPath = MosipTestRunner.getResourcePath() + "/scenarios.csv";
+		String tempCSVPath = MosipTestRunner.getGlobalResourcePath() + "/scenarios.csv";
 		int maxSteps = 151;
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
