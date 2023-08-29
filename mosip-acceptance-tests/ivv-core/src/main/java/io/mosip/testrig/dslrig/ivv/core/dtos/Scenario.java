@@ -41,6 +41,8 @@ public class Scenario {
     private  Properties vidPersonaProp=new Properties();
 
     private  Properties oidcPmsProp=new Properties();
+    
+    private  Properties appointmentDate=new Properties();
 	
     private  HashMap<String, String> residentPathGuardianRid = null;
 	

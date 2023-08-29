@@ -130,6 +130,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	private static final String REQUEST = "request";
 	private static final String REQUESTTIME = "requesttime";
 	private static final String VERSION = "version";
+	public static String appointmentDate ="";
 
 	public List<String> generateResidents(int n, Boolean bAdult, Boolean bSkipGuardian, String gender,
 			String missFields, HashMap<String, String> contextKey, Scenario.Step step) throws RigInternalError {
@@ -323,7 +324,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 	}
 
-	public void bookAppointment(String prid, int nthSlot, HashMap<String, String> contextKey, boolean bookOnHolidays,
+	public String bookAppointment(String prid, int nthSlot, HashMap<String, String> contextKey, boolean bookOnHolidays,
 			Scenario.Step step) throws RigInternalError {
 		String url = baseUrl + "/prereg/appointment/" + prid + "/" + nthSlot + "/" + bookOnHolidays;
 		JSONObject jsonReq = new JSONObject();
@@ -333,6 +334,18 @@ public class PacketUtility extends BaseTestCaseUtil {
 			logger.info("bookAppointment Response is:" + response + " url: " + url);
 			throw new RigInternalError("Unable to BookAppointment from packet utility");
 		}
+		
+      String json = response.getBody().asString();
+        
+      JSONObject jsonObject = new JSONObject(json);
+      appointmentDate = jsonObject.getString("appointmentDate");
+      step.getScenario().getVidPersonaProp().put("appointmentDate", appointmentDate);
+		
+		//JSONObject responseObject = response.getJSONObject("response");
+		//JSONArray data = responseObject.getJSONArray("locations");
+		
+		//appointmentDate =response.getBody().
+		return response.getBody().asString();
 	}
 
 	public String generateAndUploadPacket(String prid, String packetPath, HashMap<String, String> map,

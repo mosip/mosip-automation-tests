@@ -277,6 +277,7 @@ public class PreRegistrationSteps {
 
 				if(resp != null) {
 					
+					resp.put("appointmentDate", appointmentDate);
 					result = resp.toString();
 				
 					//ObjectMapper objectMapper = new ObjectMapper();
