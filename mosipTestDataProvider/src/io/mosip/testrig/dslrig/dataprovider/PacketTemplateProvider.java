@@ -483,7 +483,7 @@ public class PacketTemplateProvider {
 					continue;
 				} else if (prop.getProperty("introduceruin") != null
 						&& s.getId().equals(prop.getProperty("introduceruin"))) {
-					if (resident.isMinor() || resident.isInfant()) {
+					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null)  {
 						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
 						} else
 							identity.put(s.getId(), resident.getGuardian().getUIN());
@@ -491,8 +491,8 @@ public class PacketTemplateProvider {
 					continue;
 				} else if (prop.getProperty("introducerrid") != null
 						&& s.getId().equals(prop.getProperty("introducerrid"))) {
-					if (resident.isMinor() || resident.isInfant()) {
-						if (resident.getGuardian() != null && (resident.getGuardian().getRID() == null
+					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null)  {
+						if ((resident.getGuardian().getRID() == null
 								|| resident.getGuardian().getRID().equals(""))) {
 						} else
 							identity.put(s.getId(), resident.getGuardian().getRID());
@@ -502,7 +502,7 @@ public class PacketTemplateProvider {
 
 				else if (prop.getProperty("parentOrGuardianuin") != null
 						&& s.getId().equals(prop.getProperty("parentOrGuardianuin"))) {
-					if (resident.isMinor() || resident.isInfant()) {
+					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null)  {
 						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
 						} else
 							identity.put(s.getId(), resident.getGuardian().getUIN());
@@ -510,7 +510,7 @@ public class PacketTemplateProvider {
 					continue;
 				} else if (prop.getProperty("parentOrGuardianrid") != null
 						&& s.getId().equals(prop.getProperty("parentOrGuardianrid"))) {
-					if (resident.isMinor() || resident.isInfant()) {
+					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null)  {
 						if (resident.getGuardian() != null && (resident.getGuardian().getRID() == null
 								|| resident.getGuardian().getRID().equals(""))) {
 						} else
