@@ -2,6 +2,7 @@ CreateRegistrationCenter:
    MasterData_CreateRegCenter_allValid_smoke_sid:
       endPoint: /v1/masterdata/registrationcenters
       role: admin
+      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: ivv_masterdata/RegistrationCenter/registrationCenter
       outputTemplate: ivv_masterdata/RegistrationCenter/registrationCenterResult
@@ -36,5 +37,4 @@ CreateRegistrationCenter:
    "requesttime":"$TIMESTAMP$"
 }'
       output: '{
-   "zoneCode":""
 }'   

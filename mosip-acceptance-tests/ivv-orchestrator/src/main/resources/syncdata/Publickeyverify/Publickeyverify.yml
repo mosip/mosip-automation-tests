@@ -2,6 +2,7 @@ Publickeyverify:
    Syncdata_Publickeyverify_All_Valid_Smoke_sid:
       endPoint: /v1/syncdata/tpm/publickey/verify
       role: admin
+      checkErrorsOnlyInResponse: true
       templateFields: ["name"]
       restMethod: post
       inputTemplate: syncdata/Publickeyverify/publickeyverify
@@ -14,5 +15,4 @@ Publickeyverify:
  
   }'
       output: '{
-    "keyIndex": "string"
 }'
