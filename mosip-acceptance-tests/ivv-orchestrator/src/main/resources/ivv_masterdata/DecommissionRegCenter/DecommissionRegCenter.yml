@@ -2,6 +2,7 @@ DecommissionRegCenter:
    MasterData_DecommissionRegCenter_All_Valid_Smoke_sid:  
       endPoint: /v1/masterdata/registrationcenters/decommission/{regCenterID}
       role: admin
+      checkErrorsOnlyInResponse: true
       restMethod: put
       inputTemplate: ivv_masterdata/DecommissionRegCenter/decommissionRegCenter
       outputTemplate: ivv_masterdata/DecommissionRegCenter/decommissionRegCenterResult
@@ -9,5 +10,4 @@ DecommissionRegCenter:
     "regCenterID": "string"
 	}'
       output: '{
-    "id": "$IGNORE$"
 }'

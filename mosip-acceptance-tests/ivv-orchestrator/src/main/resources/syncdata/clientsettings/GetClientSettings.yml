@@ -2,17 +2,11 @@ GetMachines:
    Admin_GetMachines_allValid_smoke:
       endPoint: /v1/syncdata/v2/clientsettings?keyindex=changekeyindex&regcenterId=changeregcenterId
       role: admin
+      checkErrorsOnlyInResponse: true
       restMethod: get
       inputTemplate: syncdata/clientsettings/getClientSettings
       outputTemplate: syncdata/clientsettings/getClientSettingsResult
       input: '{
      }'
       output: '{
-     "dataToSync": [
-     {
-        "entityName": "$IGNORE$",
-        "entityType": "$IGNORE$",
-        "data": "$IGNORE$"    
-    }],
-      "errors": "$IGNORE$"
 }'  

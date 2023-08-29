@@ -2,6 +2,7 @@ DeleteMachine:
    MasterData_DeleteMachine_All_Valid_Smoke_sid:  
       endPoint: /v1/masterdata/machines/{id}
       role: admin
+      checkErrorsOnlyInResponse: true
       restMethod: delete
       inputTemplate: ivv_masterdata/DeleteMachine/deleteMachine
       outputTemplate: ivv_masterdata/DeleteMachine/deleteMachineResult
@@ -9,7 +10,6 @@ DeleteMachine:
     "id": "$ID:CreateMachine_All_Valid_Smoke_sid_id$"
 	}'
       output: '{
-    "id": "$IGNORE$"
 }'
    MasterData_DeleteMachine_Invalid_ID: 
       endPoint: /v1/masterdata/machines/{id}

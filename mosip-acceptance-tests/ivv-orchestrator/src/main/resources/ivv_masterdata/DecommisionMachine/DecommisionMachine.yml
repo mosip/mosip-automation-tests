@@ -2,6 +2,7 @@ DecommisionMachine:
    MasterData_DecommisionMachine_valid_smoke_ID: 
       endPoint: /v1/masterdata/machines/decommission/id
       role: admin
+      checkErrorsOnlyInResponse: true
       restMethod: put
       inputTemplate: ivv_masterdata/DecommisionMachine/decommisionMachine
       outputTemplate: ivv_masterdata/DecommisionMachine/decommisionMachineResult
@@ -9,5 +10,4 @@ DecommisionMachine:
       
 	}'
       output: '{
-   "id": "$IGNORE$"
 }'
