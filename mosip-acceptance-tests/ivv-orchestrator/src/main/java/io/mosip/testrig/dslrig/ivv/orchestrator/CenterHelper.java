@@ -1,11 +1,13 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.GetWithParam;
 import io.mosip.testrig.apirig.testscripts.GetWithQueryParam;
@@ -17,7 +19,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.restassured.response.Response;
 
 public class CenterHelper extends BaseTestCaseUtil {
-	public Logger logger = Logger.getLogger(MachineHelper.class);
+	public static Logger logger = Logger.getLogger(CenterHelper.class);
 	
 
 	private static final String CreateRegistrationCenter = "ivv_masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
@@ -36,8 +38,16 @@ public class CenterHelper extends BaseTestCaseUtil {
 	GetWithParam getWithParam=new GetWithParam();
 	GetWithQueryParam getWithQueryParam=new GetWithQueryParam();
 	
-
-
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
+	
+	public CenterHelper() {
+		  super();
+	}
 
 	public void centerUpdate(String centerId,String zone) throws RigInternalError {
 		try {
@@ -217,7 +227,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 				locationCode = locationObject.getString("locationCode");
 
 				// Traverse on the "code" field
-				System.out.println("Location Code: " + locationCode);
+				logger.info("Location Code: " + locationCode);
 				return locationCode;
 			} else {
 				logger.error("No location data found in the response.");
@@ -259,7 +269,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 				locationCode = locationObject.getString("code");
 
 				// Traverse on the "code" field
-				System.out.println("Location Code: " + locationCode);
+				logger.info("Location Code: " + locationCode);
 				return locationCode;
 			} else {
 				logger.error("No location data found in the response.");

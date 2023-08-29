@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
@@ -17,7 +19,14 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 
 public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterface {
 	Map<String, String> modalityHashValueMap = new HashMap<>();
-	Logger logger = Logger.getLogger(GetBioModalityHash.class);
+	static Logger logger = Logger.getLogger(GetBioModalityHash.class);
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	public void run() throws RigInternalError {
 		List<String> modalitySubTypeList = new ArrayList<>();

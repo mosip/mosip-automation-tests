@@ -2,12 +2,14 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.util.HashMap;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.DeleteWithParam;
 import io.mosip.testrig.apirig.testscripts.GetWithParam;
@@ -35,6 +37,15 @@ public class UserHelper extends BaseTestCaseUtil {
 	SimplePost simplepost=new SimplePost();
 	PatchWithPathParam patchWithPathParam=new PatchWithPathParam();
 	GetWithParam getWithParam=new GetWithParam();
+
+	public UserHelper() {
+		  super();
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
+	
 	public void deleteCenterMapping(String user) throws RigInternalError {
 		try {
 
@@ -314,7 +325,7 @@ public class UserHelper extends BaseTestCaseUtil {
 				locationCode = locationObject.getString("code");
 
 				// Traverse on the "code" field
-				System.out.println("Location Code: " + locationCode);
+				logger.info("Location Code: " + locationCode);
 				return locationCode;
 			} else {
 				logger.error("No location data found in the response.");
@@ -348,7 +359,7 @@ public class UserHelper extends BaseTestCaseUtil {
 		String zoneCode="NOTSET";
 		if(response!=null) 
 		{
-			System.out.println(response.getBody().asString());
+			logger.info(response.getBody().asString());
 			JSONObject jsonObject = new JSONObject(response.getBody().asString());
 			
 			if(jsonObject.getJSONArray("errors").toString().isEmpty())
@@ -358,7 +369,7 @@ public class UserHelper extends BaseTestCaseUtil {
 				if(res!=null) {
 					zoneCode = res.getString("zoneCode");
 
-					System.out.println("zoneCode: " + zoneCode);
+					logger.info("zoneCode: " + zoneCode);
 					return zoneCode;
 				} else {
 
