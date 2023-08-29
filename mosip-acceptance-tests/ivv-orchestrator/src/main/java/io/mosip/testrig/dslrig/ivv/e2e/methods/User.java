@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
@@ -20,6 +21,13 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 	
 	UserHelper userHelper=new UserHelper();
 	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
+	
 	//GetWithParam
 	@Override
 	public void run() throws RigInternalError {
@@ -33,7 +41,6 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		HashMap<String, String> map =new HashMap<String, String>();
 
 		HashMap<String, String> map2=new HashMap<String, String>();
-		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
 			this.hasError=true;
@@ -79,7 +86,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				step.getScenario().getVariables().putAll(map);
 			userHelper.deleteCenterMapping(user);
 			
-			Reporter.log(map.toString(), true);
+			Reporter.log(map.toString());
 			break;
 		case "DELETE_ZONEMAPPING":
 			userHelper.deleteZoneMapping(user,zone);
@@ -101,7 +108,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		case "CREATE_ZONESEARCH":
 			map=userHelper.createZoneSearch(user,map);
 			step.getScenario().getVariables().putAll(map);
-			Reporter.log(map.toString(), true);
+			Reporter.log(map.toString());
 			break;
 		case "ADD_User":
 			HashMap<String, List<String>> attrmap=new HashMap<String, List<String>>();

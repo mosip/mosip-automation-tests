@@ -214,7 +214,7 @@ public class PacketSyncService {
 
 			List<String> missedList = Arrays.asList(props.get("Miss").toString().split(",", -1));
 			provider.addCondition(ResidentAttribute.RA_MissList, missedList);
-			logger.info("before Genrate: missthese:" + missedList.toString());
+			RestClient.logInfo(contextKey, "before Genrate: missthese:" + missedList.toString());
 		}
 		if (props.containsKey("ThirdLanguage")) {
 
@@ -225,9 +225,9 @@ public class PacketSyncService {
 			provider.addCondition(ResidentAttribute.RA_SCHEMA_VERSION, props.get("SchemaVersion").toString());
 		}
 
-		logger.info("before Genrate");
+		RestClient.logInfo(contextKey,"before Genrate");
 		List<ResidentModel> lst = provider.generate(contextKey);
-		logger.info("After Genrate");
+		RestClient.logInfo(contextKey,"After Genrate");
 
 		JSONArray outIds = new JSONArray();
 
@@ -269,7 +269,7 @@ public class PacketSyncService {
 
 	public JSONObject makePacketAndSync(String preregId, String templateLocation, String personaPath, String contextKey,
 			String additionalInfoReqId, boolean getRidFromSync, boolean genarateValidCbeff) throws Exception {
-
+	 if (RestClient.isDebugEnabled(contextKey))
 		logger.info("makePacketAndSync for PRID : {}", preregId);
 
 		Path idJsonPath = null;
@@ -277,16 +277,17 @@ public class PacketSyncService {
 		preregId = preregId.trim();
 		if (!preregId.equals("0") && !preregId.equals("01")) {
 			String location = preregSyncService.downloadPreregPacket(preregId, contextKey);
-			logger.info("Downloaded the prereg packet in {} ", location);
+			 if (RestClient.isDebugEnabled(contextKey))
+			 logger.info("Downloaded the prereg packet in {} ", location);
 			File targetDirectory = Path.of(preregSyncService.getWorkDirectory(), preregId).toFile();
 			if (!targetDirectory.exists() && !targetDirectory.mkdir())
 				throw new Exception("Failed to create target directory ! PRID : " + preregId);
 
-			if (!zipUtils.unzip(location, targetDirectory.getAbsolutePath()))
+			if (!zipUtils.unzip(location, targetDirectory.getAbsolutePath(),contextKey))
 				throw new Exception("Failed to unzip pre-reg packet >> " + preregId);
 
 			idJsonPath = Path.of(targetDirectory.getAbsolutePath(), "ID.json");
-
+			 if (RestClient.isDebugEnabled(contextKey))
 			logger.info("Unzipped the prereg packet {}, ID.json exists : {}", preregId, idJsonPath.toFile().exists());
 
 		} else {
@@ -305,13 +306,14 @@ public class PacketSyncService {
 				preregId, contextKey, true, additionalInfoReqId);
 
 		String response = null;
+		 if (RestClient.isDebugEnabled(contextKey))
 		logger.info("Packet created : {}", packetPath);
 
 		if (getRidFromSync) {
 
 			response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", null, contextKey,
 					additionalInfoReqId);
-
+			 if (RestClient.isDebugEnabled(contextKey))
 			logger.info("RID Sync response : {}", response);
 			JSONObject functionResponse = new JSONObject();
 			JSONObject nobj = new JSONObject();
@@ -323,6 +325,7 @@ public class PacketSyncService {
 
 					String rid = resp.getString(REGISTRATIONID);
 					response = packetSyncService.uploadPacket(packetPath, contextKey);
+					 if (RestClient.isDebugEnabled(contextKey))
 					logger.info("Packet Sync response : {}", response);
 					JSONObject obj = new JSONObject(response);
 					if (obj.getString(STATUS).equals("Packet has reached Packet Receiver")) {
@@ -344,6 +347,7 @@ public class PacketSyncService {
 			JSONObject functionResponse = new JSONObject();
 			JSONObject nobj = new JSONObject();
 			response = packetSyncService.uploadPacket(packetPath, contextKey);
+			 if (RestClient.isDebugEnabled(contextKey))
 			logger.info("Packet Upload response : {}", response);
 			JSONObject obj = new JSONObject(response);
 			if (obj.getString(STATUS).equals("Packet has reached Packet Receiver")) {
@@ -372,8 +376,7 @@ public class PacketSyncService {
 		JSONObject jsonIdentity = CreatePersona.createIdentity(resident, null, contextKey);
 		JSONObject jsonWrapper = new JSONObject();
 		jsonWrapper.put("identity", jsonIdentity);
-
-		logger.info(jsonWrapper.toString());
+        RestClient.logInfo(contextKey, jsonWrapper.toString());
 		String tmpDir = Files.createTempDirectory("preregIds_").toFile().getAbsolutePath();
 
 		VariableManager.setVariableValue(contextKey, "preregIds_", tmpDir);
@@ -452,9 +455,10 @@ public class PacketSyncService {
 		}
 		if (proc != null && !proc.equals(""))
 			process = proc;
+		if(RestClient.isDebugEnabled(contextKey)) {
 		logger.info("Syncing data for RID : {}", rid);
 		logger.info("Syncing data: process:", process);
-
+		}
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put(REGISTRATIONID, rid);
 		jsonObject.put("langCode", primaryLangCode);
@@ -512,7 +516,7 @@ public class PacketSyncService {
 				}
 			});
 		}
-		logger.info(baseUrl + uploadapi + ",path=" + path);
+		RestClient.logInfo(contextKey, baseUrl + uploadapi + ",path=" + path);
 		JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl + uploadapi, path, contextKey);
 		if (!RestClient.isDebugEnabled(contextKey)) {
 			if (VariableManager.getVariableValue(contextKey, "mosip.test.temp") != null
@@ -520,30 +524,30 @@ public class PacketSyncService {
 
 				deleteDirectoryPath(VariableManager.getVariableValue(contextKey, "mountPath").toString()
 						+ VariableManager.getVariableValue(contextKey, "mosip.test.temp").toString()
-						+ contextKey.substring(0, contextKey.lastIndexOf("_context")));
+						+ contextKey.substring(0, contextKey.lastIndexOf("_context")),contextKey);
 			}
 		}
 		return response.toString();
 	}
 
-	public void deleteDirectoryPath(String path) {
+	public void deleteDirectoryPath(String path,String contextKey) {
 		if (path != null && !path.isEmpty()) {
 			File file = new File(path);
 			if (file.exists()) {
 				do {
-					deleteIt(file);
+					deleteIt(file,contextKey);
 				} while (file.exists());
 			} else {
 			}
 		}
 	}
 
-	private void deleteIt(File file) {
+	private void deleteIt(File file,String contextKey) {
 		if (file.isDirectory()) {
 			String fileList[] = file.list();
 			if (fileList.length == 0) {
 				if (!file.delete()) {
-					logger.info("Files deleted");
+					RestClient.logInfo(contextKey, "Files deleted");
 				}
 			} else {
 				int size = fileList.length;
@@ -551,12 +555,12 @@ public class PacketSyncService {
 					String fileName = fileList[i];
 					String fullPath = file.getPath() + "/" + fileName;
 					File fileOrFolder = new File(fullPath);
-					deleteIt(fileOrFolder);
+					deleteIt(fileOrFolder,contextKey);
 				}
 			}
 		} else {
 			if (!file.delete()) {
-				logger.info("Files deleted");
+				RestClient.logInfo(contextKey,"Files deleted");
 			}
 		}
 	}
@@ -802,7 +806,7 @@ public class PacketSyncService {
 		if (!packetDir.toFile().exists()) {
 			isFileCreated = packetDir.toFile().createNewFile();
 			if (isFileCreated)
-				logger.info("isFileCreated" + isFileCreated);
+				RestClient.logInfo(contextKey,"isFileCreated" + isFileCreated);
 
 		}
 		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
@@ -818,7 +822,7 @@ public class PacketSyncService {
 			JSONObject obj = new JSONObject();
 			obj.put("id", resident.getId());
 			obj.put("path", packetPath);
-			logger.info("createPacket:" + packetPath);
+			RestClient.logInfo(contextKey,"createPacket:" + packetPath);
 			packetPaths.put(obj);
 
 		}
@@ -834,7 +838,7 @@ public class PacketSyncService {
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
 
-		logger.info("createPacketTemplates->outDir:" + outDir);
+		RestClient.logInfo(contextKey,"createPacketTemplates->outDir:" + outDir);
 
 		loadServerContextProperties(contextKey);
 		if (process != null) {
@@ -844,15 +848,15 @@ public class PacketSyncService {
 			packetDir = Files.createTempDirectory("packets_");
 			VariableManager.setVariableValue(contextKey, "packets_", packetDir.toFile().getAbsolutePath());
 
-			logger.info("packetDir=" + packetDir);
+			RestClient.logInfo(contextKey,"packetDir=" + packetDir);
 		} else {
 			packetDir = Paths.get(outDir);
-			logger.info("packetDir=" + packetDir);
+			RestClient.logInfo(contextKey,"packetDir=" + packetDir);
 		}
 		if (!packetDir.toFile().exists()) {
 			packetDirCreated = packetDir.toFile().createNewFile();
 			if (packetDirCreated)
-				logger.info("packetDirCreated:" + packetDirCreated);
+				RestClient.logInfo(contextKey,"packetDirCreated:" + packetDirCreated);
 		}
 		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
 
@@ -870,7 +874,7 @@ public class PacketSyncService {
 			for (String path : personaFilePaths) {
 				ResidentModel resident = ResidentModel.readPersona(path);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
-				logger.info("packetPath=" + packetPath);
+				RestClient.logInfo(contextKey,"packetPath=" + packetPath);
 				machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
 
 				centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
@@ -883,8 +887,8 @@ public class PacketSyncService {
 				JSONObject obj = new JSONObject();
 				obj.put("id", resident.getId());
 				obj.put("path", packetPath);
-				logger.info("createPacket:" + packetPath);
-				logger.info("obj=" + obj);
+				RestClient.logInfo(contextKey,"createPacket:" + packetPath);
+				RestClient.logInfo(contextKey,"obj=" + obj);
 				packetPaths.put(obj);
 
 			}
@@ -1269,7 +1273,7 @@ public class PacketSyncService {
 
 	public String updatePersonaBioExceptions(BioExceptionDto personaBERequestDto, String contextKey) {
 
-		logger.info("updatePersonaBioExceptions:" + contextKey);
+		RestClient.logInfo(contextKey,"updatePersonaBioExceptions:" + contextKey);
 
 		loadServerContextProperties(contextKey);
 		String ret = "{Sucess}";
@@ -1299,7 +1303,7 @@ public class PacketSyncService {
 		String bdbString = "";
 		String[] duplicateBdbs;
 
-		logger.info("setPersonaMockABISExpectation");
+		RestClient.logInfo(contextKey,"setPersonaMockABISExpectation");
 
 		loadServerContextProperties(contextKey);
 		for (String personaPath : personaFilePath) {
@@ -1378,7 +1382,7 @@ public class PacketSyncService {
 							if (mds.getBioSubType().equals(m)) {
 								bdbString = capFingers.get(i).getBioValue();
 								subTypeBdbStr.add(bdbString);
-								logger.info(MODALITY + m);
+								RestClient.logInfo(contextKey,MODALITY + m);
 								break;
 							}
 						}
@@ -1389,7 +1393,7 @@ public class PacketSyncService {
 							if (mds.getBioSubType().equals(m)) {
 								bdbString = capIris.get(i).getBioValue();
 								subTypeBdbStr.add(bdbString);
-								logger.info(MODALITY + m);
+								RestClient.logInfo(contextKey,MODALITY + m);
 								break;
 							}
 						}
@@ -1397,14 +1401,14 @@ public class PacketSyncService {
 					} else if (m.toLowerCase().contains("face")) {
 						bdbString = capFace.get(0).getBioValue();
 						subTypeBdbStr.add(bdbString);
-						logger.info(MODALITY + m);
+						RestClient.logInfo(contextKey,MODALITY + m);
 					}
 
 				}
 
 			} else {
 				bdbString = capFingers.get(0).getBioValue();
-				logger.info("else part -->bdbString : " + bdbString);
+				RestClient.logInfo(contextKey,"else part -->bdbString : " + bdbString);
 				subTypeBdbStr.add(bdbString);
 			}
 
@@ -1428,7 +1432,7 @@ public class PacketSyncService {
 						expct.getOperation(), contextKey, expct.getStatusCode(), expct.getFailureReason());
 				reponse.add(responseStr);
 			}
-			logger.info(String.join(", ", reponse));
+			RestClient.logInfo(contextKey,String.join(", ", reponse));
 		}
 
 		return STATUS_SUCCESS;

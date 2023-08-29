@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import javax.ws.rs.core.MediaType;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;
@@ -12,6 +13,7 @@ import org.testng.Reporter;
 import io.mosip.testrig.apirig.authentication.fw.util.FileUtil;
 import io.mosip.testrig.apirig.authentication.fw.util.ReportUtil;
 import io.mosip.testrig.apirig.authentication.fw.util.RestClient;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -24,8 +26,16 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
 
 	private String getIdentityUrl = "/idrepository/v1/identity/idvid/";
 	private String identitypath = "preReg/identity/";
-	Logger logger = Logger.getLogger(GetIdentityByRid.class);
+	static Logger logger = Logger.getLogger(GetIdentityByRid.class);
 	KernelAuthentication kauth = new KernelAuthentication();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
+	
     @SuppressWarnings("static-access")
 	@Override
     public void run() throws RigInternalError {

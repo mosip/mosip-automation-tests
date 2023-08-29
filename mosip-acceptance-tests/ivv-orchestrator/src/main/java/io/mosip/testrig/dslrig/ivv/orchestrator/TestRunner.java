@@ -9,9 +9,15 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.TestNG;
 
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
+import io.mosip.testrig.apirig.authentication.fw.util.OutputValidationUtil;
+import io.mosip.testrig.apirig.ida.certificate.KeyCloakUserAndAPIKeyGeneration;
+import io.mosip.testrig.apirig.ida.certificate.MispPartnerAndLicenseKeyGeneration;
+import io.mosip.testrig.apirig.ida.certificate.PartnerRegistration;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MockSMTPListener;
@@ -21,6 +27,7 @@ public class TestRunner {
 	public static String jarUrl = TestRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
 	public static void main(String[] args) {
+		
 		if (checkRunType().equalsIgnoreCase("JAR")) {
 			removeOldMosipTestTestResource();
 			extractResourceFromJar();
@@ -32,9 +39,15 @@ public class TestRunner {
 
 		// Initializing or setting up execution
 		ConfigManager.init();
+		
+		if (ConfigManager.IsDebugEnabled())
+			LOGGER.setLevel(Level.ALL);
+		else
+			LOGGER.setLevel(Level.ERROR);
+		
+		setLogLevels();
 		BaseTestCase.initialize();
 		
-
 		BaseTestCase.languageList = BaseTestCase.getLanguageList();
 
 		// Selecting the language based on index for example- eng,ara,fra (To run suite
@@ -60,10 +73,10 @@ public class TestRunner {
 		LOGGER.info(os);
 		if (checkRunType().contains("IDE") || os.toLowerCase().contains("windows") == true) {
 			homeDir = new File(TestResources.getResourcePath() + "testngFile");
-			System.out.println("IDE Home Dir=" + homeDir);
+			LOGGER.info("IDE Home Dir=" + homeDir);
 		} else {
 			homeDir = new File(System.getProperty("user.dir") + "/MosipTestResource/testngFile");
-			System.out.println("Jar Home Dir=" + homeDir);
+			LOGGER.info("Jar Home Dir=" + homeDir);
 		}
 
 		for (File file : homeDir.listFiles()) {
@@ -221,6 +234,14 @@ public class TestRunner {
 			return path;
 		}
 		return "Global Resource File Path Not Found";
+	}
+	
+	private static void setLogLevels(){
+		AdminTestUtil.setLogLevel();
+		OutputValidationUtil.setLogLevel();
+		PartnerRegistration.setLogLevel();
+		KeyCloakUserAndAPIKeyGeneration.setLogLevel();
+		MispPartnerAndLicenseKeyGeneration.setLogLevel();
 	}
 	
 

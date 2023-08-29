@@ -25,6 +25,7 @@ import java.util.zip.ZipInputStream;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,7 +62,14 @@ import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.restassured.response.Response;
 
 public class PacketUtility extends BaseTestCaseUtil {
-	Logger logger = Logger.getLogger(PacketUtility.class);
+	static Logger logger = Logger.getLogger(PacketUtility.class);
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	// String constants
 	private static final String SKIPGAURDIAN = "SkipGaurdian";
@@ -1108,9 +1116,15 @@ public class PacketUtility extends BaseTestCaseUtil {
 		logger.info("RESSURED: Sending a GET request to " + url);
 		logger.info("REQUEST: Sending a GET request to " + url);
 		url = addContextToUrl(url, step);
-		Response getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").log()
-				.all().when().body(body).get(url).then().extract().response();
-		logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
+		Response getResponse =null;
+		if (ConfigManager.IsDebugEnabled()) {
+			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").log()
+					.all().when().body(body).get(url).then().extract().response();
+			logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
+		}
+		else {
+			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").when().body(body).get(url).then().extract().response();
+		}
 		return getResponse;
 	}
 
@@ -1218,19 +1232,34 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public Response putReqestWithCookiesAndBody(String url, String body, String token, String opsToLog,
 			Scenario.Step step) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-				.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).put(url).then().log().all().extract()
-				.response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ puttResponse.getBody().asString() + "</pre>");
+		Response puttResponse =null;
+		if (ConfigManager.IsDebugEnabled()) {
+			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+					.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).put(url).then().log().all().extract()
+					.response();
+		}
+		else {
+			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+					.accept("*/*").when().cookie(AUTHORIZATION, token).put(url).then().extract()
+					.response();
+		}
 		return puttResponse;
 	}
 
 	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-				.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).post(url).then().log().all().extract()
-				.response();
+		Response posttResponse =null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).post(url).then().log().all().extract()
+						.response();
+		}
+		else {
+			 posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").when().cookie(AUTHORIZATION, token).post(url).then().extract()
+						.response();
+		}
+
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ posttResponse.getBody().asString() + "</pre>");
 		return posttResponse;
@@ -1238,9 +1267,17 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public Response patchReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-				.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).patch(url).then().log().all().extract()
-				.response();
+		Response puttResponse =null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).patch(url).then().log().all().extract()
+						.response();
+		}
+		else {
+			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").when().cookie(AUTHORIZATION, token).patch(url).then().extract()
+						.response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ puttResponse.getBody().asString() + "</pre>");
 		return puttResponse;
@@ -1249,9 +1286,18 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public Response patchRequestWithQueryParm(String url, HashMap<String, String> queryParam, String token,
 			String opsToLog) {
 		Reporter.log("<pre> <b>" + opsToLog + " </b></pre>");
-		Response patchResponse = given().relaxedHTTPSValidation().queryParams(queryParam)
-				.contentType(MediaType.APPLICATION_JSON).cookie(AUTHORIZATION, token).accept("*/*").log().all().when()
-				.patch(url).then().log().all().extract().response();
+		
+		Response patchResponse =null;
+		if (ConfigManager.IsDebugEnabled()) {
+			patchResponse = given().relaxedHTTPSValidation().queryParams(queryParam)
+					.contentType(MediaType.APPLICATION_JSON).cookie(AUTHORIZATION, token).accept("*/*").log().all().when()
+					.patch(url).then().log().all().extract().response();
+		}
+		else {
+			patchResponse = given().relaxedHTTPSValidation().queryParams(queryParam)
+					.contentType(MediaType.APPLICATION_JSON).cookie(AUTHORIZATION, token).accept("*/*").when()
+					.patch(url).then().extract().response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ patchResponse.getBody().asString() + "</pre>");
 		return patchResponse;
@@ -1492,8 +1538,15 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public Response putReqestWithCookiesAndNoBody(String url, String token, String opsToLog, Scenario.Step step) {
-		Response puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON).accept("*/*")
-				.log().all().when().cookie(AUTHORIZATION, token).put(url).then().log().all().extract().response();
+		Response puttResponse=null;
+		if (ConfigManager.IsDebugEnabled()) {
+			puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON).accept("*/*")
+					.log().all().when().cookie(AUTHORIZATION, token).put(url).then().log().all().extract().response();
+		}
+		else {
+			puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON).accept("*/*")
+					.when().cookie(AUTHORIZATION, token).put(url).then().extract().response();
+		}
 		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
 				+ puttResponse.getBody().asString() + "</pre>");
 		return puttResponse;

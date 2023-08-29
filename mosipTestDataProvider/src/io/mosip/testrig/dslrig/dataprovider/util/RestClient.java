@@ -27,6 +27,10 @@ import org.json.JSONArray;
 //import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import io.mosip.testrig.dslrig.dataprovider.mds.HttpRCapture;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.restassured.RestAssured;
@@ -67,8 +71,8 @@ public class RestClient {
 	private static final String POST2SLACK = "post2slack";
 
 	static {
-		//RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
-		
+		// RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
+
 	}
 	String _urlBase;
 
@@ -88,10 +92,29 @@ public class RestClient {
 
 		if (urlBase != null) {
 			String token = tokens.get(urlBase.toString().trim() + role);
-			return !(null == token);
+			return isValidTokenOffline(token, contextKey);
 		} else {
 			return false;
 		}
+	}
+
+	public static boolean isValidTokenOffline(String cookie, String contextKey) {
+		boolean bReturn = false;
+		if (cookie == null)
+			return bReturn;
+		try {
+			DecodedJWT decodedJWT = JWT.decode(cookie);
+			long expirationTime = decodedJWT.getExpiresAt().getTime();
+			if (expirationTime < System.currentTimeMillis()) {
+				logInfo(contextKey, "The token is expired");
+			} else {
+				bReturn = true;
+				logInfo(contextKey, "The token is not expired");
+			}
+		} catch (JWTDecodeException e) {
+			logger.error("The token is invalid");
+		}
+		return bReturn;
 	}
 
 	public static void clearToken() {
@@ -173,7 +196,7 @@ public class RestClient {
 			}
 
 			if (isDebugEnabled(contextKey) && response != null) {
-				logger.info(response.getBody().asString());
+				logInfo(contextKey, response.getBody().asString());
 
 			}
 			checkErrorResponse(response.getBody().asString());
@@ -193,8 +216,11 @@ public class RestClient {
 		return debugEnabled;
 	}
 
-	
-	
+	public static void logInfo(String contextKey, String message) {
+		if (isDebugEnabled(contextKey))
+			logger.info(message);
+	}
+
 	// method used with admin role
 	public static JSONObject getAdminPreReg(String url, JSONObject requestParams, JSONObject pathParam,
 			String contextKey) throws Exception {
@@ -238,7 +264,7 @@ public class RestClient {
 
 			if (response != null) {
 				if (isDebugEnabled(contextKey)) {
-					logger.info(response.getBody().asString());
+					logInfo(contextKey, response.getBody().asString());
 				}
 				checkErrorResponse(response.getBody().asString());
 			}
@@ -291,7 +317,7 @@ public class RestClient {
 			}
 
 			if (isDebugEnabled(contextKey) && response != null) {
-				logger.info(response.getBody().asString());
+				logInfo(contextKey, response.getBody().asString());
 				checkErrorResponse(response.getBody().asString());
 			}
 		} catch (Exception e) {
@@ -341,7 +367,7 @@ public class RestClient {
 		}
 
 		if (isDebugEnabled(contextKey) && response != null) {
-			logger.info(response.getBody().asString());
+			logInfo(contextKey, response.getBody().asString());
 
 		}
 		checkErrorResponse(response.getBody().asString());
@@ -372,7 +398,7 @@ public class RestClient {
 		}
 
 		if (isDebugEnabled(contextKey) && response != null) {
-			logger.info(response.getBody().asString());
+			logInfo(contextKey, response.getBody().asString());
 		}
 
 		if (response != null) {
@@ -486,9 +512,7 @@ public class RestClient {
 		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 		Response response = null;
-		if (isDebugEnabled(contextKey)) {
-			logger.info("Request: " + jsonRequest.toString());
-		}
+		logInfo(contextKey, "Request: " + jsonRequest.toString());
 		try {
 			if (isDebugEnabled(contextKey))
 				response = given().log().all().contentType(ContentType.JSON).body(jsonRequest.toString()).post(url)
@@ -499,13 +523,13 @@ public class RestClient {
 			logger.error(e.getMessage());
 		}
 		if (response != null) {
-			logger.info("Response: " + response.getBody().asString());
+			logInfo(contextKey, "Response: " + response.getBody().asString());
 		} else {
-			logger.info("Response: null");
+			logInfo(contextKey, "Response: null");
 		}
 
 		for (Header h : response.getHeaders()) {
-			logger.info(h.getName() + "=" + h.getValue());
+			logInfo(contextKey, h.getName() + "=" + h.getValue());
 		}
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
@@ -513,8 +537,7 @@ public class RestClient {
 			token = token.split(";")[0];
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 		}
-		logger.info(token);
-
+		logInfo(contextKey, token);
 		checkErrorResponse(response.getBody().asString());
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -536,7 +559,7 @@ public class RestClient {
 		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 		Response response = null;
-		logger.info("Request: " + jsonRequest.toString());
+		logInfo(contextKey, "Request: " + jsonRequest.toString());
 		try {
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			if (isDebugEnabled(contextKey))
@@ -551,14 +574,14 @@ public class RestClient {
 
 		if (isDebugEnabled(contextKey)) {
 			if (response != null) {
-				logger.info("Response: " + response.getBody().asString());
+				logInfo(contextKey, "Response: " + response.getBody().asString());
 			} else {
-				logger.info("Response: null");
+				logInfo(contextKey, "Response: null");
 			}
 		}
 
 		for (Header h : response.getHeaders()) {
-			logger.info(h.getName() + "=" + h.getValue());
+			logInfo(contextKey, h.getName() + "=" + h.getValue());
 		}
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
@@ -566,7 +589,7 @@ public class RestClient {
 
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 		}
-		logger.info(token);
+		logInfo(contextKey, token);
 
 		checkErrorResponse(response.getBody().asString());
 
@@ -592,8 +615,7 @@ public class RestClient {
 		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 		Response response = null;
-		if (isDebugEnabled(contextKey))
-			logger.info("Request:" + jsonRequest.toString());
+		logInfo(contextKey, "Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
 		if (isDebugEnabled(contextKey))
@@ -607,9 +629,8 @@ public class RestClient {
 			token = cookie.split("=")[1];
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 		}
-		logger.info(token);
-		if (isDebugEnabled(contextKey))
-			logger.info("Response:" + response.getBody().asString());
+		logInfo(contextKey, token);
+		logInfo(contextKey, "Response:" + response.getBody().asString());
 		checkErrorResponse(response.getBody().asString());
 
 		return new JSONObject(response.getBody().asString());
@@ -625,7 +646,7 @@ public class RestClient {
 
 		Response response = null;
 
-		logger.info("Request:" + jsonRequest.toString());
+		logInfo(contextKey, "Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
 		if (isDebugEnabled(contextKey))
@@ -639,8 +660,8 @@ public class RestClient {
 			token = cookie.split("=")[1];
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 		}
-		logger.info(token);
-		logger.info("Response:" + response.getBody().asString());
+		logInfo(contextKey, token);
+		logInfo(contextKey, "Response:" + response.getBody().asString());
 		checkErrorResponse(response.getBody().asString());
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -656,7 +677,7 @@ public class RestClient {
 
 		Response response = null;
 
-		logger.info("Request:" + jsonRequest.toString());
+		logInfo(contextKey, "Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 		if (isDebugEnabled(contextKey))
 			response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
@@ -668,10 +689,8 @@ public class RestClient {
 			token = cookie.split("=")[1];
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 		}
-		if (isDebugEnabled(contextKey)) {
-			logger.info(token);
-			logger.info("Response:" + response.getBody().asString());
-		}
+		logInfo(contextKey, token);
+		logInfo(contextKey, "Response:" + response.getBody().asString());
 
 		return new JSONObject(response.getBody().asString());
 	}
@@ -686,7 +705,7 @@ public class RestClient {
 
 		Response response = null;
 
-		logger.info("Request:" + jsonRequest.toString());
+		logInfo(contextKey, "Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 		if (isDebugEnabled(contextKey))
 			response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
@@ -698,11 +717,8 @@ public class RestClient {
 			token = cookie.split("=")[1];
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 		}
-
-		if (isDebugEnabled(contextKey)) {
-			logger.info(token);
-			logger.info("Response:" + response.getBody().asString());
-		}
+		logInfo(contextKey, token);
+		logInfo(contextKey, "Response:" + response.getBody().asString());
 
 		return response.getBody().asString();
 	}
@@ -718,7 +734,7 @@ public class RestClient {
 
 		Response response = null;
 
-		logger.info("Request:" + jsonRequest.toString());
+		logInfo(contextKey, "Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
 		if (isDebugEnabled(contextKey))
@@ -732,11 +748,8 @@ public class RestClient {
 			token = cookie.split("=")[1];
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 		}
-
-		if (isDebugEnabled(contextKey)) {
-			logger.info(token);
-			logger.info("Response:" + response.getBody().asString());
-		}
+		logInfo(contextKey, token);
+		logInfo(contextKey, "Response:" + response.getBody().asString());
 		checkErrorResponse(response.getBody().asString());
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -777,7 +790,7 @@ public class RestClient {
 			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
-			logger.info("Request:" + jsonRequest.toString());
+			logInfo(contextKey, "Request:" + jsonRequest.toString());
 			if (isDebugEnabled(contextKey))
 				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.post(url).then().log().all().extract().response();
@@ -809,7 +822,7 @@ public class RestClient {
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 		}
 		if (response.getBody().asString().startsWith("{")) {
-			logger.info("Response:" + response.getBody().asString());
+			logInfo(contextKey, "Response:" + response.getBody().asString());
 			checkErrorResponse(response.getBody().asString());
 
 			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -831,8 +844,8 @@ public class RestClient {
 			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
+			logInfo(contextKey, "Request:" + jsonRequest.toString());
 			if (isDebugEnabled(contextKey)) {
-				logger.info("Request:" + jsonRequest.toString());
 				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.put(url).then().log().all().extract().response();
 			} else
@@ -858,8 +871,7 @@ public class RestClient {
 		}
 
 		if (response.getBody().asString().startsWith("{")) {
-			if (isDebugEnabled(contextKey))
-				logger.info("Response:" + response.getBody().asString());
+			logInfo(contextKey, "Response:" + response.getBody().asString());
 			checkErrorResponse(response.getBody().asString());
 			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 		} else {
@@ -880,8 +892,8 @@ public class RestClient {
 			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
+			logInfo(contextKey, "Request:" + jsonRequest.toString());
 			if (isDebugEnabled(contextKey)) {
-				logger.info("Request:" + jsonRequest.toString());
 				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.put(url).then().log().all().extract().response();
 			} else
@@ -906,8 +918,7 @@ public class RestClient {
 
 		}
 		if (response.getBody().asString().startsWith("{")) {
-			if (isDebugEnabled(contextKey))
-				logger.info("Response:" + response.getBody().asString());
+			logInfo(contextKey, "Response:" + response.getBody().asString());
 			checkErrorResponse(response.getBody().asString());
 			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 		} else {
@@ -928,8 +939,8 @@ public class RestClient {
 			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
+			logInfo(contextKey, "Request:" + jsonRequest.toString());
 			if (isDebugEnabled(contextKey)) {
-				logger.info("Request:" + jsonRequest.toString());
 				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.put(url).then().log().all().extract().response();
 			} else
@@ -954,8 +965,7 @@ public class RestClient {
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 		}
 		if (response.getBody().asString().startsWith("{")) {
-			if (isDebugEnabled(contextKey))
-				logger.info("Response:" + response.getBody().asString());
+			logInfo(contextKey, "Response:" + response.getBody().asString());
 			checkErrorResponse(response.getBody().asString());
 			return new JSONObject(response.getBody().asString());
 		} else {
@@ -976,7 +986,7 @@ public class RestClient {
 			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
-			logger.info("Request:" + jsonRequest.toString());
+			logInfo(contextKey, "Request:" + jsonRequest.toString());
 			if (isDebugEnabled(contextKey))
 				response = given().log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.patch(url).then().log().all().extract().response();
@@ -1002,8 +1012,7 @@ public class RestClient {
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 		}
 		if (response.getBody().asString().startsWith("{")) {
-			if (isDebugEnabled(contextKey))
-				logger.info("Response:" + response.getBody().asString());
+			logInfo(contextKey, "Response:" + response.getBody().asString());
 			checkErrorResponse(response.getBody().asString());
 
 			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -1015,7 +1024,7 @@ public class RestClient {
 	public static boolean initPreregToken(String url, JSONObject requestBody, String contextKey) {
 		try {
 			String jsonBody = requestBody.toString();
-			logger.info("Prereg logger " + jsonBody);
+			logInfo(contextKey, "Prereg logger " + jsonBody);
 
 			Response response = null;
 			try {
@@ -1064,7 +1073,7 @@ public class RestClient {
 			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
 					+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString();
-			logger.info(contextKey + " InitToken logger " + authUrl + AUTHURL + jsonBody);
+			logInfo(contextKey, contextKey + " InitToken logger " + authUrl + AUTHURL + jsonBody);
 
 			Response response = null;
 			try {
@@ -1120,7 +1129,7 @@ public class RestClient {
 			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
 					+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString();
-			logger.info(contextKey + " InitToken_admin logger " + authUrl + AUTHURL + jsonBody);
+			logInfo(contextKey, contextKey + " InitToken_admin logger " + authUrl + AUTHURL + jsonBody);
 			Response response = null;
 			try {
 				if (isDebugEnabled(contextKey))
@@ -1175,7 +1184,7 @@ public class RestClient {
 					+ "v1/authmanager/authenticate/clientidsecretkey";
 
 			String jsonBody = requestBody.toString();
-			logger.info(contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
+			logInfo(contextKey, contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
 
 			Response response = null;
 			try {
@@ -1294,7 +1303,7 @@ public class RestClient {
 		}
 
 		if (response != null) {
-			logger.info("hello");
+			logInfo(contextKey, "hello");
 
 		}
 		checkErrorResponse(response.getBody().asString());
@@ -1311,16 +1320,9 @@ public class RestClient {
 			HttpEntity entity = response.getEntity();
 			if (entity != null) {
 				result = EntityUtils.toString(entity);
-
-				if (isDebugEnabled(contextKey)) {
-					logger.info(result);
-					;
-
-				}
+				logInfo(contextKey, result);
 			}
-
 		}
-
 		return result;
 	}
 
@@ -1360,7 +1362,7 @@ public class RestClient {
 
 		if (response != null && response.getStatusCode() == 200) {
 
-			logger.info(response.getBody().asString());
+			logInfo(contextKey, response.getBody().asString());
 
 			JSONObject jsonResponse = new JSONObject(response.getBody().asString());
 
@@ -1384,7 +1386,7 @@ public class RestClient {
 			response = given().contentType(ContentType.JSON).get(urlAct);
 		if (response != null && response.getStatusCode() == 200) {
 
-			logger.info(response.getBody().asString());
+			logInfo(contextKey, response.getBody().asString());
 
 			JSONObject jsonResponse = new JSONObject(response.getBody().asString());
 

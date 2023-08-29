@@ -18,15 +18,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
@@ -51,10 +52,11 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
+import io.mosip.testrig.dslrig.ivv.e2e.methods.Center;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
 
 public class Orchestrator {
-	private static final Logger logger = LoggerFactory.getLogger(Orchestrator.class);
+	private static Logger logger = Logger.getLogger(Orchestrator.class);
 	String message = null;
 	int countScenarioPassed = 0;
 	static int totalScenario = 0;
@@ -79,6 +81,12 @@ public class Orchestrator {
 	 * HashMap<String, String> packages = (HashMap<String, String>)
 	 * Collections.singletonMap("e2e", "io.mosip.testrig.dslrig.ivv.e2e.methods");
 	 */
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@BeforeSuite
 	public void beforeSuite() {
@@ -92,6 +100,11 @@ public class Orchestrator {
 		extent = new ExtentReports();
 
 		extent.attachReporter(htmlReporter);
+
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
 
 		/*
 		 * if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) { // EXTENT
@@ -325,7 +338,7 @@ public class Orchestrator {
 				st.setup();
 				st.validateStep();
 				Reporter.log("\n\n\n\n==============" + "[Test Step: " + step.getName() + "] [Test Parameters: "
-						+ step.getParameters() + "] " + "================ \n\n\n\n\n", true);
+						+ step.getParameters() + "] " + "================ \n\n\n\n\n");
 				st.run();
 
 				st.assertHttpStatus();
@@ -470,7 +483,7 @@ public class Orchestrator {
 							+ BaseTestCase.testLevel + "-" + "default" + ".csv";
 					path = Paths.get(scenarioSheet);
 					if (!Files.exists(path)) {
-						logger.info("Scenario sheet path is: " +path);
+						logger.info("Scenario sheet path is: " + path);
 						throw new RigInternalError("ScenarioSheet missing");
 					}
 				}
@@ -493,7 +506,7 @@ public class Orchestrator {
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode rootNode = objectMapper.readTree(new File(jsonFilePath));
 			FileWriter fileWriter = new FileWriter(tempCSVPath);
-			
+
 			List<String> headerList = new ArrayList<>();
 			headerList.add("tc_no");
 			headerList.add("tags");
@@ -524,7 +537,7 @@ public class Orchestrator {
 				stepList.add(jsonNode.get("group_name").asText());
 				stepList.add(jsonNode.get("description").asText());
 
-				   Pattern pattern = Pattern.compile("(.*?)\\((.*?),(.*)\\)");
+				Pattern pattern = Pattern.compile("(.*?)\\((.*?),(.*)\\)");
 
 				for (int stepIndex = 0; stepIndex < maxSteps; stepIndex++) {
 
@@ -538,7 +551,7 @@ public class Orchestrator {
 								: "\"" + jsonNode.get("step" + stepIndex).asText() + "\"");
 					} else {
 						stepList.add(jsonNode.get("step" + stepIndex) == null ? ""
-								:  jsonNode.get("step" + stepIndex).asText());
+								: jsonNode.get("step" + stepIndex).asText());
 						logger.info("The string does not contain a comma between parentheses");
 					}
 				}
