@@ -298,6 +298,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePreRegStatus") + prid + "?statusCode=" + status;
 		Response response = putRequestWithQueryParam(url, map, "UpdatePreRegStatus", step);
+		//Globalmethods.reportResponse("",url, response);	
 		return (response.getBody().asString());
 
 	}
@@ -307,7 +308,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			this.hasError = true;
 			throw new RigInternalError("Expectations :  Empty response");
 		} else {
-			Reporter.log(response);
+			Reporter.log(response); //	Globalmethods.reportResponse(resHeader,url, response);	
 			logger.info(response);
 		}
 	}
