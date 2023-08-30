@@ -168,27 +168,27 @@ public class Orchestrator {
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
 		parserInputDTO.setConfigProperties(properties);
 		parserInputDTO.setDocumentsFolder(
-				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.documents.folder"));
+				TestRunner.getLocalResourcePath() + "/" + properties.getProperty("ivv.path.documents.folder"));
 		parserInputDTO.setBiometricsFolder(
-				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.biometrics.folder"));
+				TestRunner.getLocalResourcePath() + "/" + properties.getProperty("ivv.path.biometrics.folder"));
 		parserInputDTO.setPersonaSheet(
-				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.persona.sheet"));
+				TestRunner.getLocalResourcePath() + "/" + properties.getProperty("ivv.path.persona.sheet"));
 		parserInputDTO.setScenarioSheet(scenarioSheet);
 
 		parserInputDTO.setRcSheet(
-				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.rcpersona.sheet"));
+				TestRunner.getLocalResourcePath() + "/" + properties.getProperty("ivv.path.rcpersona.sheet"));
 		parserInputDTO.setPartnerSheet(
-				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.partner.sheet"));
+				TestRunner.getLocalResourcePath() + "/" + properties.getProperty("ivv.path.partner.sheet"));
 		parserInputDTO.setIdObjectSchema(
-				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.idobject"));
+				TestRunner.getLocalResourcePath() + "/" + properties.getProperty("ivv.path.idobject"));
 		parserInputDTO.setDocumentsSheet(
-				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.documents.sheet"));
+				TestRunner.getLocalResourcePath() + "/" + properties.getProperty("ivv.path.documents.sheet"));
 		parserInputDTO.setBiometricsSheet(
-				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.biometrics.sheet"));
+				TestRunner.getLocalResourcePath() + "/" + properties.getProperty("ivv.path.biometrics.sheet"));
 		parserInputDTO.setGlobalsSheet(
-				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.globals.sheet"));
+				TestRunner.getLocalResourcePath() + "/" + properties.getProperty("ivv.path.globals.sheet"));
 		parserInputDTO.setConfigsSheet(
-				TestRunner.getGlobalResourcePath() + "/" + properties.getProperty("ivv.path.configs.sheet"));
+				TestRunner.getLocalResourcePath() + "/" + properties.getProperty("ivv.path.configs.sheet"));
 
 		Parser parser = new Parser(parserInputDTO);
 		DataGenerator dg = new DataGenerator();
@@ -254,12 +254,12 @@ public class Orchestrator {
 
 		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
 			updateRunStatistics(scenario);
-			throw new SkipException("Skipping scenario due to known platform issue");
+			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
 		}
 
 		if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
 			updateRunStatistics(scenario);
-			throw new SkipException("Skipping scenario due to known Automation issue");
+			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
 		}
 
 		if (!scenario.getId().equalsIgnoreCase("0")) {

@@ -31,6 +31,7 @@ import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.RestClient;
 import io.mosip.testrig.apirig.global.utils.GlobalConstants;
+import io.mosip.testrig.apirig.global.utils.GlobalMethods;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
@@ -138,7 +139,6 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	public static Response getRequest(String url, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		Response getResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			 getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
@@ -148,8 +148,7 @@ public class BaseTestCaseUtil extends BaseStep {
 			 getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 					.accept(MediaType.APPLICATION_JSON).when().get(url).then().extract().response();
 		}
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ getResponse.getBody().asString() + "</pre>");
+		GlobalMethods.ReportRequestAndResponse("","",url, "", getResponse.getBody().asString());
 		return getResponse;
 	}
 

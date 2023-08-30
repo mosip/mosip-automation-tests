@@ -13,6 +13,7 @@ import org.testng.Reporter;
 import io.mosip.testrig.apirig.authentication.fw.util.FileUtil;
 import io.mosip.testrig.apirig.authentication.fw.util.ReportUtil;
 import io.mosip.testrig.apirig.authentication.fw.util.RestClient;
+import io.mosip.testrig.apirig.global.utils.GlobalMethods;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
 import io.mosip.testrig.apirig.service.BaseTestCase;
@@ -61,6 +62,9 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
 				logger.info("Response from get Identity for RID: "+rid+" "+response.asString());
     		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + BaseTestCase.ApplnURI+getIdentityUrl+rid + ") <pre>"
 					+ ReportUtil.getTextAreaJsonMsgHtml(response.asString()) + "</pre>");
+    	String url=BaseTestCase.ApplnURI+getIdentityUrl+rid ;
+    		//GlobalMethods.ReportRequestAndResponse("","",url, requestBody, response);
+    		
     		JSONObject res = new JSONObject(response.asString());
     		if(!res.get("response").toString().equals("null"))
     		{

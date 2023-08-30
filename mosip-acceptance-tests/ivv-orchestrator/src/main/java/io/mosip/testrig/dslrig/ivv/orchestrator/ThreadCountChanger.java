@@ -22,7 +22,7 @@ public class ThreadCountChanger implements IAlterSuiteListener  {
     public void alter(List<XmlSuite> suites) {
 		/* System.err.println("**Alter is invoked**"); */
 
-        ConfigManager.init();
+       // ConfigManager.init();
         int count = Integer.parseInt(ConfigManager.getThreadCount());
         
         logger.info("Running suite with thread count : "+count);
