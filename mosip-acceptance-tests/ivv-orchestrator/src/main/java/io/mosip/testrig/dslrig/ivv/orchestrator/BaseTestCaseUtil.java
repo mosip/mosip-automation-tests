@@ -155,7 +155,7 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static Response getRequestWithQueryParam(String url, HashMap<String, String> contextKey, String opsToLog,
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+	
 		Response getResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			 getResponse = given().relaxedHTTPSValidation().queryParams(contextKey).accept("*/*").log().all().when()
@@ -166,24 +166,21 @@ public class BaseTestCaseUtil extends BaseStep {
 						.get(url).then().extract().response();
 		}
 	
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ getResponse.getBody().asString() + "</pre>");
+		GlobalMethods.ReportRequestAndResponse("","",url, "", getResponse.getBody().asString());
 		return getResponse;
 	}
 
 	public Response postRequest(String url, String body, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		
 		Response apiResponse = RestClient.postRequest(url, body, MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ apiResponse.getBody().asString() + "</pre>");
+		GlobalMethods.ReportRequestAndResponse("","",url, body, apiResponse.getBody().asString());
 		return apiResponse;
 	}
 
 	public Response putRequestWithBody(String url, String body, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response puttResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
@@ -193,14 +190,14 @@ public class BaseTestCaseUtil extends BaseStep {
 			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 						.accept("*/*").when().put(url).then().extract().response();
 		}
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ puttResponse.getBody().asString() + "</pre>");
+	
+		GlobalMethods.ReportRequestAndResponse("","",url, body, puttResponse.getBody().asString());
+		
 		return puttResponse;
 	}
 
 	public Response putRequestWithBody(String url, String body, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + "" + " </b> <br/>" + body + "</pre>");
 		Response puttResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
@@ -210,14 +207,14 @@ public class BaseTestCaseUtil extends BaseStep {
 			 puttResponse =given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 						.accept("*/*").when().put(url).then().extract().response();
 		}
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ puttResponse.getBody().asString() + "</pre>");
+	
+		GlobalMethods.ReportRequestAndResponse("","",url, body, puttResponse.getBody().asString());
 		return puttResponse;
 	}
 
 	public Response putRequest(String url, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		
 		Response putResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
@@ -227,14 +224,14 @@ public class BaseTestCaseUtil extends BaseStep {
 			putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 					.accept(MediaType.APPLICATION_JSON).when().put(url).then().extract().response();
 		}
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ putResponse.getBody().asString() + "</pre>");
+	
+		GlobalMethods.ReportRequestAndResponse("","",url, "", putResponse.getBody().asString());
 		return putResponse;
 	}
 
 	public Response deleteRequest(String url, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+	
 		Response deleteResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			 deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
@@ -246,13 +243,15 @@ public class BaseTestCaseUtil extends BaseStep {
 						.accept(MediaType.APPLICATION_JSON).when().delete(url).then().extract()
 						.response();
 		}
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ deleteResponse.getBody().asString() + "</pre>");
+	
+		
+		GlobalMethods.ReportRequestAndResponse("","",url, "", deleteResponse.getBody().asString());
+		
 		return deleteResponse;
 	}
 
 	public Response deleteRequestWithoutStep(String url, String opsToLog) {
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+	
 		Response deleteResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			 deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
@@ -265,15 +264,16 @@ public class BaseTestCaseUtil extends BaseStep {
 						.response();
 		}
 
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ deleteResponse.getBody().asString() + "</pre>");
+		
+		GlobalMethods.ReportRequestAndResponse("","",url, "", deleteResponse.getBody().asString());
+		
+		
 		return deleteResponse;
 	}
 
 	public Response deleteRequestWithQueryParam(String url, HashMap<String, String> map, String opsToLog,
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
 		
 		Response deleteResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
@@ -284,37 +284,36 @@ public class BaseTestCaseUtil extends BaseStep {
 			deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").when()
 					.delete(url).then().extract().response();
 		}
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ deleteResponse.getBody().asString() + "</pre>");
+		
+		GlobalMethods.ReportRequestAndResponse("","",url, "", deleteResponse.getBody().asString());
+		
+		
 		return deleteResponse;
 	}
 
 	public Response putRequestWithQueryParamAndBody(String url, String body, HashMap<String, String> map,
 			String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response apiResponse = RestClient.putRequestWithQueryParamAndBody(url, body, map, MediaType.APPLICATION_JSON,
 				"*/*");
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ apiResponse.getBody().asString() + "</pre>");
+			GlobalMethods.ReportRequestAndResponse("","",url, body, apiResponse.getBody().asString());
+		
 		return apiResponse;
 	}
 
 	public Response postRequestWithQueryParamAndBody(String url, String body, HashMap<String, String> map,
 			String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response apiResponse = RestClient.postRequestWithQueryParamAndBody(url, body, map, MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ apiResponse.getBody().asString() + "</pre>");
+		
+		GlobalMethods.ReportRequestAndResponse("","",url, body, apiResponse.getBody().asString());
 		return apiResponse;
 	}
 
 	public Response postRequestWithPathParamAndBody(String url, String body, HashMap<String, String> map,
 			String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response apiResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 		      apiResponse = given().contentType(ContentType.JSON).pathParams(map).body(body).log().all().when()
@@ -325,15 +324,16 @@ public class BaseTestCaseUtil extends BaseStep {
 						.post(url).then().extract().response();
 		}
 
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ apiResponse.getBody().asString() + "</pre>");
+			
+		GlobalMethods.ReportRequestAndResponse("","",url, body, apiResponse.getBody().asString());
+		
 		return apiResponse;
 	}
 
 	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog,
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+
 		Response postResponse =null;
 		if (ConfigManager.IsDebugEnabled()) {
 			 postResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
@@ -345,15 +345,16 @@ public class BaseTestCaseUtil extends BaseStep {
 						.accept("*/*").when().cookie("Authorization", token).post(url).then().extract()
 						.response();
 		}
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ postResponse.getBody().asString() + "</pre>");
+	
+		GlobalMethods.ReportRequestAndResponse("","",url, body, postResponse.getBody().asString());
+		
 		return postResponse;
 	}
 
 	public Response putRequestWithQueryParam(String url, HashMap<String, String> map, String opsToLog,
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
+		
 		Response puttResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			 puttResponse = given().queryParams(map).relaxedHTTPSValidation().log().all().when().put(url).then()
@@ -363,8 +364,12 @@ public class BaseTestCaseUtil extends BaseStep {
 			 puttResponse = given().queryParams(map).relaxedHTTPSValidation().when().put(url).then()
 						.extract().response();
 		}
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ puttResponse.getBody().asString() + "</pre>");
+	
+
+		GlobalMethods.ReportRequestAndResponse("","",url, "", puttResponse.getBody().asString());
+		
+		
+		
 		return puttResponse;
 	}
 	

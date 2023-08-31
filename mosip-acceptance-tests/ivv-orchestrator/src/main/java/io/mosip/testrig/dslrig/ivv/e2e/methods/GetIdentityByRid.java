@@ -50,8 +50,7 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
     	{
     		if(rid!=null) {
     			//rid = "6834197843"; this is to use uin instead of rid when Packet is not synced 
-    			Reporter.log("<b><u>"+"GetIdentity By Rid"+ "</u></b>");
-        		Reporter.log("<pre>" + ReportUtil.getTextAreaJsonMsgHtml("{Rid: "+rid +"}") + "</pre>");
+    		
         		long startTime = System.currentTimeMillis();
 				logger.info(this.getClass().getSimpleName()+" starts at..."+startTime +" MilliSec");
         		Response response = RestClient.getRequestWithCookie(BaseTestCase.ApplnURI+getIdentityUrl+rid, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, "Authorization", kauth.getTokenByRole("regproc"));
@@ -60,8 +59,10 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
 				logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
 				Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 				logger.info("Response from get Identity for RID: "+rid+" "+response.asString());
-    		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + BaseTestCase.ApplnURI+getIdentityUrl+rid + ") <pre>"
-					+ ReportUtil.getTextAreaJsonMsgHtml(response.asString()) + "</pre>");
+//    		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + BaseTestCase.ApplnURI+getIdentityUrl+rid + ") <pre>"
+//					+ ReportUtil.getTextAreaJsonMsgHtml(response.asString()) + "</pre>");
+    		
+    		GlobalMethods.ReportRequestAndResponse("","",BaseTestCase.ApplnURI+getIdentityUrl+rid, "", response.getBody().asString());
     	String url=BaseTestCase.ApplnURI+getIdentityUrl+rid ;
     		//GlobalMethods.ReportRequestAndResponse("","",url, requestBody, response);
     		
