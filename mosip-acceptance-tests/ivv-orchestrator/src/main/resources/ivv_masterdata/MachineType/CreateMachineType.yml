@@ -2,6 +2,7 @@ CreateMachineType:
    Masterdata_CreateMachineType_All_Valid_Smoke:
       endPoint: /v1/masterdata/machinetypes
       role: admin
+      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: ivv_masterdata/MachineType/machineType
       outputTemplate: ivv_masterdata/MachineType/machineTypeResult
@@ -14,6 +15,4 @@ CreateMachineType:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: '{
-	  "code": "$IGNORE$",
-	"langCode": "eng"
 }'

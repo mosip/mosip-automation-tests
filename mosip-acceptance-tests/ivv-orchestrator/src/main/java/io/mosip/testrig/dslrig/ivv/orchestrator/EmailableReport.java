@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -217,23 +218,22 @@ public class EmailableReport implements IReporter {
 		totalSkippedTests = 0;
 		totalFailedTests = 0;
 		long totalDuration = 0;
-
 		writer.print("<table>");
-		writer.print("<tr>");
-		writer.print("<th>Test</th>");
-		writer.print("<th># Passed</th>");
-		writer.print("<th># Skipped</th>");
-		writer.print("<th># Failed</th>");
-		writer.print("<th>Time (ms)</th>");
-		writer.print("<th>Included Groups</th>");
-		writer.print("<th>Excluded Groups</th>");
-		writer.print("</tr>");
-
 		int testIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
-			writer.print("<tr><th colspan=\"7\">");
-			writer.print(Utils.escapeHtml(suiteResult.getSuiteName() + "-" + getCommitId()));
-			writer.print("</th></tr>");
+			
+			  writer.print("<tr><th colspan=\"7\">");
+			  writer.print(Utils.escapeHtml(suiteResult.getSuiteName() + "-" +
+			  getCommitId())); writer.print("</th></tr>");
+				writer.print("<tr>");
+				writer.print("<th>Test</th>");
+				writer.print("<th># Passed</th>");
+				writer.print("<th># Skipped</th>");
+				writer.print("<th># Failed</th>");
+				writer.print("<th>Time (ms)</th>");
+//				writer.print("<th>Included Groups</th>");
+//				writer.print("<th>Excluded Groups</th>");
+				writer.print("</tr>");
 
 			for (TestResult testResult : suiteResult.getTestResults()) {
 				int passedTests = testResult.getPassedTestCount();
@@ -254,8 +254,10 @@ public class EmailableReport implements IReporter {
 				writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num attn" : "num"));
 				writeTableData(integerFormat.format(failedTests), (failedTests > 0 ? "num attn" : "num"));
 				writeTableData(decimalFormat.format(duration), "num");
-				writeTableData(testResult.getIncludedGroups());
-				writeTableData(testResult.getExcludedGroups());
+				/*
+				 * writeTableData(testResult.getIncludedGroups());
+				 * writeTableData(testResult.getExcludedGroups());
+				 */
 
 				writer.print("</tr>");
 
@@ -290,9 +292,9 @@ public class EmailableReport implements IReporter {
 		writer.print("<table id='summary'>");
 		writer.print("<thead>");
 		writer.print("<tr>");
-		writer.print("<th>Class</th>");
-		writer.print("<th>Method</th>");
-		writer.print("<th>Start</th>");
+//		writer.print("<th>Class</th>");
+		writer.print("<th>Scenario</th>");
+//		writer.print("<th>Start</th>");
 		writer.print("<th>Time (ms)</th>");
 		writer.print("</tr>");
 		writer.print("</thead>");
@@ -300,9 +302,11 @@ public class EmailableReport implements IReporter {
 		int testIndex = 0;
 		int scenarioIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
-			writer.print("<tbody><tr><th colspan=\"4\">");
-			writer.print(Utils.escapeHtml(suiteResult.getSuiteName()));
-			writer.print("</th></tr></tbody>");
+			/*
+			 * writer.print("<tbody><tr><th colspan=\"4\">"); //
+			 * writer.print(Utils.escapeHtml(suiteResult.getSuiteName()));
+			 * writer.print("</th></tr></tbody>");
+			 */
 
 			for (TestResult testResult : suiteResult.getTestResults()) {
 				writer.print("<tbody id=\"t");
@@ -339,7 +343,7 @@ public class EmailableReport implements IReporter {
 			int startingScenarioIndex) {
 		int scenarioCount = 0;
 		if (!classResults.isEmpty()) {
-			writer.print("<tr><th colspan=\"4\">");
+			writer.print("<tr><th colspan=\"2\">");
 			writer.print(description);
 			writer.print("</th></tr>");
 
@@ -356,8 +360,13 @@ public class EmailableReport implements IReporter {
 					List<ITestResult> results = methodResult.getResults();
 					int resultsCount = results.size();
 					assert resultsCount > 0;
-
 					ITestResult firstResult = results.iterator().next();
+				    Object[] parameters = firstResult.getParameters();
+				    
+				    String par = parameters[1].toString();
+				   
+				    
+
 					String methodName = Utils.escapeHtml(firstResult.getMethod().getMethodName());
 					long start = firstResult.getStartMillis();
 					long duration = firstResult.getEndMillis() - start;
@@ -365,22 +374,26 @@ public class EmailableReport implements IReporter {
 					// The first method per class shares a row with the class
 					// header
 					if (methodIndex > 0) {
-						buffer.append("<tr class=\"").append(cssClass).append("\">");
+//						buffer.append("<tr class=\"").append(cssClass).append("\">");
 
 					}
 
 					// Write the timing information with the first scenario per
 					// method
-					buffer.append("<td><a href=\"#m").append(scenarioIndex).append("\">").append(methodName)
-							.append("</a></td>").append("<td rowspan=\"").append(resultsCount).append("\">")
-							.append(start).append("</td>").append("<td rowspan=\"").append(resultsCount).append("\">")
-							.append(duration).append("</td></tr>");
-					scenarioIndex++;
+					/*
+					 * buffer.append("<td><a href=\"#m").append(scenarioIndex).append("\">").append(
+					 * methodName)
+					 * .append("</a></td>").append("<td rowspan=\"").append(resultsCount).append(
+					 * "\">")
+					 * .append(start).append("</td>").append("<td rowspan=\"").append(resultsCount).
+					 * append("\">") .append(duration).append("</td></tr>");
+					 */
 
 					// Write the remaining scenarios for the method
-					for (int i = 1; i < resultsCount; i++) {
+					for (int i = 0; i < resultsCount; i++) {
 						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
-								.append(scenarioIndex).append("\">").append(methodName).append("</a></td></tr>");
+								.append(scenarioIndex).append("\">").append(methodName).append("</a></td>").append("<td>"). 
+							append(duration).append("</td></tr>");
 						scenarioIndex++;
 					}
 
@@ -389,16 +402,14 @@ public class EmailableReport implements IReporter {
 				}
 
 				// Write the test results for the class
-				writer.print("<tr class=\"");
-				writer.print(cssClass);
-				writer.print("\">");
-				writer.print("<td rowspan=\"");
-				writer.print(scenariosPerClass);
-				writer.print("\">");
-				writer.print(Utils.escapeHtml(classResult.getClassName()));
-				writer.print("</td>");
+				/*
+				 * writer.print("<tr class=\""); writer.print(cssClass); writer.print("\">");
+				 * writer.print("<td rowspan=\""); writer.print(scenariosPerClass);
+				 * writer.print("\">");
+				 * writer.print(Utils.escapeHtml(classResult.getClassName()));
+				 * writer.print("</td>");
+				 */
 				writer.print(buffer);
-
 				classIndex++;
 			}
 			scenarioCount = scenarioIndex - startingScenarioIndex;
