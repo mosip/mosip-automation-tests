@@ -95,7 +95,6 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 						long stopTime = System.currentTimeMillis();
 						long elapsedTime = stopTime - startTime;
 						logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
-						Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 						packetProcessed = true;
 						if(tempPridAndRid.size() > 1)
 						status_Message="processed";

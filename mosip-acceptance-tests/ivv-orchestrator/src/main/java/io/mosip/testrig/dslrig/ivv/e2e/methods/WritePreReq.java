@@ -67,9 +67,10 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		        }
 			 outputStrem = new FileOutputStream(path);
 			props.store(outputStrem, "This is path where file is created" + path);
-			Reporter.log(props.toString());
 			
-			Reporter.log("This is path where file is created" + path);
+			if (ConfigManager.IsDebugEnabled())
+			 Reporter.log(props.toString());
+	
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}

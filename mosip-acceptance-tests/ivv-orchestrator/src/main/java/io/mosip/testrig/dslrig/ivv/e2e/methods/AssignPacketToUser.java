@@ -55,8 +55,6 @@ public class AssignPacketToUser extends BaseTestCaseUtil implements StepInterfac
 				long elapsedTime = stopTime - startTime;
 				logger.info(
 						"Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime + " MilliSec");
-				Reporter.log("<b><u>" + "Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
-						+ " MilliSec" + "</u></b>");
 				JSONObject response = new JSONObject(simplePost.response.asString());
 				if (!response.get("response").toString().equals("null")) {
 					JSONObject responseJson = new JSONObject(response.get("response").toString());

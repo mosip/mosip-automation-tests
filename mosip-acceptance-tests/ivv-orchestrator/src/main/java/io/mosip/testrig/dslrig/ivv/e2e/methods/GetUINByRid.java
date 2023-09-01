@@ -65,8 +65,6 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 				long elapsedTime = stopTime - startTime;
 				logger.info(
 						"Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime + " MilliSec");
-				Reporter.log("<b><u>" + "Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
-						+ " MilliSec" + "</u></b>");
 				logger.info("Response from get Identity for RID: " + rid + " " + response.asString());
 
 				String uin = response.asString();
