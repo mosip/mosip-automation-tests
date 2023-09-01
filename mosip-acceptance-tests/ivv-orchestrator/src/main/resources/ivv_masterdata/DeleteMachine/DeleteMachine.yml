@@ -11,20 +11,3 @@ DeleteMachine:
 	}'
       output: '{
 }'
-   MasterData_DeleteMachine_Invalid_ID: 
-      endPoint: /v1/masterdata/machines/{id}
-      role: admin
-      restMethod: delete
-      inputTemplate: ivv_masterdata/DeleteMachine/deleteMachine
-      outputTemplate: ivv_masterdata/error
-      input: '{
-      "id": "hdhshshsh"
-	}'
-      output: '{
-   "errors": [
-    {
-      "errorCode": "KER-MSD-030",
-      "message": "Machine not Found"
-    }
-  ]
-}'
