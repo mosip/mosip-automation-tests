@@ -95,8 +95,6 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 					long elapsedTime = stopTime - startTime;
 					logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
 							+ " MilliSec");
-					Reporter.log("<b><u>" + "Time taken to execute " + this.getClass().getSimpleName() + ": "
-							+ elapsedTime + " MilliSec" + "</u></b>");
 					logger.info("Response from check RID status : " + rid + " => " + response.asString());
 					ridStatus = response.asString().toLowerCase();
 				}

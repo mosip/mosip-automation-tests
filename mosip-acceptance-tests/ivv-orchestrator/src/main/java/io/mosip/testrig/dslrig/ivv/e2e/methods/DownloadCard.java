@@ -62,7 +62,6 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 						long stopTime = System.currentTimeMillis();
 						long elapsedTime = stopTime - startTime;
 						logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
-						Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 						// checking pdf file size
 						//assertTrue(getWithPathParam.pdf.length>0);
 						if(getWithPathParam.pdf.length>0) {

@@ -59,7 +59,6 @@ public class ApproveRejectPacket extends BaseTestCaseUtil implements StepInterfa
 				long stopTime = System.currentTimeMillis();
 				long elapsedTime = stopTime - startTime;
 				logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
-				Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 				JSONObject response = new JSONObject(simplePostForAutoGenId.response.asString());
 				if(!response.get("response").toString().equals("null"))
 				{

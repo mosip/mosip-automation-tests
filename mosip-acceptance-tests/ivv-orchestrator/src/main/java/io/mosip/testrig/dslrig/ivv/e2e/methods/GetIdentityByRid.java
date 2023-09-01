@@ -57,7 +57,6 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
         		long stopTime = System.currentTimeMillis();
 				long elapsedTime = stopTime - startTime;
 				logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
-				Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 				logger.info("Response from get Identity for RID: "+rid+" "+response.asString());
 //    		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + BaseTestCase.ApplnURI+getIdentityUrl+rid + ") <pre>"
 //					+ ReportUtil.getTextAreaJsonMsgHtml(response.asString()) + "</pre>");
