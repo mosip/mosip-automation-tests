@@ -50,7 +50,6 @@ public class UpdateUINDetail extends BaseTestCaseUtil implements StepInterface {
 						long stopTime = System.currentTimeMillis();
 						long elapsedTime = stopTime - startTime;
 						logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
-						Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 						JSONObject res = new JSONObject(postWithBodyWithOtpGenerate.response.asString());
 					JSONObject responseJson = new JSONObject(res.get("response").toString());
 					for (String prid : step.getScenario().getPridsAndRids().keySet()) {
