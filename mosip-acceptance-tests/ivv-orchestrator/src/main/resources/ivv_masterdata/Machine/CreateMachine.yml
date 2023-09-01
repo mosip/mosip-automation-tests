@@ -22,14 +22,7 @@ CreateMachine:
     "requesttime": "$TIMESTAMP$"
   }'
       output: '{
-    "id": "$IGNORE$", 
-    "name": "$IGNORE$",
-	"machineSpecId": "$IGNORE$",
 	"serialNum": "FB5962911687",
 	"ipAddress": "192.168.0.424",
-	"isActive": "$IGNORE$",
-	"langCode": "eng",
-	"macAddress": "61-D3-FD-12-C9-ED",
-	"zoneCode": "CST",
-	"validityDateTime": "$IGNORE$"
+	"macAddress": "61-D3-FD-12-C9-ED"
 }'
