@@ -361,16 +361,9 @@ public class EmailableReport implements IReporter {
 					int resultsCount = results.size();
 					assert resultsCount > 0;
 					ITestResult firstResult = results.iterator().next();
-				    Object[] parameters = firstResult.getParameters();
-				    
-				    String par = parameters[1].toString();
-				   
-				    
-
 					String methodName = Utils.escapeHtml(firstResult.getMethod().getMethodName());
-					long start = firstResult.getStartMillis();
-					long duration = firstResult.getEndMillis() - start;
-
+//					long start = firstResult.getStartMillis();
+//					long duration = firstResult.getEndMillis() - start;
 					// The first method per class shares a row with the class
 					// header
 					if (methodIndex > 0) {
@@ -390,13 +383,18 @@ public class EmailableReport implements IReporter {
 					 */
 
 					// Write the remaining scenarios for the method
+					
 					for (int i = 0; i < resultsCount; i++) {
-						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
-								.append(scenarioIndex).append("\">").append(methodName).append("</a></td>").append("<td>"). 
-							append(duration).append("</td></tr>");
-						scenarioIndex++;
+					    ITestResult result = results.get(i);
+					    long scenarioStart = result.getStartMillis();
+					    long scenarioDuration = result.getEndMillis() - scenarioStart;
+					    
+					    buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
+					          .append(scenarioIndex).append("\">").append(methodName).append("</a></td>")
+					          .append("<td>").append(scenarioDuration).append("</td></tr>");
+					    
+					    scenarioIndex++;
 					}
-
 					scenariosPerClass += resultsCount;
 					methodIndex++;
 				}
