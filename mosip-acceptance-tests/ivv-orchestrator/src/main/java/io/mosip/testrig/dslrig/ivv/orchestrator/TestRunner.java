@@ -187,7 +187,7 @@ public class TestRunner {
 	
 	public static String getLocalResourcePath() {
 		if (checkRunType().equalsIgnoreCase("JAR")) {
-			return new File(jarUrl).getParentFile().getAbsolutePath() +"/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName;
+			return new File(jarUrl).getParentFile().getAbsolutePath();
 		} else if (checkRunType().equalsIgnoreCase("IDE")) {
 			String path = new File(TestRunner.class.getClassLoader().getResource("").getPath()).getAbsolutePath();
 			if (path.contains("test-classes"))
