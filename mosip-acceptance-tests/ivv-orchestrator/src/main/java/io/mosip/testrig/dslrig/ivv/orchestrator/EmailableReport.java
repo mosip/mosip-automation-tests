@@ -463,81 +463,47 @@ public class EmailableReport implements IReporter {
 	 * Writes the details for an individual test scenario.
 	 */
 	private void writeScenario(int scenarioIndex, String label, ITestResult result) {
-		writer.print("<h3 id=\"m");
-		writer.print(scenarioIndex);
-		writer.print("\">");
-		writer.print(label);
-		writer.print("</h3>");
+	    writer.print("<h3 id=\"m");
+	    writer.print(scenarioIndex);
+	    writer.print("\">");
+//	    writer.print(label);
+	    writer.print("</h3>");
 
-		writer.print("<table class=\"result\">");
+	    writer.print("<table class=\"result\">");
 
-		// Write test parameters (if any)
-		Object[] parameters = result.getParameters();
-		int parameterCount = (parameters == null ? 0 : parameters.length);
-		if (parameterCount > 0) {
-			writer.print("<tr class=\"param\">");
-			for (int i = 1; i <= parameterCount; i++) {
-				writer.print("<th>Parameter #");
-				writer.print(i);
-				writer.print("</th>");
-			}
-			writer.print("</tr><tr class=\"param stripe\">");
-			for (Object parameter : parameters) {
-				writer.print("<td>");
-				writer.print(Utils.escapeHtml(Utils.toString(parameter)));
-				writer.print("</td>");
-			}
-			writer.print("</tr>");
-		}
+	    // Write test parameters (if any)
+	    Object[] parameters = result.getParameters();
+	    int parameterCount = (parameters == null ? 0 : parameters.length);
 
-		// Write reporter messages (if any)
-		List<String> reporterMessages = Reporter.getOutput(result);
-		if (!reporterMessages.isEmpty()) {
-			writer.print("<tr><th");
-			if (parameterCount > 1) {
-				writer.print(" colspan=\"");
-				writer.print(parameterCount);
-				writer.print("\"");
-			}
-			writer.print(">Messages</th></tr>");
+		/*
+		 * if (parameterCount > 0) { writer.print("<tr class=\"param\">"); for (int i =
+		 * 1; i <= parameterCount; i++) { writer.print("<th>Parameter #");
+		 * writer.print(i); writer.print("</th>"); }
+		 * writer.print("</tr><tr class=\"param stripe\">"); for (Object parameter :
+		 * parameters) { writer.print("<td>");
+		 * writer.print(Utils.escapeHtml(Utils.toString(parameter)));
+		 * writer.print("</td>"); } writer.print("</tr>"); }
+		 */
 
-			writer.print("<tr><td");
-			if (parameterCount > 1) {
-				writer.print(" colspan=\"");
-				writer.print(parameterCount);
-				writer.print("\"");
-			}
-			writer.print(">");
-			writeReporterMessages(reporterMessages);
-			writer.print("</td></tr>");
-		}
+	    // Write reporter messages (if any)
+	    List<String> reporterMessages = Reporter.getOutput(result);
+	    if (!reporterMessages.isEmpty()) {
+	        writer.print("<tr><td colspan=\"" + parameterCount + "\">");
+	        writeReporterMessages(reporterMessages);
+	        writer.print("</td></tr>");
+	    }
 
-		// Write exception (if any)
-		Throwable throwable = result.getThrowable();
-		if (throwable != null) {
-			writer.print("<tr><th");
-			if (parameterCount > 1) {
-				writer.print(" colspan=\"");
-				writer.print(parameterCount);
-				writer.print("\"");
-			}
-			writer.print(">");
-			writer.print((result.getStatus() == ITestResult.SUCCESS ? "Expected Exception" : "Exception"));
-			writer.print("</th></tr>");
+	    // Write exception (if any)
+	    Throwable throwable = result.getThrowable();
+	    if (throwable != null) {
+	        writer.print("<tr><th colspan=\"" + parameterCount + "\">" + (result.getStatus() == ITestResult.SUCCESS ? "Expected Exception" : "Exception") + "</th></tr>");
+	        writer.print("<tr><td colspan=\"" + parameterCount + "\">");
+	        writeStackTrace(throwable);
+	        writer.print("</td></tr>");
+	    }
 
-			writer.print("<tr><td");
-			if (parameterCount > 1) {
-				writer.print(" colspan=\"");
-				writer.print(parameterCount);
-				writer.print("\"");
-			}
-			writer.print(">");
-			writeStackTrace(throwable);
-			writer.print("</td></tr>");
-		}
-
-		writer.print("</table>");
-		writer.print("<p class=\"totop\"><a href=\"#summary\">back to summary</a></p>");
+	    writer.print("</table>");
+	    writer.print("<p class=\"totop\"><a href=\"#summary\">back to summary</a></p>");
 	}
 
 	protected void writeReporterMessages(List<String> reporterMessages) {
