@@ -187,7 +187,7 @@ public class TestRunner {
 	
 	public static String getLocalResourcePath() {
 		if (checkRunType().equalsIgnoreCase("JAR")) {
-			return new File(jarUrl).getParentFile().getAbsolutePath();
+			return new File(jarUrl).getParentFile().getAbsolutePath() +"/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName;
 		} else if (checkRunType().equalsIgnoreCase("IDE")) {
 			String path = new File(TestRunner.class.getClassLoader().getResource("").getPath()).getAbsolutePath();
 			if (path.contains("test-classes"))
@@ -213,7 +213,7 @@ public class TestRunner {
 	private static boolean copyFilesFromJarToOutsideResource(String path) {
 		try {
 			File resourceFile = new File(TestRunner.jarUrl).getParentFile();
-			File destinationFile = new File(resourceFile.getAbsolutePath() + "/MosipTestResource/" + path);
+			File destinationFile = new File(resourceFile.getAbsolutePath() + "/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName + path);
 			org.apache.commons.io.FileUtils.copyInputStreamToFile(TestRunner.class.getResourceAsStream("/" + path),
 					destinationFile);
 			return true;
