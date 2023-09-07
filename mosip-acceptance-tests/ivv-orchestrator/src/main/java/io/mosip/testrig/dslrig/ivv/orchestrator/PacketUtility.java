@@ -626,7 +626,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
 
 		Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
 		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			rid = jsonResp.getJSONObject(RESPONSE).getString("registrationId");
