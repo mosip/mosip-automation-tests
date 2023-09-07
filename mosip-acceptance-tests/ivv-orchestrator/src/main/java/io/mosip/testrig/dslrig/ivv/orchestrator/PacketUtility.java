@@ -936,6 +936,15 @@ public class PacketUtility extends BaseTestCaseUtil {
 												: arr[1].trim() + "@mosip.io")
 										: arr[1].trim()));
 				}
+				// Pass phone and email as empty 
+				else {
+			        String key = arr[0].trim();
+			        if (key.equalsIgnoreCase("phoneNumber")) {
+			            updateAttribute.put(key, "");
+			        } else if (key.equalsIgnoreCase("email")) {
+			            updateAttribute.put(key, "");
+			        }
+			    }
 			}
 			jsonReqInner.put("updateAttributeList", updateAttribute);
 		}
