@@ -23,8 +23,8 @@ public class ContactProvider {
 		for(int i=0; i < count; i++) {
 			
 			Contact contact = new Contact();
-			String emailId =  String.format(DataProviderConstants.email_format, names.get(i).getFirstName().substring(0, 28),
-					 names.get(i).getSurName().substring(0, 28),rand.nextInt(MAX_NUM));
+			String emailId =  String.format(DataProviderConstants.email_format, names.get(i).getFirstName().substring(0, 2),
+					 names.get(i).getSurName().substring(0, 2),rand.nextInt(MAX_NUM));
 			
 			contact.setEmailId(emailId);
 			contact.setMobileNumber( generateMobileNumber(rand));
