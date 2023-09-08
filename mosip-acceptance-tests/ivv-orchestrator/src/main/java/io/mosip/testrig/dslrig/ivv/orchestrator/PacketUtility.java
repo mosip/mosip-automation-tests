@@ -939,11 +939,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 				// Pass phone and email as empty 
 				else {
 			        String key = arr[0].trim();
-			        if (key.equalsIgnoreCase("phoneNumber")) {
 			            updateAttribute.put(key, "");
-			        } else if (key.equalsIgnoreCase("email")) {
-			            updateAttribute.put(key, "");
-			        }
 			    }
 			}
 			jsonReqInner.put("updateAttributeList", updateAttribute);
