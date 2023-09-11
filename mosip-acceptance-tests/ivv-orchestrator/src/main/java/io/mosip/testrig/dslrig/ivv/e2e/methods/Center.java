@@ -75,7 +75,7 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 			//String zone=userHelper.getZoneOfUser(map.get("user"));
 			String zone=userHelper.getLeafZones();
 			String centerId=centerHelper.centerCreate(zone,holidayLocationCode,postalCode);
-			centerHelper.centerUpdate(centerId,zone);
+			//centerHelper.centerUpdate(centerId,zone);
 			centerHelper.centerStatusUpdate(centerId,activeFlag);
 			map.put("centerId"+centerCount, centerId);
 			
