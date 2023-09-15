@@ -576,7 +576,7 @@ public class BiometricDataProvider {
 
 		try {
 			if (exceptionlist != null && !exceptionlist.isEmpty()) {
-				List<MDSDeviceCaptureModel> lstFaceData = capture.getLstBiometrics().get(EXCEPTION);
+				List<MDSDeviceCaptureModel> lstFaceData = capture.getLstBiometrics().get(DataProviderConstants.MDS_DEVICE_TYPE_EXCEPTION_PHOTO);
 				bioSubType.add("exceptionphoto");
 				String faceXml = buildBirExceptionPhoto(lstFaceData.get(1).getBioValue(), lstFaceData.get(1).getSb(),
 						lstFaceData.get(1).getPayload(), lstFaceData.get(1).getQualityScore(), genarateValidCbeff,
@@ -743,7 +743,7 @@ public class BiometricDataProvider {
 
 		if (lstFingerData != null) {
 			for (BioModality finger : lstFingerData) {
-				if (finger.getType().equalsIgnoreCase("eye") || finger.getType().equalsIgnoreCase("face"))
+				if (finger.getType().equalsIgnoreCase("iris") || finger.getType().equalsIgnoreCase("face"))
 					continue;
 
 				String strFingerXml = buildBirFinger(finger.getType(), finger.getSubType(),
