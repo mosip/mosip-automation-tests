@@ -86,7 +86,7 @@ public class BiometricDataProvider {
 	private static final String QUALITY = "Quality";
 	private static final String ALGORITHM = "Algorithm";
 	private static final String SCORE = "Score";
-	private static final String EXCEPTION = "EXCEPTION";
+	private static final String EXCEPTION = "exception";
 	private static final String OTHERS = "others";
 	private static final String ENTRY = "entry";
 	private static final String RETRIES = "RETRIES";
@@ -743,7 +743,7 @@ public class BiometricDataProvider {
 
 		if (lstFingerData != null) {
 			for (BioModality finger : lstFingerData) {
-				if (finger.getType().equalsIgnoreCase("eye") || finger.getType().equalsIgnoreCase("face"))
+				if (finger.getType().equalsIgnoreCase("iris") || finger.getType().equalsIgnoreCase("face"))
 					continue;
 
 				String strFingerXml = buildBirFinger(finger.getType(), finger.getSubType(),
