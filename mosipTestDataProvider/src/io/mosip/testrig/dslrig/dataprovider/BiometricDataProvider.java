@@ -86,7 +86,7 @@ public class BiometricDataProvider {
 	private static final String QUALITY = "Quality";
 	private static final String ALGORITHM = "Algorithm";
 	private static final String SCORE = "Score";
-	private static final String EXCEPTION = "EXCEPTION";
+	private static final String EXCEPTION = "exception";
 	private static final String OTHERS = "others";
 	private static final String ENTRY = "entry";
 	private static final String RETRIES = "RETRIES";
@@ -576,7 +576,7 @@ public class BiometricDataProvider {
 
 		try {
 			if (exceptionlist != null && !exceptionlist.isEmpty()) {
-				List<MDSDeviceCaptureModel> lstFaceData = capture.getLstBiometrics().get(DataProviderConstants.MDS_DEVICE_TYPE_EXCEPTION_PHOTO);
+				List<MDSDeviceCaptureModel> lstFaceData = capture.getLstBiometrics().get(EXCEPTION);
 				bioSubType.add("exceptionphoto");
 				String faceXml = buildBirExceptionPhoto(lstFaceData.get(1).getBioValue(), lstFaceData.get(1).getSb(),
 						lstFaceData.get(1).getPayload(), lstFaceData.get(1).getQualityScore(), genarateValidCbeff,
