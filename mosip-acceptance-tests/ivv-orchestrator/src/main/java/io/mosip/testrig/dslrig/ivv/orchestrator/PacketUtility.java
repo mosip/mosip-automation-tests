@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -756,6 +757,20 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} else {
 			jsonReq.put(SCENARIO, step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		}
+		
+		// id json mapping
+		jsonReq.put("IDSchemaVersion", getValueFromIdJson("IDSchemaVersion"));
+		jsonReq.put("uin", getValueFromIdJson("uin"));
+		jsonReq.put("name", getValueFromIdJson("name"));
+		jsonReq.put("dob", getValueFromIdJson("dob"));
+		jsonReq.put("gender", getValueFromIdJson("gender"));
+		jsonReq.put("emailId", getValueFromIdJson("emailId"));
+		jsonReq.put("individualBiometrics", getValueFromIdJson("individualBiometrics"));
+		jsonReq.put("introducerBiometrics", getValueFromIdJson("introducerBiometrics"));
+		jsonReq.put("introducerUIN", getValueFromIdJson("introducerUIN"));
+		jsonReq.put("introducerRID", getValueFromIdJson("introducerRID"));
+		jsonReq.put("introducerName", getValueFromIdJson("introducerName"));
+		
 		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
 		jsonReq.put("enableDebug", ConfigManager.getEnableDebug());
@@ -865,6 +880,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		return response.getBody().asString();
 
+	}
+	//  get value specific to key from actuator
+	private String getValueFromIdJson(String key) {
+		String value = AdminTestUtil.getValueFromAuthActuator("json-property", key);
+		String result = value.replaceAll("\\[\"|\"\\]", "");
+		return result;
 	}
 
 	public JSONObject mergeJSONObjects(JSONObject json1, JSONObject json2, Scenario.Step step) {
