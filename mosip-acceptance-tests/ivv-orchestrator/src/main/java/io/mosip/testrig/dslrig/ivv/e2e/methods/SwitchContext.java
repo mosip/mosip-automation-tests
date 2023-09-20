@@ -30,7 +30,7 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 		boolean generatePrivateKey =Boolean.FALSE;
 		boolean invalidCertFlag =Boolean.FALSE;
 		HashMap<String, String> map = new HashMap<String, String>();
-		String consent=null;
+		String consent="";
 		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("SwitchContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
