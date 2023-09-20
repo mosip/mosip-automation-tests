@@ -34,6 +34,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String status = null;
 		String negative="valid";
 		boolean invalidCertFlag = Boolean.FALSE;
+		String consent="";
 		//neeha scenario = step.getScenario().getId() + ":" + step.getScenario().getDescription();
 		HashMap<String, String> map = new HashMap<String, String>();
 		HashMap<String, String> dummyholder = new HashMap<String, String>();
@@ -71,6 +72,9 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			if(step.getParameters().size() == 5 && step.getParameters().get(4).contains("true"))
 				invalidCertFlag = Boolean.parseBoolean(step.getParameters().get(4));
 			
+			// consent value either "Y" or "N"
+			if(step.getParameters().size() == 6 && (step.getParameters().get(5).contains("yes") || step.getParameters().get(5).contains("no")))
+				consent = step.getParameters().get(5);
 		}
 		
 		if (userAndMachineDetailParam != null)
@@ -78,6 +82,6 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 					status, BaseTestCase.ApplnURI + "/",step);
 		else if(map != null)
 			packetUtility.createContexts(negative,contextKeyValue, map, mosipVersion, generatePrivateKey, status,
-					BaseTestCase.ApplnURI + "/",step,invalidCertFlag);
+					BaseTestCase.ApplnURI + "/",step,invalidCertFlag,consent);
 	}
 }
