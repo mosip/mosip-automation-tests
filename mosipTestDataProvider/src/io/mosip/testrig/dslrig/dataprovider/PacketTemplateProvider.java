@@ -478,22 +478,22 @@ public class PacketTemplateProvider {
 
 					}
 					continue;
-				} else if (prop.getProperty("uin") != null && s.getId().equals(prop.getProperty("uin"))) {
+				} else if (VariableManager.getVariableValue(contextKey, "uin") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "uin"))) {
 					if (resident.getUIN() == null || resident.getUIN().equals(""))
 						identity.put(s.getId(), JSONObject.NULL);
 					else
 						identity.put(s.getId(), resident.getUIN());
 					continue;
-				} else if (prop.getProperty("introduceruin") != null
-						&& s.getId().equals(prop.getProperty("introduceruin"))) {
+				} else if (VariableManager.getVariableValue(contextKey, "introducerUIN") != null
+						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerUIN"))) {
 					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
 						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
 						} else
 							identity.put(s.getId(), resident.getGuardian().getUIN());
 					}
 					continue;
-				} else if (prop.getProperty("introducerrid") != null
-						&& s.getId().equals(prop.getProperty("introducerrid"))) {
+				} else if (VariableManager.getVariableValue(contextKey, "introducerRID") != null
+						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerRID"))) {
 					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
 						if ((resident.getGuardian().getRID() == null || resident.getGuardian().getRID().equals(""))) {
 						} else
@@ -521,11 +521,8 @@ public class PacketTemplateProvider {
 					continue;
 				}
 
-				else if ((prop.getProperty(PARENTORGUARDIANNAME) != null
-						&& s.getId().equals(prop.getProperty(PARENTORGUARDIANNAME)))
-
-						|| (prop.getProperty(INTRODUCERNAME) != null
-								&& s.getId().equals(prop.getProperty(INTRODUCERNAME)))) {
+				else if (VariableManager.getVariableValue(contextKey, "introducerName") != null
+								&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerName"))) {
 
 					if (resident.isMinor() || resident.isInfant()) {
 						String primValue = "";
@@ -761,12 +758,12 @@ public class PacketTemplateProvider {
 	// check the dynamic field logic and change here
 	public static boolean processGender(MosipIDSchema s, ResidentModel resident, JSONObject identity,
 			Hashtable<String, List<MosipGenderModel>> genderTypesLang,
-			Hashtable<String, List<DynamicFieldModel>> dynaFields) {
+			Hashtable<String, List<DynamicFieldModel>> dynaFields,String contextKey) {
 
 		boolean processed = false;
 
-		if ((s.getSubType() != null && s.getSubType().toLowerCase().equals(GENDER))
-				|| s.getId().toLowerCase().equals(GENDER)) {
+		if ((s.getSubType() != null && s.getSubType().toLowerCase().equals(VariableManager.getVariableValue(contextKey, "gender")))
+				|| s.getId().toLowerCase().equals(VariableManager.getVariableValue(contextKey, "gender"))) {
 
 			String primLang = resident.getPrimaryLanguage();
 			String secLan = resident.getSecondaryLanguage();
@@ -922,7 +919,7 @@ public class PacketTemplateProvider {
 		return bRet;
 	}
 
-	public static Boolean processDynamicFields(MosipIDSchema s, JSONObject identity, ResidentModel resident) {
+	public static Boolean processDynamicFields(MosipIDSchema s, JSONObject identity, ResidentModel resident,String contextKey) {
 
 		String primaryLanguage = resident.getPrimaryLanguage();
 		String secLanguage = resident.getSecondaryLanguage();
@@ -932,7 +929,7 @@ public class PacketTemplateProvider {
 
 		if (s.getFieldType().equals("dynamic")) {
 
-			found = processGender(s, resident, identity, genderTypes, dynaFields);
+			found = processGender(s, resident, identity, genderTypes, dynaFields,contextKey);
 			if (found)
 				return found;
 
@@ -1019,7 +1016,7 @@ public class PacketTemplateProvider {
 			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
 				continue;
 			}
-			if (processDynamicFields(s, identity, resident))
+			if (processDynamicFields(s, identity, resident,contextKey))
 				continue;
 
 			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
@@ -1288,7 +1285,7 @@ public class PacketTemplateProvider {
 				continue;
 			}
 
-			if (prop.getProperty("uin") != null && s.getId().equals(prop.getProperty("uin"))) {
+			if (VariableManager.getVariableValue(contextKey, "uin") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "uin"))) {
 				String uin = resident.getUIN();
 				if (uin != null && !uin.trim().equals("")) {
 					identity.put(s.getId(), uin.trim());
@@ -1304,7 +1301,7 @@ public class PacketTemplateProvider {
 				continue;
 			}
 
-			if (prop.getProperty("idschemaversion") != null && s.getId().equals(prop.getProperty("idschemaversion"))) {
+			if (VariableManager.getVariableValue(contextKey, "IDSchemaVersion") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion") )) {
 				identity.put(s.getId(), contextSchemaDetail.getSchemaVersion());
 				continue;
 			}
@@ -1312,13 +1309,13 @@ public class PacketTemplateProvider {
 			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
 				continue;
 			}
-			if (processDynamicFields(s, identity, resident))
+			if (processDynamicFields(s, identity, resident,contextKey))
 				continue;
 
 			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
 				String primaryValue = "";
 				String secValue = "";
-				if (prop.getProperty(FULLNAME) != null && s.getId().equals(prop.getProperty(FULLNAME))) {
+				if (VariableManager.getVariableValue(contextKey, "name")!= null && s.getId().equals(VariableManager.getVariableValue(contextKey, "name"))) {
 					primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
 							+ resident.getName().getSurName();
 					if (secLanguage != null)
@@ -1337,7 +1334,7 @@ public class PacketTemplateProvider {
 					primaryValue = resident.getName().getMidName();
 					if (secLanguage != null)
 						secValue = resident.getName_seclang().getMidName();
-				} else if (prop.getProperty(DATEOFBIRTH) != null && s.getId().equals(prop.getProperty(DATEOFBIRTH))) {
+				} else if (VariableManager.getVariableValue(contextKey, "dob") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "dob") )) {
 					primaryValue = resident.getDob();
 					secValue = primaryValue;
 				} else if (prop.getProperty("addressgroup") != null
@@ -1354,15 +1351,15 @@ public class PacketTemplateProvider {
 				} else if (s.getSubType().toLowerCase().contains("residenceStatus")) {
 					primaryValue = resident.getResidentStatus().getCode();
 					secValue = primaryValue;
-				} else if (prop.getProperty(EMAIL) != null && s.getId().equals(prop.getProperty(EMAIL))) {
+				} else if (VariableManager.getVariableValue(contextKey, "emailId") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
 					primaryValue = resident.getContact().getEmailId();
 				}
 
 				else if (s.getId().toLowerCase().contains("blood")) {
 					primaryValue = resident.getBloodgroup().getCode();
 					secValue = primaryValue;
-				} else if (prop.getProperty("individualbiometric") != null
-						&& s.getId().equals(prop.getProperty("individualbiometric"))) {
+				} else if (VariableManager.getVariableValue(contextKey, "individualBiometrics") != null
+						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "individualBiometrics"))) {
 					JSONObject o = new JSONObject();
 					o.put(FORMAT, CBEFF);
 					o.put(VERSION, 1.0f);
@@ -1429,10 +1426,8 @@ public class PacketTemplateProvider {
 						logger.error(GENERATEIDJSONV2, e);
 					}
 					continue;
-				} else if ((prop.getProperty("parentOrGuardianbiometric") != null
-						&& s.getId().equals(prop.getProperty("parentOrGuardianbiometric")))
-						|| (prop.getProperty("introducerbiometric") != null
-								&& s.getId().equals(prop.getProperty("introducerbiometric"))))
+				} else if ((VariableManager.getVariableValue(contextKey, "introducerBiometrics") != null
+								&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerBiometrics"))))
 
 				{
 					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
