@@ -1272,7 +1272,8 @@ public class PacketTemplateProvider {
 			locationSet_sec = locations_seclang.keySet();
 		List<String> lstMissedAttributes = resident.getMissAttributes();
 
-		loadMapperProp(contextKey, prop); // load mapped property
+//		loadMapperProp(contextKey, prop); 
+		// load mapped property
 
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			RestClient.logInfo(contextKey, s.toJSONString());
