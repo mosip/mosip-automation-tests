@@ -16,6 +16,7 @@ import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.OtpAuthNew;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
+import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
@@ -33,7 +34,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 	}
 
 	@Override
-	public void run() throws RigInternalError {
+	public void run() throws RigInternalError, FeatureNotSupportedError {
 		// AuthPartnerProcessor.startProcess();
 		// step.getScenario().getUinPersonaProp().put("7209149850",
 		// "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
@@ -53,8 +54,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
 			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
-		} else {
-		}
+		} 
 		
 		
 		//Fetching EMAIL
@@ -63,10 +63,9 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
 			}
-			if(emailId!=null && emailId.isBlank()) {
+			if(emailId==null ||(emailId!=null && emailId.isBlank())) {
 				//in somecases Email Id is not passed so Ekyc OTP is not supported
-				logger.info("Email id is Empty");
-				return ;
+				throw new FeatureNotSupportedError("Email id is Empty hence we cannot perform Ekyc OTP Authentication");
 				
 			}
 		}

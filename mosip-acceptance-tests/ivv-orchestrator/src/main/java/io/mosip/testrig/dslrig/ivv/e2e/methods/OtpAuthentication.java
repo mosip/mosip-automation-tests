@@ -16,6 +16,7 @@ import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.OtpAuthNew;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
+import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
@@ -33,7 +34,7 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 	}
 
 	@Override
-	public void run() throws RigInternalError {
+	public void run() throws RigInternalError, FeatureNotSupportedError {
 
 		String uins = null;
 		String vids = null;
@@ -55,10 +56,9 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
 			}
-			if(emailId!=null && emailId.isBlank()) {
+			if(emailId==null ||(emailId!=null && emailId.isBlank())) {
 				//in somecases Email Id is not passed so OTP Authentication is not supported
-				logger.info("Email id is Empty");
-				return ;
+				throw new FeatureNotSupportedError("Email id is Empty hence we cannot perform OTP Authentication");
 				
 			}
 		}

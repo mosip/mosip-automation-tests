@@ -64,10 +64,9 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 				emailId = step.getScenario().getVariables().get(emailId);
 			}
 			
-			if(emailId!=null && emailId.isBlank()) {
+			if(emailId==null ||(emailId!=null && emailId.isBlank())) {
 				//in somecases Email Id is not passed so E-signet OTP Authentication is not supported
-				logger.info("Email id is Empty");
-				return ;
+				throw new FeatureNotSupportedError("Email id is Empty hence we cannot perform E-signet OTP Authentication");
 				
 			}
 
