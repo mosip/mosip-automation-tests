@@ -158,7 +158,7 @@ public class CreatePersona {
 			if(schemaItem.getType() == null )
 				continue;
 			
-			if(PacketTemplateProvider.processDynamicFields(schemaItem, identity, resident))
+			if(PacketTemplateProvider.processDynamicFields(schemaItem, identity, resident,contextKey))
 				continue;
 			
 			

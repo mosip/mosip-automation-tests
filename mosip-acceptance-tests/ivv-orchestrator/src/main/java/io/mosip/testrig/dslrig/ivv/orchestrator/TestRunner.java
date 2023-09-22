@@ -75,7 +75,7 @@ public class TestRunner {
 			homeDir = new File(TestResources.getResourcePath().replace("/MosipTestResource/MosipTemporaryTestResource", "") + "testngFile");
 			LOGGER.info("IDE Home Dir=" + homeDir);
 		} else {
-			homeDir = new File(System.getProperty("user.dir") + "/MosipTestResource/testngFile");
+			homeDir = new File(System.getProperty("user.dir") + "/"+TestResources.resourceTestFolderName + "/" + TestResources.resourceFolderName +"/testngFile");
 			LOGGER.info("Jar Home Dir=" + homeDir);
 		}
 
@@ -140,7 +140,6 @@ public class TestRunner {
 		getListOfFilesFromJarAndCopyToExternalResource("idaData/");
 		getListOfFilesFromJarAndCopyToExternalResource("ivv_masterdata/");
 		getListOfFilesFromJarAndCopyToExternalResource("syncdata/");
-
 		getListOfFilesFromJarAndCopyToExternalResource("regproc/");
 	}
 
@@ -213,7 +212,7 @@ public class TestRunner {
 	private static boolean copyFilesFromJarToOutsideResource(String path) {
 		try {
 			File resourceFile = new File(TestRunner.jarUrl).getParentFile();
-			File destinationFile = new File(resourceFile.getAbsolutePath() + "/MosipTestResource/" + path);
+			File destinationFile = new File(resourceFile.getAbsolutePath() + "/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName + "/"+ path);
 			org.apache.commons.io.FileUtils.copyInputStreamToFile(TestRunner.class.getResourceAsStream("/" + path),
 					destinationFile);
 			return true;
