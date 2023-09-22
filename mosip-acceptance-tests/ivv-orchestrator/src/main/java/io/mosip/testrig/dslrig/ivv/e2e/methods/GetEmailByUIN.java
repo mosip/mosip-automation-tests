@@ -10,6 +10,7 @@ import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.authentication.fw.util.OutputValidationUtil;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.testscripts.GetWithParam;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -54,7 +55,13 @@ public class GetEmailByUIN extends BaseTestCaseUtil implements StepInterface {
 				Response response = getEmail.response;
 				JSONObject responseJson = new JSONObject(response.asString());
 				JSONObject responseData =  responseJson.getJSONObject("response");
-
+				if(OutputValidationUtil.doesResponseHasErrors(responseJson.toString())) {
+					logger.error("Failed to extract Email From UIN");
+					this.hasError=true;
+					throw new RigInternalError(
+							"Failed to extract Email From UIN: " + step.getName());
+				}
+					
 				JSONObject identityData = responseData.getJSONObject("identity");
 				
 				emailId = identityData.getString("email");
