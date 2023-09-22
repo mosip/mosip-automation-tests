@@ -50,22 +50,27 @@ public class GetEmailByUIN extends BaseTestCaseUtil implements StepInterface {
 
 				try {
 					getEmail.test(test);
-				} catch (AuthenticationTestException e) {
-					logger.error(e.getMessage());
-				} catch (AdminTestException e) {
-					logger.error(e.getMessage());
-				}
-
+				
 				Response response = getEmail.response;
 				JSONObject responseJson = new JSONObject(response.asString());
 				JSONObject responseData =  responseJson.getJSONObject("response");
 
 				JSONObject identityData = responseData.getJSONObject("identity");
-				String emailData = identityData.getString("email");
+				
+				emailId = identityData.getString("email");
+				
+				
+				} catch (AuthenticationTestException e) {
+					logger.error(e.getMessage());
+				} catch (AdminTestException e) {
+					logger.error(e.getMessage());
+				}
+				catch (Exception e) {
+					logger.error(e.getMessage());
+				}
 				
 				if (step.getOutVarName() != null)
-					step.getScenario().getVariables().put(step.getOutVarName(), emailData);
-				
+					step.getScenario().getVariables().put(step.getOutVarName(), emailId);
 				
 
 		}
