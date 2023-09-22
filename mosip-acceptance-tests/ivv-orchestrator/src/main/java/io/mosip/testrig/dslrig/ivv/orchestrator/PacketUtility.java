@@ -770,7 +770,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("introducerUIN", getValueFromIdJson("introducerUIN"));
 		jsonReq.put("introducerRID", getValueFromIdJson("introducerRID"));
 		jsonReq.put("introducerName", getValueFromIdJson("introducerName"));
-		
+
 		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
 		jsonReq.put("enableDebug", ConfigManager.getEnableDebug());
@@ -872,7 +872,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject JO = new JSONObject(map);
 
 		Response response = postRequest(url, mergeJSONObjects(JO, jsonReq, step).toString(), SETCONTEXT, step);
-		GlobalMethods.ReportRequestAndResponse("","",url,mergeJSONObjects(JO, jsonReq, step).toString(), response.getBody().asString());
 		
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
 			this.hasError = true;
@@ -969,7 +968,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
 		Response response = putRequestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("sucess")) {
 
 			this.hasError = true;
@@ -1028,7 +1026,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		arr.put(personaPath);
 		jsonReq.put(PERSONAFILEPATH, arr);
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Packet Sync:", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
 		if (expectedToPass == false) {
 			if (response.getBody().asString().contains("RPR-PKR-016")) {
 				return response.getBody().asString();
