@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -626,7 +627,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
 
 		Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
 		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			rid = jsonResp.getJSONObject(RESPONSE).getString("registrationId");
@@ -735,7 +735,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
 
-			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag)
+			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,String consent)
 			throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
@@ -757,6 +757,21 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} else {
 			jsonReq.put(SCENARIO, step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		}
+		
+		// id json mapping
+		jsonReq.put("IDSchemaVersion", getValueFromIdJson("IDSchemaVersion"));
+		jsonReq.put("uin", getValueFromIdJson("uin"));
+		jsonReq.put("name", getValueFromIdJson("name"));
+		jsonReq.put("dob", getValueFromIdJson("dob"));
+		jsonReq.put("gender", getValueFromIdJson("gender"));
+		jsonReq.put("emailId", getValueFromIdJson("emailId"));
+		jsonReq.put("individualBiometrics", getValueFromIdJson("individualBiometrics"));
+		jsonReq.put("introducerBiometrics", getValueFromIdJson("introducerBiometrics"));
+		jsonReq.put("introducerUIN", getValueFromIdJson("introducerUIN"));
+		jsonReq.put("introducerRID", getValueFromIdJson("introducerRID"));
+		jsonReq.put("introducerName", getValueFromIdJson("introducerName"));
+
+		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
 		jsonReq.put("enableDebug", ConfigManager.getEnableDebug());
 		logger.info("Running suite with enableDebug : " + ConfigManager.getEnableDebug());
@@ -857,7 +872,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject JO = new JSONObject(map);
 
 		Response response = postRequest(url, mergeJSONObjects(JO, jsonReq, step).toString(), SETCONTEXT, step);
-		GlobalMethods.ReportRequestAndResponse("","",url,mergeJSONObjects(JO, jsonReq, step).toString(), response.getBody().asString());
 		
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
 			this.hasError = true;
@@ -865,6 +879,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		return response.getBody().asString();
 
+	}
+	//  get value specific to key from actuator
+	private String getValueFromIdJson(String key) {
+		String value = AdminTestUtil.getValueFromAuthActuator("json-property", key);
+		String result = value.replaceAll("\\[\"|\"\\]", "");
+		return result;
 	}
 
 	public JSONObject mergeJSONObjects(JSONObject json1, JSONObject json2, Scenario.Step step) {
@@ -937,13 +957,17 @@ public class PacketUtility extends BaseTestCaseUtil {
 												: arr[1].trim() + "@mosip.io")
 										: arr[1].trim()));
 				}
+				// Pass phone and email as empty 
+				else {
+			        String key = arr[0].trim();
+			            updateAttribute.put(key, "");
+			    }
 			}
 			jsonReqInner.put("updateAttributeList", updateAttribute);
 		}
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
 		Response response = putRequestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("sucess")) {
 
 			this.hasError = true;
@@ -1002,7 +1026,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		arr.put(personaPath);
 		jsonReq.put(PERSONAFILEPATH, arr);
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Packet Sync:", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
 		if (expectedToPass == false) {
 			if (response.getBody().asString().contains("RPR-PKR-016")) {
 				return response.getBody().asString();

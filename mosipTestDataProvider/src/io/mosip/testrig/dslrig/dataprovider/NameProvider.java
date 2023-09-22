@@ -22,7 +22,8 @@ public class NameProvider {
 	//=VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.test.persona.namesdatapath").toString()+"/%s/surnames.csv";
 	
 	static String[] getSurNames(String lang, int count,String contextKey) {
-		resourceName_surname =VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.namesdatapath").toString()+"/%s/surnames.csv";
+		resourceName_surname =VariableManager.getVariableValue(contextKey,"mountPath").toString()+
+				VariableManager.getVariableValue(contextKey,"mosip.test.persona.namesdatapath").toString()+"/"+VariableManager.getVariableValue(contextKey,"langCode").toString()+"/surnames.csv";
 		
 		String resPath = String.format(resourceName_surname, lang);
 		String [] values = new String[count];
@@ -144,7 +145,7 @@ public class NameProvider {
 		}
 		else
 		{
-			resourceName_female = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.namesdatapath").toString()+"/%s/girl_names.csv";
+			resourceName_female = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.namesdatapath").toString()+"/"+VariableManager.getVariableValue(contextKey,"langCode").toString()+"/girl_names.csv";
 			resPath = String.format(resourceName_female, lang);
 		}		
 		try {
