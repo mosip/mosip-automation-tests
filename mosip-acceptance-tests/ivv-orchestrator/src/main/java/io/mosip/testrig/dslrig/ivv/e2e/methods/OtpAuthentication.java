@@ -48,13 +48,18 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
 			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
-		} else {
-		}
+		} 
 		
 		if (step.getParameters().size() == 5 && step.getParameters().get(4).startsWith("$$")) { 
 			emailId = step.getParameters().get(4);
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
+			}
+			if(emailId!=null && emailId.isBlank()) {
+				//in somecases Email Id is not passed so OTP Authentication is not supported
+				logger.info("Email id is Empty");
+				return ;
+				
 			}
 		}
 

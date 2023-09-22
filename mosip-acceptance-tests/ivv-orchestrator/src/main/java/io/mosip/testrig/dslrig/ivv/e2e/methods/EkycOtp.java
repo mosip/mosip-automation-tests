@@ -63,6 +63,12 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
 			}
+			if(emailId!=null && emailId.isBlank()) {
+				//in somecases Email Id is not passed so Ekyc OTP is not supported
+				logger.info("Email id is Empty");
+				return ;
+				
+			}
 		}
 
 		// Fetching UIN
