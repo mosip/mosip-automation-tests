@@ -172,7 +172,10 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						test = (TestCaseDTO) object;
 						test = demoAuthE2eTest(demoFetchList, uin, test,step);
 						test = bioAuthE2eTest(bioAuthList, uin, test);
-						test = otpAuthE2eTest(uin, test);
+						if(emailId!=null && !emailId.isBlank()) {
+							test = otpAuthE2eTest(uin, test);
+						}
+						
 						
 						try {
 							try {
