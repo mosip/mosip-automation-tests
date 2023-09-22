@@ -57,6 +57,21 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
 
+		
+		if (step.getParameters().size() == 6) {
+			emailId = step.getParameters().get(3);
+			if (emailId.startsWith("$$")) {
+				emailId = step.getScenario().getVariables().get(emailId);
+			}
+			
+			if(emailId==null ||(emailId!=null && emailId.isBlank())) {
+				//in somecases Email Id is not passed so E-signet OTP Authentication is not supported
+				throw new FeatureNotSupportedError("Email id is Empty hence we cannot perform E-signet OTP Authentication");
+				
+			}
+
+		}
+		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transactionId parameter is  missing from DSL step");
 			this.hasError=true;
@@ -110,13 +125,7 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 		}
 
 
-		if (step.getParameters().size() == 6) {
-			emailId = step.getParameters().get(3);
-			if (emailId.startsWith("$$")) {
-				emailId = step.getScenario().getVariables().get(emailId);
-			}
-
-		}
+		
 
 		if (step.getParameters().size() == 6 && step.getParameters().get(2).contains("OTP")) {
 
