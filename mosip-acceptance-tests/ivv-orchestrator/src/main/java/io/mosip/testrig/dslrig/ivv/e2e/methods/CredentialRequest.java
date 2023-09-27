@@ -10,12 +10,14 @@ import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.testscripts.PostWithBodyWithOtpGenerate;
+import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
 public class CredentialRequest  extends BaseTestCaseUtil implements StepInterface {
 	private static final String CredentialIssue_YML = "preReg/credentialIssue/credentialIssue.yml";
+	private static final String CredentialIssueWithoutOtp_YML = "preReg/credentialIssue/credentialIssuewithoutotp.yml";
 	public static Logger logger = Logger.getLogger(CredentialRequest.class);
 	
 	static {
@@ -54,7 +56,50 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 			logger.error(e.getMessage());
 			Thread.currentThread().interrupt();
 		}
-    	String fileName = CredentialIssue_YML;
+    	
+    	String fileName = "";
+    	
+    	if(emailId==null || emailId.isEmpty()) {
+    		
+    		 fileName = CredentialIssueWithoutOtp_YML;
+    	    	SimplePost postwithoutotp= new SimplePost();
+    	    	Object[] casesList = postwithoutotp.getYmlTestData(fileName);
+    			Object[] testCaseList = filterTestCases(casesList);
+    			logger.info("No. of TestCases in Yml file : " + testCaseList.length);
+    			try {
+    				for (Object object : testCaseList) {
+    					for(String uin: this.step.getScenario().getUinReqIds().keySet()) {
+    						
+    					TestCaseDTO test = (TestCaseDTO) object;
+    					test.setInput(test.getInput().replace("$UIN$", uin).replace("$UIN$", uin));
+    					test.setOutput(test.getOutput().replace("$UIN$", uin));
+    					Reporter.log("<b><u>"+test.getTestCaseName()+ "</u></b>");
+    					
+    					long startTime = System.currentTimeMillis();
+    					logger.info(this.getClass().getSimpleName()+" starts at..."+startTime +" MilliSec");
+    					postwithoutotp.test(test);
+    					long stopTime = System.currentTimeMillis();
+    					long elapsedTime = stopTime - startTime;
+    					logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
+    					JSONObject response = new JSONObject(postwithoutotp.response.asString());
+    					if(!response.get("response").toString().equals("null"))
+    		    		{
+    						JSONObject responseJson = new JSONObject(response.get("response").toString());
+    							this.step.getScenario().getUinReqIds().put(uin, responseJson.get("requestId").toString());
+    							if(step.getOutVarName()!=null)
+    								 step.getScenario().getVariables().put(step.getOutVarName(), responseJson.get("requestId").toString());
+    						}
+    					}
+    				}
+    			} catch (AuthenticationTestException | AdminTestException e) {
+    				logger.error(e.getMessage());
+    				this.hasError=true;
+    				//assertFalse(true, "Failed at credential issuance Response validation");
+    				throw new RigInternalError("Failed at credential issuance Response validation");
+    			}
+    	}else {
+    	
+    	 fileName = CredentialIssue_YML;
     	PostWithBodyWithOtpGenerate postWithOtp= new PostWithBodyWithOtpGenerate();
     	Object[] casesList = postWithOtp.getYmlTestData(fileName);
 		Object[] testCaseList = filterTestCases(casesList);
@@ -92,5 +137,5 @@ public class CredentialRequest  extends BaseTestCaseUtil implements StepInterfac
 			throw new RigInternalError("Failed at credential issuance Response validation");
 		}
 	}
-
+    }
 }
