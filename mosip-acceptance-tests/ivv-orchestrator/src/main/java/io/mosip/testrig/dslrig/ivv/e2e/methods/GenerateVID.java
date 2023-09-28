@@ -18,6 +18,7 @@ import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.testscripts.PostWithBodyWithOtpGenerate;
+import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -30,6 +31,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 	Properties uinResidentDataPathFinalProps = new Properties();
 	PostWithBodyWithOtpGenerate generatevid = new PostWithBodyWithOtpGenerate();
 
+	SimplePost generatevidwithoutotp = new SimplePost();
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -44,7 +46,10 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 		String vidtype = null;
 		List<String> uinList = null;
 		String emailId ="";
-		String transactionID = (step.getScenario().getId() + RandomStringUtils.randomNumeric(8)).substring(0, 10);
+		//String transactionID = (step.getScenario().getId() + RandomStringUtils.randomNumeric(8)).substring(0, 10);
+			String transactionID=(step.getScenario().getId() + RandomStringUtils.randomNumeric(11));
+			transactionID=transactionID.substring(0, 10);
+			logger.info(transactionID);
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("VID Type[Perpetual/Temporary] parameter is  missing from DSL step");
@@ -116,7 +121,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 		}
 		else
 		{
-			Object[] testObj = generatevid.getYmlTestData(GenerateVID);
+			Object[] testObj = generatevidwithoutotp.getYmlTestData(GenerateVID);
 
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
 
@@ -129,9 +134,9 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 				test.setInput(input);
 
 				try {
-					generatevid.test(test);
+					generatevidwithoutotp.test(test);
 
-					Response response = generatevid.response;
+					Response response = generatevidwithoutotp.response;
 					if (response != null) {
 						JSONObject jsonResp = new JSONObject(response.getBody().asString());
 						String vid = jsonResp.getJSONObject("response").getString("VID");
