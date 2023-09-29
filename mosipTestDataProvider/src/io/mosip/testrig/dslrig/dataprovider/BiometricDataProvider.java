@@ -86,7 +86,7 @@ public class BiometricDataProvider {
 	private static final String QUALITY = "Quality";
 	private static final String ALGORITHM = "Algorithm";
 	private static final String SCORE = "Score";
-	private static final String EXCEPTION = "EXCEPTION";
+	private static final String EXCEPTION = "exception";
 	private static final String OTHERS = "others";
 	private static final String ENTRY = "entry";
 	private static final String RETRIES = "RETRIES";
