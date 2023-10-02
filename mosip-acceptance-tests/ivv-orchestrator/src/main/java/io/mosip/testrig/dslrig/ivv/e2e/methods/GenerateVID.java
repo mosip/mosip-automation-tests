@@ -26,7 +26,7 @@ import io.restassured.response.Response;
 public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(GenerateVID.class);
 	private static final String GenerateVIDYml = "idaData/GenerateVID/createGenerateVID.yml";
-	private static final String GenerateVID = "idaData/CreateVID/CreateVID.yml";
+	private static final String GenerateVID = "idaData/CreateVID/CreateVid.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
 	PostWithBodyWithOtpGenerate generatevid = new PostWithBodyWithOtpGenerate();
 
