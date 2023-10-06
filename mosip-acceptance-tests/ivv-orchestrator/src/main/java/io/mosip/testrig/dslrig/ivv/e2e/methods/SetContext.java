@@ -35,6 +35,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String negative="valid";
 		boolean invalidCertFlag = Boolean.FALSE;
 		String consent="";
+		boolean changeSupervisorNameToDiffCase=Boolean.FALSE;
 		//neeha scenario = step.getScenario().getId() + ":" + step.getScenario().getDescription();
 		HashMap<String, String> map = new HashMap<String, String>();
 		HashMap<String, String> dummyholder = new HashMap<String, String>();
@@ -75,6 +76,11 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			// consent value either "Y" or "N"
 			if(step.getParameters().size() == 6 && (step.getParameters().get(5).contains("yes") || step.getParameters().get(5).contains("no")))
 				consent = step.getParameters().get(5);
+			
+			
+			// supervisorIDFlag
+			if(step.getParameters().size() > 6 && step.getParameters().get(6).contains("true"))
+				changeSupervisorNameToDiffCase = Boolean.parseBoolean(step.getParameters().get(6));
 		}
 		
 		if (userAndMachineDetailParam != null)
@@ -82,6 +88,6 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 					status, BaseTestCase.ApplnURI + "/",step);
 		else if(map != null)
 			packetUtility.createContexts(negative,contextKeyValue, map, mosipVersion, generatePrivateKey, status,
-					BaseTestCase.ApplnURI + "/",step,invalidCertFlag,consent);
+					BaseTestCase.ApplnURI + "/",step,invalidCertFlag,consent,changeSupervisorNameToDiffCase);
 	}
 }
