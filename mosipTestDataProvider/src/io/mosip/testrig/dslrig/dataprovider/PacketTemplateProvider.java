@@ -428,6 +428,7 @@ public class PacketTemplateProvider {
 	String generateEvidenceJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo, String contextKey,
 			Properties prop, ContextSchemaDetail contextSchemaDetail) {
 
+		VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "false");
 		JSONObject identity = new JSONObject();
 		List<String> missList = resident.getMissAttributes();
 
@@ -488,17 +489,21 @@ public class PacketTemplateProvider {
 						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerUIN"))) {
 					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
 						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
-						} else
+						} else {
 							identity.put(s.getId(), resident.getGuardian().getUIN());
+						VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
+						}
 					}
 					continue;
 				} else if (VariableManager.getVariableValue(contextKey, "introducerRID") != null
 						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerRID"))) {
 					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
 						if ((resident.getGuardian().getRID() == null || resident.getGuardian().getRID().equals(""))) {
-						} else
+						} else {
 							identity.put(s.getId(), resident.getGuardian().getRID());
-					}
+						VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
+						}
+						}
 					continue;
 				}
 
@@ -506,18 +511,22 @@ public class PacketTemplateProvider {
 						&& s.getId().equals(prop.getProperty("parentOrGuardianuin"))) {
 					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
 						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
-						} else
+						} else {
 							identity.put(s.getId(), resident.getGuardian().getUIN());
-					}
+						VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
+						}
+						}
 					continue;
 				} else if (prop.getProperty("parentOrGuardianrid") != null
 						&& s.getId().equals(prop.getProperty("parentOrGuardianrid"))) {
 					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
 						if (resident.getGuardian() != null && (resident.getGuardian().getRID() == null
 								|| resident.getGuardian().getRID().equals(""))) {
-						} else
+						} else {
 							identity.put(s.getId(), resident.getGuardian().getRID());
-					}
+						VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
+						}
+						}
 					continue;
 				}
 
@@ -742,7 +751,7 @@ public class PacketTemplateProvider {
 			if (cbeff == null) {
 
 				String strCBeff = BiometricDataProvider.toCBEFF(bioAttrib, resident.getBiometric(), outFile,
-						genarateValidCbeff);
+						genarateValidCbeff,contextKey);
 				resident.getBiometric().setCbeff(strCBeff);
 
 			} else {
@@ -778,6 +787,7 @@ public class PacketTemplateProvider {
 			if (obj != null) {
 				genderCode = obj.toString();
 				primVal = secVal = genderCode;
+				VariableManager.setVariableValue(contextKey, "ID_OBJECT-gender", genderCode);
 			}
 
 			if (dynaFields != null) {
@@ -1349,8 +1359,10 @@ public class PacketTemplateProvider {
 						primaryValue = addrLines.getValue0();
 						secValue = addrLines.getValue1();
 					}
-				} else if (s.getSubType().toLowerCase().contains("residenceStatus")) {
+				} 
+				else if (s.getSubType().toLowerCase().contains("residenceStatus")) {
 					primaryValue = resident.getResidentStatus().getCode();
+					VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", primaryValue);
 					secValue = primaryValue;
 				} else if (VariableManager.getVariableValue(contextKey, "emailId") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
 					primaryValue = resident.getContact().getEmailId();
