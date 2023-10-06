@@ -83,6 +83,8 @@ public class PacketMakerService {
 	private static final String UTF8 = "UTF-8";
 	private static final String HASHSEQUENCE1 = "hashSequence1";
 	private static final String LABEL = "label";
+	private static final String CHANGESUPERVISORNAMETODIFFCASE = "changeSupervisorNameToDiffCase";
+	
 
 	private String tempLogPath;
 
@@ -594,6 +596,10 @@ public class PacketMakerService {
 			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerId", officerId, false);
 
 			supervisorId = p.getProperty(MOSIPTEST_REGCLIENT_SUPERVISORID);
+			
+			if( VariableManager.getVariableValue(contextKey, CHANGESUPERVISORNAMETODIFFCASE).toString().equalsIgnoreCase("true"))
+			      supervisorId = generateCaseConvertedString(supervisorId);
+
 			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorId", supervisorId, false);
 
 			// officerPwd
@@ -983,6 +989,20 @@ public class PacketMakerService {
 
 		Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), jsonObject.toString().getBytes(UTF8));
 	}
+	
+	 private String generateCaseConvertedString(String inputString) {
+         StringBuilder result = new StringBuilder();
+         for (char c : inputString.toCharArray()) {
+             if (Character.isUpperCase(c)) {
+                 result.append(Character.toLowerCase(c));
+             } else if (Character.isLowerCase(c)) {
+                 result.append(Character.toUpperCase(c));
+             } else {
+                 result.append(c);
+             }
+         }
+         return result.toString();
+  }
 
 	private void updateAudit(String path, String rid,String contextKey) {
 		Path auditfile = Path.of(path, "audit.json");
