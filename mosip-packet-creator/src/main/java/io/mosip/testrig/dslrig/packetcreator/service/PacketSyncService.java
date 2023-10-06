@@ -516,6 +516,27 @@ public class PacketSyncService {
 				}
 			});
 		}
+		
+		VariableManager.setVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS", "APPROVED");	
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "");
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "");
+		
+		logger.debug("Tags set while generating the packet: "
+				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId")
+				+ VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris")
+				+ VariableManager.getVariableValue(contextKey, "INTRODUCER_AVAILABILITY")
+				+ VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger")
+				+ VariableManager.getVariableValue(contextKey, "META_INFO-META_DATA-centerId")
+				+ VariableManager.getVariableValue(contextKey, "Biometric_Quality-Face")
+				+ VariableManager.getVariableValue(contextKey, "Biometric_Quality-Finger")
+				+ VariableManager.getVariableValue(contextKey, "EXCEPTION_BIOMETRICS")
+				+ VariableManager.getVariableValue(contextKey, "ID_OBJECT-gender")
+				+ VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face")
+				+ VariableManager.getVariableValue(contextKey, "AGE_GROUP")
+				+ VariableManager.getVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS")
+				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId")
+				+ VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus"));
+		
 		RestClient.logInfo(contextKey, baseUrl + uploadapi + ",path=" + path);
 		JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl + uploadapi, path, contextKey);
 		if (!RestClient.isDebugEnabled(contextKey)) {
@@ -1288,12 +1309,51 @@ public class PacketSyncService {
 		}
 		return null;
 	}
+	
 
 	public String bulkuploadPackets(List<String> packetPaths, String contextKey) {
 
 		loadServerContextProperties(contextKey);
 
 		return MosipDataSetup.uploadPackets(packetPaths, contextKey);
+
+	}
+	
+	public String getPacketTags(String contextKey) {
+
+//		loadServerContextProperties(contextKey);
+		
+		JSONObject packetTags = new JSONObject();
+		
+		packetTags.put("META_INFO-OPERATIONS_DATA-supervisorId",
+				VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId").toString());
+		packetTags.put("Biometric_Quality-Iris",
+				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris").toString());
+		packetTags.put("INTRODUCER_AVAILABILITY",
+				VariableManager.getVariableValue(contextKey, "INTRODUCER_AVAILABILITY").toString());
+		packetTags.put("META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", VariableManager
+				.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger").toString());
+		packetTags.put("META_INFO-META_DATA-centerId",
+				VariableManager.getVariableValue(contextKey, "META_INFO-META_DATA-centerId").toString());
+		packetTags.put("Biometric_Quality-Face",
+				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Face").toString());
+		packetTags.put("Biometric_Quality-Finger",
+				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Finger").toString());
+		packetTags.put("EXCEPTION_BIOMETRICS",
+				VariableManager.getVariableValue(contextKey, "EXCEPTION_BIOMETRICS").toString());
+		packetTags.put("ID_OBJECT-gender",
+				VariableManager.getVariableValue(contextKey, "ID_OBJECT-gender").toString());
+		packetTags.put("META_INFO-CAPTURED_REGISTERED_DEVICES-Face",
+				VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face").toString());
+		packetTags.put("AGE_GROUP", VariableManager.getVariableValue(contextKey, "AGE_GROUP").toString());
+		packetTags.put("SUPERVISOR_APPROVAL_STATUS",
+				VariableManager.getVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS").toString());
+		packetTags.put("META_INFO-OPERATIONS_DATA-officerId",
+				VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId").toString());
+		packetTags.put("ID_OBJECT-residenceStatus",
+				VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus").toString());
+
+		return packetTags.toString();
 
 	}
 
