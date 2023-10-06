@@ -546,6 +546,25 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		req.put("source","REGISTRATION_CLIENT");
 		req.put("supervisorStatus","APPROVED");
 		
+		VariableManager.setVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS", "APPROVED");	
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "");
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "");
+		
+		logger.debug("Tags set while generating the packet: "
+				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId")
+				+ VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris")
+				+ VariableManager.getVariableValue(contextKey, "INTRODUCER_AVAILABILITY")
+				+ VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger")
+				+ VariableManager.getVariableValue(contextKey, "META_INFO-META_DATA-centerId")
+				+ VariableManager.getVariableValue(contextKey, "Biometric_Quality-Face")
+				+ VariableManager.getVariableValue(contextKey, "Biometric_Quality-Finger")
+				+ VariableManager.getVariableValue(contextKey, "EXCEPTION_BIOMETRICS")
+				+ VariableManager.getVariableValue(contextKey, "ID_OBJECT-gender")
+				+ VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face")
+				+ VariableManager.getVariableValue(contextKey, "AGE_GROUP")
+				+ VariableManager.getVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS")
+				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId")
+				+ VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus"));
 		
 		try {
 			JSONObject resp = RestClient.uploadFiles(url, packetPaths, req,contextKey);
