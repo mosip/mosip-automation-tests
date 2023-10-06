@@ -24,7 +24,7 @@ public class DateOfBirthProvider {
 
 	public static String generate(ResidentAttribute ageAttribute) {
 		if (ageAttribute == ResidentAttribute.RA_Adult)
-			return generateDob(DataProviderConstants.Age_Adult_Min_Age, 100);
+			return generateDob(DataProviderConstants.Age_Adult_Min_Age, DataProviderConstants.Age_Senior_Citizen_Min_Age);
 		else if (ageAttribute == ResidentAttribute.RA_Minor)
 			return generateDob(DataProviderConstants.Age_Minor_Min_Age, DataProviderConstants.Age_Adult_Min_Age);
 		else if (ageAttribute == ResidentAttribute.RA_Senior)
