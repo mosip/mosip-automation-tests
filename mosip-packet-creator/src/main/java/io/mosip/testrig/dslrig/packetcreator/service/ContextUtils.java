@@ -79,11 +79,36 @@ public class ContextUtils {
 			boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
 			if (isRequired)
 				generateKeyAndUpdateMachineDetail(pp, ctxName);
+			
+		// Remove the temp directories created for the same context 	
+			clearPacketGenFolders(ctxName);
+
+			
 		} catch (IOException e) {
 			logger.error("write:createUpdateServerContext " + e.getMessage());
 			bRet = false;
 		}
 		return bRet;
+	}
+
+	private void clearPacketGenFolders(String ctxName) {
+		// TODO Auto-generated method stub
+		
+		if(VariableManager.getVariableValue(ctxName, "residents_")!=null)
+		deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "residents_").toString());
+		
+		if(VariableManager.getVariableValue(ctxName, "packets_")!=null)
+		deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "packets_").toString());
+		
+		if(VariableManager.getVariableValue(ctxName, "preregIds_")!=null)
+		deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "preregIds_").toString());
+		
+		
+		if(VariableManager.getVariableValue(ctxName, "Passport_")!=null)
+			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "Passport_").toString());
+		
+		if(VariableManager.getVariableValue(ctxName, "DrivingLic_")!=null)
+			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "DrivingLic_").toString());	
 	}
 
 	public String createExecutionContext(String serverContextKey) {
@@ -194,6 +219,41 @@ public class ContextUtils {
 			}
 		} catch (IOException e) {
 			// logger.error(e.getMessage());
+		}
+	}
+	
+	public void deleteDirectoryPath(String path) {
+		if (path != null && !path.isEmpty()) {
+			File file = new File(path);
+			if (file.exists()) {
+				do {
+					deleteIt(file);
+				} while (file.exists());
+			} else {
+			}
+		}
+	}
+	
+	private void deleteIt(File file) {
+		if (file.isDirectory()) {
+			String fileList[] = file.list();
+			if (fileList.length == 0) {
+				if (!file.delete()) {
+					logger.info("Files deleted");
+				}
+			} else {
+				int size = fileList.length;
+				for (int i = 0; i < size; i++) {
+					String fileName = fileList[i];
+					String fullPath = file.getPath() + "/" + fileName;
+					File fileOrFolder = new File(fullPath);
+					deleteIt(fileOrFolder);
+				}
+			}
+		} else {
+			if (!file.delete()) {
+				logger.info("Files deleted");
+			}
 		}
 	}
 

@@ -1,0 +1,12 @@
+GetLocationCodeHoliday:
+   Admin_GetLocationCodeHoliday_allValid_smoke:
+      endPoint: /v1/masterdata/holidays
+      role: globalAdmin
+      checkErrorsOnlyInResponse: true
+      restMethod: get
+      inputTemplate: ivv_masterdata/GetLocationCodeHoliday/getLocationCodeHoliday
+      outputTemplate: ivv_masterdata/GetLocationCodeHoliday/getLocationCodeHolidayResult
+      input: '{
+     }'
+      output: '{
+     }'  

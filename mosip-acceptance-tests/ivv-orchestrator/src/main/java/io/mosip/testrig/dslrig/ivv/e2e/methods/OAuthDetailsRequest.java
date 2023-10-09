@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -27,6 +28,13 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 	static Logger logger = Logger.getLogger(OAuthDetailsRequest.class);
 	private static final String OAuthDetailsYml = "idaData/OAuthDetailsRequest/OAuthDetailsRequest.yml";
 	SimplePostForAutoGenId oAuthDetails = new SimplePostForAutoGenId();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {

@@ -39,9 +39,9 @@ public class Parser implements ParserInterface {
 	private static final Logger logger = LoggerFactory.getLogger(Parser.class);
     private ParserInputDTO inputDTO;
     Properties properties = null;
-
+    
     public Parser(ParserInputDTO input){
-        inputDTO = input;
+    	inputDTO = input;
     }
 
     public ArrayList<Persona> getPersonas() throws RigInternalError {
@@ -71,7 +71,7 @@ public class Parser implements ParserInterface {
         while (iter.hasNext()) {
             Object obj = iter.next();
             HashMap<String, String> data_map = oMapper.convertValue(obj, HashMap.class);
-            System.out.println("Parsing Persona: "+data_map.get("personaClass"));
+            logger.info("Parsing Persona: "+data_map.get("personaClass"));
             Persona main = new Persona();
 
             Person iam = new Person();
@@ -180,7 +180,7 @@ public class Parser implements ParserInterface {
                 }
             }
         }
-        System.out.println("total personas parsed: "+persona_list.size());
+        logger.info("total personas parsed: "+persona_list.size());
         return persona_list;
     }
 
@@ -231,7 +231,7 @@ public class Parser implements ParserInterface {
             iam.setNo_Of_User(data_map.get("no_of_user"));
             person_list.add(iam);
         }
-        System.out.println("total registration users parsed: "+person_list.size());
+        logger.info("total registration users parsed: "+person_list.size());
         return person_list;
     }
 
@@ -256,7 +256,7 @@ public class Parser implements ParserInterface {
             iam.setMispLicenceKey(data_map.get("misp_license_key"));
             person_list.add(iam);
         }
-        System.out.println("total partners parsed: "+person_list.size());
+        logger.info("total partners parsed: "+person_list.size());
         return person_list;
     }
 
@@ -289,14 +289,14 @@ public class Parser implements ParserInterface {
             scenario_array.add(scenario);
             }
         }
-        System.out.println("total scenarios parsed: "+scenario_array.size());
+        logger.info("total scenarios parsed: "+scenario_array.size());
         return scenario_array;
     }
 
     private ArrayList<ProofDocument> getDocuments(){
         ArrayList data = Utils.csvToList(inputDTO.getDocumentsSheet());
         ArrayList<ProofDocument> documents = new ArrayList<>();
-        System.out.println("total documents found: "+data.size());
+        logger.info("total documents found: "+data.size());
         ObjectMapper oMapper = new ObjectMapper();
         Iterator iter = data.iterator();
         while (iter.hasNext()) {
@@ -311,14 +311,14 @@ public class Parser implements ParserInterface {
             pdoc.setPath(Paths.get(inputDTO.getDocumentsFolder(), data_map.get("name")).normalize().toString());
             documents.add(pdoc);
         }
-        System.out.println("total documents parsed: "+documents.size());
+        logger.info("total documents parsed: "+documents.size());
         return documents;
     }
 
     private ArrayList<BiometricsDTO> getBiometrics(){
         ArrayList data = Utils.csvToList(inputDTO.getBiometricsSheet());
         ArrayList<BiometricsDTO> biometrics = new ArrayList<>();
-        System.out.println("total biometrics found: "+data.size());
+        logger.info("total biometrics found: "+data.size());
         ObjectMapper oMapper = new ObjectMapper();
         Iterator iter = data.iterator();
         while (iter.hasNext()) {
@@ -332,7 +332,7 @@ public class Parser implements ParserInterface {
             biom.setPath(Paths.get(inputDTO.getBiometricsFolder(), data_map.get("name")).normalize().toString());
             biometrics.add(biom);
         }
-        System.out.println("total biometrics parsed: "+biometrics.size());
+        logger.info("total biometrics parsed: "+biometrics.size());
         return biometrics;
     }
 
@@ -347,7 +347,7 @@ public class Parser implements ParserInterface {
             HashMap<String, String> data_map = oMapper.convertValue(obj, HashMap.class);
             globals_map.put(data_map.get("key"), data_map.get("value"));
         }
-        System.out.println("total global entries parsed: "+globals_map.size());
+        logger.info("total global entries parsed: "+globals_map.size());
         return globals_map;
     }
 
@@ -362,7 +362,7 @@ public class Parser implements ParserInterface {
             HashMap<String, String> data_map = oMapper.convertValue(obj, HashMap.class);
             configs_map.put(data_map.get("key"), data_map.get("value"));
         }
-        System.out.println("total utils entries parsed: "+configs_map.size());
+        logger.info("total utils entries parsed: "+configs_map.size());
         return configs_map;
     }
 
@@ -370,7 +370,7 @@ public class Parser implements ParserInterface {
         ArrayList<Scenario.Step> steps = new ArrayList<Scenario.Step>();
         for (HashMap.Entry<String, String> entry : data_map.entrySet())
         {
-            boolean isMatching = entry.getKey().contains("field");
+            boolean isMatching = entry.getKey().contains("step");
             if(isMatching && entry.getValue() != null && !entry.getValue().isEmpty()){
                 if(entry.getValue() != null && !entry.getValue().equals("")) {
                     steps.add(StepParser.parse(entry.getValue()));

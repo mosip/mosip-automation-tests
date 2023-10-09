@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.kernel.util.KeycloakUserManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -18,6 +20,13 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(User.class);
 	
 	UserHelper userHelper=new UserHelper();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 	
 	//GetWithParam
 	@Override
@@ -32,7 +41,6 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		HashMap<String, String> map =new HashMap<String, String>();
 
 		HashMap<String, String> map2=new HashMap<String, String>();
-		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is  missing from DSL step");
 			this.hasError=true;
@@ -44,10 +52,15 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		if(step.getParameters().size() >= 2) { 
 			 user = step.getParameters().get(1);
 			 if(user.contains("@@")){
-				 	String userDetails[]=user.split("@@");
+				 String userDetails[]=user.split("@@");
+				 	
 				 	user=userDetails[0];
+				 	if(user.contains("masterdata-0"))
+				 		user = "masterdata-" + ConfigManager.getUserAdminName();
+				 	else 
+				 		user = ConfigManager.getUserAdminName().substring(0, ConfigManager.getUserAdminName().length() - 1) + user;
 				 	pwd=userDetails[1];
-				 	if(userDetails.length==3)zone=userDetails[2];
+				 	if(userDetails.length==3) {zone=userDetails[2];}
 				 	}
 			 if (user.startsWith("$$")) {
 				 map = step.getScenario().getVariables();
@@ -73,10 +86,10 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				step.getScenario().getVariables().putAll(map);
 			userHelper.deleteCenterMapping(user);
 			
-			Reporter.log(map.toString(), true);
+			Reporter.log(map.toString());
 			break;
 		case "DELETE_ZONEMAPPING":
-			userHelper.deleteZoneMapping(user,map);
+			userHelper.deleteZoneMapping(user,zone);
 			break;
 		case "CREATE_CENTERMAPPING":
 			centerNum=Integer.parseInt(id);
@@ -95,7 +108,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		case "CREATE_ZONESEARCH":
 			map=userHelper.createZoneSearch(user,map);
 			step.getScenario().getVariables().putAll(map);
-			Reporter.log(map.toString(), true);
+			Reporter.log(map.toString());
 			break;
 		case "ADD_User":
 			HashMap<String, List<String>> attrmap=new HashMap<String, List<String>>();
@@ -103,10 +116,16 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			String val=map.get("$$uin")!=null ?map.get("$$uin") : "11000000";
 			list.add(val);
 			attrmap.put("individualId",list);
-			KeycloakUserManager.removeUser(user);
+			//Create User at Keycloak
+			//KeycloakUserManager.removeUser(user);
 			KeycloakUserManager.createUsers(user, pwd,"roles", attrmap);
+			// Get the xone of the user if zone mapping already existing doubtt
+			zone=userHelper.getZoneOfUser(user);
+			if(zone!=null && zone.equalsIgnoreCase("NOTSET")) {
+			zone=userHelper.getLeafZones();
 			BaseTestCase.mapUserToZone(user,zone);
 			BaseTestCase.mapZone(user);
+			}
 			HashMap<String, String> userdetails=new HashMap<String, String>();
 			userdetails.put("user", user);
 			userdetails.put("pwd",pwd);
@@ -131,12 +150,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			
 		
 		break;
-		
-		case "REMOVE_User":
-			
-			KeycloakUserManager.createUsers();
-		
-			break;
+	
 		}
 
 	}

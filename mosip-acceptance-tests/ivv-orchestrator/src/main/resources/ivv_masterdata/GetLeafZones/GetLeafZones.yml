@@ -1,0 +1,12 @@
+GetLeafZones:
+   Admin_GetLeafZones_allValid_smoke:
+      endPoint: /v1/masterdata/zones/leafzones/langcode
+      role: globalAdmin
+      checkErrorsOnlyInResponse: true
+      restMethod: get
+      inputTemplate: ivv_masterdata/GetLeafZones/getLeafZones
+      outputTemplate: ivv_masterdata/GetLeafZones/getLeafZonesResult
+      input: '{
+     }'
+      output: '{
+     }'  

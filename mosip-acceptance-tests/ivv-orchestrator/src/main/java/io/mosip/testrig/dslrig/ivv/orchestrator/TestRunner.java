@@ -9,9 +9,15 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.TestNG;
 
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
+import io.mosip.testrig.apirig.authentication.fw.util.OutputValidationUtil;
+import io.mosip.testrig.apirig.ida.certificate.KeyCloakUserAndAPIKeyGeneration;
+import io.mosip.testrig.apirig.ida.certificate.MispPartnerAndLicenseKeyGeneration;
+import io.mosip.testrig.apirig.ida.certificate.PartnerRegistration;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MockSMTPListener;
@@ -21,10 +27,11 @@ public class TestRunner {
 	public static String jarUrl = TestRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
 	public static void main(String[] args) {
+		removeOldMosipTestTestResource();
 		if (checkRunType().equalsIgnoreCase("JAR")) {
-			removeOldMosipTestTestResource();
 			extractResourceFromJar();
 		}
+		
 		copyTestResources();
 		BaseTestCase.environment = System.getProperty("env.user");
 		BaseTestCase.ApplnURI = System.getProperty("env.endpoint");
@@ -32,15 +39,24 @@ public class TestRunner {
 
 		// Initializing or setting up execution
 		ConfigManager.init();
+		
+		if (ConfigManager.IsDebugEnabled())
+			LOGGER.setLevel(Level.ALL);
+		else
+			LOGGER.setLevel(Level.ERROR);
+		
+		setLogLevels();
 		BaseTestCase.initialize();
 		
-
 		BaseTestCase.languageList = BaseTestCase.getLanguageList();
 
 		// Selecting the language based on index for example- eng,ara,fra (To run suite
 		// in ara lang pass 1 in langselect property)
-
-		BaseTestCase.languageCode = BaseTestCase.languageList.get(Integer.parseInt(ConfigManager.getLangselect()));
+		
+    if(ConfigManager.getLangselect() > BaseTestCase.languageList.size()-1)
+    	BaseTestCase.languageCode = BaseTestCase.languageList.get(0);
+    else
+		BaseTestCase.languageCode = BaseTestCase.languageList.get(ConfigManager.getLangselect());
 
 		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
 		
@@ -56,11 +72,11 @@ public class TestRunner {
 		String os = System.getProperty("os.name");
 		LOGGER.info(os);
 		if (checkRunType().contains("IDE") || os.toLowerCase().contains("windows") == true) {
-			homeDir = new File(TestResources.getResourcePath() + "testngFile");
-			System.out.println("IDE Home Dir=" + homeDir);
+			homeDir = new File(TestResources.getResourcePath().replace("/MosipTestResource/MosipTemporaryTestResource", "") + "testngFile");
+			LOGGER.info("IDE Home Dir=" + homeDir);
 		} else {
-			homeDir = new File(System.getProperty("user.dir") + "/MosipTestResource/testngFile");
-			System.out.println("Jar Home Dir=" + homeDir);
+			homeDir = new File(System.getProperty("user.dir") + "/"+TestResources.resourceTestFolderName + "/" + TestResources.resourceFolderName +"/testngFile");
+			LOGGER.info("Jar Home Dir=" + homeDir);
 		}
 
 		for (File file : homeDir.listFiles()) {
@@ -124,7 +140,6 @@ public class TestRunner {
 		getListOfFilesFromJarAndCopyToExternalResource("idaData/");
 		getListOfFilesFromJarAndCopyToExternalResource("ivv_masterdata/");
 		getListOfFilesFromJarAndCopyToExternalResource("syncdata/");
-
 		getListOfFilesFromJarAndCopyToExternalResource("regproc/");
 	}
 
@@ -167,13 +182,26 @@ public class TestRunner {
 	        }
 	    }
 	}
+	
+	
+	public static String getLocalResourcePath() {
+		if (checkRunType().equalsIgnoreCase("JAR")) {
+			return new File(jarUrl).getParentFile().getAbsolutePath() +"/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName;
+		} else if (checkRunType().equalsIgnoreCase("IDE")) {
+			String path = new File(TestRunner.class.getClassLoader().getResource("").getPath()).getAbsolutePath();
+			if (path.contains("test-classes"))
+				path = path.replace("test-classes", "classes");
+			return path;
+		}
+		return "Global Resource File Path Not Found";
+	}
+
 
 	public static String getGlobalResourcePath() {
 		if (checkRunType().equalsIgnoreCase("JAR")) {
-			return new File(jarUrl).getParentFile().getAbsolutePath() + "/MosipTestResource".toString();
+			return new File(jarUrl).getParentFile().getAbsolutePath() +"/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName;
 		} else if (checkRunType().equalsIgnoreCase("IDE")) {
-			String path = new File(TestRunner.class.getClassLoader().getResource("").getPath()).getAbsolutePath()
-					.toString();
+			String path = new File(TestRunner.class.getClassLoader().getResource("").getPath()).getAbsolutePath()+"/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName;
 			if (path.contains("test-classes"))
 				path = path.replace("test-classes", "classes");
 			return path;
@@ -184,7 +212,7 @@ public class TestRunner {
 	private static boolean copyFilesFromJarToOutsideResource(String path) {
 		try {
 			File resourceFile = new File(TestRunner.jarUrl).getParentFile();
-			File destinationFile = new File(resourceFile.getAbsolutePath() + "/MosipTestResource/" + path);
+			File destinationFile = new File(resourceFile.getAbsolutePath() + "/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName + "/"+ path);
 			org.apache.commons.io.FileUtils.copyInputStreamToFile(TestRunner.class.getResourceAsStream("/" + path),
 					destinationFile);
 			return true;
@@ -218,6 +246,14 @@ public class TestRunner {
 			return path;
 		}
 		return "Global Resource File Path Not Found";
+	}
+	
+	private static void setLogLevels(){
+		AdminTestUtil.setLogLevel();
+		OutputValidationUtil.setLogLevel();
+		PartnerRegistration.setLogLevel();
+		KeyCloakUserAndAPIKeyGeneration.setLogLevel();
+		MispPartnerAndLicenseKeyGeneration.setLogLevel();
 	}
 	
 

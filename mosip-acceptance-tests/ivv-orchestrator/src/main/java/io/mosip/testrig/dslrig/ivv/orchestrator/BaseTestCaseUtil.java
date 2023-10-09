@@ -30,6 +30,8 @@ import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.RestClient;
+import io.mosip.testrig.apirig.global.utils.GlobalConstants;
+import io.mosip.testrig.apirig.global.utils.GlobalMethods;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
@@ -137,151 +139,254 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	public static Response getRequest(String url, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+		Response getResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract().response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ getResponse.getBody().asString() + "</pre>");
+		}
+		else {
+			 getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON).when().get(url).then().extract().response();
+		}
+		GlobalMethods.ReportRequestAndResponse("","",url, "", getResponse.getBody().asString());
 		return getResponse;
 	}
 
 	public static Response getRequestWithQueryParam(String url, HashMap<String, String> contextKey, String opsToLog,
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response getResponse = given().relaxedHTTPSValidation().queryParams(contextKey).accept("*/*").log().all().when()
-				.get(url).then().log().all().extract().response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ getResponse.getBody().asString() + "</pre>");
+	
+		Response getResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 getResponse = given().relaxedHTTPSValidation().queryParams(contextKey).accept("*/*").log().all().when()
+					.get(url).then().log().all().extract().response();
+		}
+		else {
+			 getResponse = given().relaxedHTTPSValidation().queryParams(contextKey).accept("*/*").when()
+						.get(url).then().extract().response();
+		}
+	
+		GlobalMethods.ReportRequestAndResponse("","",url, "", getResponse.getBody().asString());
 		return getResponse;
 	}
 
 	public Response postRequest(String url, String body, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
+		
 		Response apiResponse = RestClient.postRequest(url, body, MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ apiResponse.getBody().asString() + "</pre>");
+		GlobalMethods.ReportRequestAndResponse("","",url, body, apiResponse.getBody().asString());
 		return apiResponse;
 	}
 
 	public Response putRequestWithBody(String url, String body, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-				.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ puttResponse.getBody().asString() + "</pre>");
+		Response puttResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
+		}
+		else {
+			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").when().put(url).then().extract().response();
+		}
+	
+		GlobalMethods.ReportRequestAndResponse("","",url, body, puttResponse.getBody().asString());
+		
 		return puttResponse;
 	}
 
 	public Response putRequestWithBody(String url, String body, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + "" + " </b> <br/>" + body + "</pre>");
-		Response puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-				.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ puttResponse.getBody().asString() + "</pre>");
+		Response puttResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
+		}
+		else {
+			 puttResponse =given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").when().put(url).then().extract().response();
+		}
+	
+		GlobalMethods.ReportRequestAndResponse("","",url, body, puttResponse.getBody().asString());
 		return puttResponse;
 	}
 
 	public Response putRequest(String url, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON).log().all().when().put(url).then().log().all().extract().response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ putResponse.getBody().asString() + "</pre>");
+		
+		Response putResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON).log().all().when().put(url).then().log().all().extract().response();
+		}
+		else {
+			putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON).when().put(url).then().extract().response();
+		}
+	
+		GlobalMethods.ReportRequestAndResponse("","",url, "", putResponse.getBody().asString());
 		return putResponse;
 	}
 
 	public Response deleteRequest(String url, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract()
-				.response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ deleteResponse.getBody().asString() + "</pre>");
+	
+		Response deleteResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract()
+						.response();
+		}
+		else {
+			 deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON).when().delete(url).then().extract()
+						.response();
+		}
+	
+		
+		GlobalMethods.ReportRequestAndResponse("","",url, "", deleteResponse.getBody().asString());
+		
 		return deleteResponse;
 	}
 
 	public Response deleteRequestWithoutStep(String url, String opsToLog) {
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract()
-				.response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ deleteResponse.getBody().asString() + "</pre>");
+	
+		Response deleteResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract()
+						.response();
+		}
+		else {
+			 deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON).when().delete(url).then().extract()
+						.response();
+		}
+
+		
+		GlobalMethods.ReportRequestAndResponse("","",url, "", deleteResponse.getBody().asString());
+		
+		
 		return deleteResponse;
 	}
 
 	public Response deleteRequestWithQueryParam(String url, HashMap<String, String> map, String opsToLog,
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").log().all().when()
-				.delete(url).then().log().all().extract().response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ deleteResponse.getBody().asString() + "</pre>");
+		
+		Response deleteResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").log().all().when()
+					.delete(url).then().log().all().extract().response();
+		}
+		else {
+			deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").when()
+					.delete(url).then().extract().response();
+		}
+		
+		GlobalMethods.ReportRequestAndResponse("","",url, "", deleteResponse.getBody().asString());
+		
+		
 		return deleteResponse;
 	}
 
 	public Response putRequestWithQueryParamAndBody(String url, String body, HashMap<String, String> map,
 			String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response apiResponse = RestClient.putRequestWithQueryParamAndBody(url, body, map, MediaType.APPLICATION_JSON,
 				"*/*");
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ apiResponse.getBody().asString() + "</pre>");
+			GlobalMethods.ReportRequestAndResponse("","",url, body, apiResponse.getBody().asString());
+		
 		return apiResponse;
 	}
 
 	public Response postRequestWithQueryParamAndBody(String url, String body, HashMap<String, String> map,
 			String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
 		Response apiResponse = RestClient.postRequestWithQueryParamAndBody(url, body, map, MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ apiResponse.getBody().asString() + "</pre>");
+		
+		GlobalMethods.ReportRequestAndResponse("","",url, body, apiResponse.getBody().asString());
 		return apiResponse;
 	}
 
 	public Response postRequestWithPathParamAndBody(String url, String body, HashMap<String, String> map,
 			String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response apiResponse = given().contentType(ContentType.JSON).pathParams(map).body(body).log().all().when()
-				.post(url).then().log().all().extract().response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ apiResponse.getBody().asString() + "</pre>");
+		Response apiResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+		      apiResponse = given().contentType(ContentType.JSON).pathParams(map).body(body).log().all().when()
+						.post(url).then().log().all().extract().response();
+		}
+		else {
+		      apiResponse = given().contentType(ContentType.JSON).pathParams(map).body(body).when()
+						.post(url).then().extract().response();
+		}
+
+			
+		GlobalMethods.ReportRequestAndResponse("","",url, body, apiResponse.getBody().asString());
+		
 		return apiResponse;
 	}
 
 	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog,
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/>" + body + "</pre>");
-		Response posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-				.accept("*/*").log().all().when().cookie("Authorization", token).post(url).then().log().all().extract()
-				.response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ posttResponse.getBody().asString() + "</pre>");
-		return posttResponse;
+
+		Response postResponse =null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 postResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").log().all().when().cookie("Authorization", token).post(url).then().log().all().extract()
+						.response();
+		}
+		else {
+			 postResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+						.accept("*/*").when().cookie("Authorization", token).post(url).then().extract()
+						.response();
+		}
+	
+		GlobalMethods.ReportRequestAndResponse("","",url, body, postResponse.getBody().asString());
+		
+		return postResponse;
 	}
 
 	public Response putRequestWithQueryParam(String url, HashMap<String, String> map, String opsToLog,
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);
-		Reporter.log("<pre> <b>" + opsToLog + ": </b> <br/></pre>");
-		Response puttResponse = given().queryParams(map).relaxedHTTPSValidation().log().all().when().put(url).then()
-				.log().all().extract().response();
-		Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + url + ") <pre>"
-				+ puttResponse.getBody().asString() + "</pre>");
+		
+		Response puttResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			 puttResponse = given().queryParams(map).relaxedHTTPSValidation().log().all().when().put(url).then()
+						.log().all().extract().response();
+		}
+		else {
+			 puttResponse = given().queryParams(map).relaxedHTTPSValidation().when().put(url).then()
+						.extract().response();
+		}
+	
+
+		GlobalMethods.ReportRequestAndResponse("","",url, "", puttResponse.getBody().asString());
+		
+		
+		
 		return puttResponse;
+	}
+	
+	public static Response getRequestWithCookie(String url, String contentHeader, String acceptHeader,
+			String cookieName, String cookieValue) {
+		logger.info("REST-ASSURED: Sending a GET request to " + url);
+		Response getResponse = null;
+		if (ConfigManager.IsDebugEnabled()) {
+			getResponse = given().relaxedHTTPSValidation().cookie(cookieName, cookieValue).log().all()
+					.when().get(url).then().log().all().extract().response();
+		} else {
+			getResponse = given().relaxedHTTPSValidation().cookie(cookieName, cookieValue).when()
+					.get(url).then().extract().response();
+		}
+		logger.info(GlobalConstants.REST_ASSURED_STRING_2 + getResponse.asString());
+		logger.info(GlobalConstants.REST_ASSURED_STRING_3 + getResponse.time());
+		return getResponse;
 	}
 
 	public void constantIntializer() {

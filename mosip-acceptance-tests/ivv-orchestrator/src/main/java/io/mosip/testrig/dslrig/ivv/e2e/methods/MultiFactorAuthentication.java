@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
@@ -15,6 +16,7 @@ import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.BioAuth;
 import io.mosip.testrig.apirig.testscripts.DemoAuthSimplePostForAutoGenId;
@@ -53,6 +55,13 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 	String demoResponse = null;
 	String emailId = null;
 	List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError {
@@ -163,7 +172,10 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						test = (TestCaseDTO) object;
 						test = demoAuthE2eTest(demoFetchList, uin, test,step);
 						test = bioAuthE2eTest(bioAuthList, uin, test);
-						test = otpAuthE2eTest(uin, test);
+						if(emailId==null ||(emailId!=null && emailId.isBlank())) {
+							test = otpAuthE2eTest(uin, test);
+						}
+						
 						
 						try {
 							try {

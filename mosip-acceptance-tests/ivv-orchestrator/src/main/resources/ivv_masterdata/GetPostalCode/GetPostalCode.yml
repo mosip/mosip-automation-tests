@@ -1,0 +1,12 @@
+GetPostalCode:
+   Admin_GetLeafZones_allValid_smoke:
+      endPoint: /v1/masterdata/locations/locationhierarchy/postal code
+      role: globalAdmin
+      checkErrorsOnlyInResponse: true
+      restMethod: get
+      inputTemplate: ivv_masterdata/GetPostalCode/getPostalCode
+      outputTemplate: ivv_masterdata/GetPostalCode/getPostalCodeResult
+      input: '{
+     }'
+      output: '{
+     }' 

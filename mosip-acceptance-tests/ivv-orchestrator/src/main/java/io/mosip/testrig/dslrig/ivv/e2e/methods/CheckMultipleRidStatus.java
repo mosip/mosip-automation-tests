@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
@@ -15,6 +16,7 @@ import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -24,9 +26,16 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
 public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInterface {
 	private static final String check_status_YML = "preReg/checkStatus/checkstatus.yml";
-	Logger logger = Logger.getLogger(CheckMultipleRidStatus.class);
+	public static Logger logger = Logger.getLogger(CheckMultipleRidStatus.class);
 	public HashMap<String, String> tempPridAndRid = null;
 	public HashMap<String, String> ridStatusMap = new LinkedHashMap<>();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
     public void run() throws RigInternalError {
@@ -86,7 +95,6 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 						long stopTime = System.currentTimeMillis();
 						long elapsedTime = stopTime - startTime;
 						logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
-						Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 						packetProcessed = true;
 						if(tempPridAndRid.size() > 1)
 						status_Message="processed";

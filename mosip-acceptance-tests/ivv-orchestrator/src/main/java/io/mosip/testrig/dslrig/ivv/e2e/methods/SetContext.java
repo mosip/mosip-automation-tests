@@ -3,8 +3,10 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -12,7 +14,14 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 
 public class SetContext extends BaseTestCaseUtil implements StepInterface {
-	Logger logger = Logger.getLogger(SetContext.class);
+	static Logger logger = Logger.getLogger(SetContext.class);
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError {
@@ -24,6 +33,9 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		boolean generatePrivateKey = Boolean.FALSE;
 		String status = null;
 		String negative="valid";
+		boolean invalidCertFlag = Boolean.FALSE;
+		String consent="";
+		boolean changeSupervisorNameToDiffCase=Boolean.FALSE;
 		//neeha scenario = step.getScenario().getId() + ":" + step.getScenario().getDescription();
 		HashMap<String, String> map = new HashMap<String, String>();
 		HashMap<String, String> dummyholder = new HashMap<String, String>();
@@ -58,14 +70,24 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			if (step.getParameters().size() > 5) //  for negative operator and supervisor 
 				negative = step.getParameters().get(5);
 			
+			if(step.getParameters().size() == 5 && step.getParameters().get(4).contains("true"))
+				invalidCertFlag = Boolean.parseBoolean(step.getParameters().get(4));
+			
+			// consent value either "Y" or "N"
+			if(step.getParameters().size() == 6 && (step.getParameters().get(5).contains("yes") || step.getParameters().get(5).contains("no")))
+				consent = step.getParameters().get(5);
+			
+			
+			// supervisorIDFlag
+			if(step.getParameters().size() > 6 && step.getParameters().get(6).contains("true"))
+				changeSupervisorNameToDiffCase = Boolean.parseBoolean(step.getParameters().get(6));
 		}
-		
 		
 		if (userAndMachineDetailParam != null)
 			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion, generatePrivateKey,
 					status, BaseTestCase.ApplnURI + "/",step);
 		else if(map != null)
 			packetUtility.createContexts(negative,contextKeyValue, map, mosipVersion, generatePrivateKey, status,
-					BaseTestCase.ApplnURI + "/",step);
+					BaseTestCase.ApplnURI + "/",step,invalidCertFlag,consent,changeSupervisorNameToDiffCase);
 	}
 }

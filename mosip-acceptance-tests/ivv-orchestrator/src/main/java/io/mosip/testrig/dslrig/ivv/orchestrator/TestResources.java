@@ -10,7 +10,8 @@ import org.apache.log4j.Logger;
 
 public class TestResources {
 	public static Logger logger=Logger.getLogger(TestResources.class);
-	private static String resourceFolderName="MosipTemporaryTestResource";;
+	public static String resourceFolderName="MosipTemporaryTestResource";;
+	public static String resourceTestFolderName="MosipTestResource";;
 	public static String jarUrl = TestResources.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
 	public static void copyPreRegTestResource() {
@@ -42,8 +43,10 @@ public class TestResources {
 	}
 	public static void copyTestResource(String resPath) {
 		try {
-			File source = new File(TestResources.getGlobalResourcePaths() + resPath);
-			File destination = new File(TestResources.getGlobalResourcePaths() + "/"+TestResources.resourceFolderName);
+			File source = new File(TestResources.getGlobalResourcePaths().replace("MosipTestResource/MosipTemporaryTestResource", "") + resPath);
+		
+			//target\classes\MosipTestResource\MosipTemporaryTestResource\config\Kernel.properties (The system cannot find the path specified)
+			File destination = new File(TestResources.getGlobalResourcePaths());
 			FileUtils.copyDirectoryToDirectory(source, destination);
 			logger.info("Copied "+resPath+" the preReg test resource successfully to "+destination);
 		} catch (Exception e) {
@@ -51,7 +54,7 @@ public class TestResources {
 		}
 	}
 	public static String getResourcePath() {
-		return TestRunner.getGlobalResourcePath()+"/"+TestResources.resourceFolderName+"/";
+		return TestRunner.getGlobalResourcePath()+"/";
 	}
 	public static String getGlobalResourcePaths() {
 		return TestRunner.getGlobalResourcePath();

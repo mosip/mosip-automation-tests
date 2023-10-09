@@ -62,17 +62,6 @@ public class ResidentDataProvider {
 		//attributeList.put(ResidentAttribute.RA_Country, "PHIL");
 		RestClient.clearToken();
 	}
-	/*
-	public static ResidentModel readPersona(String filePath) throws IOException {
-    	
-    	ObjectMapper mapper = new ObjectMapper();
-    	Path path = Paths.get(filePath);
-    	//mapper.registerModule(new SimpleModule().addDeserializer(Pair.class,new PairDeserializer()));
-    //	mapper.registerModule(new SimpleModule().addSerializer(Pair.class, new PairSerializer()));
-    	byte[] bytes = Files.readAllBytes(path);
-		return mapper.readValue(bytes, ResidentModel.class);
-    }
-	*/
 	//Attribute Value ->'Any','No' or specific value
 	public ResidentDataProvider addCondition(ResidentAttribute attributeName, Object attributeValue) {
 		attributeList.put(attributeName, attributeValue);
@@ -222,85 +211,6 @@ public class ResidentDataProvider {
 				third_lang = langsRequired[2];
 			
 		}
-		/*
-		MosipPreRegLoginConfig  preregconfig = MosipMasterData.getPreregLoginConfig();
-		if(preregconfig != null) {
-			primary_lang = preregconfig.getMosip_primary_language();
-		}
-		
-		String mandatory_languages_list =preregconfig.getMandatory_languages();
-		 String[] mandatlangueages = null;
-		if(mandatory_languages_list !=null && !mandatory_languages_list.equals("")) {
-			  mandatlangueages = mandatory_languages_list.split(",");
-		}
-		
-		List<MosipLanguage> allLang = MosipMasterData.getConfiguredLanguages();
-		
-		
-		  if(primary_lang == null) {
-			  String mandatory_languages=preregconfig.getMandatory_languages();
-			  if(mandatory_languages!=null && !mandatory_languages.equals("")) {
-				  String[] mandatlangueage = mandatory_languages.split(",");
-				  primary_lang=mandatlangueage[0].trim();
-				  if(mandatlangueage.length>1) {
-					  sec_lang= mandatlangueage[1].trim();
-				  }
-				  if(mandatlangueage.length>2) {
-					  third_lang=  mandatlangueage[2].trim();
-				  }
-			  }
-			  
-			  if(primary_lang==null) {
-				 String languages= preregconfig.getOptional_languages();
-				 if(languages!=null && !languages.equals("")) {
-					  String[] langueage = languages.split(",");
-					  primary_lang=langueage[0].trim();
-					  if(langueage.length>1) {
-						  sec_lang= langueage[1].trim();
-					  }
-					  if(langueage.length>2) {
-						  third_lang=  langueage[2].trim();
-					  }
-				  }
-
-			  }
-			  
-		  }
-			 // primary_lang = "eng";
-		 
-		int minLanguages=Integer.parseInt(preregconfig.getMin_languages_count());
-		
-		//boolean bFoundSecLang = false;
-		for(MosipLanguage lang: allLang) {
-			if(!lang.getIsActive())
-				continue;
-			
-			if (primary_lang == null) {
-				primary_lang = lang.getCode();
-				// bFoundSecLang = true;
-				break;
-			}
-			
-			if(sec_lang == null && minLanguages>1) {
-				if(!lang.getCode().equals(primary_lang)){
-					sec_lang = lang.getCode();
-					//bFoundSecLang = true;
-					break;
-				}
-			}
-			if(third_lang == null && minLanguages>2) {
-				if(!lang.getCode().equals(sec_lang) && !lang.getCode().equals(primary_lang) ){
-					third_lang = lang.getCode();
-					//bFoundSecLang = true;
-					break;
-				}
-			}
-		
-		}
-	*/
-		/*
-		 * if(!bFoundSecLang) sec_lang = null;
-		 */
 		
 		//override if specified
 		if(override_primary_lan != null && !override_primary_lan.equals(""))
@@ -384,15 +294,6 @@ public class ResidentDataProvider {
 		}
 
 		List<Contact> contacts = ContactProvider.generate(eng_names, count);
-//		Object  objCountry = attributeList.get(ResidentAttribute.RA_Country)  ;
-		//String country  =null;
-		
-	//	if(objCountry != null)
-	//		country = objCountry.toString();
-		
-		//List<Location> locations = LocationProvider.generate(DataProviderConstants.COUNTRY_CODE, count);
-		//Hashtable<String, List<MosipLocationModel>> locations =  LocationProvider.generate( count, country);
-		
 		ApplicationConfigIdSchema locations = LocationProvider.generate(primary_lang, count,contextKey);
 		ApplicationConfigIdSchema locations_secLang  = null;
 		if(sec_lang != null)
@@ -437,17 +338,6 @@ public class ResidentDataProvider {
 				res.setInvalidAttributes( (List<String>) attributeList.get(ResidentAttribute.RA_InvalidList));
 			}
 			res.setGender(res_gender);
-			/*
-			if(primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH))
-				res.setGender(names_primary.get(i).getGender().name());
-			else
-				res.setGender(Translator.translate(primary_lang, names_primary.get(i).getGender().name()));
-			if(sec_lang != null) {
-				if(sec_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH))
-					res.setGender_seclang(names_primary.get(i).getGender().name());
-				else
-					res.setGender_seclang(Translator.translate(sec_lang, names_primary.get(i).getGender().name()));
-			}*/
 			if(names_sec != null) {
 				res.setName_seclang(names_sec.get(i));
 			}
@@ -455,7 +345,7 @@ public class ResidentDataProvider {
 			if(bloodGroups != null && !bloodGroups.isEmpty())
 				res.setBloodgroup(bloodGroups.get(res.getPrimaryLanguage()).get(i));
 			res.setContact(contacts.get(i));
-			res.setDob( DateOfBirthProvider.generate((ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age)));
+			res.setDob( DateOfBirthProvider.generate((ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age),contextKey));
 			ResidentAttribute age =  (ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age);
 			Boolean skipGaurdian = false;
 			if(age == ResidentAttribute.RA_Minor)  {

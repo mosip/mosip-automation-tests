@@ -5,26 +5,36 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.OtpAuthNew;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
+import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
 public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface {
-	static Logger logger = Logger.getLogger(EkycOtp.class);
+	static Logger logger = Logger.getLogger(OtpAuthentication.class);
 	private static final String OTPAUTHYml = "idaData/OtpAuth/OtpAuth.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
 	OtpAuthNew otpauth = new OtpAuthNew();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
-	public void run() throws RigInternalError {
+	public void run() throws RigInternalError, FeatureNotSupportedError {
 
 		String uins = null;
 		String vids = null;
@@ -39,13 +49,17 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
 			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
-		} else {
-		}
+		} 
 		
 		if (step.getParameters().size() == 5 && step.getParameters().get(4).startsWith("$$")) { 
 			emailId = step.getParameters().get(4);
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
+			}
+			if(emailId==null ||(emailId!=null && emailId.isBlank())) {
+				//in somecases Email Id is not passed so OTP Authentication is not supported
+				throw new FeatureNotSupportedError("Email id is Empty hence we cannot perform OTP Authentication");
+				
 			}
 		}
 

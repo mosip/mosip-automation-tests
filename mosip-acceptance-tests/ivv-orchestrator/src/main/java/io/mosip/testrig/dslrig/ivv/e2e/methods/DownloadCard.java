@@ -3,12 +3,14 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.testscripts.GetWithParamForDownloadCard;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -19,9 +21,15 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.TestResources;
 public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 	private static final String downLoadCard_YML = "preReg/downloadCard/downloadCard.yml";
 	private static final String PDFFILEPATH = "preReg/downloadCard";
-	Logger logger = Logger.getLogger(DownloadCard.class);
+	static Logger logger = Logger.getLogger(DownloadCard.class);
 	String fileNameValue=null;
-
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
     @SuppressWarnings("static-access")
 	@Override
     public void run() throws RigInternalError {
@@ -54,7 +62,6 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 						long stopTime = System.currentTimeMillis();
 						long elapsedTime = stopTime - startTime;
 						logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
-						Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 						// checking pdf file size
 						//assertTrue(getWithPathParam.pdf.length>0);
 						if(getWithPathParam.pdf.length>0) {

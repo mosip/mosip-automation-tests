@@ -1,11 +1,13 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
+import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.testscripts.GetWithParam;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -13,7 +15,14 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
 public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInterface {
 	private static final String check_status_YML = "preReg/credentialStatus/credentialStatus.yml";
-	Logger logger = Logger.getLogger(CheckCredentialStatus.class);
+	public static Logger logger = Logger.getLogger(CheckCredentialStatus.class);
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
     @SuppressWarnings("static-access")
 	@Override
@@ -55,7 +64,6 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 						long stopTime = System.currentTimeMillis();
 						long elapsedTime = stopTime - startTime;
 						logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
-						Reporter.log("<b><u>"+"Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec"+ "</u></b>");
 						credentialIssued = true;
 						} catch (AuthenticationTestException | AdminTestException e) {
 							logger.error("Failed at checking Credential status with error: " + e.getMessage());

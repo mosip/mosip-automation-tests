@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -25,8 +26,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.restassured.response.Response;
 
 public class UserInfo extends BaseTestCaseUtil implements StepInterface {
-	
-	
 	static Logger logger = Logger.getLogger(UserInfo.class);
 	private static final String AuthorizationCodeYml = "idaData/AuthorizationCode/AuthorizationCode.yml";
 	private static final String GenerateTokenYml = "idaData/GenerateToken/GenerateToken.yml";
@@ -41,9 +40,16 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	String urlEncodedResp2 = "";
 	String code = "";
 	String redirectUri = "";
-	String idpAccessToken = "";
+	String esignetAccessToken = "";
 	String data = "";
 	List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
+	
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {
@@ -194,7 +200,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		Response response = generateToken.response;
 		if (response != null) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			idpAccessToken = jsonResp.get("access_token").toString();
+			esignetAccessToken = jsonResp.get("access_token").toString();
 			System.out.println(jsonResp.toString());
 		}
 
@@ -202,8 +208,8 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 		String inputForGetUserInfo = testGetUserInfo.getInput();
 
-		inputForGetUserInfo = JsonPrecondtion.parseAndReturnJsonContent(inputForGenerateToken, idpAccessToken,
-				"idpAccessToken");
+		inputForGetUserInfo = JsonPrecondtion.parseAndReturnJsonContent(inputForGetUserInfo, esignetAccessToken,
+				"esignetAccessToken");
 
 		testGetUserInfo.setInput(inputForGetUserInfo);
 
