@@ -546,9 +546,12 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		req.put("source","REGISTRATION_CLIENT");
 		req.put("supervisorStatus","APPROVED");
 		
+		//To do -- We need to mark supervisor status as approved or rejected conditionally 
 		VariableManager.setVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS", "APPROVED");	
-		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "");
-		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "");
+		
+	// Need to review these two below tags once the conclusion happens what tags will be set on the packet	
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "--TAG_VALUE_NOT_AVAILABLE--");
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "--TAG_VALUE_NOT_AVAILABLE--");
 		
 		logger.debug("Tags set while generating the packet: "
 				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId")
