@@ -516,10 +516,12 @@ public class PacketSyncService {
 				}
 			});
 		}
-		
+		//To do -- We need to mark supervisor status as approved or rejected conditionally 
 		VariableManager.setVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS", "APPROVED");	
-		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "");
-		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "");
+		
+		//To do -- Need to review these two below tags once the conclusion happens what tags will be set on the packet	
+				VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "--TAG_VALUE_NOT_AVAILABLE--");
+				VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "--TAG_VALUE_NOT_AVAILABLE--");
 		
 		logger.debug("Tags set while generating the packet: "
 				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId")
@@ -1326,32 +1328,72 @@ public class PacketSyncService {
 		JSONObject packetTags = new JSONObject();
 		
 		packetTags.put("META_INFO-OPERATIONS_DATA-supervisorId",
-				VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId").toString());
+				VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId").toString());
+		
 		packetTags.put("Biometric_Quality-Iris",
-				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris").toString());
+				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris").toString());
+		
 		packetTags.put("INTRODUCER_AVAILABILITY",
 				VariableManager.getVariableValue(contextKey, "INTRODUCER_AVAILABILITY").toString());
-		packetTags.put("META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", VariableManager
-				.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger").toString());
+		
+		packetTags.put("META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", 
+				VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger").toString());
+		
 		packetTags.put("META_INFO-META_DATA-centerId",
-				VariableManager.getVariableValue(contextKey, "META_INFO-META_DATA-centerId").toString());
+				VariableManager.getVariableValue(contextKey, "META_INFO-META_DATA-centerId") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "META_INFO-META_DATA-centerId").toString());
+		
 		packetTags.put("Biometric_Quality-Face",
-				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Face").toString());
+				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Face") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "Biometric_Quality-Face").toString());
+		
 		packetTags.put("Biometric_Quality-Finger",
-				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Finger").toString());
+				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Finger") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "Biometric_Quality-Finger").toString());
+		
 		packetTags.put("EXCEPTION_BIOMETRICS",
-				VariableManager.getVariableValue(contextKey, "EXCEPTION_BIOMETRICS").toString());
+				VariableManager.getVariableValue(contextKey, "EXCEPTION_BIOMETRICS") == null
+						? "--TAG_VALUE_NOT_AVAILABLE--"
+						: VariableManager.getVariableValue(contextKey, "EXCEPTION_BIOMETRICS").toString());
+		
 		packetTags.put("ID_OBJECT-gender",
-				VariableManager.getVariableValue(contextKey, "ID_OBJECT-gender").toString());
+				VariableManager.getVariableValue(contextKey, "ID_OBJECT-gender") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "ID_OBJECT-gender").toString());
+		
 		packetTags.put("META_INFO-CAPTURED_REGISTERED_DEVICES-Face",
-				VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face").toString());
-		packetTags.put("AGE_GROUP", VariableManager.getVariableValue(contextKey, "AGE_GROUP").toString());
+				VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face").toString());
+		
+		packetTags.put("AGE_GROUP", 
+				VariableManager.getVariableValue(contextKey, "AGE_GROUP") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "AGE_GROUP").toString());
+		
 		packetTags.put("SUPERVISOR_APPROVAL_STATUS",
-				VariableManager.getVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS").toString());
+				VariableManager.getVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS").toString());
+		
 		packetTags.put("META_INFO-OPERATIONS_DATA-officerId",
-				VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId").toString());
+				VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId").toString());
+		
 		packetTags.put("ID_OBJECT-residenceStatus",
-				VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus").toString());
+				VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus") == null
+				? "--TAG_VALUE_NOT_AVAILABLE--"
+				: VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus").toString());
 
 		return packetTags.toString();
 

@@ -395,6 +395,7 @@ public class Orchestrator {
 			} catch (RigInternalError e) {
 				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
 				logger.error(e.getMessage());
+				Reporter.log(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
