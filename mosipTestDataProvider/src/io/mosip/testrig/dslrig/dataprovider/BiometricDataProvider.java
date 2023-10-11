@@ -121,10 +121,10 @@ public class BiometricDataProvider {
 					.e(ENTRY).a("key", SDK_SCORE).t("0.0").up().e(ENTRY).a("key", FORCE_CAPTURED).t(FALSE).up().e(ENTRY)
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 		}
-		if (Integer.parseInt(qualityScore) > 60)
-			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Iris", "Good");
+		if (Integer.parseInt(qualityScore) >= 80)
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Iris", "level-9");
 		else
-			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Iris", "Poor");
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Iris", "level-2");
 		return builder.asString(null);
 	}
 
@@ -152,10 +152,10 @@ public class BiometricDataProvider {
 					.e(ENTRY).a("key", SDK_SCORE).t("0.0").up().e(ENTRY).a("key", FORCE_CAPTURED).t(FALSE).up().e(ENTRY)
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 		}
-		if (Integer.parseInt(qualityScore) > 60)
-			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Finger", "Good");
+		if (Integer.parseInt(qualityScore) >= 80)
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Finger", "level-9");
 		else
-			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Finger", "Poor");
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Finger", "level-2");
 		return builder.asString(null);
 	}
 
@@ -179,10 +179,10 @@ public class BiometricDataProvider {
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 
 		}
-		if (Integer.parseInt(qualityScore) > 60)
-			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Face", "Good");
+		if (Integer.parseInt(qualityScore) >= 80)
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Face", "level-9");
 		else
-			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Face", "Poor");
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Face", "level-2");
 		return builder.asString(null);
 	}
 

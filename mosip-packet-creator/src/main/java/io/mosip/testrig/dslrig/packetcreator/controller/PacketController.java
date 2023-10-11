@@ -121,7 +121,7 @@ public class PacketController {
 	  }
 	  
 	  @GetMapping(value = "/packet/getTags/{contextKey}")
-	  public @ResponseBody String getTags( @PathVariable("contextKey") String contextKey) {
+	  public @ResponseBody String getPacketTags( @PathVariable("contextKey") String contextKey) {
 		  try{    	
 	    		return packetSyncService.getPacketTags(contextKey);
 	    	
