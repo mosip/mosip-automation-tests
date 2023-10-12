@@ -797,9 +797,15 @@ public class PacketTemplateProvider {
 
 				for (DynamicFieldModel dfm : dynaFields.get(primLang)) {
 					if (dfm.getIsActive() && dfm.getName().equals(s.getId())) {
-						primaryValue = dfm.getFieldVal().get(0).getCode();
-						dfmPrim = dfm;
-						break;
+						for (int i = 0; i < dfm.getFieldVal().size(); i++) {
+							if (dfm.getFieldVal().get(i).getValue().equalsIgnoreCase(resGen.name())) {
+								primaryValue = dfm.getFieldVal().get(i).getCode();
+								dfmPrim = dfm;
+								VariableManager.setVariableValue(contextKey, "ID_OBJECT-gender", primaryValue);
+								break;
+							}
+						}
+
 					}
 				}
 				secValue = primaryValue;
@@ -807,8 +813,14 @@ public class PacketTemplateProvider {
 				if (secLan != null)
 					for (DynamicFieldModel dfm1 : dynaFields.get(secLan)) {
 						if (dfm1.getIsActive() && dfm1.getName().equals(s.getId())) {
-							secValue = dfm1.getFieldVal().get(0).getCode();
-							break;
+
+							for (int i = 0; i < dfm1.getFieldVal().size(); i++) {
+								if (dfm1.getFieldVal().get(i).getValue().equalsIgnoreCase(resGen.name())) {
+									secValue = dfm1.getFieldVal().get(i).getCode();
+									VariableManager.setVariableValue(contextKey, "ID_OBJECT-gender", secValue);
+									break;
+								}
+							}
 						}
 					}
 
