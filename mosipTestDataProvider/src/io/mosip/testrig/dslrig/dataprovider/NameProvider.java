@@ -175,6 +175,7 @@ public class NameProvider {
 				names.add(name);
 				i++;
 			}
+			helper.close();
 		
 		} catch (IOException e) {
 			logger.error(e.getMessage());
