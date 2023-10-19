@@ -87,8 +87,8 @@ public class PacketTemplateProvider {
 	private static final String APPLICANT_AUTH = "applicant-auth";
 	private static final String GENDER = "gender";
 	private static final String FULLNAME = "fullname";
-	private static final String FIRSTNAME = "firstName";
-	private static final String LASTNAME = "lastName";
+	private static final String FIRSTNAME = "firstname";
+	private static final String LASTNAME = "lastname";
 	private static final String MIDDLENAME = "middlename";
 	private static final String DATEOFBIRTH = "dateofbirth";
 	private static final String DOCUMENTS = "documents";
