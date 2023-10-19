@@ -1338,7 +1338,7 @@ public class PacketTemplateProvider {
 			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
 				String primaryValue = "";
 				String secValue = "";
-				if (VariableManager.getVariableValue(contextKey, "name")!= null && s.getId().equals(VariableManager.getVariableValue(contextKey, "name"))) {
+				if (VariableManager.getVariableValue(contextKey, "name")!= null && VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
 					primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
 							+ resident.getName().getSurName();
 					if (secLanguage != null)

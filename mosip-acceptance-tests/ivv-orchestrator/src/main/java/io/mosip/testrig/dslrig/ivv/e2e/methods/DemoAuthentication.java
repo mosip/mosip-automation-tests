@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
@@ -49,6 +50,12 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		Object[] casesListUIN = null;
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 		Object[] casesListVID = null;
+		
+		String phone = AdminTestUtil.getValueFromAuthActuator("json-property", "phone_number");
+		String result = phone.replaceAll("\\[\"|\"\\]", "");
+		
+		String email = AdminTestUtil.getValueFromAuthActuator("json-property", "emailId");
+		String emailResult = email.replaceAll("\\[\"|\"\\]", "");
 
 		// AuthPartnerProcessor.startProcess();
 		// step.getScenario().getUinPersonaProp().put("2759239619",
@@ -118,6 +125,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 			JSONObject inputJson = new JSONObject(input);
+
 			/*
 			 * if(inputJson.has("identityRequest")) { identityRequest =
 			 * inputJson.get("identityRequest").toString(); }
