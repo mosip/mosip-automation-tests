@@ -87,8 +87,8 @@ public class PacketTemplateProvider {
 	private static final String APPLICANT_AUTH = "applicant-auth";
 	private static final String GENDER = "gender";
 	private static final String FULLNAME = "fullname";
-	private static final String FIRSTNAME = "firstname";
-	private static final String LASTNAME = "lastname";
+	private static final String FIRSTNAME = "firstName";
+	private static final String LASTNAME = "lastName";
 	private static final String MIDDLENAME = "middlename";
 	private static final String DATEOFBIRTH = "dateofbirth";
 	private static final String DOCUMENTS = "documents";
@@ -1338,7 +1338,7 @@ public class PacketTemplateProvider {
 			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
 				String primaryValue = "";
 				String secValue = "";
-				if (VariableManager.getVariableValue(contextKey, "name")!= null && s.getId().equals(VariableManager.getVariableValue(contextKey, "name"))) {
+				if (VariableManager.getVariableValue(contextKey, "name")!= null && VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
 					primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
 							+ resident.getName().getSurName();
 					if (secLanguage != null)
