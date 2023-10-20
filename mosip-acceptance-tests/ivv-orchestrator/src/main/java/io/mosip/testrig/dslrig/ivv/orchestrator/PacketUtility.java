@@ -735,7 +735,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
 
-			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,String consent,boolean changeSupervisorNameToDiffCase)
+			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,String consent,boolean changeSupervisorNameToDiffCase,String invalidEncryptedHashFlag, String invalidCheckSum)
 			throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
@@ -770,7 +770,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("introducerUIN", getValueFromIdJson("introducerUIN"));
 		jsonReq.put("introducerRID", getValueFromIdJson("introducerRID"));
 		jsonReq.put("introducerName", getValueFromIdJson("introducerName"));
-		
+		jsonReq.put("invalidCheckSum", invalidCheckSum);
+		jsonReq.put("invalidEncryptedHashFlag", invalidEncryptedHashFlag);
 		jsonReq.put("changeSupervisorNameToDiffCase", changeSupervisorNameToDiffCase);
 		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
@@ -884,7 +885,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	//  get value specific to key from actuator
 	private String getValueFromIdJson(String key) {
 		String value = AdminTestUtil.getValueFromAuthActuator("json-property", key);
-		String result = value.replaceAll("\\[\"|\"\\]", "");
+		String result = value.replaceAll("\\[|\\]", "").replaceAll("\"", "");
 		return result;
 	}
 
@@ -1030,7 +1031,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (expectedToPass == false) {
 			if (response.getBody().asString().contains("RPR-PKR-016")) {
 				return response.getBody().asString();
-			} else {
+			} 
+			else if (response.getBody().asString().contains("RPR-PKR-009")) {
+				return response.getBody().asString();
+			} 
+			else {
 				this.hasError = true;
 				throw new RigInternalError("Unable to do sync packet from packet utility");
 			}
