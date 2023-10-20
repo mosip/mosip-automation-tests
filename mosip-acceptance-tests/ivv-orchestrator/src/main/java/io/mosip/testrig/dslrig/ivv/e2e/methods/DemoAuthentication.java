@@ -50,12 +50,6 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		Object[] casesListUIN = null;
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 		Object[] casesListVID = null;
-		
-		String phone = AdminTestUtil.getValueFromAuthActuator("json-property", "phone_number");
-		String result = phone.replaceAll("\\[\"|\"\\]", "");
-		
-		String email = AdminTestUtil.getValueFromAuthActuator("json-property", "emailId");
-		String emailResult = email.replaceAll("\\[\"|\"\\]", "");
 
 		// AuthPartnerProcessor.startProcess();
 		// step.getScenario().getUinPersonaProp().put("2759239619",
