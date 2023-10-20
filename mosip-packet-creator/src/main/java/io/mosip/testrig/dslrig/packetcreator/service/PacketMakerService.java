@@ -669,8 +669,16 @@ public class PacketMakerService {
 		}
 
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-		String encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(
-				messageDigest.digest(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
+
+		String encryptedHashFlag =VariableManager.getVariableValue(contextKey, "invalidEncryptedHashFlag").toString();
+		String encryptedHash =null;
+		
+	// Make encrypted hash as invalid if "invalidEncryptedHashFlag --yes"	
+		if(encryptedHashFlag.equalsIgnoreCase("invalidEncryptedHash") && type.equals("id"))
+		 encryptedHash = "INVALID_ENCRYPTED_HASH";
+		else
+		 encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(
+					messageDigest.digest(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
 
 		String signature = Base64.getEncoder().encodeToString(
 				cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP)), contextKey));
