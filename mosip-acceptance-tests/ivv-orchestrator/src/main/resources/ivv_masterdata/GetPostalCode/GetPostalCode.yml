@@ -1,6 +1,6 @@
 GetPostalCode:
    Admin_GetLeafZones_allValid_smoke:
-      endPoint: /v1/masterdata/locations/locationhierarchy/postal code
+      endPoint: /v1/masterdata/locations/locationhierarchy/postalcode
       role: globalAdmin
       checkErrorsOnlyInResponse: true
       restMethod: get
