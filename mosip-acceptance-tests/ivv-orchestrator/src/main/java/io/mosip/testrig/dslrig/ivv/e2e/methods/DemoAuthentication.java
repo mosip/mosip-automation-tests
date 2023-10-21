@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
@@ -118,6 +119,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 			JSONObject inputJson = new JSONObject(input);
+
 			/*
 			 * if(inputJson.has("identityRequest")) { identityRequest =
 			 * inputJson.get("identityRequest").toString(); }

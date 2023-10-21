@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,17 +42,21 @@ public class CSVHelper {
 		}
 		csvReader.close();
 	}
-
+	
 	public void open() throws FileNotFoundException, UnsupportedEncodingException {
-
-		try (FileInputStream inStream = new FileInputStream(fileName);
-				InputStreamReader filereader = new InputStreamReader(inStream, "UTF-8");) {
+		FileInputStream inputStream = null;
+		try {
+			inputStream = new FileInputStream(fileName);
+			InputStreamReader filereader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
 			csvReader = new CSVReaderBuilder(filereader).withSkipLines(1).build();
-		} catch (IOException e) {
-			logger.error(e.getMessage());
+		} finally {
+			/*
+			 * if (inputStream != null) try {  inputStream.close(); } catch (IOException
+			 * e) { logger.error(e.getMessage()); }
+			 */
 		}
-
 	}
+	
 
 	// pass an array of record numbers to read
 	List<String[]> readRecords(int[] recnos) throws IOException {
@@ -135,3 +140,4 @@ public class CSVHelper {
 
 	}
 }
+

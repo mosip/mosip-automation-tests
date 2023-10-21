@@ -345,7 +345,7 @@ public class ResidentDataProvider {
 			if(bloodGroups != null && !bloodGroups.isEmpty())
 				res.setBloodgroup(bloodGroups.get(res.getPrimaryLanguage()).get(i));
 			res.setContact(contacts.get(i));
-			res.setDob( DateOfBirthProvider.generate((ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age)));
+			res.setDob( DateOfBirthProvider.generate((ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age),contextKey));
 			ResidentAttribute age =  (ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age);
 			Boolean skipGaurdian = false;
 			if(age == ResidentAttribute.RA_Minor)  {

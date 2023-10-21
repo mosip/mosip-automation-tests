@@ -103,7 +103,7 @@ public class BiometricDataProvider {
 	private static final String SCENARIO = "scenario";
 
 	static String buildBirIris(String irisInfo, String irisName, String jtwSign, String payload, String qualityScore,
-			boolean genarateValidCbeff, String exception) throws ParserConfigurationException,
+			boolean genarateValidCbeff, String exception,String contextKey) throws ParserConfigurationException,
 			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
 		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
@@ -121,13 +121,16 @@ public class BiometricDataProvider {
 					.e(ENTRY).a("key", SDK_SCORE).t("0.0").up().e(ENTRY).a("key", FORCE_CAPTURED).t(FALSE).up().e(ENTRY)
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 		}
-
+		if (Integer.parseInt(qualityScore) >= 80)
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Iris", "level-9");
+		else
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Iris", "level-2");
 		return builder.asString(null);
 	}
 
 	static String buildBirFinger(String fingerInfo, String fingerName, String jtwSign, String payload,
 
-			String qualityScore, boolean generateValidCbeff, String exception) throws ParserConfigurationException,
+			String qualityScore, boolean generateValidCbeff, String exception,String contextKey) throws ParserConfigurationException,
 			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
 		XMLBuilder builder = null;
@@ -149,12 +152,15 @@ public class BiometricDataProvider {
 					.e(ENTRY).a("key", SDK_SCORE).t("0.0").up().e(ENTRY).a("key", FORCE_CAPTURED).t(FALSE).up().e(ENTRY)
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 		}
-
+		if (Integer.parseInt(qualityScore) >= 80)
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Finger", "level-9");
+		else
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Finger", "level-2");
 		return builder.asString(null);
 	}
 
 	static String buildBirFace(String faceInfo, String jtwSign, String payload, String qualityScore,
-			boolean genarateValidCbeff, String exception) throws ParserConfigurationException,
+			boolean genarateValidCbeff, String exception,String contextKey) throws ParserConfigurationException,
 			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
 		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
@@ -173,12 +179,15 @@ public class BiometricDataProvider {
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 
 		}
-
+		if (Integer.parseInt(qualityScore) >= 80)
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Face", "level-9");
+		else
+			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Face", "level-2");
 		return builder.asString(null);
 	}
 
 	static String buildBirExceptionPhoto(String faceInfo, String jtwSign, String payload, String qualityScore,
-			boolean genarateValidCbeff, String exception) throws ParserConfigurationException,
+			boolean genarateValidCbeff, String exception,String contextKey) throws ParserConfigurationException,
 			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
 		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
@@ -197,7 +206,7 @@ public class BiometricDataProvider {
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 
 		}
-
+		VariableManager.setVariableValue(contextKey, "EXCEPTION_BIOMETRICS", "exception");
 		return builder.asString(null);
 	}
 
@@ -531,7 +540,7 @@ public class BiometricDataProvider {
 					contextKey);
 
 			if (exceptionlist != null && !exceptionlist.isEmpty()) {
-				builder = xmlbuilderFingerExep(bioFilter, exceptionlist, bioSubType, builder, genarateValidCbeff);
+				builder = xmlbuilderFingerExep(bioFilter, exceptionlist, bioSubType, builder, genarateValidCbeff,contextKey);
 			}
 		} catch (Exception e) {
 			logger.error("xmlbuilderFinger failed" + e.getMessage());
@@ -547,7 +556,7 @@ public class BiometricDataProvider {
 				bioSubType.add("face");
 				String faceXml = buildBirFace(lstFaceData.get(0).getBioValue(), lstFaceData.get(0).getSb(),
 						lstFaceData.get(0).getPayload(), lstFaceData.get(0).getQualityScore(), genarateValidCbeff,
-						FALSE);
+						FALSE,contextKey);
 				builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
 
 			}
@@ -565,7 +574,7 @@ public class BiometricDataProvider {
 					contextKey);
 
 			if (exceptionlist != null && !exceptionlist.isEmpty()) {
-				builder = xmlbuilderIrisExcep(bioFilter, exceptionlist, bioSubType, builder, genarateValidCbeff);
+				builder = xmlbuilderIrisExcep(bioFilter, exceptionlist, bioSubType, builder, genarateValidCbeff,contextKey);
 			}
 		} catch (Exception e) {
 			logger.error("xmlbuilderIris failed");
@@ -580,7 +589,7 @@ public class BiometricDataProvider {
 				bioSubType.add("exceptionphoto");
 				String faceXml = buildBirExceptionPhoto(lstFaceData.get(1).getBioValue(), lstFaceData.get(1).getSb(),
 						lstFaceData.get(1).getPayload(), lstFaceData.get(1).getQualityScore(), genarateValidCbeff,
-						FALSE);
+						FALSE,contextKey);
 				builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
 			}
 		} catch (Exception e) {
@@ -627,14 +636,14 @@ public class BiometricDataProvider {
 
 					if (listWithoutExceptions.contains(LEFTEYE) && cm.getBioSubType().equals("Left")) {
 						irisXml = buildBirIris(cm.getBioValue(), "Left", cm.getSb(), cm.getPayload(),
-								cm.getQualityScore(), genarateValidCbeff, FALSE);
+								cm.getQualityScore(), genarateValidCbeff, FALSE,contextKey);
 						builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 						bioSubType.add("Left");
 					}
 					if (listWithoutExceptions.contains(RIGHTEYE) && cm.getBioSubType().equals(RIGHT)) {
 
 						irisXml = buildBirIris(cm.getBioValue(), RIGHT, cm.getSb(), cm.getPayload(),
-								cm.getQualityScore(), genarateValidCbeff, FALSE);
+								cm.getQualityScore(), genarateValidCbeff, FALSE,contextKey);
 						builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 						bioSubType.add(RIGHT);
 					}
@@ -643,12 +652,12 @@ public class BiometricDataProvider {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-
+		
 		return builder;
 	}
 
 	private static XMLBuilder xmlbuilderIrisExcep(List<String> bioFilter, List<BioModality> lstIrisData,
-			List<String> bioSubType, XMLBuilder builder, boolean genarateValidCbeff) {
+			List<String> bioSubType, XMLBuilder builder, boolean genarateValidCbeff,String contextKey) {
 		try {
 			if (lstIrisData != null) {
 				for (BioModality finger : lstIrisData) {
@@ -656,7 +665,7 @@ public class BiometricDataProvider {
 						continue;
 
 					String strFingerXml = buildBirIris(finger.getType(), finger.getSubType(),
-							Arrays.toString(new byte[0]), "", "0", genarateValidCbeff, "true");
+							Arrays.toString(new byte[0]), "", "0", genarateValidCbeff, "true",contextKey);
 					XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 					builder = builder.importXMLBuilder(fbuilder);
 				}
@@ -721,7 +730,7 @@ public class BiometricDataProvider {
 					if (i >= 0 && fingerData != null && currentCM != null) {
 						String strFinger = DataProviderConstants.displayFingerName[i];
 						String strFingerXml = buildBirFinger(fingerData, strFinger, currentCM.getSb(),
-								currentCM.getPayload(), currentCM.getQualityScore(), genarateValidCbeff, FALSE);
+								currentCM.getPayload(), currentCM.getQualityScore(), genarateValidCbeff, FALSE,contextKey);
 						XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 						builder = builder.importXMLBuilder(fbuilder);
 					}
@@ -732,12 +741,11 @@ public class BiometricDataProvider {
 		} catch (Exception e1) {
 			logger.error(e1.getMessage());
 		}
-
 		return builder;
 	}
 
 	private static XMLBuilder xmlbuilderFingerExep(List<String> bioFilter, List<BioModality> lstFingerData,
-			List<String> bioSubType, XMLBuilder builder, boolean genarateValidCbeff)
+			List<String> bioSubType, XMLBuilder builder, boolean genarateValidCbeff,String contextKey)
 			throws ParserConfigurationException, FactoryConfigurationError, TransformerException, SAXException,
 			IOException {
 
@@ -747,7 +755,7 @@ public class BiometricDataProvider {
 					continue;
 
 				String strFingerXml = buildBirFinger(finger.getType(), finger.getSubType(),
-						Arrays.toString(new byte[0]), "", "0", genarateValidCbeff, "true");
+						Arrays.toString(new byte[0]), "", "0", genarateValidCbeff, "true",contextKey);
 				XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 				builder = builder.importXMLBuilder(fbuilder);
 			}
@@ -761,7 +769,7 @@ public class BiometricDataProvider {
 	 * Construct CBEFF format XML file from biometric data
 	 */
 	public static String toCBEFF(List<String> bioFilter, BiometricDataModel biometricDataModel, String toFile,
-			boolean genarateValidCbeff) throws Exception {
+			boolean genarateValidCbeff,String contextKey) throws Exception {
 		String retXml = "";
 
 		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
@@ -791,7 +799,7 @@ public class BiometricDataProvider {
 			if (i >= 0) {
 				String strFinger = DataProviderConstants.displayFingerName[i];
 				String strFingerXml = buildBirFinger(fingerPrint[i], strFinger, null, null, qualityScore,
-						genarateValidCbeff, FALSE);
+						genarateValidCbeff, FALSE,contextKey);
 
 				XMLBuilder fbuilder = XMLBuilder.parse(strFingerXml);
 				builder = builder.importXMLBuilder(fbuilder);
@@ -803,7 +811,7 @@ public class BiometricDataProvider {
 		if (bioFilter.contains("Face")) {
 			if (biometricDataModel.getEncodedPhoto() != null) {
 				String faceXml = buildBirFace(biometricDataModel.getEncodedPhoto(), null, null, qualityScore,
-						genarateValidCbeff, "true");
+						genarateValidCbeff, "true",contextKey);
 				builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
 			}
 		}
@@ -814,12 +822,12 @@ public class BiometricDataProvider {
 			String irisXml = "";
 			if (bioFilter.contains(LEFTEYE)) {
 				irisXml = buildBirIris(irisInfo.getLeft(), "Left", null, null, qualityScore, genarateValidCbeff,
-						"true");
+						"true",contextKey);
 				builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 			}
 			if (bioFilter.contains(RIGHTEYE)) {
 				irisXml = buildBirIris(irisInfo.getRight(), RIGHT, null, null, qualityScore, genarateValidCbeff,
-						"true");
+						"true",contextKey);
 				builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 			}
 		}
@@ -1224,7 +1232,7 @@ public class BiometricDataProvider {
 
 		try {
 
-			String value = buildBirFinger("addfdfd", "finger", "jwtSign", PAYLOAD, null, true, FALSE);
+			String value = buildBirFinger("addfdfd", "finger", "jwtSign", PAYLOAD, null, true, FALSE,null);
 			logger.info(value);
 		} catch (FileNotFoundException e2) {
 			logger.error(e2.getMessage());
@@ -1260,7 +1268,7 @@ public class BiometricDataProvider {
 		lstBioAttributes.add(RIGHTEYE);
 
 		try {
-			xml = toCBEFF(lstBioAttributes, bio, "cbeffallfingersOut.xml", true);
+			xml = toCBEFF(lstBioAttributes, bio, "cbeffallfingersOut.xml", true,null);
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
