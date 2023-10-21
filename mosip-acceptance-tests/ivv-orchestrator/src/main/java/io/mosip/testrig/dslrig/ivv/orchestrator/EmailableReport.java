@@ -120,7 +120,7 @@ public class EmailableReport implements IReporter {
 						  File extentReport = new File(BaseTestCaseUtil.getExtentReportName()); 
 						  
 						  isStoreSuccess2 =s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel,
-						  null, null, "extentReport-"+BaseTestCase.generateRandomAlphabeticString(6), extentReport);
+						  null, null, "ExtentReport-"+newString, extentReport);
 						 
 					} catch (Exception e) {
 						logger.error("error occured while pushing the object" + e.getMessage());
