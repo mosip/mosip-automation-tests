@@ -60,6 +60,15 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static String partnerKeyUrl = null;
 	public static String partnerId = null;
 	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
+	public static String extentReportName="";
+
+	public static String getExtentReportName() {
+		return extentReportName;
+	}
+
+	public static void setExtentReportName(String emailableReportName) {
+		BaseTestCaseUtil.extentReportName = emailableReportName;
+	}
 
 	public BaseTestCaseUtil() {
 	}

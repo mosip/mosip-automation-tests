@@ -71,7 +71,8 @@ public class Center extends BaseTestCaseUtil implements StepInterface {
 		switch (calltype) {
 		case "CREATE":
 			String holidayLocationCode=centerHelper.getLocationCodeHoliday();
-			String postalCode=centerHelper.getPostalCode();
+			String thirdlevelpostalcode=centerHelper.getThirdlevelpostalcodekey();//implement
+			String postalCode=centerHelper.getPostalCode(thirdlevelpostalcode);
 			//String zone=userHelper.getZoneOfUser(map.get("user"));
 			String zone=userHelper.getLeafZones();
 			String centerId=centerHelper.centerCreate(zone,holidayLocationCode,postalCode);

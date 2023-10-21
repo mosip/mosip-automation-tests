@@ -44,11 +44,12 @@ public class TestResources {
 	public static void copyTestResource(String resPath) {
 		try {
 			File source = new File(TestResources.getGlobalResourcePaths().replace("MosipTestResource/MosipTemporaryTestResource", "") + resPath);
-		
-			//target\classes\MosipTestResource\MosipTemporaryTestResource\config\Kernel.properties (The system cannot find the path specified)
+		//D:\gitauto\mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\target\classes\idaData
 			File destination = new File(TestResources.getGlobalResourcePaths());
+			//D:\gitauto\mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\target\classes\MosipTestResource\MosipTemporaryTestResource
 			FileUtils.copyDirectoryToDirectory(source, destination);
-			logger.info("Copied "+resPath+" the preReg test resource successfully to "+destination);
+			logger.info("source file path :" +source);
+			logger.info("resPath: "+resPath+" destination: "+destination);
 		} catch (Exception e) {
 			logger.error("Exception occured while copying the file: "+e.getMessage());
 		}
