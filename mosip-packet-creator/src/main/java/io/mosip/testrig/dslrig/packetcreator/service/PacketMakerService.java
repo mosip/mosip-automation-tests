@@ -655,9 +655,9 @@ public class PacketMakerService {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId", supervisorId);
-		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId", officerId);
-		VariableManager.setVariableValue(contextKey, "META_INFO-META_DATA-centerId", centerId);
+//		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId", supervisorId);
+//		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId", officerId);
+//		VariableManager.setVariableValue(contextKey, "META_INFO-META_DATA-centerId", centerId);
 		return true;
 	}
 
