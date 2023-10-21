@@ -93,10 +93,16 @@ public class Orchestrator {
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
 		Utils.setupLogger(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
 				+ this.properties.getProperty("ivv._path.auditlog"));
-		htmlReporter = new ExtentHtmlReporter(
+		
+		
+		String emailableReportName=System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
+				+ this.properties.getProperty("ivv._path.reports")+BaseTestCase.generateRandomAlphaNumericString(7)+".html";
+		
+		BaseTestCaseUtil.setExtentReportName(emailableReportName);
+		
+		htmlReporter = new ExtentHtmlReporter(BaseTestCaseUtil.getExtentReportName());
 
-				System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
-						+ this.properties.getProperty("ivv._path.reports"));
+				;
 		extent = new ExtentReports();
 
 		extent.attachReporter(htmlReporter);
