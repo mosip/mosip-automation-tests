@@ -24,7 +24,7 @@ import io.restassured.response.Response;
 
 public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(GenerateVIDWithoutOTP.class);
-	private static final String GenerateVID = "idaData/CreateVID/CreateVID.yml";
+	private static final String GenerateVID = "idaData/CreateVID/CreateVid.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
 	SimplePostForAutoGenId generatevid = new SimplePostForAutoGenId();
 	

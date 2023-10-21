@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -117,6 +118,17 @@ public class PacketController {
 	    	}
 	    	return "{\"Failed\"}";
 	  
+	  }
+	  
+	  @GetMapping(value = "/packet/getTags/{contextKey}")
+	  public @ResponseBody String getPacketTags( @PathVariable("contextKey") String contextKey) {
+		  try{    	
+	    		return packetSyncService.getPacketTags(contextKey);
+	    	
+	    	} catch (Exception ex){
+	             logger.error("get tags", ex);
+	    	}
+	    	return "{\"Failed\"}";
 	  }
 	 
 	  @ApiOperation(value = "Validate Identity Object as per ID Schema", response = String.class)

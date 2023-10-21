@@ -1,0 +1,13 @@
+GetPacketTagsInfo:
+  RegProc_GetPacketTagsInfo_With_RID:
+      endPoint: /commons/v1/packetmanager/info
+      role: regpro
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: regproc/GetPacketTagsInfo/getPacketTagsInfo
+      outputTemplate: regproc/GetPacketTagsInfo/getPacketTagsInfoResult
+      input: '{
+    "id": "UI5654@"
+}'
+      output: '{
+}'
