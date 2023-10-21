@@ -30,6 +30,8 @@ public class CenterHelper extends BaseTestCaseUtil {
 	private static final String GetLocationCodeHoliday = "ivv_masterdata/GetLocationCodeHoliday/GetLocationCodeHoliday.yml";
 	
 	private static final String GetPostalCode = "ivv_masterdata/GetPostalCode/GetPostalCode.yml";
+
+	private static final String GetPostalCodeKey = "ivv_masterdata/GetThirdLevelPostalCodeKey/GetPostalCodeKey.yml";
 	
 	SimplePost simplepost=new SimplePost() ;
 	PatchWithPathParam patchwithpathparam=new PatchWithPathParam();
@@ -248,14 +250,14 @@ public class CenterHelper extends BaseTestCaseUtil {
 
 
 
-	public String getPostalCode() throws RigInternalError {
+	public String getPostalCode(String pc) throws RigInternalError {
 
 		try {	String lastSyncTime =null;
 		Object[] testObjPost=getWithParam.getYmlTestData(GetPostalCode);
 
 		TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
 		//String langCode=BaseTestCase.languageCode;
-		//testPost.setEndPoint(testPost.getEndPoint().replace("langcode", langCode));
+		testPost.setEndPoint(testPost.getEndPoint().replace("postalcode", pc));
 		getWithParam.test(testPost);
 		Response response= getWithParam.response;
 		String locationCode=null;
@@ -285,6 +287,45 @@ public class CenterHelper extends BaseTestCaseUtil {
 
 		}
 
+
+	}
+
+	public String getThirdlevelpostalcodekey() throws RigInternalError {
+
+		try {	String lastSyncTime =null;
+		Object[] testObjPost=getWithParam.getYmlTestData(GetPostalCodeKey);
+
+		TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
+		//String langCode=BaseTestCase.languageCode;
+		testPost.setEndPoint(testPost.getEndPoint().replace("langcode", BaseTestCase.languageCode));
+		getWithParam.test(testPost);
+		Response response= getWithParam.response;
+		String postalCode=null;
+		if(response!=null) 
+		{
+			JSONObject jsonObject = new JSONObject(response.getBody().asString());
+			JSONObject responseObj = jsonObject.getJSONObject("response");
+			JSONArray responseArray = responseObj.getJSONArray("locationHierarchyLevels");
+			if (responseArray.length() > 0) {
+				JSONObject locationObject = responseArray.getJSONObject(responseArray.length()-1);
+				postalCode = locationObject.getString("hierarchyLevelName");
+
+				// Traverse on the "code" field
+				logger.info("Location Code: " + postalCode);
+				return postalCode;
+			} else {
+				logger.error("No location data found in the response.");
+			}
+
+
+		}
+		return postalCode;
+		}catch (Exception e)
+		{
+			this.hasError=true;
+			throw new RigInternalError(e.getMessage());
+
+		}
 
 	}
 
