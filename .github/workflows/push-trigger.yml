@@ -32,7 +32,7 @@ jobs:
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-  build-automationtests-local:
+  build-dsl-orchestrator-local:
     needs: build-maven-automationtest
     runs-on: ubuntu-latest
     env:
@@ -87,7 +87,7 @@ jobs:
         if: failure() # Pick up events even if the job fails or is canceled.
 
   build-dsl-orchestrator-docker:
-    needs: build-automationtests-local
+    needs: build-dsl-orchestrator-local
     strategy:
       matrix:
         include:
