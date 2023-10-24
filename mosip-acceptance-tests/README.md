@@ -2,7 +2,7 @@
 It you want to contribute to opensouce, you have come to the right way.
 
 # Installation
-Go to [Installations](scripts/README.md)
+Go to [Installation](scripts/README.md)
 
 # Dependencies
 * Partner demo service jar (installation script will auto-download it)
