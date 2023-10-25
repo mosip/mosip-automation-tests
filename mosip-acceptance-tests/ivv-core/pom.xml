@@ -3,15 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-       	<groupId>io.mosip.testrig.dslrig.ivv</groupId>
-	<artifactId>dslrig-ivv-parent</artifactId>
+        <groupId>io.mosip.testrig.dslrig.ivv</groupId>
+        <artifactId>dslrig-ivv-parent</artifactId>
         <version>1.2.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
     <artifactId>dslrig-ivv-core</artifactId>
-<properties>
+    <version>1.2.1-SNAPSHOT</version>
+    <properties>
         <maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
     </properties>
     <dependencies>
@@ -26,16 +27,16 @@
             <version>2.1.9.RELEASE</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>2.11.1</version>
-		</dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.11.1</version>
+        </dependency>
     </dependencies>
 
 
-<profiles>
+    <profiles>
         <profile>
             <id>sonar</id>
             <properties>
@@ -59,6 +60,26 @@
                                 <goals>
                                     <goal>sonar</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>make-jar-executable</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <!-- Create a shell script to run the JAR file with executable permission -->
+                                        <chmod file="${project.build.directory}/*.jar" perm="ugo+rx"/>
+                                    </target>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
