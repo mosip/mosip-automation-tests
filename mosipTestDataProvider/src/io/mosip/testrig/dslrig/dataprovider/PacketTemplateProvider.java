@@ -723,7 +723,11 @@ public class PacketTemplateProvider {
 
 		String strVal = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "usemds").toString();
 		boolean bMDS = Boolean.valueOf(strVal);
-		String cbeff = resident.getBiometric().getCbeff();
+		String cbeff =null;
+		
+		if(resident.getBioExceptions() == null || resident.getBioExceptions().isEmpty())
+		  cbeff = resident.getBiometric().getCbeff();
+		
 		if (bMDS) {
 			if (cbeff == null) {
 				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident, contextKey, purpose,
