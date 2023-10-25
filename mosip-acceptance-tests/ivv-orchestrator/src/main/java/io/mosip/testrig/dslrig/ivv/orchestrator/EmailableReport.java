@@ -108,26 +108,25 @@ public class EmailableReport implements IReporter {
 				if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 					S3Adapter s3Adapter = new S3Adapter();
 					boolean isStoreSuccess = false;
+					boolean isStoreSuccess2 = false;
 					try {
 						isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
 								null, newString, newReportFile);
 						logger.info("isStoreSuccess:: " + isStoreSuccess);
+						
+						
 						/* Need to figure how to handle EXTENT report handling */
-						// EXTENT REPORT
-						/*
-						 * File repotFile2 = new File(System.getProperty("user.dir") + "/" +
-						 * System.getProperty("testng.outpur.dir") + "/" +
-						 * System.getProperty("emailable.report3.name")); logger.info("reportFile is::"
-						 * + System.getProperty("user.dir") + "/" +
-						 * System.getProperty("testng.outpur.dir") + "/" +
-						 * System.getProperty("emailable.report2.name")); isStoreSuccess =
-						 * s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel,
-						 * null, null, System.getProperty("emailable.report3.name"), repotFile2);
-						 */
+						
+						  File extentReport = new File(BaseTestCaseUtil.getExtentReportName()); 
+						  
+						  isStoreSuccess2 =s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel,
+
+						  null, null, "ExtentReport-"+newString, extentReport);
+						 
 					} catch (Exception e) {
 						logger.error("error occured while pushing the object" + e.getMessage());
 					}
-					if (isStoreSuccess) {
+					if (isStoreSuccess && isStoreSuccess2 ) {
 						logger.info("Pushed report to S3");
 					} else {
 						logger.error("Failed while pushing file to S3");
