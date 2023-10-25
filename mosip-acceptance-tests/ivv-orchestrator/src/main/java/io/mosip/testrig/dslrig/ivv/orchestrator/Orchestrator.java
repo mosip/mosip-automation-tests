@@ -93,10 +93,16 @@ public class Orchestrator {
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
 		Utils.setupLogger(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
 				+ this.properties.getProperty("ivv._path.auditlog"));
-		htmlReporter = new ExtentHtmlReporter(
 
-				System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
-						+ this.properties.getProperty("ivv._path.reports"));
+
+		String emailableReportName=System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
+				+ this.properties.getProperty("ivv._path.reports")+BaseTestCase.generateRandomAlphaNumericString(7)+".html";
+
+		BaseTestCaseUtil.setExtentReportName(emailableReportName);
+
+		htmlReporter = new ExtentHtmlReporter(BaseTestCaseUtil.getExtentReportName());
+
+		;
 		extent = new ExtentReports();
 
 		extent.attachReporter(htmlReporter);
@@ -249,18 +255,18 @@ public class Orchestrator {
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
-			IllegalAccessException, InstantiationException {
+	IllegalAccessException, InstantiationException {
 		// Another scenario execution kicked-off before BEFORE_SUITE execution
-
-		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
-			updateRunStatistics(scenario);
-			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
-		}
-
-		if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
-			updateRunStatistics(scenario);
-			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
-		}
+		//
+		//		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
+		//			updateRunStatistics(scenario);
+		//			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+		//		}
+		//
+		//		if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
+		//			updateRunStatistics(scenario);
+		//			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+		//		}
 
 		if (!scenario.getId().equalsIgnoreCase("0")) {
 
@@ -295,7 +301,7 @@ public class Orchestrator {
 		}
 
 		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenario :- " + counterLock.get()
-				+ scenario.getId());
+		+ scenario.getId());
 
 		extent.flush();
 		String tags = System.getProperty("ivv.tags");
@@ -311,6 +317,7 @@ public class Orchestrator {
 		message = "Scenario_" + scenario.getId() + ": " + scenario.getDescription();
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
+
 		Store store = new Store();
 		store.setConfigs(configs);
 		store.setGlobals(globals);
@@ -322,12 +329,23 @@ public class Orchestrator {
 		for (Scenario.Step step : scenario.getSteps()) {
 
 			identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters()
-					+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
+			+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
 
 					+ step.getVariant() + "]";
 			logger.info(identifier);
 
 			try {
+				if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
+					extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+					updateRunStatistics(scenario);
+					throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+				}
+
+				if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
+					extentTest.skip("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+					updateRunStatistics(scenario);
+					throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+				}
 				extentTest.info(identifier + " - running"); //
 				extentTest.info("parameters: " + step.getParameters().toString());
 				StepInterface st = getInstanceOf(step);
@@ -367,6 +385,7 @@ public class Orchestrator {
 					extentTest.pass(identifier + " - passed");
 				}
 			} catch (SkipException e) {
+				extentTest.skip(identifier + " - skipped");
 				updateRunStatistics(scenario);
 				logger.error(e.getMessage());
 				Reporter.log(e.getMessage());
@@ -407,8 +426,10 @@ public class Orchestrator {
 				Assert.assertTrue(false);
 				return;
 			} catch (FeatureNotSupportedError e) {
+				extentTest.error(identifier + " - RuntimeException --> " + e.toString());
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
+
 			}
 
 		}
