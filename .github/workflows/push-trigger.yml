@@ -41,11 +41,11 @@ jobs:
       SERVICE_LOCATION: mosip-acceptance-tests
       BUILD_ARTIFACT: mosip-acceptance-tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up JDK 11
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
-          ref: ${{ github.ref }}
+          distribution: adopt
           java-version: 11
           server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
           settings-path: ${{ github.workspace }} # location for the settings.xml file
