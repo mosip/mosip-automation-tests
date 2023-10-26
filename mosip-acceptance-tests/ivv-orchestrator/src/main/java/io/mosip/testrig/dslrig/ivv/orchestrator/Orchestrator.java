@@ -93,11 +93,18 @@ public class Orchestrator {
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
 		Utils.setupLogger(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
 				+ this.properties.getProperty("ivv._path.auditlog"));
-
-
-		String emailableReportName=System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
-				+ this.properties.getProperty("ivv._path.reports")+BaseTestCase.generateRandomAlphaNumericString(7)+".html";
-
+		String emailableReportName=null;
+		if (TestRunner.checkRunType().equalsIgnoreCase("IDE")) {
+			 emailableReportName=System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
+					+ this.properties.getProperty("ivv._path.reports")+BaseTestCase.generateRandomAlphaNumericString(7)+".html";
+			 logger.info("Extent Report path :" +emailableReportName);
+		} else if (TestRunner.checkRunType().equalsIgnoreCase("JAR")) {
+			 emailableReportName=System.getProperty("user.dir") + "/" 
+					+ this.properties.getProperty("ivv._path.reports")+BaseTestCase.generateRandomAlphaNumericString(7)+".html";
+			 logger.info("Extent Report path :" +emailableReportName);
+		}
+		
+	
 		BaseTestCaseUtil.setExtentReportName(emailableReportName);
 
 		htmlReporter = new ExtentHtmlReporter(BaseTestCaseUtil.getExtentReportName());
@@ -345,7 +352,9 @@ public class Orchestrator {
 					extentTest.skip("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
 					updateRunStatistics(scenario);
 					throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+				
 				}
+				
 				extentTest.info(identifier + " - running"); //
 				extentTest.info("parameters: " + step.getParameters().toString());
 				StepInterface st = getInstanceOf(step);
@@ -429,6 +438,7 @@ public class Orchestrator {
 				extentTest.error(identifier + " - RuntimeException --> " + e.toString());
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
+				Assert.assertTrue(false);
 
 			}
 
