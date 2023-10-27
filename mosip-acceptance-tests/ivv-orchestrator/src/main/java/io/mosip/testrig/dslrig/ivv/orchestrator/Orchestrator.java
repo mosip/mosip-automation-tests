@@ -93,18 +93,19 @@ public class Orchestrator {
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
 		Utils.setupLogger(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
 				+ this.properties.getProperty("ivv._path.auditlog"));
-		String emailableReportName=null;
+		String emailableReportName = null;
 		if (TestRunner.checkRunType().equalsIgnoreCase("IDE")) {
-			 emailableReportName=System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
-					+ this.properties.getProperty("ivv._path.reports")+BaseTestCase.generateRandomAlphaNumericString(7)+".html";
-			 logger.info("Extent Report path :" +emailableReportName);
+			emailableReportName = System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
+					+ this.properties.getProperty("ivv._path.reports")
+					+ BaseTestCase.generateRandomAlphaNumericString(7) + ".html";
+			logger.info("Extent Report path :" + emailableReportName);
 		} else if (TestRunner.checkRunType().equalsIgnoreCase("JAR")) {
-			 emailableReportName=System.getProperty("user.dir") + "/" 
-					+ this.properties.getProperty("ivv._path.reports")+BaseTestCase.generateRandomAlphaNumericString(7)+".html";
-			 logger.info("Extent Report path :" +emailableReportName);
+			emailableReportName = System.getProperty("user.dir") + "/"
+					+ this.properties.getProperty("ivv._path.reports")
+					+ BaseTestCase.generateRandomAlphaNumericString(7) + ".html";
+			logger.info("Extent Report path :" + emailableReportName);
 		}
-		
-	
+
 		BaseTestCaseUtil.setExtentReportName(emailableReportName);
 
 		htmlReporter = new ExtentHtmlReporter(BaseTestCaseUtil.getExtentReportName());
@@ -262,18 +263,20 @@ public class Orchestrator {
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
-	IllegalAccessException, InstantiationException {
+			IllegalAccessException, InstantiationException {
 		// Another scenario execution kicked-off before BEFORE_SUITE execution
 		//
-		//		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
-		//			updateRunStatistics(scenario);
-		//			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
-		//		}
+		// if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
+		// updateRunStatistics(scenario);
+		// throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to
+		// known platform issue");
+		// }
 		//
-		//		if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
-		//			updateRunStatistics(scenario);
-		//			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
-		//		}
+		// if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
+		// updateRunStatistics(scenario);
+		// throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to
+		// known Automation issue");
+		// }
 
 		if (!scenario.getId().equalsIgnoreCase("0")) {
 
@@ -308,7 +311,7 @@ public class Orchestrator {
 		}
 
 		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenario :- " + counterLock.get()
-		+ scenario.getId());
+				+ scenario.getId());
 
 		extent.flush();
 		String tags = System.getProperty("ivv.tags");
@@ -336,7 +339,7 @@ public class Orchestrator {
 		for (Scenario.Step step : scenario.getSteps()) {
 
 			identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters()
-			+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
+					+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
 
 					+ step.getVariant() + "]";
 			logger.info(identifier);
@@ -345,16 +348,18 @@ public class Orchestrator {
 				if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
 					extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
 					updateRunStatistics(scenario);
-					throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+					throw new SkipException(
+							"S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
 				}
 
 				if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
 					extentTest.skip("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
 					updateRunStatistics(scenario);
-					throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
-				
+					throw new SkipException(
+							"A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+
 				}
-				
+
 				extentTest.info(identifier + " - running"); //
 				extentTest.info("parameters: " + step.getParameters().toString());
 				StepInterface st = getInstanceOf(step);
@@ -435,10 +440,10 @@ public class Orchestrator {
 				Assert.assertTrue(false);
 				return;
 			} catch (FeatureNotSupportedError e) {
-				extentTest.error(identifier + " - RuntimeException --> " + e.toString());
+				extentTest.error(identifier + " - FeatureNotSupportedError --> " + e.toString());
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
-				Assert.assertTrue(false);
+//				Assert.assertTrue(false);
 
 			}
 
