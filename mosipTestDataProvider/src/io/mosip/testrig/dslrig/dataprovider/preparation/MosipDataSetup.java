@@ -550,8 +550,8 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		VariableManager.setVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS", "APPROVED");	
 		
 	// Need to review these two below tags once the conclusion happens what tags will be set on the packet	
-		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "--TAG_VALUE_NOT_AVAILABLE--");
-		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "--TAG_VALUE_NOT_AVAILABLE--");
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "MOSIP-FINGER01-2345678901");
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "MOSIP-FACE01-2345678901");
 		
 		logger.debug("Tags set while generating the packet: "
 				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId")
