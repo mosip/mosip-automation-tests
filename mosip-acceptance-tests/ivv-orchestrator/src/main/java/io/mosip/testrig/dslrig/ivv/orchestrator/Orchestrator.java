@@ -505,18 +505,32 @@ public class Orchestrator {
 	}
 
 	public static String getScenarioSheet() throws RigInternalError {
-
-		String scenarioSheet = MosipTestRunner.getGlobalResourcePath() + "/config/scenarios.json";
-		logger.info("Scenario sheet path is: "+ scenarioSheet);
-		Path path = Paths.get(scenarioSheet);
-		if (!Files.exists(path)) {
-			logger.info("Scenario sheet path is: " + path);
-			throw new RigInternalError("ScenarioSheet missing");
+		String scenarioSheet = null;
+		// Use external Scenario sheet
+		if (ConfigManager.useExternalScenarioSheet()) {
+			// Check first for the JSON file
+			scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
+					+ BaseTestCase.testLevel + "-" + BaseTestCase.environment + ".json";
+			Path path = Paths.get(scenarioSheet);
+			if (!Files.exists(path)) {
+				logger.info("Scenario sheet path is: " + path);
+				throw new RigInternalError("ScenarioSheet missing");
+			}
+			scenarioSheet = JsonToCsvConverter(scenarioSheet);
+			if (scenarioSheet.isEmpty())
+				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
+		} else { // Use the scenario sheet bundled with jar
+			scenarioSheet = MosipTestRunner.getGlobalResourcePath() + "/config/scenarios.json";
+			logger.info("Scenario sheet path is: " + scenarioSheet);
+			Path path = Paths.get(scenarioSheet);
+			if (!Files.exists(path)) {
+				logger.info("Scenario sheet path is: " + path);
+				throw new RigInternalError("ScenarioSheet missing");
+			}
+			scenarioSheet = JsonToCsvConverter(scenarioSheet);
+			if (scenarioSheet.isEmpty())
+				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
 		}
-
-		scenarioSheet = JsonToCsvConverter(scenarioSheet);
-		if (scenarioSheet.isEmpty())
-			throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
 		return scenarioSheet;
 	}
 
