@@ -345,19 +345,29 @@ public class Orchestrator {
 			logger.info(identifier);
 
 			try {
+				// Check whether the scenario is in the defined skipped list
 				if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
 					extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
 					updateRunStatistics(scenario);
 					throw new SkipException(
 							"S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
 				}
-
 				if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
 					extentTest.skip("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
 					updateRunStatistics(scenario);
 					throw new SkipException(
 							"A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+				}
 
+				// Check whether the scenario is in the defined execute list
+				if (!scenario.getId().equalsIgnoreCase("0") && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
+					if (!ConfigManager.isInTobeExecuteList(scenario.getId())) {
+						extentTest.skip(scenario.getId()
+								+ ": Skipping scenario as it is not in the scneario to be executed list");
+						updateRunStatistics(scenario);
+						throw new SkipException(scenario.getId()
+								+ ": Skipping scenario as it is not in the scneario to be executed list");
+					}
 				}
 
 				extentTest.info(identifier + " - running"); //
@@ -495,44 +505,18 @@ public class Orchestrator {
 	}
 
 	public static String getScenarioSheet() throws RigInternalError {
-		Boolean convesionRequired = true;
 
-		// Check first for the JSON file
-		String scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
-				+ BaseTestCase.testLevel + "-" + BaseTestCase.environment + ".json";
+		String scenarioSheet = MosipTestRunner.getGlobalResourcePath() + "/config/scenarios.json";
+		logger.info("Scenario sheet path is: "+ scenarioSheet);
 		Path path = Paths.get(scenarioSheet);
 		if (!Files.exists(path)) {
-			scenarioSheet = ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-"
-					+ BaseTestCase.testLevel + "-" + "default" + ".json";
-
-			// default file JSON exist?
-			path = Paths.get(scenarioSheet);
-			if (!Files.exists(path)) {
-				// Check for the CSV file
-				scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
-						+ BaseTestCase.testLevel + "-" + BaseTestCase.environment + ".csv";
-
-				path = Paths.get(scenarioSheet);
-				if (!Files.exists(path)) {
-
-					// default file CSV exist?
-					scenarioSheet = ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-"
-							+ BaseTestCase.testLevel + "-" + "default" + ".csv";
-					path = Paths.get(scenarioSheet);
-					if (!Files.exists(path)) {
-						logger.info("Scenario sheet path is: " + path);
-						throw new RigInternalError("ScenarioSheet missing");
-					}
-				}
-				convesionRequired = false;
-			}
+			logger.info("Scenario sheet path is: " + path);
+			throw new RigInternalError("ScenarioSheet missing");
 		}
 
-		if (convesionRequired) {
-			scenarioSheet = JsonToCsvConverter(scenarioSheet);
-			if (scenarioSheet.isEmpty())
-				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
-		}
+		scenarioSheet = JsonToCsvConverter(scenarioSheet);
+		if (scenarioSheet.isEmpty())
+			throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
 		return scenarioSheet;
 	}
 

@@ -86,7 +86,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 				changeSupervisorNameToDiffCase = Boolean.parseBoolean(step.getParameters().get(6));
 
 			// encryptedHashFlag
-			if (step.getParameters().size() > 6 && step.getParameters().get(7).contains("invalidEncryptedHash"))
+			if (step.getParameters().size() > 7 && step.getParameters().get(7).contains("invalidEncryptedHash"))
 				invalidEncryptedHashFlag = step.getParameters().get(7);
 			// checksumFlag
 			if (step.getParameters().size() == 9 && step.getParameters().get(8).contains("invalidCheckSum"))
