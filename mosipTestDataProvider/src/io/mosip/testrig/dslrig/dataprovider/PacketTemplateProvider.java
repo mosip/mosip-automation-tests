@@ -1670,7 +1670,7 @@ public class PacketTemplateProvider {
 			}
 		}
 		identity.put(DOCUMENTS, docArray);
-		identity.put("capturedRegisteredDevices", new JSONArray());
+		identity.put("capturedRegisteredDevices", templateIdentity.getJSONArray("capturedRegisteredDevices"));
 
 		identity.put("creationDate", CommonUtil.getUTCDateTime(null));
 		identity = constructBioException(resident, identity, contextSchemaDetail.getSchema());
