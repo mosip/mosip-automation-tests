@@ -112,7 +112,7 @@ public class PacketTemplateProvider {
 	}
 
 	// generate un encrypted template
-	public boolean generate(String source, String process, ResidentModel resident, String packetFilePath,
+	public String generate(String source, String process, ResidentModel resident, String packetFilePath,
 			String preregId, String machineId, String centerId, String contextKey, Properties props,
 			JSONObject preregResponse, String purpose, String qualityScore, boolean genarateValidCbeff)
 			throws IOException {
@@ -163,14 +163,15 @@ public class PacketTemplateProvider {
 
 		String idJson = null;
 		try {
-			idJson = generateIDJsonV2(resident, fileInfo, contextKey, props, preregResponse, purpose,
-					contextSchemaDetail, qualityScore, genarateValidCbeff);
+			idJson = generateIDJson(resident, fileInfo, contextKey, props, preregResponse, purpose, contextSchemaDetail,
+					qualityScore, genarateValidCbeff);
 
-			if (idJson != null && idJson.isEmpty())
-				return false;
+			if (idJson != null && idJson.equalsIgnoreCase("Failed to generate biometric via mds"))
+				return "Failed to generate biometric via mds";
 
 		} catch (Throwable e) {
 			logger.error("generate", e);
+			return e.getMessage();
 		}
 		JSONObject processMVEL = processMVEL(resident, idJson, process, contextSchemaDetail, contextKey);
 		idJson = processMVEL.toString();
@@ -181,7 +182,7 @@ public class PacketTemplateProvider {
 
 		// Generate evidence json
 
-		String evidenceJson = generateEvidenceJsonV2(resident, fileInfo, contextKey, props, contextSchemaDetail);
+		String evidenceJson = generateEvidenceJson(resident, fileInfo, contextKey, props, contextSchemaDetail);
 		Files.write(Paths.get(rid_evidence_folder + ID_JSON), evidenceJson.getBytes());
 		Files.write(Paths.get(rid_evidence_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
 
@@ -197,7 +198,7 @@ public class PacketTemplateProvider {
 		idJson = genRID_PacketTypeJson(source, process, "optional", contextSchemaDetail);
 		Files.write(Paths.get(processFolder + File.separator + "/rid_optional.json"), idJson.getBytes());
 
-		return true;
+		return "Success";
 
 	}
 
@@ -298,134 +299,6 @@ public class PacketTemplateProvider {
 	}
 
 	String generateEvidenceJson(ResidentModel resident, HashMap<String, String[]> fileInfo, String contextKey,
-			ContextSchemaDetail contextSchemaDetail) {
-
-		JSONObject identity = new JSONObject();
-
-		List<String> missList = resident.getMissAttributes();
-
-		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
-			String primVal = "";
-			String secVal = "";
-			if (s.getFieldCategory().equals(EVIDENCE) && (s.getInputRequired() || s.getRequired())) {
-
-				if (s.getRequired() && s.getRequiredOn() != null && !s.getRequiredOn().isEmpty()) {
-					continue;
-				}
-
-				if (s.getType().equals(DOCUMENTTYPE)) {
-
-					int index = 0;
-					for (MosipDocument doc : resident.getDocuments()) {
-						if (CommonUtil.isExists(missList, doc.getDocCategoryCode()))
-							continue;
-						index = 0;
-						if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
-							index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size() - 1, 0)[0];
-							String docFile = doc.getDocs().get(index);
-							RestClient.logInfo(contextKey,
-									DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
-
-							JSONObject o = new JSONObject();
-							o.put(FORMAT, "pdf");
-							o.put("type", doc.getType().get(index).getCode());
-							String[] v = fileInfo.get(RID_EVIDENCE);
-							v[1] = s.getId() + ".pdf";
-							fileInfo.put(RID_EVIDENCE, v);
-							o.put(VALUE, s.getId());
-
-							identity.put(s.getId(), o);
-
-							String outFile = fileInfo.get(RID_EVIDENCE)[0] + "/" + fileInfo.get(RID_EVIDENCE)[1];
-							try {
-								Files.copy(Paths.get(docFile), Paths.get(outFile));
-
-							} catch (Exception e) {
-								logger.error(e.getMessage());
-							}
-							break;
-						}
-
-					}
-					continue;
-				} else if (s.getId().toLowerCase().equals("uin")) {
-					if (resident.getUIN() == null || resident.getUIN().equals(""))
-						identity.put(s.getId(), JSONObject.NULL);
-					else
-						identity.put(s.getId(), resident.getUIN());
-					continue;
-				} else if ((s.getGroup().toLowerCase().equals(GUARDIANDETAILS)
-						|| s.getGroup().toLowerCase().equals(INTRODUCERDETAILS))
-						&& (s.getSubType().toLowerCase().matches(".*guard.*uin")
-								|| s.getSubType().toLowerCase().equals("uin"))) {
-					if (resident.isMinor() || resident.isInfant()) {
-						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
-							// skip if null
-						} else
-							identity.put(s.getId(), resident.getGuardian().getUIN());
-					}
-					continue;
-				} else if ((s.getGroup().toLowerCase().equals(GUARDIANDETAILS)
-						|| s.getGroup().toLowerCase().equals(INTRODUCERDETAILS))
-						&& (s.getId().toLowerCase().matches(".*guard.*rid")
-								|| s.getSubType().toLowerCase().equals("rid"))) {
-					if (resident.isMinor() || resident.isInfant()) {
-						if (resident.getGuardian() != null && (resident.getGuardian().getRID() == null
-								|| resident.getGuardian().getRID().equals(""))) {
-						} else
-							identity.put(s.getId(), resident.getGuardian().getRID());
-					}
-					continue;
-				} else if ((s.getGroup().toLowerCase().equals(GUARDIANDETAILS)
-						|| s.getGroup().toLowerCase().equals(INTRODUCERDETAILS))
-						&& (s.getId().toLowerCase().matches(".*guard.*name")
-								|| s.getSubType().toLowerCase().equals(INTRODUCERNAME))) {
-					if (resident.isMinor() || resident.isInfant()) {
-						String primValue = "";
-						String secValue = "";
-						JSONObject o = new JSONObject();
-						o.put(LANGUAGE, resident.getPrimaryLanguage());
-						if (resident.getGuardian() != null)
-							primValue = resident.getGuardian().getName().getFirstName();
-
-						if (resident.getSecondaryLanguage() != null) {
-							if (resident.getGuardian() != null && resident.getGuardian().getName_seclang() != null)
-								secValue = resident.getGuardian().getName_seclang().getFirstName();
-						}
-
-						updateSimpleType(s.getId(), identity, primValue, secValue, resident.getPrimaryLanguage(),
-								resident.getSecondaryLanguage(), resident.getThirdLanguage(), contextKey);
-
-					}
-					continue;
-				} else if (s.getId().toLowerCase().contains("consent")) {
-					continue;
-				} else if (s.getControlType().equals(CHECKBOX)) {
-					primVal = "Y";
-					secVal = "Y";
-				} else {
-					primVal = "Some text value";
-					if (resident.getSecondaryLanguage() != null)
-						secVal = Translator.translate(resident.getSecondaryLanguage(), primVal, contextKey);
-
-				}
-				if (s.getType().equals(SIMPLETYPE)) {
-
-					updateSimpleType(s.getId(), identity, primVal, secVal, resident.getPrimaryLanguage(),
-							resident.getSecondaryLanguage(), resident.getThirdLanguage(), contextKey);
-
-				} else {
-					identity.put(s.getId(), primVal.equals("") ? JSONObject.NULL : primVal);
-				}
-			}
-		}
-		JSONObject retObject = new JSONObject();
-		retObject.put(IDENTITY, identity);
-		return retObject.toString();
-
-	}
-
-	String generateEvidenceJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo, String contextKey,
 			Properties prop, ContextSchemaDetail contextSchemaDetail) {
 
 		VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "false");
@@ -479,7 +352,8 @@ public class PacketTemplateProvider {
 
 					}
 					continue;
-				} else if (VariableManager.getVariableValue(contextKey, "uin") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "uin"))) {
+				} else if (VariableManager.getVariableValue(contextKey, "uin") != null
+						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "uin"))) {
 					if (resident.getUIN() == null || resident.getUIN().equals(""))
 						identity.put(s.getId(), JSONObject.NULL);
 					else
@@ -491,7 +365,7 @@ public class PacketTemplateProvider {
 						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
 						} else {
 							identity.put(s.getId(), resident.getGuardian().getUIN());
-						VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
+							VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
 						}
 					}
 					continue;
@@ -501,9 +375,9 @@ public class PacketTemplateProvider {
 						if ((resident.getGuardian().getRID() == null || resident.getGuardian().getRID().equals(""))) {
 						} else {
 							identity.put(s.getId(), resident.getGuardian().getRID());
-						VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
+							VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
 						}
-						}
+					}
 					continue;
 				}
 
@@ -513,9 +387,9 @@ public class PacketTemplateProvider {
 						if (resident.getGuardian().getUIN() == null || resident.getGuardian().getUIN().equals("")) {
 						} else {
 							identity.put(s.getId(), resident.getGuardian().getUIN());
-						VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
+							VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
 						}
-						}
+					}
 					continue;
 				} else if (prop.getProperty("parentOrGuardianrid") != null
 						&& s.getId().equals(prop.getProperty("parentOrGuardianrid"))) {
@@ -524,14 +398,14 @@ public class PacketTemplateProvider {
 								|| resident.getGuardian().getRID().equals(""))) {
 						} else {
 							identity.put(s.getId(), resident.getGuardian().getRID());
-						VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
+							VariableManager.setVariableValue(contextKey, "INTRODUCER_AVAILABILITY", "true");
 						}
-						}
+					}
 					continue;
 				}
 
 				else if (VariableManager.getVariableValue(contextKey, "introducerName") != null
-								&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerName"))) {
+						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerName"))) {
 
 					if (resident.isMinor() || resident.isInfant()) {
 						String primValue = "";
@@ -723,11 +597,11 @@ public class PacketTemplateProvider {
 
 		String strVal = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "usemds").toString();
 		boolean bMDS = Boolean.valueOf(strVal);
-		String cbeff =null;
-		
-		if(resident.getBioExceptions() == null || resident.getBioExceptions().isEmpty())
-		  cbeff = resident.getBiometric().getCbeff();
-		
+		String cbeff = null;
+
+		if (resident.getBioExceptions() == null || resident.getBioExceptions().isEmpty())
+			cbeff = resident.getBiometric().getCbeff();
+
 		if (bMDS) {
 			if (cbeff == null) {
 				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident, contextKey, purpose,
@@ -755,7 +629,7 @@ public class PacketTemplateProvider {
 			if (cbeff == null) {
 
 				String strCBeff = BiometricDataProvider.toCBEFF(bioAttrib, resident.getBiometric(), outFile,
-						genarateValidCbeff,contextKey);
+						genarateValidCbeff, contextKey);
 				resident.getBiometric().setCbeff(strCBeff);
 
 			} else {
@@ -771,11 +645,12 @@ public class PacketTemplateProvider {
 	// check the dynamic field logic and change here
 	public static boolean processGender(MosipIDSchema s, ResidentModel resident, JSONObject identity,
 			Hashtable<String, List<MosipGenderModel>> genderTypesLang,
-			Hashtable<String, List<DynamicFieldModel>> dynaFields,String contextKey) {
+			Hashtable<String, List<DynamicFieldModel>> dynaFields, String contextKey) {
 
 		boolean processed = false;
 
-		if ((s.getSubType() != null && s.getSubType().toLowerCase().equals(VariableManager.getVariableValue(contextKey, "gender")))
+		if ((s.getSubType() != null
+				&& s.getSubType().toLowerCase().equals(VariableManager.getVariableValue(contextKey, "gender")))
 				|| s.getId().toLowerCase().equals(VariableManager.getVariableValue(contextKey, "gender"))) {
 
 			String primLang = resident.getPrimaryLanguage();
@@ -945,7 +820,8 @@ public class PacketTemplateProvider {
 		return bRet;
 	}
 
-	public static Boolean processDynamicFields(MosipIDSchema s, JSONObject identity, ResidentModel resident,String contextKey) {
+	public static Boolean processDynamicFields(MosipIDSchema s, JSONObject identity, ResidentModel resident,
+			String contextKey) {
 
 		String primaryLanguage = resident.getPrimaryLanguage();
 		String secLanguage = resident.getSecondaryLanguage();
@@ -955,7 +831,7 @@ public class PacketTemplateProvider {
 
 		if (s.getFieldType().equals("dynamic")) {
 
-			found = processGender(s, resident, identity, genderTypes, dynaFields,contextKey);
+			found = processGender(s, resident, identity, genderTypes, dynaFields, contextKey);
 			if (found)
 				return found;
 
@@ -992,293 +868,7 @@ public class PacketTemplateProvider {
 		return found;
 	}
 
-	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo, String contextKey, String purpose,
-			ContextSchemaDetail contextSchemaDetail, String qualityScore, boolean genarateValidCbeff) {
-
-		String idjson = "";
-
-		JSONObject identity = new JSONObject();
-
-		String primaryLanguage = resident.getPrimaryLanguage();
-		String secLanguage = resident.getSecondaryLanguage();
-		Hashtable<String, MosipLocationModel> locations = resident.getLocation();
-		Hashtable<String, MosipLocationModel> locations_seclang = resident.getLocation_seclang();
-
-		Set<String> locationSet = locations.keySet();
-
-		Set<String> locationSet_sec = null;
-		if (locations_seclang != null)
-			locationSet_sec = locations_seclang.keySet();
-		List<String> lstMissedAttributes = resident.getMissAttributes();
-		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
-			RestClient.logInfo(contextKey, s.toJSONString());
-			// if not reqd field , skip it
-			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
-				continue;
-
-			if (lstMissedAttributes != null
-					&& lstMissedAttributes.stream().anyMatch(v -> v.equalsIgnoreCase(s.getId()))) {
-				continue;
-			}
-
-			if (s.getId().equalsIgnoreCase("idschemaVersion")) {
-				identity.put(s.getId(), contextSchemaDetail.getSchemaVersion());
-				continue;
-			}
-
-			if (s.getId().equalsIgnoreCase("uin")) {
-				String uin = resident.getUIN();
-				if (uin != null && !uin.trim().equals("")) {
-					identity.put(s.getId(), uin.trim());
-				}
-				continue;
-			}
-			if (!s.getRequired() && !s.getInputRequired()) {
-				continue;
-			}
-			if (!s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
-				continue;
-			}
-			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
-				continue;
-			}
-			if (processDynamicFields(s, identity, resident,contextKey))
-				continue;
-
-			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
-				String primaryValue = "";
-				String secValue = "";
-				if (s.getId().toLowerCase().equals(FULLNAME)) {
-					primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
-							+ resident.getName().getSurName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getFirstName() + " "
-								+ resident.getName_seclang().getMidName() + " "
-								+ resident.getName_seclang().getSurName();
-				} else if (s.getId().toLowerCase().equals(FIRSTNAME)) {
-					primaryValue = resident.getName().getFirstName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getFirstName();
-				} else if (s.getId().toLowerCase().equals(LASTNAME) || s.getId().toLowerCase().equals("surname")) {
-					primaryValue = resident.getName().getSurName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getSurName();
-				} else if (s.getId().toLowerCase().equals(MIDDLENAME) || s.getId().toLowerCase().equals("midname")) {
-					primaryValue = resident.getName().getMidName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getMidName();
-				} else if (s.getId().toLowerCase().equals(DATEOFBIRTH) || s.getId().toLowerCase().equals("dob")
-						|| s.getId().toLowerCase().equals("birthdate")) {
-					primaryValue = resident.getDob();
-					secValue = primaryValue;
-				} else if (s.getId().equalsIgnoreCase(GENDER)) {
-					primaryValue = "Female";
-					if (resident.getGender() == Gender.Male)
-						primaryValue = "Male";
-					secValue = primaryValue;
-				} else if (s.getId().toLowerCase().contains("address")
-						&& (s.getGroup() != null && !s.getGroup().toLowerCase().equals(DOCUMENTS))) {
-					if (s.getControlType().equals(CHECKBOX)) {
-						primaryValue = "Y";
-						if (secLanguage != null)
-							secValue = "Y";
-					} else {
-						Pair<String, String> addrLines = processAddresslines(s, resident, identity, contextKey);
-						primaryValue = addrLines.getValue0();
-						secValue = addrLines.getValue1();
-					}
-				} else if (s.getSubType().toLowerCase().contains("residenceStatus")) {
-					primaryValue = resident.getResidentStatus().getCode();
-					secValue = primaryValue;
-				} else if (s.getId().toLowerCase().contains(EMAIL) || s.getId().toLowerCase().contains("mail")) {
-					primaryValue = resident.getContact().getEmailId();
-				}
-
-				else if (s.getId().toLowerCase().contains("blood")) {
-					primaryValue = resident.getBloodgroup().getCode();
-					secValue = primaryValue;
-				} else if (s.getType().equals(BIOMETRICSTYPE)
-						&& (s.getGroup() != null && s.getGroup().equals("Biometrics"))
-						&& s.getId().toLowerCase().contains("individual")) {
-					JSONObject o = new JSONObject();
-					o.put(FORMAT, CBEFF);
-					o.put(VERSION, 1.0f);
-					String[] v = fileInfo.get(RID_FOLDER);
-					v[1] = s.getId() + BIO_CBEFF_XML;
-					fileInfo.put(RID_FOLDER, v);
-					o.put(VALUE, s.getId() + BIO_CBEFF);
-					identity.put(s.getId(), o);
-
-					String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
-					try {
-						List<String> missAttribs = resident.getMissAttributes();
-						List<String> bioAttrib = s.getBioAttributes();
-						if (missAttribs != null && !missAttribs.isEmpty())
-							bioAttrib.removeAll(missAttribs);
-						if (resident.getFilteredBioAttribtures() == null)
-							resident.setFilteredBioAttribtures(bioAttrib);
-						if (resident.getSkipFace())
-							bioAttrib.removeAll(List.of("face"));
-						if (resident.getSkipIris())
-							bioAttrib.removeAll(List.of("leftEye", "rightEye"));
-						if (resident.getSkipFinger()) {
-							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
-						}
-						generateCBEFF(resident, bioAttrib, outFile, contextKey, purpose, qualityScore, missAttribs,
-								genarateValidCbeff);
-
-					} catch (Exception e) {
-						logger.error(e.getMessage());
-					}
-					continue;
-				} else if (s.getType().equals(BIOMETRICSTYPE)
-						&& (s.getGroup() != null && s.getGroup().equals("Biometrics"))
-						&& s.getSubType().equals(INTRODUCER)) {
-
-					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
-						JSONObject o = new JSONObject();
-						o.put(FORMAT, CBEFF);
-						o.put(VERSION, 1.0f);
-						String[] v = fileInfo.get(RID_FOLDER);
-						v[2] = s.getId() + BIO_CBEFF_XML;
-						fileInfo.put(RID_FOLDER, v);
-						o.put(VALUE, s.getId() + BIO_CBEFF);
-						identity.put(s.getId(), o);
-
-						String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + v[2];
-						try {
-							// Implement excetpions by parsing 'Miss' list
-							List<String> missAttribs = resident.getMissAttributes();
-							List<String> bioAttrib = s.getBioAttributes();
-							if (missAttribs != null && !missAttribs.isEmpty())
-								bioAttrib.removeAll(missAttribs);
-
-							generateCBEFF(resident.getGuardian(), bioAttrib, outFile, contextKey, purpose, qualityScore,
-									missAttribs, genarateValidCbeff);
-
-						} catch (Exception e) {
-							logger.error(e.getMessage());
-						}
-
-					}
-					continue;
-				} else if (s.getType().equals(BIOMETRICSTYPE)) {
-					continue;
-				} else if (s.getType().equals(DOCUMENTTYPE)) {
-
-					int index = 0;
-					for (MosipDocument doc : resident.getDocuments()) {
-
-						if (CommonUtil.isExists(lstMissedAttributes, doc.getDocCategoryCode()))
-							continue;
-						index = 0;
-						if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
-
-							index = resident.getDocIndexes().get(doc.getDocCategoryCode());
-
-							String docFile = doc.getDocs().get(0);
-							RestClient.logInfo(contextKey,
-									DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
-
-							JSONObject o = new JSONObject();
-							o.put(FORMAT, "pdf");
-							o.put("type", doc.getType().get(0).getCode());
-							String[] v = fileInfo.get(RID_FOLDER);
-							v[1] = s.getId() + ".pdf";
-							fileInfo.put(RID_FOLDER, v);
-							o.put(VALUE, s.getId());
-
-							identity.put(s.getId(), o);
-
-							String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
-							try {
-								Files.copy(Paths.get(docFile), Paths.get(outFile));
-
-							} catch (Exception e) {
-								logger.error(e.getMessage());
-							}
-							break;
-						}
-
-					}
-					continue;
-				} else if (s.getSubType() != null
-						&& (s.getSubType().equals("parentOrGuardianName") || s.getSubType().equals(INTRODUCERNAME)
-								|| (s.getGroup() != null && (s.getGroup().toLowerCase().equals(GUARDIANDETAILS)
-										|| s.getGroup().toLowerCase().contains(INTRODUCER))))) { // this line added by
-																									// alok
-					if (resident.getGuardian() != null) {
-
-						String primValue = null;
-						String secGValue = null;
-						if (resident.getGuardian() != null)
-							primValue = resident.getGuardian().getName().getFirstName();
-						if (resident.getGuardian() != null && resident.getGuardian().getName_seclang() != null)
-							secGValue = resident.getGuardian().getName_seclang().getFirstName();
-
-						updateSimpleType(s.getId(), identity, primValue, secGValue, resident.getPrimaryLanguage(),
-								resident.getSecondaryLanguage(), resident.getThirdLanguage(), contextKey);
-
-					}
-				} else if (s.getInputRequired() && s.getId().contains("IdentityNumber")) {
-					List<SchemaValidator> validators = s.getValidators();
-					if (validators != null) {
-						primaryValue = generateDefaultAttributes(s, resident, identity);
-					} else {
-						primaryValue = resident.getId();
-					}
-
-					identity.put(s.getId(), primaryValue);
-					continue;
-				}
-				for (String locKey : locationSet) {
-					MosipLocationModel locModel = locations.get(locKey);
-
-					if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())
-							|| s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
-						primaryValue = locModel.getName();
-
-						break;
-					}
-				}
-				if (locations_seclang != null)
-					for (String locKey : locationSet_sec) {
-						MosipLocationModel locModel = locations_seclang.get(locKey);
-
-						if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
-							secValue = locModel.getName();
-							break;
-						}
-					}
-
-				if (primaryValue == null || primaryValue.equals("")) {
-					primaryValue = generateDefaultAttributes(s, resident, identity);
-					if (secLanguage != null) {
-						secValue = Translator.translate(secLanguage, primaryValue, contextKey);
-					}
-				}
-
-				if (s.getType().equals(SIMPLETYPE)) {
-
-					updateSimpleType(s.getId(), identity, primaryValue, secValue, primaryLanguage, secLanguage,
-							resident.getThirdLanguage(), contextKey);
-
-				} else {
-					if (primaryValue.equals("")) // && !s.getType().equals("string"))
-						identity.put(s.getId(), JSONObject.NULL);
-					else
-						identity.put(s.getId(), primaryValue);
-				}
-			}
-
-		}
-		JSONObject retObject = new JSONObject();
-		retObject.put(IDENTITY, identity);
-		idjson = retObject.toString();
-		return idjson;
-	}
-
-	String generateIDJsonV2(ResidentModel resident, HashMap<String, String[]> fileInfo, String contextKey,
+	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo, String contextKey,
 			Properties prop, JSONObject preregResponse, String purpose, ContextSchemaDetail contextSchemaDetail,
 			String qualityScore, boolean genarateValidCbeff) {
 
@@ -1298,9 +888,6 @@ public class PacketTemplateProvider {
 			locationSet_sec = locations_seclang.keySet();
 		List<String> lstMissedAttributes = resident.getMissAttributes();
 
-//		loadMapperProp(contextKey, prop); 
-		// load mapped property
-
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			RestClient.logInfo(contextKey, s.toJSONString());
 			// if not reqd field , skip it
@@ -1312,7 +899,8 @@ public class PacketTemplateProvider {
 				continue;
 			}
 
-			if (VariableManager.getVariableValue(contextKey, "uin") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "uin"))) {
+			if (VariableManager.getVariableValue(contextKey, "uin") != null
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "uin"))) {
 				String uin = resident.getUIN();
 				if (uin != null && !uin.trim().equals("")) {
 					identity.put(s.getId(), uin.trim());
@@ -1323,12 +911,12 @@ public class PacketTemplateProvider {
 				continue;
 			}
 
-			// DEV2
 			if (!s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
 				continue;
 			}
 
-			if (VariableManager.getVariableValue(contextKey, "IDSchemaVersion") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion") )) {
+			if (VariableManager.getVariableValue(contextKey, "IDSchemaVersion") != null
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion"))) {
 				identity.put(s.getId(), contextSchemaDetail.getSchemaVersion());
 				continue;
 			}
@@ -1336,13 +924,14 @@ public class PacketTemplateProvider {
 			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
 				continue;
 			}
-			if (processDynamicFields(s, identity, resident,contextKey))
+			if (processDynamicFields(s, identity, resident, contextKey))
 				continue;
 
 			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
 				String primaryValue = "";
 				String secValue = "";
-				if (VariableManager.getVariableValue(contextKey, "name")!= null && VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
+				if (VariableManager.getVariableValue(contextKey, "name") != null
+						&& VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
 					primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
 							+ resident.getName().getSurName();
 					if (secLanguage != null)
@@ -1361,7 +950,8 @@ public class PacketTemplateProvider {
 					primaryValue = resident.getName().getMidName();
 					if (secLanguage != null)
 						secValue = resident.getName_seclang().getMidName();
-				} else if (VariableManager.getVariableValue(contextKey, "dob") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "dob") )) {
+				} else if (VariableManager.getVariableValue(contextKey, "dob") != null
+						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "dob"))) {
 					primaryValue = resident.getDob();
 					secValue = primaryValue;
 				} else if (prop.getProperty("addressgroup") != null
@@ -1375,12 +965,12 @@ public class PacketTemplateProvider {
 						primaryValue = addrLines.getValue0();
 						secValue = addrLines.getValue1();
 					}
-				} 
-				else if (s.getSubType().toLowerCase().contains("residenceStatus")) {
+				} else if (s.getSubType().toLowerCase().contains("residenceStatus")) {
 					primaryValue = resident.getResidentStatus().getCode();
 					VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", primaryValue);
 					secValue = primaryValue;
-				} else if (VariableManager.getVariableValue(contextKey, "emailId") != null && s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
+				} else if (VariableManager.getVariableValue(contextKey, "emailId") != null
+						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
 					primaryValue = resident.getContact().getEmailId();
 				}
 
@@ -1424,7 +1014,7 @@ public class PacketTemplateProvider {
 								missAttribs, genarateValidCbeff);
 
 						if (bret == false)
-							return "";
+							return "Failed to generate biometric via mds";
 
 						if (prop.containsKey("mosip.test.regclient.officerBiometricFileName")) {
 							RestClient.logInfo(contextKey, preregResponse.toString());
@@ -1456,7 +1046,7 @@ public class PacketTemplateProvider {
 					}
 					continue;
 				} else if ((VariableManager.getVariableValue(contextKey, "introducerBiometrics") != null
-								&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerBiometrics"))))
+						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerBiometrics"))))
 
 				{
 					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {

@@ -64,21 +64,17 @@ public class CheckForBDBPresence extends BaseTestCaseUtil implements StepInterfa
 
 			try {
 				checkForBDB.test(test);
-			} catch (AuthenticationTestException e) {
+			} catch (AuthenticationTestException | AdminTestException e) {
 				logger.error(e.getMessage());
-			} catch (AdminTestException e) {
-				logger.error(e.getMessage());
+				this.hasError = true;
+				throw new RigInternalError(e.getMessage());
 			}
-
 			Response response = checkForBDB.response;
 			JSONObject responseJson = new JSONObject(response.asString());
 			JSONObject responseData = responseJson.getJSONObject("response");
 			JSONArray responseArray = responseData.getJSONArray("documents");
 
 			String bioData = responseArray.getJSONObject(0).getString("value");
-
-//				String cleanedString = cleanBase64String(bioData);
-
 			Base64.Decoder decoder = Base64.getUrlDecoder();
 
 			// Decode the base64 encoded string.
