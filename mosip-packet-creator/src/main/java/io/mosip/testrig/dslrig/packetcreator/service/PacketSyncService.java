@@ -529,8 +529,10 @@ public class PacketSyncService {
 
 		// To do -- Need to review these two below tags once the conclusion happens what
 		// tags will be set on the packet
-		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "MOSIP-FINGER01-2345678901");
-		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "MOSIP-FACE01-2345678901");
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger",
+				"MOSIP-FINGER01-2345678901");
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face",
+				"MOSIP-FACE01-2345678901");
 
 		logger.debug("Tags set while generating the packet: "
 				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId")
@@ -816,54 +818,6 @@ public class PacketSyncService {
 		return response;
 	}
 
-	public String createPacket(PersonaRequestDto personaRequest, String process, String preregId, String contextKey,
-			String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
-
-		Path packetDir = null;
-		JSONArray packetPaths = new JSONArray();
-		boolean isFileCreated = false;
-
-		packetDir = Files.createTempDirectory("packets_");
-		VariableManager.setVariableValue(contextKey, "packets_", packetDir.toFile().getAbsolutePath());
-
-		Properties personaFiles = personaRequest.getRequests().get(PersonaRequestType.PR_ResidentList);
-		Properties options = personaRequest.getRequests().get(PersonaRequestType.PR_Options);
-
-		List<Object> lstObjects = Arrays.asList(personaFiles.values().toArray());
-		List<String> personaFilePaths = new ArrayList<String>();
-		for (Object o : lstObjects) {
-			personaFilePaths.add(o.toString());
-		}
-
-		if (!packetDir.toFile().exists()) {
-			isFileCreated = packetDir.toFile().createNewFile();
-			if (isFileCreated)
-				RestClient.logInfo(contextKey, "isFileCreated" + isFileCreated);
-
-		}
-		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
-
-		for (String path : personaFilePaths) {
-			ResidentModel resident = ResidentModel.readPersona(path);
-			String packetPath = packetDir.toString() + File.separator + resident.getId();
-
-			Properties props = contextUtils.loadServerContext(contextKey);
-			packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId, machineId,
-					centerId, contextKey, props, new JSONObject(), purpose, qualityScore, genarateValidCbeff);
-
-			JSONObject obj = new JSONObject();
-			obj.put("id", resident.getId());
-			obj.put("path", packetPath);
-			RestClient.logInfo(contextKey, "createPacket:" + packetPath);
-			packetPaths.put(obj);
-
-		}
-		JSONObject response = new JSONObject();
-		response.put("packets", packetPaths);
-		return response.toString();
-
-	}
-
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
 		boolean packetDirCreated = false;
@@ -911,10 +865,11 @@ public class PacketSyncService {
 
 				centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
 
-				if (packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
+				String returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
 						machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
-						genarateValidCbeff) == false)
-					return "{\"Failed\"}";
+						genarateValidCbeff);
+				if (!returnMsg.equalsIgnoreCase("Success"))
+					return "{\"" + returnMsg + "\"}";
 
 				JSONObject obj = new JSONObject();
 				obj.put("id", resident.getId());
@@ -926,6 +881,7 @@ public class PacketSyncService {
 			}
 		} catch (Exception e) {
 			logger.error("createPacketTemplates", e);
+			return "{\"" + e.getMessage() + "\"}";
 		}
 
 		JSONObject response = new JSONObject();
@@ -1409,34 +1365,6 @@ public class PacketSyncService {
 
 	}
 
-	public String setPersonaMockABISExpectation(List<String> personaFilePath, boolean bDuplicate, String contextKey,
-			String statusCode, String failureReason) throws JSONException, NoSuchAlgorithmException, IOException {
-
-		String bdbString = "";
-		String[] duplicateBdbs;
-
-		RestClient.logInfo(contextKey, "setPersonaMockABISExpectation");
-
-		loadServerContextProperties(contextKey);
-		for (String personaPath : personaFilePath) {
-
-			ResidentModel persona = ResidentModel.readPersona(personaPath);
-			List<MDSDeviceCaptureModel> capDetails = persona.getBiometric().getCapture()
-					.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
-			bdbString = capDetails.get(0).getBioValue();
-
-			if (bDuplicate) {
-				duplicateBdbs = new String[2];
-				duplicateBdbs[0] = capDetails.get(1).getBioValue();
-				duplicateBdbs[1] = capDetails.get(2).getBioValue();
-			} else
-				duplicateBdbs = null;
-			MosipDataSetup.configureMockABISBiometric(bdbString, bDuplicate, duplicateBdbs,
-					DataProviderConstants.DEFAULT_ABIS_DELAY, null, contextKey, statusCode, failureReason);
-		}
-		return STATUS_SUCCESS;
-	}
-
 	String getRegIdFromPacketPath(String packetPath) {
 		// leaf node of packet path is regid
 		return Path.of(packetPath).getFileName().toString();
@@ -1466,7 +1394,7 @@ public class PacketSyncService {
 		return ret.toString();
 	}
 
-	public String setPersonaMockABISExpectationV2(List<MockABISExpectationsDto> expectations, String contextKey)
+	public String setPersonaMockABISExpectation(List<MockABISExpectationsDto> expectations, String contextKey)
 			throws JSONException, NoSuchAlgorithmException, IOException {
 
 		String bdbString = "";
