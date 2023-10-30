@@ -68,8 +68,8 @@ public class Orchestrator {
 	public static Boolean beforeSuiteFailed = false;
 	public static Boolean beforeSuiteExeuted = false;
 	public static final Object lock = new Object();
-	public static long  suiteStartTime = System.currentTimeMillis();
-	public static long  suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
+	public static long suiteStartTime = System.currentTimeMillis();
+	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
@@ -288,11 +288,11 @@ public class Orchestrator {
 				while (counterLock.get() < totalScenario - 1) // executed excluding after suite
 				{
 					long currentTime = System.currentTimeMillis();
-		            if (currentTime - suiteStartTime >= suiteMaxTimeInMillis) {
-		                logger.error("Exhausted the maximum suite execution time.Hence, terminating the execution");
-		                break;
-		            }
-		            
+					if (currentTime - suiteStartTime >= suiteMaxTimeInMillis) {
+						logger.error("Exhausted the maximum suite execution time.Hence, terminating the execution");
+						break;
+					}
+
 					logger.info(" Thread ID: " + Thread.currentThread().getId() + " inside scenariosExecuted "
 							+ counterLock.get() + "- " + scenario.getId());
 					Thread.sleep(10000); // Sleep for 10 sec
@@ -329,11 +329,22 @@ public class Orchestrator {
 			logger.info("Skipping Scenario #" + scenario.getId());
 			throw new SkipException("Skipping Scenario #" + scenario.getId());
 		}
-		ObjectMapper mapper = new ObjectMapper();
 
 		message = "Scenario_" + scenario.getId() + ": " + scenario.getDescription();
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
+
+		// Check whether the scenario is in the defined skipped list
+		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
+			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+			updateRunStatistics(scenario);
+			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+		}
+		if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
+			extentTest.skip("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+			updateRunStatistics(scenario);
+			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+		}
 
 		Store store = new Store();
 		store.setConfigs(configs);
@@ -352,20 +363,6 @@ public class Orchestrator {
 			logger.info(identifier);
 
 			try {
-				// Check whether the scenario is in the defined skipped list
-				if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
-					extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
-					updateRunStatistics(scenario);
-					throw new SkipException(
-							"S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
-				}
-				if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
-					extentTest.skip("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
-					updateRunStatistics(scenario);
-					throw new SkipException(
-							"A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
-				}
-
 				// Check whether the scenario is in the defined execute list
 				if (!scenario.getId().equalsIgnoreCase("0") && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
 					if (!ConfigManager.isInTobeExecuteList(scenario.getId())) {
@@ -422,26 +419,23 @@ public class Orchestrator {
 				Reporter.log(e.getMessage());
 				throw new SkipException(e.getMessage());
 			} catch (ClassNotFoundException e) {
-				extentTest.error(identifier + " - ClassNotFoundException --> " + e.toString());
+				extentTest.error(identifier + " - ClassNotFoundException --> " + e.getMessage());
 				logger.error(e.getMessage());
-
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
-
 				return;
 			} catch (IllegalAccessException e) {
-				extentTest.error(identifier + " - IllegalAccessException --> " + e.toString());
+				extentTest.error(identifier + " - IllegalAccessException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (InstantiationException e) {
-				extentTest.error(identifier + " - InstantiationException --> " + e.toString());
+				extentTest.error(identifier + " - InstantiationException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
-
 			} catch (RigInternalError e) {
 				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
 				logger.error(e.getMessage());
@@ -449,15 +443,14 @@ public class Orchestrator {
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
-
 			} catch (RuntimeException e) {
-				extentTest.error(identifier + " - RuntimeException --> " + e.toString());
+				extentTest.error(identifier + " - RuntimeException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (FeatureNotSupportedError e) {
-				extentTest.error(identifier + " - FeatureNotSupportedError --> " + e.toString());
+				extentTest.error(identifier + " - FeatureNotSupportedError --> " + e.getMessage());
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
 //				Assert.assertTrue(false);
