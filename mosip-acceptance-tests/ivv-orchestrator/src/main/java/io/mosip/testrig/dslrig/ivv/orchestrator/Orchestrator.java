@@ -68,7 +68,8 @@ public class Orchestrator {
 	public static Boolean beforeSuiteFailed = false;
 	public static Boolean beforeSuiteExeuted = false;
 	public static final Object lock = new Object();
-
+	public static long suiteStartTime = System.currentTimeMillis();
+	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
@@ -283,6 +284,12 @@ public class Orchestrator {
 				// Wait till all scenarios are executed
 				while (counterLock.get() < totalScenario - 1) // executed excluding after suite
 				{
+					long currentTime = System.currentTimeMillis();
+					if (currentTime - suiteStartTime >= suiteMaxTimeInMillis) {
+						logger.error("Exhausted the maximum suite execution time.Hence, terminating the execution");
+						break;
+					}
+
 					logger.info(" Thread ID: " + Thread.currentThread().getId() + " inside scenariosExecuted "
 							+ counterLock.get() + "- " + scenario.getId());
 					Thread.sleep(10000); // Sleep for 10 sec
