@@ -77,7 +77,7 @@ public class Orchestrator {
 			put("e2e", "io.mosip.testrig.dslrig.ivv.e2e.methods");
 		}
 	};
-
+// Test Line
 	/*
 	 * HashMap<String, String> packages = (HashMap<String, String>)
 	 * Collections.singletonMap("e2e", "io.mosip.testrig.dslrig.ivv.e2e.methods");
