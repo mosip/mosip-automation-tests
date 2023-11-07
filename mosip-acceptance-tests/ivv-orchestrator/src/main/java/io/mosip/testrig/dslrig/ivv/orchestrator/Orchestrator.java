@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,6 +22,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.testng.Assert;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.SkipException;
@@ -565,30 +567,34 @@ public class Orchestrator {
 			for (JsonNode jsonNode : rootNode) {
 
 				List<String> stepList = new ArrayList<>();
-				stepList.add(jsonNode.get("tc_no").asText());
-				stepList.add(jsonNode.get("tags").asText());
-				stepList.add(jsonNode.get("persona_class").asText());
-				stepList.add(jsonNode.get("persona").asText());
-				stepList.add(jsonNode.get("group_name").asText());
-				stepList.add(jsonNode.get("description").asText());
+				stepList.add(jsonNode.get("Scenario").asText());
+				stepList.add(jsonNode.get("Tag").asText());
+				stepList.add(jsonNode.get("Persona").asText());
+				stepList.add(jsonNode.get("Persona").asText());
+				stepList.add(jsonNode.get("Group").asText());
+				stepList.add(jsonNode.get("Description").asText());
 
 				Pattern pattern = Pattern.compile("(.*?)\\((.*?),(.*)\\)");
 
 				for (int stepIndex = 0; stepIndex < maxSteps; stepIndex++) {
-
-					String string = jsonNode.get("step" + stepIndex) == null ? ""
-							: jsonNode.get("step" + stepIndex).asText();
-					Matcher matcher = pattern.matcher(string);
+					String stepDescription = "";
+					String stepAction = "";
+					JsonNode stepJsonNode = jsonNode.get("Step-" + stepIndex) == null ? null
+							: jsonNode.get("Step-" + stepIndex);
+					if (stepJsonNode != null) {
+						stepAction = stepJsonNode.get("Action").asText();
+						stepDescription = stepJsonNode.get("Description").asText();
+					}
+					Matcher matcher = pattern.matcher(stepAction);
 
 					if (matcher.matches()) {
-						logger.info("The string contains a comma between parentheses");
-						stepList.add(jsonNode.get("step" + stepIndex) == null ? ""
-								: "\"" + jsonNode.get("step" + stepIndex).asText() + "\"");
+//						logger.info("The string contains a comma between parentheses");
+						stepList.add(stepAction == null ? "" : "\"" + stepAction + "\"");
 					} else {
-						stepList.add(jsonNode.get("step" + stepIndex) == null ? ""
-								: jsonNode.get("step" + stepIndex).asText());
-						logger.info("The string does not contain a comma between parentheses");
+						stepList.add(stepAction == null ? "" : stepAction);
+//						logger.info("The string does not contain a comma between parentheses");
 					}
+					addStepDetails(stepAction, stepDescription);
 				}
 
 				for (String string : stepList) {
@@ -601,7 +607,39 @@ public class Orchestrator {
 			// Log the error
 			return "";
 		}
+		if (ConfigManager.IsDebugEnabled()) {
+			String keyValues ="";
+			// Iterate through the map and print its contents
+			for (Map.Entry<String, String[]> entry : stepsMap.entrySet()) {
+				 keyValues += entry.getKey();
+				String[] values = entry.getValue();
+				for (int i = 0; i < values.length; i++) {
+					keyValues += "," + values[i];
+				}
+				keyValues += "\r\n";
+			}
+			logger.info(keyValues);
+		}
 		return tempCSVPath;
+	}
+
+	private static final Map<String, String[]> stepsMap = new HashMap<>();
+
+	private static void addStepDetails(String stepInput, String description) {
+		if (stepInput.isEmpty() || description.isEmpty())
+			return;
+		// Find the index of the first "(" character
+		int indexOfOpenParenthesis = stepInput.indexOf("(");
+		if (indexOfOpenParenthesis != -1) {
+			// Extract the substring "e2e_" up to the first "("
+			String step = stepInput.substring(stepInput.indexOf("e2e_"), indexOfOpenParenthesis);
+			if (stepsMap.get(step) == null) {
+				String[] descAndExample = new String[2];
+				descAndExample[0] = description;
+				descAndExample[1] = stepInput;
+				stepsMap.put(step, descAndExample);
+			}
+		}
 	}
 
 }
