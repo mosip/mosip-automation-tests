@@ -233,6 +233,7 @@ public class TestRunner {
 		TestResources.copyTestResource("/ivv_masterdata");
 		TestResources.copyTestResource("/syncdata");
 		TestResources.copyTestResource("/regproc");
+		TestResources.copyTestResource("/dbFiles");
 	}
 
 	public static String getExternalResourcePath() {
