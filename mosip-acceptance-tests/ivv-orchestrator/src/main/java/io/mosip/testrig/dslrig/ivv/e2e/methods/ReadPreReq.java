@@ -17,7 +17,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 
 public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(ReadPreReq.class);
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -42,10 +42,10 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 				+ appendedkey + ".properties");
 
 		logger.info("ReadPreReq :" + path);
-		try(FileReader reader = new FileReader(path);) {
+		try {
+		/*try (FileReader reader = new FileReader(path);) {
 			if (prereqDataSet.get(path) == null) {
 
-				
 				propertylist.load(reader);
 
 				for (String propertykey : propertylist.stringPropertyNames()) {
@@ -54,22 +54,20 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 				}
 
 				prereqDataSet.put(path, map);
-			}
+			}*/
 			if (step.getOutVarName() != null) {
-
 				step.getScenario().getVariables().putAll(prereqDataSet.get(path));
 			}
 
 			if (ConfigManager.IsDebugEnabled())
 				Reporter.log(prereqDataSet.get(path).toString());
-			
+
 		} catch (Exception e) {
 			this.hasError = true;
 			logger.error(e.getMessage());
 			throw new RigInternalError("PreRequisite Data is not set properly");
 
-		} 
-		
+		}
 
 	}
 
