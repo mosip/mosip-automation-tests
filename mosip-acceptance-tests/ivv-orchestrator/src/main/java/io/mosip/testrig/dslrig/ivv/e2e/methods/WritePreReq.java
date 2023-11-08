@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
@@ -57,23 +59,31 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 			
 			String path = (TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
 					+ appendedkey + ".properties");
-			  File file = new File(path);
-			 if (file.createNewFile()) {
-		            
-				 Reporter.log("File has been created at this path : " +path);
-		        } else {
-		        
-		        	Reporter.log("File already exists at the path : " + path);
-		        }
-			 outputStrem = new FileOutputStream(path);
-			props.store(outputStrem, "This is path where file is created" + path);
+			/*
+			 * File file = new File(path);
+			 * 
+			 * if (file.createNewFile()) {
+			 * 
+			 * Reporter.log("File has been created at this path : " +path); } else {
+			 * 
+			 * Reporter.log("File already exists at the path : " + path); } outputStrem =
+			 * new FileOutputStream(path);
+			 * 
+			 * props.store(outputStrem, "This is path where file is created" + path);
+			 */
+			HashMap<String, String> propertiesMap = new HashMap<String, String>();
+			for (Entry<Object, Object> entry : props.entrySet()) {
+				propertiesMap.put((String) entry.getKey(), (String) entry.getValue());
+			}
 			
+			prereqDataSet.put(path, propertiesMap);
 			if (ConfigManager.IsDebugEnabled())
 			 Reporter.log(props.toString());
 	
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-		}
+		} 
+		/*
+		 * catch (IOException e) { logger.error(e.getMessage()); }
+		 */
 		finally {
 			PacketUtility.closeOutputStream(outputStrem);
 		}
