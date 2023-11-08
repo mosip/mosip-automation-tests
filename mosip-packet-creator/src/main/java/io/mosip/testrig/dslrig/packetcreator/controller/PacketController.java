@@ -1,5 +1,8 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -13,7 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
+import io.mosip.mock.sbi.test.CentralizedMockSBI;
+import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
+import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.PreRegisterRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketMakerService;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
@@ -124,6 +131,28 @@ public class PacketController {
 
 		} catch (Exception ex) {
 			logger.error("get tags", ex);
+		}
+		return "{\"Failed\"}";
+	}
+
+	@GetMapping(value = "/clearDeviceCertCache/{contextKey}")
+	public @ResponseBody String clearDeviceCertCache(@PathVariable("contextKey") String contextKey) {
+		try {
+			Path p12path = null;
+			String certsDir = System.getenv(BiometricDataProvider.AUTHCERTSPATH) == null
+					? VariableManager.getVariableValue(contextKey, BiometricDataProvider.AUTHCERTSPATH).toString()
+					: System.getenv(BiometricDataProvider.AUTHCERTSPATH);
+
+			if (certsDir == null || certsDir.length() == 0) {
+				certsDir = System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS";
+			}
+
+			p12path = Paths.get(certsDir, "DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
+
+			if (SBIDeviceHelper.evictKeys(p12path.toString()))
+				return "{\"Success\"}";
+		} catch (Exception ex) {
+			logger.error("Clear device certificate cache ", ex);
 		}
 		return "{\"Failed\"}";
 	}
