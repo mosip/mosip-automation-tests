@@ -274,16 +274,16 @@
 			<version>1.7.30</version>
 
 		</dependency>
+			<dependency>
+			<groupId>io.mosip.mock.mds</groupId>
+			<artifactId>mock-mds</artifactId>
+			<version>1.2.2-SNAPSHOT</version>
+		</dependency>
 
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>1.2.6</version>
-		</dependency>
-		<dependency>
-			<groupId>io.mosip.mock.mds</groupId>
-			<artifactId>mock-mds</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<repositories>
