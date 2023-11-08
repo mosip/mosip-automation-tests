@@ -252,6 +252,12 @@
 			"Action": "e2e_WritePreReq($$details3,3/*ADD_COMMMENT*/)"
 		},
 		"Step-41": {
+			"Description": "Clear the previous device certificate",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_ClearDeviceCertCache()"
+		},
+		"Step-42": {
 			"Description": "Creates And Onboards Authentication Partner",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -11800,7 +11806,7 @@
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
 		"Step-12": {
-				"Description": "Generates packet template based on the persona data",
+			"Description": "Generates packet template based on the persona data",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
 			"Action": "$$childTemplate=e2e_getPacketTemplate(NEW,$$childPersona)"
@@ -16800,7 +16806,7 @@
 			"Action": "e2e_CheckRIDStage($$rid,CMD_VALIDATION,FAILED)"
 		}
 	},
-		{
+	{
 		"Scenario": "145",
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",

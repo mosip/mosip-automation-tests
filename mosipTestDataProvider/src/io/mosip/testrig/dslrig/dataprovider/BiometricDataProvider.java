@@ -94,7 +94,7 @@ public class BiometricDataProvider {
 	private static final String FORCE_CAPTURED = "FORCE_CAPTURED";
 	private static final String PAYLOAD = "PAYLOAD";
 	private static final String SPEC_VERSION = "SPEC_VERSION";
-	private static final String AUTHCERTSPATH = "authCertsPath";
+	public static final String AUTHCERTSPATH = "authCertsPath";
 	private static final String LEFTEYE = "leftEye";
 	private static final String RIGHTEYE = "rightEye";
 	private static final String RIGHT = "Right";
@@ -274,7 +274,7 @@ public class BiometricDataProvider {
 						port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device",
 								p12path.toString());
 					} catch (Exception e) {
-						logger.error("Exception occured during startSBI " + contextKey);
+						logger.error("Exception occured during startSBI " + contextKey,e);
 					}
 					if (port != 0) {
 						RestClient.logInfo(contextKey, "Found the port " + contextKey + " port number is: " + port);
