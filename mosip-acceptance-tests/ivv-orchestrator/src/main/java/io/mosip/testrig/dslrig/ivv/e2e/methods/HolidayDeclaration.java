@@ -57,8 +57,7 @@ public class HolidayDeclaration extends BaseTestCaseUtil implements StepInterfac
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, holidayLocationCode, "locationCode");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, BaseTestCase.getLanguageList().get(0), "langCode");
-			LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-//		input = JsonPrecondtion.parseAndReturnJsonContent(input,LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "holidayDate");
+         	input = JsonPrecondtion.parseAndReturnJsonContent(input,LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "holidayDate");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					"mosip" + BaseTestCase.generateRandomAlphaNumericString(6), "holidayDesc");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, BaseTestCase.generateRandomAlphaNumericString(6),
