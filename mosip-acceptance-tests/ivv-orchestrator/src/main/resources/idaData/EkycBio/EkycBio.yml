@@ -1,7 +1,8 @@
 BioAuth:
   Ida_EKYC_Biometric_Valid_Smoke_Pos:
-      endPoint: /v1/identity/authenticate?moduleName=$MODULENAME$&certsDir=$CERTSDIR$&id=uinnumber&isKyc=true&partnerUrlSuffix=$PartnerKey$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
+      endPoint: /v1/identity/authenticate?moduleName=$MODULENAME$&certsDir=$CERTSDIR$&id=uinnumber&isKyc=true&partnerUrlSuffix=$kycPartnerKey$&keyFileNameByPartnerName=true&partnerName=$kycPartnerName$
       role: resident
+      kycFields: ["gender"]
       restMethod: post
       inputTemplate: idaData/EkycBio/ekycBio
       outputTemplate: idaData/EkycBio/ekycBioResult
