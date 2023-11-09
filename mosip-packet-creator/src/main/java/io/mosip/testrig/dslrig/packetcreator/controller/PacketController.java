@@ -149,8 +149,8 @@ public class PacketController {
 
 			p12path = Paths.get(certsDir, "DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
 
-			if (SBIDeviceHelper.evictKeys(p12path.toString()))
-				return "{\"Success\"}";
+			SBIDeviceHelper.evictKeys(p12path.toString());
+			return "{\"Success\"}";
 		} catch (Exception ex) {
 			logger.error("Clear device certificate cache ", ex);
 		}
