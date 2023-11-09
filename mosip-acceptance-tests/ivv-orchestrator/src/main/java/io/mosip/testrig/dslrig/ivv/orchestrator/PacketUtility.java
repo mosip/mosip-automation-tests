@@ -1049,8 +1049,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
 			BioAuth bioAuth, Scenario.Step step) throws RigInternalError {
 
-		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
-		test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
+		if(test.getTestCaseName().contains("EKYC")) {
+			test.setEndPoint(test.getEndPoint().replace("$kycPartnerKey$", kycPartnerKeyUrl));
+			test.setEndPoint(test.getEndPoint().replace("$kycPartnerName$", kycPartnerId));
+		}else {
+			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
+			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
+		}
+		
 		test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, INDIVIDUALID);

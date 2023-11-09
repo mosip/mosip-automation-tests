@@ -58,7 +58,9 @@ public class BaseTestCaseUtil extends BaseStep {
 	// public static String scenario = null; // Neeed to check how to add in
 	// scenario
 	public static String partnerKeyUrl = null;
+	public static String kycPartnerKeyUrl = null;
 	public static String partnerId = null;
+	public static String kycPartnerId = null;
 	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
 	public static String extentReportName="";
 
