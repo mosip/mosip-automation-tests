@@ -10749,7 +10749,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(true/*ADD_COMMMENT*/)"
+			"Action": "e2e_WaitTillReprocessorInterval()"
 		},
 		"Step-16": {
 			"Description": "<<<Step detailed description>>>",
@@ -10876,7 +10876,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(true/*ADD_COMMMENT*/)"
+			"Action": "e2e_WaitTillReprocessorInterval()"
 		},
 		"Step-16": {
 			"Description": "<<<Step detailed description>>>",
