@@ -370,7 +370,6 @@ public class Orchestrator {
 					if (!ConfigManager.isInTobeExecuteList(scenario.getId())) {
 						extentTest.skip(scenario.getId()
 								+ ": Skipping scenario as it is not in the scneario to be executed list");
-						updateRunStatistics(scenario);
 						throw new SkipException(scenario.getId()
 								+ ": Skipping scenario as it is not in the scneario to be executed list");
 					}
