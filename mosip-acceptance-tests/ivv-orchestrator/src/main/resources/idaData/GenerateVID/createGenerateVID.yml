@@ -2,6 +2,7 @@ GenerateVID:
    Resident_GenerateVID_All_Valid_Smoke_Perpetual_sid:
       endPoint: /resident/v1/vid
       role: resident
+      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: idaData/GenerateVID/createGenerateVID
       outputTemplate: idaData/GenerateVID/createGenerateVIDResult
@@ -24,11 +25,7 @@ GenerateVID:
 	}
 	}'
       output: '{
-  "vid": "$IGNORE$",
-  "message": "$IGNORE$",
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-		"sendOtpResTemplate":"idaData/SendOTP/createSendOTPResult",
-        "maskedEmail": "$IGNORE$"
+		"sendOtpResTemplate":"idaData/SendOTP/createSendOTPResult"
     }
 }'

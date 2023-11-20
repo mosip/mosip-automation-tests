@@ -56,8 +56,8 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 		step.getScenario().getUinPersonaProp().clear();
 		for (String rid : rids.values()) {
 			if (rid != null) {
-				Reporter.log("<b><u>" + "GetIdentity By Rid" + "</u></b>");
-				Reporter.log("<pre>" + ReportUtil.getTextAreaJsonMsgHtml("{Rid: " + rid + "}") + "</pre>");
+//				Reporter.log("<b><u>" + "GetIdentity By Rid" + "</u></b>");
+//				Reporter.log("<pre>" + ReportUtil.getTextAreaJsonMsgHtml("{Rid: " + rid + "}") + "</pre>");
 				long startTime = System.currentTimeMillis();
 				logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
 				Response response = getRequest(baseUrl + getIdentityUrl + rid, "Get uin by rid: " + rid, step);
