@@ -74,8 +74,12 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 		cleanData();
 		Response response = packetUtility.generateResident(nofResident, ageCategory, bSkipGuardian, missFields,
 				genderAndBioFlag, step);
+		JSONObject jsonObject = new JSONObject(response.getBody().asString());
 		JSONArray resp = new JSONObject(response.getBody().asString()).getJSONArray("response");
-
+		if (!jsonObject.getString("status").equalsIgnoreCase("success")) {
+			this.hasError = true;
+			throw new RigInternalError(response.getBody().asString());
+		}
 		for (int i = 0; i < resp.length(); i++) {
 			JSONObject obj = resp.getJSONObject(i);
 			String resFilePath = obj.get("path").toString();
