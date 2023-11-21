@@ -253,6 +253,7 @@ public class PacketSyncService {
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage());
+			return "{\"" + e.getMessage() + "\"}";
 		}
 
 		JSONObject response = new JSONObject();
