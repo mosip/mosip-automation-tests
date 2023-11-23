@@ -51,7 +51,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				if (_rid.startsWith("$$")) {
 					_rid = step.getScenario().getVariables().get(_rid); // 11000000101010101000000000
 					if (_rid == null)
-						System.out.println("neeha");
+						logger.info("neeha");
 					if (tempPridAndRid == null) {
 						tempPridAndRid = new HashMap<>();
 						tempPridAndRid.put("rid", _rid); // 11000000101010101000000000
@@ -92,7 +92,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 					logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
 					logger.info(this.getClass().getSimpleName() + " Rid :" + rid);
 					if (rid == null)
-						System.out.println("NEeha");
+						logger.info("NEeha");
 					Response response = getRequest(baseUrl + getRidStatusUrl + rid, "Check rid status: " + rid, step);
 					long stopTime = System.currentTimeMillis();
 					long elapsedTime = stopTime - startTime;

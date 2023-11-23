@@ -43,7 +43,7 @@ public class DiscardAppointment extends BaseTestCaseUtil implements StepInterfac
 					map.put("preRegistrationId", prid);
 					//Response response =deleteRequestWithoutStep(url, "Discard booking");
 					Response response =deleteRequest(url, "Discard booking",step);
-					System.out.println(response.toString());
+					logger.info(response.toString());
 		}
 	}
 
