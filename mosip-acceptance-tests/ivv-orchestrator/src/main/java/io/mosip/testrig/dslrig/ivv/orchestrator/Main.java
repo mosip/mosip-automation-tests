@@ -4,8 +4,11 @@ import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
+
+import org.apache.log4j.Logger;
         
 public class Main {
+	public static Logger logger = Logger.getLogger(Main.class);
         
     public static void main(String[] args) throws Exception {
         CountDownLatch latch = new CountDownLatch(10);
@@ -25,13 +28,13 @@ public class Main {
         
         @Override
         public void onOpen(WebSocket webSocket) {
-            System.out.println("onOpen using subprotocol " + webSocket.getSubprotocol());
+           logger.info("onOpen using subprotocol " + webSocket.getSubprotocol());
             WebSocket.Listener.super.onOpen(webSocket);
         }
         
         @Override
         public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-            System.out.println("onText received " + data);
+            logger.info("onText received " + data);
             
             
             latch.countDown();
@@ -40,7 +43,7 @@ public class Main {
         
         @Override
         public void onError(WebSocket webSocket, Throwable error) {
-            System.out.println("Bad day! " + webSocket.toString());
+           logger.info("Bad day! " + webSocket.toString());
             WebSocket.Listener.super.onError(webSocket, error);
         }
     }
