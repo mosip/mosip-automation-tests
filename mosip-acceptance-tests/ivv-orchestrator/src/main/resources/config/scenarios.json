@@ -17958,7 +17958,7 @@
 			"Action": "e2e_Center(DCOM,$$details7,7/*CENTER_INDEX*/)"
 		}
 	},
-	{
+{
 		"Scenario": "157",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
@@ -18013,16 +18013,16 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-8": {
+			"Description": "Using the holiday id delete the record from DB",
+			"Input Parameters": "HolidayId",
+			"Return Value": "NA",
+			"Action": "e2e_DeleteHoliday($$holidayId)"
+		},
+		"Step-9": {
 			"Description": "Checkes the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(reregister,$$rid)"
-		},
-		"Step-9": {
-			"Description": "Using the holiday id delete the record from DB",
-			"Input Parameters": "HolidayId",
-			"Return Value": "NA",
-			"Action": "e2e_HolidayDeclaration($$holidayId)"
 		},
 		"Step-10": {
 			"Description": "Checks RID stage and stage status",
