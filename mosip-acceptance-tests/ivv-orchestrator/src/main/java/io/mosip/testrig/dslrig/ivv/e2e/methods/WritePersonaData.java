@@ -77,6 +77,8 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 				json.put("EmailID", identityData.getString("email"));
 				json.put("PhoneNumber", identityData.getString("phone"));
 				json.put("DateOfBirth", identityData.getString("dateOfBirth"));
+				json.put("Gender", identityData.getJSONArray("gender").getJSONObject(0).getString("value"));
+				json.put("Address", identityData.getJSONArray("addressLine1").getJSONObject(0).getString("value"));
 				json.put("UIN", uin);
 				json.put("VID", vid);
 				json.put("fullName", identityData.getJSONArray("fullName").getJSONObject(0).getString("value"));
