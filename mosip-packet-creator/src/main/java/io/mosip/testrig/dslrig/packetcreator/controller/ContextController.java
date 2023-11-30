@@ -21,50 +21,44 @@ import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
 public class ContextController {
 
 	@Autowired
-    ContextUtils contextUtils;
+	ContextUtils contextUtils;
 	@Value("${mosip.test.persona.configpath}")
-    private String personaConfigPath;
-	
+	private String personaConfigPath;
 
 	private static final Logger logger = LoggerFactory.getLogger(ContextController.class);
-	 
-	  @PostMapping(value = "/context/server/{contextKey}")
-	    public @ResponseBody String createServerContext(
-	    		@RequestBody Properties contextProperties,
-	    		@PathVariable("contextKey") String contextKey) {
-		 
-		  logger.info("--------------------Scenario : " + contextProperties.getProperty("scenario") + "---------------------------------------");
-	    	
-		  Boolean bRet = false;
-		  
-	    	try{
-	    		if (personaConfigPath != null && !personaConfigPath.equals(""))
-                    DataProviderConstants.RESOURCE = personaConfigPath;
-	    	
-	    		
-                VariableManager.Init(contextKey);
 
- 
-/**
-                String generatePrivateKey = contextProperties.getProperty("generatePrivateKey");
-                boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
-                if (isRequired)
-                    contextUtils.generateKeyAndUpdateMachineDetail(contextProperties, contextKey);
- **/
-	    		bRet = contextUtils.createUpdateServerContext(contextProperties, contextKey);
-	    	 } catch (Exception ex){
-	              logger.error("createServerContext", ex);
-	         }
-	    	return bRet.toString();
-	    }
-	    @GetMapping(value = "/context/server/{contextKey}")
-	    public @ResponseBody Properties getServerContext( @PathVariable("contextKey") String contextKey) {
-	    	Properties bRet = null;
-	    	try{
-	    		bRet = contextUtils.loadServerContext( contextKey);
-	    	 } catch (Exception ex){
-	              logger.error("createServerContext", ex);
-	         }
-	    	return bRet;
-	    }
+	@PostMapping(value = "/context/server/{contextKey}")
+	public @ResponseBody String createServerContext(@RequestBody Properties contextProperties,
+			@PathVariable("contextKey") String contextKey) {
+
+		logger.info("--------------------Scenario : " + contextProperties.getProperty("scenario")
+				+ "---------------------------------------");
+		try {
+			if (personaConfigPath != null && !personaConfigPath.equals(""))
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			VariableManager.Init(contextKey);
+			/**
+			 * String generatePrivateKey =
+			 * contextProperties.getProperty("generatePrivateKey"); boolean isRequired =
+			 * Boolean.parseBoolean(generatePrivateKey); if (isRequired)
+			 * contextUtils.generateKeyAndUpdateMachineDetail(contextProperties,
+			 * contextKey);
+			 **/
+			return contextUtils.createUpdateServerContext(contextProperties, contextKey);
+		} catch (Exception ex) {
+			logger.error("createServerContext", ex);
+			return "{\"" + ex.getMessage() + "\"}";
+		}
+	}
+
+	@GetMapping(value = "/context/server/{contextKey}")
+	public @ResponseBody Properties getServerContext(@PathVariable("contextKey") String contextKey) {
+		Properties bRet = null;
+		try {
+			bRet = contextUtils.loadServerContext(contextKey);
+		} catch (Exception ex) {
+			logger.error("createServerContext", ex);
+		}
+		return bRet;
+	}
 }

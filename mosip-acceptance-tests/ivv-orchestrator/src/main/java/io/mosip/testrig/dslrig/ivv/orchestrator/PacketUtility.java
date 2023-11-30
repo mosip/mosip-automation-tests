@@ -724,7 +724,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
 			this.hasError = true;
-			throw new RigInternalError("Unable to set context from packet utility");
+			throw new RigInternalError(response.getBody().asString());
 		}
 		return response.getBody().asString();
 
@@ -875,7 +875,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
 			this.hasError = true;
-			throw new RigInternalError("Unable to set context from packet utility");
+			throw new RigInternalError(response.getBody().asString());
 		}
 		return response.getBody().asString();
 

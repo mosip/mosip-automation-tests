@@ -82,13 +82,13 @@ public class TestDataController {
 	@PostMapping(value = "/servercontext/{contextKey}")
 	public @ResponseBody String createServerContext(@RequestBody Properties contextProperties,
 			@PathVariable("contextKey") String contextKey) {
-		Boolean bRet = false;
+		
 		try {
-			bRet = contextUtils.createUpdateServerContext(contextProperties, contextKey);
+			return contextUtils.createUpdateServerContext(contextProperties, contextKey);
 		} catch (Exception ex) {
 			logger.error("createServerContext", ex);
+			return "{\"" + ex.getMessage() + "\"}";
 		}
-		return bRet.toString();
 	}
 
 	@GetMapping(value = "/servercontext/{contextKey}")
@@ -236,8 +236,8 @@ public class TestDataController {
 
 		} catch (Exception ex) {
 			logger.error("generateResidentData", ex);
+			return "{\"" + ex.getMessage() + "\"}";
 		}
-		return "{Failed}";
 	}
 
 	@PostMapping(value = "/updateresident/{contextKey}")
