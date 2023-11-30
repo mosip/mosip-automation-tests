@@ -12,6 +12,7 @@
     <groupId>io.mosip.testrig.dslrig.ivv.orchestrator</groupId>
     <artifactId>dslrig-ivv-orchestrator</artifactId>
     <name>mosip-dsl-test</name>
+     <version>1.2.1-develop-SNAPSHOT</version>
     <properties>
         <suiteXmlFile>testng.xml</suiteXmlFile>
         <maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
