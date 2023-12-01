@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -10,7 +11,8 @@ import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldModel;
 import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldValueModel;
 
 public class BloodGroupProvider {
-	private static Random rand = new Random();
+	private static SecureRandom  rand = new SecureRandom ();
+	
 	//static String [] bloodGroups = { "A+","A-","B+","B-","O+","O-","AB+","AB-"};
 	
 	//generate language specific blood group data
@@ -34,6 +36,8 @@ public class BloodGroupProvider {
 			if(bgModel !=null && bgModel.getFieldVal().size()>=count) {
 				bgs = new ArrayList<DynamicFieldValueModel>();
 				//Random rand = new Random();
+				byte bytes[] = new byte[20];
+				rand.nextBytes(bytes);
 				for( int i=0; i < count; i++) {
 					
 					int idx = rand.nextInt(bgModel.getFieldVal().size());
