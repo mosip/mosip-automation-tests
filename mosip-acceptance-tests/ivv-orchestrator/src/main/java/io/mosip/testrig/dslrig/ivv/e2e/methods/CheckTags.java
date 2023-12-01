@@ -112,7 +112,7 @@ public class CheckTags extends BaseTestCaseUtil implements StepInterface {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return tagMismatched;
 	}

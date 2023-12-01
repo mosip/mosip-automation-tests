@@ -113,7 +113,7 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 			fileWriter.write(jsonString);
 			System.out.println("JSONArray has been written to the file.");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
