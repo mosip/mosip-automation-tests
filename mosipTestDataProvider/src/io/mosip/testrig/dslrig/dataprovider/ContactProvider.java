@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +12,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 
 
 public class ContactProvider {
-	private static Random rand = new Random();
+	private static SecureRandom  rand = new SecureRandom ();
 
 	
 	static int MAX_NUM = 9999;
@@ -19,7 +20,8 @@ public class ContactProvider {
 	public static List<Contact> generate(List<Name> names,int count) {
 		
 		List<Contact> contacts = new ArrayList<Contact>();
-		
+		byte bytes[] = new byte[20];
+		rand.nextBytes(bytes);
 		for(int i=0; i < count; i++) {
 			
 			Contact contact = new Contact();

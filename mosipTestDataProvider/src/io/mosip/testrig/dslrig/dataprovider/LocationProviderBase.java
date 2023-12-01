@@ -6,7 +6,7 @@ public class LocationProviderBase {
 
 	//protected static String CSCAPI_KEY = "SlVtWERyMWVCTnJQTmFsTnFmbTZXYU55d0FaZFV2ckhxOGRSV2xHbw==";
 	protected static String Application_Id = "ZpEp9ui1KRmZRlE7JO7f5ISIPXV4ZBbnNUzT6ok9"; // This is your app's application id
-	protected static String REST_API_Key = "PjX5iVdznEGZ0DJpl98TdwOxGEXDiewTJw7opRGf"; // This is your app's REST API key
+	protected static String REST_API_Key = ""; // This is your app's REST API key
     
 	//protected static String baseURL = "https://api.countrystatecity.in/v1"; //countries/MO/";
 	

@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
+import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
@@ -12,9 +13,12 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class DateOfBirthProvider {
 
-	private static Random rand = new Random();
+	private static SecureRandom  rand = new SecureRandom ();
+	byte bytes[] = new byte[20];
 	
 	public static String generateDob(int minAge, int maxAge) {
+		byte bytes[] = new byte[20];
+		rand.nextBytes(bytes);
 		int offset = rand.nextInt(maxAge - minAge) + minAge;
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.YEAR, -offset);
