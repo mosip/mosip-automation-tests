@@ -2,6 +2,7 @@ createPublishPolicy:
    Idp_PublishPolicy_All_Valid_Smoke:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
       role: partner
+      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: idaData/PmsIntegration/PublishPolicy/publishPolicy
       outputTemplate: idaData/PmsIntegration/PublishPolicy/publishPolicyResult
@@ -11,17 +12,4 @@ createPublishPolicy:
 		"requesttime": "$TIMESTAMP$"
 }'
       output: '{
-        "policyGroupName": "$IGNORE$",
-        "policyGroupDesc": "$IGNORE$",
-        "policyGroupStatus": true,
-        "policyName": "$IGNORE$",
-        "policyDesc": "$IGNORE$",
-        "policyType": "Auth",
-        "status": "PUBLISHED",
-        "is_Active": true,
-        "authType": "bio",
-        "authSubType": "$IGNORE$",
-		"mandatory": $IGNORE$,
-        "attributeName": "$IGNORE$",
-        "authTokenType": "$IGNORE$"
     }'

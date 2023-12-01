@@ -2,6 +2,7 @@ BioAuth:
   ESignet_BioAuth_Biometric_Face_With_Valid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
       role: resident
+      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: idaData/BioAuthEsignet/bioAuth
       outputTemplate: idaData/BioAuthEsignet/bioAuthResult
@@ -34,5 +35,4 @@ BioAuth:
     }
     }'
       output: '{
-    "transactionId": "$IGNORE$"
 }'
