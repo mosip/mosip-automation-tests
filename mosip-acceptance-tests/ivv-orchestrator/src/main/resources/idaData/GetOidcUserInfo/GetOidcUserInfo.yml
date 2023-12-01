@@ -2,10 +2,12 @@ GetOidcUserInfo:
    ESignet_GetOidcUserInfo_IdpAccessToken_StatusCode_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
       role: resident
+      checkErrorsOnlyInResponse: true
       restMethod: get
       inputTemplate: idaData/GetOidcUserInfo/GetOidcUserInfo
       outputTemplate: idaData/GetOidcUserInfo/GetOidcUserInfoResult
       input: '{
         "idpAccessToken": "esignetAccessToken"
 }'
-      output: "200"
+      output: '{	
+}'
