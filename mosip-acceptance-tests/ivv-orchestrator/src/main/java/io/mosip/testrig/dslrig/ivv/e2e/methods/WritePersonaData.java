@@ -97,8 +97,8 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 			S3Adapter s3Adapter = new S3Adapter();
 			boolean isStoreSuccess = false;
 			try {
-				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3AccountForPersonaData(), BaseTestCase.testLevel,
-						null, null, jsonFilePath, jsonFile);
+				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel,
+						null, null, "personaData.json", jsonFile);
 				logger.info("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {
 				logger.error("error occured while pushing the object" + e.getMessage());
