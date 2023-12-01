@@ -14,7 +14,7 @@ public class SlackChannelIntegration {
 	private static final Logger logger = LoggerFactory.getLogger(SlackChannelIntegration.class);
 	static String reportUrl="http://automation.mosip.net/MosipTestResource/mosip_e2e_emailable_report.html";
 	static Slack slack = Slack.getInstance();
-	static String token  = "xoxb-831351446070-1751917508130-IAFVzzZlKb5dEMwQKmfdcWAP";
+	static String token  = "";
 	static String defaultChannel = "#automation-integration";
 	
 	public static Boolean postMessage(String channelName, String message) {

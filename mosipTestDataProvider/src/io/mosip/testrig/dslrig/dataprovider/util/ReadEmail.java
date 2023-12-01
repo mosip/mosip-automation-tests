@@ -36,7 +36,7 @@ public class ReadEmail {
 	public static String gmailPOPHost = "pop.gmail.com";
 	static String mailStoreType = "pop3";  
 	static String username= "sanath.test.mosip@gmail.com";  
-	static String password= "Sanath@Mosip@123";//change accordingly  
+	static String password= "";//change accordingly  
 	static String regexpattern = "\\d+";
 	public static String messageSubject="Requesting the additional details for progressing on the application of UIN";
 	
@@ -62,7 +62,7 @@ public class ReadEmail {
 		gmailPOPHost = "pop.gmail.com";
 		mailStoreType = "pop3";  
 		username= "alok1.test.mosip@gmail.com";  
-		password= "alok@Mosip@123";//change accordingly  
+		password= "";//change accordingly  
 		String keyWord = "AdditionalInfoRequestId";
 		
 		List<String> mails = receiveEmail(gmailPOPHost, mailStoreType, username, password);
