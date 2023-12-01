@@ -18,8 +18,8 @@ on:
       - release*
       - master
       - 1.*
-      - develop
       - MOSIP*
+      - SonalFixes
 jobs:
   build-maven-automationtest:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
