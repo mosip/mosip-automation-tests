@@ -115,10 +115,12 @@ public class PacketMakerService {
 	@Value("${mosip.test.regclient.supervisorid}")
 	private String supervisorId;
 
-	@Value("${mosip.test.regclient.supervisorpwd}")
+	//@Value("${mosip.test.regclient.supervisorpwd}")
+	@SuppressWarnings("${mosip.test.regclient.supervisorpwd}")
 	private String supervisorPwd;
 
-	@Value("${mosip.test.regclient.password}")
+	//@Value("${mosip.test.regclient.password}")
+	@SuppressWarnings("${mosip.test.regclient.password}") // This is not an hard coded password.
 	private String officerPwd;
 
 	@Value("${mosip.test.regclient.supervisorBiometricFileName}")
