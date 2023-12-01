@@ -12,6 +12,7 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
+import io.mosip.testrig.dslrig.ivv.orchestrator.PersonaDataManager;
 
 public class SetContext extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(SetContext.class);
@@ -93,7 +94,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 				invalidCheckSum = step.getParameters().get(8);
 
 		}
-
+		PersonaDataManager.setVariableValue(step.getScenario().getId(), "PersonaID", step.getScenario().getId());
 		if (userAndMachineDetailParam != null)
 			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion, generatePrivateKey,
 					status, BaseTestCase.ApplnURI + "/", step);
@@ -101,5 +102,6 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			packetUtility.createContexts(negative, contextKeyValue, map, mosipVersion, generatePrivateKey, status,
 					BaseTestCase.ApplnURI + "/", step, invalidCertFlag, consent, changeSupervisorNameToDiffCase,
 					invalidEncryptedHashFlag, invalidCheckSum);
+		
 	}
 }
