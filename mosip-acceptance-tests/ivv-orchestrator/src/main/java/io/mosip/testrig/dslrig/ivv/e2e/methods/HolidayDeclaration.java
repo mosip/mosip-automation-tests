@@ -34,23 +34,11 @@ public class HolidayDeclaration extends BaseTestCaseUtil implements StepInterfac
 	@Override
 	public void run() throws RigInternalError {
 		step.getScenario().getVidPersonaProp().clear();
-		if (step.getParameters().size() == 1) {
-			holidayId = step.getParameters().get(0);
-			if (holidayId.startsWith("$$"))
-				holidayId = step.getScenario().getVariables().get(holidayId);
-			String deleteQuery = "delete from master.loc_holiday where id = '" + holidayId + "'";
-			logger.info(deleteQuery);
-			AuditDBManager.executeQueryAndDeleteRecord("master", deleteQuery);
-		} else {
 
 			String holidayLocationCode = centerHelper.getLocationCodeHoliday();
-
 			Object[] testObj = holidayDeclaration.getYmlTestData(GenerateHolidayYml);
-
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
-
 			Object[] testObjPatch = activateHoliday.getYmlTestData(UpdateHolidayStatus);
-
 			TestCaseDTO testPatch = (TestCaseDTO) testObjPatch[0];
 
 			String input2 = testPatch.getInput();
@@ -104,6 +92,5 @@ public class HolidayDeclaration extends BaseTestCaseUtil implements StepInterfac
 				step.getScenario().getVariables().put(step.getOutVarName(), holidayId);
 				return;
 			}
-		}
 	}
 }
