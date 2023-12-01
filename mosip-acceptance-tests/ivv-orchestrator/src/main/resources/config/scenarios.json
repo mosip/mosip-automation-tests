@@ -18013,16 +18013,16 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-8": {
+			"Description": "Using the holiday id delete the record from DB",
+			"Input Parameters": "HolidayId",
+			"Return Value": "NA",
+			"Action": "e2e_DeleteHoliday($$holidayId)"
+		},
+		"Step-9": {
 			"Description": "Checkes the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(reregister,$$rid)"
-		},
-		"Step-9": {
-			"Description": "Using the holiday id delete the record from DB",
-			"Input Parameters": "HolidayId",
-			"Return Value": "NA",
-			"Action": "e2e_HolidayDeclaration($$holidayId)"
 		},
 		"Step-10": {
 			"Description": "Checks RID stage and stage status",
@@ -18322,96 +18322,102 @@
 		"Group": "NA",
 		"Description": "Test suite run Pre-Requisite data tear down",
 		"Step-0": {
+			"Description": "Write the persona data into a json file",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_WritePersonaData()"
+		},
+		"Step-1": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
 			"Return Value": "NA",
 			"Action": "e2e_getPingHealth(packetcreator)"
 		},
-		"Step-1": {
+		"Step-2": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
-		"Step-2": {
+		"Step-3": {
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,1/*ADD_COMMMENT*/@@2/*ADD_COMMMENT*/,false/*GENERATE_PRIVATE_KEY*/)"
 		},
-		"Step-3": {
+		"Step-4": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_getPingHealth()"
 		},
-		"Step-4": {
+		"Step-5": {
 			"Description": "Re-sets all expectations set on mocks for simulating the scenarios",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_DeleteMockExpect()"
 		},
-		"Step-5": {
+		"Step-6": {
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details1)"
 		},
-		"Step-6": {
+		"Step-7": {
 			"Description": "Unmaps machine from the center",
 			"Input Parameters": "Action and CMD details",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$details1=e2e_User(DELETE_CENTERMAPPING,1/*ADD_COMMMENT*/@@Techno@123/*PASSWORD*/,$$details1)"
 		},
-		"Step-7": {
+		"Step-8": {
 			"Description": "Decomissions the center",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details1,1/*CENTER_INDEX*/)"
 		},
-		"Step-8": {
+		"Step-9": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
 			"Action": "$$details2=e2e_ReadPreReq(2/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
-		"Step-9": {
+		"Step-10": {
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details2)"
 		},
-		"Step-10": {
+		"Step-11": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$details2=e2e_User(DELETE_CENTERMAPPING,2/*ADD_COMMMENT*/@@Techno@123/*PASSWORD*/,$$details2)"
 		},
-		"Step-11": {
+		"Step-12": {
 			"Description": "Decomissions the center",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details2,2/*CENTER_INDEX*/)"
 		},
-		"Step-12": {
+		"Step-13": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
 			"Action": "$$details3=e2e_ReadPreReq(3/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
-		"Step-13": {
+		"Step-14": {
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details3)"
 		},
-		"Step-14": {
+		"Step-15": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$details3=e2e_User(DELETE_CENTERMAPPING,3/*ADD_COMMMENT*/@@Techno@123/*PASSWORD*/,$$details3)"
 		},
-		"Step-15": {
+		"Step-16": {
 			"Description": "Decomissions the center",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
