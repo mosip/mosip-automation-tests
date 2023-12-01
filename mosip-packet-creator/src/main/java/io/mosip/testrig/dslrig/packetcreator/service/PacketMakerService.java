@@ -65,7 +65,7 @@ public class PacketMakerService {
 	// String constants
 	private static final String MOSIPTEST_REGCLIENT_SUPERVISORID = "mosip.test.regclient.supervisorid";
 	private static final String MOSIP_TEST_REGCLIENT_USERID = "mosip.test.regclient.userid";
-	private static final String MOSIP_TEST_REGCLIENT_SUPERVISORPWD = "mosip.test.regclient.supervisorpwd";
+	private static final String MOSIP_TEST_REGCLIENT_supervisorP = "mosip.test.regclient.supervisorP";
 	private static final String MOSIP_TEST_REGCLIENT_PASSWORD = "mosip.test.regclient.password";
 	private static final String EVIDENCE = "evidence";
 	private static final String OPTIONAL = "optional";
@@ -115,13 +115,11 @@ public class PacketMakerService {
 	@Value("${mosip.test.regclient.supervisorid}")
 	private String supervisorId;
 
-	//@Value("${mosip.test.regclient.supervisorpwd}")
-	@SuppressWarnings("${mosip.test.regclient.supervisorpwd}")
-	private String supervisorPwd;
+	@Value("${mosip.test.regclient.supervisorP}")
+	private String supervisorP;
 
-	//@Value("${mosip.test.regclient.password}")
-	@SuppressWarnings("${mosip.test.regclient.password}") // This is not an hard coded password.
-	private String officerPwd;
+	@Value("${mosip.test.regclient.password}")
+	private String officerP;
 
 	@Value("${mosip.test.regclient.supervisorBiometricFileName}")
 	private String supervisorBiometricFileName;
@@ -217,10 +215,10 @@ public class PacketMakerService {
 					supervisorId = v.toString();
 				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_USERID)) {
 					officerId = v.toString();
-				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_SUPERVISORPWD)) {
-					supervisorPwd = v.toString();
+				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_supervisorP)) {
+					supervisorP = v.toString();
 				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_PASSWORD)) {
-					officerPwd = v.toString();
+					officerP = v.toString();
 				}
 			});
 		}
@@ -327,10 +325,10 @@ public class PacketMakerService {
 					officerId = v.toString();
 				} else if (k.toString().equals("mosip.version")) {
 					mosipVersion = v.toString();
-				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_SUPERVISORPWD)) {
-					supervisorPwd = v.toString();
+				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_supervisorP)) {
+					supervisorP = v.toString();
 				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_PASSWORD)) {
-					officerPwd = v.toString();
+					officerP = v.toString();
 				}
 			});
 		}
@@ -604,25 +602,25 @@ public class PacketMakerService {
 
 			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorId", supervisorId, false);
 
-			// officerPwd
-			officerPwd = p.getProperty(MOSIP_TEST_REGCLIENT_PASSWORD);
-			if (officerPwd != null && officerPwd.equals("invalid"))
-				officerPwd = FALSE; // invalid
-			else if (officerPwd != null && !officerPwd.equals(""))
-				officerPwd = "true"; // valid
+			// officerP
+			officerP = p.getProperty(MOSIP_TEST_REGCLIENT_PASSWORD);
+			if (officerP != null && officerP.equals("invalid"))
+				officerP = FALSE; // invalid
+			else if (officerP != null && !officerP.equals(""))
+				officerP = "true"; // valid
 			else
-				officerPwd = FALSE; // null
-			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerPassword", officerPwd, false);
+				officerP = FALSE; // null
+			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerPassword", officerP, false);
 
-			// supervisorPwd
-			supervisorPwd = p.getProperty(MOSIP_TEST_REGCLIENT_SUPERVISORPWD);
-			if (supervisorPwd != null && supervisorPwd.equals("invalid"))
-				supervisorPwd = FALSE; // invalid
-			else if (supervisorPwd != null && !supervisorPwd.equals(""))
-				supervisorPwd = "true"; // valid
+			// supervisorP
+			supervisorP = p.getProperty(MOSIP_TEST_REGCLIENT_supervisorP);
+			if (supervisorP != null && supervisorP.equals("invalid"))
+				supervisorP = FALSE; // invalid
+			else if (supervisorP != null && !supervisorP.equals(""))
+				supervisorP = "true"; // valid
 			else
-				supervisorPwd = FALSE; // null
-			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorPassword", supervisorPwd, false);
+				supervisorP = FALSE; // null
+			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorPassword", supervisorP, false);
 
 			// officerBiometricFileName
 			officerBiometricFileName = p.getProperty("mosip.test.regclient.officerBiometricFileName");
