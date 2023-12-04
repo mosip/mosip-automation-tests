@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import com.mifmif.common.regex.Generex;
 
 public class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
-	private static Random rand = new Random();
+	private static SecureRandom rand = new SecureRandom();
 
 	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
