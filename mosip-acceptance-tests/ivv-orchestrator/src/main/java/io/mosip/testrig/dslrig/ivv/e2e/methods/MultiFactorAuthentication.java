@@ -376,16 +376,16 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 			}
 
 			multiFactorResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
-			System.out.println("saddjha");
+			logger.info("saddjha");
 			if (multiFactorResponse != null && !multiFactorResponse.isEmpty() && modalityKeyTogetBioValue != null) {
 				String bioValue = JsonPrecondtion.getValueFromJson(multiFactorResponse, modalityKeyTogetBioValue);
 				byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
 				bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
 				test = bioAuth(modalityToLog, bioValue, uin, deviceProp, test, this.bioAuth);
-				System.out.println(test);
+				logger.info(test);
 			}
 		}
-		System.out.println(test);
+		logger.info(test);
 		return test;
 
 	}

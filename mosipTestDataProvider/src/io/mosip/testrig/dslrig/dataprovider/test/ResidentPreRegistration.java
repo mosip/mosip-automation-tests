@@ -44,7 +44,7 @@ public class ResidentPreRegistration {
 	@Given("^Adult \"(.*)\" from \"(.*)\"$")
 	public void createPersonaAdult(String gender, String country, String contextKey) {
 
-		System.out.println(String.format("createPersonaAdult %s from %s", gender, country));
+		logger.info(String.format("createPersonaAdult %s from %s", gender, country));
 		ResidentDataProvider provider = new ResidentDataProvider();
 		Gender enumGender = Gender.valueOf(gender);
 
@@ -61,7 +61,7 @@ public class ResidentPreRegistration {
 		if (lst != null && !lst.isEmpty())
 			person = lst.get(0);
 
-		System.out.println(String.format("createPersonaAdult %s", person.getName().getFirstName()));
+		logger.info(String.format("createPersonaAdult %s", person.getName().getFirstName()));
 
 	}
 
@@ -74,7 +74,7 @@ public class ResidentPreRegistration {
 
 	public String sendOtpTo(String to, String contextKey) {
 
-		System.out.println(String.format("sendOtp %s ", to));
+		logger.info(String.format("sendOtp %s ", to));
 
 		if (to.equals("phone"))
 			otpTarget = person.getContact().getMobileNumber();
@@ -93,7 +93,7 @@ public class ResidentPreRegistration {
 			otpTarget = emailTo;
 
 		String result = CreatePersona.sendOtpTo(otpTarget, person.getPrimaryLanguage(), contextKey);
-		System.out.println(String.format("sendOtp Result %s ", result));
+		logger.info(String.format("sendOtp Result %s ", result));
 		return result;
 	}
 
@@ -184,11 +184,11 @@ public class ResidentPreRegistration {
 
 	@And("^PreRegister him$")
 	public void PreRegisterAdultMale(String contextKey) throws JSONException {
-		System.out.println("PreRegisterAdultMale");
+		logger.info("PreRegisterAdultMale");
 
 		String result = PreRegistrationSteps.postApplication(person, null, contextKey);
 		preRegID = result;
-		System.out.println(String.format("PreRegisterAdultMale Result %s ", result));
+		logger.info(String.format("PreRegisterAdultMale Result %s ", result));
 
 		// assert(1 == 2);
 	}
@@ -197,7 +197,7 @@ public class ResidentPreRegistration {
 	 * @Then("^upload \"(POI|POD)\" document$") public void uploadProof(String
 	 * docCategory, String contextKey) throws JSONException {
 	 * 
-	 * System.out.println("uploadProof " + docCategory); int i = 0; for
+	 * logger.info("uploadProof " + docCategory); int i = 0; for
 	 * (MosipDocument a : person.getDocuments()) {
 	 * PreRegistrationSteps.UploadDocument(a.getDocCategoryCode(),
 	 * a.getType().get(i).getCode(), a.getDocCategoryLang(), a.getDocs().get(i),

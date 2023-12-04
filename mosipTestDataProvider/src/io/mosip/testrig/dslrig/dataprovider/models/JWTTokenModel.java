@@ -3,11 +3,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lombok.Data;
 @Data
 public class JWTTokenModel {
-
+	private static final Logger logger = LoggerFactory.getLogger(JWTTokenModel.class);
 	//Map<String, Object> jsonHeader; // = new HashMap<String, Object>();
 	String jwtPayload;
 	String jwtSign;
@@ -15,7 +17,7 @@ public class JWTTokenModel {
 	public static final String BIOMETRIC_SEPERATOR = "(?<=\\.)(.*)(?=\\.)";
 	
 	public JWTTokenModel(String jwtToken) {
-		System.out.println(jwtToken);
+		logger.info(jwtToken);
 		 java.util.Base64.Decoder decoder = java.util.Base64.getUrlDecoder();
          String[] parts = jwtToken.split("\\."); // split out the "parts" (header, payload and signature)
 
@@ -45,6 +47,6 @@ public class JWTTokenModel {
 	 public static void main(String[] args) {
 		 String jwtToken = "";
 		 JWTTokenModel model = new JWTTokenModel(jwtToken);
-		 System.out.println(model.toString());
+		 logger.info(model.toString());
 	 }
 }

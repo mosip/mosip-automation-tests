@@ -156,11 +156,10 @@ public class CountryProvider extends LocationProviderBase {
 		// }
 		/*
 		 * c.load("IN"); CountryModel cm = c.getDetail();
-		 * System.out.println(cm.getObjectId() + " name:"+ cm.getName());
+		 * logger.info(cm.getObjectId() + " name:"+ cm.getName());
 		 * 
 		 * StateProvider stateProvider = new StateProvider(); stateProvider.load(cm);
 		 * List<StateModel> states = stateProvider.getDetail(); states.forEach((s) ->{
-		 * System.out.println(s.getName()); });
 		 */
 	}
 }
