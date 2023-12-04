@@ -65,7 +65,7 @@ public class PacketMakerService {
 	// String constants
 	private static final String MOSIPTEST_REGCLIENT_SUPERVISORID = "mosip.test.regclient.supervisorid";
 	private static final String MOSIP_TEST_REGCLIENT_USERID = "mosip.test.regclient.userid";
-	private static final String MOSIP_TEST_REGCLIENT_supervisorP = "mosip.test.regclient.supervisorP";
+	private static final String MOSIP_TEST_REGCLIENT_supervisorP = "mosip.test.regclient.supervisorpwd";
 	private static final String MOSIP_TEST_REGCLIENT_PASSWORD = "mosip.test.regclient.password";
 	private static final String EVIDENCE = "evidence";
 	private static final String OPTIONAL = "optional";
@@ -115,7 +115,7 @@ public class PacketMakerService {
 	@Value("${mosip.test.regclient.supervisorid}")
 	private String supervisorId;
 
-	@Value("${mosip.test.regclient.supervisorP}")
+	@Value("${mosip.test.regclient.supervisorpwd}")
 	private String supervisorP;
 
 	@Value("${mosip.test.regclient.password}")
