@@ -102,7 +102,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	private static final String CENTERID = "centerId";
 	private static final String USERID = "userid";
 	private static final String PASSWORD = "password";
-	private static final String MOSIP_TEST_REGCLIENT_SUPERVISORPWD = "mosip.test.regclient.supervisorpwd";
+	private static final String MOSIP_TEST_REGCLIENT_supervisorP = "mosip.test.regclient.supervisorpwd";
 	private static final String USERPASSWORD = "userpassword";
 	private static final String VALID = "valid";
 	private static final String INVALID = "invalid";
@@ -712,7 +712,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("Female", "FLE");
 		jsonReq.put("Other", "OTH");
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
-		jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORPWD,
+		jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP,
 				(map.get(USERPASSWORD) != null) ? map.get(USERPASSWORD) : E2EConstants.USER_PASSWD);
 		if (status != null && !status.isBlank()) {
 			jsonReq.put("machineStatus", status);
@@ -813,7 +813,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 			jsonReq.put(PREREG_PASSWORD,
 					(map.get(USERPASSWORD) != null) ? map.get(USERPASSWORD) : E2EConstants.USER_PASSWD);
-			jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORPWD,
+			jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP,
 					(map.get(USERPASSWORD) != null) ? map.get(USERPASSWORD) : E2EConstants.USER_PASSWD);
 		} else if (negative.contains("@@")) { // to verify permutation and combination for metadata operationdata
 			String supervOpertoDetails[] = negative.split("@@");
@@ -829,10 +829,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 			if (supervOpertoDetails[1].equalsIgnoreCase("null")) // Don't add to the map
 			{
 			} else if (supervOpertoDetails[1].equalsIgnoreCase(VALID))
-				jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORPWD,
+				jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP,
 						(map.get(USERPASSWORD) != null) ? map.get(USERPASSWORD) : E2EConstants.USER_PASSWD);
 			else if (supervOpertoDetails[1].equalsIgnoreCase(INVALID))
-				jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORPWD, supervOpertoDetails[1]);
+				jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP, supervOpertoDetails[1]);
 
 			// For operatorid
 			if (supervOpertoDetails[2].equalsIgnoreCase("null")) // Don't add to the map
