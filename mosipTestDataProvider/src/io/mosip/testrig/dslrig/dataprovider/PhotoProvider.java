@@ -45,7 +45,7 @@ public class PhotoProvider {
 			        };
 			        File[] listDir = dir.listFiles(filter);
 			        int numberOfSubfolders = listDir.length;
-			        System.out.println(listDir.length);
+			        logger.info(listDir.length);
 
 			int min = 1;
 			int max = numberOfSubfolders;
@@ -61,7 +61,7 @@ public class PhotoProvider {
 			// otherwise pick the impression of same of scenario number
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
-			System.out.println("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
+			logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
 					+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
 					File file=new File(dirPath + String.format(Photo_File_Format, impressionToPick));
 
@@ -82,14 +82,14 @@ public class PhotoProvider {
 			else
 			{
 				img=ImageIO.read(file);
-				System.out.println("Image picked from this path="+ file);
+				logger.info("Image picked from this path="+ file);
 			
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
 			/*String [] names = ImageIO.getWriterFormatNames();
 			for(String s: names)
-				System.out.println(s);
+				logger.info(s);
 			*/
 			ImageIO.write(img, "jpg", baos);
 			baos.flush();
@@ -195,7 +195,7 @@ public class PhotoProvider {
 		//splitImages();
 		//byte[][] strImg = getPhoto(21,Gender.Male.name(),"contextKey");
 		//Files.write(strImg[0].getBytes(), new File( "c:\\temp\\photo.txt"));
-		//System.out.println(strImg);
+		//logger.info(strImg);
 		
 	}
 	public static byte[][] loadPhoto(String faceFile) {

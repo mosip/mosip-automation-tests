@@ -92,7 +92,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				step.getScenario().getOidcPmsProp().put("name", name);
 				step.getScenario().getOidcPmsProp().put("policygroupId", policygroupId);
 
-				System.out.println(name);
+				logger.info(name);
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {
@@ -125,7 +125,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				policyName = jsonResp.getJSONObject("response").getString("name");
 				step.getScenario().getOidcPmsProp().put("policyId", policyId); // "$$clientId=e2e_OidcClient()"
 
-				System.out.println(policyId);
+				logger.info(policyId);
 			}
 
 		} catch (AuthenticationTestException | AdminTestException e) {

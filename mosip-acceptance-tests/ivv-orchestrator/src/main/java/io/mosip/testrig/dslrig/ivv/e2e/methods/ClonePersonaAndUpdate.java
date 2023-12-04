@@ -47,7 +47,7 @@ public class ClonePersonaAndUpdate extends BaseTestCaseUtil implements StepInter
 				File source = new File(originalPersonaPath);
 				try {
 					Map<String,Object> root = mapper.readValue(source, Map.class);
-					System.out.println(root);
+					logger.info(root);
 					Map<String, String> jsonNamefirstlang = (Map<String, String>) root.get("name");
 					
 					Map<String, String> jsonNameseclang = (Map<String, String>) root.get("name_seclang");
@@ -73,7 +73,7 @@ public class ClonePersonaAndUpdate extends BaseTestCaseUtil implements StepInter
 						String serializedJsonString = mapper.writeValueAsString(root);
 						file.write(serializedJsonString);
 						file.flush();
-						System.out.println("Successfully updated json object to file...!!");
+						logger.info("Successfully updated json object to file...!!");
 					}
 				} catch (JsonParseException e) {
 					logger.error(e.getMessage());

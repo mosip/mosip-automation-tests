@@ -122,7 +122,7 @@ public class MDSClient implements MDSClientInterface {
 		/////////
 		//reach cached finger prints from folder
 				String dirPath = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
-				System.out.println("createProfile dirPath " + dirPath);
+				logger.info("createProfile dirPath " + dirPath);
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				File dir = new File(dirPath);
 
@@ -143,7 +143,7 @@ public class MDSClient implements MDSClientInterface {
 				// otherwise pick the impression of same of scenario number
 				int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber ;
 
-				System.out.println("createProfile currentScenarioNumber=" + currentScenarioNumber +" numberOfSubfolders=" + numberOfSubfolders + " impressionToPick=" + impressionToPick );
+				logger.info("createProfile currentScenarioNumber=" + currentScenarioNumber +" numberOfSubfolders=" + numberOfSubfolders + " impressionToPick=" + impressionToPick );
 				List<File> lst=new LinkedList<File>();
 				for(int i=min; i <= max; i++) {
 
@@ -153,7 +153,7 @@ public class MDSClient implements MDSClientInterface {
 				}
 				
 				List<File> firstSet = tblFiles.get(impressionToPick);
-				System.out.println("createProfile Impression used "+ impressionToPick);
+				logger.info("createProfile Impression used "+ impressionToPick);
 		
 		///////////////
 		
@@ -217,17 +217,17 @@ public class MDSClient implements MDSClientInterface {
 		      for(File file : files) {
 		    	  boolean isDeleted = file.delete();
 	                if (!isDeleted) {
-	                	System.out.println("File Deleted successfully");
+	                	logger.info("File Deleted successfully");
 	                	
 	                }
 	            isFileDeleted=file.delete();
 		        if(!isFileDeleted) {
-		        	System.out.println("File Deleted successfully");	
+		        	logger.info("File Deleted successfully");	
 		        }
 		      }
 		      isProfDirDeleted=profDir.delete();
 		      if(!isProfDirDeleted) {
-		        	System.out.println("File Deleted successfully");	
+		        	logger.info("File Deleted successfully");	
 		        }
 		}
 		
@@ -240,14 +240,14 @@ public class MDSClient implements MDSClientInterface {
 		body.put("type", "Biometric Device");
 
 		try {
-			System.out.println("Inside Setprofile");
+			logger.info("Inside Setprofile");
 			HttpRCapture capture = new HttpRCapture(url);
 			capture.setMethod("POST");
 			String response = RestClient.rawHttp(capture, body.toString(),contextKey);
 			JSONObject respObject = new JSONObject(response);
 
 		}catch(Exception ex) {
-			System.out.println(ex.getMessage());
+			logger.info(ex.getMessage());
 			logger.error(ex.getMessage());
 		}
 
@@ -356,7 +356,7 @@ public class MDSClient implements MDSClientInterface {
 			HttpRCapture capture = new HttpRCapture(url);
 			capture.setMethod("RCAPTURE");
 			String response = RestClient.rawHttp(capture, jsonReq.toString(),contextKey);
-			//System.out.println("MDS RESPONSE :"+  response);
+			//logger.info("MDS RESPONSE :"+  response);
 			JSONObject respObject = new JSONObject(response);
 			JSONArray bioArray = respObject.getJSONArray("biometrics");
 			List<MDSDeviceCaptureModel> lstBiometrics  = rCaptureModel.getLstBiometrics().get(type);
@@ -447,7 +447,7 @@ public class MDSClient implements MDSClientInterface {
 					.body(body.toString())
 					.post(url );
 			String resp = response.getBody().asString();
-			System.out.println(resp);
+			logger.info(resp);
 
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
@@ -464,7 +464,7 @@ public class MDSClient implements MDSClientInterface {
 		//client.setProfile("Default",port);
 		List<MDSDevice> d= client.getRegDeviceInfo("Iris");
 		d.forEach( dv-> {
-			System.out.println(dv.toJSONString());	
+			logger.info(dv.toJSONString());	
 		});
 		
 		
@@ -472,18 +472,18 @@ public class MDSClient implements MDSClientInterface {
 
 
 		f.forEach( dv-> {
-			System.out.println(dv.toJSONString());	
+			logger.info(dv.toJSONString());	
 			
 //			MDSRCaptureModel r =  client.captureFromRegDevice(dv, null, "Finger",null,60,"1",0);
 			//MDSRCaptureModel r =  client.captureFromRegDevice(d.get(0),null, "Iris",null,60,2);
 		
-//			System.out.println( r.toJSONString());
+//			logger.info( r.toJSONString());
 			
 		});
 		
 		//r = client.captureFromRegDevice(d.get(0),r, "Face",null,60,1);
 		
-		//System.out.println( r.toJSONString());
+		//logger.info( r.toJSONString());
 	}
 
 	@Override
