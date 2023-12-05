@@ -20,8 +20,6 @@ public class ContactProvider {
 	public static List<Contact> generate(List<Name> names,int count) {
 		
 		List<Contact> contacts = new ArrayList<Contact>();
-		byte bytes[] = new byte[20];
-		rand.nextBytes(bytes);
 		for(int i=0; i < count; i++) {
 			
 			Contact contact = new Contact();

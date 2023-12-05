@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
-import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -155,7 +154,7 @@ public class RegistrationSteps {
 			assertEquals(200, response.statusCode());
 			assertEquals("Success", response.jsonPath().getString("errorInfo"));
 		} catch (Exception e) {
-			logger.error("Issue with the Rest Assured MOCKMDS Score Request"+ e);
+			logger.error("Issue with the Rest Assured MOCKMDS Score Request{}", e);
 		}
 	}
 
@@ -170,7 +169,7 @@ public class RegistrationSteps {
 //            assertEquals("Success", response.jsonPath().getString("errorInfo"));
 
         } catch (Exception e) {
-        	logger.info("Issue with the Rest Assured MOCKMDS Profile Request"+ e);
+        	logger.error("Issue with the Rest Assured MOCKMDS Profile Request{}", e);
         }
     }
     
