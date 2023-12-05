@@ -45,7 +45,7 @@ public class PhotoProvider {
 			        };
 			        File[] listDir = dir.listFiles(filter);
 			        int numberOfSubfolders = listDir.length;
-			        logger.info(listDir.length);
+			       
 
 			int min = 1;
 			int max = numberOfSubfolders;
