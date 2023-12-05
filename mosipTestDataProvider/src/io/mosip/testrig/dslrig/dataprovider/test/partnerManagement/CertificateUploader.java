@@ -81,8 +81,8 @@ public class CertificateUploader{
     }
 
     public static void main(String[] args){
-
-        logger.info(uploadCACertificate("certificateData", "partnerDomain","contextKey"));
+String data=uploadCACertificate("certificateData", "partnerDomain","contextKey");
+        logger.info(data);
     }
 }
 

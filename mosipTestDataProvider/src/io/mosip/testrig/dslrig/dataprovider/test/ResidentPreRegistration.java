@@ -74,7 +74,7 @@ public class ResidentPreRegistration {
 
 	public String sendOtpTo(String to, String contextKey) {
 
-		logger.info(String.format("sendOtp %s ", to));
+		logger.info(String.format("sendOtp %s {}", to));
 
 		if (to.equals("phone"))
 			otpTarget = person.getContact().getMobileNumber();
@@ -93,7 +93,7 @@ public class ResidentPreRegistration {
 			otpTarget = emailTo;
 
 		String result = CreatePersona.sendOtpTo(otpTarget, person.getPrimaryLanguage(), contextKey);
-		logger.info(String.format("sendOtp Result %s ", result));
+		logger.info(String.format("sendOtp Result %s {}", result));
 		return result;
 	}
 
@@ -188,7 +188,7 @@ public class ResidentPreRegistration {
 
 		String result = PreRegistrationSteps.postApplication(person, null, contextKey);
 		preRegID = result;
-		logger.info(String.format("PreRegisterAdultMale Result %s ", result));
+		logger.info(String.format("PreRegisterAdultMale Result %s {}", result));
 
 		// assert(1 == 2);
 	}
