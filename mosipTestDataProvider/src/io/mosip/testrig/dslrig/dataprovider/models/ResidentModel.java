@@ -134,8 +134,7 @@ public class ResidentModel  implements Serializable {
 		Name name = new Name();
 		name.setFirstName("abcd ’'` efg");
 		model.setName(name);
-		logger.info(model.toJSONString());
-
+		
 		try {
 			Files.write(Paths.get("test.json"), model.toJSONString().getBytes());
 		} catch (IOException e1) {
