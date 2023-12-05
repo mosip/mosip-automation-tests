@@ -340,7 +340,7 @@ public class CreatePersona {
 					JSONArray jsonArray = locaitonherirachyArray.getJSONArray(i);
 					for (int j = 0; j < jsonArray.length(); j++) {
 						String id = jsonArray.getString(j);
-						System.out.println(id);
+						logger.info(id);
 
 						if (schemaItem.getId().toLowerCase().equals(id.toLowerCase())) {
 							//String locLevel = (String) locationSet.toArray()[j];
@@ -556,7 +556,7 @@ public class CreatePersona {
 			Boolean bFound= false;
 			for(MosipLocationModel locModel: locations) {
 				
-				System.out.println("Schema.id="+ schema.getId() + "== locModel[" + locModel.getHierarchyLevel() + "]=" +locModel.getHierarchyName());
+				logger.info("Schema.id="+ schema.getId() + "== locModel[" + locModel.getHierarchyLevel() + "]=" +locModel.getHierarchyName());
 			
 				if(schema.getId().equalsIgnoreCase(locModel.getHierarchyName()) && schema.getRequired() ) {
 	

@@ -82,7 +82,7 @@ public class CertificateUploader{
 
     public static void main(String[] args){
 
-        System.out.println(uploadCACertificate("certificateData", "partnerDomain","contextKey"));
+        logger.info(uploadCACertificate("certificateData", "partnerDomain","contextKey"));
     }
 }
 

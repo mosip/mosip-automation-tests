@@ -508,7 +508,7 @@ public class ResidentDataProvider {
 		MDSClient cli = new MDSClient(0);
 		
 		for(ResidentModel r: lst) {
-			System.out.println(r.toJSONString());
+			logger.info(r.toJSONString());
 	
 			cli.createProfile("C:\\Mosip.io\\gitrepos\\mosip-mock-services\\MockMDS\\target\\Profile\\", "tst1", r,"contextKey","Registration");
 			
