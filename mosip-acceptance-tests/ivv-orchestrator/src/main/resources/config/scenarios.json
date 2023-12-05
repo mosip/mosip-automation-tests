@@ -262,6 +262,12 @@
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_GenerateAuthCertifcates()"
+		},
+		"Step-43": {
+			"Description": "Resets the context data",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_ResetContextData()"
 		}
 	},
 	{
@@ -2396,7 +2402,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "A blind Resident walk-ins to registration center completes the process and gets UIN card. Later performs biometric authentication using left little finger",
+		"Description": "A differently abled resident walk-ins to registration center completes the process and gets UIN card. Later performs biometric authentication using left little finger",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -16301,7 +16307,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Adult_New_Exception",
-		"Description": "A blind Resident walk-ins to registration center completes the process and gets UIN card .Later updates all biometrics and using uin check for the  absence of exception marked modality",
+		"Description": "A differently abled resident walk-ins to registration center completes the process and gets UIN card .Later updates all biometrics and using uin check for the absence of exception marked modality",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
