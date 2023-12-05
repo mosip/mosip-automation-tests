@@ -67,7 +67,6 @@ public class ReadEmail {
 		
 		List<String> mails = receiveEmail(gmailPOPHost, mailStoreType, username, password);
 		for (String s : mails) {
-			logger.info("S==" + s);
 			int position = s.indexOf(keyWord);
 			String additionalInfoReqId = s.substring(position).split(" ")[1];
 			logger.info(additionalInfoReqId);
@@ -107,9 +106,9 @@ public class ReadEmail {
 					if (!message.getSubject().toLowerCase().contains("uin"))
 						continue;
 					logger.info("---------------------------------");
-					logger.info("Email Number " + (i + 1));
-					logger.info("Subject: " + message.getSubject());
-					logger.info("From: " + message.getFrom()[0]);
+					logger.info("Email Number {}" , (i + 1));
+					logger.info("Subject: {}" , message.getSubject());
+					logger.info("From: {}" , message.getFrom()[0]);
 					MimeMultipart content = (MimeMultipart) message.getContent();
 					String bodyMsg = getTextFromMimeMultipart(content);
 					
