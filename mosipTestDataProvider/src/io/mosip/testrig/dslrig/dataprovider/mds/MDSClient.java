@@ -122,7 +122,9 @@ public class MDSClient implements MDSClientInterface {
 		/////////
 		//reach cached finger prints from folder
 		String dirPath = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
-		logger.info("createProfile dirPath " + dirPath);
+		logger.info("createProfile dirPath {}", dirPath);
+		
+		
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 		File dir = new File(dirPath);
 
@@ -143,7 +145,7 @@ public class MDSClient implements MDSClientInterface {
 		// otherwise pick the impression of same of scenario number
 		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber ;
 
-		logger.info("createProfile currentScenarioNumber=" + currentScenarioNumber +" numberOfSubfolders=" + numberOfSubfolders + " impressionToPick=" + impressionToPick );
+		logger.info("createProfile currentScenarioNumber={}" , currentScenarioNumber ," numberOfSubfolders={}" , numberOfSubfolders , " impressionToPick={}" , impressionToPick );
 		List<File> lst=new LinkedList<File>();
 		for(int i=min; i <= max; i++) {
 
@@ -153,7 +155,7 @@ public class MDSClient implements MDSClientInterface {
 		}
 
 		List<File> firstSet = tblFiles.get(impressionToPick);
-		logger.info("createProfile Impression used "+ impressionToPick);
+		logger.info("createProfile Impression used {}", impressionToPick);
 
 		///////////////
 
@@ -355,7 +357,7 @@ public class MDSClient implements MDSClientInterface {
 			HttpRCapture capture = new HttpRCapture(url);
 			capture.setMethod("RCAPTURE");
 			String response = RestClient.rawHttp(capture, jsonReq.toString(),contextKey);
-			//logger.info("MDS RESPONSE :"+  response);
+			
 			JSONObject respObject = new JSONObject(response);
 			JSONArray bioArray = respObject.getJSONArray("biometrics");
 			List<MDSDeviceCaptureModel> lstBiometrics  = rCaptureModel.getLstBiometrics().get(type);
@@ -476,13 +478,13 @@ public class MDSClient implements MDSClientInterface {
 			//			MDSRCaptureModel r =  client.captureFromRegDevice(dv, null, "Finger",null,60,"1",0);
 			//MDSRCaptureModel r =  client.captureFromRegDevice(d.get(0),null, "Iris",null,60,2);
 
-			//			logger.info( r.toJSONString());
+			
 
 		});
 
 		//r = client.captureFromRegDevice(d.get(0),r, "Face",null,60,1);
 
-		//logger.info( r.toJSONString());
+		
 	}
 
 	@Override
