@@ -1,5 +1,8 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -13,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
+import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
+import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
@@ -60,5 +66,16 @@ public class ContextController {
 			logger.error("createServerContext", ex);
 		}
 		return bRet;
+	}
+
+	@GetMapping(value = "/resetContextData/{contextKey}")
+	public @ResponseBody String resetContextData(@PathVariable("contextKey") String contextKey) {
+		try {
+			return VariableManager.deleteNameSpace(
+					VariableManager.getVariableValue(contextKey, "urlBase").toString() + "run_context");
+		} catch (Exception ex) {
+			logger.error("resetNameSpaceData", ex);
+			return "{\"" + ex.getMessage() + "\"}";
+		}
 	}
 }
