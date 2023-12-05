@@ -1349,7 +1349,7 @@ public  class MosipMasterData {
 		
 		Hashtable<Double,Properties> tbl1 = getIDSchemaLatestVersion(contextKey);
 		 double schemaId = tbl1.keys().nextElement();
-		 logger.info(schemaId);
+	//	 logger.info(schemaId);
 		 List<MosipIDSchema> lstSchema = (List<MosipIDSchema>) tbl1.get(schemaId).get("schemaList");
 		 List<String> reqdFields = (List<String>) tbl1.get(schemaId).get("requiredAttributes");
 					
