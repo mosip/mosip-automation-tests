@@ -148,6 +148,36 @@ public final class VariableManager {
 
 		return bRet;
 	}
+	
+	public static String deleteNameSpace(String contextKey) {
+        try {
+        	printAllContents();
+            Cache<String, Object> cache = varNameSpaces.remove(contextKey);
+            if (cache != null) {
+                synchronized (cacheManager) {
+                    cacheManager.destroyCache(contextKey);
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return "false";
+        }
+        return "true";
+    } 
+	
+	public static void printAllContents() {
+		StringBuffer s = new StringBuffer();
+        for (String nameSpace : varNameSpaces.keySet()) {
+            Cache<String, Object> cache = varNameSpaces.get(nameSpace);
+            s.append("Contents of Namespace: " + nameSpace + "\\n");
+            for (Cache.Entry<String, Object> entry : cache) {
+                String varName = entry.getKey();
+                Object value = entry.getValue();
+                s.append(varName + " = " + value + "\\n");
+            }
+        }
+     logger.info(s.toString());   
+    }
 
 	/*
 	 * Variables are embedded inside a text in following format {{varname}}
