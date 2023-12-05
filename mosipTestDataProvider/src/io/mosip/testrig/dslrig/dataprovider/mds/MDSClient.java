@@ -247,7 +247,6 @@ public class MDSClient implements MDSClientInterface {
 			JSONObject respObject = new JSONObject(response);
 
 		}catch(Exception ex) {
-			logger.info(ex.getMessage());
 			logger.error(ex.getMessage());
 		}
 

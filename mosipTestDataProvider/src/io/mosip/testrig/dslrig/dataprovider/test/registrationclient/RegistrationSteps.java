@@ -155,7 +155,7 @@ public class RegistrationSteps {
 			assertEquals(200, response.statusCode());
 			assertEquals("Success", response.jsonPath().getString("errorInfo"));
 		} catch (Exception e) {
-			logger.info("Issue with the Rest Assured MOCKMDS Score Request"+ e);
+			logger.error("Issue with the Rest Assured MOCKMDS Score Request"+ e);
 		}
 	}
 
