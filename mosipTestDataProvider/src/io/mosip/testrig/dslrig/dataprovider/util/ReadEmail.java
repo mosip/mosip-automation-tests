@@ -45,7 +45,7 @@ public class ReadEmail {
 		
 		List<String> mails =  receiveEmail(gmailPOPHost, mailStoreType, username, password);  
 		for(String s: mails) {
-			logger.info("S==" +s);
+			logger.info("S=={}" ,s);
 			 Pattern pattern = Pattern.compile(regexpattern);
 			 Matcher matcher = pattern.matcher(s);
 			 if (matcher.find())
@@ -112,7 +112,7 @@ public class ReadEmail {
 					logger.info("From: " + message.getFrom()[0]);
 					MimeMultipart content = (MimeMultipart) message.getContent();
 					String bodyMsg = getTextFromMimeMultipart(content);
-					logger.info("Body Message: " + bodyMsg);
+					logger.info("Body Message: {}" , bodyMsg);
 					if (message.getFrom()[0].toString().toLowerCase().contains("mosip")) {
 						mailMessage.add(bodyMsg);
 						message.setFlag(Flags.Flag.DELETED, true);
