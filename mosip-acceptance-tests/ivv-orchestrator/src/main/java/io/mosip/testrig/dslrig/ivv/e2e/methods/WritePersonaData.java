@@ -111,7 +111,7 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 			// Convert the JSONArray to a string and write it to the file
 			String jsonString = jsonArray.toString();
 			fileWriter.write(jsonString);
-			System.out.println("JSONArray has been written to the file.");
+			logger.info("JSONArray has been written to the file.");
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}

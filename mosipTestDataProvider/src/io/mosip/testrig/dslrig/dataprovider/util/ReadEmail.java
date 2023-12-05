@@ -45,12 +45,12 @@ public class ReadEmail {
 		
 		List<String> mails =  receiveEmail(gmailPOPHost, mailStoreType, username, password);  
 		for(String s: mails) {
-			System.out.println("S==" +s);
+			logger.info("S==" +s);
 			 Pattern pattern = Pattern.compile(regexpattern);
 			 Matcher matcher = pattern.matcher(s);
 			 if (matcher.find())
 			 {
-				 System.out.println(matcher.group());
+				 logger.info(matcher.group());
 				 otps.add(matcher.group());
 			 }
 		 }
@@ -67,10 +67,10 @@ public class ReadEmail {
 		
 		List<String> mails = receiveEmail(gmailPOPHost, mailStoreType, username, password);
 		for (String s : mails) {
-			System.out.println("S==" + s);
+			logger.info("S==" + s);
 			int position = s.indexOf(keyWord);
 			String additionalInfoReqId = s.substring(position).split(" ")[1];
-			System.out.println(additionalInfoReqId);
+			logger.info(additionalInfoReqId);
 			additionalInfoReqIds.add(additionalInfoReqId);
 		}
 		return additionalInfoReqIds;
@@ -106,13 +106,13 @@ public class ReadEmail {
 					Message message = messages[i];
 					if (!message.getSubject().toLowerCase().contains("uin"))
 						continue;
-					System.out.println("---------------------------------");
-					System.out.println("Email Number " + (i + 1));
-					System.out.println("Subject: " + message.getSubject());
-					System.out.println("From: " + message.getFrom()[0]);
+					logger.info("---------------------------------");
+					logger.info("Email Number " + (i + 1));
+					logger.info("Subject: " + message.getSubject());
+					logger.info("From: " + message.getFrom()[0]);
 					MimeMultipart content = (MimeMultipart) message.getContent();
 					String bodyMsg = getTextFromMimeMultipart(content);
-					System.out.println("Body Message: " + bodyMsg);
+					logger.info("Body Message: " + bodyMsg);
 					if (message.getFrom()[0].toString().toLowerCase().contains("mosip")) {
 						mailMessage.add(bodyMsg);
 						message.setFlag(Flags.Flag.DELETED, true);
@@ -133,7 +133,7 @@ public class ReadEmail {
 		 getadditionalInfoReqIds();
 		 List<String> otps = getOtps();
 		 for(String ss: otps) {
-			 System.out.println(ss);
+			 logger.info(ss);
 		 }	  
 	 }  
 	 private static String getTextFromMimeMultipart( MimeMultipart mimeMultipart)  throws MessagingException, IOException{

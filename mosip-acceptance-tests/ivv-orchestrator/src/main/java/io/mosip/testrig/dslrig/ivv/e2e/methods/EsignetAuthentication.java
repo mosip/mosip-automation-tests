@@ -78,7 +78,7 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
-			System.out.println(transactionId1);
+			logger.info(transactionId1);
 
 		}
 
@@ -89,7 +89,7 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 					"transactionId parameter is  missingctionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
-			System.out.println(transactionId2);
+			logger.info(transactionId2);
 
 		}
 		if (step.getParameters().size() == 6 && step.getParameters().get(1).startsWith("$$")) {

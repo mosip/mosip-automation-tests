@@ -114,24 +114,24 @@ public class CSVHelper {
 			CSVHelper helper = new CSVHelper(VariableManager.getVariableValue("contextKey", "mountPath").toString()
 					+ VariableManager.getVariableValue("contextKey", "mosip.test.persona.namesdatapath").toString()
 					+ "/en/surnames.csv");
-			System.out.println(helper.getRecordCount());
+			logger.info(helper.getRecordCount()+"");
 			helper.open();
 			List<String[]> recs = helper.readRecords(new int[] { 0, 15, 10, 20, 12 });
 			for (String[] r : recs) {
 
-				System.out.println(CommonUtil.toCaptialize(r[0]));
+				logger.info(CommonUtil.toCaptialize(r[0]));
 			}
 			helper.close();
 
 			helper = new CSVHelper(VariableManager.getVariableValue("contextKey", "mountPath").toString()
 					+ VariableManager.getVariableValue("contextKey", "mosip.test.persona.namesdatapath").toString()
 					+ "/ara/boy_names.csv");
-			System.out.println(helper.getRecordCount());
+			logger.info(helper.getRecordCount()+"");
 			helper.open();
 			recs = helper.readRecords(new int[] { 1, 15, 10, 20, 12 });
 			for (String[] r : recs) {
 
-				System.out.println(r[1]);
+				logger.info(r[1]);
 			}
 			helper.close();
 		} catch (IOException e) {

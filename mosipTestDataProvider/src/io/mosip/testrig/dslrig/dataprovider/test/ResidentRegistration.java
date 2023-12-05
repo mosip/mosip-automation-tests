@@ -28,7 +28,7 @@ public class ResidentRegistration {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-		System.out.println(rid);
+		logger.info(rid);
 	}
 	@Then("^check registration status$")
 	public static void checkRegistrationStatus(String contextKey) {
