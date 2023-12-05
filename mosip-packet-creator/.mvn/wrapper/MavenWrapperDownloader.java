@@ -62,7 +62,7 @@ public class MavenWrapperDownloader {
                 mavenWrapperProperties.load(mavenWrapperPropertyFileInputStream);
                 url = mavenWrapperProperties.getProperty(PROPERTY_NAME_WRAPPER_URL, url);
             } catch (IOException e) {
-            	logger.info("- ERROR loading '" + MAVEN_WRAPPER_PROPERTIES_PATH + "'");
+            	logger.error("- ERROR loading '" + MAVEN_WRAPPER_PROPERTIES_PATH + "'");
             } finally {
                 try {
                     if(mavenWrapperPropertyFileInputStream != null) {
@@ -88,8 +88,7 @@ public class MavenWrapperDownloader {
             logger.info("Done");
             System.exit(0);
         } catch (Throwable e) {
-        	logger.info("- Error downloading");
-            logger.error(e.getMessage());
+            logger.error("- Error downloading"+e.getMessage());
             System.exit(1);
         }
     }
