@@ -43,9 +43,9 @@ public class GenerateAuthCertifcates extends BaseTestCaseUtil implements StepInt
 		partnerKeyUrl= PartnerRegistration.partnerKeyUrl;
 		String uriParts[] = PartnerRegistration.partnerKeyUrl.split("/");
 		partnerId = uriParts[uriParts.length - 2];
-		System.out.println(partnerKeyUrl);
+		logger.info(partnerKeyUrl);
 		BaseTestCaseUtil.partnerKeyUrl=partnerKeyUrl;
-		System.out.println(partnerKeyUrl);
+		logger.info(partnerKeyUrl);
 
 
 	}

@@ -190,7 +190,7 @@ public class PreRegistrationSteps {
 		String response = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
 		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "deleteApplication").toString().trim();
-		System.out.println("url is:");
+		logger.info("url is:");
 		url = url + "/" + preregId;		
 		try {
 			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject(),contextKey);
@@ -325,7 +325,7 @@ public class PreRegistrationSteps {
 		//CreatePersona.sendOtpTo("sanath@mailinator.com");
 		CreatePersona.validateOTP("111111", "sanath@mailinator.com","contextKey");
 		AppointmentModel res = getAppointments("contextKey");
-		System.out.println(res.getRegCenterId());
+		logger.info(res.getRegCenterId());
 		for( CenterDetailsModel a: res.getAvailableDates()) {
 			if(!a.getHoliday()) {
 				for(AppointmentTimeSlotModel ts: a.getTimeslots()) {

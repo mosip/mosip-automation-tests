@@ -131,7 +131,7 @@ public class CheckForBDBPresence extends BaseTestCaseUtil implements StepInterfa
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		}
 	}

@@ -205,7 +205,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
-				System.out.println(r);
+				logger.info(r);
 			}
 		} catch (Exception e) {
 
@@ -236,7 +236,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
-				System.out.println(r);
+				logger.info(r);
 			}
 		} catch (Exception e) {
 
@@ -325,7 +325,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
-				System.out.println(r);
+				logger.info(r);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -366,7 +366,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
-				System.out.println(r);
+				logger.info(r);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -413,7 +413,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 			JSONObject resp = RestClient.put(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
-				System.out.println(r);
+				logger.info(r);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -436,7 +436,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 			JSONObject resp = RestClient.putNoAuth(url, new JSONObject(),"prereg",contextKey);
 			if (resp != null) {
 				response = resp.getString("response");
-				System.out.println(response);
+				logger.info(response);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
