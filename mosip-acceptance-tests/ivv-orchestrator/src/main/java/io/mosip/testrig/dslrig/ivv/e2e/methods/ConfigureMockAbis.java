@@ -126,7 +126,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			String _hashValue = step.getParameters().get(5);
 			if (_hashValue.startsWith("$$"))
 				_hashValue = step.getScenario().getVariables().get(_hashValue);
-			System.out.println(_hashValue);
+			logger.info(_hashValue);
 			String[] keyValue = _hashValue.split(",");
 			if (keyValue != null) {
 				for (String s : keyValue) {

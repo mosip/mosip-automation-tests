@@ -138,7 +138,7 @@ public final class VariableManager {
 
 			props.forEach((key, value) -> {
 				setVariableValue(contextKey, key.toString(), value);
-				System.out.println(contextKey + "." + key.toString() + "=" + value.toString());
+				logger.info(contextKey , ".{}" , key.toString() , "={}" , value.toString());
 			});
 			bRet = true;
 

@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
@@ -16,6 +18,7 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.restassured.response.Response;
 
 public class RegistrationSteps {
+	private static final Logger logger = LoggerFactory.getLogger(RegistrationSteps.class);
 	static LocalDateTime lastSyncTime;
 	static String workDirectory;
 	static String workPacketDirectory;
@@ -146,12 +149,12 @@ public class RegistrationSteps {
 					+ "\",\"fromIso\":false}";
 
 			Response response  = RestClient.post("http://127.0.0.1:"+port+"/admin/score",requestBody,contextKey);;
-		System.out.println(response.toString());
+		logger.info(response.toString());
 
 			assertEquals(200, response.statusCode());
 			assertEquals("Success", response.jsonPath().getString("errorInfo"));
 		} catch (Exception e) {
-			System.out.println("Issue with the Rest Assured MOCKMDS Score Request"+ e);
+			logger.error("Issue with the Rest Assured MOCKMDS Score Request{}", e);
 		}
 	}
 
@@ -166,7 +169,7 @@ public class RegistrationSteps {
 //            assertEquals("Success", response.jsonPath().getString("errorInfo"));
 
         } catch (Exception e) {
-        	System.out.println("Issue with the Rest Assured MOCKMDS Profile Request"+ e);
+        	logger.error("Issue with the Rest Assured MOCKMDS Profile Request{}", e);
         }
     }
     
@@ -176,7 +179,7 @@ public Response getStagesByRID(String rid, String contextKey) throws Exception {
 	String uri= VariableManager.getVariableValue(contextKey,"ridStageStatus")+"?rid="+rid+"&langCode="+ VariableManager.getVariableValue(contextKey,"baselang");
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + uri ;
 			Response response =RestClient.getAdmin(url,new JSONObject(),new JSONObject(),contextKey);
-		System.out.println(response);
+		logger.info(response.toString());
 		return response;
 		
 	}

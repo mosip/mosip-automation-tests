@@ -27,6 +27,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     	//httpSecurity.anonymous();
      //  httpSecurity.authorizeRequests().antMatchers("/").permitAll().and().anonymous();
        httpSecurity.authorizeRequests().antMatchers("/delete/**").authenticated().and().httpBasic().and().csrf().disable();
+    //	httpSecurity.csrf().disable();
     }
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

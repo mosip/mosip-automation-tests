@@ -127,7 +127,7 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 				assertTrue(false, "Testcase is failed");
 		}
 		else {
-			System.out.println("tempPridAndRid is Null");
+			logger.info("tempPridAndRid is Null");
 		}
 		
 		

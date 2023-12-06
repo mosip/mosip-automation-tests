@@ -223,7 +223,7 @@ public class CommandsService {
 		 
 	 }
 	 private static void createKeyFile(final String fileName, final byte[] key) {
-			System.out.println("Creating file : " + fileName);
+		 logger.info("Creating file : " + fileName);
 			try {
 				Throwable t = null;
 				try {

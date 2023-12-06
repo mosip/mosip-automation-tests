@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.ivv.dg.Utils;
 
 import static io.mosip.testrig.dslrig.ivv.core.utils.Utils.regex;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -15,8 +16,8 @@ import io.mosip.testrig.dslrig.ivv.core.dtos.Person;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Persona;
 
 public class MutationEngine {
-	private static Random generator = new Random();
-
+	private static SecureRandom  generator = new SecureRandom ();
+	byte bytes[] = new byte[20];
     private String key = "";
 
     public MutationEngine(){
@@ -103,6 +104,7 @@ public class MutationEngine {
     }
 
     private String generatePhone(){
+    	generator.nextBytes(bytes);
         int first_digit = generator.nextInt((9 - 6) + 1) + 6; //add 1 so there is no 0 to begin
         int second_digit = generator.nextInt(8); //randomize to 8 becuase 0 counts as a number in the generator
         int third_digit = generator.nextInt(8);
@@ -129,6 +131,7 @@ public class MutationEngine {
     }
 
     private String generatePostalCode(){
+    	generator.nextBytes(bytes);
         int first_digit = generator.nextInt(7) + 1;
         int set1 = generator.nextInt(8999) + 1000;
         return first_digit+""+set1;

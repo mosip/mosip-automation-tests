@@ -33,7 +33,7 @@ public class ContextUtils {
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
-	Logger logger = LoggerFactory.getLogger(ContextUtils.class);
+	static Logger logger = LoggerFactory.getLogger(ContextUtils.class);
 
 	public Properties loadServerContext(String ctxName) {
 		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
@@ -167,7 +167,7 @@ public class ContextUtils {
 					+ ".reg.key", keypair.getPrivate().getEncoded());
 
 			final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
-			System.out.println("publicKey: " + publicKey);
+			logger.info("publicKey: " + publicKey);
 			if (publicKey != null && !publicKey.isEmpty()) {
 				List<MosipMachineModel> machines = null;
 				String status = contextProperties.getProperty("machineStatus");
@@ -197,7 +197,7 @@ public class ContextUtils {
 	}
 
 	private static void createKeyFile(final String fileName, final byte[] key) {
-		System.out.println("Creating file : " + fileName);
+		logger.info("Creating file : " + fileName);
 		try (final FileOutputStream os = new FileOutputStream(fileName);) {
 			Throwable t = null;
 			try {

@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -51,7 +52,7 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
  */
 public class ResidentDataProvider {
 	private static final Logger logger = LoggerFactory.getLogger(ResidentDataProvider.class);
-	private static Random rand = new Random();
+	private static SecureRandom  rand = new SecureRandom ();
 		Properties attributeList;
 	
 	
@@ -507,7 +508,7 @@ public class ResidentDataProvider {
 		MDSClient cli = new MDSClient(0);
 		
 		for(ResidentModel r: lst) {
-			System.out.println(r.toJSONString());
+			logger.info(r.toJSONString());
 	
 			cli.createProfile("C:\\Mosip.io\\gitrepos\\mosip-mock-services\\MockMDS\\target\\Profile\\", "tst1", r,"contextKey","Registration");
 			
