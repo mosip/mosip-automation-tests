@@ -119,7 +119,7 @@ public class PartnerRequest {
         updateStatusReq.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
 		updateStatusReq.put("version", "v1.0");
 
-        System.out.print(updateStatusReq);
+        logger.info(updateStatusReq.toString());
 
 		try {
 

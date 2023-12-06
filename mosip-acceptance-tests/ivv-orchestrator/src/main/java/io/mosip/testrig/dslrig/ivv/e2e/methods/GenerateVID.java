@@ -111,7 +111,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 						else
 							step.getScenario().getVidPersonaProp().put(vid, uin);
 
-						System.out.println(step.getScenario().getVidPersonaProp());
+						logger.info(step.getScenario().getVidPersonaProp());
 					}
 
 				} catch (AuthenticationTestException | AdminTestException e) {
@@ -144,7 +144,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 						else
 							step.getScenario().getVidPersonaProp().put(vid, uin);
 
-						System.out.println(step.getScenario().getVidPersonaProp());
+						logger.info(step.getScenario().getVidPersonaProp());
 					}
 
 				} catch (AuthenticationTestException | AdminTestException e) {

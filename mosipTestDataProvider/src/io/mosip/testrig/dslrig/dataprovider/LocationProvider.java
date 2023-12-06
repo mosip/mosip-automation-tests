@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -22,7 +23,8 @@ import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 
 public class LocationProvider {
-	private static Random rand = new Random();
+	private static SecureRandom rand = new SecureRandom();
+	
 	private static final Logger logger = LoggerFactory.getLogger(LocationProvider.class);
 
 	public static ApplicationConfigIdSchema generate( String langCode, int count,String contextKey) {
@@ -98,7 +100,8 @@ public class LocationProvider {
 		return tbl;
 	}
 	public static List<Location> generateFromFile(String countryIsoCode,int count,String contextKey) {
-		
+		byte bytes[] = new byte[20];
+		rand.nextBytes(bytes); // Check if bytes is used for hashing, encryption, etc...
 		List<Location> locations = new ArrayList<Location>();
 		CountryModel country;
 		try {
