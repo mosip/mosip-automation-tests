@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
@@ -47,7 +48,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 
 public class Utils {
 	private static final Logger logger = LoggerFactory.getLogger(Utils.class);
-	private static Random generator = new Random();
+	private static SecureRandom  generator = new SecureRandom ();
 
 	public static void deleteDirectoryPath(String path) {
 		File file = new File(path);
@@ -315,6 +316,8 @@ public class Utils {
 	}
 
 	public static String getRandom(int min, int max) {
+		byte bytes[] = new byte[20];
+		generator.nextBytes(bytes);
 		return (generator.nextInt((max - min) + 1) + min) + "";
 	}
 

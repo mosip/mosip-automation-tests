@@ -449,7 +449,7 @@ public class CryptoUtil {
     	//byte[] key = Files.readAllBytes(Path.of(KEY_PATH ,KEYS_DIR ,PRIVATE_KEY));
 		if(filePath==null ||filePath.isEmpty() )
 			throw new Exception("privatekey file not found"); 
-		System.out.println("PRIVATEKEY FILE PATH::"+filePath);
+		logger.info("PRIVATEKEY FILE PATH::"+filePath);
     	byte[] key = Files.readAllBytes(Path.of(filePath));
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);
         KeyFactory kf = KeyFactory.getInstance("RSA");

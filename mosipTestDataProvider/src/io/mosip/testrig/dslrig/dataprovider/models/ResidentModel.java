@@ -134,8 +134,7 @@ public class ResidentModel  implements Serializable {
 		Name name = new Name();
 		name.setFirstName("abcd ’'` efg");
 		model.setName(name);
-		System.out.println(model.toJSONString());
-
+		
 		try {
 			Files.write(Paths.get("test.json"), model.toJSONString().getBytes());
 		} catch (IOException e1) {
@@ -147,7 +146,7 @@ public class ResidentModel  implements Serializable {
 		try {
 			byte[] bytes = Files.readAllBytes(Paths.get("test.json"));
 			ResidentModel m = mapper.readValue(model.toJSONString().getBytes(), ResidentModel.class);
-			System.out.println(m.getName().getFirstName());
+			logger.info(m.getName().getFirstName());
 			
 		} catch (IOException e) {
 			logger.error(e.getMessage());

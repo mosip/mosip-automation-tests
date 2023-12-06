@@ -152,7 +152,7 @@ public class EmailableReport implements IReporter {
 					+ properties.getProperty("git.branch");
 
 		} catch (IOException io) {
-			io.printStackTrace();
+			logger.error(io.getMessage());
 			return "";
 		}
 

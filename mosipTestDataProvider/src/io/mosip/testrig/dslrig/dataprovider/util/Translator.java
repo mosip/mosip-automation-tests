@@ -18,7 +18,7 @@ public class Translator {
 	public static void main(String[] args) {
 	        String text = "Mohandas Karamchand Ghandhi";
 	        //Translated text: Hallo Welt!
-	        System.out.println("Text:" + text + ",Translated text: " + translate( "heb", text,"contextKey"));
+	        logger.info("Text:" + text + ",Translated text: " + translate( "heb", text,"contextKey"));
 	}
 
 	static String getLanguageID(String langIsoCode,String contextKey) {
@@ -71,7 +71,7 @@ public class Translator {
 		/*
 		for( Iterator<String> it = idSet.asIterator(); it.hasNext();) {
 			String id = it.next();
-			System.out.println(id);
+			logger.info(id);
 			if(id.equals(lang_from_to)) {
 				
 				bFound = true;

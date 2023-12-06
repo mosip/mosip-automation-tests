@@ -129,7 +129,7 @@ public class CheckForBDBAbsence extends BaseTestCaseUtil implements StepInterfac
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		}
 	}

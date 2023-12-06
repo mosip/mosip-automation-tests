@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -17,7 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
 
 import org.javatuples.Pair;
@@ -55,7 +55,7 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 @SuppressWarnings("unchecked")
 public class PacketTemplateProvider {
-	private static Random rand = new Random();
+	private static SecureRandom rand = new SecureRandom();
 	private static final Logger logger = LoggerFactory.getLogger(PacketTemplateProvider.class);
 
 	public static String RID_FOLDER = "rid_id";
@@ -718,6 +718,8 @@ public class PacketTemplateProvider {
 
 	public static Pair<String, String> processAddresslines(MosipIDSchema s, ResidentModel resident, JSONObject identity,
 			String contextKey) {
+		byte bytes[] = new byte[20];
+		rand.nextBytes(bytes);
 		String addr = null;
 		String addr_sec = "";
 
@@ -763,6 +765,8 @@ public class PacketTemplateProvider {
 
 	public static String generateDefaultAttributes(MosipIDSchema schemaItem, ResidentModel resident,
 			JSONObject identity) {
+		byte bytes[] = new byte[20];
+		rand.nextBytes(bytes);
 		String someVal = null;
 		List<SchemaValidator> validators = schemaItem.getValidators();
 		if (validators != null) {
