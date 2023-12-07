@@ -17,10 +17,9 @@ on:
       - '!release-branch'
       - release*
       - master
-      - 1.*
       - develop
+      - 1.*
       - MOSIP*
-      - SonalFixes
 jobs:
   build-maven-automationtest:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master

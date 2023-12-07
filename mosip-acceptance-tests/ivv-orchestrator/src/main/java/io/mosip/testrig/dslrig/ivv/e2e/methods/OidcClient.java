@@ -22,6 +22,7 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.restassured.response.Response;
 
@@ -67,7 +68,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 		String clientId = null;
 
 		// check if esignet is installed on the target system
-		if (!ConfigManager.IseSignetDeployed()) {
+		if (!ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
 
