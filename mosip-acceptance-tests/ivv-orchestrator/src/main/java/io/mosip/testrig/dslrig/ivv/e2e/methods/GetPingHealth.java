@@ -11,6 +11,7 @@ import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
@@ -52,7 +53,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 		
 		}
 		else {
-		uri=baseUrl + "/ping/"+ ConfigManager.IseSignetDeployed();
+		uri=baseUrl + "/ping/"+ ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET);
 		
 		Response response = getRequest(uri, "Health Check",step);
 		JSONObject res = new JSONObject(response.asString());
