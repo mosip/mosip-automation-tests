@@ -57,15 +57,11 @@ public  class MosipMasterData {
 	private static String RUN_CONTEXT = "run_context";
 
 
-/*	static {
-		 VariableManager.getVariableValue(contextKey,key);
-	}
-*/
 	public static Object getCache(String key,String contextKey) {
 		try {
 		return VariableManager.getVariableValue(contextKey,key);
 		}catch(Exception e) {
-			
+			logger.error(e.getMessage());
 		}
 		return null;
 	}
@@ -81,7 +77,6 @@ public  class MosipMasterData {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"biometricAttributes").toString();
 		url = url + lang + "/" + bioType;
-//		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
 		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (List<MosipBiometricAttributeModel>) o);
@@ -104,14 +99,13 @@ public  class MosipMasterData {
 
 	}
 
-	//
+	
 	public static List<MosipBiometricTypeModel> getBiometricTypes(String contextKey){
 		
 		List<MosipBiometricTypeModel> biotypes =null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"biometricTypes").toString();
-//		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
 		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (List<MosipBiometricTypeModel>) o);
@@ -330,7 +324,7 @@ public  class MosipMasterData {
 
 		try {
 			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
-			//JSONObject configObject = resp.getJSONObject("response");
+			
 			
 			if(resp != null) {
 				try {
@@ -494,11 +488,7 @@ public  class MosipMasterData {
 		String schemaJson = null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(
-				VariableManager.NS_DEFAULT,
-				//"individualtypes"
-				"idschemaapi"
-				).toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"idschemaapi").toString();
 	    try {
 				JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject(),contextKey);
 

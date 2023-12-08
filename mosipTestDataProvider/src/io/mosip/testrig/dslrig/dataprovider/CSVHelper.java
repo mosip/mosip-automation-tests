@@ -49,11 +49,8 @@ public class CSVHelper {
 			inputStream = new FileInputStream(fileName);
 			InputStreamReader filereader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
 			csvReader = new CSVReaderBuilder(filereader).withSkipLines(1).build();
-		} finally {
-			/*
-			 * if (inputStream != null) try {  inputStream.close(); } catch (IOException
-			 * e) { logger.error(e.getMessage()); }
-			 */
+		}  catch (IOException e) {
+			logger.error(e.getMessage());
 		}
 	}
 	
