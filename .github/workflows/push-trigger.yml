@@ -12,7 +12,7 @@ on:
         required: false
         default: 'Triggered for Updates'
         type: string
-    push:
+  push:
     branches:
       - '!release-branch'
       - release*
@@ -20,6 +20,7 @@ on:
       - develop
       - 1.*
       - MOSIP*
+      
 jobs:
   build-maven-automationtest:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
