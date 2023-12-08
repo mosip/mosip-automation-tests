@@ -12,7 +12,6 @@ on:
         required: false
         default: 'Triggered for Updates'
         type: string
-  push:
     push:
     branches:
       - '!release-branch'
