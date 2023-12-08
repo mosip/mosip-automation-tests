@@ -64,7 +64,7 @@ Below are repository details of various modules used for the automation
 1. Update `..\resource\config\default.properties with the following details 
         * `packetutilURLBase=http://localhost:8080
 1.	Update ..\run.bat as mentioned below
-1.	Keep mosip-packet-creator-1.2.0.1-develop-SNAPSHOT.jar and execute run.bat
+1.	Keep mosip-packet-creator-1.2.1-develop-SNAPSHOT.jar and execute run.bat
 1.	Verify if the Packet utility is running by hitting `http://localhost:8080/swagger-ui.html#/ `
 1.	For any failure in the packet utility verify the logs location: mosip-packet-creator\PacketUtilityRunlog.txt
 
