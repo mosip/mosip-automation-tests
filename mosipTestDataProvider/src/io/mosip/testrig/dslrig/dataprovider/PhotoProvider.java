@@ -18,23 +18,16 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 public class PhotoProvider {
 	private static final Logger logger = LoggerFactory.getLogger(PhotoProvider.class);
 	static String Photo_File_Format = "/face%04d.jpg";
-	//static byte[][] getPhoto(int idx, String gender,String contextKey) {
+
 		static byte[][] getPhoto(String contextKey) {
-			
-		//String encodedImage="";
-		//String hexHash ="";
+	
 		byte[] bencoded =null;
 		byte[] bData = null;
 		try {
-			//JPEG2000
-					
+			
 					String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString();
-					
-//			File dir = new File(dirPath);
-//
-//			File listDir[] = dir.listFiles();
-//			int numberOfSubfolders = listDir.length;
+
 			
 			        File dir = new File(dirPath);
 			        FileFilter filter = new FileFilter() {
@@ -76,7 +69,6 @@ public class PhotoProvider {
 				//folder where all bio input available
 				String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"externalBiometricsource").toString();
 				
-				//String srcpath = "C:\\Mosip.io\\external-data\\CBEFF Validated\\jp2\\Face.jp2";
 				img = ImageIO.read(new File(bioSrc +"Face.jp2" ));
 			}
 			else
@@ -87,19 +79,14 @@ public class PhotoProvider {
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
-			/*String [] names = ImageIO.getWriterFormatNames();
-			for(String s: names)
-				logger.info(s);
-			*/
+			
 			ImageIO.write(img, "jpg", baos);
 			baos.flush();
 			bData = baos.toByteArray();
 			bencoded = encodeFaceImageData(bData);
 			
-		//	encodedImage = Base64.getEncoder().encodeToString(encodeFaceImageData(bData));
 			baos.close();
 			
-		//	hexHash = CommonUtil.getHexEncodedHash(bData);
 
 			
 		} catch (Exception e) {
@@ -148,9 +135,7 @@ public class PhotoProvider {
 			byte[] temporalSequence = new byte[2];
 			dout.write(temporalSequence);
 			
-			//int representationLength =16;
-			//dout.writeInt(representationLength);
-			
+		
 			
 			ByteArrayOutputStream rdoutArray = new ByteArrayOutputStream();
 			
@@ -192,10 +177,7 @@ public class PhotoProvider {
 	}
 		
 	public static void main(String [] args) throws IOException {
-		//splitImages();
-		//byte[][] strImg = getPhoto(21,Gender.Male.name(),"contextKey");
-		//Files.write(strImg[0].getBytes(), new File( "c:\\temp\\photo.txt"));
-		//logger.info(strImg);
+	
 		
 	}
 	public static byte[][] loadPhoto(String faceFile) {
