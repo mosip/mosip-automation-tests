@@ -16,15 +16,6 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeMultipart;
 
-/*import jakarta.mail.BodyPart;
-import jakarta.mail.Flags;
-import jakarta.mail.Folder;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.Session;
-import jakarta.mail.Store;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMultipart;*/
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +80,7 @@ public class ReadEmail {
 
 				Session emailSession = Session.getInstance(properties);
 
-				// emailSession.setDebug(true);
+				
 
 				// 2) create the POP3 store object and connect with the pop server
 				Store emailStore = emailSession.getStore(storeType);

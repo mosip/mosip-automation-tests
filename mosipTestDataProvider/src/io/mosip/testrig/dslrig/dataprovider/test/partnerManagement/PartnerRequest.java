@@ -6,7 +6,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -119,7 +118,7 @@ public class PartnerRequest {
         updateStatusReq.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
 		updateStatusReq.put("version", "v1.0");
 
-        logger.info(updateStatusReq.toString());
+      
 
 		try {
 
