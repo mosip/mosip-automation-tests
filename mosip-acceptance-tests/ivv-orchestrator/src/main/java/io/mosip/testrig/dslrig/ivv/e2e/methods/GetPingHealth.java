@@ -53,7 +53,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 		
 		}
 		else {
-		uri=baseUrl + "/ping/"+ ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET);
+		uri=baseUrl + "/ping/"+ !ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET);
 		
 		Response response = getRequest(uri, "Health Check",step);
 		JSONObject res = new JSONObject(response.asString());
