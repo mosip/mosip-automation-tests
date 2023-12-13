@@ -114,7 +114,7 @@ public class CommandsService {
    					bcheck = true;
    			}
    			if(bcheck) {
-   				RestClient.logInfo(contextKey, controllerPath);
+ 				RestClient.logInfo(contextKey, controllerPath);
    				Boolean bRet1 = RestClient.checkActuatorNoAuth( baseUrl + controllerPath.trim() ,contextKey);
    				if(bRet1 == false) {
    					failedAPIs.add(line);	
