@@ -96,7 +96,7 @@ public final class VariableManager {
 		Matcher matcher = pattern.matcher(text);
 		while (matcher.find()) {
 			String extract = text.substring(matcher.start(), matcher.end());
-			// Hack - Strip leading and trailing {{ }}
+		
 			if (extract != null && extract.startsWith("{{"))
 				extract = extract.substring(2);
 			if (extract != null && extract.endsWith("}}"))
@@ -179,9 +179,7 @@ public final class VariableManager {
      logger.info(s.toString());   
     }
 
-	/*
-	 * Variables are embedded inside a text in following format {{varname}}
-	 */
+	
 	static String substituteVaraiable(String text, String varName, String varValue) {
 		String formatVarName = String.format(VAR_SUBSTITUE_PATTERN, varName);
 		return text.replaceAll(formatVarName, varValue);
