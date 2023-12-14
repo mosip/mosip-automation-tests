@@ -34,13 +34,13 @@ public class MosipDataSetup {
 
 	public static Properties getConfig(String contextKey) {
 		Properties props = new Properties();
-		//https://sandbox.mosip.net/config/*/mz/1.1.4/print-mz.properties
-		//https://dev.mosip.net/config/*/mz/develop/registration-processor-mz.properties
 		String configPath = "config/*/mz/develop/pre-registration-mz.properties";
 		
 		try {
 			configPath = VariableManager.getVariableValue(contextKey,"configpath").toString();
-		}catch(Exception e) {}
+		}catch(Exception e) {
+			logger.error(e.getMessage());
+		}
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() + configPath;
 		
@@ -59,7 +59,7 @@ public class MosipDataSetup {
 		try {
 			return VariableManager.getVariableValue(contextKey,key);
 		}catch(Exception e) {
-			
+			logger.error(e.getMessage());
 		}
 		return null;
 	}
@@ -90,9 +90,6 @@ public class MosipDataSetup {
 	public static List<MosipMachineModel> getMachineDetail(String machineId, String langCode,String contextKey) {
 		
 		List<MosipMachineModel> machines = null;
-		/* String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-		VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinedetail").toString();
-		url = url + machineId + "/" + langCode; */
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()
 				+ "v1/masterdata/machines/";
 		
@@ -383,7 +380,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 
 	  
 	 
-		//String url="https://qa2.mosip.net/v1/masterdata/machines";
+		
 		
 		JSONObject jsonMachine = new JSONObject();
 		jsonMachine.put("id", machine.getId());
@@ -423,15 +420,10 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 
 	public static String updatePreRegStatus(String preregId, String statusCode,String contextKey) {
 		String response = null;
-		/*
-		 * String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-		 * "preregistration/v1/applications/prereg/status/" + preregId + "?statusCode="
-		 * + statusCode;
-		 */
+		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() + VariableManager.getVariableValue(contextKey,"updatePreRegStatus").toString()
 				+ preregId + "?statusCode=" + statusCode;
 		try {
-			//JSONObject resp = RestClient.put(url, new JSONObject(),contextKey); // Not updating status
 			
 			JSONObject resp = RestClient.putNoAuth(url, new JSONObject(),"prereg",contextKey);
 			if (resp != null) {
@@ -488,13 +480,13 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mockABISsetExpectaion").toString();
 
 		JSONObject req = new JSONObject();
-		//req.put("id", CommonUtil.getSHA(bdbString));
+	
 		byte[] valBytes=java.util.Base64.getUrlDecoder().decode(bdbString);
 		req.put("id", CommonUtil.getSHAFromBytes(valBytes));
 		req.put("version","1.0");
 		req.put("requesttime",CommonUtil.getUTCDateTime(null) );
 		req.put("actionToInterfere",operation );
-//		req.put("forcedResponse","Duplicate" );
+
 		req.put("forcedResponse",failureReason);
 		req.put("delayInExecution",Integer.toString(delay));
 		req.put("errorCode",statusCode);
