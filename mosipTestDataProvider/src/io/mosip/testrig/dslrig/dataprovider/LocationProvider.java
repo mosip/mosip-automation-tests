@@ -83,11 +83,10 @@ public class LocationProvider {
 				if(rootLoc != null) {
 					
 					for(int i=1; i < locHierachies.length; i++) {
-						//List<MosipLocationModel> list = MosipMasterData.getLocationsByLevel(locHierachies[i].getHierarchyLevelName());
 						list = MosipMasterData.getImmedeateChildren(rootLoc.getCode(), langcode ,contextKey );
 				
 						if(list != null && !list.isEmpty()) {
-							int pos = 0;//CommonUtil.generateRandomNumbers(1, list.size()-1, 0)[0];
+							int pos = 0;
 							rootLoc = list.get(pos);
 							locations.add( rootLoc );
 						}
@@ -100,8 +99,7 @@ public class LocationProvider {
 		return tbl;
 	}
 	public static List<Location> generateFromFile(String countryIsoCode,int count,String contextKey) {
-		byte bytes[] = new byte[20];
-		rand.nextBytes(bytes); // Check if bytes is used for hashing, encryption, etc...
+		
 		List<Location> locations = new ArrayList<Location>();
 		CountryModel country;
 		try {

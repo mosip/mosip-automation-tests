@@ -37,6 +37,7 @@ public class RegistrationSteps {
             }
 
 		} catch (Exception e) {
+			logger.error( e.getMessage());
 		}
 		
 	}
@@ -61,12 +62,7 @@ public class RegistrationSteps {
 		 reqJson.put("transactionID", resident.getId());
 		 reqJson.put("user", resident.getContact().getEmailId());
 		 wrapperJson.put("request", reqJson);
-		 /*
-		 * { 
-    "sharableAttributes": [
-      "string"
-    ],
-		 */
+	
 		JSONObject apiResponse = RestClient.post(url, wrapperJson,contextKey);
 
 		return  apiResponse.toString();
@@ -90,7 +86,7 @@ public class RegistrationSteps {
 		 syncRequest.put("toDate",CommonUtil.getUTCDateTime(currentSyncTime ));
 
 		JSONObject wrapper = new JSONObject();
-			//wrapper.put("metadata", "");
+		
 		wrapper.put("version", "1.0");
 		wrapper.put("id", "mosip.pre-registration.datasync.fetch.ids");
 		wrapper.put("requesttime", CommonUtil.getUTCDateTime(null));
@@ -126,15 +122,6 @@ public class RegistrationSteps {
 		String uri =  "idrepository/v1/identity/idvid/" + rid;
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + uri ;
 
-		/*JSONObject req = new JSONObject();
-		JSONObject reqWrapper = new JSONObject();
-		reqWrapper.put("id", "mosip.resident.checkstatus");
-		reqWrapper.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
-		reqWrapper.put("version", "v1");
-		req.put("individualId", rid);
-		req.put("individualIdType", "RID");
-		reqWrapper.put("request", req);
-		 */
 
 		JSONObject response =RestClient.get(url,new JSONObject(),new JSONObject(),contextKey);
 		return response.getJSONObject("identity").getString("UIN");
@@ -159,19 +146,7 @@ public class RegistrationSteps {
 	}
 
 
-    public void setMDSprofile(String type,String profile) {
-        try {
-//            String requestBody = "{\"type\":\""+type+"\",\"profileId\":\"" + profile + "\"}";
-//
-//            Response response = RestAssured.given().baseUri("http://127.0.0.1:4501/admin/profile")
-//                    .contentType(ContentType.JSON).and().body(requestBody).when().post().then().extract().response();
-//            assertEquals(200, response.statusCode());
-//            assertEquals("Success", response.jsonPath().getString("errorInfo"));
-
-        } catch (Exception e) {
-        	logger.error("Issue with the Rest Assured MOCKMDS Profile Request{}", e);
-        }
-    }
+   
     
     
 public Response getStagesByRID(String rid, String contextKey) throws Exception {
@@ -179,7 +154,7 @@ public Response getStagesByRID(String rid, String contextKey) throws Exception {
 	String uri= VariableManager.getVariableValue(contextKey,"ridStageStatus")+"?rid="+rid+"&langCode="+ VariableManager.getVariableValue(contextKey,"baselang");
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() + uri ;
 			Response response =RestClient.getAdmin(url,new JSONObject(),new JSONObject(),contextKey);
-		logger.info(response.toString());
+		
 		return response;
 		
 	}

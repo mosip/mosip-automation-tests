@@ -37,9 +37,7 @@ public class ResidentPreRegistration {
 	public ResidentPreRegistration(ResidentModel m) {
 		person = m;
 	}
-	/*
-	 * public static RestClient getRestClient() { return restClient; }
-	 */
+	
 
 	@Given("^Adult \"(.*)\" from \"(.*)\"$")
 	public void createPersonaAdult(String gender, String country, String contextKey) {
@@ -61,7 +59,7 @@ public class ResidentPreRegistration {
 		if (lst != null && !lst.isEmpty())
 			person = lst.get(0);
 
-		logger.info(String.format("createPersonaAdult %s", person.getName().getFirstName()));
+		logger.info(String.format("createPersonaAdult %s{}", person.getName().getFirstName()));
 
 	}
 
@@ -190,21 +188,9 @@ public class ResidentPreRegistration {
 		preRegID = result;
 		logger.info(String.format("PreRegisterAdultMale Result %s {}", result));
 
-		// assert(1 == 2);
 	}
 
-	/*
-	 * @Then("^upload \"(POI|POD)\" document$") public void uploadProof(String
-	 * docCategory, String contextKey) throws JSONException {
-	 * 
-	 * logger.info("uploadProof " + docCategory); int i = 0; for
-	 * (MosipDocument a : person.getDocuments()) {
-	 * PreRegistrationSteps.UploadDocument(a.getDocCategoryCode(),
-	 * a.getType().get(i).getCode(), a.getDocCategoryLang(), a.getDocs().get(i),
-	 * preRegID, contextKey); break; }
-	 * 
-	 * }
-	 */
+	
 
 	@And("^book first available appointment$")
 	public void bookAppointment(String contextKey) throws JSONException {
@@ -228,13 +214,6 @@ public class ResidentPreRegistration {
 		}
 	}
 
-	public static void main(String[] args) {
-		/*
-		 * ResidentPreRegistration a = new ResidentPreRegistration();
-		 * a.createPersonaAdult("Male", "IN");
-		 * 
-		 * a.sendOtp("email");
-		 */
-	}
+	
 
 }
