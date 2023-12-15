@@ -765,12 +765,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,PRINT_SERVICE,PROCESSED)"
-		},
-		"Step-18": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -4063,12 +4057,6 @@
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin2,$$childPersona,$$vid)"
-		},
-		"Step-28": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -5806,12 +5794,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,PRINT_SERVICE,PROCESSED)"
-		},
-		"Step-24": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -5927,12 +5909,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,PRINT_SERVICE,PROCESSED)"
-		},
-		"Step-18": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -11725,12 +11701,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
-		},
-		"Step-17": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -12248,66 +12218,60 @@
 			"Action": "$$childUin=e2e_getUINByRid($$childRid)"
 		},
 		"Step-16": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
-		},
-		"Step-17": {
 			"Description": "Gets Email ID configuired for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$childUin)"
 		},
-		"Step-18": {
+		"Step-17": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
 			"Action": "e2e_wait(90)"
 		},
-		"Step-20": {
+		"Step-19": {
 			"Description": "Generates VID without OTP",
 			"Input Parameters": "VID tyoe and UIN",
 			"Return Value": "VID",
 			"Action": "$$vidwithoutotp=e2e_GenerateVIDWithoutOTP(Perpetual,$$childUin)"
 		},
-		"Step-21": {
+		"Step-20": {
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
 			"Action": "e2e_wait(90)"
 		},
-		"Step-22": {
+		"Step-21": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin,$$childPersona,$$vidwithoutotp)"
 		},
-		"Step-23": {
+		"Step-22": {
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$childUin,$$vidwithoutotp,$$childPersona)"
 		},
-		"Step-24": {
+		"Step-23": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "e2e_bioAuthentication(LeftIris,$$childUin,$$vidwithoutotp,$$childPersona)"
 		},
-		"Step-25": {
+		"Step-24": {
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(leftRingDevice,$$childUin,$$vidwithoutotp,$$childPersona)"
 		},
-		"Step-26": {
+		"Step-25": {
 			"Description": "Perfoms OTP based authentication",
 			"Input Parameters": "UIN, VID, E mail ID ",
 			"Return Value": "NA",
@@ -12451,12 +12415,6 @@
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin,$$childPersona,$$vidwithoutotp)"
-		},
-		"Step-22": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -12614,12 +12572,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$ridLost,PRINT_SERVICE,PROCESSED,RPR-UIN-SUCCESS-005)"
-		},
-		"Step-25": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -13147,12 +13099,6 @@
 			"Input Parameters": "Demo graphic data key, UIN, VID, persona and flag mention to get VID with or without OTP",
 			"Return Value": "NA",
 			"Action": "e2e_ekycDemo(name,$$childUin,$$childPersona,$$vidwithoutotp)"
-		},
-		"Step-22": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -14157,12 +14103,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
-		},
-		"Step-19": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -14278,12 +14218,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
-		},
-		"Step-18": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -14472,12 +14406,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
-		},
-		"Step-18": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -14968,12 +14896,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
-		},
-		"Step-25": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -15131,12 +15053,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
-		},
-		"Step-25": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
@@ -15821,12 +15737,6 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
-		},
-		"Step-18": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
