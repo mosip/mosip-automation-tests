@@ -37,6 +37,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		String zone=null;
 		String calltype = null;
 		int centerNum=0;
+		String indexOfUser="";
 		
 		HashMap<String, String> map =new HashMap<String, String>();
 
@@ -53,7 +54,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			 user = step.getParameters().get(1);
 			 if(user.contains("@@")){
 				 String userDetails[]=user.split("@@");
-				 	
+				indexOfUser=userDetails[0];
 				 	user=userDetails[0];
 				 	if(user.contains("masterdata-0"))
 				 		user = "masterdata-" + ConfigManager.getUserAdminName();
@@ -64,7 +65,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				 	}
 			 if (user.startsWith("$$")) {
 				 map = step.getScenario().getVariables();
-				 user = map.get("userid");
+				 user = map.get("userid" + indexOfUser);
 
 				}
 		}		
@@ -74,8 +75,8 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			 if (id.startsWith("$$")) {
 				 map2 = step.getScenario().getVariables();
 				 map.putAll(map2);
-				 map.put("userid",user);
-				 map.put("userpassword", pwd);
+				 map.put("userid" ,user);
+				 map.put("userpassword" , pwd);
 				}
 					}	
 		
@@ -127,7 +128,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			BaseTestCase.mapZone(user);
 			}
 			HashMap<String, String> userdetails=new HashMap<String, String>();
-			userdetails.put("user", user);
+			userdetails.put("user"+indexOfUser, user);
 			userdetails.put("pwd",pwd);
 			step.getScenario().getVariables().putAll(userdetails);
 			
