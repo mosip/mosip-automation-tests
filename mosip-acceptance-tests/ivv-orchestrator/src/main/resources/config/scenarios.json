@@ -12868,7 +12868,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+			"Action": "e2e_CheckRIDStage($$rid,INTRODUCER_VALIDATION,ERROR)"
 		}
 	},
 	{
