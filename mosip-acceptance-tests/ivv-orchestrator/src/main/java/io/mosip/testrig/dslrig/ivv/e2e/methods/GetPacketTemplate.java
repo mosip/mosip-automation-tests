@@ -26,7 +26,7 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 
 	@Override
 	public void run() throws RigInternalError {
-		String qualityScore = "80";
+		String qualityScore = "81";
 		boolean genarateValidCbeff = true;
 		String process = null;
 		String personaPath = null;
