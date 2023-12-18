@@ -41,7 +41,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 	public void run() throws RigInternalError, FeatureNotSupportedError {
 
 		// check if esignet is installed on the target system
-		if (!ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
+		if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
 

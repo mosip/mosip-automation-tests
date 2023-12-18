@@ -68,7 +68,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 		String clientId = null;
 
 		// check if esignet is installed on the target system
-		if (!ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
+		if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
 
