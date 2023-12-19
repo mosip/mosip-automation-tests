@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,6 +57,7 @@ import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
 import io.mosip.testrig.dslrig.ivv.e2e.methods.Center;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
+import com.sun.management.OperatingSystemMXBean;
 
 public class Orchestrator {
 	private static Logger logger = Logger.getLogger(Orchestrator.class);
@@ -267,20 +269,21 @@ public class Orchestrator {
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
 			IllegalAccessException, InstantiationException {
-		// Another scenario execution kicked-off before BEFORE_SUITE execution
-		//
-		// if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
-		// updateRunStatistics(scenario);
-		// throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to
-		// known platform issue");
-		// }
-		//
-		// if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
-		// updateRunStatistics(scenario);
-		// throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to
-		// known Automation issue");
-		// }
 
+		OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(
+		                OperatingSystemMXBean.class);
+
+		logger.info("getProcessCpuLoad What % CPU load this current JVM is taking, from 0.0-1.0" + osBean.getProcessCpuLoad());
+		logger.info("getSystemCpuLoad What % load the overall system is at, from 0.0-1.0" + osBean.getSystemCpuLoad());
+		logger.info("Returns the amount of virtual memory that is guaranteed to be available to the running process in bytes, or -1 if this operation is not supported:"+Long.toString(osBean.getCommittedVirtualMemorySize()));
+		logger.info("Returns the amount of free physical memory in bytes:"+Long.toString(osBean.getFreePhysicalMemorySize()));
+		logger.info("Returns the amount of free swap space in bytes:"+Long.toString(osBean.getFreeSwapSpaceSize()));
+		logger.info("Returns the recent cpu usage for the Java Virtual Machine process:"+Double.toString(osBean.getProcessCpuLoad()));
+		logger.info("Returns the CPU time used by the process on which the Java virtual machine is running in nanoseconds:"+Long.toString(osBean.getProcessCpuTime()));
+		logger.info("Returns the recent cpu usage for the whole system:"+Double.toString(osBean.getSystemCpuLoad())		);
+		logger.info("Returns the total amount of physical memory in bytes:"+Long.toString(osBean.getTotalPhysicalMemorySize()));
+		logger.info("Returns the total amount of swap space in bytes:"+Long.toString(osBean.getTotalSwapSpaceSize()));
+		
 		if (!scenario.getId().equalsIgnoreCase("0")) {
 
 			// AFTER_SUITE scenario execution kicked-off before all execution
