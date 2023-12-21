@@ -311,6 +311,7 @@ public class APIRequestUtil {
             	).build();
         Response response = given().cookie(kukki).multiPart("file", f.getCanonicalFile()).post(url);
         checkErrorResponse(response.getBody().asString());
+       
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
 
