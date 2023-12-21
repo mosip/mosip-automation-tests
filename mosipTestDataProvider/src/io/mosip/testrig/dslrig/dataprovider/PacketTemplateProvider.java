@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -619,7 +620,8 @@ public class PacketTemplateProvider {
 				resident.getBiometric().setCbeff(strCBeff);
 
 			} else {
-				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+//				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
 				writer.print(cbeff);
 				writer.close();
 			}
@@ -633,7 +635,8 @@ public class PacketTemplateProvider {
 				resident.getBiometric().setCbeff(strCBeff);
 
 			} else {
-				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+//				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
 				writer.print(cbeff);
 				writer.close();
 			}
