@@ -1,5 +1,7 @@
 package io.mosip.testrig.dslrig.packetcreator.service;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +38,7 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +87,6 @@ public class PacketMakerService {
 	private static final String HASHSEQUENCE1 = "hashSequence1";
 	private static final String LABEL = "label";
 	private static final String CHANGESUPERVISORNAMETODIFFCASE = "changeSupervisorNameToDiffCase";
-	
 
 	private String tempLogPath;
 
@@ -235,8 +237,8 @@ public class PacketMakerService {
 			if (tprocess != null)
 				process = tprocess;
 		}
-		RestClient.logInfo(contextKey,"packPacketContainer:src=" + src + ",process=" + process + "PacketRoot=" + tempPacketRootFolder
-				+ " regid=" + regId);
+		RestClient.logInfo(contextKey, "packPacketContainer:src=" + src + ",process=" + process + "PacketRoot="
+				+ tempPacketRootFolder + " regid=" + regId);
 		try {
 			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id", contextKey);
 		} catch (Throwable e) {
@@ -274,7 +276,7 @@ public class PacketMakerService {
 	public String createPacketFromTemplate(String templatePath, String personaPath, String contextKey,
 			String additionalInfoReqId) throws Exception {
 
-		RestClient.logInfo(contextKey,"createPacketFromTemplate");
+		RestClient.logInfo(contextKey, "createPacketFromTemplate");
 
 		Path idJsonPath = null;
 		// Fix for change in Demodata
@@ -287,8 +289,8 @@ public class PacketMakerService {
 
 		String packetPath = createContainer((idJsonPath == null ? null : idJsonPath.toString()), templatePath, src,
 				process, null, contextKey, false, additionalInfoReqId);
-         if(RestClient.isDebugEnabled(contextKey))
-		  logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
+		if (RestClient.isDebugEnabled(contextKey))
+			logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
 		// newRegId
 		JSONObject retObj = new JSONObject();
 		retObj.put("packet", packetPath);
@@ -350,7 +352,7 @@ public class PacketMakerService {
 			if (tprocess != null)
 				process = tprocess;
 		}
-		RestClient.logInfo(contextKey,"src=" + src + ",process=" + process);
+		RestClient.logInfo(contextKey, "src=" + src + ",process=" + process);
 		String tempPacketRootFolder = createTempTemplate(templateLocation, appId);
 
 		// update document file here
@@ -382,20 +384,28 @@ public class PacketMakerService {
 	 * @param dataFile     - JSON file name whose content has to be merged
 	 * @return - the merged JSON as a generic map Map<?,?>
 	 */
-	Map<?, ?> mergeJSON(String templateFile, String dataFile) throws Exception {
-		try (InputStream inputStream = new FileInputStream(dataFile)) {
-			String dataToMerge = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-			JSONObject data = new JSONObject(dataToMerge);
+	/*
+	 * Map<?, ?> mergeJSON(String templateFile, String dataFile) throws Exception {
+	 * try (InputStream inputStream = new FileInputStream(dataFile)) { String
+	 * dataToMerge = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+	 * JSONObject data = new JSONObject(dataToMerge);
+	 * 
+	 * // SKV - custom json merge try (InputStream inputStream2 = new
+	 * FileInputStream(templateFile)) { String templateData = new
+	 * String(inputStream2.readAllBytes(), StandardCharsets.UTF_8); JSONObject data1
+	 * = new JSONObject(templateData);
+	 * 
+	 * JSONObject result = merge(data1, data); return result.toMap(); } // return
+	 * mergeJSON(templateFile, data); } }
+	 */
 
-			// SKV - custom json merge
-			try (InputStream inputStream2 = new FileInputStream(templateFile)) {
-				String templateData = new String(inputStream2.readAllBytes(), StandardCharsets.UTF_8);
-				JSONObject data1 = new JSONObject(templateData);
-
-				JSONObject result = merge(data1, data);
-				return result.toMap();
-			}
-			// return mergeJSON(templateFile, data);
+	public Map<?, ?> mergeJSON(String templateFile, String dataFile) throws Exception {
+		try (InputStream inputStream = new BufferedInputStream(new FileInputStream(dataFile));
+				InputStream inputStream2 = new BufferedInputStream(new FileInputStream(templateFile))) {
+			JSONObject data = new JSONObject(new JSONTokener(inputStream));
+			JSONObject data1 = new JSONObject(new JSONTokener(inputStream2));
+			JSONObject result = merge(data1, data);
+			return result.toMap();
 		}
 	}
 
@@ -405,17 +415,35 @@ public class PacketMakerService {
 	 * @param data         - JSONObject whose content has to be merged
 	 * @return - the merged JSON as a generic map Map<?,?>
 	 */
-	JSONObject mergeJSONObject(String templateFile, JSONObject data, String contextKey) throws Exception {
-		try (InputStream inputStream2 = new FileInputStream(templateFile)) {
-			String templateData = new String(inputStream2.readAllBytes(), StandardCharsets.UTF_8);
-			JSONObject data1 = new JSONObject(templateData);
-			RestClient.logInfo(contextKey, "templatejson:" + templateData);
-			RestClient.logInfo(contextKey,"preregjson:" + data.toString());
+	/*
+	 * JSONObject mergeJSONObject(String templateFile, JSONObject data, String
+	 * contextKey) throws Exception { try (InputStream inputStream2 = new
+	 * FileInputStream(templateFile)) { String templateData = new
+	 * String(inputStream2.readAllBytes(), StandardCharsets.UTF_8); JSONObject data1
+	 * = new JSONObject(templateData); RestClient.logInfo(contextKey,
+	 * "templatejson:" + templateData); RestClient.logInfo(contextKey,"preregjson:"
+	 * + data.toString()); JSONObject result = merge(data1, data);
+	 * RestClient.logInfo(contextKey,"mergedjson:" + result.toString());
+	 * 
+	 * return result;
+	 * 
+	 * } }
+	 */
+
+	public JSONObject mergeJSONObject(String templateFile, JSONObject data, String contextKey) throws Exception {
+		try (InputStream inputStream2 = new BufferedInputStream(new FileInputStream(templateFile))) {
+			JSONObject data1 = new JSONObject(new JSONTokener(inputStream2));
+			// Log strategically, especially if the JSON data is large
+			if (logger.isInfoEnabled()) {
+				logger.info("templatejson:" + data1.toString());
+				logger.info("preregjson:" + data.toString());
+			}
 			JSONObject result = merge(data1, data);
-			RestClient.logInfo(contextKey,"mergedjson:" + result.toString());
-
+			// Log strategically, especially if the merged JSON data is large
+			if (logger.isInfoEnabled()) {
+				logger.info("mergedjson:" + result.toString());
+			}
 			return result;
-
 		}
 	}
 
@@ -545,7 +573,7 @@ public class PacketMakerService {
 			}
 			JSONObject jbToMerge = schemaUtil.getPacketIDData(schemaJson, dataToMerge, type);
 
-			JSONObject mergedJsonMap = mergeJSONObject(templateFile, jbToMerge,contextKey);
+			JSONObject mergedJsonMap = mergeJSONObject(templateFile, jbToMerge, contextKey);
 
 			if (type.equals("id")) {
 				List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap, contextKey);
@@ -596,9 +624,10 @@ public class PacketMakerService {
 			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerId", officerId, false);
 
 			supervisorId = p.getProperty(MOSIPTEST_REGCLIENT_SUPERVISORID);
-			
-			if( VariableManager.getVariableValue(contextKey, CHANGESUPERVISORNAMETODIFFCASE).toString().equalsIgnoreCase("true"))
-			      supervisorId = generateCaseConvertedString(supervisorId);
+
+			if (VariableManager.getVariableValue(contextKey, CHANGESUPERVISORNAMETODIFFCASE).toString()
+					.equalsIgnoreCase("true"))
+				supervisorId = generateCaseConvertedString(supervisorId);
 
 			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorId", supervisorId, false);
 
@@ -638,7 +667,7 @@ public class PacketMakerService {
 			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorBiometricFileName",
 					supervisorBiometricFileName, false);
 
-			updateAudit(packetRootFolder, regId,contextKey);
+			updateAudit(packetRootFolder, regId, contextKey);
 
 			LinkedList<String> sequence = updateHashSequence1(packetRootFolder);
 			LinkedList<String> operations_seq = updateHashSequence2(packetRootFolder);
@@ -649,8 +678,8 @@ public class PacketMakerService {
 				Files.write(Path.of(packetRootFolder, PACKET_OPERATION_HASH_FILENAME),
 						"PACKET_OPERATION_HASH_INVALID_DATA".getBytes());
 			} else {
-				updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME,contextKey);
-				updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME,contextKey);
+				updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME, contextKey);
+				updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME, contextKey);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -670,14 +699,14 @@ public class PacketMakerService {
 
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 
-		String encryptedHashFlag =VariableManager.getVariableValue(contextKey, "invalidEncryptedHashFlag").toString();
-		String encryptedHash =null;
-		
-	// Make encrypted hash as invalid if "invalidEncryptedHashFlag --yes"	
-		if(encryptedHashFlag.equalsIgnoreCase("invalidEncryptedHash") && type.equals("id"))
-		 encryptedHash = "INVALID_ENCRYPTED_HASH";
+		String encryptedHashFlag = VariableManager.getVariableValue(contextKey, "invalidEncryptedHashFlag").toString();
+		String encryptedHash = null;
+
+		// Make encrypted hash as invalid if "invalidEncryptedHashFlag --yes"
+		if (encryptedHashFlag.equalsIgnoreCase("invalidEncryptedHash") && type.equals("id"))
+			encryptedHash = "INVALID_ENCRYPTED_HASH";
 		else
-		 encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(
+			encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(
 					messageDigest.digest(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
 
 		String signature = Base64.getEncoder().encodeToString(
@@ -715,13 +744,30 @@ public class PacketMakerService {
 		return result;
 	}
 
-	private boolean zipAndEncrypt(Path zipSrcFolder, String contextKey) throws Exception {
+	/*
+	 * private boolean zipAndEncrypt(Path zipSrcFolder, String contextKey) throws
+	 * Exception { Path finalZipFile = Path.of(zipSrcFolder + UNENCZIP);
+	 * zipper.zipFolder(zipSrcFolder, finalZipFile,contextKey); try (FileInputStream
+	 * zipFile = new FileInputStream(finalZipFile.toFile().getAbsolutePath())) {
+	 * boolean result = cryptoUtil.encryptPacket(zipFile.readAllBytes(), centerId +
+	 * UNDERSCORE + machineId, Path.of(zipSrcFolder + ".zip").toString(),
+	 * contextKey); // Dont uncomment this: Files.delete(finalZipFile); if (!result)
+	 * { logger.error("Encryption failed!!! "); return false; } } return true; }
+	 */
+
+	public boolean zipAndEncrypt(Path zipSrcFolder, String contextKey) throws Exception {
 		Path finalZipFile = Path.of(zipSrcFolder + UNENCZIP);
-		zipper.zipFolder(zipSrcFolder, finalZipFile,contextKey);
-		try (FileInputStream zipFile = new FileInputStream(finalZipFile.toFile().getAbsolutePath())) {
-			boolean result = cryptoUtil.encryptPacket(zipFile.readAllBytes(), centerId + UNDERSCORE + machineId,
-					Path.of(zipSrcFolder + ".zip").toString(), contextKey);
-			// Dont uncomment this: Files.delete(finalZipFile);
+		// Use buffered streams
+		try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(
+				new FileOutputStream(finalZipFile.toFile()))) {
+			zipper.zipFolder(zipSrcFolder, bufferedOutputStream, contextKey);
+		}
+		try (BufferedInputStream zipFileInputStream = new BufferedInputStream(
+				new FileInputStream(finalZipFile.toFile().getAbsolutePath()))) {
+			boolean result = cryptoUtil.encryptPacket(zipFileInputStream.readAllBytes(),
+					centerId + UNDERSCORE + machineId, Path.of(zipSrcFolder + ".zip").toString(), contextKey);
+			// Uncomment the line below if the original zip file is not needed
+			// Files.delete(finalZipFile);
 			if (!result) {
 				logger.error("Encryption failed!!! ");
 				return false;
@@ -733,8 +779,11 @@ public class PacketMakerService {
 	private boolean writeJSONFile(Map<?, ?> jsonValue, String fileToWrite) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		ObjectWriter jsonWriter = objectMapper.writer();
-		try (FileOutputStream fos = new FileOutputStream(fileToWrite)) {
-			OutputStreamWriter writer = new OutputStreamWriter(fos, UTF8);
+//		try (FileOutputStream fos = new FileOutputStream(fileToWrite)) {
+//			OutputStreamWriter writer = new OutputStreamWriter(fos, UTF8);
+		try (FileOutputStream fos = new FileOutputStream(fileToWrite);
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+				OutputStreamWriter writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8)) {
 			jsonWriter.writeValue(writer, jsonValue);
 			return true;
 		} catch (Exception ex) {
@@ -899,8 +948,8 @@ public class PacketMakerService {
 		return sequence;
 	}
 
-	private void updatePacketDataHash(String packetRootFolder, LinkedList<String> sequence, String fileName,String contextKey)
-			throws Exception {
+	private void updatePacketDataHash(String packetRootFolder, LinkedList<String> sequence, String fileName,
+			String contextKey) throws Exception {
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		for (String path : sequence) {
@@ -911,9 +960,9 @@ public class PacketMakerService {
 		// generate hash
 		String packetDataHash2 = DatatypeConverter.printHexBinary(messageDigest.digest(out.toByteArray()))
 				.toUpperCase();
-		if(RestClient.isDebugEnabled(contextKey)) {
-		logger.info("sequence packetDataHash >> {} ", packetDataHash);
-		logger.info("sequence packetDataHash2 >> {} ", packetDataHash2);
+		if (RestClient.isDebugEnabled(contextKey)) {
+			logger.info("sequence packetDataHash >> {} ", packetDataHash);
+			logger.info("sequence packetDataHash2 >> {} ", packetDataHash2);
 		}
 		Files.write(Path.of(packetRootFolder, fileName), packetDataHash2.getBytes());
 	}
@@ -1000,22 +1049,22 @@ public class PacketMakerService {
 
 		Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), jsonObject.toString().getBytes(UTF8));
 	}
-	
-	 private String generateCaseConvertedString(String inputString) {
-         StringBuilder result = new StringBuilder();
-         for (char c : inputString.toCharArray()) {
-             if (Character.isUpperCase(c)) {
-                 result.append(Character.toLowerCase(c));
-             } else if (Character.isLowerCase(c)) {
-                 result.append(Character.toUpperCase(c));
-             } else {
-                 result.append(c);
-             }
-         }
-         return result.toString();
-  }
 
-	private void updateAudit(String path, String rid,String contextKey) {
+	private String generateCaseConvertedString(String inputString) {
+		StringBuilder result = new StringBuilder();
+		for (char c : inputString.toCharArray()) {
+			if (Character.isUpperCase(c)) {
+				result.append(Character.toLowerCase(c));
+			} else if (Character.isLowerCase(c)) {
+				result.append(Character.toUpperCase(c));
+			} else {
+				result.append(c);
+			}
+		}
+		return result.toString();
+	}
+
+	private void updateAudit(String path, String rid, String contextKey) {
 		Path auditfile = Path.of(path, "audit.json");
 		if (auditfile.toFile().exists()) {
 			try {
@@ -1025,8 +1074,8 @@ public class PacketMakerService {
 				}
 				Files.write(auditfile, newLines, StandardCharsets.UTF_8);
 			} catch (IOException e) {
-				if(RestClient.isDebugEnabled(contextKey))
-				logger.info("Failed to update audit.json", e);
+				if (RestClient.isDebugEnabled(contextKey))
+					logger.info("Failed to update audit.json", e);
 			}
 		}
 	}

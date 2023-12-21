@@ -10302,7 +10302,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,INTERNAL_WORKFLOW_ACTION,SUCCESS,RPR-WIA-001)"
+			"Action": "e2e_CheckRIDStage($$rid,INTERNAL_WORKFLOW_ACTION,SUCCESS)"
 		},
 		"Step-11": {
 			"Description": "Gets additional request ID for correction packet",
