@@ -39,24 +39,13 @@ public class ContextUtils {
 		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
 		Properties p = new Properties();
 
-		FileReader reader = null;
-		try {
-			reader = new FileReader(filePath);
+		try(FileReader reader = new FileReader(filePath);) {
+			
 			p.load(reader);
 		} catch (IOException e) {
 
 			logger.error("loadServerContext " + e.getMessage());
 		}
-
-		finally {
-			try {
-				if (reader != null)
-					reader.close();
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
-		}
-
 		return p;
 	}
 
