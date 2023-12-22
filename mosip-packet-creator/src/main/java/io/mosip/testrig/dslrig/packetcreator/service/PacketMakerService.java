@@ -2,6 +2,8 @@ package io.mosip.testrig.dslrig.packetcreator.service;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -610,9 +612,7 @@ public class PacketMakerService {
 			String filePath = personaConfigPath + "/server.context." + contextKey + ".properties";
 			Properties p = new Properties();
 
-			try {
-				FileReader reader = new FileReader(filePath);
-
+			try (FileReader reader = new FileReader(filePath);){
 				p.load(reader);
 				reader.close();
 
@@ -915,36 +915,76 @@ public class PacketMakerService {
 		return centerId + machineId + counter + currUTCTime;
 	}
 
+	/*
+	 * private LinkedList<String> updateHashSequence1(String packetRootFolder)
+	 * throws Exception { LinkedList<String> sequence = new LinkedList<>(); String
+	 * metaInfo_json = Files.readString(Path.of(packetRootFolder,
+	 * PACKET_META_FILENAME)); JSONObject metaInfo = new JSONObject(metaInfo_json);
+	 * 
+	 * metaInfo.getJSONObject(IDENTITY).put(HASHSEQUENCE1, new JSONArray());
+	 * 
+	 * sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "biometricSequence",
+	 * sequence, getBiometricFiles(packetRootFolder));
+	 * 
+	 * sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "demographicSequence",
+	 * sequence, getDemographicDocFiles(packetRootFolder));
+	 * 
+	 * Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME),
+	 * metaInfo.toString().getBytes(UTF8));
+	 * 
+	 * return sequence; }
+	 */
+	
 	private LinkedList<String> updateHashSequence1(String packetRootFolder) throws Exception {
-		LinkedList<String> sequence = new LinkedList<>();
-		String metaInfo_json = Files.readString(Path.of(packetRootFolder, PACKET_META_FILENAME));
-		JSONObject metaInfo = new JSONObject(metaInfo_json);
-
-		metaInfo.getJSONObject(IDENTITY).put(HASHSEQUENCE1, new JSONArray());
-
-		sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "biometricSequence", sequence,
-				getBiometricFiles(packetRootFolder));
-
-		sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "demographicSequence", sequence,
-				getDemographicDocFiles(packetRootFolder));
-
-		Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), metaInfo.toString().getBytes(UTF8));
-
-		return sequence;
-	}
-
+        LinkedList<String> sequence = new LinkedList<>();
+        Path metaInfoPath = Path.of(packetRootFolder, PACKET_META_FILENAME);
+        JSONObject metaInfo;
+        try (BufferedReader reader = Files.newBufferedReader(metaInfoPath, StandardCharsets.UTF_8)) {
+            metaInfo = new JSONObject(reader.lines().collect(Collectors.joining()));
+        }
+        metaInfo.getJSONObject(IDENTITY).put(HASHSEQUENCE1, new JSONArray());
+        sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "biometricSequence", sequence,
+                getBiometricFiles(packetRootFolder));
+        sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "demographicSequence", sequence,
+                getDemographicDocFiles(packetRootFolder));
+        // Write the updated JSON metadata back to the file
+        try (BufferedWriter writer = Files.newBufferedWriter(metaInfoPath, StandardCharsets.UTF_8)) {
+            writer.write(metaInfo.toString());
+        }
+        return sequence;
+    }
+	
+	/*
+	 * private LinkedList<String> updateHashSequence2(String packetRootFolder)
+	 * throws Exception { LinkedList<String> sequence = new LinkedList<>(); String
+	 * metaInfo_json = Files.readString(Path.of(packetRootFolder,
+	 * PACKET_META_FILENAME)); JSONObject metaInfo = new JSONObject(metaInfo_json);
+	 * 
+	 * metaInfo.getJSONObject(IDENTITY).put("hashSequence2", new JSONArray());
+	 * 
+	 * sequence = updateHashSequence(metaInfo, "hashSequence2", "otherFiles",
+	 * sequence, getOperationsFiles(packetRootFolder));
+	 * 
+	 * Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME),
+	 * metaInfo.toString().getBytes(UTF8));
+	 * 
+	 * return sequence; }
+	 */
+	
 	private LinkedList<String> updateHashSequence2(String packetRootFolder) throws Exception {
 		LinkedList<String> sequence = new LinkedList<>();
-		String metaInfo_json = Files.readString(Path.of(packetRootFolder, PACKET_META_FILENAME));
-		JSONObject metaInfo = new JSONObject(metaInfo_json);
-
+		Path metaInfoPath = Path.of(packetRootFolder, PACKET_META_FILENAME);
+		JSONObject metaInfo;
+		try (BufferedReader reader = Files.newBufferedReader(metaInfoPath, StandardCharsets.UTF_8)) {
+			metaInfo = new JSONObject(reader.lines().collect(Collectors.joining()));
+		}
 		metaInfo.getJSONObject(IDENTITY).put("hashSequence2", new JSONArray());
-
 		sequence = updateHashSequence(metaInfo, "hashSequence2", "otherFiles", sequence,
 				getOperationsFiles(packetRootFolder));
-
-		Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), metaInfo.toString().getBytes(UTF8));
-
+		// Write the updated JSON metadata back to the file
+		try (BufferedWriter writer = Files.newBufferedWriter(metaInfoPath, StandardCharsets.UTF_8)) {
+			writer.write(metaInfo.toString());
+		}
 		return sequence;
 	}
 

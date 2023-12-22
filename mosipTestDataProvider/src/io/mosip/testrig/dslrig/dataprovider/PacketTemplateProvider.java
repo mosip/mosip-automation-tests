@@ -620,10 +620,14 @@ public class PacketTemplateProvider {
 				resident.getBiometric().setCbeff(strCBeff);
 
 			} else {
+				FileOutputStream fos = new FileOutputStream(outFile);
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
 //				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
 				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
 				writer.print(cbeff);
 				writer.close();
+				fos.close();
+				bos.close();
 			}
 
 		} else {
@@ -635,10 +639,14 @@ public class PacketTemplateProvider {
 				resident.getBiometric().setCbeff(strCBeff);
 
 			} else {
+				FileOutputStream fos = new FileOutputStream(outFile);
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
 //				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
 				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
 				writer.print(cbeff);
 				writer.close();
+				fos.close();
+				bos.close();
 			}
 		}
 		resident.save();

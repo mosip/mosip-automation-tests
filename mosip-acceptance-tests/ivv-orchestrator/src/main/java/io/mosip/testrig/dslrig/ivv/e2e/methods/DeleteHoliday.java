@@ -2,9 +2,6 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
-import io.mosip.testrig.apirig.dbaccess.AuditDBManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;

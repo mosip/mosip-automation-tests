@@ -611,8 +611,10 @@ public class BiometricDataProvider {
 					.t(bioSubType.toString().substring(1, bioSubType.toString().length() - 1)).up().up();
 		}
 		if (toFile != null) {
-			PrintWriter writer = new PrintWriter(new FileOutputStream(toFile));
+			FileOutputStream fos = new FileOutputStream(toFile);
+			PrintWriter writer = new PrintWriter(fos);
 			builder.toWriter(true, writer, null);
+			fos.close();
 		}
 
 		retXml = builder.asString(null);
@@ -841,8 +843,10 @@ public class BiometricDataProvider {
 		}
 
 		if (toFile != null) {
-			PrintWriter writer = new PrintWriter(new FileOutputStream(toFile));
+			FileOutputStream fos = new FileOutputStream(toFile);
+			PrintWriter writer = new PrintWriter(fos);
 			builder.toWriter(true, writer, null);
+			fos.close();
 		}
 		retXml = builder.asString(null);
 		return retXml;
