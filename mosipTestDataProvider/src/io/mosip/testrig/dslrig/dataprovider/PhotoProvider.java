@@ -69,14 +69,17 @@ public class PhotoProvider {
 				// folder where all bio input available
 				String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "externalBiometricsource")
 						.toString();
-
-//				img = ImageIO.read(new File(bioSrc +"Face.jp2" ));
-				img = ImageIO.read(new BufferedInputStream(new FileInputStream(bioSrc + "Face.jp2")));
+				try (FileInputStream fos = new FileInputStream(bioSrc + "Face.jp2");
+						BufferedInputStream bis = new BufferedInputStream(fos)) {
+					img = ImageIO.read(bis);
+				}
 			} else {
-//				img=ImageIO.read(file);
-				img = ImageIO.read(new BufferedInputStream(new FileInputStream(file)));
-				logger.info("Image picked from this path=" + file);
 
+				try (FileInputStream fos = new FileInputStream(file);
+						BufferedInputStream bis = new BufferedInputStream(fos)) {
+					img = ImageIO.read(bis);
+					logger.info("Image picked from this path=" + file);
+				}
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -193,9 +196,9 @@ public class PhotoProvider {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
 		BufferedImage img;
-		try {
+		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(faceFile));) {
 //			img = ImageIO.read(new File(faceFile));
-			img = ImageIO.read(new BufferedInputStream(new FileInputStream(faceFile)));
+			img = ImageIO.read(bis);
 			ImageIO.write(img, "jpg", baos);
 			baos.flush();
 			bData = baos.toByteArray();

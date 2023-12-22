@@ -1252,14 +1252,17 @@ public class RestClient {
 
 		if (http_status == 200) {
 
-			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+		try(BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));){	
 
 			String output;
 
 			while ((output = br.readLine()) != null) {
 				builder.append(output);
 			}
-
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
 		}
 		return builder.toString();
 	}
