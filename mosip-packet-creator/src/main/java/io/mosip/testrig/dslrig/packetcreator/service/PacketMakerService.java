@@ -54,6 +54,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
@@ -713,12 +714,14 @@ public class PacketMakerService {
 				cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP)), contextKey));
 
 		Path src = Path.of(containerRootFolder + UNENCZIP);
+		Path destination = Path.of(VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+				+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
+				contextKey.replace(CONTEXT, ""), src.getFileName().toString());
 
-		Files.copy(src,
-				Path.of(VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
-						+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
-						contextKey.replace(CONTEXT, ""), src.getFileName().toString()),
-				StandardCopyOption.REPLACE_EXISTING);
+		/*
+		 * Files.copy(src, destination, StandardCopyOption.REPLACE_EXISTING);
+		 */
+		CommonUtil.copyFileWithBuffer(src, destination);
 
 		Files.delete(Path.of(containerRootFolder + UNENCZIP));
 		FileSystemUtils.deleteRecursively(Path.of(containerRootFolder));
@@ -733,12 +736,17 @@ public class PacketMakerService {
 		boolean result = zipAndEncrypt(path, contextKey);
 
 		Path src = Path.of(path + UNENCZIP);
+		Path destination = Path.of(VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+				+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
+				contextKey.replace(CONTEXT, ""), src.getFileName().toString());
 
-		Files.copy(src,
+/*		Files.copy(src,
 				Path.of(VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 						+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
 						contextKey.replace(CONTEXT, ""), src.getFileName().toString()),
-				StandardCopyOption.REPLACE_EXISTING);
+				StandardCopyOption.REPLACE_EXISTING);*/
+		
+		CommonUtil.copyFileWithBuffer(src, destination);
 
 		Files.delete(Path.of(path + UNENCZIP));
 		return result;
