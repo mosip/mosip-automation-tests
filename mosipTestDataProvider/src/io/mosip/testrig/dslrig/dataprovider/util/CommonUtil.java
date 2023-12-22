@@ -1,8 +1,11 @@
 package io.mosip.testrig.dslrig.dataprovider.util;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,6 +32,7 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mifmif.common.regex.Generex;
 
@@ -226,6 +230,38 @@ public class CommonUtil {
 			}
 		}
 		return props;
+	}
+
+	public static void copyFileWithBuffer(Path source, Path destination)  {
+		try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(source));
+				BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(destination))) {
+			byte[] buffer = new byte[8192]; // Adjust buffer size as needed
+			int bytesRead;
+			while ((bytesRead = in.read(buffer)) != -1) {
+				out.write(buffer, 0, bytesRead);
+			}
+			// Flush the buffered output stream
+			out.flush();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+	}
+
+	public static void copyMultipartFileWithBuffer(MultipartFile sourceFile, Path destination) {
+		try (InputStream inputStream = sourceFile.getInputStream();
+				BufferedOutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(destination))) {
+			// Define buffer size
+			byte[] buffer = new byte[8192];
+			int bytesRead;
+			// Read from the input stream and write to the output stream with buffering
+			while ((bytesRead = inputStream.read(buffer)) != -1) {
+				outputStream.write(buffer, 0, bytesRead);
+			}
+			// Flush the buffered output stream
+			outputStream.flush();
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
 	}
 
 	public static void main(String[] args) throws Exception {

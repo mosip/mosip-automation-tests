@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 
 @Service
@@ -198,7 +199,8 @@ public class CommandsService {
 		}
 		String fileName = UUID.randomUUID().toString() + fileExtension;
 		Path targetLocation = Path.of(uploadPath + "/" + fileName);
-		Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+//		Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+		CommonUtil.copyMultipartFileWithBuffer(file, targetLocation);
 		return targetLocation.toString();
 	}
 

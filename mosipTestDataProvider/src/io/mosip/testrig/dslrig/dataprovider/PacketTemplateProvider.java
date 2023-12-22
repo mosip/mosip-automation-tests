@@ -339,7 +339,8 @@ public class PacketTemplateProvider {
 
 							String outFile = fileInfo.get(RID_EVIDENCE)[0] + "/" + fileInfo.get(RID_EVIDENCE)[1];
 							try {
-								Files.copy(Paths.get(docFile), Paths.get(outFile));
+//								Files.copy(Paths.get(docFile), Paths.get(outFile));
+								CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
 								RestClient.logInfo(contextKey,
 										"contextkey" + contextKey + "Index= " + index + " File info= " + fileInfo
 												+ " From-docFIle=" + docFile + " To-docFIle=" + outFile + DTYPE
@@ -1135,7 +1136,8 @@ public class PacketTemplateProvider {
 
 							String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
 							try {
-								Files.copy(Paths.get(docFile), Paths.get(outFile));
+//								Files.copy(Paths.get(docFile), Paths.get(outFile));
+								CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
 
 							} catch (Exception e) {
 								logger.error(GENERATEIDJSONV2, e);
