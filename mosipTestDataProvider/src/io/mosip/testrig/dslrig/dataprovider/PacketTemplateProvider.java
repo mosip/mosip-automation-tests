@@ -176,28 +176,28 @@ public class PacketTemplateProvider {
 		}
 		JSONObject processMVEL = processMVEL(resident, idJson, process, contextSchemaDetail, contextKey);
 		idJson = processMVEL.toString();
-		Files.write(Paths.get(ridFolder + ID_JSON), idJson.getBytes());
+		CommonUtil.write(Paths.get(ridFolder + ID_JSON), idJson.getBytes());
 		String metadataJson = generateMetaDataJson(resident, preregId, machineId, centerId, fileInfo, contextKey,
 				contextSchemaDetail);
-		Files.write(Paths.get(ridFolder + PACKET_META_INFO_JSON), metadataJson.getBytes());
+		CommonUtil.write(Paths.get(ridFolder + PACKET_META_INFO_JSON), metadataJson.getBytes());
 
 		// Generate evidence json
 
 		String evidenceJson = generateEvidenceJson(resident, fileInfo, contextKey, props, contextSchemaDetail);
-		Files.write(Paths.get(rid_evidence_folder + ID_JSON), evidenceJson.getBytes());
-		Files.write(Paths.get(rid_evidence_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
+		CommonUtil.write(Paths.get(rid_evidence_folder + ID_JSON), evidenceJson.getBytes());
+		CommonUtil.write(Paths.get(rid_evidence_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
 
 		// copy the dummy jsons to optional also
 
-		Files.write(Paths.get(rid_optional_folder + ID_JSON), evidenceJson.getBytes());
-		Files.write(Paths.get(rid_optional_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
+		CommonUtil.write(Paths.get(rid_optional_folder + ID_JSON), evidenceJson.getBytes());
+		CommonUtil.write(Paths.get(rid_optional_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
 
 		idJson = genRID_PacketTypeJson(source, process, "id", contextSchemaDetail);
-		Files.write(Paths.get(processFolder + File.separator + "/rid_id.json"), idJson.getBytes());
+		CommonUtil.write(Paths.get(processFolder + File.separator + "/rid_id.json"), idJson.getBytes());
 		idJson = genRID_PacketTypeJson(source, process, EVIDENCE, contextSchemaDetail);
-		Files.write(Paths.get(processFolder + File.separator + "/rid_evidence.json"), idJson.getBytes());
+		CommonUtil.write(Paths.get(processFolder + File.separator + "/rid_evidence.json"), idJson.getBytes());
 		idJson = genRID_PacketTypeJson(source, process, "optional", contextSchemaDetail);
-		Files.write(Paths.get(processFolder + File.separator + "/rid_optional.json"), idJson.getBytes());
+		CommonUtil.write(Paths.get(processFolder + File.separator + "/rid_optional.json"), idJson.getBytes());
 
 		return "Success";
 

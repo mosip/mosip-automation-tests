@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.testrig.dslrig.dataprovider.test.partnerManagement.CertificateGenerator;
 import io.mosip.testrig.dslrig.dataprovider.test.partnerManagement.CertificateUploader;
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 @Component
@@ -266,7 +267,7 @@ public class CertificateService {
 	public String readCertificate(String name, String contextKey) throws IOException {
 
 		String path = VariableManager.getVariableValue(contextKey, "certificatePath") + name;
-		return new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+		return new String(CommonUtil.read(path), StandardCharsets.UTF_8);
 
 	}
 }

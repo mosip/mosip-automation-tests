@@ -244,7 +244,7 @@ public class PacketSyncService {
 
 				String jsonStr = r.toJSONString();
 
-				Files.write(tempPath, jsonStr.getBytes());
+				CommonUtil.write(tempPath, jsonStr.getBytes());
 
 				JSONObject id = new JSONObject();
 				id.put("id", r.getId());
@@ -384,7 +384,7 @@ public class PacketSyncService {
 		VariableManager.setVariableValue(contextKey, "preregIds_", tmpDir);
 
 		Path tempPath = Path.of(tmpDir, resident.getId() + "_ID.json");
-		Files.write(tempPath, jsonWrapper.toString().getBytes());
+		CommonUtil.write(tempPath, jsonWrapper.toString().getBytes());
 
 		return tempPath;
 
@@ -469,7 +469,7 @@ public class PacketSyncService {
 		jsonObject.put("phone", "");
 		jsonObject.put("registrationType", process);
 
-		byte[] fileBytes = Files.readAllBytes(container);
+		byte[] fileBytes = CommonUtil.read(containerFile);
 
 		String checkSum = VariableManager.getVariableValue(contextKey, "invalidCheckSum").toString();
 		// Provide invalid checksum before the sync conditionally
@@ -1253,7 +1253,7 @@ public class PacketSyncService {
 		if (guardian != null && persona != null)
 			persona.setGuardian(guardian);
 		if (persona != null) {
-			Files.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
+			CommonUtil.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
 			return "{\"response\":\"SUCCESS\"}";
 		} else {
 			return "{\"response\":\"FAIL\"}";
