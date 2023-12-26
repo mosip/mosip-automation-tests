@@ -571,7 +571,7 @@ public class PacketMakerService {
 				} catch (FileAlreadyExistsException e) {
 					logger.error("already exists: " + e.getMessage());
 				}
-				Files.write(path, schemaJson.getBytes());
+				CommonUtil.write(path, schemaJson.getBytes());
 
 			}
 			JSONObject jbToMerge = schemaUtil.getPacketIDData(schemaJson, dataToMerge, type);
@@ -590,7 +590,7 @@ public class PacketMakerService {
 				} catch (FileAlreadyExistsException e) {
 					logger.error("already exists: " + e.getMessage());
 				}
-				Files.write(path, invalidIds.toString().getBytes());
+				CommonUtil.write(path, invalidIds.toString().getBytes());
 			}
 
 			if (!writeJSONFile(mergedJsonMap.toMap(), templateFile)) {
@@ -674,9 +674,9 @@ public class PacketMakerService {
 			LinkedList<String> operations_seq = updateHashSequence2(packetRootFolder);
 			if (preregId != null && preregId.equals("01")) // to generte invalid hash data
 			{
-				Files.write(Path.of(packetRootFolder, PACKET_DATA_HASH_FILENAME),
+				CommonUtil.write(Path.of(packetRootFolder, PACKET_DATA_HASH_FILENAME),
 						"PACKET_DATA_HASH_INVALID_DATA".getBytes());
-				Files.write(Path.of(packetRootFolder, PACKET_OPERATION_HASH_FILENAME),
+				CommonUtil.write(Path.of(packetRootFolder, PACKET_OPERATION_HASH_FILENAME),
 						"PACKET_OPERATION_HASH_INVALID_DATA".getBytes());
 			} else {
 				updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME, contextKey);
@@ -923,26 +923,7 @@ public class PacketMakerService {
 		return centerId + machineId + counter + currUTCTime;
 	}
 
-	/*
-	 * private LinkedList<String> updateHashSequence1(String packetRootFolder)
-	 * throws Exception { LinkedList<String> sequence = new LinkedList<>(); String
-	 * metaInfo_json = Files.readString(Path.of(packetRootFolder,
-	 * PACKET_META_FILENAME)); JSONObject metaInfo = new JSONObject(metaInfo_json);
-	 * 
-	 * metaInfo.getJSONObject(IDENTITY).put(HASHSEQUENCE1, new JSONArray());
-	 * 
-	 * sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "biometricSequence",
-	 * sequence, getBiometricFiles(packetRootFolder));
-	 * 
-	 * sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "demographicSequence",
-	 * sequence, getDemographicDocFiles(packetRootFolder));
-	 * 
-	 * Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME),
-	 * metaInfo.toString().getBytes(UTF8));
-	 * 
-	 * return sequence; }
-	 */
-	
+
 	private LinkedList<String> updateHashSequence1(String packetRootFolder) throws Exception {
         LinkedList<String> sequence = new LinkedList<>();
         Path metaInfoPath = Path.of(packetRootFolder, PACKET_META_FILENAME);
@@ -962,23 +943,7 @@ public class PacketMakerService {
         return sequence;
     }
 	
-	/*
-	 * private LinkedList<String> updateHashSequence2(String packetRootFolder)
-	 * throws Exception { LinkedList<String> sequence = new LinkedList<>(); String
-	 * metaInfo_json = Files.readString(Path.of(packetRootFolder,
-	 * PACKET_META_FILENAME)); JSONObject metaInfo = new JSONObject(metaInfo_json);
-	 * 
-	 * metaInfo.getJSONObject(IDENTITY).put("hashSequence2", new JSONArray());
-	 * 
-	 * sequence = updateHashSequence(metaInfo, "hashSequence2", "otherFiles",
-	 * sequence, getOperationsFiles(packetRootFolder));
-	 * 
-	 * Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME),
-	 * metaInfo.toString().getBytes(UTF8));
-	 * 
-	 * return sequence; }
-	 */
-	
+
 	private LinkedList<String> updateHashSequence2(String packetRootFolder) throws Exception {
 		LinkedList<String> sequence = new LinkedList<>();
 		Path metaInfoPath = Path.of(packetRootFolder, PACKET_META_FILENAME);
@@ -1001,7 +966,7 @@ public class PacketMakerService {
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		for (String path : sequence) {
-			out.write(Files.readAllBytes(Path.of(path)));
+			out.write(CommonUtil.read(path));
 		}
 		String packetDataHash = new String(Hex.encode(messageDigest.digest(out.toByteArray()))).toUpperCase();
 		// TODO - its failing with Hex.encoded hash, so using the below method to
@@ -1012,7 +977,7 @@ public class PacketMakerService {
 			logger.info("sequence packetDataHash >> {} ", packetDataHash);
 			logger.info("sequence packetDataHash2 >> {} ", packetDataHash2);
 		}
-		Files.write(Path.of(packetRootFolder, fileName), packetDataHash2.getBytes());
+		CommonUtil.write(Path.of(packetRootFolder, fileName), packetDataHash2.getBytes());
 	}
 
 	private List<String> getBiometricFiles(String packetRootFolder) {
@@ -1095,7 +1060,7 @@ public class PacketMakerService {
 			jsonObject.getJSONObject(IDENTITY).getJSONArray(parentKey).put(rid);
 		}
 
-		Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), jsonObject.toString().getBytes(UTF8));
+		CommonUtil.write(Path.of(packetRootFolder, PACKET_META_FILENAME), jsonObject.toString().getBytes(UTF8));
 	}
 
 	private String generateCaseConvertedString(String inputString) {

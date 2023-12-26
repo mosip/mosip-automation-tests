@@ -176,8 +176,8 @@ public class BiometricFingerPrintProvider {
 
 						if (index > 9)
 							break;
-						Path path = Paths.get(f.getAbsolutePath());
-						byte[] fdata = Files.readAllBytes(path);
+						
+						byte[] fdata = CommonUtil.read(f.getAbsolutePath()); 
 						fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
 
 						// fingerPrints[index]= Hex.encodeHexString( fdata ) ;
@@ -211,12 +211,12 @@ public class BiometricFingerPrintProvider {
 
 					if (index > 9)
 						break;
-					Path path = Paths.get(f.getAbsolutePath());
+					
 					byte[] fdata;
 					try {
-						fdata = Files.readAllBytes(path);
+						fdata = CommonUtil.read(f.getAbsolutePath());
 						fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
-					} catch (IOException e) {
+					} catch (Exception e) {
 						logger.error(e.getMessage());
 					}
 					index++;
@@ -279,11 +279,11 @@ public class BiometricFingerPrintProvider {
 			String leftIrisData = "";
 			String rightIrisData = "";
 			if (Files.exists(Paths.get(fPathL))) {
-				byte[] fdata = Files.readAllBytes(Paths.get(fPathL));
+				byte[] fdata = CommonUtil.read(fPathL);
 				leftIrisData = Hex.encodeHexString(fdata);
 			}
 			if (Files.exists(Paths.get(fPathR))) {
-				byte[] fdata = Files.readAllBytes(Paths.get(fPathR));
+				byte[] fdata = CommonUtil.read(fPathR);
 				rightIrisData = Hex.encodeHexString(fdata);
 			}
 			if (leftIrisData.equals(""))
