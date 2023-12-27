@@ -34,7 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
+import java.io.*;
 
 public class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
@@ -215,7 +217,7 @@ public class CommonUtil {
 
 	public static void saveToTemp(String data, String fileName) {
 		try {
-			Files.write(Paths.get("/temp/" + fileName), data.getBytes());
+			CommonUtil.write(Paths.get("/temp/" + fileName), data.getBytes());
 		} catch (IOException e) {
 		}
 	}
@@ -263,7 +265,39 @@ public class CommonUtil {
 			logger.error(e.getMessage());
 		}
 	}
-
+	
+	
+	public static void write(Path filePath, byte[] bytes) throws IOException {
+		Files.write(filePath, bytes);
+		
+//		ObjectMapper mapper = new ObjectMapper();
+//		try (OutputStream outputStream = new FileOutputStream(filePath.toString())) {
+//			mapper.writeValue(outputStream, bytes);
+//		}
+	}
+	
+	
+	public static void write( byte[] bytes,File file) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		try (OutputStream outputStream = new FileOutputStream(file)) {
+			mapper.writeValue(outputStream, bytes);
+		}
+	}
+	
+	public static  byte[] read(String path)
+	{
+		 byte[] data = null;
+		try {
+			data = Files.readAllBytes(Paths.get(path));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.error(e.getMessage());
+		}
+		 
+		 return data;
+	}
+	
+	
 	public static void main(String[] args) throws Exception {
 		String regex1 = "^|^0[5-7][0-9]{8}$";
 		String regex2 = "^[a-zA-Zء-ي٠-٩ ]{5,47}$";
