@@ -48,7 +48,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 				for (Object object : testCaseList) {
 					for(String requestid: this.step.getScenario().getUinReqIds().values()) {
 						int counter=0;
-					while(!credentialIssued && counter<Integer.parseInt(props.getProperty("loopCount"))) {
+					while(!credentialIssued && counter<Integer.parseInt(props.getProperty("credentialReqLoopCount"))) {
 						counter++;
 						try {
 							logger.info("Waiting for 30 sec to get credential Issued");
@@ -78,9 +78,12 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 						}
 				}
 			}
-		} catch (InterruptedException e) {
-			logger.error("Failed due to thread sleep: " + e.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage());
 			Thread.currentThread().interrupt();
+			this.hasError=true;
+			throw new RigInternalError("Unable to check credential status");
+
 		}
 
 	}

@@ -24,6 +24,6 @@ public class DeleteMockExpect extends BaseTestCaseUtil implements StepInterface 
 		
 		String url = baseUrl + props.getProperty("deleteMockExpectation");
 		Response response = deleteRequest(url, "deleteMockExpectation",step);
-		
+		response.getBody().asString();
 	}
 }
