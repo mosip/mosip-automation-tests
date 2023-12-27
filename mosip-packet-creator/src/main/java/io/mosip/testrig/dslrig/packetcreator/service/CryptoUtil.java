@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import tss.Tpm;
 import tss.TpmFactory;
@@ -474,11 +475,10 @@ public class CryptoUtil {
 				}
 			}
 		}
-		// byte[] key = Files.readAllBytes(Path.of(KEY_PATH ,KEYS_DIR ,PRIVATE_KEY));
-		if (filePath == null || filePath.isEmpty())
+	if (filePath == null || filePath.isEmpty())
 			throw new Exception("privatekey file not found");
 		logger.info("PRIVATEKEY FILE PATH::" + filePath);
-		byte[] key = Files.readAllBytes(Path.of(filePath));
+		byte[] key = CommonUtil.read(filePath);
 		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);
 		KeyFactory kf = KeyFactory.getInstance("RSA");
 		return kf.generatePrivate(keySpec);

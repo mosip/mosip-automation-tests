@@ -910,7 +910,7 @@ public class BiometricDataProvider {
 					String modalityName = DataProviderConstants.MDSProfileFingerNames[i];
 					modalityName = modalityName.replace('_', ' ');
 					String fPath = bioSrc + modalityName + ".jp2";
-					byte[] fdata = Files.readAllBytes(Paths.get(fPath));
+					byte[] fdata = CommonUtil.read(fPath);
 					fingerPrintRaw[i] = fdata;
 					fingerPrints[i] = Base64.getEncoder().encodeToString(fdata);
 					try {
@@ -948,8 +948,8 @@ public class BiometricDataProvider {
 
 						if (index > 9)
 							break;
-						Path path = Paths.get(f.getAbsolutePath());
-						byte[] fdata = Files.readAllBytes(path);
+						
+						byte[] fdata = CommonUtil.read(f.getAbsolutePath());
 						fingerPrintRaw[index] = fdata;
 						fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
 
@@ -1018,10 +1018,10 @@ public class BiometricDataProvider {
 
 					if (index > 9)
 						break;
-					Path path = Paths.get(f.getAbsolutePath());
+					
 					byte[] fdata;
 					try {
-						fdata = Files.readAllBytes(path);
+						fdata = CommonUtil.read(f.getAbsolutePath());
 						fingerPrintRaw[index] = fdata;
 						fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
 
@@ -1089,7 +1089,7 @@ public class BiometricDataProvider {
 		String irisHash = "";
 
 		if (Files.exists(Paths.get(filePath))) {
-			byte[] fdata = Files.readAllBytes(Paths.get(filePath));
+			byte[] fdata = CommonUtil.read(filePath);
 			irisData = Hex.encodeHexString(fdata);
 			irisHash = CommonUtil.getHexEncodedHash(fdata);
 			if (subModality.equals("left")) {
@@ -1132,13 +1132,13 @@ public class BiometricDataProvider {
 			byte[] fdata = null;
 			byte[] frdata = null;
 			if (Files.exists(Paths.get(fPathL))) {
-				fdata = Files.readAllBytes(Paths.get(fPathL));
+				fdata = CommonUtil.read(fPathL);
 				leftIrisData = Hex.encodeHexString(fdata);
 				irisHash = CommonUtil.getHexEncodedHash(fdata);
 				m.setLeftHash(irisHash);
 			}
 			if (Files.exists(Paths.get(fPathR))) {
-				frdata = Files.readAllBytes(Paths.get(fPathR));
+				frdata = CommonUtil.read(fPathR);
 				rightIrisData = Hex.encodeHexString(frdata);
 				irisHash = CommonUtil.getHexEncodedHash(frdata);
 				m.setRightHash(irisHash);
@@ -1212,13 +1212,13 @@ public class BiometricDataProvider {
 			byte[] fldata = null;
 			byte[] frdata = null;
 			if (Files.exists(Paths.get(fPathL))) {
-				fldata = Files.readAllBytes(Paths.get(fPathL));
+				fldata = CommonUtil.read(fPathL);
 				leftIrisData = Hex.encodeHexString(fldata);
 				irisHash = CommonUtil.getHexEncodedHash(fldata);
 				m.setLeftHash(irisHash);
 			}
 			if (Files.exists(Paths.get(fPathR))) {
-				frdata = Files.readAllBytes(Paths.get(fPathR));
+				frdata = CommonUtil.read(fPathR);
 				rightIrisData = Hex.encodeHexString(frdata);
 				irisHash = CommonUtil.getHexEncodedHash(frdata);
 				m.setRightHash(irisHash);
