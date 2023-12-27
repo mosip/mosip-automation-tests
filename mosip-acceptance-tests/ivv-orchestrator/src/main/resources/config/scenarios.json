@@ -10988,36 +10988,30 @@
 			"Action": "$$childUin=e2e_getUINByRid($$childRid)"
 		},
 		"Step-16": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
-		},
-		"Step-17": {
 			"Description": "Generates the hash for the given modalities",
 			"Input Parameters": "Modalitie and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "Hash value",
 			"Action": "$$modalityHashValue=e2e_getBioModalityHash(-1/*ADD_COMMMENT*/,Right IndexFinger@@Left LittleFinger,$$childPersona)"
 		},
-		"Step-18": {
+		"Step-17": {
 			"Description": "Sets expectatation on mock ABIS",
 			"Input Parameters": "Modalities hash value. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_configureMockAbis(-1/*ADD_COMMMENT*/,Right IndexFinger,true/*ADD_COMMMENT*/,Right IndexFinger,$$childPersona,$$modalityHashValue,-1/*ADD_COMMMENT*/,@@Duplicate/*ADD_COMMMENT*/)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Genertes and uploads packet with given persona and packet template skipping pre-registration step",
 			"Input Parameters": "Persona file path and template file path",
 			"Return Value": "RID",
 			"Action": "$$childRid2=e2e_generateAndUploadPacketSkippingPrereg($$childPersona,$$childTemplate)"
 		},
-		"Step-20": {
+		"Step-19": {
 			"Description": "Sets manual verification status",
 			"Input Parameters": "RID and status",
 			"Return Value": "NA",
 			"Action": "e2e_postMockMv($$childRid2,REJECTED)"
 		},
-		"Step-21": {
+		"Step-20": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
