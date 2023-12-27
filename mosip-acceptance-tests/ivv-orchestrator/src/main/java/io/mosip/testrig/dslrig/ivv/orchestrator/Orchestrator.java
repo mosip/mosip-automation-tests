@@ -244,9 +244,9 @@ public class Orchestrator {
 
 	private void updateRunStatistics(Scenario scenario)
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-		logger.info(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
+//		logger.info(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
+		logger.info("Updating statistics for scenario: "+ scenario.getId() + " -- updating the executed count to: " + counterLock.getAndIncrement());
 		if (scenario.getId().equalsIgnoreCase("0")) {
-
 			/// Check if all steps in Before are passed or not
 			for (Scenario.Step step : scenario.getSteps()) {
 				StepInterface st = getInstanceOf(step);
