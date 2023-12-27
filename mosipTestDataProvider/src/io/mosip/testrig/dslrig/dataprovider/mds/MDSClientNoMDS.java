@@ -195,7 +195,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 				/*
 				BioMetricsDataDto bioMetricsData = oB.readValue(
 						Base64.getDecoder()
-								.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
+								.decode(new String(ComonUtil.read(System.getProperty("user.dir")
 										+ "/files/MockMDS/registration/" + segment + ".txt")))),
 						BioMetricsDataDto.class);
 				list.add(bioMetricsData);
