@@ -2,6 +2,7 @@ AuthenticateUser:
    ESignet_AuthenticateUserIDP_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
       role: resident
+      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: idaData/AuthenticateUser/AuthenticateUser
       outputTemplate: idaData/AuthenticateUser/AuthenticateUserResult
