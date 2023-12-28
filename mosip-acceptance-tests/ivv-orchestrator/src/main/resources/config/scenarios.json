@@ -17721,31 +17721,31 @@
 			"Description": "Creates user with given user name and password",
 			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
-			"Action": "$$user7=e2e_User(ADD_User,7/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
+			"Action": "$$user156=e2e_User(ADD_User,156/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-1": {
 			"Description": "Creates center and maps to user to that",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
-			"Action": "$$center7=e2e_Center(CREATE,$$user7,7/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
+			"Action": "$$center156=e2e_Center(CREATE,$$user156,156/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
 		},
 		"Step-2": {
 			"Description": "Creates machine and maps to the given center",
 			"Input Parameters": "Action, Center details.  Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Machine details",
-			"Action": "$$details7=e2e_Machine(CREATE,$$center7,7/*ADD_COMMMENT*/)"
+			"Action": "$$details156=e2e_Machine(CREATE,$$center156,156/*ADD_COMMMENT*/)"
 		},
 		"Step-3": {
 			"Description": "Deletes center mapping",
 			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Updated center details",
-			"Action": "$$details7=e2e_User(DELETE_CENTERMAPPING,7/*ADD_COMMMENT*/@@Techno@123/*PASSWORD*/,$$details7)"
+			"Action": "$$details156=e2e_User(DELETE_CENTERMAPPING,156/*ADD_COMMMENT*/@@Techno@123/*PASSWORD*/,$$details156)"
 		},
 		"Step-4": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "$$details7=e2e_User(CREATE_ZONESEARCH,$$details7)"
+			"Action": "$$details156=e2e_User(CREATE_ZONESEARCH,$$details156)"
 		},
 		"Step-5": {
 			"Description": "Waits for given period in seconds",
@@ -17757,67 +17757,67 @@
 			"Description": "Deletes the zone mapping ",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details7)"
+			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details156)"
 		},
 		"Step-7": {
 			"Description": "Maps the zone",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details7)"
+			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details156)"
 		},
 		"Step-8": {
 			"Description": "Activates Zone mapping",
 			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details7,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
+			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details156,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
 		"Step-9": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details7,7/*ADD_COMMMENT*/)"
+			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details156,156/*ADD_COMMMENT*/)"
 		},
 		"Step-10": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "Action. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$details7,T/*USER_CENTER_MAPPING_FLAG*/)"
+			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$details156,T/*USER_CENTER_MAPPING_FLAG*/)"
 		},
 		"Step-11": {
 			"Description": "Writes prerequisite details",
 			"Input Parameters": "Details . Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_WritePreReq($$details7,7/*PRE_REQUISITE_DATA_INDEX*/)"
+			"Action": "e2e_WritePreReq($$details156,156/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-12": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
-			"Action": "$$details7=e2e_ReadPreReq(7/*ADD_COMMMENT*/)"
+			"Action": "$$details156=e2e_ReadPreReq(156/*ADD_COMMMENT*/)"
 		},
 		"Step-13": {
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details6,1/*ADD_COMMMENT*/@@2/*ADD_COMMMENT*/,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details156,1/*ADD_COMMMENT*/@@2/*ADD_COMMMENT*/,true/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-14": {
 			"Description": "Deletes center mapping",
 			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Updated center details",
-			"Action": "$$details7=e2e_User(DELETE_CENTERMAPPING,7/*ADD_COMMMENT*/@@Techno@123/*PASSWORD*/,$$details7)"
+			"Action": "$$details156=e2e_User(DELETE_CENTERMAPPING,156/*ADD_COMMMENT*/@@Techno@123/*PASSWORD*/,$$details156)"
 		},
 		"Step-15": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_Machine(REMOVE_CENTER,$$details7)"
+			"Action": "e2e_Machine(REMOVE_CENTER,$$details156)"
 		},
 		"Step-16": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_Center(ACTIVE_FLAG,$$details7,7/*CENTER_INDEX*/,F/*CENTER_ACTIVE_FLAG*/)"
+			"Action": "e2e_Center(ACTIVE_FLAG,$$details156,156/*CENTER_INDEX*/,F/*CENTER_ACTIVE_FLAG*/)"
 		},
 		"Step-17": {
 			"Description": "Generates persona data",
@@ -17859,13 +17859,13 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details7)"
+			"Action": "e2e_Machine(DCOM,$$details156)"
 		},
 		"Step-24": {
 			"Description": "Decomissions the center",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Center(DCOM,$$details7,7/*CENTER_INDEX*/)"
+			"Action": "e2e_Center(DCOM,$$details156,156/*CENTER_INDEX*/)"
 		}
 	},
 	{
@@ -18105,96 +18105,102 @@
 			"Action": "e2e_WritePersonaData()"
 		},
 		"Step-1": {
+			"Description": "Resets the context data",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_ResetContextData()"
+		},
+		"Step-2": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
 			"Return Value": "NA",
 			"Action": "e2e_getPingHealth(packetcreator)"
 		},
-		"Step-2": {
+		"Step-3": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
-		"Step-3": {
+		"Step-4": {
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,1/*ADD_COMMMENT*/@@2/*ADD_COMMMENT*/,false/*GENERATE_PRIVATE_KEY*/)"
 		},
-		"Step-4": {
+		"Step-5": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_getPingHealth()"
 		},
-		"Step-5": {
+		"Step-6": {
 			"Description": "Re-sets all expectations set on mocks for simulating the scenarios",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_DeleteMockExpect()"
 		},
-		"Step-6": {
+		"Step-7": {
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details1)"
 		},
-		"Step-7": {
+		"Step-8": {
 			"Description": "Unmaps machine from the center",
 			"Input Parameters": "Action and CMD details",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$details1=e2e_User(DELETE_CENTERMAPPING,1/*ADD_COMMMENT*/@@Techno@123/*PASSWORD*/,$$details1)"
 		},
-		"Step-8": {
+		"Step-9": {
 			"Description": "Decomissions the center",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details1,1/*CENTER_INDEX*/)"
 		},
-		"Step-9": {
+		"Step-10": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
 			"Action": "$$details2=e2e_ReadPreReq(2/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
-		"Step-10": {
+		"Step-11": {
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details2)"
 		},
-		"Step-11": {
+		"Step-12": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$details2=e2e_User(DELETE_CENTERMAPPING,2/*ADD_COMMMENT*/@@Techno@123/*PASSWORD*/,$$details2)"
 		},
-		"Step-12": {
+		"Step-13": {
 			"Description": "Decomissions the center",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details2,2/*CENTER_INDEX*/)"
 		},
-		"Step-13": {
+		"Step-14": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
 			"Action": "$$details3=e2e_ReadPreReq(3/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
-		"Step-14": {
+		"Step-15": {
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details3)"
 		},
-		"Step-15": {
+		"Step-16": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$details3=e2e_User(DELETE_CENTERMAPPING,3/*ADD_COMMMENT*/@@Techno@123/*PASSWORD*/,$$details3)"
 		},
-		"Step-16": {
+		"Step-17": {
 			"Description": "Decomissions the center",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
