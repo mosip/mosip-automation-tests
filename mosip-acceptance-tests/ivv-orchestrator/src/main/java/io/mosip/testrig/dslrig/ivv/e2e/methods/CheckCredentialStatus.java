@@ -24,8 +24,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 			logger.setLevel(Level.ERROR);
 	}
 
-    @SuppressWarnings("static-access")
-	@Override
+    @Override
     public void run() throws RigInternalError {
     	if(!step.getParameters().isEmpty() && step.getParameters().size()==1) { //"$$var=e2e_credentialRequest($$requestId)"
     		String _requestId=step.getParameters().get(0);
@@ -70,7 +69,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 						}
 					}
 					//assertTrue(getWithPathParam.response.asString().contains("printing"), "Failed at credential issuance status check Response validation");
-					if(!getWithPathParam.response.getBody().asString().toLowerCase().contains("printing"))
+					if(!getWithPathParam.response.getBody().asString().toLowerCase().contains("printed"))
 						{
 
 						this.hasError=true;
