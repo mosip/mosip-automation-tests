@@ -89,6 +89,7 @@ public class PacketTemplateProvider {
 	private static final String GENDER = "gender";
 	private static final String FULLNAME = "fullname";
 	private static final String FIRSTNAME = "firstname";
+	private static final double INVALID_SCHEMA = 2.5;
 	private static final String LASTNAME = "lastname";
 	private static final String MIDDLENAME = "middlename";
 	private static final String DATEOFBIRTH = "dateofbirth";
@@ -928,6 +929,12 @@ public class PacketTemplateProvider {
 			}
 
 			if (!s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
+				continue;
+			}
+			
+			if (VariableManager.getVariableValue(contextKey, "invalidIdSchemaFlag").toString().equals("invalidIdSchema")
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion"))) {
+				identity.put(s.getId(), Double.valueOf(INVALID_SCHEMA));
 				continue;
 			}
 

@@ -39,6 +39,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		boolean changeSupervisorNameToDiffCase = Boolean.FALSE;
 		String invalidEncryptedHashFlag = "";
 		String invalidCheckSum = "";
+		String invalidIdSchemaFlag = "";
 		// neeha scenario = step.getScenario().getId() + ":" +
 		// step.getScenario().getDescription();
 		HashMap<String, String> map = new HashMap<String, String>();
@@ -71,11 +72,16 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 
 			if (step.getParameters().size() > 4) // deactivate
 				status = step.getParameters().get(4);
+			
+			
 			if (step.getParameters().size() > 5) // for negative operator and supervisor
 				negative = step.getParameters().get(5);
 
 			if (step.getParameters().size() == 5 && step.getParameters().get(4).contains("true"))
 				invalidCertFlag = Boolean.parseBoolean(step.getParameters().get(4));
+			
+			if (step.getParameters().size() == 5  && step.getParameters().get(4).contains("invalidIdSchema")) 	//invalidIdSchema
+				invalidIdSchemaFlag = step.getParameters().get(4);
 
 			// consent value either "yes" or "no"
 			if (step.getParameters().size() == 6
@@ -101,7 +107,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		else if (map != null)
 			packetUtility.createContexts(negative, contextKeyValue, map, mosipVersion, generatePrivateKey, status,
 					BaseTestCase.ApplnURI + "/", step, invalidCertFlag, consent, changeSupervisorNameToDiffCase,
-					invalidEncryptedHashFlag, invalidCheckSum);
+					invalidEncryptedHashFlag, invalidCheckSum,invalidIdSchemaFlag);
 		
 	}
 }
