@@ -42,6 +42,11 @@ public final class VariableManager {
 		return bInit;
 	}
 
+	public static void InitApplicationProp() {
+	
+	}
+
+	
 	public static void Init(String contextKey) {
 
 		if (bInit)

@@ -15,7 +15,7 @@ public interface MDSClientInterface {
 	public  MDSRCaptureModel captureFromRegDevice(MDSDevice device, 
 			MDSRCaptureModel rCaptureModel,
 			String type,
-			String bioSubType, int reqScore,String deviceSubId,int port,String contextKey,List<String> exceptionlist) ;
+			String[] bioSubType, int reqScore,String deviceSubId,int port,String contextKey,List<String> exceptionlist) ;
 	
 	List<MDSDevice> getRegDeviceInfo(String type, String contextKey);
 	

@@ -18,19 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+
 @Service
 public class PreregSyncService {
     Logger logger = LoggerFactory.getLogger(PreregSyncService.class);
 
-    @Value("${mosip.test.baseurl}")
-    private String baseUrl;
 
-    @Value("${mosip.test.prereg.syncapi}")
-    private String syncapi;
 
-    @Value("${mosip.test.regclient.centerid}")
-	private String centerId;
-	
 	@Autowired
 	private APIRequestUtil apiUtil;
 
@@ -61,6 +56,11 @@ public class PreregSyncService {
 	}
 
     public JSONObject syncPrereg(String contextKey) throws Exception {
+    
+String baseUrl=VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
+ String centerId=VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+ String syncapi=VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+	
 		if(lastSyncTime == null) {
 			lastSyncTime = LocalDateTime.now();
 			lastSyncTime = lastSyncTime.minus(6, ChronoUnit.DAYS);
@@ -88,16 +88,10 @@ public class PreregSyncService {
 
     public String downloadPreregPacket(String preregId, String contextKey) throws Exception{
     	
-    	if(contextKey != null && !contextKey.equals("")) {
-    		
-    		Properties props = contextUtils.loadServerContext(contextKey);
-    		props.forEach((k,v)->{
-    			if(k.toString().equals("mosip.test.baseurl")) {
-    				baseUrl = v.toString().trim();
-    			}
-    			
-    		});
-    	}
+    	
+String baseUrl=VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
+String syncapi=VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+
     	//Fix:MOSIP-13932- Auth API signature changed
     	logger.info("Before getPreReg");
 		JSONObject preregResponse = apiUtil.getPreReg(baseUrl,baseUrl + syncapi+"/"+preregId, new JSONObject(), new JSONObject(),contextKey);
