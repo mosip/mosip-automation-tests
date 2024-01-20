@@ -762,8 +762,8 @@ public class RestClient {
 	public static Response post(String url, String requestBody, String contextKey) throws Exception {
 		Response response = null;
 		if (isDebugEnabled(contextKey))
-			response = RestAssured.given().log().all().baseUri(url).contentType(ContentType.JSON).and()
-					.body(requestBody).when().post().then().log().all().extract().response();
+				response = RestAssured.given().log().all().baseUri(url).contentType(ContentType.JSON).and()
+						.body(requestBody).when().post().then().log().all().extract().response();
 		else
 			response = RestAssured.given().baseUri(url).contentType(ContentType.JSON).and().body(requestBody).when()
 					.post().then().extract().response();

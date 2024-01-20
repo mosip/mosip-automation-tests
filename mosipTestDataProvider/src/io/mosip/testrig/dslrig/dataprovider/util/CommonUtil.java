@@ -36,6 +36,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
+
+import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+
 import java.io.*;
 
 public class CommonUtil {
@@ -60,6 +63,13 @@ public class CommonUtil {
 		return defValue;
 	}
 
+	public static String[] getJSONObjectAttribute(JSONObject obj, String attrName, String[] defValue) {
+		if (obj.has(attrName))
+					return new String[] {obj.getString(attrName)};
+		return defValue;
+	}
+
+	
 	public static String getHexEncodedHash(byte[] data) throws Exception {
 		try {
 			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
@@ -267,7 +277,7 @@ public class CommonUtil {
 	}
 	
 	
-	public static void write(Path filePath, byte[] bytes) throws IOException {
+	public static void write(Path filePath, byte[] bytes) throws IOException { //OLD
 		Files.write(filePath, bytes);
 		
 //		ObjectMapper mapper = new ObjectMapper();
@@ -277,29 +287,92 @@ public class CommonUtil {
 	}
 	
 	
-	public static void write( byte[] bytes,File file) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		try (OutputStream outputStream = new FileOutputStream(file)) {
-			mapper.writeValue(outputStream, bytes);
-		}
+//	public static void write( byte[] bytes,File file) throws IOException { //NEW
+//		ObjectMapper mapper = new ObjectMapper();
+//		try (OutputStream outputStream = new FileOutputStream(file)) {
+//			mapper.writeValue(outputStream, new String(bytes));
+//		}
+//	}
+	
+//	public static  byte[] read(String path)
+//	{
+//		 byte[] data = null;
+//		try {
+//			data = Files.readAllBytes(Paths.get(path));
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			logger.error(e.getMessage());
+//		}
+//		 
+//		 return data;
+//	}
+	
+	public static byte[] read(String filePath) throws IOException {
+		try (InputStream inputStream = new FileInputStream(filePath)) {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[512];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead);
+            }
+            return byteArrayOutputStream.toByteArray();
+        }
+	
 	}
 	
-	public static  byte[] read(String path)
-	{
-		 byte[] data = null;
-		try {
-			data = Files.readAllBytes(Paths.get(path));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error(e.getMessage());
+	
+	public static Properties loadServerContextProperties(String contextKey,String personaConfigPath) {
+		Properties props =null;
+		if (contextKey != null && !contextKey.equals("")) {
+
+			props= loadServerContext(contextKey, personaConfigPath);
+			props.forEach((k, v) -> {
+				String key = k.toString().trim();
+				VariableManager.setVariableValue(contextKey, key, v);
+			
+			});
 		}
-		 
-		 return data;
+		
+		return props;
 	}
+
+
+	private static  Properties loadServerContext(String ctxName,String personaConfigPath) {
+		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
+		Properties p = new Properties();
+
+		try(FileReader reader = new FileReader(filePath);) {
+			
+			p.load(reader);
+		} catch (IOException e) {
+
+			logger.error("loadServerContext " + e.getMessage());
+		}
+		return p;
+	}
+
+	
+	
 	
 	
 	public static void main(String[] args) throws Exception {
-		String regex1 = "^|^0[5-7][0-9]{8}$";
+		
+//		
+//		byte[] bytearr=readPersona("C:\\\\Users\\\\NEEHAR~1.GAR\\\\AppData\\\\Local\\\\Temp\\\\residents_16002278006349403475\\\\4167725945.json");
+//	     String fileContent1 = new String(bytearr);
+//
+//	        // Print the file content
+//	        System.out.println(fileContent1);
+//		
+		byte[] byteRead=read("C:\\\\Users\\\\NEEHAR~1.GAR\\\\AppData\\\\Local\\\\Temp\\\\residents_16002278006349403475\\\\4167725945.json");
+		// Convert the byte array to a string
+        String fileContent = new String(byteRead);
+
+        // Print the file content
+        System.out.println(fileContent);
+      
+        write(Path.of("d:\\\\a.json"),byteRead);
+		/*String regex1 = "^|^0[5-7][0-9]{8}$";
 		String regex2 = "^[a-zA-Zء-ي٠-٩ ]{5,47}$";
 		String regex3 = "(^|^[A-Z]{2}[0-9]{1,6}$)|(^[A-Z]{1}[0-9]{1,7}$)";
 		String regex4 = "^|^(?=.{0,10}$).*";
@@ -310,7 +383,7 @@ public class CommonUtil {
 		String values = genStringAsperRegex(rex);
 		Pattern p = Pattern.compile(rex);// . represents single character
 		Matcher m = p.matcher(values);
-		boolean b = m.matches();
+		boolean b = m.matches();*/
 
 	}
 }

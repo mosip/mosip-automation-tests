@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.SlackIt;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -35,98 +36,21 @@ public class APIRequestUtil {
 
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
 
-   // private ConfigurableJWTProcessor<SecurityContext> jwtProcessor = null;
 	static Map<String, String> tokens = new HashMap<String,String>();
-    //String token;
-  //  String preregToken;
-    
+  
     String refreshToken;
-
-    @Value("${mosip.test.regclient.userid}")
-    private String operatorId;
-
-    @Value("${mosip.test.regclient.password}")
-    private String password;
-
-    @Value("${mosip.test.regclient.clientid}")
-    private String clientId;
-
-    @Value("${mosip.test.regclient.appId}")
-    private String appId;
-
-    @Value("${mosip.test.regclient.secretkey}")
-    private String secretKey;
-
-    @Value("${mosip.test.authmanager.url}")
-    private String authManagerURL;
-
-    @Value("${mosip.test.authmanager.prereg.url:/v1/authmanager/authenticate/clientidsecretkey}")
-    private String preregAuthManagerURL;
-    
-    @Value("${mosip.test.regclient.centerid}")
-    private String centerId;
-
-    @Value("${mosip.test.regclient.machineid}")
-    private String machineId;
-
-    @Value("${mosip.test.jwks.url}")
-    private String jwksUrl;
-
-    @Value("${mosip.test.jwt.issuer}")
-    private String jwtIssuer;
 
     final String dataKey = "response";
     final String errorKey = "errors";
-    
-    @Value("${mosip.test.baseurl}")
-    private String baseUrl;
 
-    @Value("${mosip.test.post2slack}")
-    private boolean bSlackit;
-    
     @Autowired
     ContextUtils contextUtils;
- 
-    void loadContext(String context) {
-    	Properties props = contextUtils.loadServerContext(context);
-    	props.forEach( (k,v) ->{
-    		if(k.equals("mosip.test.regclient.userid"))
-    			operatorId = v.toString();
-    		else
-    		if(k.equals("mosip.test.regclient.centerid"))
-    			centerId = v.toString();
-    		else
-        	if(k.equals("mosip.test.regclient.machineid"))
-        		machineId = v.toString();
-        	else
-            if(k.equals("mosip.test.regclient.password"))
-            	password = v.toString();
-          	else
-                if(k.equals("mosip.test.authmanager.url"))
-                	authManagerURL = v.toString();
-            	else
-                    if(k.equals("mosip.test.regclient.clientid"))
-                    	clientId = v.toString();
-                	else
-                        if(k.equals("mosip.test.regclient.appId"))
-                        	appId = v.toString();
-                    	else
-                            if(k.equals("mosip.test.regclient.secretkey"))
-                            	secretKey = v.toString();
-                            else
-                                if(k.equals("mosip.test.baseurl"))
-                                	baseUrl = v.toString();
-    		
-    	});
-    	
-    }
 
     public void clearToken() {
     	tokens.clear();
-    	//preregToken = null;
     }
     public JSONObject get(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
+    	
     	logger.info(url);
     	if (!isValidToken(contextKey)){
             initToken(contextKey);
@@ -156,7 +80,7 @@ public class APIRequestUtil {
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
     public JSONObject getJsonObject(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
+    	
     	logger.info(url);
     	if (!isValidToken(contextKey)){
             initToken(contextKey);
@@ -186,7 +110,7 @@ public class APIRequestUtil {
         return new JSONObject(response.getBody().asString());
     }
     public JSONObject getPreReg(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
+    	
     	if (!isValidToken(contextKey)){
             	
                 //initPreregToken();
@@ -222,8 +146,7 @@ public class APIRequestUtil {
 
 
     public JSONObject post(String baseUrl,String url, JSONObject jsonRequest,String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
-    	
+    baseUrl=VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
     	if (!isValidToken(contextKey)){
             initToken(contextKey);
         }
@@ -253,9 +176,9 @@ public class APIRequestUtil {
 
 
     public JSONArray syncRid(String baseUrl,String url, String requestBody, String timestamp,String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
     
-    	loadContext(contextKey);
+    	baseUrl=VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
+        
     	 tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system",null);
     	if (!isValidToken(contextKey)){
             initToken(contextKey);
@@ -275,7 +198,7 @@ public class APIRequestUtil {
     		Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system")).build();
     		response = given().cookie(kukki)
                 .header("timestamp", timestamp)
-                .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
+                .header("Center-Machine-RefId", VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString() + UNDERSCORE + VariableManager.getVariableValue(contextKey, "mosip.test.regclient.machineid").toString())
                 .contentType(ContentType.JSON).body(outputJson).post(url);
 
     		if(response.getStatusCode() == 401) {
@@ -295,10 +218,9 @@ public class APIRequestUtil {
     }
  	
     public JSONObject uploadFile(String baseUrl,String url, String filePath, String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
+    baseUrl=VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
+        
     	
-    	//load context
-    	loadContext(contextKey);
     	tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system",null);
     	
     	//token=null;
@@ -326,85 +248,17 @@ public class APIRequestUtil {
     	String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system");
     	return  !(null == token);
     
-    	/*
-        if(jwtProcessor == null) {
-            jwtProcessor = new DefaultJWTProcessor<>();
-            jwtProcessor.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("jwt")));
-            //fix SA
-            JWKSource<SecurityContext> keySource = new RemoteJWKSet<>(new URL(baseUrl + jwksUrl));
-            JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
-            JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(expectedJWSAlg, keySource);
-            jwtProcessor.setJWSKeySelector(keySelector);
-            jwtProcessor.setJWTClaimsSetVerifier(new DefaultJWTClaimsVerifier(
-                    new JWTClaimsSet.Builder().issuer(jwtIssuer).build(),
-                    new HashSet<>(Arrays.asList("sub", "iat", "exp", "jti"))));
-        }
-
-        try{
-            if(token != null) {
-                JWTClaimsSet claimsSet = jwtProcessor.process(token, null);
-                jwtProcessor.getJWTClaimsSetVerifier().verify(claimsSet, null);
-                logger.info("JWT Claim set verified successfully");
-                return true;
-            }
-        } catch (Exception ex) {
-            logger.error("JWT verification failed", ex);
-        }
-        */
-       // return false;
+    	
     }
 
-   // @PostConstruct
-  /*  public boolean initPreregToken() {
-    	try {		
-			JSONObject requestBody = new JSONObject();
-			JSONObject nestedRequest = new JSONObject();
-		
-			nestedRequest.put("appId", "registrationclient");
-            nestedRequest.put("clientId", "mosip-reg-client");
-            nestedRequest.put("secretKey", secretKey);
-			requestBody.put("metadata", new JSONObject());
-			requestBody.put("version", "1.0");
-			requestBody.put("id", "test");
-			requestBody.put("requesttime", getUTCDateTime(LocalDateTime.now()));
-			requestBody.put("request", nestedRequest);
-
-            //authManagerURL
-            //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
-            Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + preregAuthManagerURL);
-			logger.info("Authtoken generation request response: {}", response.asString());
-			if(response.getStatusCode() == 401) {
-				throw new Exception("401 - Unauthorized");
-				
-			}
-            if (response.getStatusCode() != 200 ||  response.toString().contains("errorCode")) {
-            	if(bSlackit)
-            		SlackIt.postMessage(null,
-            				baseUrl + preregAuthManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
-            	
-            	return false;
-            }
-            //token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
-            //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
-            preregToken=response.getCookie("Authorization");
-            
-			return true;	
-		}
-		catch(Exception  ex){
-            logger.error("",ex);
-            if(bSlackit)
-        		SlackIt.postMessage(null,
-        				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
-        	
-            return false;
-		}
-
-    }
- */
+  
     
     public boolean initToken_prereg(String contextKey){
-        try {	
-        	
+    	boolean bSlackit=false;
+    	if(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.post2slack").toString().equalsIgnoreCase("true")) { bSlackit= true;} else{bSlackit= false;};
+    	
+    	try {	
+        			
         	
 			JSONObject requestBody = new JSONObject();
 			JSONObject nestedRequest = new JSONObject();
@@ -415,27 +269,15 @@ public class APIRequestUtil {
 			nestedRequest.put("clientId", VariableManager.getVariableValue(contextKey,"mosip_admin_client_id").toString());
 			nestedRequest.put("clientSecret", VariableManager.getVariableValue(contextKey,"mosip_admin_client_secret").toString());
 
-		
-			
-			/*
-			 * nestedRequest.put("appId", VariableManager.getVariableValue("prereg_appId"));
-			 * nestedRequest.put("clientId",
-			 * VariableManager.getVariableValue("prereg_clientId"));
-			 * nestedRequest.put("secretKey",
-			 * VariableManager.getVariableValue("prereg_secretKey"));
-			 */
-			
 			requestBody.put("metadata", new JSONObject());
 			requestBody.put("version", "1.0");
 			requestBody.put("id", "mosip.authentication.useridPwd");
 			requestBody.put("requesttime", getUTCDateTime(LocalDateTime.now()));
 			requestBody.put("request", nestedRequest);
 
-            //authManagerURL
-            //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
-            Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
-           // Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + preregAuthManagerURL);
-			if(RestClient.isDebugEnabled(contextKey))
+          
+            Response response = given().contentType("application/json").body(requestBody.toString()).post(VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString() + VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.authmanager.url").toString());
+         	if(RestClient.isDebugEnabled(contextKey))
             logger.info("Authtoken generation request response: {}", response.asString());
 			if(response.getStatusCode() == 401) {
 				throw new Exception("401 - Unauthorized");
@@ -444,7 +286,7 @@ public class APIRequestUtil {
             if (response.getStatusCode() != 200 ||  response.toString().contains("errorCode")) {
             	if(bSlackit)
             		SlackIt.postMessage(null,
-            				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+            				VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString() + VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.authmanager.url").toString() + " Failed to authenticate, Is " + VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString() + " down ?");
             	
             	return false;
             }
@@ -460,7 +302,7 @@ public class APIRequestUtil {
             logger.error("",ex);
             if(bSlackit)
         		SlackIt.postMessage(null,
-        				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+        				VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString() + VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.authmanager.url").toString() + " Failed to authenticate, Is " + VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString() + " down ?");
         	
             return false;
 		}
@@ -468,15 +310,19 @@ public class APIRequestUtil {
     
    // @PostConstruct
     public boolean initToken(String contextKey){
+    	boolean bSlackit=false;
+    	if(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.post2slack").toString().equalsIgnoreCase("true")) { bSlackit= true;} else{bSlackit= false;};
+    
         try {	
         	
-        	
+        	String operatorId=null;
+        	String password=null;
         	if(VariableManager.isInit()) {
-	        	Object o =VariableManager.getVariableValue(contextKey,"operatorId");
+	        	Object o =VariableManager.getVariableValue(contextKey,"mosip.test.regclient.userid");
 	        	if(o != null)
 	        		operatorId = o.toString();
 	        	
-	        	o =VariableManager.getVariableValue(contextKey,"password");
+	        	o =VariableManager.getVariableValue(contextKey, "mosip.test.regclient.password").toString();
 	        	
 	        	if(o != null)
 	        		password = o.toString();
@@ -495,9 +341,9 @@ public class APIRequestUtil {
 			requestBody.put("requesttime", getUTCDateTime(LocalDateTime.now()));
 			requestBody.put("request", nestedRequest);
 			
-            //authManagerURL
-            //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
-            Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
+       
+            Response response = given().contentType("application/json").body(requestBody.toString()).post(VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString() + 
+            		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.authmanager.url").toString());
             if(RestClient.isDebugEnabled(contextKey))
             logger.info("Authtoken generation request response: {}", response.asString());
 			if(response.getStatusCode() == 401) {
@@ -507,17 +353,13 @@ public class APIRequestUtil {
             if (response.getStatusCode() != 200 ||  response.toString().contains("errorCode")) {
             	if(bSlackit)
             		SlackIt.postMessage(null,
-            				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+            				VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString() + VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.authmanager.url").toString() + " Failed to authenticate, Is " + VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString() + " down ?");
             	
             	return false;
             }
             String token=null;
         token= new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
-            //refreshToken = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("refreshToken");
-            //token=response.getCookie("Authorization");
           
-        		
-        	//String	token=  post(baseUrl,authManagerURL,requestBody).getString("token");
             tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system",token);
 			return true;	
 		}
@@ -525,7 +367,7 @@ public class APIRequestUtil {
             logger.error("",ex);
             if(bSlackit)
         		SlackIt.postMessage(null,
-        				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+        				VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString() + VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.authmanager.url").toString() + " Failed to authenticate, Is " + VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString() + " down ?");
         	
             return false;
 		}

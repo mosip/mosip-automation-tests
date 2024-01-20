@@ -75,7 +75,7 @@ import tss.tpm.TPM_RH;
 @Component
 public class CryptoUtil {
 	Logger logger = LoggerFactory.getLogger(CryptoUtil.class);
-
+	
 	private static final int GCM_NONCE_LENGTH = 12;
 	private static final int GCM_AAD_LENGTH = 32;
 	private static final String HMAC_ALGORITHM_NAME = "SHA-256";
@@ -87,38 +87,16 @@ public class CryptoUtil {
 
 	private static final byte[] NULL_VECTOR = new byte[0];
 
-	@Value("${mosip.test.regclient.encryption.appid}")
-	private String encryptionAppId;
 
-	@Value("${mosip.test.keymanager.encryptapi}")
-	private String encryptApi;
-
-	@Value("${mosip.test.tpm.available}")
-	private boolean tpmAvailable;
-
+	//private String p12Secret="mosip.test.p12.secret";
 	@Value("${mosip.test.tpm.simulator}")
 	private boolean tpmSimulator;
-
-	@Value("${mosip.test.crypto.prependthumbprint}")
-	private boolean prependthumbprint;
-
-	@Value("${mosip.test.p12.secret}")
-	private String p12Secret;
-
+	
+	@Value("${mosip.test.tpm.available}")
+	private boolean tpmAvailable;
+	
 	@Autowired
 	private APIRequestUtil apiUtil;
-
-	@Value("${mosip.test.baseurl}")
-	private String baseUrl;
-
-	@Value("${mosip.test.regclient.machineid}")
-	private String machineid;
-
-	@Value("${mosip.test.persona.configpath}")
-	private String personaConfigPath;
-
-	@Autowired
-	private ContextUtils contextUtils;
 
 	private SecureRandom sr = new SecureRandom();
 
@@ -128,6 +106,13 @@ public class CryptoUtil {
 
 	@PostConstruct
 	public void initialize() {
+
+
+//		boolean tpmAvailable=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.available").toString());
+		
+	//	boolean tpmSimulator=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.simulator").toString());
+		// Check and compare
+		
 		if (tpmAvailable) {
 			if (tpmSimulator)
 				tpm = TpmFactory.localTpmSimulator();
@@ -138,18 +123,17 @@ public class CryptoUtil {
 	}
 
 	public byte[] encrypt(byte[] data, String referenceId, String contextKey) throws Exception {
+		 String encryptionAppId=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.regclient.encryption.appid").toString();;
+		String baseUrl1=VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
 
-		if (contextKey != null && !contextKey.equals("")) {
+		String encryptApi=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.keymanager.encryptapi").toString();
+		boolean tpmAvailable=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.available").toString());
+		
+		boolean tpmSimulator=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.simulator").toString());
+		
+		String prependthumbprint=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.crypto.prependthumbprint").toString();
 
-			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.baseurl")) {
-					baseUrl = v.toString().trim();
-				}
-
-			});
-		}
-		JSONObject encryptObj = new JSONObject();
+JSONObject encryptObj = new JSONObject();
 
 		encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
 		encryptObj.put("applicationId", encryptionAppId);
@@ -166,8 +150,8 @@ public class CryptoUtil {
 		wrapper.put("requesttime", APIRequestUtil.getUTCDateTime(LocalDateTime.now(ZoneOffset.UTC)));
 		wrapper.put("version", "1.0");
 		wrapper.put("request", encryptObj);
-
-		JSONObject secretObject = apiUtil.post(baseUrl, baseUrl + encryptApi, wrapper, contextKey);
+		
+		JSONObject secretObject = apiUtil.post(baseUrl1, baseUrl1 + encryptApi, wrapper, contextKey);
 		byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
 		return mergeEncryptedData(encBytes,
 				org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),
@@ -210,17 +194,16 @@ public class CryptoUtil {
 	public byte[] encrypt(byte[] data, String referenceId, LocalDateTime timestamp, String contextKey)
 			throws Exception {
 		JSONObject encryptObj = new JSONObject();
+		String encryptApi=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.keymanager.encryptapi").toString();
+		boolean tpmAvailable=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.available").toString());
+		
+		boolean tpmSimulator=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.simulator").toString());
+		
+		String prependthumbprint=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.crypto.prependthumbprint").toString();
 
-		if (contextKey != null && !contextKey.equals("")) {
+		 String encryptionAppId=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.regclient.encryption.appid").toString();;
 
-			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.baseurl")) {
-					baseUrl = v.toString().trim();
-				}
-
-			});
-		}
+		String baseUrl=VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
 		encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
 		encryptObj.put("applicationId", encryptionAppId);
 		// encryptObj.put("data",
@@ -361,46 +344,18 @@ public class CryptoUtil {
 	}
 
 	public PrivateKeyEntry loadP12() throws Exception {
+	
+		String p12Secret=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.p12.secret").toString();
+
 		KeyStore mosipKeyStore = KeyStore.getInstance("PKCS12");
 		InputStream in = getClass().getClassLoader().getResourceAsStream("partner.p12");
 		// subscriptionRequest.setSecret(websubSecret);
-
+		p12Secret=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, p12Secret).toString();
 		mosipKeyStore.load(in, p12Secret.toCharArray());
 		ProtectionParameter password = new PasswordProtection(p12Secret.toCharArray());
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) mosipKeyStore.getEntry("partner", password);
 		return privateKeyEntry;
 	}
-	/*
-	 * private void test(String requestBody, String refId,JSONObject encryptObj)
-	 * throws Exception { byte[] packet =
-	 * org.apache.commons.codec.binary.Base64.decodeBase64(requestBody); byte[]
-	 * nonce = Arrays.copyOfRange(packet, 0, GCM_NONCE_LENGTH); byte[] aad =
-	 * Arrays.copyOfRange(packet, GCM_NONCE_LENGTH, GCM_NONCE_LENGTH +
-	 * GCM_AAD_LENGTH); byte[] encryptedData = Arrays.copyOfRange(packet,
-	 * GCM_NONCE_LENGTH + GCM_AAD_LENGTH, packet.length);
-	 * 
-	 * JSONObject jsonObject = new JSONObject(); jsonObject.put("applicationId",
-	 * "REGISTRATION"); jsonObject.put("referenceId", refId); jsonObject.put("aad",
-	 * org.apache.commons.codec.binary.Base64.encodeBase64String(aad));
-	 * jsonObject.put("salt",
-	 * org.apache.commons.codec.binary.Base64.encodeBase64String(nonce));
-	 * jsonObject.put("data",
-	 * org.apache.commons.codec.binary.Base64.encodeBase64String(encryptedData));
-	 * jsonObject.put("timeStamp", encryptObj.get("timeStamp"));
-	 * 
-	 * JSONObject wrapper = new JSONObject(); wrapper.put("id",
-	 * "mosip.cryptomanager.decrypt"); wrapper.put("version", "1.0");
-	 * wrapper.put("requesttime", apiUtil.getUTCDateTime(null));
-	 * wrapper.put("request", jsonObject);
-	 * 
-	 * JSONObject secretObject =
-	 * apiUtil.post("https://qa2.mosip.net/v1/keymanager/decrypt", wrapper);
-	 * logger.info("decrypt respose >>>>>>>>>>>>>>>> {}", secretObject);
-	 * 
-	 * String plaindata = new
-	 * String(Base64.getDecoder().decode(secretObject.getString("data")));
-	 * logger.info("decrypt plaindata >>>>>>>>>>>>>>>> {}", plaindata); }
-	 */
 
 	public String getHash(byte[] data) throws Exception {
 		try {
@@ -426,6 +381,12 @@ public class CryptoUtil {
 
 	public byte[] sign(byte[] dataToSign, String contextKey) throws Exception {
 		try {
+			boolean tpmAvailable=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.available").toString());
+			
+			boolean tpmSimulator=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.simulator").toString());
+			
+			String prependthumbprint=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.crypto.prependthumbprint").toString();
+
 			if (tpmAvailable) {
 				CreatePrimaryResponse signingKey = createSigningKey();
 				TPMU_SIGNATURE signedData = tpm.Sign(signingKey.handle,
@@ -454,16 +415,8 @@ public class CryptoUtil {
 
 	private PrivateKey getMachinePrivateKey(String contextKey) throws Exception {
 		String filePath = null;
-		if (contextKey != null && !contextKey.equals("")) {
-
-			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.regclient.machineid")) {
-					machineid = v.toString().trim();
-				}
-
-			});
-		}
+		String personaConfigPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.configpath").toString();
+		String machineid=VariableManager.getVariableValue(contextKey, "mosip.test.regclient.machineid").toString();
 		File folder = new File(String.valueOf(personaConfigPath) + File.separator + "privatekeys" + File.separator);
 		File[] listOfFiles = folder.listFiles();
 		for (File file : listOfFiles) {
