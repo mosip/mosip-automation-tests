@@ -14,7 +14,7 @@ public class MDSDeviceCaptureModel {
 	private static final Logger logger = LoggerFactory.getLogger(MDSDeviceCaptureModel.class);
 
 	String bioType;
-	String bioSubType;
+	String[] bioSubType;
 	String qualityScore;
 	String bioValue;
 	String deviceServiceVersion;
