@@ -2,6 +2,7 @@ SendOtp:
    ESignet_SendOtp_all_Valid_Smoke:
       endPoint: /v1/esignet/authorization/send-otp
       role: resident
+      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: idaData/SendOtpForIdp/SendOtp
       outputTemplate: idaData/SendOtpForIdp/SendOtpResult
@@ -14,6 +15,4 @@ SendOtp:
 	    "channel2": "phone"
 }'
       output: '{
-        "maskedEmail": "$IGNORE$",
-        "maskedMobile": "$IGNORE$"
 }'

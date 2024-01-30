@@ -138,7 +138,7 @@ public class RegistrationSteps {
 			Response response  = RestClient.post("http://127.0.0.1:"+port+"/admin/score",requestBody,contextKey);;
 		logger.info(response.toString());
 
-			assertEquals(200, response.statusCode());
+			assertEquals(200, response.getStatusCode());
 			assertEquals("Success", response.jsonPath().getString("errorInfo"));
 		} catch (Exception e) {
 			logger.error("Issue with the Rest Assured MOCKMDS Score Request{}", e);

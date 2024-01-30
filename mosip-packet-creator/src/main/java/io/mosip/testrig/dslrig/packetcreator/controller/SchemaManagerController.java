@@ -18,18 +18,13 @@ import io.swagger.annotations.Api;
 @Api(value = "SchemaManagerController", description = "REST API for managing IDschemas")
 @RestController
 public class SchemaManagerController {
-    
-    @Value("${mosip.test.persona.configpath}")
-    private String personaConfigPath;
 
     @Autowired
     SchemaManagerService schemaManagerService;
 
     private static final Logger logger = LoggerFactory.getLogger(SchemaManagerController.class);
 
-    
-
-    @PutMapping(value = "/schema/{id}/{contextKey}")
+        @PutMapping(value = "/schema/{id}/{contextKey}")
     public @ResponseBody String modifySchema( @PathVariable("id") String id, @RequestParam(value = "version", defaultValue = "1") String version,
     		@PathVariable("contextKey") String contextKey
     		){
@@ -37,9 +32,7 @@ public class SchemaManagerController {
 
     
         try{
-            if(personaConfigPath != null && !personaConfigPath.equals("")){
-                DataProviderConstants.RESOURCE = personaConfigPath;
-            }
+          
             return schemaManagerService.modifySchema(1,id,contextKey);
         }
         catch (Exception ex){
@@ -57,10 +50,7 @@ public class SchemaManagerController {
         int i;
         String schema;
         try{
-            if(personaConfigPath != null && !personaConfigPath.equals("")){
-                DataProviderConstants.RESOURCE = personaConfigPath;
-            }
-
+          
             schema = schemaManagerService.getSchema(contextKey);
             return schema;
 

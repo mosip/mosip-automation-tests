@@ -25,6 +25,8 @@ import org.testng.Reporter;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
@@ -33,6 +35,7 @@ import io.mosip.testrig.apirig.authentication.fw.util.RestClient;
 import io.mosip.testrig.apirig.global.utils.GlobalConstants;
 import io.mosip.testrig.apirig.global.utils.GlobalMethods;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
@@ -391,6 +394,35 @@ public class BaseTestCaseUtil extends BaseStep {
 		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
 				getResponse.getBody().asString());
 		return getResponse;
+	}
+	
+	public static Response patchWithQueryParamAndCookie(String url, String jsonInput, String cookieName, String role,
+			String testCaseName) {
+		AdminTestUtil test = new AdminTestUtil();
+		Response response = null;
+		String token = "";
+		jsonInput = test.inputJsonKeyWordHandeler(jsonInput, testCaseName);
+		HashMap<String, String> map = null;
+		try {
+			map = new Gson().fromJson(jsonInput, new TypeToken<HashMap<String, String>>() {
+			}.getType());
+		} catch (Exception e) {
+			logger.error(
+					GlobalConstants.ERROR_STRING_1 + jsonInput + GlobalConstants.EXCEPTION_STRING_1 + e.getMessage());
+		}
+		KernelAuthentication auth = new KernelAuthentication();
+		token = auth.getTokenByRole(role);
+		logger.info(GlobalConstants.GET_REQ_STRING + url);
+		GlobalMethods.reportRequest(null, jsonInput, url);
+		try {
+			response = RestClient.patchRequestWithCookieAndQueryParm(url, map, MediaType.APPLICATION_JSON,
+					MediaType.APPLICATION_JSON, cookieName, token);
+			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+			return response;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e.getMessage());
+			return response;
+		}
 	}
 
 	public void constantIntializer() {

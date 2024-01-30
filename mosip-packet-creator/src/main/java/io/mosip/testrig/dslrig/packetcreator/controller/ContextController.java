@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -19,10 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
 import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
-
+import com.sun.management.OperatingSystemMXBean;
 @RestController
 public class ContextController {
 
@@ -42,7 +44,14 @@ public class ContextController {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals(""))
 				DataProviderConstants.RESOURCE = personaConfigPath;
+		
+//			Properties props = CommonUtil.loadServerContextProperties(contextKey,personaConfigPath);
 			VariableManager.Init(contextKey);
+			
+			DataProviderConstants.ANGULI_PATH = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.Angulipath").toString();;
+		
+			
+				
 			/**
 			 * String generatePrivateKey =
 			 * contextProperties.getProperty("generatePrivateKey"); boolean isRequired =
@@ -50,6 +59,18 @@ public class ContextController {
 			 * contextUtils.generateKeyAndUpdateMachineDetail(contextProperties,
 			 * contextKey);
 			 **/
+			OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(
+	                OperatingSystemMXBean.class);
+			logger.info("getProcessCpuLoad What % CPU load this current JVM is taking, from 0.0-1.0" + osBean.getProcessCpuLoad());
+			logger.info("getSystemCpuLoad What % load the overall system is at, from 0.0-1.0" + osBean.getSystemCpuLoad());
+			logger.info("Returns the amount of virtual memory that is guaranteed to be available to the running process in bytes, or -1 if this operation is not supported:"+Long.toString(osBean.getCommittedVirtualMemorySize()));
+			logger.info("Returns the amount of free physical memory in bytes:"+Long.toString(osBean.getFreePhysicalMemorySize()));
+			logger.info("Returns the amount of free swap space in bytes:"+Long.toString(osBean.getFreeSwapSpaceSize()));
+			logger.info("Returns the recent cpu usage for the Java Virtual Machine process:"+Double.toString(osBean.getProcessCpuLoad()));
+			logger.info("Returns the CPU time used by the process on which the Java virtual machine is running in nanoseconds:"+Long.toString(osBean.getProcessCpuTime()));
+			logger.info("Returns the recent cpu usage for the whole system:"+Double.toString(osBean.getSystemCpuLoad())		);
+			logger.info("Returns the total amount of physical memory in bytes:"+Long.toString(osBean.getTotalPhysicalMemorySize()));
+			logger.info("Returns the total amount of swap space in bytes:"+Long.toString(osBean.getTotalSwapSpaceSize()));
 			return contextUtils.createUpdateServerContext(contextProperties, contextKey);
 		} catch (Exception ex) {
 			logger.error("createServerContext", ex);
@@ -61,7 +82,11 @@ public class ContextController {
 	public @ResponseBody Properties getServerContext(@PathVariable("contextKey") String contextKey) {
 		Properties bRet = null;
 		try {
-			bRet = contextUtils.loadServerContext(contextKey);
+			String personaConfigPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.configpath").toString();
+			
+			
+			bRet= CommonUtil.loadServerContextProperties(contextKey,personaConfigPath);
+			 
 		} catch (Exception ex) {
 			logger.error("createServerContext", ex);
 		}

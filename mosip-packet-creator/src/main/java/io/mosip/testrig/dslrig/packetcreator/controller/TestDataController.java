@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -43,14 +44,6 @@ public class TestDataController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestDataController.class);
 
-	@Value("${mosip.test.welcome}")
-	private String welcomeMessage;
-
-	@Value("${mosip.test.persona.configpath}")
-	private String personaConfigPath;
-
-	@Value("${mosip.test.persona.Angulipath}")
-	private String personaAnguliPath;
 
 	@Autowired
 	PacketMakerService pkm;
@@ -76,8 +69,6 @@ public class TestDataController {
 	@Autowired
 	ContextUtils contextUtils;
 
-	@Value("${mosip.test.baseurl}")
-	private String baseUrl;
 
 	@PostMapping(value = "/servercontext/{contextKey}")
 	public @ResponseBody String createServerContext(@RequestBody Properties contextProperties,
@@ -95,7 +86,7 @@ public class TestDataController {
 	public @ResponseBody Properties getServerContext(@PathVariable("contextKey") String contextKey) {
 		Properties bRet = null;
 		try {
-			bRet = contextUtils.loadServerContext(contextKey);
+			bRet = CommonUtil.loadServerContextProperties(contextKey,VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.configpath").toString());
 		} catch (Exception ex) {
 			logger.error("createServerContext", ex);
 		}
@@ -157,8 +148,7 @@ public class TestDataController {
 	@PostMapping(value = "/ridsync/{contextKey}")
 	public @ResponseBody String syncRid(@RequestBody SyncRidDto syncRidDto,
 			@PathVariable("contextKey") String contextKey) throws Exception {
-
-		return packetSyncService.syncPacketRid(syncRidDto.getContainerPath(), syncRidDto.getName(),
+			return packetSyncService.syncPacketRid(syncRidDto.getContainerPath(), syncRidDto.getName(),
 				syncRidDto.getSupervisorStatus(), syncRidDto.getSupervisorComment(), syncRidDto.getProcess(),
 				contextKey, syncRidDto.getAdditionalInfoReqId());
 	}
@@ -198,10 +188,7 @@ public class TestDataController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
-
+		
 			return packetSyncService.makePacketAndSync(preregId, null, null, contextKey, null, getRidFromSync, true)
 					.toString();
 
@@ -216,15 +203,8 @@ public class TestDataController {
 			@PathVariable("count") int count, @PathVariable("contextKey") String contextKey) {
 
 		try {
-			RestClient.logInfo(contextKey, "Persona Config Path=" + personaConfigPath);
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
-			if (personaAnguliPath != null && !personaAnguliPath.equals("")) {
-				DataProviderConstants.ANGULI_PATH = personaAnguliPath;
-			}
-			RestClient.logInfo(contextKey,"personaAnguliPath =" + DataProviderConstants.ANGULI_PATH);
-
+			
+		
 			RestClient.logInfo(contextKey,"Resource Path=" + DataProviderConstants.RESOURCE);
 			// logger.info("DOC_Template Path="+
 			// VariableManager.getVariableValue(contextKey,"mosip.test.persona.documentsdatapath").toString());
@@ -247,11 +227,7 @@ public class TestDataController {
 			@RequestParam(name = "RID", required = false) String rid, @PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
-			// String uin = "";
-			// String rid = "1234567890";
+			
 			return packetSyncService.updateResidentData(personaRequestDto.getRequests(), uin, rid);
 
 		} catch (Exception ex) {
@@ -266,9 +242,7 @@ public class TestDataController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+		
 			return packetSyncService.preRegisterResident(preRegisterRequestDto.getPersonaFilePath(), contextKey);
 
 		} catch (Exception ex) {
@@ -285,9 +259,7 @@ public class TestDataController {
 			@PathVariable("to") String to, @PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			
 			return packetSyncService.requestOtp(preRegisterRequestDto.getPersonaFilePath(), to, contextKey);
 
 		} catch (Exception ex) {
@@ -301,9 +273,7 @@ public class TestDataController {
 			@PathVariable("to") String to, @PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+		
 			return packetSyncService.verifyOtp(preRegisterRequestDto.getPersonaFilePath().get(0), to, null, contextKey);
 
 		} catch (Exception ex) {
@@ -320,9 +290,7 @@ public class TestDataController {
 			@PathVariable("nthSlot") int nthSlot, @PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			
 			return packetSyncService.bookAppointment(preregId, nthSlot, contextKey);
 
 		} catch (Exception ex) {
@@ -336,9 +304,7 @@ public class TestDataController {
 			@PathVariable("preregid") String preregId, @PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			
 			return packetSyncService.uploadDocuments(preRegisterRequestDto.getPersonaFilePath().get(0), preregId,
 					contextKey);
 
@@ -348,23 +314,7 @@ public class TestDataController {
 		return "{\"Failed\"}";
 	}
 
-//    @PostMapping(value = "/packet/{process}/{outFolderPath}/{contextKey}")
-//    public @ResponseBody String createPackets(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-//    		@PathVariable("process") String process,
-//    		@PathVariable("outFolderPath") String outFolderPath,
-//    		@PathVariable("contextKey") String contextKey) {
-//
-//    	try{    	
-//    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
-//    			DataProviderConstants.RESOURCE = personaConfigPath;
-//    		}
-//    		return packetSyncService.createPacketTemplates(preRegisterRequestDto.getPersonaFilePath(),process,outFolderPath, null,contextKey,"Registration");
-//    	
-//    	} catch (Exception ex){
-//             logger.error("createPackets", ex);
-//    	}
-//    	return "{\"Failed\"}";
-//    }
+
 
 	/*
 	 * Download from pre-reg, merge with the given packet template and upload to
@@ -377,9 +327,7 @@ public class TestDataController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			
 			if (preRegisterRequestDto.getPersonaFilePath().size() == 0) {
 				return "{\"Missing Template\"}";
 			}

@@ -291,7 +291,7 @@ public class MDSClient implements MDSClientInterface {
 	public  MDSRCaptureModel captureFromRegDevice(MDSDevice device, 
 			MDSRCaptureModel rCaptureModel,
 			String type,
-			String bioSubType, int reqScore,String deviceSubId,int port,String contextKey,List<String> listbioexception) {
+			String[] bioSubType, int reqScore,String deviceSubId,int port,String contextKey,List<String> listbioexception) {
 		String mosipVersion=null;;
 		try {
 			mosipVersion=VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.version").toString();
@@ -341,6 +341,8 @@ public class MDSClient implements MDSClientInterface {
 		bio.put("requestedScore", reqScore);
 		//bio.put("deviceId", Integer.valueOf(device.getDeviceId()));
 		bio.put("deviceId", device.getDeviceId());
+		bio.put("previousHash", "");
+		bio.put("bioSubType", bioSubType);
 		if(listbioexception!=null && !listbioexception.isEmpty())
 			bio.put("exception",listbioexception );
 
@@ -396,7 +398,7 @@ public class MDSClient implements MDSClientInterface {
 				String jwtSign = jwtTok.getJwtSign();
 				MDSDeviceCaptureModel model = new MDSDeviceCaptureModel();
 				model.setBioType( CommonUtil.getJSONObjectAttribute(jsonPayload, "bioType",""));
-				model.setBioSubType( CommonUtil.getJSONObjectAttribute(jsonPayload, "bioSubType",""));
+				model.setBioSubType( CommonUtil.getJSONObjectAttribute(jsonPayload, "bioSubType",bioSubType)); //Jana sir help
 				model.setQualityScore(CommonUtil.getJSONObjectAttribute(jsonPayload, "qualityScore",""));
 				model.setBioValue ( CommonUtil.getJSONObjectAttribute(jsonPayload,"bioValue",""));
 				model.setDeviceServiceVersion ( CommonUtil.getJSONObjectAttribute(jsonPayload,"deviceServiceVersion",""));

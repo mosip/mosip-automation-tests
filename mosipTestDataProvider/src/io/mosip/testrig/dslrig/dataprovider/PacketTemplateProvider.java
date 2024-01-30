@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -88,6 +89,7 @@ public class PacketTemplateProvider {
 	private static final String GENDER = "gender";
 	private static final String FULLNAME = "fullname";
 	private static final String FIRSTNAME = "firstname";
+	private static final double INVALID_SCHEMA = 2.5;
 	private static final String LASTNAME = "lastname";
 	private static final String MIDDLENAME = "middlename";
 	private static final String DATEOFBIRTH = "dateofbirth";
@@ -175,28 +177,28 @@ public class PacketTemplateProvider {
 		}
 		JSONObject processMVEL = processMVEL(resident, idJson, process, contextSchemaDetail, contextKey);
 		idJson = processMVEL.toString();
-		Files.write(Paths.get(ridFolder + ID_JSON), idJson.getBytes());
+		CommonUtil.write(Paths.get(ridFolder + ID_JSON), idJson.getBytes());
 		String metadataJson = generateMetaDataJson(resident, preregId, machineId, centerId, fileInfo, contextKey,
 				contextSchemaDetail);
-		Files.write(Paths.get(ridFolder + PACKET_META_INFO_JSON), metadataJson.getBytes());
+		CommonUtil.write(Paths.get(ridFolder + PACKET_META_INFO_JSON), metadataJson.getBytes());
 
 		// Generate evidence json
 
 		String evidenceJson = generateEvidenceJson(resident, fileInfo, contextKey, props, contextSchemaDetail);
-		Files.write(Paths.get(rid_evidence_folder + ID_JSON), evidenceJson.getBytes());
-		Files.write(Paths.get(rid_evidence_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
+		CommonUtil.write(Paths.get(rid_evidence_folder + ID_JSON), evidenceJson.getBytes());
+		CommonUtil.write(Paths.get(rid_evidence_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
 
 		// copy the dummy jsons to optional also
 
-		Files.write(Paths.get(rid_optional_folder + ID_JSON), evidenceJson.getBytes());
-		Files.write(Paths.get(rid_optional_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
+		CommonUtil.write(Paths.get(rid_optional_folder + ID_JSON), evidenceJson.getBytes());
+		CommonUtil.write(Paths.get(rid_optional_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
 
 		idJson = genRID_PacketTypeJson(source, process, "id", contextSchemaDetail);
-		Files.write(Paths.get(processFolder + File.separator + "/rid_id.json"), idJson.getBytes());
+		CommonUtil.write(Paths.get(processFolder + File.separator + "/rid_id.json"), idJson.getBytes());
 		idJson = genRID_PacketTypeJson(source, process, EVIDENCE, contextSchemaDetail);
-		Files.write(Paths.get(processFolder + File.separator + "/rid_evidence.json"), idJson.getBytes());
+		CommonUtil.write(Paths.get(processFolder + File.separator + "/rid_evidence.json"), idJson.getBytes());
 		idJson = genRID_PacketTypeJson(source, process, "optional", contextSchemaDetail);
-		Files.write(Paths.get(processFolder + File.separator + "/rid_optional.json"), idJson.getBytes());
+		CommonUtil.write(Paths.get(processFolder + File.separator + "/rid_optional.json"), idJson.getBytes());
 
 		return "Success";
 
@@ -338,7 +340,8 @@ public class PacketTemplateProvider {
 
 							String outFile = fileInfo.get(RID_EVIDENCE)[0] + "/" + fileInfo.get(RID_EVIDENCE)[1];
 							try {
-								Files.copy(Paths.get(docFile), Paths.get(outFile));
+//								Files.copy(Paths.get(docFile), Paths.get(outFile));
+								CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
 								RestClient.logInfo(contextKey,
 										"contextkey" + contextKey + "Index= " + index + " File info= " + fileInfo
 												+ " From-docFIle=" + docFile + " To-docFIle=" + outFile + DTYPE
@@ -619,9 +622,14 @@ public class PacketTemplateProvider {
 				resident.getBiometric().setCbeff(strCBeff);
 
 			} else {
-				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+				FileOutputStream fos = new FileOutputStream(outFile);
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+//				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
 				writer.print(cbeff);
 				writer.close();
+				fos.close();
+				bos.close();
 			}
 
 		} else {
@@ -633,9 +641,14 @@ public class PacketTemplateProvider {
 				resident.getBiometric().setCbeff(strCBeff);
 
 			} else {
-				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+				FileOutputStream fos = new FileOutputStream(outFile);
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+//				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
 				writer.print(cbeff);
 				writer.close();
+				fos.close();
+				bos.close();
 			}
 		}
 		resident.save();
@@ -918,6 +931,12 @@ public class PacketTemplateProvider {
 			if (!s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
 				continue;
 			}
+			
+			if (VariableManager.getVariableValue(contextKey, "invalidIdSchemaFlag").toString().equals("invalidIdSchema")
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion"))) {
+				identity.put(s.getId(), Double.valueOf(INVALID_SCHEMA));
+				continue;
+			}
 
 			if (VariableManager.getVariableValue(contextKey, "IDSchemaVersion") != null
 					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion"))) {
@@ -1124,7 +1143,8 @@ public class PacketTemplateProvider {
 
 							String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
 							try {
-								Files.copy(Paths.get(docFile), Paths.get(outFile));
+//								Files.copy(Paths.get(docFile), Paths.get(outFile));
+								CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
 
 							} catch (Exception e) {
 								logger.error(GENERATEIDJSONV2, e);
