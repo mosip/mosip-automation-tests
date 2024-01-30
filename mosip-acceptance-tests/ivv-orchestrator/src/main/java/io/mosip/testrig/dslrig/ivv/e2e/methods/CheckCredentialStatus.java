@@ -67,8 +67,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 							logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
 									+ " MilliSec");
 
-							if (getWithPathParam.response.getBody().asString().toLowerCase().contains("printed")
-									|| getWithPathParam.response.getBody().asString().toLowerCase().contains("printed"))
+							if (getWithPathParam.response.getBody().asString().toLowerCase().contains("printed"))
 								credentialIssued = true;
 						} catch (AuthenticationTestException | AdminTestException e) {
 							logger.error("Failed at checking Credential status with error: " + e.getMessage());
