@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.packetcreator.service;
 
 import static java.util.Arrays.copyOfRange;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import tss.Tpm;
 import tss.TpmFactory;
@@ -72,169 +74,172 @@ import tss.tpm.TPM_RH;
 
 @Component
 public class CryptoUtil {
-    Logger logger = LoggerFactory.getLogger(CryptoUtil.class);
+	Logger logger = LoggerFactory.getLogger(CryptoUtil.class);
+	
+	private static final int GCM_NONCE_LENGTH = 12;
+	private static final int GCM_AAD_LENGTH = 32;
+	private static final String HMAC_ALGORITHM_NAME = "SHA-256";
+	private static final String SIGN_ALGORITHM = "SHA256withRSA";
 
-    private static final int GCM_NONCE_LENGTH = 12;
-    private static final int GCM_AAD_LENGTH = 32;
-    private static final String HMAC_ALGORITHM_NAME = "SHA-256";
-    private static final String SIGN_ALGORITHM = "SHA256withRSA";
+	private static final String KEY_PATH = System.getProperty("user.home");
+	private static final String KEYS_DIR = ".mosipkeys";
+	private static final String PRIVATE_KEY = "reg.key";
 
-    private static final String KEY_PATH = System.getProperty("user.home");
-    private static final String KEYS_DIR = ".mosipkeys";
-    private static final String PRIVATE_KEY = "reg.key";
+	private static final byte[] NULL_VECTOR = new byte[0];
 
-    private static final byte[] NULL_VECTOR = new byte[0];
 
-    @Value("${mosip.test.regclient.encryption.appid}")
-    private String encryptionAppId;
+	//private String p12Secret="mosip.test.p12.secret";
+	@Value("${mosip.test.tpm.simulator}")
+	private boolean tpmSimulator;
+	
+	@Value("${mosip.test.tpm.available}")
+	private boolean tpmAvailable;
+	
+	@Autowired
+	private APIRequestUtil apiUtil;
 
-    @Value("${mosip.test.keymanager.encryptapi}")
-    private String encryptApi;
+	private SecureRandom sr = new SecureRandom();
 
-    @Value("${mosip.test.tpm.available}")
-    private boolean tpmAvailable;
+	private static Tpm tpm;
 
-    @Value("${mosip.test.tpm.simulator}")
-    private boolean tpmSimulator;
-    
-    @Value("${mosip.test.crypto.prependthumbprint}")
-    private boolean prependthumbprint;
-    
-    @Value("${mosip.test.p12.secret}")
-	private String p12Secret;
+	private static CreatePrimaryResponse signingPrimaryResponse;
 
-    @Autowired
-    private APIRequestUtil apiUtil;
+	@PostConstruct
+	public void initialize() {
 
-    @Value("${mosip.test.baseurl}")
-    private String baseUrl;
-    
-    @Value("${mosip.test.regclient.machineid}")
-    private String machineid;
-    
-    @Value("${mosip.test.persona.configpath}")
-	private String personaConfigPath;
-   
-    @Autowired
-    private ContextUtils contextUtils;
-   
-    private SecureRandom sr = new SecureRandom();
 
-    private static Tpm tpm;
+//		boolean tpmAvailable=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.available").toString());
+		
+	//	boolean tpmSimulator=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.simulator").toString());
+		// Check and compare
+		
+		if (tpmAvailable) {
+			if (tpmSimulator)
+				tpm = TpmFactory.localTpmSimulator();
+			else
+				tpm = TpmFactory.platformTpm();
+			signingPrimaryResponse = createSigningKey();
+		}
+	}
 
-    private static CreatePrimaryResponse signingPrimaryResponse;
+	public byte[] encrypt(byte[] data, String referenceId, String contextKey) throws Exception {
+		 String encryptionAppId=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.regclient.encryption.appid").toString();;
+		String baseUrl1=VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
 
-    @PostConstruct
-    public void initialize() {
-        if(tpmAvailable) {
-        	if(tpmSimulator)
-        		tpm = TpmFactory.localTpmSimulator();
-        	else
-        		tpm = TpmFactory.platformTpm();
-            signingPrimaryResponse = createSigningKey();
-        }
-    }
-    
-    public byte[] encrypt(byte[] data, String referenceId, String contextKey) throws Exception {
-    	
-    	if(contextKey != null && !contextKey.equals("")) {
-    		
-    		Properties props = contextUtils.loadServerContext(contextKey);
-    		props.forEach((k,v)->{
-    			if(k.toString().equals("mosip.test.baseurl")) {
-    				baseUrl = v.toString().trim();
-    			}
-    			
-    		});
-    	}
-        JSONObject encryptObj = new JSONObject();
-        
-        encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
-        encryptObj.put("applicationId", encryptionAppId);
-       // encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64String(data));
-        encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(data));
-        encryptObj.put("prependThumbprint", prependthumbprint);
-        encryptObj.put("referenceId", referenceId);
-        encryptObj.put("salt", getRandomBytes(GCM_NONCE_LENGTH));
-        encryptObj.put("timeStamp",APIRequestUtil.getUTCDateTime(null));
+		String encryptApi=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.keymanager.encryptapi").toString();
+		boolean tpmAvailable=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.available").toString());
+		
+		boolean tpmSimulator=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.simulator").toString());
+		
+		String prependthumbprint=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.crypto.prependthumbprint").toString();
 
-        JSONObject wrapper = new JSONObject();
-        wrapper.put("id", "mosip.registration.sync");
-        wrapper.put("requesttime", APIRequestUtil.getUTCDateTime(LocalDateTime.now(ZoneOffset.UTC)));
-        wrapper.put("version", "1.0");
-        wrapper.put("request", encryptObj);
+JSONObject encryptObj = new JSONObject();
 
-        JSONObject secretObject = apiUtil.post(baseUrl, baseUrl+encryptApi, wrapper,contextKey);
-        byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
-        return mergeEncryptedData(encBytes, org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),
-                org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("aad")));
-    }
+		encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
+		encryptObj.put("applicationId", encryptionAppId);
+		// encryptObj.put("data",
+		// org.apache.commons.codec.binary.Base64.encodeBase64String(data));
+		encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(data));
+		encryptObj.put("prependThumbprint", prependthumbprint);
+		encryptObj.put("referenceId", referenceId);
+		encryptObj.put("salt", getRandomBytes(GCM_NONCE_LENGTH));
+		encryptObj.put("timeStamp", APIRequestUtil.getUTCDateTime(null));
 
-    public boolean encryptPacket(byte[] data, String referenceId, String packetLocation, String contextKey) throws  Exception {
-    	byte[] encData =null;
-    	try {
-    		encData= encrypt(data, referenceId, contextKey);
-      }
-      catch(Throwable e)
-      {
-    	  logger.error("Encrypt Failing..",e);
-        //Retrying the encrypt on failure..
-  		encData= encrypt(data, referenceId, contextKey); // Temperary solution need to check with Taheer java.lang.Exception: [{"errorCode":"KER-KMS-500","message":"could not execute statement; SQL [n/a]; constraint [uni_ident_const]; nested exception is org.hibernate.exception.ConstraintViolationException: could not execute statement"}]
+		JSONObject wrapper = new JSONObject();
+		wrapper.put("id", "mosip.registration.sync");
+		wrapper.put("requesttime", APIRequestUtil.getUTCDateTime(LocalDateTime.now(ZoneOffset.UTC)));
+		wrapper.put("version", "1.0");
+		wrapper.put("request", encryptObj);
+		
+		JSONObject secretObject = apiUtil.post(baseUrl1, baseUrl1 + encryptApi, wrapper, contextKey);
+		byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
+		return mergeEncryptedData(encBytes,
+				org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),
+				org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("aad")));
+	}
 
-      }
-    	try(FileOutputStream fos = new FileOutputStream(packetLocation)){
-            fos.write(encData);
-            fos.flush();
-            return true;
-        }
-    }
+	public boolean encryptPacket(byte[] data, String referenceId, String packetLocation, String contextKey)
+			throws Exception {
+		byte[] encData = null;
+		try {
+			encData = encrypt(data, referenceId, contextKey);
+		} catch (Throwable e) {
+			logger.error("Encrypt Failing..", e);
+			// Retrying the encrypt on failure..
+			encData = encrypt(data, referenceId, contextKey); // Temperary solution need to check with Taheer
+																// java.lang.Exception:
+																// [{"errorCode":"KER-KMS-500","message":"could not
+																// execute statement; SQL [n/a]; constraint
+																// [uni_ident_const]; nested exception is
+																// org.hibernate.exception.ConstraintViolationException:
+																// could not execute statement"}]
 
-    public byte[] encrypt(byte[] data, String referenceId, LocalDateTime timestamp, String contextKey) throws Exception {
-        JSONObject encryptObj = new JSONObject();
+		}
+		/*
+		 * try(FileOutputStream fos = new FileOutputStream(packetLocation)){
+		 * fos.write(encData); fos.flush(); return true; }
+		 */
+		try (FileOutputStream fos = new FileOutputStream(packetLocation);
+				BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+			// Write the encrypted data
+			bos.write(encData);
+			bos.flush();
+			return true;
+		} catch (Exception e) {
+			logger.error("Error writing encrypted data to file", e);
+		}
+		return false;
+	}
 
-        if(contextKey != null && !contextKey.equals("")) {
-    		
-    		Properties props = contextUtils.loadServerContext(contextKey);
-    		props.forEach((k,v)->{
-    			if(k.toString().equals("mosip.test.baseurl")) {
-    				baseUrl = v.toString().trim();
-    			}
-    			
-    		});
-    	}
-        encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
-        encryptObj.put("applicationId", encryptionAppId);
-      //  encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64String(data));
-          encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(data));
-        encryptObj.put("prependThumbprint", prependthumbprint);
-        encryptObj.put("referenceId", referenceId);
-        encryptObj.put("salt", getRandomBytes(GCM_NONCE_LENGTH));
-        encryptObj.put("timeStamp", APIRequestUtil.getUTCDateTime(timestamp));
+	public byte[] encrypt(byte[] data, String referenceId, LocalDateTime timestamp, String contextKey)
+			throws Exception {
+		JSONObject encryptObj = new JSONObject();
+		String encryptApi=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.keymanager.encryptapi").toString();
+		boolean tpmAvailable=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.available").toString());
+		
+		boolean tpmSimulator=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.simulator").toString());
+		
+		String prependthumbprint=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.crypto.prependthumbprint").toString();
 
-        JSONObject wrapper = new JSONObject();
-        wrapper.put("id", "mosip.registration.sync");
-        wrapper.put("requesttime", APIRequestUtil.getUTCDateTime(LocalDateTime.now(ZoneOffset.UTC)));
-        wrapper.put("version", "1.0");
-        wrapper.put("request", encryptObj);
+		 String encryptionAppId=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.regclient.encryption.appid").toString();;
 
-        JSONObject secretObject = apiUtil.post(baseUrl, baseUrl+encryptApi, wrapper,contextKey);
-        byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
-        byte[] mergeddata = mergeEncryptedData(encBytes, org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),
-                org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("aad")));
+		String baseUrl=VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
+		encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
+		encryptObj.put("applicationId", encryptionAppId);
+		// encryptObj.put("data",
+		// org.apache.commons.codec.binary.Base64.encodeBase64String(data));
+		encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(data));
+		encryptObj.put("prependThumbprint", prependthumbprint);
+		encryptObj.put("referenceId", referenceId);
+		encryptObj.put("salt", getRandomBytes(GCM_NONCE_LENGTH));
+		encryptObj.put("timeStamp", APIRequestUtil.getUTCDateTime(timestamp));
 
-        //test(org.apache.commons.codec.binary.Base64.encodeBase64String(mergeddata), referenceId, encryptObj);
-        return mergeddata;
-    }
-    
+		JSONObject wrapper = new JSONObject();
+		wrapper.put("id", "mosip.registration.sync");
+		wrapper.put("requesttime", APIRequestUtil.getUTCDateTime(LocalDateTime.now(ZoneOffset.UTC)));
+		wrapper.put("version", "1.0");
+		wrapper.put("request", encryptObj);
 
-    public String decrypt(String data) throws Exception {
+		JSONObject secretObject = apiUtil.post(baseUrl, baseUrl + encryptApi, wrapper, contextKey);
+		byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
+		byte[] mergeddata = mergeEncryptedData(encBytes,
+				org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),
+				org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("aad")));
+
+		// test(org.apache.commons.codec.binary.Base64.encodeBase64String(mergeddata),
+		// referenceId, encryptObj);
+		return mergeddata;
+	}
+
+	public String decrypt(String data) throws Exception {
 		PrivateKeyEntry privateKeyEntry = loadP12();
 		byte[] dataBytes = org.apache.commons.codec.binary.Base64.decodeBase64(data);
 		byte[] data1 = decryptData(dataBytes, privateKeyEntry);
 		String strData = new String(data1);
 		return strData;
 	}
-    private static int getSplitterIndex(byte[] encryptedData, int keyDemiliterIndex, String keySplitter) {
+
+	private static int getSplitterIndex(byte[] encryptedData, int keyDemiliterIndex, String keySplitter) {
 		final byte keySplitterFirstByte = keySplitter.getBytes()[0];
 		final int keySplitterLength = keySplitter.length();
 		for (byte data : encryptedData) {
@@ -250,10 +255,10 @@ public class CryptoUtil {
 		return keyDemiliterIndex;
 	}
 
-    private final static int THUMBPRINT_LENGTH = 32;
-    private final static String RSA_ECB_OAEP_PADDING = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
-    
-    public static byte[] decryptData(byte[] requestData, PrivateKeyEntry privateKey) throws Exception {
+	private final static int THUMBPRINT_LENGTH = 32;
+	private final static String RSA_ECB_OAEP_PADDING = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
+
+	public static byte[] decryptData(byte[] requestData, PrivateKeyEntry privateKey) throws Exception {
 		String keySplitter = "#KEY_SPLITTER#";
 		SecretKey symmetricKey = null;
 		byte[] encryptedData = null;
@@ -284,7 +289,8 @@ public class CryptoUtil {
 		}
 		throw new Exception("Not able to decrypt the data.");
 	}
-    /**
+
+	/**
 	 * 
 	 * @param privateKey
 	 * @param keyModulus
@@ -337,170 +343,144 @@ public class CryptoUtil {
 		return output;
 	}
 
-    public PrivateKeyEntry loadP12() throws Exception {
-    	KeyStore mosipKeyStore = KeyStore.getInstance("PKCS12");
-    	InputStream in = getClass().getClassLoader().getResourceAsStream("partner.p12");
-    	//subscriptionRequest.setSecret(websubSecret);
-    	
-    	mosipKeyStore.load(in, p12Secret.toCharArray());
-    	ProtectionParameter password = new PasswordProtection(p12Secret.toCharArray());
-    	PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) mosipKeyStore.getEntry("partner", password);
-    	return privateKeyEntry;
-    }
-    /*private void test(String requestBody, String refId,JSONObject encryptObj) throws Exception {
-        byte[] packet = org.apache.commons.codec.binary.Base64.decodeBase64(requestBody);
-        byte[] nonce = Arrays.copyOfRange(packet, 0, GCM_NONCE_LENGTH);
-        byte[] aad = Arrays.copyOfRange(packet, GCM_NONCE_LENGTH, GCM_NONCE_LENGTH + GCM_AAD_LENGTH);
-        byte[] encryptedData = Arrays.copyOfRange(packet, GCM_NONCE_LENGTH + GCM_AAD_LENGTH, packet.length);
+	public PrivateKeyEntry loadP12() throws Exception {
+	
+		String p12Secret=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.p12.secret").toString();
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("applicationId", "REGISTRATION");
-        jsonObject.put("referenceId", refId);
-        jsonObject.put("aad", org.apache.commons.codec.binary.Base64.encodeBase64String(aad));
-        jsonObject.put("salt", org.apache.commons.codec.binary.Base64.encodeBase64String(nonce));
-        jsonObject.put("data", org.apache.commons.codec.binary.Base64.encodeBase64String(encryptedData));
-        jsonObject.put("timeStamp", encryptObj.get("timeStamp"));
+		KeyStore mosipKeyStore = KeyStore.getInstance("PKCS12");
+		InputStream in = getClass().getClassLoader().getResourceAsStream("partner.p12");
+		// subscriptionRequest.setSecret(websubSecret);
+		p12Secret=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, p12Secret).toString();
+		mosipKeyStore.load(in, p12Secret.toCharArray());
+		ProtectionParameter password = new PasswordProtection(p12Secret.toCharArray());
+		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) mosipKeyStore.getEntry("partner", password);
+		return privateKeyEntry;
+	}
 
-        JSONObject wrapper = new JSONObject();
-        wrapper.put("id", "mosip.cryptomanager.decrypt");
-        wrapper.put("version", "1.0");
-        wrapper.put("requesttime",  apiUtil.getUTCDateTime(null));
-        wrapper.put("request", jsonObject);
-
-        JSONObject secretObject = apiUtil.post("https://qa2.mosip.net/v1/keymanager/decrypt", wrapper);
-        logger.info("decrypt respose >>>>>>>>>>>>>>>> {}", secretObject);
-
-        String plaindata = new String(Base64.getDecoder().decode(secretObject.getString("data")));
-        logger.info("decrypt plaindata >>>>>>>>>>>>>>>> {}", plaindata);
-    }*/
-
-    public String getHash(byte[] data) throws Exception{
-        try{
-            MessageDigest messageDigest = MessageDigest.getInstance(HMAC_ALGORITHM_NAME);
-            messageDigest.update(data);
-            return Base64.getUrlEncoder().encodeToString(messageDigest.digest());
-        } catch(Exception ex){
-            logger.error("Cryptoutil getHash err ", ex);
-            throw new Exception("Invalid crypto util");
-        }
-    }
-
-    public String getHexEncodedHash(byte[] data) throws Exception{
-        try{
-            MessageDigest messageDigest = MessageDigest.getInstance(HMAC_ALGORITHM_NAME);
-            messageDigest.update(data);
-            return DatatypeConverter.printHexBinary(messageDigest.digest()).toUpperCase();
-        } catch(Exception ex){
-            logger.error("Cryptoutil getHexEncodedHash err ", ex);
-            throw new Exception("Invalid crypto util");
-        }
-    }
-
-    public byte[] sign(byte[] dataToSign,String contextKey) throws Exception {
-        try {
-            if(tpmAvailable) {
-                CreatePrimaryResponse signingKey = createSigningKey();
-                TPMU_SIGNATURE signedData = tpm.Sign(signingKey.handle,
-                        TPMT_HA.fromHashOf(TPM_ALG_ID.SHA256, dataToSign).digest, new TPMS_NULL_SIG_SCHEME(),
-                        TPMT_TK_HASHCHECK.nullTicket());
-                logger.info("Completed Signing data using TPM");
-                return ((TPMS_SIGNATURE_RSASSA) signedData).sig;
-            }
-            
-            Signature sign = Signature.getInstance(SIGN_ALGORITHM);
-            sign.initSign(getMachinePrivateKey(contextKey));
-
-            try(ByteArrayInputStream in = new ByteArrayInputStream(dataToSign)) {
-                byte[] buffer = new byte[2048];
-                int len = 0;
-                while((len = in.read(buffer)) != -1) {
-                    sign.update(buffer, 0, len);
-                }
-                return sign.sign();
-            }
-        } catch (Exception ex) {
-            logger.error("Failed to sign data", ex);
-            throw new Exception("Failed to sign data");
-        }
-    }
-
-    private PrivateKey getMachinePrivateKey(String contextKey) throws Exception {
-    	String filePath=null;
-		if (contextKey != null && !contextKey.equals("")) {
-
-			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.regclient.machineid")) {
-					machineid = v.toString().trim();
-				}
-
-			});
+	public String getHash(byte[] data) throws Exception {
+		try {
+			MessageDigest messageDigest = MessageDigest.getInstance(HMAC_ALGORITHM_NAME);
+			messageDigest.update(data);
+			return Base64.getUrlEncoder().encodeToString(messageDigest.digest());
+		} catch (Exception ex) {
+			logger.error("Cryptoutil getHash err ", ex);
+			throw new Exception("Invalid crypto util");
 		}
-		File folder = new File(String.valueOf(personaConfigPath) + File.separator +"privatekeys"+File.separator);
+	}
+
+	public String getHexEncodedHash(byte[] data) throws Exception {
+		try {
+			MessageDigest messageDigest = MessageDigest.getInstance(HMAC_ALGORITHM_NAME);
+			messageDigest.update(data);
+			return DatatypeConverter.printHexBinary(messageDigest.digest()).toUpperCase();
+		} catch (Exception ex) {
+			logger.error("Cryptoutil getHexEncodedHash err ", ex);
+			throw new Exception("Invalid crypto util");
+		}
+	}
+
+	public byte[] sign(byte[] dataToSign, String contextKey) throws Exception {
+		try {
+			boolean tpmAvailable=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.available").toString());
+			
+			boolean tpmSimulator=Boolean.valueOf(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.tpm.simulator").toString());
+			
+			String prependthumbprint=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.crypto.prependthumbprint").toString();
+
+			if (tpmAvailable) {
+				CreatePrimaryResponse signingKey = createSigningKey();
+				TPMU_SIGNATURE signedData = tpm.Sign(signingKey.handle,
+						TPMT_HA.fromHashOf(TPM_ALG_ID.SHA256, dataToSign).digest, new TPMS_NULL_SIG_SCHEME(),
+						TPMT_TK_HASHCHECK.nullTicket());
+				logger.info("Completed Signing data using TPM");
+				return ((TPMS_SIGNATURE_RSASSA) signedData).sig;
+			}
+
+			Signature sign = Signature.getInstance(SIGN_ALGORITHM);
+			sign.initSign(getMachinePrivateKey(contextKey));
+
+			try (ByteArrayInputStream in = new ByteArrayInputStream(dataToSign)) {
+				byte[] buffer = new byte[2048];
+				int len = 0;
+				while ((len = in.read(buffer)) != -1) {
+					sign.update(buffer, 0, len);
+				}
+				return sign.sign();
+			}
+		} catch (Exception ex) {
+			logger.error("Failed to sign data", ex);
+			throw new Exception("Failed to sign data");
+		}
+	}
+
+	private PrivateKey getMachinePrivateKey(String contextKey) throws Exception {
+		String filePath = null;
+		String personaConfigPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.configpath").toString();
+		String machineid=VariableManager.getVariableValue(contextKey, "mosip.test.regclient.machineid").toString();
+		File folder = new File(String.valueOf(personaConfigPath) + File.separator + "privatekeys" + File.separator);
 		File[] listOfFiles = folder.listFiles();
 		for (File file : listOfFiles) {
-		    if (file.isFile()) {
-				if (file.getName().contains(VariableManager.getVariableValue(contextKey, "db-server").toString() +"."+ machineid)) {
+			if (file.isFile()) {
+				if (file.getName().contains(
+						VariableManager.getVariableValue(contextKey, "db-server").toString() + "." + machineid)) {
 					filePath = file.getAbsolutePath();
 					break;
 				}
-		    }
+			}
 		}
-    	//byte[] key = Files.readAllBytes(Path.of(KEY_PATH ,KEYS_DIR ,PRIVATE_KEY));
-		if(filePath==null ||filePath.isEmpty() )
-			throw new Exception("privatekey file not found"); 
-		logger.info("PRIVATEKEY FILE PATH::"+filePath);
-    	byte[] key = Files.readAllBytes(Path.of(filePath));
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        return kf.generatePrivate(keySpec);
-    }
+	if (filePath == null || filePath.isEmpty())
+			throw new Exception("privatekey file not found");
+		logger.info("PRIVATEKEY FILE PATH::" + filePath);
+		byte[] key = CommonUtil.read(filePath);
+		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);
+		KeyFactory kf = KeyFactory.getInstance("RSA");
+		return kf.generatePrivate(keySpec);
+	}
 
-    /**
-     * 
-     * @param length in bytes
-     * @return base64 value of the random byte
-     */
-    private String getRandomBytes(int length){
-        byte[] rand = new byte[length];
-        sr.nextBytes(rand);
-       // return org.apache.commons.codec.binary.Base64.encodeBase64String(rand);
-        return org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(rand);
-    }
+	/**
+	 * 
+	 * @param length in bytes
+	 * @return base64 value of the random byte
+	 */
+	private String getRandomBytes(int length) {
+		byte[] rand = new byte[length];
+		sr.nextBytes(rand);
+		// return org.apache.commons.codec.binary.Base64.encodeBase64String(rand);
+		return org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(rand);
+	}
 
-    private byte[] mergeEncryptedData(byte[] encryptedData, byte[] nonce, byte[] aad) {
-        byte[] finalEncData = new byte[encryptedData.length + GCM_AAD_LENGTH + GCM_NONCE_LENGTH];
-        System.arraycopy(nonce, 0, finalEncData, 0, nonce.length);
-        System.arraycopy(aad, 0, finalEncData, nonce.length, aad.length);
-        System.arraycopy(encryptedData, 0, finalEncData, nonce.length + aad.length,	encryptedData.length);
-        return finalEncData;
-    }
+	private byte[] mergeEncryptedData(byte[] encryptedData, byte[] nonce, byte[] aad) {
+		byte[] finalEncData = new byte[encryptedData.length + GCM_AAD_LENGTH + GCM_NONCE_LENGTH];
+		System.arraycopy(nonce, 0, finalEncData, 0, nonce.length);
+		System.arraycopy(aad, 0, finalEncData, nonce.length, aad.length);
+		System.arraycopy(encryptedData, 0, finalEncData, nonce.length + aad.length, encryptedData.length);
+		return finalEncData;
+	}
 
-    private CreatePrimaryResponse createSigningKey() {
-        logger.info("Creating the Key from Platform TPM");
+	private CreatePrimaryResponse createSigningKey() {
+		logger.info("Creating the Key from Platform TPM");
 
-        if(signingPrimaryResponse != null)
-            return signingPrimaryResponse;
+		if (signingPrimaryResponse != null)
+			return signingPrimaryResponse;
 
-        TPMT_PUBLIC template = new TPMT_PUBLIC(TPM_ALG_ID.SHA1,
-                new TPMA_OBJECT(TPMA_OBJECT.fixedTPM, TPMA_OBJECT.fixedParent, TPMA_OBJECT.sign,
-                        TPMA_OBJECT.sensitiveDataOrigin, TPMA_OBJECT.userWithAuth),
-                new byte[0],
-                new TPMS_RSA_PARMS(new TPMT_SYM_DEF_OBJECT(TPM_ALG_ID.NULL, 0, TPM_ALG_ID.NULL),
-                        new TPMS_SIG_SCHEME_RSASSA(TPM_ALG_ID.SHA256), 2048, 65537),
-                new TPM2B_PUBLIC_KEY_RSA());
+		TPMT_PUBLIC template = new TPMT_PUBLIC(TPM_ALG_ID.SHA1,
+				new TPMA_OBJECT(TPMA_OBJECT.fixedTPM, TPMA_OBJECT.fixedParent, TPMA_OBJECT.sign,
+						TPMA_OBJECT.sensitiveDataOrigin, TPMA_OBJECT.userWithAuth),
+				new byte[0], new TPMS_RSA_PARMS(new TPMT_SYM_DEF_OBJECT(TPM_ALG_ID.NULL, 0, TPM_ALG_ID.NULL),
+						new TPMS_SIG_SCHEME_RSASSA(TPM_ALG_ID.SHA256), 2048, 65537),
+				new TPM2B_PUBLIC_KEY_RSA());
 
-        TPM_HANDLE primaryHandle = TPM_HANDLE.from(TPM_RH.ENDORSEMENT);
+		TPM_HANDLE primaryHandle = TPM_HANDLE.from(TPM_RH.ENDORSEMENT);
 
-        TPMS_SENSITIVE_CREATE dataToBeSealedWithAuth = new TPMS_SENSITIVE_CREATE(NULL_VECTOR, NULL_VECTOR);
+		TPMS_SENSITIVE_CREATE dataToBeSealedWithAuth = new TPMS_SENSITIVE_CREATE(NULL_VECTOR, NULL_VECTOR);
 
-        logger.info("Completed creating the Signing Key from Platform TPM");
+		logger.info("Completed creating the Signing Key from Platform TPM");
 
-        //everytime this is called key never changes until unless either seed / template change.
-        signingPrimaryResponse = tpm.CreatePrimary(primaryHandle, dataToBeSealedWithAuth, template,
-                NULL_VECTOR, new TPMS_PCR_SELECTION[0]);
-        return signingPrimaryResponse;
-    }
-    
+		// everytime this is called key never changes until unless either seed /
+		// template change.
+		signingPrimaryResponse = tpm.CreatePrimary(primaryHandle, dataToBeSealedWithAuth, template, NULL_VECTOR,
+				new TPMS_PCR_SELECTION[0]);
+		return signingPrimaryResponse;
+	}
 
 }

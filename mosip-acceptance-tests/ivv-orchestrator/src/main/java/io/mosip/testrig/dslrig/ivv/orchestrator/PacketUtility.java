@@ -734,7 +734,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,
 			String consent, boolean changeSupervisorNameToDiffCase, String invalidEncryptedHashFlag,
-			String invalidCheckSum) throws RigInternalError {
+			String invalidCheckSum , String invalidIdSchemaFlag) throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
 
@@ -769,6 +769,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("introducerRID", getValueFromIdJson("introducerRID"));
 		jsonReq.put("introducerName", getValueFromIdJson("introducerName"));
 		jsonReq.put("invalidCheckSum", invalidCheckSum);
+		jsonReq.put("invalidIdSchemaFlag", invalidIdSchemaFlag);
 		jsonReq.put("invalidEncryptedHashFlag", invalidEncryptedHashFlag);
 		jsonReq.put("changeSupervisorNameToDiffCase", changeSupervisorNameToDiffCase);
 		jsonReq.put("consent", consent);
@@ -790,9 +791,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("Female", "FLE");
 		jsonReq.put("Other", "OTH");
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
+		
+		jsonReq.put("langCode", BaseTestCase.languageCode);
 
+     //   jsonReq.put("mosip.test.primary.langcode", BaseTestCase.languageCode);
+        
+		jsonReq.put("langCode", BaseTestCase.languageCode);
 		jsonReq.put("validUIN", (map.get("$$uin") != null) ? map.get("$$uin") : "createnew");
-
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
 		if (mosipVersion != null && !mosipVersion.isEmpty())

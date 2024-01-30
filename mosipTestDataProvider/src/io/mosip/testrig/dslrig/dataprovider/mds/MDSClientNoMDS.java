@@ -103,7 +103,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 
 	@Override
 	public MDSRCaptureModel captureFromRegDevice(MDSDevice device, MDSRCaptureModel rCaptureModel, String bioType,
-			String bioSubType, int reqScore, String deviceSubId,int port,String contextKey,List<String> bioException) {
+			String bioSubType[], int reqScore, String deviceSubId,int port,String contextKey,List<String> bioException) {
 
 		List<String> lstSubtype = null;
 		
@@ -125,10 +125,13 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		}
 		else
 		if(bioType.equals("Iris")) {
+			String[] myArrayIris = new String[2];
 			for(String s: lstSubtype) {
 				model = new MDSDeviceCaptureModel();
+
+				 myArrayIris = addElement(myArrayIris, s);
 				model.setBioType(bioType);
-				model.setBioSubType(s);
+				model.setBioSubType(myArrayIris);//Jana sir help
 				
 				if(s.contains("Left")) 
 					model.setBioValue( Base64.getUrlEncoder().encodeToString(current.getIrisLeftISO())); 
@@ -139,11 +142,15 @@ public class MDSClientNoMDS implements MDSClientInterface {
 				lstBiometrics.add(model);			
 			}
 		}
+		
 		if(bioType.equals("Iris")) {
+			String[] myArrayIris = new String[2];
+			
 			for(String s: lstSubtype) {
 				model = new MDSDeviceCaptureModel();
 				model.setBioType(bioType);
-				model.setBioSubType(s);
+				 myArrayIris = addElement(myArrayIris, s);
+				model.setBioSubType(myArrayIris);//Jana sir help
 				int idx = ISOConverter.getFingerPos(s);
 				model.setBioValue( Base64.getUrlEncoder().encodeToString(current.getFingersISO()[idx])) ;
 				lstBiometrics.add(model);
@@ -195,7 +202,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 				/*
 				BioMetricsDataDto bioMetricsData = oB.readValue(
 						Base64.getDecoder()
-								.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
+								.decode(new String(ComonUtil.read(System.getProperty("user.dir")
 										+ "/files/MockMDS/registration/" + segment + ".txt")))),
 						BioMetricsDataDto.class);
 				list.add(bioMetricsData);
@@ -242,5 +249,15 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	// Utility method to add an element to an array
+   public String[] addElement(String[] array, String element) {
+        // Create a new array with a larger size
+        String[] newArray = Arrays.copyOf(array, array.length + 1);
 
+        // Add the new element to the new array
+        newArray[array.length] = element;
+
+        // Return the new array
+        return newArray;
+    }
 }	

@@ -42,18 +42,22 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 		if(modules.length()>0 && modules.equalsIgnoreCase("packetcreator")) {
 			
 			// Check packet creator up or not..
+			try {
 			String packetcreatorUri=baseUrl +"/actuator/health";
 			String serviceStatus = checkActuatorNoAuth(packetcreatorUri);
-			
 			if (serviceStatus.equalsIgnoreCase("UP") == false) {
 				this.hasError=true;
 				throw new SkipException("Packet creator Not responding");
-				
 			}
-		
+			}
+			catch (Exception e) {
+				this.hasError = true;
+				logger.error(e.getMessage());
+				throw new RigInternalError("Connection Refused");
+			}
 		}
 		else {
-		uri=baseUrl + "/ping/"+ !ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET);
+		uri=baseUrl + "/ping/"+ ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET);
 		
 		Response response = getRequest(uri, "Health Check",step);
 		JSONObject res = new JSONObject(response.asString());

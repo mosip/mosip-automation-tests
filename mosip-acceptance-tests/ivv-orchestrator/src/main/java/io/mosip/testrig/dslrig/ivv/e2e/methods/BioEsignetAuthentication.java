@@ -41,7 +41,7 @@ public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepIn
 	public void run() throws RigInternalError, FeatureNotSupportedError {
 		
 		// check if esignet is installed on the target system
-		if (!ConfigManager.isInServiceNotDeployedList("eSignet")) {
+		if (ConfigManager.isInServiceNotDeployedList("eSignet")) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
 

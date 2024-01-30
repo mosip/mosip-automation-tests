@@ -11,15 +11,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
+import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.service.CertificateService;
 import io.swagger.annotations.Api;
 
 @Api(value = "CertificateController", description = "REST API for uploading certificates")
 @RestController
 public class CertificateController {
-    
-    @Value("${mosip.test.persona.configpath}")
-    private String personaConfigPath;
 
     @Autowired
     CertificateService certificateService;
@@ -35,9 +33,7 @@ public class CertificateController {
     {
 
         try{
-            if(personaConfigPath != null && !personaConfigPath.equals("")){
-                DataProviderConstants.RESOURCE = personaConfigPath;
-            }
+        
             return certificateService.generateAndUploadRootCertificate(issuer, alias, validYears,contextKey);
         }
         catch (Exception ex){
@@ -58,9 +54,7 @@ public class CertificateController {
     ){
 
         try{
-            if(personaConfigPath != null && !personaConfigPath.equals("")){
-                DataProviderConstants.RESOURCE = personaConfigPath;
-            }
+           
             return certificateService.generateAndUploadIntCertificate(issuer, alias, validYears, rootAlias,contextKey);
         }
         catch (Exception ex){
@@ -82,9 +76,7 @@ public class CertificateController {
     ){
 
         try{
-            if(personaConfigPath != null && !personaConfigPath.equals("")){
-                DataProviderConstants.RESOURCE = personaConfigPath;
-            }
+           
             return certificateService.generateAndUploadPartnerCertificate(issuer, alias, validYears, rootAlias, partnerID,contextKey);
         }
         catch (Exception ex){
