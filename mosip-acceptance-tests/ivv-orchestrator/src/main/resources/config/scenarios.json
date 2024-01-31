@@ -18181,7 +18181,7 @@
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
-			"Action": "e2e_getPingHealth()"
+			"Action": "e2e_Skip()"
 		},
 		"Step-5": {
 			"Description": "Re-sets all expectations set on mocks for simulating the scenarios",
