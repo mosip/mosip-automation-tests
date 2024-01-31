@@ -213,7 +213,7 @@ public class PacketSyncService {
 	public JSONObject makePacketAndSync(String preregId, String templateLocation, String personaPath, String contextKey,
 			String additionalInfoReqId, boolean getRidFromSync, boolean genarateValidCbeff) throws Exception {
 		 
-		 String process=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.process").toString();	
+		 String process=VariableManager.getVariableValue(contextKey, "process").toString();	
 		 String src=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.source").toString();
 		
 		 
@@ -370,7 +370,7 @@ public class PacketSyncService {
 			String supervisorComment, String proc, String contextKey, String additionalInfoReqId,String primaryLangCode)
 			throws Exception, Exception {
 
-		 String process=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.process").toString();	
+		 String process=VariableManager.getVariableValue(contextKey, "process").toString();	
 		 String centerId=VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 		 String machineId=VariableManager.getVariableValue(contextKey, "mosip.test.regclient.machineid").toString();
 		 String mosipVersion=VariableManager.getVariableValue(contextKey, "mosip.version").toString();;
@@ -1290,7 +1290,7 @@ public class PacketSyncService {
 	public String validatePacket(String packetPath, String processArg, String contextKey) {
 
 		JSONObject ret = new JSONObject();
-		 String process=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.process").toString();	
+		 String process=VariableManager.getVariableValue(contextKey, "process").toString();	
 		 String src=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.source").toString();
 		 
 		ret.put(STATUS, SUCCESS);
