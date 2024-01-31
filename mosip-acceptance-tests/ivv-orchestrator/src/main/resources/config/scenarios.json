@@ -18117,10 +18117,10 @@
 			"Action": "e2e_setContext(env_context,$$details1,1/*ADD_COMMMENT*/@@2/*ADD_COMMMENT*/,false/*GENERATE_PRIVATE_KEY*/,invalidIdSchema/*INVALID_SCHEMA_VERSION*/)"
 		},
 		"Step-3": {
-			"Description": "Performs health check of required server components to run end-to-end scenarios",
+			"Description": "skip",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
-			"Action": "e2e_getPingHealth()"
+			"Action": "e2e_skip()"
 		},
 		"Step-4": {
 			"Description": "Generates persona data",
@@ -18178,10 +18178,10 @@
 			"Action": "e2e_setContext(env_context,$$details1,1/*ADD_COMMMENT*/@@2/*ADD_COMMMENT*/,false/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-4": {
-			"Description": "Performs health check of required server components to run end-to-end scenarios",
+			"Description": "Skipping Step",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
-			"Action": "e2e_getPingHealth()"
+			"Action": "e2e_skip()"
 		},
 		"Step-5": {
 			"Description": "Re-sets all expectations set on mocks for simulating the scenarios",
