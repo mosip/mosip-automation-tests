@@ -998,8 +998,8 @@ public  class MosipMasterData {
 		return false;
 	}
 	public static ApplicationConfigIdSchema getPreregLocHierarchy(String primLang, int count, String contextKey) throws Exception {
-
-		
+		ApplicationConfigIdSchema idschema =  new ApplicationConfigIdSchema(); //getAppConfigIdSchema();
+		try {
 		MosipPreRegLoginConfig logincConfig = getPreregLoginConfig(contextKey);
 		String countryCode = logincConfig.getMosip_country_code();
 		String langCode = logincConfig.getMosip_primary_language();
@@ -1024,7 +1024,7 @@ public  class MosipMasterData {
 			throw new Exception("Missing pre-reg-country-code");
 			
 		}
-		ApplicationConfigIdSchema idschema =  new ApplicationConfigIdSchema(); //getAppConfigIdSchema();
+	
 		//"contactType": "Postal"
 		Hashtable<Double,Properties> tblSchema = getIDSchemaLatestVersion(contextKey);
 		List<MosipIDSchema> idSchemaList = (List<MosipIDSchema>) tblSchema.get( tblSchema.keys().nextElement()).get("schemaList");
@@ -1069,8 +1069,12 @@ public  class MosipMasterData {
 		}
 		
 		idschema.setTblLocations(tblList);
-			
+		}catch(Exception e)
+		{
+			logger.error(e.getMessage()	);
+					}
 		return idschema;
+		
 	}
 	static void getChildLocations(List<MosipIDSchema> locHirachyList, String langCode, String levelCode,
 			String levelName, Hashtable<String, MosipLocationModel> tbl, LocationHierarchyModel[]  locHiModels,String contextKey) {
