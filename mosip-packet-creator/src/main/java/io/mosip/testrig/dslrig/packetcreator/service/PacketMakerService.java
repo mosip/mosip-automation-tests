@@ -159,7 +159,7 @@ public class PacketMakerService {
 		String retPath = "";
 
 		String src=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.source").toString();
-		String process=VariableManager.getVariableValue(contextKey, "process").toString();
+		String process=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.process").toString();
 
 
 		if (source != null)
@@ -178,21 +178,21 @@ public class PacketMakerService {
 		RestClient.logInfo(contextKey, "packPacketContainer:src=" + src + ",process=" + process + "PacketRoot="
 				+ tempPacketRootFolder + " regid=" + regId);
 		try {
-			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder,contextKey), regId, "id"), regId, "id", contextKey);
+			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id", contextKey);
 		} catch (Throwable e) {
 			logger.error(" ID Packet FAIL to Pack", e);
 
 		}
 
 		try {
-			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder,contextKey), regId, EVIDENCE), regId, EVIDENCE,
+			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, EVIDENCE), regId, EVIDENCE,
 					contextKey);
 		} catch (Throwable e) {
 			logger.error(" EVIDENCE Packet FAIL to Pack", e);
 
 		}
 		try {
-			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder,contextKey), regId, OPTIONAL), regId, OPTIONAL,
+			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, OPTIONAL), regId, OPTIONAL,
 					contextKey);
 		} catch (Throwable e) {
 			logger.error(" OPTIONAL Packet FAIL to Pack", e);
@@ -213,8 +213,9 @@ public class PacketMakerService {
 
 	public String createPacketFromTemplate(String templatePath, String personaPath, String contextKey,
 			String additionalInfoReqId) throws Exception {
-		String process=VariableManager.getVariableValue(contextKey, "process").toString();
+		String process=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.process").toString();
 		String src=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.source").toString();
+
 		RestClient.logInfo(contextKey, "createPacketFromTemplate");
 
 		Path idJsonPath = null;
@@ -246,9 +247,16 @@ public class PacketMakerService {
 
 		String packetPath = "";
 		String src=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.source").toString();
-		String process=VariableManager.getVariableValue(contextKey, "process").toString();
+		String process=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.process").toString();
 
-	
+		String supervisorId=VariableManager.getVariableValue(contextKey, MOSIPTEST_REGCLIENT_SUPERVISORID).toString();
+		String mosipVersion=VariableManager.getVariableValue(contextKey, "mosip.version").toString();
+
+		String officerId=VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_USERID).toString();
+		String supervisorP=VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_supervisorP).toString();
+		String officerP=VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_PASSWORD).toString();
+
+
 
 
 		//String templateLocation = (null == templatePacketLocation) ? defaultTemplateLocation : templatePacketLocation;
@@ -274,14 +282,14 @@ public class PacketMakerService {
 		// update document file here
 		createPacket(tempPacketRootFolder, regId, dataFile, "id", preregId, contextKey);
 		if (bZip)
-			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder,contextKey), regId, "id"), regId, "id", contextKey);
+			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id", contextKey);
 		createPacket(tempPacketRootFolder, regId, dataFile, EVIDENCE, preregId, contextKey);
 		if (bZip)
-			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder,contextKey), regId, EVIDENCE), regId, EVIDENCE,
+			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, EVIDENCE), regId, EVIDENCE,
 					contextKey);
 		createPacket(tempPacketRootFolder, regId, dataFile, OPTIONAL, preregId, contextKey);
 		if (bZip) {
-			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder,contextKey), regId, OPTIONAL), regId, OPTIONAL,
+			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, OPTIONAL), regId, OPTIONAL,
 					contextKey);
 			packContainer(tempPacketRootFolder, contextKey);
 
@@ -447,7 +455,7 @@ public class PacketMakerService {
 
 	boolean createPacket(String containerRootFolder, String regId, String dataFilePath, String type, String preregId,
 			String contextKey) throws Exception {
-		String packetRootFolder = getPacketRoot(getProcessRoot(containerRootFolder,contextKey), regId, type);
+		String packetRootFolder = getPacketRoot(getProcessRoot(containerRootFolder), regId, type);
 		String templateFile = getIdJSONFileLocation(packetRootFolder);
 		String supervisorId=VariableManager.getVariableValue(contextKey, MOSIPTEST_REGCLIENT_SUPERVISORID).toString();
 
@@ -457,7 +465,7 @@ public class PacketMakerService {
 
 		String centerId=VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 		String src=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.source").toString();
-		String process=VariableManager.getVariableValue(contextKey, "process").toString();
+		String process=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.process").toString();
 
 		// Handle supervisorBiometricFileName based on context value presence
 		String supervisorBiometricFileName=null; 	String officerBiometricFileName=null;
@@ -668,7 +676,7 @@ public class PacketMakerService {
 		FileSystemUtils.deleteRecursively(Path.of(containerRootFolder));
 
 		String containerMetaDataFileLocation = containerRootFolder + JSON;
-		return fixContainerMetaData(containerMetaDataFileLocation, regId, type, encryptedHash, signature,contextKey);
+		return fixContainerMetaData(containerMetaDataFileLocation, regId, type, encryptedHash, signature);
 	}
 
 	boolean packContainer(String containerRootFolder, String contextKey) throws Exception {
@@ -750,9 +758,9 @@ public class PacketMakerService {
 		return new File(packetRootFolder + File.separator + "ID".toUpperCase() + JSON).toString();
 	}
 
-	private String getProcessRoot(String containerRootFolder, String contextKey) {
+	private String getProcessRoot(String containerRootFolder) {
 		String src=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.source").toString();
-		String process=VariableManager.getVariableValue(contextKey, "process").toString();
+		String process=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.process").toString();
 
 		return Path.of(containerRootFolder, src, process).toString();
 	}
@@ -776,17 +784,14 @@ public class PacketMakerService {
 		String tempDir = workDirectory + File.separator + rid + "-" + centerId + "_" + machineId + "-"
 				+ getcurrentTimeStamp();
 		Path targetDirectory = Paths.get(tempDir);
-		 // Synchronize only the critical section
-	    synchronized (this) {
 		FileSystemUtils.copyRecursively(sourceDirectory, targetDirectory);
-		setupTemplateName(tempDir, rid,contextKey);
-	    }
-	    return targetDirectory.toString();
+		setupTemplateName(tempDir, rid);
+		return targetDirectory.toString();
 	}
 
-	private void setupTemplateName(String templateRootPath, String regId,String contextKey) throws SecurityException {
+	private void setupTemplateName(String templateRootPath, String regId) throws SecurityException {
 		String src=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.source").toString();
-		String process=VariableManager.getVariableValue(contextKey, "process").toString();
+		String process=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.process").toString();
 
 		String finalPath = templateRootPath + File.separator + src + File.separator + process;
 		File rootFolder = new File(finalPath);
@@ -811,10 +816,10 @@ public class PacketMakerService {
 	}
 
 	private boolean fixContainerMetaData(String fileToFix, String rid, String type, String encryptedHash,
-			String signature, String contextKey) throws IOException, Exception {
+			String signature) throws IOException, Exception {
 		Map<String, String> metaData = new HashMap();
 		String src=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.source").toString();
-		String process=VariableManager.getVariableValue(contextKey, "process").toString();
+		String process=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.packet.template.process").toString();
 
 		metaData.put("process", process);
 		metaData.put("creationdate", APIRequestUtil.getUTCDateTime(null));
