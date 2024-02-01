@@ -345,7 +345,7 @@ public class BiometricDataProvider {
 				MDSDevice faceDevice = faceDevices.get(0);
 
 				capture = mds.captureFromRegDevice(faceDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_FACE,
-						new String[0], 60, faceDevice.getDeviceSubId().get(0), port, contextKey, null);
+						null, 60, faceDevice.getDeviceSubId().get(0), port, contextKey, null);
 			}
 		}
 
@@ -376,7 +376,7 @@ public class BiometricDataProvider {
 				if (irisExceptions == null || irisExceptions.isEmpty()) {
 					if (filteredAttribs != null && filteredAttribs.contains(LEFTEYE)) {
 						capture = mds.captureFromRegDevice(irisDevice, capture,
-								DataProviderConstants.MDS_DEVICE_TYPE_IRIS, new String[0], 60,
+								DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
 								irisDevice.getDeviceSubId().get(0), port, contextKey, null);
 					}
 
@@ -384,7 +384,7 @@ public class BiometricDataProvider {
 						if (filteredAttribs != null && filteredAttribs.contains(RIGHTEYE)) {
 
 							capture = mds.captureFromRegDevice(irisDevice, capture,
-									DataProviderConstants.MDS_DEVICE_TYPE_IRIS, new String[0], 60,
+									DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
 									irisDevice.getDeviceSubId().get(1), port, contextKey, null);
 						}
 					}
@@ -400,14 +400,14 @@ public class BiometricDataProvider {
 						if (f.equalsIgnoreCase(RIGHT)
 								&& (filteredAttribs != null && filteredAttribs.contains(LEFTEYE))) {
 							capture = mds.captureFromRegDevice(irisDevice, capture,
-									DataProviderConstants.MDS_DEVICE_TYPE_IRIS, new String[0], 60,
+									DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
 									irisDevice.getDeviceSubId().get(0), port, contextKey, null);
 						} else if (f.equalsIgnoreCase("left")
 								&& (filteredAttribs != null && filteredAttribs.contains(RIGHTEYE))) {
 
 							if (irisDevice.getDeviceSubId().size() > 1)
 								capture = mds.captureFromRegDevice(irisDevice, capture,
-										DataProviderConstants.MDS_DEVICE_TYPE_IRIS, new String[0], 60,
+										DataProviderConstants.MDS_DEVICE_TYPE_IRIS, null, 60,
 										irisDevice.getDeviceSubId().get(1), port, contextKey, null);
 						}
 					}
@@ -443,7 +443,7 @@ public class BiometricDataProvider {
 
 				for (int i = 0; i < fingerDevice.getDeviceSubId().size(); i++) {
 					capture = mds.captureFromRegDevice(fingerDevice, capture,
-							DataProviderConstants.MDS_DEVICE_TYPE_FINGER, new String[0], 60,
+							DataProviderConstants.MDS_DEVICE_TYPE_FINGER, null, 60,
 							fingerDevice.getDeviceSubId().get(i), port, contextKey, null);
 				}
 				List<MDSDeviceCaptureModel> lstFingers = capture.getLstBiometrics()
@@ -456,9 +456,9 @@ public class BiometricDataProvider {
 						int indx = 0;
 						boolean bFound = false;
 						for (indx = 0; indx < DataProviderConstants.schemaNames.length; indx++) {
-							if (Arrays.asList(mdc.getBioSubType()).contains(DataProviderConstants.displayFingerName[indx])) {
-							    attr = DataProviderConstants.schemaNames[indx];
-							    break;
+							if (DataProviderConstants.displayFingerName[indx].equals(mdc.getBioSubType())) {
+								attr = DataProviderConstants.schemaNames[indx];
+								break;
 							}
 						}
 						if (attr != null) {
@@ -492,7 +492,7 @@ public class BiometricDataProvider {
 				MDSDevice exceptionDevice = exceptionfaceDevices.get(0);
 				try {
 					capture = mds.captureFromRegDevice(exceptionDevice, capture,
-							DataProviderConstants.MDS_DEVICE_TYPE_FACE, new String[0], 60,
+							DataProviderConstants.MDS_DEVICE_TYPE_FACE, null, 60,
 							exceptionDevice.getDeviceSubId().get(0), port, contextKey, bioexceptionlist);
 					// rename the key with exception_photo
 				} catch (Throwable t) {
@@ -643,13 +643,13 @@ public class BiometricDataProvider {
 				String irisXml = "";
 				for (MDSDeviceCaptureModel cm : lstIrisData) {
 
-					if (listWithoutExceptions.contains(LEFTEYE) && Arrays.asList(cm.getBioSubType()).contains("Left")) {
+					if (listWithoutExceptions.contains(LEFTEYE) && cm.getBioSubType().equals("Left")) {
 						irisXml = buildBirIris(cm.getBioValue(), "Left", cm.getSb(), cm.getPayload(),
 								cm.getQualityScore(), genarateValidCbeff, FALSE, contextKey);
 						builder = builder.importXMLBuilder(XMLBuilder.parse(irisXml));
 						bioSubType.add("Left");
 					}
-					if (listWithoutExceptions.contains(RIGHTEYE) && Arrays.asList(cm.getBioSubType()).contains(RIGHT)) {
+					if (listWithoutExceptions.contains(RIGHTEYE) && cm.getBioSubType().equals(RIGHT)) {
 
 						irisXml = buildBirIris(cm.getBioValue(), RIGHT, cm.getSb(), cm.getPayload(),
 								cm.getQualityScore(), genarateValidCbeff, FALSE, contextKey);
@@ -728,7 +728,7 @@ public class BiometricDataProvider {
 					String displayName = DataProviderConstants.displayFingerName[i];
 					MDSDeviceCaptureModel currentCM = null;
 					for (MDSDeviceCaptureModel cm : lstFingerData) {
-						if (Arrays.asList(cm.getBioSubType()).contains(displayName)) {
+						if (cm.getBioSubType().equals(displayName)) {
 							fingerData = cm.getBioValue();
 							bioSubType.add(finger);
 							currentCM = cm;

@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
-
 @Component
 public class SchemaUtil {
 
@@ -24,6 +22,9 @@ public class SchemaUtil {
     public static final String SCHEMA_CATEGORY = "fieldCategory";
     public static final String SCHEMA_VERSION_QUERY_PARAM = "schemaVersion";
     public static final String ID_VERSION = "IDSchemaVersion";
+
+    @Value("${mosip.test.masterdata.idschemaapi}")
+    private String schemaUrl;
 
     @Autowired
     private APIRequestUtil apiRequestUtil;
@@ -37,12 +38,24 @@ public class SchemaUtil {
     @Value("#{${mosip.test.packet.mapping.optional}}")
     private List<String> optional_categories;
 
+    @Value("${mosip.test.baseurl}")
+    private String baseUrl;
+   
+    @Autowired
+    private ContextUtils contextUtils;
    
     public String getAndSaveSchema(String version, String workFolder, String contextKey) throws Exception{
         
-    	String baseUrl=VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
-    	String schemaUrl=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.masterdata.idschemaapi").toString();
-    	
+    	if(contextKey != null && !contextKey.equals("")) {
+    		
+    		Properties props = contextUtils.loadServerContext(contextKey);
+    		props.forEach((k,v)->{
+    			if(k.toString().equals("mosip.test.baseurl")) {
+    				baseUrl = v.toString().trim();
+    			}
+    			
+    		});
+    	}
         Path schemaFileLocation = Path.of(workFolder, "v"+version+".json");
         if (schemaFileLocation.toFile().exists()){
             return readSchemaAsString(schemaFileLocation.toFile().getAbsolutePath());
@@ -73,8 +86,7 @@ public class SchemaUtil {
 
 
     public JSONObject getPacketIDData(String schemaJson, String data, String category) {
-    
-    	switch (category.toLowerCase()) {
+        switch (category.toLowerCase()) {
             case "id":
                 return getPacketIDData(schemaJson, id_categories, data);
             case "evidence":
