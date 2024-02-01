@@ -103,7 +103,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 
 	@Override
 	public MDSRCaptureModel captureFromRegDevice(MDSDevice device, MDSRCaptureModel rCaptureModel, String bioType,
-			String bioSubType[], int reqScore, String deviceSubId,int port,String contextKey,List<String> bioException) {
+			String bioSubType, int reqScore, String deviceSubId,int port,String contextKey,List<String> bioException) {
 
 		List<String> lstSubtype = null;
 		
@@ -125,13 +125,10 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		}
 		else
 		if(bioType.equals("Iris")) {
-			String[] myArrayIris = new String[2];
 			for(String s: lstSubtype) {
 				model = new MDSDeviceCaptureModel();
-
-				 myArrayIris = addElement(myArrayIris, s);
 				model.setBioType(bioType);
-				model.setBioSubType(myArrayIris);//Jana sir help
+				model.setBioSubType(s);
 				
 				if(s.contains("Left")) 
 					model.setBioValue( Base64.getUrlEncoder().encodeToString(current.getIrisLeftISO())); 
@@ -142,15 +139,11 @@ public class MDSClientNoMDS implements MDSClientInterface {
 				lstBiometrics.add(model);			
 			}
 		}
-		
 		if(bioType.equals("Iris")) {
-			String[] myArrayIris = new String[2];
-			
 			for(String s: lstSubtype) {
 				model = new MDSDeviceCaptureModel();
 				model.setBioType(bioType);
-				 myArrayIris = addElement(myArrayIris, s);
-				model.setBioSubType(myArrayIris);//Jana sir help
+				model.setBioSubType(s);
 				int idx = ISOConverter.getFingerPos(s);
 				model.setBioValue( Base64.getUrlEncoder().encodeToString(current.getFingersISO()[idx])) ;
 				lstBiometrics.add(model);
@@ -249,15 +242,5 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	// Utility method to add an element to an array
-   public String[] addElement(String[] array, String element) {
-        // Create a new array with a larger size
-        String[] newArray = Arrays.copyOf(array, array.length + 1);
 
-        // Add the new element to the new array
-        newArray[array.length] = element;
-
-        // Return the new array
-        return newArray;
-    }
 }	
