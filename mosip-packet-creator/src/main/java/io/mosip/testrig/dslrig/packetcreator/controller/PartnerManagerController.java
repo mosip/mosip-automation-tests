@@ -21,6 +21,8 @@ import io.swagger.annotations.Api;
 @RestController
 public class PartnerManagerController {
     
+    @Value("${mosip.test.partnerManager.configpath}")
+    private String partnerConfigPath;
 
     @Autowired
     PartnerService partnerService;
@@ -33,7 +35,9 @@ public class PartnerManagerController {
         @PathVariable("contextKey") String contextKey
     ){
         try {
-
+            if(partnerConfigPath != null && !partnerConfigPath.equals("")){
+                DataProviderConstants.RESOURCE = partnerConfigPath;
+            }
             return partnerService.selfRegister(selfRegister,contextKey);
         } catch (Exception e) {
             logger.error("selfRegisterPartner", e);
@@ -48,7 +52,9 @@ public class PartnerManagerController {
         @PathVariable("contextKey") String contextKey
     ){
         try {
-
+            if(partnerConfigPath != null && !partnerConfigPath.equals("")){
+                DataProviderConstants.RESOURCE = partnerConfigPath;
+            }
             return partnerService.updatePartnerStatus(contextKey,partnerId, status);
         } catch (Exception e) {
             logger.error("updatePartnerStatus", e);
@@ -64,7 +70,9 @@ public class PartnerManagerController {
         @PathVariable("contextKey") String contextKey
     ){
         try {
-
+            if(partnerConfigPath != null && !partnerConfigPath.equals("")){
+                DataProviderConstants.RESOURCE = partnerConfigPath;
+            }
             return partnerService.submitPartnerAPIKeyRequest(contextKey,partnerID, policyName, useCaseDesc);
         } catch (Exception e) {
             logger.error("submitApiRequest", e);
@@ -78,7 +86,9 @@ public class PartnerManagerController {
     		){
         
         try {
-
+            if(partnerConfigPath != null && !partnerConfigPath.equals("")){
+                DataProviderConstants.RESOURCE = partnerConfigPath;
+            }
             return partnerService.approvePartnerAPIKeyRequest(contextKey,ID);
         } catch (Exception e) {
             logger.error("approveAPIRequest", e);

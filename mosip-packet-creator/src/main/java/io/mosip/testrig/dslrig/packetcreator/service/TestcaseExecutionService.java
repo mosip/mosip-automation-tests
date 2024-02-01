@@ -12,11 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
-
 
 @Service
 public class TestcaseExecutionService {
+
+	@Value("${mosip.test.testcase.propertypath:../deploy/testcases.properties}")
+	private String propertyPath;
+	   
 	 private static final Logger logger = LoggerFactory.getLogger(TestcaseExecutionService.class);
 		
 	public String execute(String testcaseId, boolean bSync) {
@@ -24,7 +26,6 @@ public class TestcaseExecutionService {
 		Properties props = new Properties();
 		
 		logger.info("execute Testcase:"+ testcaseId );
-		String propertyPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.testcase.propertypath").toString();
 		
 		try(InputStream input = new FileInputStream(propertyPath)){
 			props.load( input);
