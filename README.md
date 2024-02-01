@@ -58,9 +58,14 @@ Below are repository details of various modules used for the automation
 1. config=default.properties
 1. mapper=demographic mappings environment specific or default setup.
 1. privatekeys=machine specific details for encrypting and signing the packet.					
+1. Set device certificates as per the environment and keep certificate under each modality keys. See [MDSdevicecert.md](https://github.com/mosip/mosip-infra/blob/1.2.0-rc2/deployment/sandbox-v2/docs/MDSdevicecert.md).
+1. Place Device p12 file under `centralized\mountvolume\mockmdscert\api-internal.env_context
+
+1. Update `..\resource\config\default.properties with the following details 
+        * `packetutilURLBase=http://localhost:8080
 1.	Update ..\run.bat as mentioned below
 1.	Keep mosip-packet-creator-1.2.0.1-develop-SNAPSHOT.jar and execute run.bat
-1.	Verify if the Packet utility is running by hitting `http://localhost:8080/v1/packetcreator/swagger-ui.html#/ `
+1.	Verify if the Packet utility is running by hitting `http://localhost:8080/swagger-ui.html#/ `
 1.	For any failure in the packet utility verify the logs location: mosip-packet-creator\PacketUtilityRunlog.txt
 
 
@@ -79,7 +84,7 @@ Below are repository details of various modules used for the automation
 1. After the execution completes, the test report can be found in the path `..\testng-report\emailable-report.html`
 
 ## DSL execution logs
-1. Verify the failure in the logs `mosip-acceptance-tests\ivv-orchestrator\src\logs\mosip-api-test.log`
+1. We can verify the failure in the logs `mosip-acceptance-tests\ivv-orchestrator\src\logs\mosip-api-test.log`
 
 ## License
 This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).

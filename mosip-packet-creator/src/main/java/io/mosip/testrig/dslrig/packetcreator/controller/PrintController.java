@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,6 @@ import io.mosip.kernel.websub.api.model.UnsubscriptionRequest;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.webSubEventModel;
 import io.mosip.testrig.dslrig.packetcreator.service.CryptoCoreUtil;
-
 import io.swagger.annotations.Api;
 
 @Api(value = "PrintController", description = "REST APIs for Websub subscription client")
@@ -50,7 +48,7 @@ public class PrintController {
 	SubscriptionClient<SubscriptionChangeRequest,UnsubscriptionRequest, SubscriptionChangeResponse> sb; 
 	@Autowired
 	CryptoCoreUtil cryptoCoreUtil;
-//	
+	
 //	@Autowired
 //	PrintService printService;
 	
@@ -60,10 +58,10 @@ public class PrintController {
 	@Value("${mosip.test.print.event.secret}")
 	private String websubSecret;
 
-
+	//@Value("${mosip.test.temp}")
+	private String tempPath;
 	
-	
-	private static final Logger logger = LoggerFactory.getLogger(PrintController.class);
+	private static final Logger logger = LoggerFactory.getLogger(preRegController.class);
 	   
 
 	 @PostMapping(value = "/print/callback",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
