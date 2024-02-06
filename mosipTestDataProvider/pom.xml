@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.testrig.dslrig.dataprovider</groupId>
 	<artifactId>dslrig-dataprovider</artifactId>
-	<version>1.2.1-develop-SNAPSHOT</version>
+	<version>1.2.0.1-SNAPSHOT</version>
 	<properties>
 		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
 	</properties>
