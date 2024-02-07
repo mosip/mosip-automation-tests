@@ -689,7 +689,6 @@ public class PacketMakerService {
 		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId", supervisorId != null ? supervisorId : "");
 		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId", officerId != null ? officerId : "");
 		VariableManager.setVariableValue(contextKey, "META_INFO-META_DATA-centerId", centerId != null ? centerId : "");
-
 		return true;
 	}
 

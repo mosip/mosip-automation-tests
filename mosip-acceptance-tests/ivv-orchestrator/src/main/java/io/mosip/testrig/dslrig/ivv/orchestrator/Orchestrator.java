@@ -111,7 +111,6 @@ public class Orchestrator {
 					+ BaseTestCase.generateRandomAlphaNumericString(7) + ".html";
 			logger.info("Extent Report path :" + emailableReportName);
 		}
-
 		BaseTestCaseUtil.setExtentReportName(emailableReportName);
 
 		htmlReporter = new ExtentHtmlReporter(BaseTestCaseUtil.getExtentReportName());
@@ -323,7 +322,7 @@ public class Orchestrator {
 		}
 
 		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenario :- " + counterLock.get()
-				+ scenario.getId());
+		+ scenario.getId());
 
 		extent.flush();
 		String tags = System.getProperty("ivv.tags");
@@ -350,7 +349,6 @@ public class Orchestrator {
 			updateRunStatistics(scenario);
 			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
 		}
-
 		Store store = new Store();
 		store.setConfigs(configs);
 		store.setGlobals(globals);
@@ -362,7 +360,7 @@ public class Orchestrator {
 		for (Scenario.Step step : scenario.getSteps()) {
 
 			identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters()
-					+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
+			+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
 
 					+ step.getVariant() + "]";
 			logger.info(identifier);
@@ -377,7 +375,6 @@ public class Orchestrator {
 								+ ": Skipping scenario as it is not in the scneario to be executed list");
 					}
 				}
-
 				extentTest.info(identifier + " - running"); //
 				extentTest.info("parameters: " + step.getParameters().toString());
 				StepInterface st = getInstanceOf(step);
