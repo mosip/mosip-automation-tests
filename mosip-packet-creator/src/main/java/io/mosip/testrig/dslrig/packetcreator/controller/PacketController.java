@@ -30,6 +30,8 @@ import io.swagger.annotations.ApiOperation;
 public class PacketController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestDataController.class);
+	@Value("${mosip.test.persona.configpath}")
+	private String personaConfigPath;
 
 	@Autowired
 	PacketSyncService packetSyncService;
@@ -46,7 +48,10 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+
 			return packetMakerService.createPacketFromTemplate(requestDto.getPersonaFilePath().get(0),
 					requestDto.getPersonaFilePath().get(1), contextKey, requestDto.getAdditionalInfoReqId());
 			// return packetSyncService.createPackets(requestDto.,process,null, contextKey);
@@ -64,7 +69,9 @@ public class PacketController {
 	) {
 
 		try {
-			
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
 			boolean isValidChecksum = true;
 			/*
 			 * if(isValidcs != null) isValidChecksum = isValidcs;
@@ -86,7 +93,10 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-		
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+
 			return packetSyncService.createPacketTemplates(requestDto.getPersonaFilePath(), process, null, null,
 					contextKey, "Registration", qualityScore, genarateValidCbeff);
 
@@ -101,7 +111,10 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+
 			return packetSyncService.bulkuploadPackets(packetPaths, contextKey);
 
 		} catch (Exception ex) {
@@ -151,7 +164,10 @@ public class PacketController {
 			@PathVariable("process") String process, @PathVariable("contextKey") String contextKey) {
 
 		try {
-			
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+
 			return packetSyncService.validatePacket(requestDto.getPersonaFilePath().get(0), process, contextKey);
 
 		} catch (Exception ex) {

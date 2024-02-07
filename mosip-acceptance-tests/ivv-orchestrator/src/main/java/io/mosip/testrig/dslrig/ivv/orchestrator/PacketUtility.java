@@ -794,10 +794,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		
 		jsonReq.put("langCode", BaseTestCase.languageCode);
 
-     //   jsonReq.put("mosip.test.primary.langcode", BaseTestCase.languageCode);
-        
-		jsonReq.put("langCode", BaseTestCase.languageCode);
 		jsonReq.put("validUIN", (map.get("$$uin") != null) ? map.get("$$uin") : "createnew");
+
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
 		if (mosipVersion != null && !mosipVersion.isEmpty())
