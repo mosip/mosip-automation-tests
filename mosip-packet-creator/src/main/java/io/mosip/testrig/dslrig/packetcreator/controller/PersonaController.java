@@ -30,8 +30,12 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 public class PersonaController {
 
+	@Value("${mosip.test.persona.configpath}")
+	private String personaConfigPath;
 	@Autowired
 	PacketSyncService packetSyncService;
+	@Value("${mosip.test.persona.Angulipath}")
+	private String personaAnguliPath;
 
 	private static final Logger logger = LoggerFactory.getLogger(PersonaController.class);
 
@@ -40,7 +44,9 @@ public class PersonaController {
 	public @ResponseBody String updatePersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto,
 			@PathVariable("id") String id, @PathVariable("contextKey") String contextKey) {
 		try {
-			
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
 			VariableManager.Init(contextKey);
 
 			return packetSyncService.updatePersonaData(personaRequestDto, contextKey);
@@ -58,7 +64,9 @@ public class PersonaController {
 			// @PathVariable("id") String id,
 			@PathVariable("contextKey") String contextKey) {
 		try {
-			
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
 			return packetSyncService.updatePersonaBioExceptions(personaBERequestDto, contextKey);
 
 		} catch (Exception ex) {
@@ -74,9 +82,13 @@ public class PersonaController {
 			@PathVariable("count") int count, @PathVariable("contextKey") String contextKey) {
 
 		try {
-			
-			DataProviderConstants.ANGULI_PATH = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.Angulipath").toString();;
-			
+			logger.info("Persona Config Path=" + personaConfigPath);
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+			if (personaAnguliPath != null && !personaAnguliPath.equals("")) {
+				DataProviderConstants.ANGULI_PATH = personaAnguliPath;
+			}
 			logger.info("personaAnguliPath =" + DataProviderConstants.ANGULI_PATH);
 
 			logger.info("Resource Path=" + DataProviderConstants.RESOURCE);
@@ -99,7 +111,9 @@ public class PersonaController {
 	public @ResponseBody String getPersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto,
 			@PathVariable("contextKey") String contextKey) {
 		try {
-		
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
 			return packetSyncService.getPersonaData(personaRequestDto, contextKey);
 
 		} catch (Exception ex) {
@@ -115,7 +129,9 @@ public class PersonaController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
 			return packetSyncService.setPersonaMockABISExpectation(expectations, contextKey);
 
 		} catch (Exception ex) {
@@ -138,7 +154,9 @@ public class PersonaController {
 	public @ResponseBody String updateMachine(@RequestBody MosipMachineModel machine,
 			@PathVariable("contextKey") String contextKey) {
 		try {
-		
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
 			return packetSyncService.updateMachine(machine, contextKey);
 
 		} catch (Exception ex) {

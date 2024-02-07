@@ -22,6 +22,8 @@ import io.swagger.annotations.Api;
 @RestController
 public class PolicyManagerController {
 
+    @Value("${mosip.test.persona.configpath}")
+    private String policyManagerConfigPath;
 
 
     @Autowired
@@ -33,7 +35,9 @@ public class PolicyManagerController {
     public @ResponseBody String createPolicyGroup(@RequestParam(value="name") String name, @RequestParam(value="desc") String desc,@PathVariable("contextKey") String contextKey){
 
         try {
-          
+            if(policyManagerConfigPath != null && !policyManagerConfigPath.equals("")){
+                DataProviderConstants.RESOURCE = policyManagerConfigPath;
+            }
             return policyManagerService.createPolicyGroup(name, desc,contextKey);
         } catch (Exception e) {
             //TODO: handle exception
@@ -47,7 +51,9 @@ public class PolicyManagerController {
     public @ResponseBody String getPolicyGroup(@RequestParam(value="grpname") String groupname,@PathVariable("contextKey") String contextKey){
 
         try {
-    
+            if(policyManagerConfigPath != null && !policyManagerConfigPath.equals("")){
+                DataProviderConstants.RESOURCE = policyManagerConfigPath;
+            }
             return policyManagerService.getPolicyGroupID(groupname,contextKey);
         } catch (Exception e) {
             //TODO: handle exception
@@ -62,7 +68,9 @@ public class PolicyManagerController {
     public @ResponseBody String createPolicyUnderGroup(@RequestBody PolicyCreateDto policyDetails,@PathVariable("contextKey") String contextKey){
 
         try {
-         
+            if(policyManagerConfigPath != null && !policyManagerConfigPath.equals("")){
+                DataProviderConstants.RESOURCE = policyManagerConfigPath;
+            }
             JSONObject policiesJson = new JSONObject();
             policiesJson.put("allowedAuthTypes", policyDetails.getPolicies().getAllowedAuthTypes());
             policiesJson.put("allowedKycAttributes", policyDetails.getPolicies().getAllowedKycAttributes());
@@ -82,7 +90,9 @@ public class PolicyManagerController {
     		@PathVariable("contextKey") String contextKey){
 
         try {
-      
+            if(policyManagerConfigPath != null && !policyManagerConfigPath.equals("")){
+                DataProviderConstants.RESOURCE = policyManagerConfigPath;
+            }
             return policyManagerService.publishPolicy(policyId, policygroupId,contextKey);
         } catch (Exception e) {
             //TODO: handle exception
