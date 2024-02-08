@@ -33,41 +33,28 @@ public class ContextUtils {
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
-	Logger logger = LoggerFactory.getLogger(ContextUtils.class);
+	static Logger logger = LoggerFactory.getLogger(ContextUtils.class);
 
 	public Properties loadServerContext(String ctxName) {
 		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
 		Properties p = new Properties();
 
-		FileReader reader = null;
-		try {
-			reader = new FileReader(filePath);
+		try(FileReader reader = new FileReader(filePath);) {
+			
 			p.load(reader);
 		} catch (IOException e) {
 
 			logger.error("loadServerContext " + e.getMessage());
 		}
-
-		finally {
-			try {
-				if (reader != null)
-					reader.close();
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
-		}
-
 		return p;
 	}
 
-	public Boolean createUpdateServerContext(Properties props, String ctxName) {
+	public String createUpdateServerContext(Properties props, String ctxName) {
 
-		Boolean bRet = true;
 		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
 		try (FileWriter fr = new FileWriter(filePath);) {
 
 			props.store(fr, "Server Context Attributes");
-			bRet = true;
 
 			Properties pp = loadServerContext(ctxName);
 			pp.forEach((k, v) -> {
@@ -79,36 +66,34 @@ public class ContextUtils {
 			boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
 			if (isRequired)
 				generateKeyAndUpdateMachineDetail(pp, ctxName);
-			
-		// Remove the temp directories created for the same context 	
+
+			// Remove the temp directories created for the same context
 			clearPacketGenFolders(ctxName);
 
-			
 		} catch (IOException e) {
 			logger.error("write:createUpdateServerContext " + e.getMessage());
-			bRet = false;
+			return e.getMessage();
 		}
-		return bRet;
+		return "true";
 	}
 
 	private void clearPacketGenFolders(String ctxName) {
 		// TODO Auto-generated method stub
-		
-		if(VariableManager.getVariableValue(ctxName, "residents_")!=null)
-		deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "residents_").toString());
-		
-		if(VariableManager.getVariableValue(ctxName, "packets_")!=null)
-		deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "packets_").toString());
-		
-		if(VariableManager.getVariableValue(ctxName, "preregIds_")!=null)
-		deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "preregIds_").toString());
-		
-		
-		if(VariableManager.getVariableValue(ctxName, "Passport_")!=null)
+
+		if (VariableManager.getVariableValue(ctxName, "residents_") != null)
+			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "residents_").toString());
+
+		if (VariableManager.getVariableValue(ctxName, "packets_") != null)
+			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "packets_").toString());
+
+		if (VariableManager.getVariableValue(ctxName, "preregIds_") != null)
+			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "preregIds_").toString());
+
+		if (VariableManager.getVariableValue(ctxName, "Passport_") != null)
 			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "Passport_").toString());
-		
-		if(VariableManager.getVariableValue(ctxName, "DrivingLic_")!=null)
-			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "DrivingLic_").toString());	
+
+		if (VariableManager.getVariableValue(ctxName, "DrivingLic_") != null)
+			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "DrivingLic_").toString());
 	}
 
 	public String createExecutionContext(String serverContextKey) {
@@ -171,7 +156,7 @@ public class ContextUtils {
 					+ ".reg.key", keypair.getPrivate().getEncoded());
 
 			final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
-			System.out.println("publicKey: " + publicKey);
+			logger.info("publicKey: " + publicKey);
 			if (publicKey != null && !publicKey.isEmpty()) {
 				List<MosipMachineModel> machines = null;
 				String status = contextProperties.getProperty("machineStatus");
@@ -201,7 +186,7 @@ public class ContextUtils {
 	}
 
 	private static void createKeyFile(final String fileName, final byte[] key) {
-		System.out.println("Creating file : " + fileName);
+		logger.info("Creating file : " + fileName);
 		try (final FileOutputStream os = new FileOutputStream(fileName);) {
 			Throwable t = null;
 			try {
@@ -221,7 +206,7 @@ public class ContextUtils {
 			// logger.error(e.getMessage());
 		}
 	}
-	
+
 	public void deleteDirectoryPath(String path) {
 		if (path != null && !path.isEmpty()) {
 			File file = new File(path);
@@ -233,7 +218,7 @@ public class ContextUtils {
 			}
 		}
 	}
-	
+
 	private void deleteIt(File file) {
 		if (file.isDirectory()) {
 			String fileList[] = file.list();

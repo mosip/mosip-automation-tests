@@ -30,16 +30,17 @@ import io.restassured.response.Response;
 
 public class MosipDataSetup {
 	private static final Logger logger = LoggerFactory.getLogger(MosipDataSetup.class);
+	private static String RUN_CONTEXT = "run_context";
 
 	public static Properties getConfig(String contextKey) {
 		Properties props = new Properties();
-		//https://sandbox.mosip.net/config/*/mz/1.1.4/print-mz.properties
-		//https://dev.mosip.net/config/*/mz/develop/registration-processor-mz.properties
 		String configPath = "config/*/mz/develop/pre-registration-mz.properties";
 		
 		try {
 			configPath = VariableManager.getVariableValue(contextKey,"configpath").toString();
-		}catch(Exception e) {}
+		}catch(Exception e) {
+			logger.error(e.getMessage());
+		}
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() + configPath;
 		
@@ -58,7 +59,7 @@ public class MosipDataSetup {
 		try {
 			return VariableManager.getVariableValue(contextKey,key);
 		}catch(Exception e) {
-			
+			logger.error(e.getMessage());
 		}
 		return null;
 	}
@@ -89,15 +90,12 @@ public class MosipDataSetup {
 	public static List<MosipMachineModel> getMachineDetail(String machineId, String langCode,String contextKey) {
 		
 		List<MosipMachineModel> machines = null;
-		/* String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-		VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinedetail").toString();
-		url = url + machineId + "/" + langCode; */
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()
 				+ "v1/masterdata/machines/";
 		
 		url = url + machineId + "/ ";
-		
-		Object o =getCache(url,contextKey);
+		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
+		Object o =getCache(url,run_context);
 		if(o != null)
 			return( (List<MosipMachineModel>) o);
 		
@@ -109,7 +107,7 @@ public class MosipDataSetup {
 				machines = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
 				
-				setCache(url, machines,contextKey);
+				setCache(url, machines,run_context);
 			
 			}
 			
@@ -126,9 +124,9 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()
 				+ "v1/masterdata/machines/search";
 		
+		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
 		
-		
-		Object o =getCache(url,contextKey);
+		Object o =getCache(url,run_context);
 		if(o != null)
 			return( (List<MosipMachineModel>) o);
 		
@@ -170,7 +168,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				machines = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
 				
-				setCache(url, machines,contextKey);
+				setCache(url, machines,run_context);
 			
 			}
 			
@@ -204,7 +202,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
-				System.out.println(r);
+				logger.info(r);
 			}
 		} catch (Exception e) {
 
@@ -235,7 +233,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
-				System.out.println(r);
+				logger.info(r);
 			}
 		} catch (Exception e) {
 
@@ -249,8 +247,8 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machinetype").toString();
 		url = url + "all";
-		
-		Object o =getCache(url,contextKey);
+		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
+		Object o =getCache(url,run_context);
 		if(o != null)
 			return( (List<MosipMachineTypeModel>) o);
 		
@@ -263,7 +261,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				machineTypes = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineTypeModel.class));
 				
-				setCache(url, machineTypes,contextKey);
+				setCache(url, machineTypes,run_context);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -276,8 +274,8 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"regcentertype").toString();
 		url = url + "all";
-		
-		Object o =getCache(url,contextKey);
+		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
+		Object o =getCache(url,run_context);
 		if(o != null)
 			return( (List<MosipRegistrationCenterTypeModel>) o);
 		
@@ -290,7 +288,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				machineTypes = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipRegistrationCenterTypeModel.class));
 				
-				setCache(url, machineTypes,contextKey);
+				setCache(url, machineTypes,run_context);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -324,7 +322,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
-				System.out.println(r);
+				logger.info(r);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -365,7 +363,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 			JSONObject resp = RestClient.post(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
-				System.out.println(r);
+				logger.info(r);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -382,7 +380,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 
 	  
 	 
-		//String url="https://qa2.mosip.net/v1/masterdata/machines";
+		
 		
 		JSONObject jsonMachine = new JSONObject();
 		jsonMachine.put("id", machine.getId());
@@ -412,7 +410,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 			JSONObject resp = RestClient.put(url,jsonReqWrapper,contextKey);
 			if(resp != null) {
 				String r = resp.toString();
-				System.out.println(r);
+				logger.info(r);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -422,20 +420,15 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 
 	public static String updatePreRegStatus(String preregId, String statusCode,String contextKey) {
 		String response = null;
-		/*
-		 * String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-		 * "preregistration/v1/applications/prereg/status/" + preregId + "?statusCode="
-		 * + statusCode;
-		 */
+		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() + VariableManager.getVariableValue(contextKey,"updatePreRegStatus").toString()
 				+ preregId + "?statusCode=" + statusCode;
 		try {
-			//JSONObject resp = RestClient.put(url, new JSONObject(),contextKey); // Not updating status
 			
 			JSONObject resp = RestClient.putNoAuth(url, new JSONObject(),"prereg",contextKey);
 			if (resp != null) {
 				response = resp.getString("response");
-				System.out.println(response);
+				logger.info(response);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -453,8 +446,8 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mappeddevices").toString();
 	
 		url = url +centerId;
-		
-		Object o =getCache(url,contextKey);
+		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
+		Object o =getCache(url,run_context);
 		if(o != null)
 			return( (List<MosipDeviceModel>) o);
 		
@@ -467,7 +460,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 				devices = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipDeviceModel.class));
 				
-				setCache(url, devices,contextKey);
+				setCache(url, devices,run_context);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -487,13 +480,13 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mockABISsetExpectaion").toString();
 
 		JSONObject req = new JSONObject();
-		//req.put("id", CommonUtil.getSHA(bdbString));
+	
 		byte[] valBytes=java.util.Base64.getUrlDecoder().decode(bdbString);
 		req.put("id", CommonUtil.getSHAFromBytes(valBytes));
 		req.put("version","1.0");
 		req.put("requesttime",CommonUtil.getUTCDateTime(null) );
 		req.put("actionToInterfere",operation );
-//		req.put("forcedResponse","Duplicate" );
+
 		req.put("forcedResponse",failureReason);
 		req.put("delayInExecution",Integer.toString(delay));
 		req.put("errorCode",statusCode);
@@ -546,9 +539,12 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 		req.put("source","REGISTRATION_CLIENT");
 		req.put("supervisorStatus","APPROVED");
 		
+		//To do -- We need to mark supervisor status as approved or rejected conditionally 
 		VariableManager.setVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS", "APPROVED");	
-		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "");
-		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "");
+		
+	// Need to review these two below tags once the conclusion happens what tags will be set on the packet	
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger", "MOSIP-FINGER01-2345678901");
+		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face", "MOSIP-FACE01-2345678901");
 		
 		logger.debug("Tags set while generating the packet: "
 				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId")

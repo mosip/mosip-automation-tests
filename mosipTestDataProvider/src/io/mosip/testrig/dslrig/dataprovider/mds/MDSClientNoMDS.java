@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.dataprovider.mds;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -23,7 +24,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class MDSClientNoMDS implements MDSClientInterface {
-	private static Random rand = new Random();
+	private static SecureRandom  rand = new SecureRandom ();
 	private static final Logger logger = LoggerFactory.getLogger(MDSClientNoMDS.class);
 
 	Hashtable<String,MDSDataModel> profileData;
@@ -194,7 +195,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 				/*
 				BioMetricsDataDto bioMetricsData = oB.readValue(
 						Base64.getDecoder()
-								.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
+								.decode(new String(ComonUtil.read(System.getProperty("user.dir")
 										+ "/files/MockMDS/registration/" + segment + ".txt")))),
 						BioMetricsDataDto.class);
 				list.add(bioMetricsData);

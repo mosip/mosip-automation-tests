@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,6 +23,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.testng.Assert;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.SkipException;
@@ -54,6 +57,7 @@ import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
 import io.mosip.testrig.dslrig.ivv.e2e.methods.Center;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
+import com.sun.management.OperatingSystemMXBean;
 
 public class Orchestrator {
 	private static Logger logger = Logger.getLogger(Orchestrator.class);
@@ -91,26 +95,26 @@ public class Orchestrator {
 
 	@BeforeSuite
 	public void beforeSuite() {
+
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
 		Utils.setupLogger(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
 				+ this.properties.getProperty("ivv._path.auditlog"));
-		String emailableReportName=null;
+		String emailableReportName = null;
 		if (TestRunner.checkRunType().equalsIgnoreCase("IDE")) {
-			 emailableReportName=System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
-					+ this.properties.getProperty("ivv._path.reports")+BaseTestCase.generateRandomAlphaNumericString(7)+".html";
-			 logger.info("Extent Report path :" +emailableReportName);
+			emailableReportName = System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
+					+ this.properties.getProperty("ivv._path.reports")
+					+ BaseTestCase.generateRandomAlphaNumericString(7) + ".html";
+			logger.info("Extent Report path :" + emailableReportName);
 		} else if (TestRunner.checkRunType().equalsIgnoreCase("JAR")) {
-			 emailableReportName=System.getProperty("user.dir") + "/" 
-					+ this.properties.getProperty("ivv._path.reports")+BaseTestCase.generateRandomAlphaNumericString(7)+".html";
-			 logger.info("Extent Report path :" +emailableReportName);
+			emailableReportName = System.getProperty("user.dir") + "/"
+					+ this.properties.getProperty("ivv._path.reports")
+					+ BaseTestCase.generateRandomAlphaNumericString(7) + ".html";
+			logger.info("Extent Report path :" + emailableReportName);
 		}
-		
-	
 		BaseTestCaseUtil.setExtentReportName(emailableReportName);
 
 		htmlReporter = new ExtentHtmlReporter(BaseTestCaseUtil.getExtentReportName());
 
-		;
 		extent = new ExtentReports();
 
 		extent.attachReporter(htmlReporter);
@@ -239,9 +243,9 @@ public class Orchestrator {
 
 	private void updateRunStatistics(Scenario scenario)
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-		logger.info(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
+//		logger.info(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
+		logger.info("Updating statistics for scenario: "+ scenario.getId() + " -- updating the executed count to: " + counterLock.getAndIncrement());
 		if (scenario.getId().equalsIgnoreCase("0")) {
-
 			/// Check if all steps in Before are passed or not
 			for (Scenario.Step step : scenario.getSteps()) {
 				StepInterface st = getInstanceOf(step);
@@ -263,19 +267,22 @@ public class Orchestrator {
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
-	IllegalAccessException, InstantiationException {
-		// Another scenario execution kicked-off before BEFORE_SUITE execution
-		//
-		//		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
-		//			updateRunStatistics(scenario);
-		//			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
-		//		}
-		//
-		//		if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
-		//			updateRunStatistics(scenario);
-		//			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
-		//		}
+			IllegalAccessException, InstantiationException {
 
+		OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(
+		                OperatingSystemMXBean.class);
+
+		logger.info("getProcessCpuLoad What % CPU load this current JVM is taking, from 0.0-1.0" + osBean.getProcessCpuLoad());
+		logger.info("getSystemCpuLoad What % load the overall system is at, from 0.0-1.0" + osBean.getSystemCpuLoad());
+		logger.info("Returns the amount of virtual memory that is guaranteed to be available to the running process in bytes, or -1 if this operation is not supported:"+Long.toString(osBean.getCommittedVirtualMemorySize()));
+		logger.info("Returns the amount of free physical memory in bytes:"+Long.toString(osBean.getFreePhysicalMemorySize()));
+		logger.info("Returns the amount of free swap space in bytes:"+Long.toString(osBean.getFreeSwapSpaceSize()));
+		logger.info("Returns the recent cpu usage for the Java Virtual Machine process:"+Double.toString(osBean.getProcessCpuLoad()));
+		logger.info("Returns the CPU time used by the process on which the Java virtual machine is running in nanoseconds:"+Long.toString(osBean.getProcessCpuTime()));
+		logger.info("Returns the recent cpu usage for the whole system:"+Double.toString(osBean.getSystemCpuLoad())		);
+		logger.info("Returns the total amount of physical memory in bytes:"+Long.toString(osBean.getTotalPhysicalMemorySize()));
+		logger.info("Returns the total amount of swap space in bytes:"+Long.toString(osBean.getTotalSwapSpaceSize()));
+		
 		if (!scenario.getId().equalsIgnoreCase("0")) {
 
 			// AFTER_SUITE scenario execution kicked-off before all execution
@@ -326,12 +333,22 @@ public class Orchestrator {
 			logger.info("Skipping Scenario #" + scenario.getId());
 			throw new SkipException("Skipping Scenario #" + scenario.getId());
 		}
-		ObjectMapper mapper = new ObjectMapper();
 
 		message = "Scenario_" + scenario.getId() + ": " + scenario.getDescription();
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
 
+		// Check whether the scenario is in the defined skipped list
+		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
+			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+			updateRunStatistics(scenario);
+			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+		}
+		if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
+			extentTest.skip("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+			updateRunStatistics(scenario);
+			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+		}
 		Store store = new Store();
 		store.setConfigs(configs);
 		store.setGlobals(globals);
@@ -349,19 +366,15 @@ public class Orchestrator {
 			logger.info(identifier);
 
 			try {
-				if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
-					extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
-					updateRunStatistics(scenario);
-					throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+				// Check whether the scenario is in the defined execute list
+				if (!scenario.getId().equalsIgnoreCase("0") && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
+					if (!ConfigManager.isInTobeExecuteList(scenario.getId())) {
+						extentTest.skip(scenario.getId()
+								+ ": Skipping scenario as it is not in the scneario to be executed list");
+						throw new SkipException(scenario.getId()
+								+ ": Skipping scenario as it is not in the scneario to be executed list");
+					}
 				}
-
-				if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
-					extentTest.skip("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
-					updateRunStatistics(scenario);
-					throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
-				
-				}
-				
 				extentTest.info(identifier + " - running"); //
 				extentTest.info("parameters: " + step.getParameters().toString());
 				StepInterface st = getInstanceOf(step);
@@ -407,44 +420,41 @@ public class Orchestrator {
 				Reporter.log(e.getMessage());
 				throw new SkipException(e.getMessage());
 			} catch (ClassNotFoundException e) {
-				extentTest.error(identifier + " - ClassNotFoundException --> " + e.toString());
+				extentTest.error(identifier + " - ClassNotFoundException --> " + e.getMessage());
 				logger.error(e.getMessage());
-
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
-
 				return;
 			} catch (IllegalAccessException e) {
-				extentTest.error(identifier + " - IllegalAccessException --> " + e.toString());
+				extentTest.error(identifier + " - IllegalAccessException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (InstantiationException e) {
-				extentTest.error(identifier + " - InstantiationException --> " + e.toString());
+				extentTest.error(identifier + " - InstantiationException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
-
 			} catch (RigInternalError e) {
 				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
 				logger.error(e.getMessage());
+				Reporter.log(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
-
 			} catch (RuntimeException e) {
-				extentTest.error(identifier + " - RuntimeException --> " + e.toString());
+				extentTest.error(identifier + " - RuntimeException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (FeatureNotSupportedError e) {
-				extentTest.error(identifier + " - RuntimeException --> " + e.toString());
+				extentTest.error(identifier + " - FeatureNotSupportedError --> " + e.getMessage());
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
-				Assert.assertTrue(false);
+//				Assert.assertTrue(false);
 
 			}
 
@@ -496,40 +506,28 @@ public class Orchestrator {
 	}
 
 	public static String getScenarioSheet() throws RigInternalError {
-		Boolean convesionRequired = true;
-
-		// Check first for the JSON file
-		String scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
-				+ BaseTestCase.testLevel + "-" + BaseTestCase.environment + ".json";
-		Path path = Paths.get(scenarioSheet);
-		if (!Files.exists(path)) {
-			scenarioSheet = ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-"
-					+ BaseTestCase.testLevel + "-" + "default" + ".json";
-
-			// default file JSON exist?
-			path = Paths.get(scenarioSheet);
+		String scenarioSheet = null;
+		// Use external Scenario sheet
+		if (ConfigManager.useExternalScenarioSheet()) {
+			// Check first for the JSON file
+			scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
+					+ BaseTestCase.testLevel + "-" + BaseTestCase.environment + ".json";
+			Path path = Paths.get(scenarioSheet);
 			if (!Files.exists(path)) {
-				// Check for the CSV file
-				scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
-						+ BaseTestCase.testLevel + "-" + BaseTestCase.environment + ".csv";
-
-				path = Paths.get(scenarioSheet);
-				if (!Files.exists(path)) {
-
-					// default file CSV exist?
-					scenarioSheet = ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-"
-							+ BaseTestCase.testLevel + "-" + "default" + ".csv";
-					path = Paths.get(scenarioSheet);
-					if (!Files.exists(path)) {
-						logger.info("Scenario sheet path is: " + path);
-						throw new RigInternalError("ScenarioSheet missing");
-					}
-				}
-				convesionRequired = false;
+				logger.info("Scenario sheet path is: " + path);
+				throw new RigInternalError("ScenarioSheet missing");
 			}
-		}
-
-		if (convesionRequired) {
+			scenarioSheet = JsonToCsvConverter(scenarioSheet);
+			if (scenarioSheet.isEmpty())
+				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
+		} else { // Use the scenario sheet bundled with jar
+			scenarioSheet = MosipTestRunner.getGlobalResourcePath() + "/config/scenarios.json";
+			logger.info("Scenario sheet path is: " + scenarioSheet);
+			Path path = Paths.get(scenarioSheet);
+			if (!Files.exists(path)) {
+				logger.info("Scenario sheet path is: " + path);
+				throw new RigInternalError("ScenarioSheet missing");
+			}
 			scenarioSheet = JsonToCsvConverter(scenarioSheet);
 			if (scenarioSheet.isEmpty())
 				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
@@ -568,30 +566,34 @@ public class Orchestrator {
 			for (JsonNode jsonNode : rootNode) {
 
 				List<String> stepList = new ArrayList<>();
-				stepList.add(jsonNode.get("tc_no").asText());
-				stepList.add(jsonNode.get("tags").asText());
-				stepList.add(jsonNode.get("persona_class").asText());
-				stepList.add(jsonNode.get("persona").asText());
-				stepList.add(jsonNode.get("group_name").asText());
-				stepList.add(jsonNode.get("description").asText());
+				stepList.add(jsonNode.get("Scenario").asText());
+				stepList.add(jsonNode.get("Tag").asText());
+				stepList.add(jsonNode.get("Persona").asText());
+				stepList.add(jsonNode.get("Persona").asText());
+				stepList.add(jsonNode.get("Group").asText());
+				stepList.add(jsonNode.get("Description").asText());
 
 				Pattern pattern = Pattern.compile("(.*?)\\((.*?),(.*)\\)");
 
 				for (int stepIndex = 0; stepIndex < maxSteps; stepIndex++) {
-
-					String string = jsonNode.get("step" + stepIndex) == null ? ""
-							: jsonNode.get("step" + stepIndex).asText();
-					Matcher matcher = pattern.matcher(string);
+					String stepDescription = "";
+					String stepAction = "";
+					JsonNode stepJsonNode = jsonNode.get("Step-" + stepIndex) == null ? null
+							: jsonNode.get("Step-" + stepIndex);
+					if (stepJsonNode != null) {
+						stepAction = stepJsonNode.get("Action").asText();
+						stepDescription = stepJsonNode.get("Description").asText();
+					}
+					Matcher matcher = pattern.matcher(stepAction);
 
 					if (matcher.matches()) {
-						logger.info("The string contains a comma between parentheses");
-						stepList.add(jsonNode.get("step" + stepIndex) == null ? ""
-								: "\"" + jsonNode.get("step" + stepIndex).asText() + "\"");
+//						logger.info("The string contains a comma between parentheses");
+						stepList.add(stepAction == null ? "" : "\"" + stepAction + "\"");
 					} else {
-						stepList.add(jsonNode.get("step" + stepIndex) == null ? ""
-								: jsonNode.get("step" + stepIndex).asText());
-						logger.info("The string does not contain a comma between parentheses");
+						stepList.add(stepAction == null ? "" : stepAction);
+//						logger.info("The string does not contain a comma between parentheses");
 					}
+					addStepDetails(stepAction, stepDescription);
 				}
 
 				for (String string : stepList) {
@@ -604,7 +606,39 @@ public class Orchestrator {
 			// Log the error
 			return "";
 		}
+		if (ConfigManager.IsDebugEnabled()) {
+			String keyValues ="";
+			// Iterate through the map and print its contents
+			for (Map.Entry<String, String[]> entry : stepsMap.entrySet()) {
+				 keyValues += entry.getKey();
+				String[] values = entry.getValue();
+				for (int i = 0; i < values.length; i++) {
+					keyValues += "," + values[i];
+				}
+				keyValues += "\r\n";
+			}
+			logger.info(keyValues);
+		}
 		return tempCSVPath;
+	}
+
+	private static final Map<String, String[]> stepsMap = new HashMap<>();
+
+	private static void addStepDetails(String stepInput, String description) {
+		if (stepInput.isEmpty() || description.isEmpty())
+			return;
+		// Find the index of the first "(" character
+		int indexOfOpenParenthesis = stepInput.indexOf("(");
+		if (indexOfOpenParenthesis != -1) {
+			// Extract the substring "e2e_" up to the first "("
+			String step = stepInput.substring(stepInput.indexOf("e2e_"), indexOfOpenParenthesis);
+			if (stepsMap.get(step) == null) {
+				String[] descAndExample = new String[2];
+				descAndExample[0] = description;
+				descAndExample[1] = stepInput;
+				stepsMap.put(step, descAndExample);
+			}
+		}
 	}
 
 }

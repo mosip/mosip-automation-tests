@@ -11,6 +11,7 @@ import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
@@ -41,18 +42,22 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 		if(modules.length()>0 && modules.equalsIgnoreCase("packetcreator")) {
 			
 			// Check packet creator up or not..
+			try {
 			String packetcreatorUri=baseUrl +"/actuator/health";
 			String serviceStatus = checkActuatorNoAuth(packetcreatorUri);
-			
 			if (serviceStatus.equalsIgnoreCase("UP") == false) {
 				this.hasError=true;
 				throw new SkipException("Packet creator Not responding");
-				
 			}
-		
+			}
+			catch (Exception e) {
+				this.hasError = true;
+				logger.error(e.getMessage());
+				throw new RigInternalError("Connection Refused");
+			}
 		}
 		else {
-		uri=baseUrl + "/ping/"+ ConfigManager.IseSignetDeployed();
+		uri=baseUrl + "/ping/"+ ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET);
 		
 		Response response = getRequest(uri, "Health Check",step);
 		JSONObject res = new JSONObject(response.asString());

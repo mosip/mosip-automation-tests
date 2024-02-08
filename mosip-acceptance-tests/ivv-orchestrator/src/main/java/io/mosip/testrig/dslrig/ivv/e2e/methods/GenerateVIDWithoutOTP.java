@@ -89,7 +89,7 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 					else
 						step.getScenario().getVidPersonaProp().put(vid, uin);
 
-					System.out.println(step.getScenario().getVidPersonaProp());
+					logger.info(step.getScenario().getVidPersonaProp());
 				}
 
 			} catch (AuthenticationTestException | AdminTestException e) {

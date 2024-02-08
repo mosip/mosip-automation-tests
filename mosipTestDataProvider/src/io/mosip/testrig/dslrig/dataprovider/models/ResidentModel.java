@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.dataprovider.models;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Hashtable;
@@ -14,10 +15,14 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import lombok.Data;
+import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 @Data
 public class ResidentModel  implements Serializable {
@@ -112,21 +117,43 @@ public class ResidentModel  implements Serializable {
 		}	
 		return jsonStr;
 	}
+	
+	public void save() throws IOException {
+		Files.write(Paths.get(path), this.toJSONString().getBytes());
+	}
+	
+	
+//	public static ResidentModel readPersona(String filePath) throws IOException {
+//	    ObjectMapper mapper = new ObjectMapper();
+//	    try (InputStream inputStream = new FileInputStream(filePath)) {
+//	        ResidentModel model = mapper.readValue(inputStream, ResidentModel.class);
+//	        model.setPath(filePath);
+//	        return model;
+//	    }
+//	}
+	
 	public static ResidentModel readPersona(String filePath) throws IOException {
     	
     	ObjectMapper mapper = new ObjectMapper();
     	//mapper.registerModule(new SimpleModule().addDeserializer(Pair.class,new PairDeserializer()));
     //	mapper.registerModule(new SimpleModule().addSerializer(Pair.class, new PairSerializer()));
-    	byte[] bytes = Files.readAllBytes(Paths.get(filePath));
+    	byte[] bytes = CommonUtil.read(filePath);
     	ResidentModel model = mapper.readValue(bytes, ResidentModel.class);
 		model.setPath(filePath);
 		return model;
     }
+	
+	
+//	public void writePersona(String filePath) throws IOException {
+//	    ObjectMapper mapper = new ObjectMapper();
+//   try (OutputStream outputStream = new FileOutputStream(filePath)) {
+//	   mapper.writeValue(outputStream, this.toJSONString().getBytes());
+//
+//	    }
+//	}
+	
 	public void writePersona(String filePath) throws IOException {
 		Files.write(Paths.get(filePath), this.toJSONString().getBytes());
-	}
-	public void save() throws IOException {
-		Files.write(Paths.get(path), this.toJSONString().getBytes());
 	}
 	public static void main(String [] args) {
 		
@@ -134,10 +161,9 @@ public class ResidentModel  implements Serializable {
 		Name name = new Name();
 		name.setFirstName("abcd ’'` efg");
 		model.setName(name);
-		System.out.println(model.toJSONString());
-
+		
 		try {
-			Files.write(Paths.get("test.json"), model.toJSONString().getBytes());
+			CommonUtil.write(Paths.get("test.json"), model.toJSONString().getBytes());
 		} catch (IOException e1) {
 			logger.error(e1.getMessage());
 		}
@@ -145,15 +171,17 @@ public class ResidentModel  implements Serializable {
     	ObjectMapper mapper = new ObjectMapper();
 
 		try {
-			byte[] bytes = Files.readAllBytes(Paths.get("test.json"));
+			byte[] bytes = CommonUtil.read("test.json");
 			ResidentModel m = mapper.readValue(model.toJSONString().getBytes(), ResidentModel.class);
-			System.out.println(m.getName().getFirstName());
+			logger.info(m.getName().getFirstName());
 			
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
 	}			
     
+	
+	
 	public JSONObject loadDemoData() {
 		JSONObject demodata = new JSONObject();
 		demodata.put("id", id);

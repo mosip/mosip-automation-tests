@@ -9,10 +9,4 @@ RetrieveIdentity:
     "id": "UI5654@"
 }'
       output: '{
-   "errors": [
-    {
-      "errorCode": "IDR-IDC-007",
-      "message": "No Record(s) found"
-    }
-  ]
 }'

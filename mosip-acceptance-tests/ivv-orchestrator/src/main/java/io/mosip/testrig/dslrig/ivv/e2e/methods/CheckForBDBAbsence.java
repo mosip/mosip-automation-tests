@@ -64,11 +64,6 @@ public class CheckForBDBAbsence extends BaseTestCaseUtil implements StepInterfac
 
 			try {
 				checkForBDB.test(test);
-			} catch (AuthenticationTestException e) {
-				logger.error(e.getMessage());
-			} catch (AdminTestException e) {
-				logger.error(e.getMessage());
-			}
 
 			Response response = checkForBDB.response;
 			JSONObject responseJson = new JSONObject(response.asString());
@@ -91,8 +86,6 @@ public class CheckForBDBAbsence extends BaseTestCaseUtil implements StepInterfac
 
 			BIR bir = null;
 			Map<String, String> finalMap = new HashMap<>();
-
-			try {
 				bir = CbeffValidator.getBIRFromXML(decodedBytes);
 
 				boolean isXmlValid = CbeffValidator.validateXML(bir);
@@ -129,7 +122,9 @@ public class CheckForBDBAbsence extends BaseTestCaseUtil implements StepInterfac
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				this.hasError = true;
+				logger.error(e.getMessage());
+				throw new RigInternalError("Unable to perform modality check ");
 			}
 		}
 	}

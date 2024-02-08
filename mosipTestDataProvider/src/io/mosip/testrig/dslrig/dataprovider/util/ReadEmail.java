@@ -16,15 +16,6 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeMultipart;
 
-/*import jakarta.mail.BodyPart;
-import jakarta.mail.Flags;
-import jakarta.mail.Folder;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.Session;
-import jakarta.mail.Store;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMultipart;*/
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +27,7 @@ public class ReadEmail {
 	public static String gmailPOPHost = "pop.gmail.com";
 	static String mailStoreType = "pop3";  
 	static String username= "sanath.test.mosip@gmail.com";  
-	static String password= "Sanath@Mosip@123";//change accordingly  
+	static String password= "";//change accordingly  
 	static String regexpattern = "\\d+";
 	public static String messageSubject="Requesting the additional details for progressing on the application of UIN";
 	
@@ -45,12 +36,12 @@ public class ReadEmail {
 		
 		List<String> mails =  receiveEmail(gmailPOPHost, mailStoreType, username, password);  
 		for(String s: mails) {
-			System.out.println("S==" +s);
+		
 			 Pattern pattern = Pattern.compile(regexpattern);
 			 Matcher matcher = pattern.matcher(s);
 			 if (matcher.find())
 			 {
-				 System.out.println(matcher.group());
+				 logger.info(matcher.group());
 				 otps.add(matcher.group());
 			 }
 		 }
@@ -62,15 +53,14 @@ public class ReadEmail {
 		gmailPOPHost = "pop.gmail.com";
 		mailStoreType = "pop3";  
 		username= "alok1.test.mosip@gmail.com";  
-		password= "alok@Mosip@123";//change accordingly  
+		password= "";//change accordingly  
 		String keyWord = "AdditionalInfoRequestId";
 		
 		List<String> mails = receiveEmail(gmailPOPHost, mailStoreType, username, password);
 		for (String s : mails) {
-			System.out.println("S==" + s);
 			int position = s.indexOf(keyWord);
 			String additionalInfoReqId = s.substring(position).split(" ")[1];
-			System.out.println(additionalInfoReqId);
+			logger.info(additionalInfoReqId);
 			additionalInfoReqIds.add(additionalInfoReqId);
 		}
 		return additionalInfoReqIds;
@@ -90,7 +80,7 @@ public class ReadEmail {
 
 				Session emailSession = Session.getInstance(properties);
 
-				// emailSession.setDebug(true);
+				
 
 				// 2) create the POP3 store object and connect with the pop server
 				Store emailStore = emailSession.getStore(storeType);
@@ -106,13 +96,13 @@ public class ReadEmail {
 					Message message = messages[i];
 					if (!message.getSubject().toLowerCase().contains("uin"))
 						continue;
-					System.out.println("---------------------------------");
-					System.out.println("Email Number " + (i + 1));
-					System.out.println("Subject: " + message.getSubject());
-					System.out.println("From: " + message.getFrom()[0]);
+					logger.info("---------------------------------");
+					logger.info("Email Number {}" , (i + 1));
+					logger.info("Subject: {}" , message.getSubject());
+					logger.info("From: {}" , message.getFrom()[0]);
 					MimeMultipart content = (MimeMultipart) message.getContent();
 					String bodyMsg = getTextFromMimeMultipart(content);
-					System.out.println("Body Message: " + bodyMsg);
+					
 					if (message.getFrom()[0].toString().toLowerCase().contains("mosip")) {
 						mailMessage.add(bodyMsg);
 						message.setFlag(Flags.Flag.DELETED, true);
@@ -133,7 +123,7 @@ public class ReadEmail {
 		 getadditionalInfoReqIds();
 		 List<String> otps = getOtps();
 		 for(String ss: otps) {
-			 System.out.println(ss);
+			 logger.info(ss);
 		 }	  
 	 }  
 	 private static String getTextFromMimeMultipart( MimeMultipart mimeMultipart)  throws MessagingException, IOException{

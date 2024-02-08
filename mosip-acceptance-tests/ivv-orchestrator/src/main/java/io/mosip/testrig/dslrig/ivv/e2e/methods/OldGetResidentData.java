@@ -57,7 +57,7 @@ public class OldGetResidentData extends BaseTestCaseUtil implements StepInterfac
 				String resFilePath = obj.get("path").toString();
 				step.getScenario().getResidentTemplatePaths().put(resFilePath, null);
 			}
-			System.out.println("RESIDENTTEMPLATEPATHS: " + step.getScenario().getResidentTemplatePaths());
+			logger.info("RESIDENTTEMPLATEPATHS: " + step.getScenario().getResidentTemplatePaths());
 
 		}
 	}

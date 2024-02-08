@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -22,7 +23,8 @@ import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 
 public class LocationProvider {
-	private static Random rand = new Random();
+	private static SecureRandom rand = new SecureRandom();
+	
 	private static final Logger logger = LoggerFactory.getLogger(LocationProvider.class);
 
 	public static ApplicationConfigIdSchema generate( String langCode, int count,String contextKey) {
@@ -81,11 +83,10 @@ public class LocationProvider {
 				if(rootLoc != null) {
 					
 					for(int i=1; i < locHierachies.length; i++) {
-						//List<MosipLocationModel> list = MosipMasterData.getLocationsByLevel(locHierachies[i].getHierarchyLevelName());
 						list = MosipMasterData.getImmedeateChildren(rootLoc.getCode(), langcode ,contextKey );
 				
 						if(list != null && !list.isEmpty()) {
-							int pos = 0;//CommonUtil.generateRandomNumbers(1, list.size()-1, 0)[0];
+							int pos = 0;
 							rootLoc = list.get(pos);
 							locations.add( rootLoc );
 						}
