@@ -62,14 +62,11 @@ public class GetPhoneByUIN extends BaseTestCaseUtil implements StepInterface {
 				}
 				JSONObject identityData = responseData.getJSONObject("identity");
 				phone = identityData.getString("phone");
-			} catch (AuthenticationTestException e) {
-				logger.error(e.getMessage());
-			} catch (AdminTestException e) {
-				logger.error(e.getMessage());
-			} catch (Exception e) {
-				logger.error(e.getMessage());
+			}catch (AuthenticationTestException | AdminTestException e) {
+                                logger.error(e.getMessage()); 
+                       } catch (Exception e) {
+                                logger.error(e.getMessage());
 			}
-
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().put(step.getOutVarName(), phone);
 		}
