@@ -47,6 +47,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 		String vidtype = null;
 		List<String> uinList = null;
 		String emailId = "";
+		boolean getOtpByPhone = Boolean.FALSE;
 		String vid = "";
 		// String transactionID = (step.getScenario().getId() +
 		// RandomStringUtils.randomNumeric(8)).substring(0, 10);
@@ -77,6 +78,10 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 
 		if (step.getParameters().size() == 3 && step.getParameters().get(2).startsWith("$$")) {
 			emailId = step.getParameters().get(2); // "$$vid=e2e_GenerateVID(Perpetual,$$uin,$$email)"
+
+			if (emailId.contentEquals("$$phone"))
+				getOtpByPhone = true;
+
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
 			}
@@ -91,9 +96,10 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 				String input = test.getInput();
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, vidtype, "vidType");
-
-				input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
-
+				if (getOtpByPhone)
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId + "@phone", "otp");
+				else
+					input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "sendOtp.individualId");
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionID, "sendOtp.transactionID");
 				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionID, "transactionID");

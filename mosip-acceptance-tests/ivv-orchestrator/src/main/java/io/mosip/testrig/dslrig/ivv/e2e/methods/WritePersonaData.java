@@ -92,8 +92,8 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 
 		}
 		writeJSONArrayToFile(jsonArray, jsonFilePath);
-		File jsonFile = new File(jsonFilePath);
 		if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
+			File jsonFile = new File(jsonFilePath);
 			S3Adapter s3Adapter = new S3Adapter();
 			boolean isStoreSuccess = false;
 			try {
