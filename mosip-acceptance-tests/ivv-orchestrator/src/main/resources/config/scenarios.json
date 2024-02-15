@@ -4739,7 +4739,7 @@
 			"Description": "Generates the persona data",
 			"Input Parameters": "Details are in parameters in-line comments",
 			"Return Value": "Persona file path",
-			"Action": "$$personaFilePath=e2e_getResidentData(1/*ADD_COMMMENT*/,adult,false/*ADD_COMMMENT*/,Male,gender)"
+			"Action": "$$personaFilePath=e2e_getResidentData(1/*ADD_COMMMENT*/,adult,false/*ADD_COMMMENT*/,Male)"
 		},
 		"Step-5": {
 			"Description": "Generates packet template based on the persona data",
@@ -4751,7 +4751,7 @@
 			"Description": "Genertes and uploads packet with given persona and packet template skipping pre-registration step",
 			"Input Parameters": "Persona file path and template file path",
 			"Return Value": "RID",
-			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
+			"Action": "$$rid=e2e_uploadPacketWithInvalidHash($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
 			"Description": "Checks the RID status against given packet processing status",
@@ -4760,10 +4760,10 @@
 			"Action": "e2e_checkStatus(reregister,$$rid)"
 		},
 		"Step-8": {
-			"Description": "Updates Demo graphic details and biometric in the persona file",
-			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(gender,0/*ADD_COMMMENT*/,0/*ADD_COMMMENT*/,$$personaFilePath)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
 		},
 		"Step-9": {
 			"Description": "Generates packet template based on the persona data",
@@ -4787,43 +4787,7 @@
 			"Description": "Gets the UIN for the given RID",
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
-			"Action": "$$uin2=e2e_getUINByRid($$rid2)"
-		},
-		"Step-13": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
-		},
-		"Step-14": {
-			"Description": "Gets Email ID configuired for the UIN",
-			"Input Parameters": "UIN",
-			"Return Value": "Email ID",
-			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
-		},
-		"Step-15": {
-			"Description": "Gets the credentials request ID",
-			"Input Parameters": "UIN and Email ID",
-			"Return Value": "Request ID",
-			"Action": "$$requestId=e2e_credentialRequest($$uin2,$$email)"
-		},
-		"Step-16": {
-			"Description": "Check credentials status",
-			"Input Parameters": "Request ID",
-			"Return Value": "NA",
-			"Action": "e2e_checkCredentialStatus($$requestId)"
-		},
-		"Step-17": {
-			"Description": "<Down loads the card",
-			"Input Parameters": "Credential request ID",
-			"Return Value": "NA",
-			"Action": "e2e_downloadCard($$requestId)"
-		},
-		"Step-18": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+			"Action": "$$uin=e2e_getUINByRid($$rid2)"
 		}
 	},
 	{
@@ -6196,10 +6160,10 @@
 			"Action": "e2e_getPingHealth()"
 		},
 		"Step-4": {
-			"Description": "Performs health check of required server components to run end-to-end scenarios",
+			"Description": "Skips the step",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
-			"Action": "e2e_getPingHealth()"
+			"Action": "e2e_skip()"
 		},
 		"Step-5": {
 			"Description": "Generates persona data",
