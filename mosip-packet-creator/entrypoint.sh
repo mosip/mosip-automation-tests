@@ -16,7 +16,7 @@ IFS=$'\n'
 
 # Iterate over the files
 for file in $files; do
-  dir_name=$(dirname \"$file\" | sed 's/\/tmp\///g');
+  dir_name=$(dirname $file | sed 's/\/tmp\///g');
   file="$( echo $file | sed 's/\\ / /g' )"
   file_name=$(basename $file)
   echo "file $file  file_name: $file_name"
