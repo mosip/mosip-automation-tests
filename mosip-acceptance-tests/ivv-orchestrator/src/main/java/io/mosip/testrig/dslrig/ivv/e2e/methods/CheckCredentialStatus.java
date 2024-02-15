@@ -68,7 +68,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 									+ " MilliSec");
 
 							if (getWithPathParam.response.getBody().asString().toLowerCase().contains("printed")
-									|| getWithPathParam.response.getBody().asString().toLowerCase().contains("printed"))
+									|| getWithPathParam.response.getBody().asString().toLowerCase().contains("printing"))
 								credentialIssued = true;
 						} catch (AuthenticationTestException | AdminTestException e) {
 							logger.error("Failed at checking Credential status with error: " + e.getMessage());
