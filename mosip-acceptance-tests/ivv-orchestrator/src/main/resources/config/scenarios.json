@@ -8954,30 +8954,30 @@
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
 			"Action": "$$details53=e2e_ReadPreReq(53/*PRE_REQUISITE_DATA_INDEX*/)"
-		},
+		},		
 		"Step-27": {
-			"Description": "Reads the pre-requisite data at the given index",
-			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
-			"Return Value": "Pre-requiste details",
-			"Action": "$$details531=e2e_ReadPreReq(531/*PRE_REQUISITE_DATA_INDEX*/)"
-		},
-		"Step-28": {
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
 			"Action": "e2e_wait(9)"
 		},
-		"Step-29": {
+		"Step-28": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$keyIndex=e2e_SyncData(TPM_VERIFY,$$details53,UPPER/*ADD_COMMMENT*/)"
 		},
-		"Step-30": {
+		"Step-29": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "e2e_SyncData(CLIENT_SETTINGS_VALID,$$keyIndex,53/*ADD_COMMMENT*/)"
+		},
+		"Step-30": {
+			"Description": "Reads the pre-requisite data at the given index",
+			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
+			"Return Value": "Pre-requiste details",
+			"Action": "$$details531=e2e_ReadPreReq(531/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-31": {
 			"Description": "<<<Step detailed description>>>",
