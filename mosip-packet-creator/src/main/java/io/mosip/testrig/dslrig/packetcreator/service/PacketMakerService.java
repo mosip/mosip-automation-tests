@@ -724,10 +724,12 @@ public class PacketMakerService {
 		 * Files.copy(src, destination, StandardCopyOption.REPLACE_EXISTING);
 		 */
 		CommonUtil.copyFileWithBuffer(src, destination);
-
-		Files.delete(Path.of(containerRootFolder + UNENCZIP));
-		FileSystemUtils.deleteRecursively(Path.of(containerRootFolder));
-
+		synchronized (this) {
+			Files.delete(Path.of(containerRootFolder + UNENCZIP));
+			FileSystemUtils.deleteRecursively(Path.of(containerRootFolder));
+	
+		}
+	
 		String containerMetaDataFileLocation = containerRootFolder + JSON;
 		return fixContainerMetaData(containerMetaDataFileLocation, regId, type, encryptedHash, signature);
 	}
