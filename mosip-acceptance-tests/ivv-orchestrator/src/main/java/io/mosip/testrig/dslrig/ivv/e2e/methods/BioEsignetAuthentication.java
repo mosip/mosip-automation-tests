@@ -296,9 +296,7 @@ public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepIn
 					for (Object object : casesList) {
 						TestCaseDTO test = (TestCaseDTO) object;
 						String input = test.getInput();
-						
 						input = JsonPrecondtion.parseAndReturnJsonContent(input, step.getScenario().getOidcClientProp().getProperty("urlEncodedResp2"), "encodedHash");
-						
 						packetUtility.esignetBioAuth(modalityToLog, bioValue, vid, transactionId2, deviceProp, test,
 								esignetBioAuth, input,step);
 					}
