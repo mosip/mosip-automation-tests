@@ -66,9 +66,10 @@ public class ContextUtils {
 			boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
 			if (isRequired)
 				generateKeyAndUpdateMachineDetail(pp, ctxName);
-
-			// Remove the temp directories created for the same context
-			clearPacketGenFolders(ctxName);
+		
+	// Remove the temp directories created for the same context	
+	// Commenting below line as it is impacting the scenarios where we need to reuse the persona file and documents with different set of data 	
+    //			clearPacketGenFolders(ctxName);
 
 		} catch (IOException e) {
 			logger.error("write:createUpdateServerContext " + e.getMessage());
