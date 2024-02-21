@@ -9,13 +9,15 @@ import org.testng.Assert;
 
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.testrig.apirig.testscripts.GetWithParam;
+
 import io.mosip.testrig.apirig.testscripts.GetWithQueryParam;
 import io.mosip.testrig.apirig.testscripts.PatchWithPathParam;
 import io.mosip.testrig.apirig.testscripts.PutWithPathParam;
-import io.mosip.testrig.apirig.testscripts.SimplePost;
+
 import io.mosip.testrig.apirig.testscripts.SimplePut;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
+import io.mosip.testrig.dslrig.ivv.e2e.restcall.GetWithParam;
+import io.mosip.testrig.dslrig.ivv.e2e.restcall.SimplePost;
 import io.restassured.response.Response;
 
 public class SyncDataHelper extends BaseTestCaseUtil {
@@ -73,7 +75,7 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 
 	}
 
-		public String verifyPublicKeyInvalid(HashMap<String, String> machineDetailsmap) throws RigInternalError {
+		public void verifyPublicKeyInvalid(HashMap<String, String> machineDetailsmap) throws RigInternalError {
 			try {
 				String errcodemsg =null;
 				Object[] testObjPost=simplepost.getYmlTestData(Publickeyverify);
@@ -93,22 +95,17 @@ public class SyncDataHelper extends BaseTestCaseUtil {
 				if (response!= null)
 				{
 					JSONObject jsonResp = new JSONObject(response.getBody().asString());
-					logger.info( jsonResp.getJSONArray("errors"));
-					JSONArray array=jsonResp.getJSONArray("errors");
-					errcodemsg=array.toString();
-					
-//					for(int arrseq=0;arrseq<array.length();arrseq++)
-//					{		
-//					//  = jsonResp.getJSONObject("response").getString("keyIndex"); 
-//					System.out.println(array.getJSONObject(arrseq).getString("errorCode"));
-//					System.out.println(array.getJSONObject(arrseq).getString("message"));
-//				}
-//					}
-//				logger.info("errcodemsg="+array.getJSONObject(arrseq).getString("errorCode") + array.getJSONObject(arrseq).getString("message"));
-//
-//				
-				}return errcodemsg;
-			} catch (Exception e) {
+						JSONArray JA_data=jsonResp.getJSONArray("errors");
+						for(int i = 0; i < JA_data .length(); i++)
+						{
+					     	   JSONObject obj = JA_data.getJSONObject(i);
+							   Assert.assertTrue(obj.getString("errorCode").contains("KER-SNC"));
+							   
+						}
+					}
+				
+			
+				} catch (Exception e) {
 				this.hasError=true;
 				throw new RigInternalError(e.getMessage());
 

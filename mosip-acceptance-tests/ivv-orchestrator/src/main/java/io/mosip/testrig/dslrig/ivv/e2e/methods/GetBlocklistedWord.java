@@ -56,7 +56,7 @@ public class GetBlocklistedWord extends BaseTestCaseUtil implements StepInterfac
 		} catch (Exception e) {
 			this.hasError = true;
 			logger.error(e.getMessage());
-			throw new RigInternalError("Unable to get blocklisted word ");
+			throw new RigInternalError(response.getBody().asString());
 		}
 	}
 }
