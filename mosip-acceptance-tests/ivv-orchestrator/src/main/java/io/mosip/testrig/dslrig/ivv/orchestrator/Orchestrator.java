@@ -454,13 +454,11 @@ public class Orchestrator {
 				Assert.assertTrue(false);
 				return;
 			} catch (FeatureNotSupportedError e) {
-				extentTest.error(identifier + " - FeatureNotSupportedError --> " + e.getMessage());
+//				extentTest.error(identifier + " - FeatureNotSupportedError --> " + e.getMessage());
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
 //				Assert.assertTrue(false);
-
 			}
-
 		}
 		updateRunStatistics(scenario);
 

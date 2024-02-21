@@ -68,25 +68,22 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 					}
 					identityData = responseData.getJSONObject("identity");
 
-				} catch (AuthenticationTestException | AdminTestException e) {
+					JSONObject json = new JSONObject();
+					json.put("EmailID", identityData.getString("email"));
+					json.put("PhoneNumber", identityData.getString("phone"));
+					json.put("DateOfBirth", identityData.getString("dateOfBirth"));
+					json.put("Gender", identityData.getJSONArray("gender").getJSONObject(0).getString("value"));
+					json.put("Address", identityData.getJSONArray("addressLine1").getJSONObject(0).getString("value"));
+					json.put("UIN", uin);
+					json.put("VID", vid);
+					json.put("fullName", identityData.getJSONArray("fullName").getJSONObject(0).getString("value"));
+					json.put("ID", personaCache.get("PersonaID"));
+					jsonArray.put(json);
+					// Write the updated JSON back to the file
+
+				} catch (Exception e) {
 					logger.error(e.getMessage());
 				}
-
-				JSONObject json = new JSONObject();
-
-				json.put("EmailID", identityData.getString("email"));
-				json.put("PhoneNumber", identityData.getString("phone"));
-				json.put("DateOfBirth", identityData.getString("dateOfBirth"));
-				json.put("Gender", identityData.getJSONArray("gender").getJSONObject(0).getString("value"));
-				json.put("Address", identityData.getJSONArray("addressLine1").getJSONObject(0).getString("value"));
-				json.put("UIN", uin);
-				json.put("VID", vid);
-				json.put("fullName", identityData.getJSONArray("fullName").getJSONObject(0).getString("value"));
-				json.put("ID", personaCache.get("PersonaID"));
-
-				jsonArray.put(json);
-				// Write the updated JSON back to the file
-
 			} else
 				continue;
 
@@ -97,8 +94,8 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 			S3Adapter s3Adapter = new S3Adapter();
 			boolean isStoreSuccess = false;
 			try {
-				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel,
-						null, null, "personaData.json", jsonFile);
+				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null, null,
+						"personaData.json", jsonFile);
 				logger.info("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {
 				logger.error("error occured while pushing the object" + e.getMessage());
