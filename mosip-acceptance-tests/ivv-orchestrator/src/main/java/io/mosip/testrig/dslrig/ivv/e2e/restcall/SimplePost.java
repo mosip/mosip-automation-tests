@@ -168,7 +168,7 @@ public class SimplePost extends AdminTestUtil implements ITest {
 			} else {
 				ouputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
 						getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()),
-						testCaseDTO.isCheckErrorsOnlyInResponse(), testCaseDTO.getAllowedErrorCodes(), response.getStatusCode());
+						testCaseDTO, response.getStatusCode());
 			
 			}
 
