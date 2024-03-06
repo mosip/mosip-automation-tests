@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.testrig.dslrig.dataprovider</groupId>
 	<artifactId>dslrig-dataprovider</artifactId>
-	<version>1.2.0.1-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<properties>
 		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
 	</properties>
@@ -240,7 +240,7 @@
 		<dependency>
 			<groupId>io.mosip.biometric.util</groupId>
 			<artifactId>biometrics-util</artifactId>
-			<version>1.2.0.1-B2-SNAPSHOT</version>
+			<version>1.2.0.1</version>
 		</dependency>
 
 		<dependency>
@@ -277,7 +277,7 @@
 			<dependency>
 			<groupId>io.mosip.mock.mds</groupId>
 			<artifactId>mock-mds</artifactId>
-			<version>1.2.0.1-B4</version>
+			<version>1.2.0.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

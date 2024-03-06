@@ -31,7 +31,7 @@
 	</parent>
 	<groupId>io.mosip.testrig.dslrig.packetcreator</groupId>
 	<artifactId>dslrig-packetcreator</artifactId>
-	<version>1.2.0.1-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>dslrig-packetcreator</name>
 	<description>dslrig-packetcreator</description>
 
@@ -143,7 +143,7 @@
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.dataprovider</groupId>
 			<artifactId>dslrig-dataprovider</artifactId>
-<version>1.2.0.1-SNAPSHOT</version>
+<version>1.0.0-SNAPSHOT</version>
 
 		</dependency>
 		<dependency>
@@ -173,7 +173,7 @@
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-websubclient-api</artifactId>
-			<version>1.2.0.1-B1</version>
+			<version>1.2.0.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.bouncycastle</groupId>
