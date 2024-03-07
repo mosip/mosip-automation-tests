@@ -1,7 +1,6 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import org.apache.log4j.Level;
@@ -47,23 +46,8 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		Properties props = new Properties();
 		Properties kernelprops = ConfigManager.propsKernel;
 		try {
-			props.putAll(kernelprops);
-			boolean same=false;
-			for (Map.Entry<String, String> entry : map.entrySet()) {
-				if(entry.getValue()!=null)
-				{String key = entry.getKey();
-				String val = entry.getValue();
-				
-				String propValue = props.getProperty(key);
-				
-				logger.info("key="+key + "Value="+val + "propvalue" + propValue);
-				if(propValue != null && val !=null && propValue.equalsIgnoreCase(val))
-				 same=true;
-				
-				if(same==false)
-					props.setProperty(entry.getKey(), entry.getValue());
-				}}
-			//props.putAll(map);
+		props.putAll(kernelprops);
+		props.putAll(map);
 
 			String path = (TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
 					+ appendedkey + ".properties");
