@@ -169,6 +169,20 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
+
+  publish_to_nexus:
+    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
+    needs: build-maven-automationtest
+    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
+    with:
+         SERVICE_LOCATION: ./
+    secrets:
+     OSSRH_USER: ${{ secrets.OSSRH_USER }}
+     OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+     OSSRH_URL: ${{ secrets.OSSRH_SNAPSHOT_URL }}
+     OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+     GPG_SECRET: ${{ secrets.GPG_SECRET }}
+     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
   sonar_analysis:
     needs: build-maven-automationtest
     if: "${{  github.event_name != 'pull_request' }}"
