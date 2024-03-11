@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +25,8 @@ public class CSVHelper {
 	String fileName;
 	CSVReader csvReader;
 	int recCount;
+	FileInputStream fis;
+	InputStreamReader isr;
 
 	public int getRecordCount() {
 		return recCount;
@@ -41,16 +44,17 @@ public class CSVHelper {
 		}
 		csvReader.close();
 	}
-
+	
 	public void open() throws FileNotFoundException, UnsupportedEncodingException {
-
-		try (FileInputStream inStream = new FileInputStream(fileName);
-				InputStreamReader filereader = new InputStreamReader(inStream, "UTF-8");) {
-			csvReader = new CSVReaderBuilder(filereader).withSkipLines(1).build();
-		} catch (IOException e) {
-			logger.error(e.getMessage());
+		try {
+			fis= new FileInputStream(fileName);
+			isr= new InputStreamReader(fis, StandardCharsets.UTF_8); 
+		csvReader = new CSVReaderBuilder(isr).withSkipLines(1).build();
 		}
 
+		catch (IOException e) {
+			logger.error(e.getMessage());
+		}
 	}
 
 	// pass an array of record numbers to read
@@ -89,6 +93,8 @@ public class CSVHelper {
 
 	public void close() throws IOException {
 		csvReader.close();
+		fis.close();
+		isr.close();
 	}
 
 	public List<String> readAttribute(int col, int[] recnos) throws IOException {
@@ -109,24 +115,23 @@ public class CSVHelper {
 			CSVHelper helper = new CSVHelper(VariableManager.getVariableValue("contextKey", "mountPath").toString()
 					+ VariableManager.getVariableValue("contextKey", "mosip.test.persona.namesdatapath").toString()
 					+ "/en/surnames.csv");
-			System.out.println(helper.getRecordCount());
 			helper.open();
 			List<String[]> recs = helper.readRecords(new int[] { 0, 15, 10, 20, 12 });
 			for (String[] r : recs) {
 
-				System.out.println(CommonUtil.toCaptialize(r[0]));
+				
 			}
 			helper.close();
 
 			helper = new CSVHelper(VariableManager.getVariableValue("contextKey", "mountPath").toString()
 					+ VariableManager.getVariableValue("contextKey", "mosip.test.persona.namesdatapath").toString()
 					+ "/ara/boy_names.csv");
-			System.out.println(helper.getRecordCount());
+			
 			helper.open();
 			recs = helper.readRecords(new int[] { 1, 15, 10, 20, 12 });
 			for (String[] r : recs) {
 
-				System.out.println(r[1]);
+				logger.info(r[1]);
 			}
 			helper.close();
 		} catch (IOException e) {
@@ -135,3 +140,4 @@ public class CSVHelper {
 
 	}
 }
+

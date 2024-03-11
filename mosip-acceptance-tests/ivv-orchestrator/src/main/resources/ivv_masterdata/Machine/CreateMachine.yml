@@ -22,7 +22,5 @@ CreateMachine:
     "requesttime": "$TIMESTAMP$"
   }'
       output: '{
-	"serialNum": "FB5962911687",
-	"ipAddress": "192.168.0.424",
 	"macAddress": "61-D3-FD-12-C9-ED"
 }'

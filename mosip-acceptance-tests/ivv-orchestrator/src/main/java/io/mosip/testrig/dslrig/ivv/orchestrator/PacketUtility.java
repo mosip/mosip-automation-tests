@@ -65,7 +65,7 @@ import io.restassured.response.Response;
 
 public class PacketUtility extends BaseTestCaseUtil {
 	static Logger logger = Logger.getLogger(PacketUtility.class);
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -102,7 +102,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	private static final String CENTERID = "centerId";
 	private static final String USERID = "userid";
 	private static final String PASSWORD = "password";
-	private static final String MOSIP_TEST_REGCLIENT_SUPERVISORPWD = "mosip.test.regclient.supervisorpwd";
+	private static final String MOSIP_TEST_REGCLIENT_supervisorP = "mosip.test.regclient.supervisorpwd";
 	private static final String USERPASSWORD = "userpassword";
 	private static final String VALID = "valid";
 	private static final String INVALID = "invalid";
@@ -132,7 +132,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	private static final String REQUEST = "request";
 	private static final String REQUESTTIME = "requesttime";
 	private static final String VERSION = "version";
-	public static String appointmentDate ="";
+	public static String appointmentDate = "";
 
 	public List<String> generateResidents(int n, Boolean bAdult, Boolean bSkipGuardian, String gender,
 			String missFields, HashMap<String, String> contextKey, Scenario.Step step) throws RigInternalError {
@@ -187,12 +187,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		if (ageCategory.equalsIgnoreCase("senior")) {
 			residentAttrib.put("Age", "RA_Senior");
-		}
-		else if (ageCategory.equalsIgnoreCase("minor")) {
+		} else if (ageCategory.equalsIgnoreCase("minor")) {
 			residentAttrib.put("Age", "RA_Minor");
 			residentAttrib.put(SKIPGAURDIAN, bSkipGuardian);
-		}
-		else if (ageCategory.equalsIgnoreCase("infant")) {
+		} else if (ageCategory.equalsIgnoreCase("infant")) {
 			residentAttrib.put("Age", "RA_Infant");
 			residentAttrib.put(SKIPGAURDIAN, bSkipGuardian);
 		}
@@ -218,7 +216,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
 		for (String residentPath : resPath) {
-
 			arr.put(residentPath);
 		}
 		jsonReq.put(PERSONAFILEPATH, arr);
@@ -226,9 +223,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 				+ genarateValidCbeff;
 		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
 
-		if ((templateResponse.getBody().asString().toLowerCase().contains("failed"))) {
+		if (!templateResponse.getBody().asString().toLowerCase().contains("packets")) {
 			this.hasError = true;
-			throw new RigInternalError("Unable to get Template from packet utility");
+			throw new RigInternalError(templateResponse.getBody().asString());
 		}
 
 		JSONObject jsonResponse = new JSONObject(templateResponse.asString());
@@ -301,7 +298,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePreRegStatus") + prid + "?statusCode=" + status;
 		Response response = putRequestWithQueryParam(url, map, "UpdatePreRegStatus", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, "", response.toString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, "", response.toString());
 		return (response.getBody().asString());
 
 	}
@@ -311,9 +308,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 			this.hasError = true;
 			throw new RigInternalError("Expectations :  Empty response");
 		} else {
-			//Reporter.log(response); 
-		
-			GlobalMethods.ReportRequestAndResponse("","","", "", response.toString());
+			// Reporter.log(response);
+
+			GlobalMethods.ReportRequestAndResponse("", "", "", "", response.toString());
 			logger.info(response);
 		}
 	}
@@ -324,8 +321,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 			Reporter.log("STATUS_NOT_UPDATED_SUCESSFULLY");
 			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
 		} else {
-			//Reporter.log(response);
-			GlobalMethods.ReportRequestAndResponse("","","", "", response.toString());
+			// Reporter.log(response);
+			GlobalMethods.ReportRequestAndResponse("", "", "", "", response.toString());
 			logger.info(response);
 		}
 	}
@@ -335,23 +332,23 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + "/prereg/appointment/" + prid + "/" + nthSlot + "/" + bookOnHolidays;
 		JSONObject jsonReq = new JSONObject();
 		Response response = postRequest(url, jsonReq.toString(), "BookAppointment", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("appointment booked successfully")) {
 			this.hasError = true;
 			logger.info("bookAppointment Response is:" + response + " url: " + url);
 			throw new RigInternalError("Unable to BookAppointment from packet utility");
 		}
-		
-      String json = response.getBody().asString();
-        
-      JSONObject jsonObject = new JSONObject(json);
-      appointmentDate = jsonObject.getString("appointmentDate");
-      step.getScenario().getVidPersonaProp().put("appointmentDate", appointmentDate);
-		
-		//JSONObject responseObject = response.getJSONObject("response");
-		//JSONArray data = responseObject.getJSONArray("locations");
-		
-		//appointmentDate =response.getBody().
+
+		String json = response.getBody().asString();
+
+		JSONObject jsonObject = new JSONObject(json);
+		appointmentDate = jsonObject.getString("appointmentDate");
+		step.getScenario().getVidPersonaProp().put("appointmentDate", appointmentDate);
+
+		// JSONObject responseObject = response.getJSONObject("response");
+		// JSONArray data = responseObject.getJSONArray("locations");
+
+		// appointmentDate =response.getBody().
 		return response.getBody().asString();
 	}
 
@@ -365,11 +362,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PERSONAFILEPATH, arr);
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Generate And UploadPacket",
 				step);
-		
+
 		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			rid = jsonResp.getJSONObject(RESPONSE).getString("registrationId");
-			GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
+			GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		}
 		if (!response.getBody().asString().toLowerCase().contains(responseStatus)) {
 			this.hasError = true;
@@ -395,7 +392,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
 				"link Resident data with RID", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonwrapper.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to add Resident RID in resident data");
@@ -422,7 +419,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		map.put("UIN", uin);
 		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
 				"link Resident data with UIN", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonwrapper.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to add UIN in resident data");
@@ -466,7 +463,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			}
 			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
 			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid, step);
-			GlobalMethods.ReportRequestAndResponse("","",identityUrl + rid, "", response.getBody().asString());
+			GlobalMethods.ReportRequestAndResponse("", "", identityUrl + rid, "", response.getBody().asString());
 			String uin = response.asString();
 			updateResidentUIN(step.getScenario().getGeneratedResidentData().get(0), uin, step);
 		}
@@ -479,7 +476,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PR_RESIDENTLIST, residentAttrib);
 		jsonwrapper.put(REQUESTS, jsonReq);
 		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonwrapper.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + rid + " And linked to child </u></b>");
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
@@ -502,7 +499,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
 		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + step.getScenario().getRid_updateResident()
 				+ " And linked to child </u></b>");
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonwrapper.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
@@ -548,7 +545,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PR_RESIDENTLIST, residentAttrib);
 		jsonwrapper.put(REQUESTS, jsonReq);
 		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonwrapper.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
@@ -572,7 +569,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonwrapper.put(REQUESTS, jsonReq);
 		String url = baseUrl + props.getProperty(UPDATERESIDENTURL);
 		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonwrapper.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
@@ -654,7 +651,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORID, E2EConstants.SUPERVISOR_ID);
 		jsonReq.put(PREREG_PRECONFIGUREDOTP, E2EConstants.PRECONFIGURED_OTP);
 		Response response = postRequest(url, jsonReq.toString(), SETCONTEXT, step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to set context from packet utility");
@@ -715,7 +712,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("Female", "FLE");
 		jsonReq.put("Other", "OTH");
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
-		jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORPWD,
+		jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP,
 				(map.get(USERPASSWORD) != null) ? map.get(USERPASSWORD) : E2EConstants.USER_PASSWD);
 		if (status != null && !status.isBlank()) {
 			jsonReq.put("machineStatus", status);
@@ -724,10 +721,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 			jsonReq.put("mosip.version", mosipVersion);
 		}
 		Response response = postRequest(url, jsonReq.toString(), SETCONTEXT, step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
 			this.hasError = true;
-			throw new RigInternalError("Unable to set context from packet utility");
+			throw new RigInternalError(response.getBody().asString());
 		}
 		return response.getBody().asString();
 
@@ -735,8 +732,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
 
-			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,String consent,boolean changeSupervisorNameToDiffCase)
-			throws RigInternalError {
+			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,
+			String consent, boolean changeSupervisorNameToDiffCase, String invalidEncryptedHashFlag,
+			String invalidCheckSum , String invalidIdSchemaFlag) throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
 
@@ -757,7 +755,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} else {
 			jsonReq.put(SCENARIO, step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		}
-		
+
 		// id json mapping
 		jsonReq.put("IDSchemaVersion", getValueFromIdJson("IDSchemaVersion"));
 		jsonReq.put("uin", getValueFromIdJson("uin"));
@@ -770,7 +768,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("introducerUIN", getValueFromIdJson("introducerUIN"));
 		jsonReq.put("introducerRID", getValueFromIdJson("introducerRID"));
 		jsonReq.put("introducerName", getValueFromIdJson("introducerName"));
-		
+		jsonReq.put("invalidCheckSum", invalidCheckSum);
+		jsonReq.put("invalidIdSchemaFlag", invalidIdSchemaFlag);
+		jsonReq.put("invalidEncryptedHashFlag", invalidEncryptedHashFlag);
 		jsonReq.put("changeSupervisorNameToDiffCase", changeSupervisorNameToDiffCase);
 		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
@@ -791,6 +791,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("Female", "FLE");
 		jsonReq.put("Other", "OTH");
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
+		
+		jsonReq.put("langCode", BaseTestCase.languageCode);
 
 		jsonReq.put("validUIN", (map.get("$$uin") != null) ? map.get("$$uin") : "createnew");
 
@@ -814,7 +816,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 			jsonReq.put(PREREG_PASSWORD,
 					(map.get(USERPASSWORD) != null) ? map.get(USERPASSWORD) : E2EConstants.USER_PASSWD);
-			jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORPWD,
+			jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP,
 					(map.get(USERPASSWORD) != null) ? map.get(USERPASSWORD) : E2EConstants.USER_PASSWD);
 		} else if (negative.contains("@@")) { // to verify permutation and combination for metadata operationdata
 			String supervOpertoDetails[] = negative.split("@@");
@@ -830,10 +832,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 			if (supervOpertoDetails[1].equalsIgnoreCase("null")) // Don't add to the map
 			{
 			} else if (supervOpertoDetails[1].equalsIgnoreCase(VALID))
-				jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORPWD,
+				jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP,
 						(map.get(USERPASSWORD) != null) ? map.get(USERPASSWORD) : E2EConstants.USER_PASSWD);
 			else if (supervOpertoDetails[1].equalsIgnoreCase(INVALID))
-				jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORPWD, supervOpertoDetails[1]);
+				jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP, supervOpertoDetails[1]);
 
 			// For operatorid
 			if (supervOpertoDetails[2].equalsIgnoreCase("null")) // Don't add to the map
@@ -873,18 +875,19 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject JO = new JSONObject(map);
 
 		Response response = postRequest(url, mergeJSONObjects(JO, jsonReq, step).toString(), SETCONTEXT, step);
-		
+
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
 			this.hasError = true;
-			throw new RigInternalError("Unable to set context from packet utility");
+			throw new RigInternalError(response.getBody().asString());
 		}
 		return response.getBody().asString();
 
 	}
-	//  get value specific to key from actuator
+
+	// get value specific to key from actuator
 	private String getValueFromIdJson(String key) {
 		String value = AdminTestUtil.getValueFromAuthActuator("json-property", key);
-		String result = value.replaceAll("\\[\"|\"\\]", "");
+		String result = value.replaceAll("\\[|\\]", "").replaceAll("\"", "");
 		return result;
 	}
 
@@ -958,11 +961,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 												: arr[1].trim() + "@mosip.io")
 										: arr[1].trim()));
 				}
-				// Pass phone and email as empty 
+				// Pass phone and email as empty
 				else {
-			        String key = arr[0].trim();
-			            updateAttribute.put(key, "");
-			    }
+					String key = arr[0].trim();
+					updateAttribute.put(key, "");
+				}
 			}
 			jsonReqInner.put("updateAttributeList", updateAttribute);
 		}
@@ -1011,7 +1014,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		logger.info(jsonObject.toString());
 
 		Response response = putRequestWithBody(url, jsonObject.toString(), step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonObject.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonObject.toString(), response.getBody().asString());
 		if (!(response.getStatusCode() == 200)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update bio exception  from packet utility");
@@ -1030,6 +1033,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (expectedToPass == false) {
 			if (response.getBody().asString().contains("RPR-PKR-016")) {
 				return response.getBody().asString();
+			} else if (response.getBody().asString().contains("RPR-PKR-009")) {
+				return response.getBody().asString();
 			} else {
 				this.hasError = true;
 				throw new RigInternalError("Unable to do sync packet from packet utility");
@@ -1047,8 +1052,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
 			BioAuth bioAuth, Scenario.Step step) throws RigInternalError {
 
-		test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
-		test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
+		if(test.getTestCaseName().contains("EKYC")) {
+			test.setEndPoint(test.getEndPoint().replace("$kycPartnerKey$", kycPartnerKeyUrl));
+			test.setEndPoint(test.getEndPoint().replace("$kycPartnerName$", kycPartnerId));
+		}else {
+			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
+			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
+		}
+		
 		test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, INDIVIDUALID);
@@ -1138,7 +1149,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
 		Response response = getReqest(url, jsonReq.toString(), "Retrive BiometricData", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonReq.toString(), response.getBody().asString());
 		if (response.getBody().asString().equals("")) {
 			this.hasError = true;
 			throw new RigInternalError(
@@ -1161,16 +1171,16 @@ public class PacketUtility extends BaseTestCaseUtil {
 		logger.info("RESSURED: Sending a GET request to " + url);
 		logger.info("REQUEST: Sending a GET request to " + url);
 		url = addContextToUrl(url, step);
-		Response getResponse =null;
+		Response getResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
-			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").log()
-					.all().when().body(body).get(url).then().extract().response();
+			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").log().all()
+					.when().body(body).get(url).then().extract().response();
 			logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
+		} else {
+			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").when()
+					.body(body).get(url).then().extract().response();
 		}
-		else {
-			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").when().body(body).get(url).then().extract().response();
-		}
-		GlobalMethods.ReportRequestAndResponse("","",url, body, getResponse.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, body, getResponse.getBody().asString());
 		return getResponse;
 	}
 
@@ -1244,7 +1254,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + props.getProperty("mockAbis");
 		Response response = postRequestWithQueryParamAndBody(url, jsonreq.toString(), contextKey, "Mockabis Expectaion",
 				step);
-		GlobalMethods.ReportRequestAndResponse("","",url,  jsonreq.toString(), response.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonreq.toString(), response.getBody().asString());
 		logger.info("****" + response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
@@ -1266,16 +1276,15 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = System.getProperty(ENV_ENDPOINT) + props.getProperty("getMachine");
 		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token,
 				"Update machine detail with status[isActive=" + status + "]", step);
-		
-		GlobalMethods.ReportRequestAndResponse("","",url,  jsonPutReq.toString(), puttResponse.getBody().asString());
-		
+
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonPutReq.toString(), puttResponse.getBody().asString());
+
 		if (puttResponse.getBody().asString().toLowerCase().contains(ERRORCODE)) {
 			logger.error("unable to update machine detail");
 			this.hasError = true;
 			throw new RigInternalError("unable to update machine detail");
 		}
-		
-		
+
 		JSONObject jsonResp = new JSONObject(puttResponse.getBody().asString());
 		Boolean isActive = jsonResp.getJSONObject(RESPONSE).getBoolean(ISACTIVE);
 		return isActive;
@@ -1283,73 +1292,66 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public Response putReqestWithCookiesAndBody(String url, String body, String token, String opsToLog,
 			Scenario.Step step) {
-	
-		Response puttResponse =null;
+
+		Response puttResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 					.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).put(url).then().log().all().extract()
 					.response();
-		}
-		else {
+		} else {
 			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-					.accept("*/*").when().cookie(AUTHORIZATION, token).put(url).then().extract()
-					.response();
+					.accept("*/*").when().cookie(AUTHORIZATION, token).put(url).then().extract().response();
 		}
-		
-		GlobalMethods.ReportRequestAndResponse("","",url, body, puttResponse.getBody().asString());
-		
+
+		GlobalMethods.ReportRequestAndResponse("", "", url, body, puttResponse.getBody().asString());
+
 		return puttResponse;
 	}
 
 	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
-	Response posttResponse =null;
+		Response posttResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
-			 posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-						.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).post(url).then().log().all().extract()
-						.response();
-		}
-		else {
-			 posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-						.accept("*/*").when().cookie(AUTHORIZATION, token).post(url).then().extract()
-						.response();
+			posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+					.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).post(url).then().log().all()
+					.extract().response();
+		} else {
+			posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+					.accept("*/*").when().cookie(AUTHORIZATION, token).post(url).then().extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse("","",url, body, posttResponse.getBody().asString());
-		
+		GlobalMethods.ReportRequestAndResponse("", "", url, body, posttResponse.getBody().asString());
+
 		return posttResponse;
 	}
 
 	public Response patchReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
-		Response puttResponse =null;
+		Response puttResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
-			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-						.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).patch(url).then().log().all().extract()
-						.response();
+			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+					.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).patch(url).then().log().all()
+					.extract().response();
+		} else {
+			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
+					.accept("*/*").when().cookie(AUTHORIZATION, token).patch(url).then().extract().response();
 		}
-		else {
-			 puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
-						.accept("*/*").when().cookie(AUTHORIZATION, token).patch(url).then().extract()
-						.response();
-		}
-		GlobalMethods.ReportRequestAndResponse("","",url, body, puttResponse.getBody().asString());
-			return puttResponse;
+		GlobalMethods.ReportRequestAndResponse("", "", url, body, puttResponse.getBody().asString());
+		return puttResponse;
 	}
 
 	public Response patchRequestWithQueryParm(String url, HashMap<String, String> queryParam, String token,
 			String opsToLog) {
-	
-		Response patchResponse =null;
+
+		Response patchResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
 			patchResponse = given().relaxedHTTPSValidation().queryParams(queryParam)
-					.contentType(MediaType.APPLICATION_JSON).cookie(AUTHORIZATION, token).accept("*/*").log().all().when()
-					.patch(url).then().log().all().extract().response();
-		}
-		else {
+					.contentType(MediaType.APPLICATION_JSON).cookie(AUTHORIZATION, token).accept("*/*").log().all()
+					.when().patch(url).then().log().all().extract().response();
+		} else {
 			patchResponse = given().relaxedHTTPSValidation().queryParams(queryParam)
 					.contentType(MediaType.APPLICATION_JSON).cookie(AUTHORIZATION, token).accept("*/*").when()
 					.patch(url).then().extract().response();
 		}
-		GlobalMethods.ReportRequestAndResponse("","",url, "", patchResponse.getBody().asString());
+		GlobalMethods.ReportRequestAndResponse("", "", url, "", patchResponse.getBody().asString());
 		return patchResponse;
 	}
 
@@ -1375,8 +1377,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject jsonPutReq = requestBuilderDeviceRemap(jsonInput, zoneCode, regCenterId);
 		Response response = putReqestWithCookiesAndBody(PUTUSERURL, JSONValue.toJSONString(jsonPutReq), token,
 				"Remap device to different registration center", step);
-		GlobalMethods.ReportRequestAndResponse("","",PUTUSERURL, "", response.getBody().asString());
-		
+		GlobalMethods.ReportRequestAndResponse("", "", PUTUSERURL, "", response.getBody().asString());
+
 		return JsonPrecondtion.getValueFromJson(response.getBody().asString(), "response.regCenterId")
 				.equals(regCenterId) ? true : false;
 	}
@@ -1389,8 +1391,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = System.getProperty(ENV_ENDPOINT) + props.getProperty("getRegistrationCenter") + regCenterId
 				+ "/eng";
 		Response getResponse = getRequestWithCookiesAndPathParam(url, token, "Get zoneCode by regCenterId");
-		GlobalMethods.ReportRequestAndResponse("","",url, "", getResponse.getBody().asString());
-		
+		GlobalMethods.ReportRequestAndResponse("", "", url, "", getResponse.getBody().asString());
+
 		if (getResponse.getBody().asString().toLowerCase().contains(ERRORCODE)) {
 			logger.error("zoneCode not found for  :[" + regCenterId + "]");
 			this.hasError = true;
@@ -1449,9 +1451,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public Response getRequestWithCookiesAndPathParam(String url, String token, String opsToLog) {
-	Response getResponse = given().relaxedHTTPSValidation().cookie(AUTHORIZATION, token).log().all().when().get(url)
+		Response getResponse = given().relaxedHTTPSValidation().cookie(AUTHORIZATION, token).log().all().when().get(url)
 				.then().log().all().extract().response();
-		
+
 		return getResponse;
 	}
 
@@ -1506,9 +1508,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = System.getProperty(ENV_ENDPOINT) + props.getProperty("getRegistrationCenter");
 		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token,
 				"Update RegCenter details with status[isActive=]" + status, step);
-		
-		GlobalMethods.ReportRequestAndResponse("","",url, "", puttResponse.getBody().asString());
-		
+
+		GlobalMethods.ReportRequestAndResponse("", "", url, "", puttResponse.getBody().asString());
+
 		if (puttResponse.getBody().asString().toLowerCase().contains(ERRORCODE)) {
 			logger.error("unable to update RegCenter detail");
 			this.hasError = true;
@@ -1570,8 +1572,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = System.getProperty(ENV_ENDPOINT) + props.getProperty("putMachineToRemap");
 		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token, "Update machine detail",
 				step);
-		GlobalMethods.ReportRequestAndResponse("","",url, jsonPutReq.toString(), puttResponse.getBody().asString());
-		
+		GlobalMethods.ReportRequestAndResponse("", "", url, jsonPutReq.toString(), puttResponse.getBody().asString());
+
 		if (puttResponse.getBody().asString().toLowerCase().contains(ERRORCODE)) {
 			logger.error("unable to update machine detail");
 			this.hasError = true;
@@ -1584,8 +1586,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	private String updateToRemapUser(String url, String token, Scenario.Step step) throws RigInternalError {
 		Response puttResponse = putReqestWithCookiesAndNoBody(url, token, "Update user detail", step);
-		GlobalMethods.ReportRequestAndResponse("","",url, "", puttResponse.getBody().asString());
-		
+		GlobalMethods.ReportRequestAndResponse("", "", url, "", puttResponse.getBody().asString());
+
 		if (puttResponse.getBody().asString().toLowerCase().contains(ERRORCODE)) {
 			logger.error("unable to update user detail");
 			this.hasError = true;
@@ -1597,17 +1599,16 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public Response putReqestWithCookiesAndNoBody(String url, String token, String opsToLog, Scenario.Step step) {
-		Response puttResponse=null;
+		Response puttResponse = null;
 		if (ConfigManager.IsDebugEnabled()) {
-			puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON).accept("*/*")
-					.log().all().when().cookie(AUTHORIZATION, token).put(url).then().log().all().extract().response();
+			puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON).accept("*/*").log()
+					.all().when().cookie(AUTHORIZATION, token).put(url).then().log().all().extract().response();
+		} else {
+			puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON).accept("*/*").when()
+					.cookie(AUTHORIZATION, token).put(url).then().extract().response();
 		}
-		else {
-			puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON).accept("*/*")
-					.when().cookie(AUTHORIZATION, token).put(url).then().extract().response();
-		}
-		GlobalMethods.ReportRequestAndResponse("","",url, "", puttResponse.getBody().asString());
-		
+		GlobalMethods.ReportRequestAndResponse("", "", url, "", puttResponse.getBody().asString());
+
 		return puttResponse;
 	}
 

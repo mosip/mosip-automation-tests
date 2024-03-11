@@ -1,5 +1,9 @@
 package io.mosip.testrig.dslrig.packetcreator.service;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +40,7 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +54,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
@@ -65,7 +71,7 @@ public class PacketMakerService {
 	// String constants
 	private static final String MOSIPTEST_REGCLIENT_SUPERVISORID = "mosip.test.regclient.supervisorid";
 	private static final String MOSIP_TEST_REGCLIENT_USERID = "mosip.test.regclient.userid";
-	private static final String MOSIP_TEST_REGCLIENT_SUPERVISORPWD = "mosip.test.regclient.supervisorpwd";
+	private static final String MOSIP_TEST_REGCLIENT_supervisorP = "mosip.test.regclient.supervisorpwd";
 	private static final String MOSIP_TEST_REGCLIENT_PASSWORD = "mosip.test.regclient.password";
 	private static final String EVIDENCE = "evidence";
 	private static final String OPTIONAL = "optional";
@@ -84,7 +90,6 @@ public class PacketMakerService {
 	private static final String HASHSEQUENCE1 = "hashSequence1";
 	private static final String LABEL = "label";
 	private static final String CHANGESUPERVISORNAMETODIFFCASE = "changeSupervisorNameToDiffCase";
-	
 
 	private String tempLogPath;
 
@@ -116,10 +121,10 @@ public class PacketMakerService {
 	private String supervisorId;
 
 	@Value("${mosip.test.regclient.supervisorpwd}")
-	private String supervisorPwd;
+	private String supervisorP;
 
 	@Value("${mosip.test.regclient.password}")
-	private String officerPwd;
+	private String officerP;
 
 	@Value("${mosip.test.regclient.supervisorBiometricFileName}")
 	private String supervisorBiometricFileName;
@@ -215,10 +220,10 @@ public class PacketMakerService {
 					supervisorId = v.toString();
 				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_USERID)) {
 					officerId = v.toString();
-				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_SUPERVISORPWD)) {
-					supervisorPwd = v.toString();
+				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_supervisorP)) {
+					supervisorP = v.toString();
 				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_PASSWORD)) {
-					officerPwd = v.toString();
+					officerP = v.toString();
 				}
 			});
 		}
@@ -235,8 +240,8 @@ public class PacketMakerService {
 			if (tprocess != null)
 				process = tprocess;
 		}
-		RestClient.logInfo(contextKey,"packPacketContainer:src=" + src + ",process=" + process + "PacketRoot=" + tempPacketRootFolder
-				+ " regid=" + regId);
+		RestClient.logInfo(contextKey, "packPacketContainer:src=" + src + ",process=" + process + "PacketRoot="
+				+ tempPacketRootFolder + " regid=" + regId);
 		try {
 			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder), regId, "id"), regId, "id", contextKey);
 		} catch (Throwable e) {
@@ -274,7 +279,7 @@ public class PacketMakerService {
 	public String createPacketFromTemplate(String templatePath, String personaPath, String contextKey,
 			String additionalInfoReqId) throws Exception {
 
-		RestClient.logInfo(contextKey,"createPacketFromTemplate");
+		RestClient.logInfo(contextKey, "createPacketFromTemplate");
 
 		Path idJsonPath = null;
 		// Fix for change in Demodata
@@ -287,8 +292,8 @@ public class PacketMakerService {
 
 		String packetPath = createContainer((idJsonPath == null ? null : idJsonPath.toString()), templatePath, src,
 				process, null, contextKey, false, additionalInfoReqId);
-         if(RestClient.isDebugEnabled(contextKey))
-		  logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
+		if (RestClient.isDebugEnabled(contextKey))
+			logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
 		// newRegId
 		JSONObject retObj = new JSONObject();
 		retObj.put("packet", packetPath);
@@ -325,10 +330,10 @@ public class PacketMakerService {
 					officerId = v.toString();
 				} else if (k.toString().equals("mosip.version")) {
 					mosipVersion = v.toString();
-				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_SUPERVISORPWD)) {
-					supervisorPwd = v.toString();
+				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_supervisorP)) {
+					supervisorP = v.toString();
 				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_PASSWORD)) {
-					officerPwd = v.toString();
+					officerP = v.toString();
 				}
 			});
 		}
@@ -350,7 +355,7 @@ public class PacketMakerService {
 			if (tprocess != null)
 				process = tprocess;
 		}
-		RestClient.logInfo(contextKey,"src=" + src + ",process=" + process);
+		RestClient.logInfo(contextKey, "src=" + src + ",process=" + process);
 		String tempPacketRootFolder = createTempTemplate(templateLocation, appId);
 
 		// update document file here
@@ -382,20 +387,28 @@ public class PacketMakerService {
 	 * @param dataFile     - JSON file name whose content has to be merged
 	 * @return - the merged JSON as a generic map Map<?,?>
 	 */
-	Map<?, ?> mergeJSON(String templateFile, String dataFile) throws Exception {
-		try (InputStream inputStream = new FileInputStream(dataFile)) {
-			String dataToMerge = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-			JSONObject data = new JSONObject(dataToMerge);
+	/*
+	 * Map<?, ?> mergeJSON(String templateFile, String dataFile) throws Exception {
+	 * try (InputStream inputStream = new FileInputStream(dataFile)) { String
+	 * dataToMerge = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+	 * JSONObject data = new JSONObject(dataToMerge);
+	 * 
+	 * // SKV - custom json merge try (InputStream inputStream2 = new
+	 * FileInputStream(templateFile)) { String templateData = new
+	 * String(inputStream2.readAllBytes(), StandardCharsets.UTF_8); JSONObject data1
+	 * = new JSONObject(templateData);
+	 * 
+	 * JSONObject result = merge(data1, data); return result.toMap(); } // return
+	 * mergeJSON(templateFile, data); } }
+	 */
 
-			// SKV - custom json merge
-			try (InputStream inputStream2 = new FileInputStream(templateFile)) {
-				String templateData = new String(inputStream2.readAllBytes(), StandardCharsets.UTF_8);
-				JSONObject data1 = new JSONObject(templateData);
-
-				JSONObject result = merge(data1, data);
-				return result.toMap();
-			}
-			// return mergeJSON(templateFile, data);
+	public Map<?, ?> mergeJSON(String templateFile, String dataFile) throws Exception {
+		try (InputStream inputStream = new BufferedInputStream(new FileInputStream(dataFile));
+				InputStream inputStream2 = new BufferedInputStream(new FileInputStream(templateFile))) {
+			JSONObject data = new JSONObject(new JSONTokener(inputStream));
+			JSONObject data1 = new JSONObject(new JSONTokener(inputStream2));
+			JSONObject result = merge(data1, data);
+			return result.toMap();
 		}
 	}
 
@@ -405,17 +418,35 @@ public class PacketMakerService {
 	 * @param data         - JSONObject whose content has to be merged
 	 * @return - the merged JSON as a generic map Map<?,?>
 	 */
-	JSONObject mergeJSONObject(String templateFile, JSONObject data, String contextKey) throws Exception {
-		try (InputStream inputStream2 = new FileInputStream(templateFile)) {
-			String templateData = new String(inputStream2.readAllBytes(), StandardCharsets.UTF_8);
-			JSONObject data1 = new JSONObject(templateData);
-			RestClient.logInfo(contextKey, "templatejson:" + templateData);
-			RestClient.logInfo(contextKey,"preregjson:" + data.toString());
+	/*
+	 * JSONObject mergeJSONObject(String templateFile, JSONObject data, String
+	 * contextKey) throws Exception { try (InputStream inputStream2 = new
+	 * FileInputStream(templateFile)) { String templateData = new
+	 * String(inputStream2.readAllBytes(), StandardCharsets.UTF_8); JSONObject data1
+	 * = new JSONObject(templateData); RestClient.logInfo(contextKey,
+	 * "templatejson:" + templateData); RestClient.logInfo(contextKey,"preregjson:"
+	 * + data.toString()); JSONObject result = merge(data1, data);
+	 * RestClient.logInfo(contextKey,"mergedjson:" + result.toString());
+	 * 
+	 * return result;
+	 * 
+	 * } }
+	 */
+
+	public JSONObject mergeJSONObject(String templateFile, JSONObject data, String contextKey) throws Exception {
+		try (InputStream inputStream2 = new BufferedInputStream(new FileInputStream(templateFile))) {
+			JSONObject data1 = new JSONObject(new JSONTokener(inputStream2));
+			// Log strategically, especially if the JSON data is large
+			if (logger.isInfoEnabled()) {
+				logger.info("templatejson:" + data1.toString());
+				logger.info("preregjson:" + data.toString());
+			}
 			JSONObject result = merge(data1, data);
-			RestClient.logInfo(contextKey,"mergedjson:" + result.toString());
-
+			// Log strategically, especially if the merged JSON data is large
+			if (logger.isInfoEnabled()) {
+				logger.info("mergedjson:" + result.toString());
+			}
 			return result;
-
 		}
 	}
 
@@ -540,12 +571,12 @@ public class PacketMakerService {
 				} catch (FileAlreadyExistsException e) {
 					logger.error("already exists: " + e.getMessage());
 				}
-				Files.write(path, schemaJson.getBytes());
+				CommonUtil.write(path, schemaJson.getBytes());
 
 			}
 			JSONObject jbToMerge = schemaUtil.getPacketIDData(schemaJson, dataToMerge, type);
 
-			JSONObject mergedJsonMap = mergeJSONObject(templateFile, jbToMerge,contextKey);
+			JSONObject mergedJsonMap = mergeJSONObject(templateFile, jbToMerge, contextKey);
 
 			if (type.equals("id")) {
 				List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap, contextKey);
@@ -559,7 +590,7 @@ public class PacketMakerService {
 				} catch (FileAlreadyExistsException e) {
 					logger.error("already exists: " + e.getMessage());
 				}
-				Files.write(path, invalidIds.toString().getBytes());
+				CommonUtil.write(path, invalidIds.toString().getBytes());
 			}
 
 			if (!writeJSONFile(mergedJsonMap.toMap(), templateFile)) {
@@ -582,9 +613,7 @@ public class PacketMakerService {
 			String filePath = personaConfigPath + "/server.context." + contextKey + ".properties";
 			Properties p = new Properties();
 
-			try {
-				FileReader reader = new FileReader(filePath);
-
+			try (FileReader reader = new FileReader(filePath);){
 				p.load(reader);
 				reader.close();
 
@@ -596,31 +625,32 @@ public class PacketMakerService {
 			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerId", officerId, false);
 
 			supervisorId = p.getProperty(MOSIPTEST_REGCLIENT_SUPERVISORID);
-			
-			if( VariableManager.getVariableValue(contextKey, CHANGESUPERVISORNAMETODIFFCASE).toString().equalsIgnoreCase("true"))
-			      supervisorId = generateCaseConvertedString(supervisorId);
+
+			if (VariableManager.getVariableValue(contextKey, CHANGESUPERVISORNAMETODIFFCASE).toString()
+					.equalsIgnoreCase("true"))
+				supervisorId = generateCaseConvertedString(supervisorId);
 
 			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorId", supervisorId, false);
 
-			// officerPwd
-			officerPwd = p.getProperty(MOSIP_TEST_REGCLIENT_PASSWORD);
-			if (officerPwd != null && officerPwd.equals("invalid"))
-				officerPwd = FALSE; // invalid
-			else if (officerPwd != null && !officerPwd.equals(""))
-				officerPwd = "true"; // valid
+			// officerP
+			officerP = p.getProperty(MOSIP_TEST_REGCLIENT_PASSWORD);
+			if (officerP != null && officerP.equals("invalid"))
+				officerP = FALSE; // invalid
+			else if (officerP != null && !officerP.equals(""))
+				officerP = "true"; // valid
 			else
-				officerPwd = FALSE; // null
-			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerPassword", officerPwd, false);
+				officerP = FALSE; // null
+			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerPassword", officerP, false);
 
-			// supervisorPwd
-			supervisorPwd = p.getProperty(MOSIP_TEST_REGCLIENT_SUPERVISORPWD);
-			if (supervisorPwd != null && supervisorPwd.equals("invalid"))
-				supervisorPwd = FALSE; // invalid
-			else if (supervisorPwd != null && !supervisorPwd.equals(""))
-				supervisorPwd = "true"; // valid
+			// supervisorP
+			supervisorP = p.getProperty(MOSIP_TEST_REGCLIENT_supervisorP);
+			if (supervisorP != null && supervisorP.equals("invalid"))
+				supervisorP = FALSE; // invalid
+			else if (supervisorP != null && !supervisorP.equals(""))
+				supervisorP = "true"; // valid
 			else
-				supervisorPwd = FALSE; // null
-			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorPassword", supervisorPwd, false);
+				supervisorP = FALSE; // null
+			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorPassword", supervisorP, false);
 
 			// officerBiometricFileName
 			officerBiometricFileName = p.getProperty("mosip.test.regclient.officerBiometricFileName");
@@ -638,26 +668,27 @@ public class PacketMakerService {
 			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorBiometricFileName",
 					supervisorBiometricFileName, false);
 
-			updateAudit(packetRootFolder, regId,contextKey);
+			updateAudit(packetRootFolder, regId, contextKey);
 
 			LinkedList<String> sequence = updateHashSequence1(packetRootFolder);
 			LinkedList<String> operations_seq = updateHashSequence2(packetRootFolder);
 			if (preregId != null && preregId.equals("01")) // to generte invalid hash data
 			{
-				Files.write(Path.of(packetRootFolder, PACKET_DATA_HASH_FILENAME),
+				CommonUtil.write(Path.of(packetRootFolder, PACKET_DATA_HASH_FILENAME),
 						"PACKET_DATA_HASH_INVALID_DATA".getBytes());
-				Files.write(Path.of(packetRootFolder, PACKET_OPERATION_HASH_FILENAME),
+				CommonUtil.write(Path.of(packetRootFolder, PACKET_OPERATION_HASH_FILENAME),
 						"PACKET_OPERATION_HASH_INVALID_DATA".getBytes());
 			} else {
-				updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME,contextKey);
-				updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME,contextKey);
+				updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME, contextKey);
+				updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME, contextKey);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-//		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId", supervisorId);
-//		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId", officerId);
-//		VariableManager.setVariableValue(contextKey, "META_INFO-META_DATA-centerId", centerId);
+		
+		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId", supervisorId != null ? supervisorId : "");
+		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId", officerId != null ? officerId : "");
+		VariableManager.setVariableValue(contextKey, "META_INFO-META_DATA-centerId", centerId != null ? centerId : "");
 		return true;
 	}
 
@@ -669,23 +700,35 @@ public class PacketMakerService {
 		}
 
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-		String encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(
-				messageDigest.digest(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
+
+		String encryptedHashFlag = VariableManager.getVariableValue(contextKey, "invalidEncryptedHashFlag").toString();
+		String encryptedHash = null;
+
+		// Make encrypted hash as invalid if "invalidEncryptedHashFlag --yes"
+		if (encryptedHashFlag.equalsIgnoreCase("invalidEncryptedHash") && type.equals("id"))
+			encryptedHash = "INVALID_ENCRYPTED_HASH";
+		else
+			encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(
+					messageDigest.digest(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
 
 		String signature = Base64.getEncoder().encodeToString(
 				cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP)), contextKey));
 
 		Path src = Path.of(containerRootFolder + UNENCZIP);
+		Path destination = Path.of(VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+				+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
+				contextKey.replace(CONTEXT, ""), src.getFileName().toString());
 
-		Files.copy(src,
-				Path.of(VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
-						+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
-						contextKey.replace(CONTEXT, ""), src.getFileName().toString()),
-				StandardCopyOption.REPLACE_EXISTING);
-
-		Files.delete(Path.of(containerRootFolder + UNENCZIP));
-		FileSystemUtils.deleteRecursively(Path.of(containerRootFolder));
-
+		/*
+		 * Files.copy(src, destination, StandardCopyOption.REPLACE_EXISTING);
+		 */
+		CommonUtil.copyFileWithBuffer(src, destination);
+		synchronized (this) {
+			Files.delete(Path.of(containerRootFolder + UNENCZIP));
+			FileSystemUtils.deleteRecursively(Path.of(containerRootFolder));
+	
+		}
+	
 		String containerMetaDataFileLocation = containerRootFolder + JSON;
 		return fixContainerMetaData(containerMetaDataFileLocation, regId, type, encryptedHash, signature);
 	}
@@ -696,24 +739,46 @@ public class PacketMakerService {
 		boolean result = zipAndEncrypt(path, contextKey);
 
 		Path src = Path.of(path + UNENCZIP);
+		Path destination = Path.of(VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+				+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
+				contextKey.replace(CONTEXT, ""), src.getFileName().toString());
 
-		Files.copy(src,
+/*		Files.copy(src,
 				Path.of(VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 						+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
 						contextKey.replace(CONTEXT, ""), src.getFileName().toString()),
-				StandardCopyOption.REPLACE_EXISTING);
+				StandardCopyOption.REPLACE_EXISTING);*/
+		
+		CommonUtil.copyFileWithBuffer(src, destination);
 
 		Files.delete(Path.of(path + UNENCZIP));
 		return result;
 	}
 
-	private boolean zipAndEncrypt(Path zipSrcFolder, String contextKey) throws Exception {
+	/*
+	 * private boolean zipAndEncrypt(Path zipSrcFolder, String contextKey) throws
+	 * Exception { Path finalZipFile = Path.of(zipSrcFolder + UNENCZIP);
+	 * zipper.zipFolder(zipSrcFolder, finalZipFile,contextKey); try (FileInputStream
+	 * zipFile = new FileInputStream(finalZipFile.toFile().getAbsolutePath())) {
+	 * boolean result = cryptoUtil.encryptPacket(zipFile.readAllBytes(), centerId +
+	 * UNDERSCORE + machineId, Path.of(zipSrcFolder + ".zip").toString(),
+	 * contextKey); // Dont uncomment this: Files.delete(finalZipFile); if (!result)
+	 * { logger.error("Encryption failed!!! "); return false; } } return true; }
+	 */
+
+	public boolean zipAndEncrypt(Path zipSrcFolder, String contextKey) throws Exception {
 		Path finalZipFile = Path.of(zipSrcFolder + UNENCZIP);
-		zipper.zipFolder(zipSrcFolder, finalZipFile,contextKey);
-		try (FileInputStream zipFile = new FileInputStream(finalZipFile.toFile().getAbsolutePath())) {
-			boolean result = cryptoUtil.encryptPacket(zipFile.readAllBytes(), centerId + UNDERSCORE + machineId,
-					Path.of(zipSrcFolder + ".zip").toString(), contextKey);
-			// Dont uncomment this: Files.delete(finalZipFile);
+		// Use buffered streams
+		try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(
+				new FileOutputStream(finalZipFile.toFile()))) {
+			zipper.zipFolder(zipSrcFolder, bufferedOutputStream, contextKey);
+		}
+		try (BufferedInputStream zipFileInputStream = new BufferedInputStream(
+				new FileInputStream(finalZipFile.toFile().getAbsolutePath()))) {
+			boolean result = cryptoUtil.encryptPacket(zipFileInputStream.readAllBytes(),
+					centerId + UNDERSCORE + machineId, Path.of(zipSrcFolder + ".zip").toString(), contextKey);
+			// Uncomment the line below if the original zip file is not needed
+			// Files.delete(finalZipFile);
 			if (!result) {
 				logger.error("Encryption failed!!! ");
 				return false;
@@ -725,8 +790,11 @@ public class PacketMakerService {
 	private boolean writeJSONFile(Map<?, ?> jsonValue, String fileToWrite) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		ObjectWriter jsonWriter = objectMapper.writer();
-		try (FileOutputStream fos = new FileOutputStream(fileToWrite)) {
-			OutputStreamWriter writer = new OutputStreamWriter(fos, UTF8);
+//		try (FileOutputStream fos = new FileOutputStream(fileToWrite)) {
+//			OutputStreamWriter writer = new OutputStreamWriter(fos, UTF8);
+		try (FileOutputStream fos = new FileOutputStream(fileToWrite);
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+				OutputStreamWriter writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8)) {
 			jsonWriter.writeValue(writer, jsonValue);
 			return true;
 		} catch (Exception ex) {
@@ -858,56 +926,61 @@ public class PacketMakerService {
 		return centerId + machineId + counter + currUTCTime;
 	}
 
+
 	private LinkedList<String> updateHashSequence1(String packetRootFolder) throws Exception {
-		LinkedList<String> sequence = new LinkedList<>();
-		String metaInfo_json = Files.readString(Path.of(packetRootFolder, PACKET_META_FILENAME));
-		JSONObject metaInfo = new JSONObject(metaInfo_json);
-
-		metaInfo.getJSONObject(IDENTITY).put(HASHSEQUENCE1, new JSONArray());
-
-		sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "biometricSequence", sequence,
-				getBiometricFiles(packetRootFolder));
-
-		sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "demographicSequence", sequence,
-				getDemographicDocFiles(packetRootFolder));
-
-		Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), metaInfo.toString().getBytes(UTF8));
-
-		return sequence;
-	}
+        LinkedList<String> sequence = new LinkedList<>();
+        Path metaInfoPath = Path.of(packetRootFolder, PACKET_META_FILENAME);
+        JSONObject metaInfo;
+        try (BufferedReader reader = Files.newBufferedReader(metaInfoPath, StandardCharsets.UTF_8)) {
+            metaInfo = new JSONObject(reader.lines().collect(Collectors.joining()));
+        }
+        metaInfo.getJSONObject(IDENTITY).put(HASHSEQUENCE1, new JSONArray());
+        sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "biometricSequence", sequence,
+                getBiometricFiles(packetRootFolder));
+        sequence = updateHashSequence(metaInfo, HASHSEQUENCE1, "demographicSequence", sequence,
+                getDemographicDocFiles(packetRootFolder));
+        // Write the updated JSON metadata back to the file
+        try (BufferedWriter writer = Files.newBufferedWriter(metaInfoPath, StandardCharsets.UTF_8)) {
+            writer.write(metaInfo.toString());
+        }
+        return sequence;
+    }
+	
 
 	private LinkedList<String> updateHashSequence2(String packetRootFolder) throws Exception {
 		LinkedList<String> sequence = new LinkedList<>();
-		String metaInfo_json = Files.readString(Path.of(packetRootFolder, PACKET_META_FILENAME));
-		JSONObject metaInfo = new JSONObject(metaInfo_json);
-
+		Path metaInfoPath = Path.of(packetRootFolder, PACKET_META_FILENAME);
+		JSONObject metaInfo;
+		try (BufferedReader reader = Files.newBufferedReader(metaInfoPath, StandardCharsets.UTF_8)) {
+			metaInfo = new JSONObject(reader.lines().collect(Collectors.joining()));
+		}
 		metaInfo.getJSONObject(IDENTITY).put("hashSequence2", new JSONArray());
-
 		sequence = updateHashSequence(metaInfo, "hashSequence2", "otherFiles", sequence,
 				getOperationsFiles(packetRootFolder));
-
-		Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), metaInfo.toString().getBytes(UTF8));
-
+		// Write the updated JSON metadata back to the file
+		try (BufferedWriter writer = Files.newBufferedWriter(metaInfoPath, StandardCharsets.UTF_8)) {
+			writer.write(metaInfo.toString());
+		}
 		return sequence;
 	}
 
-	private void updatePacketDataHash(String packetRootFolder, LinkedList<String> sequence, String fileName,String contextKey)
-			throws Exception {
+	private void updatePacketDataHash(String packetRootFolder, LinkedList<String> sequence, String fileName,
+			String contextKey) throws Exception {
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		for (String path : sequence) {
-			out.write(Files.readAllBytes(Path.of(path)));
+			out.write(CommonUtil.read(path));
 		}
 		String packetDataHash = new String(Hex.encode(messageDigest.digest(out.toByteArray()))).toUpperCase();
 		// TODO - its failing with Hex.encoded hash, so using the below method to
 		// generate hash
 		String packetDataHash2 = DatatypeConverter.printHexBinary(messageDigest.digest(out.toByteArray()))
 				.toUpperCase();
-		if(RestClient.isDebugEnabled(contextKey)) {
-		logger.info("sequence packetDataHash >> {} ", packetDataHash);
-		logger.info("sequence packetDataHash2 >> {} ", packetDataHash2);
+		if (RestClient.isDebugEnabled(contextKey)) {
+			logger.info("sequence packetDataHash >> {} ", packetDataHash);
+			logger.info("sequence packetDataHash2 >> {} ", packetDataHash2);
 		}
-		Files.write(Path.of(packetRootFolder, fileName), packetDataHash2.getBytes());
+		CommonUtil.write(Path.of(packetRootFolder, fileName), packetDataHash2.getBytes());
 	}
 
 	private List<String> getBiometricFiles(String packetRootFolder) {
@@ -990,24 +1063,24 @@ public class PacketMakerService {
 			jsonObject.getJSONObject(IDENTITY).getJSONArray(parentKey).put(rid);
 		}
 
-		Files.write(Path.of(packetRootFolder, PACKET_META_FILENAME), jsonObject.toString().getBytes(UTF8));
+		CommonUtil.write(Path.of(packetRootFolder, PACKET_META_FILENAME), jsonObject.toString().getBytes(UTF8));
 	}
-	
-	 private String generateCaseConvertedString(String inputString) {
-         StringBuilder result = new StringBuilder();
-         for (char c : inputString.toCharArray()) {
-             if (Character.isUpperCase(c)) {
-                 result.append(Character.toLowerCase(c));
-             } else if (Character.isLowerCase(c)) {
-                 result.append(Character.toUpperCase(c));
-             } else {
-                 result.append(c);
-             }
-         }
-         return result.toString();
-  }
 
-	private void updateAudit(String path, String rid,String contextKey) {
+	private String generateCaseConvertedString(String inputString) {
+		StringBuilder result = new StringBuilder();
+		for (char c : inputString.toCharArray()) {
+			if (Character.isUpperCase(c)) {
+				result.append(Character.toLowerCase(c));
+			} else if (Character.isLowerCase(c)) {
+				result.append(Character.toUpperCase(c));
+			} else {
+				result.append(c);
+			}
+		}
+		return result.toString();
+	}
+
+	private void updateAudit(String path, String rid, String contextKey) {
 		Path auditfile = Path.of(path, "audit.json");
 		if (auditfile.toFile().exists()) {
 			try {
@@ -1017,8 +1090,8 @@ public class PacketMakerService {
 				}
 				Files.write(auditfile, newLines, StandardCharsets.UTF_8);
 			} catch (IOException e) {
-				if(RestClient.isDebugEnabled(contextKey))
-				logger.info("Failed to update audit.json", e);
+				if (RestClient.isDebugEnabled(contextKey))
+					logger.info("Failed to update audit.json", e);
 			}
 		}
 	}

@@ -138,7 +138,7 @@ public class NameProvider {
 		Gender recGender = Gender.Female;
 		
 		if(gender == Gender.Male) {
-		 resourceName_male = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.namesdatapath").toString()+"/%s/boy_names.csv";
+		 resourceName_male = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.namesdatapath").toString()+"/"+VariableManager.getVariableValue(contextKey,"langCode").toString()+"/boy_names.csv";
 			
 			resPath = String.format(resourceName_male, lang);
 			recGender = Gender.Male;
@@ -175,6 +175,7 @@ public class NameProvider {
 				names.add(name);
 				i++;
 			}
+			helper.close();
 		
 		} catch (IOException e) {
 			logger.error(e.getMessage());

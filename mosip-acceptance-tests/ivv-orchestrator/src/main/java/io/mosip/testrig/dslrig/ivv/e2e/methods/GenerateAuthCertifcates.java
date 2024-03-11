@@ -15,7 +15,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 public class GenerateAuthCertifcates extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(GenerateAuthCertifcates.class);
 	PartnerRegistration partnerRegistration=new PartnerRegistration();
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -29,15 +29,24 @@ public class GenerateAuthCertifcates extends BaseTestCaseUtil implements StepInt
 		PartnerRegistration.deleteCertificates();
 		CertificateGenerationUtil.getThumbprints();
 		AdminTestUtil.createAndPublishPolicy();
-		
+
 		PartnerRegistration.generateAndGetPartnerKeyUrl();
-		String partnerKeyUrl= PartnerRegistration.partnerKeyUrl;
+		//Genrating Kyc Certificate
+		AdminTestUtil.createAndPublishPolicyForKyc();
+		 	kycPartnerKeyUrl = PartnerRegistration.generateAndGetEkycPartnerKeyUrl();
+		
+		String uriPartsforkyc[] = kycPartnerKeyUrl.split("/");
+		kycPartnerId = uriPartsforkyc[uriPartsforkyc.length - 2];
+		BaseTestCaseUtil.kycPartnerKeyUrl=kycPartnerKeyUrl;
+		
+		
+		partnerKeyUrl= PartnerRegistration.partnerKeyUrl;
 		String uriParts[] = PartnerRegistration.partnerKeyUrl.split("/");
 		partnerId = uriParts[uriParts.length - 2];
-		System.out.println(partnerKeyUrl);
+		logger.info(partnerKeyUrl);
 		BaseTestCaseUtil.partnerKeyUrl=partnerKeyUrl;
-		System.out.println(partnerKeyUrl);
-		
-		
+		logger.info(partnerKeyUrl);
+
+
 	}
 }

@@ -1,8 +1,11 @@
 package io.mosip.testrig.dslrig.dataprovider.util;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +13,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,12 +32,15 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
+import java.io.*;
 
 public class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
-	private static Random rand = new Random();
+	private static SecureRandom rand = new SecureRandom();
 
 	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
@@ -94,7 +101,7 @@ public class CommonUtil {
 			Generex generex = new Generex(regex);
 
 			String randomStr = generex.random();
-			System.out.println(randomStr);
+			logger.info(randomStr);
 			// Generate all String that matches the given Regex.
 			boolean bFound = false;
 			do {
@@ -210,7 +217,7 @@ public class CommonUtil {
 
 	public static void saveToTemp(String data, String fileName) {
 		try {
-			Files.write(Paths.get("/temp/" + fileName), data.getBytes());
+			CommonUtil.write(Paths.get("/temp/" + fileName), data.getBytes());
 		} catch (IOException e) {
 		}
 	}
@@ -227,6 +234,70 @@ public class CommonUtil {
 		return props;
 	}
 
+	public static void copyFileWithBuffer(Path source, Path destination)  {
+		try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(source));
+				BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(destination))) {
+			byte[] buffer = new byte[8192]; // Adjust buffer size as needed
+			int bytesRead;
+			while ((bytesRead = in.read(buffer)) != -1) {
+				out.write(buffer, 0, bytesRead);
+			}
+			// Flush the buffered output stream
+			out.flush();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+	}
+
+	public static void copyMultipartFileWithBuffer(MultipartFile sourceFile, Path destination) {
+		try (InputStream inputStream = sourceFile.getInputStream();
+				BufferedOutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(destination))) {
+			// Define buffer size
+			byte[] buffer = new byte[8192];
+			int bytesRead;
+			// Read from the input stream and write to the output stream with buffering
+			while ((bytesRead = inputStream.read(buffer)) != -1) {
+				outputStream.write(buffer, 0, bytesRead);
+			}
+			// Flush the buffered output stream
+			outputStream.flush();
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+	}
+	
+	
+	public static void write(Path filePath, byte[] bytes) throws IOException {
+		Files.write(filePath, bytes);
+		
+//		ObjectMapper mapper = new ObjectMapper();
+//		try (OutputStream outputStream = new FileOutputStream(filePath.toString())) {
+//			mapper.writeValue(outputStream, bytes);
+//		}
+	}
+	
+	
+	public static void write( byte[] bytes,File file) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		try (OutputStream outputStream = new FileOutputStream(file)) {
+			mapper.writeValue(outputStream, bytes);
+		}
+	}
+	
+	public static  byte[] read(String path)
+	{
+		 byte[] data = null;
+		try {
+			data = Files.readAllBytes(Paths.get(path));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.error(e.getMessage());
+		}
+		 
+		 return data;
+	}
+	
+	
 	public static void main(String[] args) throws Exception {
 		String regex1 = "^|^0[5-7][0-9]{8}$";
 		String regex2 = "^[a-zA-Zء-ي٠-٩ ]{5,47}$";

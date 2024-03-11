@@ -46,24 +46,17 @@ public class GetBlocklistedWord extends BaseTestCaseUtil implements StepInterfac
 				JSONObject jsonObject = new JSONObject(response.getBody().asString());
 				JSONArray blocklistedWords = jsonObject.getJSONObject("response").getJSONArray("blocklistedwords");
 
-				if (blocklistedWords.length() > 0) {
-
 					blocklistedWord = blocklistedWords.getJSONObject(0).getString("word");
 					logger.info("blocklistedWord is :" + blocklistedWord);
-
 					if (step.getOutVarName() != null)
 						step.getScenario().getVariables().put(step.getOutVarName(), blocklistedWord);
 					return;
-
-				} else {
-					logger.error("No blocklisted word found in the response.");
-					this.hasError = true;
-				}
 			}
 
 		} catch (Exception e) {
 			this.hasError = true;
 			logger.error(e.getMessage());
+			throw new RigInternalError(response.getBody().asString());
 		}
 	}
 }

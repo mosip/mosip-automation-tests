@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,9 +28,12 @@ import org.testng.collections.Lists;
 import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
 
+import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
+import io.mosip.testrig.apirig.global.utils.GlobalConstants;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.kernel.util.S3Adapter;
 import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 
 /**
  * Reporter that generates a single-page HTML report of the test results.
@@ -51,7 +55,7 @@ public class EmailableReport implements IReporter {
 	int totalPassedTests = 0;
 	int totalSkippedTests = 0;
 	int totalFailedTests = 0;
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -113,19 +117,19 @@ public class EmailableReport implements IReporter {
 						isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
 								null, newString, newReportFile);
 						logger.info("isStoreSuccess:: " + isStoreSuccess);
-						
-						
+
 						/* Need to figure how to handle EXTENT report handling */
-						
-						  File extentReport = new File(BaseTestCaseUtil.getExtentReportName()); 
-						  
-						  isStoreSuccess2 =s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel,
-						  null, null, "ExtentReport-"+newString, extentReport);
-						 
+
+						File extentReport = new File(BaseTestCaseUtil.getExtentReportName());
+
+						isStoreSuccess2 = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel,
+
+								null, null, "ExtentReport-" + newString, extentReport);
+
 					} catch (Exception e) {
 						logger.error("error occured while pushing the object" + e.getMessage());
 					}
-					if (isStoreSuccess && isStoreSuccess2 ) {
+					if (isStoreSuccess && isStoreSuccess2) {
 						logger.info("Pushed report to S3");
 					} else {
 						logger.error("Failed while pushing file to S3");
@@ -148,7 +152,7 @@ public class EmailableReport implements IReporter {
 					+ properties.getProperty("git.branch");
 
 		} catch (IOException io) {
-			io.printStackTrace();
+			logger.error(io.getMessage());
 			return "";
 		}
 
@@ -184,15 +188,17 @@ public class EmailableReport implements IReporter {
 		writer.print("td {vertical-align:top}");
 		writer.print("table a {font-weight:bold}");
 		writer.print(".stripe td {background-color: #E6EBF9}");
-		writer.print(".num {text-align:right}");
+		writer.print(".num {text-align:center}");
 		writer.print(".passedodd td {background-color: #3F3}");
 		writer.print(".passedeven td {background-color: #0A0}");
-		writer.print(".skippedodd td {background-color: #DDD}");
-		writer.print(".skippedeven td {background-color: #CCC}");
+		writer.print(".skippedodd td {background-color: #FFA500}");
+		writer.print(".skippedeven td {background-color: #FFA500}");
 		writer.print(".failedodd td,.attn {background-color: #F33}");
 		writer.print(".failedeven td,.stripe .attn {background-color: #D00}");
 		writer.print(".stacktrace {white-space:pre;font-family:monospace}");
 		writer.print(".totop {font-size:85%;text-align:center;border-bottom:2px solid #000}");
+		writer.print(".orange-bg {background-color: #FFA500}");
+		writer.print(".green-bg {background-color: #0A0}");
 		writer.print("</style>");
 	}
 
@@ -219,19 +225,25 @@ public class EmailableReport implements IReporter {
 		writer.print("<table>");
 		int testIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
-			
-			  writer.print("<tr><th colspan=\"7\">");
-			  writer.print(Utils.escapeHtml(suiteResult.getSuiteName() + "-" +
-			  getCommitId())); writer.print("</th></tr>");
-				writer.print("<tr>");
-				writer.print("<th>Test</th>");
-				writer.print("<th># Passed</th>");
-				writer.print("<th># Skipped</th>");
-				writer.print("<th># Failed</th>");
-				writer.print("<th>Time (ms)</th>");
-//				writer.print("<th>Included Groups</th>");
-//				writer.print("<th>Excluded Groups</th>");
-				writer.print("</tr>");
+
+			writer.print("<tr><th colspan=\"7\">");
+			writer.print(Utils.escapeHtml(suiteResult.getSuiteName() + "-" + getCommitId()));
+			writer.print("</th></tr>");
+
+			writer.print("<tr><th colspan=\"7\"><span class=\"not-bold\"><pre>");
+			writer.print(Utils.escapeHtml("Server Component Details " + AdminTestUtil.getServerComponentsDetails()));
+			writer.print("</pre></span>");
+			writer.print(GlobalConstants.TRTR);
+
+			writer.print("<tr>");
+//			writer.print("<th>Test Suite</th>");
+			writer.print("<th># Passed</th>");
+			writer.print("<th># Skipped</th>");
+			writer.print("<th># Failed</th>");
+			writer.print("<th>Time (ms)</th>");
+			// writer.print("<th>Included Groups</th>");
+			// writer.print("<th>Excluded Groups</th>");
+			writer.print("</tr>");
 
 			for (TestResult testResult : suiteResult.getTestResults()) {
 				int passedTests = testResult.getPassedTestCount();
@@ -246,10 +258,10 @@ public class EmailableReport implements IReporter {
 				writer.print(">");
 
 				buffer.setLength(0);
-				writeTableData(buffer.append("<a href=\"#t").append(testIndex).append("\">")
-						.append(Utils.escapeHtml(testResult.getTestName())).append("</a>").toString());
-				writeTableData(integerFormat.format(passedTests), "num");
-				writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num attn" : "num"));
+//				writeTableData(buffer.append("<a href=\"#t").append(testIndex).append("\">")
+//						.append(Utils.escapeHtml(testResult.getTestName())).append("</a>").toString());
+				writeTableData(integerFormat.format(passedTests), (passedTests > 0 ? "num green-bg" : "num"));
+				writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num orange-bg" : "num"));
 				writeTableData(integerFormat.format(failedTests), (failedTests > 0 ? "num attn" : "num"));
 				writeTableData(decimalFormat.format(duration), "num");
 				/*
@@ -290,9 +302,9 @@ public class EmailableReport implements IReporter {
 		writer.print("<table id='summary'>");
 		writer.print("<thead>");
 		writer.print("<tr>");
-//		writer.print("<th>Class</th>");
+		// writer.print("<th>Class</th>");
 		writer.print("<th>Scenario</th>");
-//		writer.print("<th>Start</th>");
+		writer.print("<th>Scenario Description</th>");
 		writer.print("<th>Time (ms)</th>");
 		writer.print("</tr>");
 		writer.print("</thead>");
@@ -311,17 +323,17 @@ public class EmailableReport implements IReporter {
 				writer.print(testIndex);
 				writer.print("\">");
 
-				String testName = Utils.escapeHtml(testResult.getTestName());
+				String testName = Utils.escapeHtml("Scenarios");
 
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; failed (configuration methods)",
+				scenarioIndex += writeScenarioSummary(testName + " &#8212; Failed (configuration methods)",
 						testResult.getFailedConfigurationResults(), "failed", scenarioIndex);
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; failed", testResult.getFailedTestResults(),
+				scenarioIndex += writeScenarioSummary(testName + " &#8212; Failed", testResult.getFailedTestResults(),
 						"failed", scenarioIndex);
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; skipped (configuration methods)",
+				scenarioIndex += writeScenarioSummary(testName + " &#8212; Skipped (configuration methods)",
 						testResult.getSkippedConfigurationResults(), "skipped", scenarioIndex);
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; skipped", testResult.getSkippedTestResults(),
+				scenarioIndex += writeScenarioSummary(testName + " &#8212; Skipped", testResult.getSkippedTestResults(),
 						"skipped", scenarioIndex);
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; passed", testResult.getPassedTestResults(),
+				scenarioIndex += writeScenarioSummary(testName + " &#8212; Passed", testResult.getPassedTestResults(),
 						"passed", scenarioIndex);
 
 				writer.print("</tbody>");
@@ -341,7 +353,7 @@ public class EmailableReport implements IReporter {
 			int startingScenarioIndex) {
 		int scenarioCount = 0;
 		if (!classResults.isEmpty()) {
-			writer.print("<tr><th colspan=\"2\">");
+			writer.print("<tr><th colspan=\"3\">");
 			writer.print(description);
 			writer.print("</th></tr>");
 
@@ -359,58 +371,60 @@ public class EmailableReport implements IReporter {
 					int resultsCount = results.size();
 					assert resultsCount > 0;
 					ITestResult firstResult = results.iterator().next();
-					String methodName = Utils.escapeHtml(firstResult.getMethod().getMethodName());
-//					long start = firstResult.getStartMillis();
-//					long duration = firstResult.getEndMillis() - start;
-					// The first method per class shares a row with the class
-					// header
-					if (methodIndex > 0) {
-//						buffer.append("<tr class=\"").append(cssClass).append("\">");
-
-					}
-
-					// Write the timing information with the first scenario per
-					// method
-					/*
-					 * buffer.append("<td><a href=\"#m").append(scenarioIndex).append("\">").append(
-					 * methodName)
-					 * .append("</a></td>").append("<td rowspan=\"").append(resultsCount).append(
-					 * "\">")
-					 * .append(start).append("</td>").append("<td rowspan=\"").append(resultsCount).
-					 * append("\">") .append(duration).append("</td></tr>");
-					 */
 
 					// Write the remaining scenarios for the method
-					
+
 					for (int i = 0; i < resultsCount; i++) {
-					    ITestResult result = results.get(i);
-					    long scenarioStart = result.getStartMillis();
-					    long scenarioDuration = result.getEndMillis() - scenarioStart;
-					    
-					    buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
-					          .append(scenarioIndex).append("\">").append(methodName).append("</a></td>")
-					          .append("<td>").append(scenarioDuration).append("</td></tr>");
-					    
-					    scenarioIndex++;
+						
+						ITestResult result = results.get(i);
+						String [] scenarioDetails = getScenarioDetails(result);
+						
+						String scenarioName = Utils.escapeHtml("Scenario_" + scenarioDetails[0]);
+						String scenarioDescription = Utils.escapeHtml(scenarioDetails[1]);
+						
+						long scenarioStart = result.getStartMillis();
+						long scenarioDuration = result.getEndMillis() - scenarioStart;
+
+						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
+								.append(scenarioIndex).append("\">").append(scenarioName).append("</a></td>")
+								.append("<td>").append(scenarioDescription).append("</td>")
+								.append("<td>").append(scenarioDuration).append("</td></tr>");
+
+						scenarioIndex++;
 					}
 					scenariosPerClass += resultsCount;
 					methodIndex++;
 				}
 
 				// Write the test results for the class
-				/*
-				 * writer.print("<tr class=\""); writer.print(cssClass); writer.print("\">");
-				 * writer.print("<td rowspan=\""); writer.print(scenariosPerClass);
-				 * writer.print("\">");
-				 * writer.print(Utils.escapeHtml(classResult.getClassName()));
-				 * writer.print("</td>");
-				 */
 				writer.print(buffer);
 				classIndex++;
 			}
 			scenarioCount = scenarioIndex - startingScenarioIndex;
 		}
 		return scenarioCount;
+	}
+
+	private String[] getScenarioDetails(ITestResult result) {
+		Object[] parameters = result.getParameters();
+		Scenario s = (Scenario)parameters[1];
+		
+		String [] s1 = new String[2];
+		s1[0] = s.getId();
+		s1[1] = s.getDescription();
+		
+		/*
+		 * String substringBeforeColon =""; Class<?> clazz = instance.getClass(); for
+		 * (Field field : clazz.getDeclaredFields()) { try { field.setAccessible(true);
+		 * Object value = field.get(instance); if
+		 * (field.getName().equalsIgnoreCase("message")) { int colonIndex =
+		 * value.toString().indexOf(":"); if (colonIndex != -1) { // Extract the
+		 * substring before the colon substringBeforeColon =
+		 * value.toString().substring(0, colonIndex).trim(); return
+		 * substringBeforeColon; } } } catch (IllegalAccessException e) {
+		 * e.printStackTrace(); } } return substringBeforeColon;
+		 */
+        return s1;
 	}
 
 	/**
@@ -420,9 +434,11 @@ public class EmailableReport implements IReporter {
 		int scenarioIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
 			for (TestResult testResult : suiteResult.getTestResults()) {
-				writer.print("<h2>");
-				writer.print(Utils.escapeHtml(testResult.getTestName()));
-				writer.print("</h2>");
+				/*
+				 * writer.print("<h2>");
+				 * writer.print(Utils.escapeHtml(testResult.getTestName()));
+				 * writer.print("</h2>");
+				 */
 
 				scenarioIndex += writeScenarioDetails(testResult.getFailedConfigurationResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getFailedTestResults(), scenarioIndex);
@@ -461,17 +477,17 @@ public class EmailableReport implements IReporter {
 	 * Writes the details for an individual test scenario.
 	 */
 	private void writeScenario(int scenarioIndex, String label, ITestResult result) {
-	    writer.print("<h3 id=\"m");
-	    writer.print(scenarioIndex);
-	    writer.print("\">");
-//	    writer.print(label);
-	    writer.print("</h3>");
+		writer.print("<h3 id=\"m");
+		writer.print(scenarioIndex);
+		writer.print("\">");
+		// writer.print(label);
+		writer.print("</h3>");
 
-	    writer.print("<table class=\"result\">");
+		writer.print("<table class=\"result\">");
 
-	    // Write test parameters (if any)
-	    Object[] parameters = result.getParameters();
-	    int parameterCount = (parameters == null ? 0 : parameters.length);
+		// Write test parameters (if any)
+		Object[] parameters = result.getParameters();
+		int parameterCount = (parameters == null ? 0 : parameters.length);
 
 		/*
 		 * if (parameterCount > 0) { writer.print("<tr class=\"param\">"); for (int i =
@@ -483,25 +499,26 @@ public class EmailableReport implements IReporter {
 		 * writer.print("</td>"); } writer.print("</tr>"); }
 		 */
 
-	    // Write reporter messages (if any)
-	    List<String> reporterMessages = Reporter.getOutput(result);
-	    if (!reporterMessages.isEmpty()) {
-	        writer.print("<tr><td colspan=\"" + parameterCount + "\">");
-	        writeReporterMessages(reporterMessages);
-	        writer.print("</td></tr>");
-	    }
+		// Write reporter messages (if any)
+		List<String> reporterMessages = Reporter.getOutput(result);
+		if (!reporterMessages.isEmpty()) {
+			writer.print("<tr><td colspan=\"" + parameterCount + "\">");
+			writeReporterMessages(reporterMessages);
+			writer.print("</td></tr>");
+		}
 
-	    // Write exception (if any)
-	    Throwable throwable = result.getThrowable();
-	    if (throwable != null) {
-	        writer.print("<tr><th colspan=\"" + parameterCount + "\">" + (result.getStatus() == ITestResult.SUCCESS ? "Expected Exception" : "Exception") + "</th></tr>");
-	        writer.print("<tr><td colspan=\"" + parameterCount + "\">");
-	        writeStackTrace(throwable);
-	        writer.print("</td></tr>");
-	    }
+		// Write exception (if any)
+		Throwable throwable = result.getThrowable();
+		if (throwable != null) {
+			writer.print("<tr><th colspan=\"" + parameterCount + "\">"
+					+ (result.getStatus() == ITestResult.SUCCESS ? "Expected Exception" : "Exception") + "</th></tr>");
+			writer.print("<tr><td colspan=\"" + parameterCount + "\">");
+			writeStackTrace(throwable);
+			writer.print("</td></tr>");
+		}
 
-	    writer.print("</table>");
-	    writer.print("<p class=\"totop\"><a href=\"#summary\">back to summary</a></p>");
+		writer.print("</table>");
+		writer.print("<p class=\"totop\"><a href=\"#summary\">back to summary</a></p>");
 	}
 
 	protected void writeReporterMessages(List<String> reporterMessages) {

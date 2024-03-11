@@ -13,7 +13,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 public class Wait extends BaseTestCaseUtil implements StepInterface {
 
 	public static Logger logger = Logger.getLogger(Wait.class);
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -23,27 +23,16 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		int waitFromActuator = 0;
 		Long waitTime = DEFAULT_WAIT_TIME;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.warn("Wait Time is Missing : Taking default Time as 30 Sec");
 		}
-
-	// Pass flag as true in the step to get the wait time from the regproc actuator for the reprocessor to kick in  
-		else if (step.getParameters().size() == 1 && step.getParameters().get(0).contains("true")) {
-			Boolean flag = Boolean.parseBoolean(step.getParameters().get(0));
-			if (flag) {
-				waitFromActuator = PacketUtility.getActuatorDelay();
-				waitTime = TIME_IN_MILLISEC * waitFromActuator;
-			}
-
-		} else {
+		else {
 			waitTime = TIME_IN_MILLISEC * Integer.parseInt(step.getParameters().get(0));
 		}
 
 		try {
-			Reporter.log("Total waiting for: " + waitTime / 1000 + " Sec");
-			Reporter.log("Starting Waiting: " + getDateTime());
+			Reporter.log("Total waiting for: " + waitTime / 1000 + " Sec " + "Starting Waiting: " + getDateTime());
 			Thread.sleep(waitTime);
 			Reporter.log("Waiting Done: " + getDateTime());
 		} catch (NumberFormatException e) {
@@ -53,7 +42,5 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 			Thread.currentThread().interrupt();
 		}
 	}
-
-	
 
 }

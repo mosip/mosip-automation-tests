@@ -127,7 +127,7 @@ public class APIRequestUtil {
     }
     public JSONObject get(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
     	this.baseUrl = baseUrl;
-    	System.out.println(url);
+    	logger.info(url);
     	if (!isValidToken(contextKey)){
             initToken(contextKey);
         }
@@ -157,7 +157,7 @@ public class APIRequestUtil {
     }
     public JSONObject getJsonObject(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
     	this.baseUrl = baseUrl;
-    	System.out.println(url);
+    	logger.info(url);
     	if (!isValidToken(contextKey)){
             initToken(contextKey);
         }
@@ -311,6 +311,7 @@ public class APIRequestUtil {
             	).build();
         Response response = given().cookie(kukki).multiPart("file", f.getCanonicalFile()).post(url);
         checkErrorResponse(response.getBody().asString());
+       
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
 

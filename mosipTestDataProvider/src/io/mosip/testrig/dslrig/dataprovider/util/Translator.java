@@ -18,7 +18,7 @@ public class Translator {
 	public static void main(String[] args) {
 	        String text = "Mohandas Karamchand Ghandhi";
 	        //Translated text: Hallo Welt!
-	        System.out.println("Text:" + text + ",Translated text: " + translate( "heb", text,"contextKey"));
+	        logger.info("Text:{}" , text , ",Translated text: {}" , translate( "heb", text,"contextKey"));
 	}
 
 	static String getLanguageID(String langIsoCode,String contextKey) {
@@ -65,20 +65,7 @@ public class Translator {
 	public static String translate(String toLanguageIsoCode, String text,String contextKey) {
 		
 		String lang_from_to = getLanguageID(toLanguageIsoCode,contextKey);
-		//Enumeration<String> idSet = Transliterator.getAvailableIDs();
-		//String lang_from_to = fromLanguage+ "-"+ toLanguage;
-		//Boolean bFound = false;
-		/*
-		for( Iterator<String> it = idSet.asIterator(); it.hasNext();) {
-			String id = it.next();
-			System.out.println(id);
-			if(id.equals(lang_from_to)) {
-				
-				bFound = true;
-				break;
-			}	
-		}*/
-	
+		
 		Transliterator toTrans = Transliterator.getInstance(lang_from_to);
 		return toTrans.transliterate(text);
 	}

@@ -22,6 +22,7 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.restassured.response.Response;
 
@@ -55,7 +56,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	public void run() throws RigInternalError, FeatureNotSupportedError {
 		
 		// check if esignet is installed on the target system
-		if (!ConfigManager.IseSignetDeployed()) {
+		if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
 
@@ -76,19 +77,19 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			if (idType.contains("VID") || idType.contains("vid")) {
 				transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
 				urlEncodedResp2 = (String) step.getScenario().getOidcClientProp().get("urlEncodedResp2");
-				System.out.println(transactionId2);
+				logger.info(transactionId2);
 			}
 
 			else if (idType.contains("UIN") || idType.contains("uin")) {
 				transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
 				urlEncodedResp1 = (String) step.getScenario().getOidcClientProp().get("urlEncodedResp1");
-				System.out.println(transactionId1);
+				logger.info(transactionId1);
 			}
 
 			else {
 
 				transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
-				System.out.println(transactionId2);
+				logger.info(transactionId2);
 
 			}
 
@@ -176,12 +177,12 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 		String oidcJWKKeyString = oidcJwkKey;
 		// String oidcJWKKeyString = props.getProperty("privateKey");
-		System.out.println("oidcJWKKeyString =" + oidcJWKKeyString);
+		logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
 		RSAKey oidcJWKKey1;
 		try {
 			oidcJWKKey1 = RSAKey.parse(oidcJWKKeyString);
 			data = PacketUtility.signJWKKey(clientId, oidcJWKKey1);
-			System.out.println("oidcJWKKey1 =" + oidcJWKKey1);
+			logger.info("oidcJWKKey1 =" + oidcJWKKey1);
 		} catch (java.text.ParseException e) {
 			logger.error(e.getMessage());
 		}
@@ -201,7 +202,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		if (response != null) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			esignetAccessToken = jsonResp.get("access_token").toString();
-			System.out.println(jsonResp.toString());
+			logger.info(jsonResp.toString());
 		}
 
 		// User Info API CALL //
@@ -217,7 +218,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			getUserInfo.test(testGetUserInfo);
 
 			Response response2 = getUserInfo.response;
-			System.out.println(response2.toString());
+			logger.info(response2.toString());
 
 		} catch (AuthenticationTestException | AdminTestException e) {
 			this.hasError = true;

@@ -13,6 +13,7 @@ import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.PersonaDataManager;
 import io.restassured.response.Response;
 
 public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
@@ -22,7 +23,7 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(GetUINByRid.class);
 	KernelAuthentication kauth = new KernelAuthentication();
 	Boolean isForChildPacket = false;
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -56,8 +57,6 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 		step.getScenario().getUinPersonaProp().clear();
 		for (String rid : rids.values()) {
 			if (rid != null) {
-				Reporter.log("<b><u>" + "GetIdentity By Rid" + "</u></b>");
-				Reporter.log("<pre>" + ReportUtil.getTextAreaJsonMsgHtml("{Rid: " + rid + "}") + "</pre>");
 				long startTime = System.currentTimeMillis();
 				logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
 				Response response = getRequest(baseUrl + getIdentityUrl + rid, "Get uin by rid: " + rid, step);
@@ -83,7 +82,8 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 					logger.error("Issue while fetching identity for RID: " + rid + " Response: " + response.toString());
 					this.hasError = true;
 					throw new RigInternalError("Not able to Fetch identity for RID: " + rid);
-				}
+				}				
+				PersonaDataManager.setVariableValue(step.getScenario().getId(), "UIN", uin);
 			}
 		}
 	}
