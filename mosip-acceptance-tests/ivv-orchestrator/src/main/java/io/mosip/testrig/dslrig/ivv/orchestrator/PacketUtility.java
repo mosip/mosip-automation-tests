@@ -221,20 +221,36 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PERSONAFILEPATH, arr);
 		String url = baseUrl + props.getProperty("getTemplateUrl") + process + "/" + qualityScore + "/"
 				+ genarateValidCbeff;
-		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
 
-		if (!templateResponse.getBody().asString().toLowerCase().contains("packets")) {
-			this.hasError = true;
-			throw new RigInternalError(templateResponse.getBody().asString());
-		}
-
-		JSONObject jsonResponse = new JSONObject(templateResponse.asString());
-		JSONArray resp = jsonResponse.getJSONArray("packets");
-		if ((resp.length() <= 0)) {
-			this.hasError = true;
-			throw new RigInternalError("Unable to get Template from packet utility");
-		}
-
+		int count = 0;
+		int maxRetryCount = 3;
+		Response templateResponse = null;
+		JSONArray resp = null;
+		do {
+			count++;
+			templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
+			if (!templateResponse.getBody().asString().toLowerCase().contains("packets")) {
+				if (count == maxRetryCount) {
+					this.hasError = true;
+					throw new RigInternalError(templateResponse.getBody().asString());
+				} 
+				else {
+					logger.info("Unable to get biometrics via mds.Retrying...");
+					continue;
+				}		
+			}
+			JSONObject jsonResponse = new JSONObject(templateResponse.asString());
+			resp = jsonResponse.getJSONArray("packets");
+			if ((resp.length() <= 0)) {
+				if (count == maxRetryCount) {
+					this.hasError = true;
+					throw new RigInternalError("Unable to get Template from packet utility");
+				} 
+					logger.info("Unable to get Template from packet utility.Retrying...");				
+			} else {
+				break;
+			}
+		} while (count < maxRetryCount);
 		return resp;
 	}
 
