@@ -5,13 +5,13 @@
     <parent>
         <groupId>io.mosip.testrig.dslrig.ivv</groupId>
         <artifactId>dslrig-ivv-parent</artifactId>
-<version>1.2.0.1-SNAPSHOT</version>
+<version>1.2.0.1</version>
     </parent>
 
     <groupId>io.mosip.testrig.dslrig.ivv.orchestrator</groupId>
     <artifactId>dslrig-ivv-orchestrator</artifactId>
     <name>mosip-dsl-test</name>
-<version>1.2.0.1-SNAPSHOT</version>
+<version>1.2.0.1</version>
     <properties>
         <suiteXmlFile>testng.xml</suiteXmlFile>
         <maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
@@ -57,7 +57,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>dslrig-ivv-orchestrator-1.2.0.1-SNAPSHOT-jar-with-dependencies</finalName>
+                            <finalName>dslrig-ivv-orchestrator-1.2.0.1-jar-with-dependencies</finalName>
                             <transformers>
                                 <!-- need this to merge the services files properly -->
                                 <transformer
@@ -99,12 +99,12 @@
         <dependency>
             <groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
             <artifactId>dslrig-ivv-core</artifactId>
-            <version>1.2.0.1-SNAPSHOT</version>
+            <version>1.2.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
             <artifactId>dslrig-ivv-dg</artifactId>
-            <version>1.2.0.1-SNAPSHOT</version>
+            <version>1.2.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.aventstack</groupId>
@@ -115,7 +115,7 @@
         <dependency>
             <groupId>io.mosip.testrig.apirig.automationtests</groupId>
             <artifactId>automationtests</artifactId>
-            <version>1.2.0.1-SNAPSHOT</version>
+            <version>1.2.0.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.sun.jersey</groupId>
