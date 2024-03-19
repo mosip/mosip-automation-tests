@@ -54,9 +54,6 @@ public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil impl
 					_additionalInfoReqId = step.getScenario().getVariables().get(_additionalInfoReqId);
 			}
 			
-			
-			
-			
 			if (residentPath.startsWith("$$") && templatePath.startsWith("$$")) { //"$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"  --->now "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath,$$additionalInfoReqId)" 
 				residentPath = step.getScenario().getVariables().get(residentPath);
 				templatePath = step.getScenario().getVariables().get(templatePath);

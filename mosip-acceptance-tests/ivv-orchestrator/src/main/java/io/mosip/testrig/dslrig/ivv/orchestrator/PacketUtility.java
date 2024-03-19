@@ -223,7 +223,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 				+ genarateValidCbeff;
 
 		int count = 0;
-		int maxRetryCount = 3;
+		int maxRetryCount = Integer.parseInt(props.getProperty("loopCount"));;
 		Response templateResponse = null;
 		JSONArray resp = null;
 		do {
@@ -639,15 +639,32 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PERSONAFILEPATH, arr);
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
 
-		Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
-		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
-			JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			rid = jsonResp.getJSONObject(RESPONSE).getString("registrationId");
-		}
-		if (!response.getBody().asString().toLowerCase().contains(responseStatus)) {
-			this.hasError = true;
-			throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
-		}
+		int count = 0;
+		int maxRetryCount = Integer.parseInt(props.getProperty("loopCount"));
+
+		do {
+			count++;
+			Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
+
+			if (!response.getBody().asString().toLowerCase().contains(responseStatus)
+					|| response.getBody().asString().toLowerCase().contains("failed")) {
+				if (count == maxRetryCount) {
+					this.hasError = true;
+					throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
+				} else {
+					logger.info("Unable to generate and upload packet . Retrying...");
+				    continue;
+				}
+			}
+
+			else {
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				rid = jsonResp.getJSONObject(RESPONSE).getString("registrationId");
+				break;
+			}
+
+		} while (count < maxRetryCount);
+
 		return rid;
 	}
 
