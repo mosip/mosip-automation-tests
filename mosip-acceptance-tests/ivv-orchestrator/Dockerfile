@@ -31,7 +31,7 @@ COPY --chown=${container_user}:${container_user} ./build_files/ ${work_dir}
 COPY --chown=${container_user}:${container_user} ./scenarios /tmp/scenarios
 
 # set working directory
-WORKDIR ${work_dir}
+ENV work_dir=${work_dir}
 
 WORKDIR /home/${container_user}
 
