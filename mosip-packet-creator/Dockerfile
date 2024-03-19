@@ -34,7 +34,9 @@ ENV mountPath=/home//${container_user}/mountvolume
 ENV authCertsPath=/home/${container_user}/authcerts
 
 # set working directory
-WORKDIR ${work_dir}
+ENV work_dir=${work_dir}
+
+WORKDIR /home/${container_user}
 
 EXPOSE 8080
 
