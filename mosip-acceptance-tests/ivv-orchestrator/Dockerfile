@@ -32,6 +32,8 @@ COPY --chown=${container_user}:${container_user} ./scenarios /tmp/scenarios
 # set working directory
 WORKDIR ${work_dir}
 
+WORKDIR /home/${container_user}
+
 EXPOSE 8081
 
 ENV USER=
