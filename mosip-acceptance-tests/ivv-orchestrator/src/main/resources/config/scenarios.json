@@ -4620,7 +4620,13 @@
 			"Return Value": "NA",
 			"Action": "e2e_packetsync($$zipPacketPath)"
 		},
-		"Step-23": {
+				"Step-23": {
+			"Description": "Sets manual verification status",
+			"Input Parameters": "RID and status",
+			"Return Value": "NA",
+			"Action": "e2e_postMockMv($$rid2,REJECTED)"
+		},
+		"Step-24": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
@@ -17401,7 +17407,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid1,MANUAL_ADJUDICATION,SUCCESS)"
+			"Action": "e2e_CheckRIDStage($$rid1,VERIFICATION,SUCCESS)"
 		}
 	},
 	{
