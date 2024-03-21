@@ -397,8 +397,8 @@ public class TestDataController {
 
 		} catch (Exception ex) {
 			logger.error("createPacket", ex);
+			return ex.getMessage();
 		}
-		return "{\"Failed\"}";
 	}
 
 	@ApiOperation(value = "Delete Booking appointment for a given pre-registration-Id", response = String.class)
