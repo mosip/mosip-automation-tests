@@ -526,7 +526,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String updateResidentWithGuardianSkippingPreReg_old(String residentFilePath,
 			HashMap<String, String> contextKey, String withRidOrUin, String missingFields, Scenario.Step step,
-			boolean getRidFromSync, String qualityScore, boolean genarateValidCbeff) throws RigInternalError {
+			boolean getRidFromSync, String qualityScore, boolean genarateValidCbeff, String invalidMachineFlag) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields, contextKey, step);
 		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextKey, step,
@@ -534,7 +534,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
 		String rid = generateAndUploadPacketSkippingPrereg(templatePath,
-				step.getScenario().getGeneratedResidentData().get(0), null, contextKey, SUCCESS, step, getRidFromSync);
+				step.getScenario().getGeneratedResidentData().get(0), null, contextKey, SUCCESS, step, getRidFromSync,invalidMachineFlag);
 
 		String url = baseUrl + props.getProperty(UPDATERESIDENTURL);
 
@@ -596,37 +596,37 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath, String additionalInfoReqId,
-			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync)
+			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync, String invalidMachineFlag)
 			throws RigInternalError {
 
 		String url = baseUrl + "/packet/sync/01/" + true; // 01 -- to generate wrong hash
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, true);
+				getRidFromSync, true, invalidMachineFlag);
 	}
 
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
 			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus, Scenario.Step step,
-			boolean getRidFromSync) throws RigInternalError {
+			boolean getRidFromSync, String invalidMachineFlag) throws RigInternalError {
 
 		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; // 0 -- to skip prereg
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, true);
+				getRidFromSync, true,invalidMachineFlag);
 
 	}
 
 	public String generateAndUploadWithInvalidCbeffPacketSkippingPrereg(String packetPath, String residentPath,
 			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus, Scenario.Step step,
-			boolean getRidFromSync) throws RigInternalError {
+			boolean getRidFromSync, String invalidMachineFlag) throws RigInternalError {
 
 		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; // 0 -- to skip prereg
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, false);
+				getRidFromSync, false,invalidMachineFlag);
 
 	}
 
 	public String getRID(String url, String packetPath, String residentPath, String additionalInfoReqId,
 			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync,
-			boolean genarateValidCbeff) throws RigInternalError {
+			boolean genarateValidCbeff,String invalidMachineFlag) throws RigInternalError {
 		String rid = null;
 		if (genarateValidCbeff)
 			url += "/1"; // 1 --- to generateValid Cbeff
@@ -643,9 +643,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 		int maxRetryCount = Integer.parseInt(props.getProperty("loopCount"));
 
 		do {
-			count++;
+	  		count++;
 			Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
-
+			
+			if (invalidMachineFlag.contentEquals("invalidMachine") && response.getBody().asString().toLowerCase().contains("failed to sign data")) {
+				return "";
+			}
 			if (!response.getBody().asString().toLowerCase().contains(responseStatus)
 					|| response.getBody().asString().toLowerCase().contains("failed")) {
 				if (count == maxRetryCount) {
