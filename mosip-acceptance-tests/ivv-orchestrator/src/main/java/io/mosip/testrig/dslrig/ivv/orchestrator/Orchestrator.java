@@ -242,7 +242,7 @@ public class Orchestrator {
 
 	}
 
-	private void updateRunStatistics(Scenario scenario)
+	private synchronized void updateRunStatistics(Scenario scenario)
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 //		logger.info(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
 		logger.info("Updating statistics for scenario: "+ scenario.getId() + " -- updating the executed count to: " + counterLock.getAndIncrement());
@@ -297,7 +297,7 @@ public class Orchestrator {
 						logger.error("Exhausted the maximum suite execution time.Hence, terminating the execution");
 						break;
 					}
-
+					 
 					logger.info(" Thread ID: " + Thread.currentThread().getId() + " inside scenariosExecuted "
 							+ counterLock.get() + "- " + scenario.getId());
 					Thread.sleep(10000); // Sleep for 10 sec

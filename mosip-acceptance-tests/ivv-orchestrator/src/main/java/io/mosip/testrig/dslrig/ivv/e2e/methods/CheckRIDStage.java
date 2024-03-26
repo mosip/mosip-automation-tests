@@ -58,21 +58,21 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 				if (transactionTypeCode.equalsIgnoreCase(myJSONObject.getString("transactionTypeCode"))) {
 					if (statusCode.equalsIgnoreCase(myJSONObject.getString("statusCode"))) {
 						logger.info("matching statusCode");
-						flag = true;
-						break;
-					} else if (subStatusCode != null
-							&& subStatusCode.equalsIgnoreCase(myJSONObject.getString("subStatusCode"))) {
-						flag = true;
-						break;
-					} else {
-						flag = false;
+						if (subStatusCode == null) {
+							flag = true;
+							break;
+						} else if (subStatusCode.equalsIgnoreCase(myJSONObject.getString("subStatusCode"))) {
+							logger.info("matching subStatusCode");
+							flag = true;
+							break;
+						}
 					}
 				}
-
 			}
-
-			if (!myJSONObject.getString("transactionTypeCode").equalsIgnoreCase(transactionTypeCode)
-					|| myJSONObject.getString("subStatusCode").equalsIgnoreCase(subStatusCode)) {
+		   if(flag == true)
+				break;
+			
+			else {
 				logger.info("Waiting for " + Long.parseLong(waitTime) / 1000 + " sec to get desired response");
 				counter++;
 				try {
@@ -81,17 +81,10 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 					logger.error(e.getMessage());
 					Thread.currentThread().interrupt();
 				}
-			} else {
-				// Exit the loop if the desired result is achieved
-				break;
-			}
 		}
-		logger.info(res.toString());
-		if (flag.equals(true)) {
-			logger.info("RESPONSE= contains " + transactionTypeCode +" "+ statusCode);
-			logger.info("subStatusCode= " + myJSONObject.getString("subStatusCode"));
-		} else {
-			logger.error("RESPONSE = doesn't contain " + arr);
+		}
+		   logger.info(res.toString());
+		if (flag == false) {
 			this.hasError = true;
 			throw new RigInternalError("RESPONSE = doesn't contain " + transactionTypeCode + " " +statusCode);
 		}
