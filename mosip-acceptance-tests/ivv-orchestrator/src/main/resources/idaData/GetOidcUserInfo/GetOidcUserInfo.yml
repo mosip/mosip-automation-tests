@@ -9,5 +9,4 @@ GetOidcUserInfo:
       input: '{
         "idpAccessToken": "esignetAccessToken"
 }'
-      output: '{	
-}'
+      output: "200"
