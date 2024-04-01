@@ -1160,6 +1160,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 				"identityRequest.serialNo");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"),
 				"identityRequest.type");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, getAuthTransactionId(transactionId),
+				"identityRequest.transactionId");
 
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
 		test.setInput(input);
@@ -1173,6 +1175,21 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} finally {
 
 		}
+	}
+	
+	private String getAuthTransactionId(String oidcTransactionId) {
+	    final String transactionId = oidcTransactionId.replaceAll("_|-", "");
+	    String lengthOfTransactionId =  AdminTestUtil.getValueFromEsignetActuator("/mosip/mosip-config/esignet-default.properties", "mosip.esignet.auth-txn-id-length");
+	   int authTransactionIdLength = lengthOfTransactionId != null ? Integer.parseInt(lengthOfTransactionId): 0;
+	    final byte[] oidcTransactionIdBytes = transactionId.getBytes();
+	    final byte[] authTransactionIdBytes = new byte[authTransactionIdLength];
+	    int i = oidcTransactionIdBytes.length - 1;
+	    int j = 0;
+	    while(j < authTransactionIdLength) {
+	        authTransactionIdBytes[j++] = oidcTransactionIdBytes[i--];
+	        if(i < 0) { i = oidcTransactionIdBytes.length - 1; }
+	    }
+	    return new String(authTransactionIdBytes);
 	}
 
 	public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList, Scenario.Step step)
