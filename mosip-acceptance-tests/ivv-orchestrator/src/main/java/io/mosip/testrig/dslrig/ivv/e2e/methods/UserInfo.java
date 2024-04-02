@@ -210,7 +210,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		String inputForGetUserInfo = testGetUserInfo.getInput();
 
 		inputForGetUserInfo = JsonPrecondtion.parseAndReturnJsonContent(inputForGetUserInfo, esignetAccessToken,
-				"esignetAccessToken");
+				"idpAccessToken");
 
 		testGetUserInfo.setInput(inputForGetUserInfo);
 
