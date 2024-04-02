@@ -18312,7 +18312,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
-		"Description": "Upload the resident packet again ,which has been uplodaded and processed already. ",
+		"Description": "Upload the resident packet again which has been uplodaded and processed already ",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
