@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 import io.mosip.testrig.dslrig.dataprovider.models.ExecContext;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
-import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 @Component
@@ -31,56 +30,53 @@ public class ContextUtils {
 
 	private String machineId = null;
 
+	@Value("${mosip.test.persona.configpath}")
+	private String personaConfigPath;
+
 	static Logger logger = LoggerFactory.getLogger(ContextUtils.class);
 
-	
+	public Properties loadServerContext(String ctxName) {
+		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
+		Properties p = new Properties();
+
+		try(FileReader reader = new FileReader(filePath);) {
+			
+			p.load(reader);
+		} catch (IOException e) {
+
+			logger.error("loadServerContext " + e.getMessage());
+		}
+		return p;
+	}
+
 	public String createUpdateServerContext(Properties props, String ctxName) {
-		String personaConfigPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.configpath").toString();
-		
+
 		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
 		try (FileWriter fr = new FileWriter(filePath);) {
-			props.store(fr, "Server Context Attributes"); // props + fr filepath
-			
-			Properties pp = CommonUtil.loadServerContextProperties(ctxName,personaConfigPath);
-//			pp.forEach((k, v) -> {
-//				VariableManager.setVariableValue(ctxName, k.toString(), v.toString());
-//			});
+
+			props.store(fr, "Server Context Attributes");
+
+			Properties pp = loadServerContext(ctxName);
+			pp.forEach((k, v) -> {
+				VariableManager.setVariableValue(ctxName, k.toString(), v.toString());
+			});
+
 			String generatePrivateKey = VariableManager.getVariableValue(ctxName, "generatePrivateKey").toString();// pp.getProperty("generatePrivateKey");
+
 			boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
 			if (isRequired)
 				generateKeyAndUpdateMachineDetail(pp, ctxName);
-			// Remove the temp directories created for the same context
-			clearPacketGenFolders(ctxName);
+		
+	// Remove the temp directories created for the same context	
+	// Commenting below line as it is impacting the scenarios where we need to reuse the persona file and documents with different set of data 	
+    //			clearPacketGenFolders(ctxName);
+
 		} catch (IOException e) {
 			logger.error("write:createUpdateServerContext " + e.getMessage());
 			return e.getMessage();
 		}
 		return "true";
 	}
-	
-	/*
-
-	public String createUpdateServerContext(Properties props, String ctxName) {
-
-
-try {
-	
-		Properties pp=CommonUtil.loadServerContextProperties(ctxName,personaConfigPath);
-			String generatePrivateKey = VariableManager.getVariableValue(ctxName, "generatePrivateKey").toString();// pp.getProperty("generatePrivateKey");
-
-			boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
-			if (isRequired)
-				generateKeyAndUpdateMachineDetail(pp, ctxName);
-
-			// Remove the temp directories created for the same context
-			clearPacketGenFolders(ctxName);
-
-		} catch (Exception e) {
-			logger.error("write:createUpdateServerContext " + e.getMessage());
-			return e.getMessage();
-		}
-		return "true";
-	}*/
 
 	private void clearPacketGenFolders(String ctxName) {
 		// TODO Auto-generated method stub
@@ -102,12 +98,11 @@ try {
 	}
 
 	public String createExecutionContext(String serverContextKey) {
-		String personaConfigPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.configpath").toString();
-		
+
 		String uid = UUID.randomUUID().toString();
 		ExecContext context = new ExecContext();
 		context.setKey(uid);
-		Properties p = CommonUtil.loadServerContextProperties(serverContextKey,personaConfigPath);
+		Properties p = loadServerContext(serverContextKey);
 		context.setProperties(p);
 		return uid;
 	}
@@ -148,8 +143,6 @@ try {
 	public void generateKeyAndUpdateMachineDetail(Properties contextProperties, String contextKey) {
 		KeyPairGenerator keyGenerator = null;
 		boolean isMachineDetailFound = false;
-		String personaConfigPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.configpath").toString();
-		
 		machineId = contextProperties.getProperty("mosip.test.regclient.machineid");
 		if (machineId == null || machineId.isEmpty())
 			throw new RuntimeException("MachineId is null or empty!");

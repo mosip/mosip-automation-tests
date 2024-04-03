@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
 import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
-import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
@@ -44,14 +43,7 @@ public class ContextController {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals(""))
 				DataProviderConstants.RESOURCE = personaConfigPath;
-		
-//			Properties props = CommonUtil.loadServerContextProperties(contextKey,personaConfigPath);
 			VariableManager.Init(contextKey);
-			
-			DataProviderConstants.ANGULI_PATH = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.Angulipath").toString();;
-		
-			
-				
 			/**
 			 * String generatePrivateKey =
 			 * contextProperties.getProperty("generatePrivateKey"); boolean isRequired =
@@ -82,11 +74,7 @@ public class ContextController {
 	public @ResponseBody Properties getServerContext(@PathVariable("contextKey") String contextKey) {
 		Properties bRet = null;
 		try {
-			String personaConfigPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.configpath").toString();
-			
-			
-			bRet= CommonUtil.loadServerContextProperties(contextKey,personaConfigPath);
-			 
+			bRet = contextUtils.loadServerContext(contextKey);
 		} catch (Exception ex) {
 			logger.error("createServerContext", ex);
 		}

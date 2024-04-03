@@ -43,25 +43,37 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
-import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 @Service
 public class CommandsService {
 
+	@Value("${mosip.test.testcase.propertypath:../deploy/testcases.properties}")
+	private String propertyPath;
 
-	
+	@Value("${mosip.test.uploads:../deploy/uploads}")
+	private String uploadPath;
+
+	@Value("${mosip.test.baseurl}")
+	private String baseUrl;
+
+	@Value("${mosip.test.pinglistfile:../deploy/pinglist.txt}")
+	private String pinglistfile;
+
+	@Value("${mosip.test.persona.configpath}")
+	private String personaConfigPath;
+
+	@Autowired
+	private ContextUtils contextUtils;
+
 	private static final Logger logger = LoggerFactory.getLogger(CommandsService.class);
 
 	public String checkContext(String contextKey, String module, String eSignetDeployed) throws IOException {
 
-		//Properties props = CommonUtil.loadServerContextProperties(contextKey,personaConfigPath);//delete later
-		String baseUrl = VariableManager.getVariableValue(contextKey, "mosip.test.baseurl").toString();
+		Properties props = contextUtils.loadServerContext(contextKey);
+		baseUrl = props.getProperty("urlBase");
 		// v1/keymanager/decrypt
 		/// v1/keymanager/encrypt
 
-		String pinglistfile=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.pinglistfile").toString();
-		
-			
 		File file = new File(pinglistfile);
 		// FileReader fr=new FileReader(file);
 		// BufferedReader br=new BufferedReader(fr);
@@ -144,8 +156,6 @@ public class CommandsService {
 		String result = "Success";
 		Properties props = new Properties();
 
-		String propertyPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.testcase.propertypath").toString();
-	
 		logger.info("execute Testcase:" + testcaseId);
 
 		try (InputStream input = new FileInputStream(propertyPath)) {
@@ -181,9 +191,6 @@ public class CommandsService {
 
 	public String storeFile(MultipartFile file) throws IOException {
 		String fileExtension = "";
-
-		String uploadPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.uploads").toString();
-
 		String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
 		fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
 		File uploadFolder = new File(uploadPath);
@@ -200,7 +207,6 @@ public class CommandsService {
 	public String generatekey(String contextKey, String machineId) {
 		KeyPairGenerator keyGenerator = null;
 		try {
-			String personaConfigPath=VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.persona.configpath").toString();
 			keyGenerator = KeyPairGenerator.getInstance("RSA");
 			keyGenerator.initialize(2048, new SecureRandom());
 			final KeyPair keypair = keyGenerator.generateKeyPair();

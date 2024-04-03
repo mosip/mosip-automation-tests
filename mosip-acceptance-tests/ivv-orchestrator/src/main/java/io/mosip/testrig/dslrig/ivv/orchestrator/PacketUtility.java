@@ -221,20 +221,36 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PERSONAFILEPATH, arr);
 		String url = baseUrl + props.getProperty("getTemplateUrl") + process + "/" + qualityScore + "/"
 				+ genarateValidCbeff;
-		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
 
-		if (!templateResponse.getBody().asString().toLowerCase().contains("packets")) {
-			this.hasError = true;
-			throw new RigInternalError(templateResponse.getBody().asString());
-		}
-
-		JSONObject jsonResponse = new JSONObject(templateResponse.asString());
-		JSONArray resp = jsonResponse.getJSONArray("packets");
-		if ((resp.length() <= 0)) {
-			this.hasError = true;
-			throw new RigInternalError("Unable to get Template from packet utility");
-		}
-
+		int count = 0;
+		int maxRetryCount = Integer.parseInt(props.getProperty("loopCount"));;
+		Response templateResponse = null;
+		JSONArray resp = null;
+		do {
+			count++;
+			templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
+			if (!templateResponse.getBody().asString().toLowerCase().contains("packets")) {
+				if (count == maxRetryCount) {
+					this.hasError = true;
+					throw new RigInternalError(templateResponse.getBody().asString());
+				} 
+				else {
+					logger.info("Unable to get biometrics via mds.Retrying...");
+					continue;
+				}		
+			}
+			JSONObject jsonResponse = new JSONObject(templateResponse.asString());
+			resp = jsonResponse.getJSONArray("packets");
+			if ((resp.length() <= 0)) {
+				if (count == maxRetryCount) {
+					this.hasError = true;
+					throw new RigInternalError("Unable to get Template from packet utility");
+				} 
+					logger.info("Unable to get Template from packet utility.Retrying...");				
+			} else {
+				break;
+			}
+		} while (count < maxRetryCount);
 		return resp;
 	}
 
@@ -510,7 +526,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String updateResidentWithGuardianSkippingPreReg_old(String residentFilePath,
 			HashMap<String, String> contextKey, String withRidOrUin, String missingFields, Scenario.Step step,
-			boolean getRidFromSync, String qualityScore, boolean genarateValidCbeff) throws RigInternalError {
+			boolean getRidFromSync, String qualityScore, boolean genarateValidCbeff, String invalidMachineFlag) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields, contextKey, step);
 		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextKey, step,
@@ -518,7 +534,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
 		String rid = generateAndUploadPacketSkippingPrereg(templatePath,
-				step.getScenario().getGeneratedResidentData().get(0), null, contextKey, SUCCESS, step, getRidFromSync);
+				step.getScenario().getGeneratedResidentData().get(0), null, contextKey, SUCCESS, step, getRidFromSync,invalidMachineFlag);
 
 		String url = baseUrl + props.getProperty(UPDATERESIDENTURL);
 
@@ -580,37 +596,37 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath, String additionalInfoReqId,
-			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync)
+			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync, String invalidMachineFlag)
 			throws RigInternalError {
 
 		String url = baseUrl + "/packet/sync/01/" + true; // 01 -- to generate wrong hash
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, true);
+				getRidFromSync, true, invalidMachineFlag);
 	}
 
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
 			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus, Scenario.Step step,
-			boolean getRidFromSync) throws RigInternalError {
+			boolean getRidFromSync, String invalidMachineFlag) throws RigInternalError {
 
 		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; // 0 -- to skip prereg
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, true);
+				getRidFromSync, true,invalidMachineFlag);
 
 	}
 
 	public String generateAndUploadWithInvalidCbeffPacketSkippingPrereg(String packetPath, String residentPath,
 			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus, Scenario.Step step,
-			boolean getRidFromSync) throws RigInternalError {
+			boolean getRidFromSync, String invalidMachineFlag) throws RigInternalError {
 
 		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; // 0 -- to skip prereg
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, false);
+				getRidFromSync, false,invalidMachineFlag);
 
 	}
 
 	public String getRID(String url, String packetPath, String residentPath, String additionalInfoReqId,
 			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync,
-			boolean genarateValidCbeff) throws RigInternalError {
+			boolean genarateValidCbeff,String invalidMachineFlag) throws RigInternalError {
 		String rid = null;
 		if (genarateValidCbeff)
 			url += "/1"; // 1 --- to generateValid Cbeff
@@ -623,15 +639,35 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PERSONAFILEPATH, arr);
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
 
-		Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
-		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
-			JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			rid = jsonResp.getJSONObject(RESPONSE).getString("registrationId");
-		}
-		if (!response.getBody().asString().toLowerCase().contains(responseStatus)) {
-			this.hasError = true;
-			throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
-		}
+		int count = 0;
+		int maxRetryCount = Integer.parseInt(props.getProperty("loopCount"));
+
+		do {
+	  		count++;
+			Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
+			
+			if (invalidMachineFlag.contentEquals("invalidMachine") && response.getBody().asString().toLowerCase().contains("failed to sign data")) {
+				return "";
+			}
+			if (!response.getBody().asString().toLowerCase().contains(responseStatus)
+					|| response.getBody().asString().toLowerCase().contains("failed")) {
+				if (count == maxRetryCount) {
+					this.hasError = true;
+					throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
+				} else {
+					logger.info("Unable to generate and upload packet . Retrying...");
+				    continue;
+				}
+			}
+
+			else {
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				rid = jsonResp.getJSONObject(RESPONSE).getString("registrationId");
+				break;
+			}
+
+		} while (count < maxRetryCount);
+
 		return rid;
 	}
 
@@ -794,10 +830,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		
 		jsonReq.put("langCode", BaseTestCase.languageCode);
 
-     //   jsonReq.put("mosip.test.primary.langcode", BaseTestCase.languageCode);
-        
-		jsonReq.put("langCode", BaseTestCase.languageCode);
 		jsonReq.put("validUIN", (map.get("$$uin") != null) ? map.get("$$uin") : "createnew");
+
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
 		if (mosipVersion != null && !mosipVersion.isEmpty())
@@ -1126,6 +1160,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 				"identityRequest.serialNo");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"),
 				"identityRequest.type");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, getAuthTransactionId(transactionId),
+				"identityRequest.transactionId");
 
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
 		test.setInput(input);
@@ -1139,6 +1175,21 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} finally {
 
 		}
+	}
+	
+	private String getAuthTransactionId(String oidcTransactionId) {
+	    final String transactionId = oidcTransactionId.replaceAll("_|-", "");
+	    String lengthOfTransactionId =  AdminTestUtil.getValueFromEsignetActuator("/mosip/mosip-config/esignet-default.properties", "mosip.esignet.auth-txn-id-length");
+	   int authTransactionIdLength = lengthOfTransactionId != null ? Integer.parseInt(lengthOfTransactionId): 0;
+	    final byte[] oidcTransactionIdBytes = transactionId.getBytes();
+	    final byte[] authTransactionIdBytes = new byte[authTransactionIdLength];
+	    int i = oidcTransactionIdBytes.length - 1;
+	    int j = 0;
+	    while(j < authTransactionIdLength) {
+	        authTransactionIdBytes[j++] = oidcTransactionIdBytes[i--];
+	        if(i < 0) { i = oidcTransactionIdBytes.length - 1; }
+	    }
+	    return new String(authTransactionIdBytes);
 	}
 
 	public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList, Scenario.Step step)

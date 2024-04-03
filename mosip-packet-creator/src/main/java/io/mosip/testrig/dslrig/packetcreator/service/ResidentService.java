@@ -24,10 +24,29 @@ public class ResidentService {
 	  
 	  private static final Logger logger = LoggerFactory.getLogger(ResidentController.class);
 
+	  void loadServerContextProperties(String contextKey) {
+	    	
+	    	if(contextKey != null && !contextKey.equals("")) {
+	    		
+	    		Properties props = contextUtils.loadServerContext(contextKey);
+	    		props.forEach((k,v)->{
+	    			String key = k.toString().trim();
+	    			String ns = VariableManager.NS_DEFAULT;
+	    			
+	    			if(!key.startsWith("mosip.test")) {
+	    	
+						
+	    				VariableManager.setVariableValue(ns,key, v);
+	    			}
+	    			
+	    		});
+	    	}
+	    }
 
 
 	  public String downloadCard(String personaPath, String uin, String context) throws Exception{
 		  
+			loadServerContextProperties(context);
 			ResidentModel resident = ResidentModel.readPersona(personaPath);
 			RegistrationSteps steps = new RegistrationSteps();
 			String resp = steps.downloadCard(resident, uin,context);
@@ -35,7 +54,9 @@ public class ResidentService {
 			return resp;
 	  }
 	  public String getRIDStatus(String rid, String context) {
-
+		  VariableManager.Init(context); 
+		  loadServerContextProperties(context);
+		 
 		  RegistrationSteps steps = new RegistrationSteps();
 		  try {
 			  return steps.getRIDStatus(rid,context);
@@ -46,7 +67,8 @@ public class ResidentService {
 	  }
 	  public String getUINByRID(String rid, String context) throws Exception {
 		  
-	
+		  VariableManager.Init(context);
+		  loadServerContextProperties(context);
 		  RegistrationSteps steps = new RegistrationSteps();
 		//  try {
 			 return steps.getUINByRID(rid,context);
@@ -57,7 +79,9 @@ public class ResidentService {
 	  }
 	  
   public Response getStagesByRID(String rid, String context) throws Exception {
-	
+		  
+		  VariableManager.Init(context);
+		  loadServerContextProperties(context);
 		  RegistrationSteps steps = new RegistrationSteps();
 		//  try {
 			 return steps.getStagesByRID(rid,context);

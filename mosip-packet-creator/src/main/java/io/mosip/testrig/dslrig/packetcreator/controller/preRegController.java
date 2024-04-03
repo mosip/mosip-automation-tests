@@ -29,6 +29,9 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 public class preRegController {
 
+	  @Value("${mosip.test.persona.configpath}")
+		private String personaConfigPath;
+	  
 	  @Autowired
 	    PacketSyncService packetSyncService;
 
@@ -41,7 +44,9 @@ public class preRegController {
     		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
-    		
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.requestOtp(preRegisterRequestDto.getPersonaFilePath(), to, contextKey);
     	
     	} catch (Exception ex){
@@ -57,7 +62,9 @@ public class preRegController {
     		@PathVariable("contextKey") String contextKey, @PathVariable("otp") String otp    		) {
 
     	try{    	
-    	
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.verifyOtp(preRegisterRequestDto.getPersonaFilePath().get(0), to, otp, contextKey);
     	
     	} catch (Exception ex){
@@ -73,7 +80,9 @@ public class preRegController {
     		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
-    	
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.preRegisterResident(preRegisterRequestDto.getPersonaFilePath(), contextKey);
     	
     	} catch (Exception ex){
@@ -89,7 +98,9 @@ public class preRegController {
     		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
-    		
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.updateResidentApplication(preRegisterRequestDto.getPersonaFilePath().get(0),preregId, contextKey);
     	
     	} catch (Exception ex){
@@ -106,8 +117,11 @@ public class preRegController {
     		@RequestParam(name="preregId",required = false) String preregId,
     		@PathVariable("contextKey") String contextKey    		) {
 
+    	//28602756053278
     	try{    	
-    		
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.preRegisterGetApplications(null,preregId, contextKey);
     	
     	} catch (Exception ex){
@@ -123,7 +137,9 @@ public class preRegController {
     		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
-    		
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.preRegisterGetApplications("Booked",preregId, contextKey);
     	
     	} catch (Exception ex){
@@ -143,7 +159,9 @@ public class preRegController {
     		) {
 
     	try{    	
-    		
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.bookAppointment(preregId,nthSlot, contextKey);
     	
     	} catch (Exception ex){
@@ -161,7 +179,9 @@ public class preRegController {
     		) {
 
     	try{    	
-    		
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.bookSpecificAppointment(preregId,appointmentDto, contextKey);
     	
     	} catch (Exception ex){
@@ -177,7 +197,9 @@ public class preRegController {
     		@PathVariable("contextKey") String contextKey    		) {
 
     	try{    	
-    		
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.getAvailableAppointments(contextKey);
     	
     	} catch (Exception ex){
@@ -198,7 +220,9 @@ public class preRegController {
     		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
-    	
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.bookAppointmentSlot(preregId,nthSlot, bookOnHolidays,contextKey);
     	
     	} catch (Exception ex){
@@ -214,7 +238,9 @@ public class preRegController {
     		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
-    		
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.uploadDocuments(preRegisterRequestDto.getPersonaFilePath().get(0),preregId, contextKey);
     	
     	} catch (Exception ex){
@@ -232,7 +258,9 @@ public class preRegController {
     		@PathVariable("contextKey") String contextKey) {
 
     	try{    	
-    	
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.cancelAppointment(preregId, appointmentDto,contextKey);
     	
     	} catch (Exception ex){
@@ -260,7 +288,10 @@ public class preRegController {
 			@RequestParam(name = "statusCode") String statusCode,
 			@PathVariable("contextKey") String contextKey) {
 
-    	try {
+    	try{    	
+    		if(personaConfigPath !=null && !personaConfigPath.equals("")) {
+    			DataProviderConstants.RESOURCE = personaConfigPath;
+    		}
     		return packetSyncService.updatePreRegistrationStatus(preregId, statusCode,contextKey);
     	
     	} catch (Exception ex){
