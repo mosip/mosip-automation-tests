@@ -11,14 +11,8 @@ LABEL build_time=${BUILD_TIME}
 
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user=mosip
-
-# can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user_group=mosip
-
-# can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user_uid=1001
-
-# can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user_gid=1001
 
 # set working directory for the user
@@ -27,6 +21,10 @@ ENV work_dir=/home/${container_user}/
 ARG KUBECTL_VERSION=1.22.9
 
 # install packages and create user
+RUN groupadd -g ${container_user_gid} ${container_user_group} \
+    && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/bash -m ${container_user} -d ${work_dir} \
+    && chown -R ${container_user}:${container_user} /home/${container_user}
+
 RUN apt-get update \
     && apt install jq -y \
     && groupadd -g ${container_user_gid} ${container_user_group} \
@@ -43,7 +41,9 @@ COPY --chown=${container_user}:${container_user} ./build_files/ ${work_dir}
 COPY --chown=${container_user}:${container_user} ./scenarios /tmp/scenarios
 
 # set working directory
-WORKDIR ${work_dir}
+ENV work_dir=${work_dir}
+
+WORKDIR /home/${container_user}
 
 EXPOSE 8081
 
