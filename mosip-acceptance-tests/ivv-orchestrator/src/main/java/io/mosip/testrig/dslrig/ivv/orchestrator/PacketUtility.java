@@ -791,7 +791,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} else {
 			jsonReq.put(SCENARIO, step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		}
-
+		
+		//Add age category from actuator
+		jsonReq.put("ageCategory", AdminTestUtil.getValueFromRegprocActuator("/mosip/mosip-config/registration-processor-default.properties", "mosip.regproc.packet.classifier.tagging.agegroup.ranges"));
 		// id json mapping
 		jsonReq.put("IDSchemaVersion", getValueFromIdJson("IDSchemaVersion"));
 		jsonReq.put("uin", getValueFromIdJson("uin"));
