@@ -10,10 +10,12 @@ public class DataProviderConstants {
 
 	public static final int DEFAULT_ABIS_DELAY = 3;
 	public static final Object INDIVIDUAL_TYPE = "residenceStatus";
-	public static int Age_Adult_Min_Age = 18;
-	
-	public static int Age_Minor_Min_Age = 6;
-	public static int Age_Senior_Citizen_Min_Age = 60;
+	/*
+	 * public static int Age_Adult_Min_Age = 18;
+	 * 
+	 * public static int Age_Minor_Min_Age = 6; public static int
+	 * Age_Senior_Citizen_Min_Age = 60;
+	 */
 
 	//contacts formatting firstname.surname.{randomnumber}@mailinator.com
 	public static String email_format = "%s.%s.%d@mailinator.com";
