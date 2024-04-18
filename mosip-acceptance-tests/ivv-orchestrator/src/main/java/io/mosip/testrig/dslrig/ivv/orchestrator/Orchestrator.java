@@ -43,6 +43,7 @@ import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.mosip.testrig.apirig.authentication.fw.util.ReportUtil;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
@@ -75,6 +76,7 @@ public class Orchestrator {
 	public static long suiteStartTime = System.currentTimeMillis();
 	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
+	
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
@@ -245,7 +247,8 @@ public class Orchestrator {
 	private synchronized void updateRunStatistics(Scenario scenario)
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 //		logger.info(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
-		logger.info("Updating statistics for scenario: "+ scenario.getId() + " -- updating the executed count to: " + counterLock.getAndIncrement());
+		logger.info("Updating statistics for scenario: " + scenario.getId() + " -- updating the executed count to: "
+				+ counterLock.getAndIncrement());
 		if (scenario.getId().equalsIgnoreCase("0")) {
 			/// Check if all steps in Before are passed or not
 			for (Scenario.Step step : scenario.getSteps()) {
@@ -260,7 +263,7 @@ public class Orchestrator {
 			beforeSuiteExeuted = true;
 			logger.info("Before Suite executed");
 		}
-
+ 
 		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
 
 	}
@@ -270,20 +273,27 @@ public class Orchestrator {
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
 			IllegalAccessException, InstantiationException {
 
-		OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(
-		                OperatingSystemMXBean.class);
+		OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
-		logger.info("getProcessCpuLoad What % CPU load this current JVM is taking, from 0.0-1.0" + osBean.getProcessCpuLoad());
+		logger.info("getProcessCpuLoad What % CPU load this current JVM is taking, from 0.0-1.0"
+				+ osBean.getProcessCpuLoad());
 		logger.info("getSystemCpuLoad What % load the overall system is at, from 0.0-1.0" + osBean.getSystemCpuLoad());
-		logger.info("Returns the amount of virtual memory that is guaranteed to be available to the running process in bytes, or -1 if this operation is not supported:"+Long.toString(osBean.getCommittedVirtualMemorySize()));
-		logger.info("Returns the amount of free physical memory in bytes:"+Long.toString(osBean.getFreePhysicalMemorySize()));
-		logger.info("Returns the amount of free swap space in bytes:"+Long.toString(osBean.getFreeSwapSpaceSize()));
-		logger.info("Returns the recent cpu usage for the Java Virtual Machine process:"+Double.toString(osBean.getProcessCpuLoad()));
-		logger.info("Returns the CPU time used by the process on which the Java virtual machine is running in nanoseconds:"+Long.toString(osBean.getProcessCpuTime()));
-		logger.info("Returns the recent cpu usage for the whole system:"+Double.toString(osBean.getSystemCpuLoad())		);
-		logger.info("Returns the total amount of physical memory in bytes:"+Long.toString(osBean.getTotalPhysicalMemorySize()));
-		logger.info("Returns the total amount of swap space in bytes:"+Long.toString(osBean.getTotalSwapSpaceSize()));
-		
+		logger.info(
+				"Returns the amount of virtual memory that is guaranteed to be available to the running process in bytes, or -1 if this operation is not supported:"
+						+ Long.toString(osBean.getCommittedVirtualMemorySize()));
+		logger.info("Returns the amount of free physical memory in bytes:"
+				+ Long.toString(osBean.getFreePhysicalMemorySize()));
+		logger.info("Returns the amount of free swap space in bytes:" + Long.toString(osBean.getFreeSwapSpaceSize()));
+		logger.info("Returns the recent cpu usage for the Java Virtual Machine process:"
+				+ Double.toString(osBean.getProcessCpuLoad()));
+		logger.info(
+				"Returns the CPU time used by the process on which the Java virtual machine is running in nanoseconds:"
+						+ Long.toString(osBean.getProcessCpuTime()));
+		logger.info("Returns the recent cpu usage for the whole system:" + Double.toString(osBean.getSystemCpuLoad()));
+		logger.info("Returns the total amount of physical memory in bytes:"
+				+ Long.toString(osBean.getTotalPhysicalMemorySize()));
+		logger.info("Returns the total amount of swap space in bytes:" + Long.toString(osBean.getTotalSwapSpaceSize()));
+
 		if (!scenario.getId().equalsIgnoreCase("0")) {
 
 			// AFTER_SUITE scenario execution kicked-off before all execution
@@ -297,7 +307,7 @@ public class Orchestrator {
 						logger.error("Exhausted the maximum suite execution time.Hence, terminating the execution");
 						break;
 					}
-					 
+
 					logger.info(" Thread ID: " + Thread.currentThread().getId() + " inside scenariosExecuted "
 							+ counterLock.get() + "- " + scenario.getId());
 					Thread.sleep(10000); // Sleep for 10 sec
@@ -387,8 +397,17 @@ public class Orchestrator {
 				st.setStep(step);
 				st.setup();
 				st.validateStep();
-				Reporter.log("\n\n\n\n==============" + "[Test Step: " + step.getName() + "] [Test Parameters: "
-						+ step.getParameters() + "] " + "================ \n\n\n\n\n");
+				String[] stepDetails = getStepDetails("e2e_" + step.getName());
+				
+				StringBuilder sb = new StringBuilder();
+				sb.append("<div> <textarea style='border:solid 1px gray; background-color: darkgray;' name='headers' rows='4' cols='160' readonly='true'>");
+				sb.append("Step Name: " + step.getName()+ "\n");
+				sb.append("Step Description:" + stepDetails[0]+ "\n");
+				sb.append("Step Parameters: " + stepDetails[1]+ "\n");
+				sb.append("</textarea> </div>");
+				
+				Reporter.log(sb.toString());
+				
 				st.run();
 
 				st.assertHttpStatus();
@@ -441,6 +460,9 @@ public class Orchestrator {
 				Assert.assertTrue(false);
 				return;
 			} catch (RigInternalError e) {
+				if (scenario.getId().equals("0")) {
+					beforeSuiteFailed = true;
+				}
 				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
 				logger.error(e.getMessage());
 				Reporter.log(e.getMessage());
@@ -608,10 +630,10 @@ public class Orchestrator {
 			return "";
 		}
 		if (ConfigManager.IsDebugEnabled()) {
-			String keyValues ="";
+			String keyValues = "";
 			// Iterate through the map and print its contents
 			for (Map.Entry<String, String[]> entry : stepsMap.entrySet()) {
-				 keyValues += entry.getKey();
+				keyValues += entry.getKey();
 				String[] values = entry.getValue();
 				for (int i = 0; i < values.length; i++) {
 					keyValues += "," + values[i];
@@ -640,6 +662,10 @@ public class Orchestrator {
 				stepsMap.put(step, descAndExample);
 			}
 		}
+	}
+
+	private static String[] getStepDetails(String stepName) {
+		return stepsMap.get(stepName);
 	}
 
 }

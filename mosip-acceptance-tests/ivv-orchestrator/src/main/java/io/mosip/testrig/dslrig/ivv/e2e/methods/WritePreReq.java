@@ -30,7 +30,7 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		String value = null;
 		String appendedkey = null;
 		HashMap<String, String> map = new HashMap<String, String>();
-		Reporter.log("==========STEP ====== WritePreReq ");
+//		Reporter.log("==========STEP ====== WritePreReq ");
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("PreRequisite Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else if (step.getParameters().size() >= 1) {
@@ -51,8 +51,7 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 			for (Map.Entry<String, String> entry : map.entrySet()) {
 				if (entry.getValue() == null) {
 					props.setProperty(entry.getKey(), "");
-				}
-				else if (entry.getValue() != null)
+				} else if (entry.getValue() != null)
 					props.setProperty(entry.getKey(), entry.getValue());
 			}
 			// props.putAll(map);
@@ -63,8 +62,9 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 				propertiesMap.put((String) entry.getKey(), (String) entry.getValue());
 			}
 			prereqDataSet.put(path, propertiesMap);
-			if (ConfigManager.IsDebugEnabled())
-				Reporter.log(props.toString());
+			/*
+			 * if (ConfigManager.IsDebugEnabled()) Reporter.log(props.toString());
+			 */
 		} catch (Exception e) {
 			this.hasError = true;
 			logger.error(e.getMessage());
