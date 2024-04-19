@@ -60,7 +60,7 @@ public class Machine extends BaseTestCaseUtil implements StepInterface {
 				
 				if (step.getOutVarName() != null)
 					step.getScenario().getVariables().putAll(machineDetailsmap);
-				Reporter.log(machineDetailsmap.toString());
+//				Reporter.log(machineDetailsmap.toString());
 			break;
 		case "ACTIVE_FLAG":
 			machineHelper.activateMachine(machineDetailsmap.get("machineid"),activecheck);
@@ -70,7 +70,7 @@ public class Machine extends BaseTestCaseUtil implements StepInterface {
 			machineDetailsmap=machineHelper.updateMachine(machineDetailsmap,centerCount);
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().putAll(machineDetailsmap);
-			Reporter.log(machineDetailsmap.toString());
+//			Reporter.log(machineDetailsmap.toString());
 			break;
 			
 		case "DCOM":

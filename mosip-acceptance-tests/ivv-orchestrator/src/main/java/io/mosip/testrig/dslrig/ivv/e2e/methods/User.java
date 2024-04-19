@@ -97,7 +97,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				step.getScenario().getVariables().putAll(map);
 			userHelper.deleteCenterMapping(user);
 
-			Reporter.log(map.toString());
+//			Reporter.log(map.toString());
 			break;
 		case "DELETE_ZONEMAPPING":
 			userHelper.deleteZoneMapping(user, zone);
@@ -119,7 +119,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		case "CREATE_ZONESEARCH":
 			map = userHelper.createZoneSearch(user, map);
 			step.getScenario().getVariables().putAll(map);
-			Reporter.log(map.toString());
+//			Reporter.log(map.toString());
 			break;
 		case "ADD_User":
 			HashMap<String, List<String>> attrmap = new HashMap<String, List<String>>();
