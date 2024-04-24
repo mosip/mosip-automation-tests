@@ -218,20 +218,6 @@ public class EmailableReport implements IReporter {
 		writer.print("</html>");
 	}
 
-    public static String getCurrentBranch() {
-	        File gitHeadFile = new File(".git/HEAD");
-	        try (BufferedReader reader = new BufferedReader(new FileReader(gitHeadFile))) {
-	            String ref = reader.readLine();
-	            if (ref != null && ref.startsWith("ref:")) {
-	                String branch = ref.substring("ref/heads/".length());
-	                return branch;
-	            }
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	        return null;
-	    }
-	
 	protected void writeSuiteSummary() {
 		NumberFormat integerFormat = NumberFormat.getIntegerInstance();
 		NumberFormat decimalFormat = NumberFormat.getNumberInstance();
