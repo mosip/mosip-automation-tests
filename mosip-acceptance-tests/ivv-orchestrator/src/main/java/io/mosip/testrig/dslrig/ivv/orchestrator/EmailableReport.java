@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -217,6 +218,20 @@ public class EmailableReport implements IReporter {
 		writer.print("</html>");
 	}
 
+    public static String getCurrentBranch() {
+	        File gitHeadFile = new File(".git/HEAD");
+	        try (BufferedReader reader = new BufferedReader(new FileReader(gitHeadFile))) {
+	            String ref = reader.readLine();
+	            if (ref != null && ref.startsWith("ref:")) {
+	                String branch = ref.substring("ref/heads/".length());
+	                return branch;
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	        return null;
+	    }
+	
 	protected void writeSuiteSummary() {
 		NumberFormat integerFormat = NumberFormat.getIntegerInstance();
 		NumberFormat decimalFormat = NumberFormat.getNumberInstance();
@@ -249,7 +264,7 @@ public class EmailableReport implements IReporter {
 			writer.print(Utils.escapeHtml(
 				    suiteResult.getSuiteName() + " ---- " +
 				    "Report Date: " + formattedDate + " ---- " +
-				    "Tested Environment: " + System.getProperty("env.user").substring(System.getProperty("env.user").lastIndexOf(".") + 1) + " ---- " +
+				    "Tested Environment: " + System.getProperty("env.endpoint").replaceAll(".*?\\.([^\\.]+)\\..*", "$1") + " ---- " +
 				    "Testrig details: Branch Name - " + branch + ", Commit ID - " + getCommitId()));
 			
 			writer.print("</th></tr>");
