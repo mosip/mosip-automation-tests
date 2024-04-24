@@ -3,7 +3,7 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import io.mosip.testrig.apirig.dbaccess.DBManager;
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
