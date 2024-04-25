@@ -6814,7 +6814,7 @@
 			"Action": "e2e_CheckRIDStage($$rid2,MANUAL_ADJUDICATION,FAILED)"
 		}
 	},
-	{
+		{
 		"Scenario": "64",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
@@ -6875,10 +6875,10 @@
 			"Action": "$$uin=e2e_getUINByRid($$rid)"
 		},
 		"Step-9": {
-			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_clonePersonaAndUpdate($$personaFilePath,firstName@@midName@@surName)"
+			"Description": "Updates Demo graphic details and biometric in the persona file",
+			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_updateDemoOrBioDetails(0,0,name=AutomationName,$$personaFilePath)"
 		},
 		"Step-10": {
 			"Description": "Generates the hash for the given modalities",
@@ -6926,7 +6926,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$ridNew,BIOGRAPHIC_VERIFICATION,FAILED)"
+			"Action": "e2e_CheckRIDStage($$ridNew,MANUAL_ADJUDICATION,FAILED)"
 		}
 	},
 	{
@@ -10032,7 +10032,7 @@
 			"Description": "Generates packet template based on the persona data",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
-			"Action": "$$templatePath=e2e_getPacketTemplate(NEW,$$personaFilePath)"
+			"Action": "$$templatePath=e2e_getPacketTemplate(NEW,$$personaFilePath,10/*BIOMETRIC_QUALITY_SCORE*/)"
 		},
 		"Step-6": {
 			"Description": "<<<Step detailed description>>>",
@@ -10047,82 +10047,64 @@
 			"Action": "$$rid=e2e_ridsync(NEW,$$zipPacketPath)"
 		},
 		"Step-8": {
-			"Description": "Generates the hash for the given modalities",
-			"Input Parameters": "Modalitie and persona file path. Other details can be found in the parameter in-line comments",
-			"Return Value": "Hash value",
-			"Action": "$$modalityHashValue=e2e_getBioModalityHash(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger@@Left LittleFinger,$$personaFilePath)"
-		},
-		"Step-9": {
-			"Description": "Sets expectatation on mock ABIS",
-			"Input Parameters": "Modalities hash value. Other details can be found in the parameter in-line comments",
-			"Return Value": "NA",
-			"Action": "e2e_configureMockAbis(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger,true/*DUPLICATE_FLAG*/,Right IndexFinger,$$personaFilePath,$$modalityHashValue,-1/*DEFAULT_MOCK_DELAY*/,@@Duplicate/*STATUS_CODE*/)"
-		},
-		"Step-10": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
 			"Action": "e2e_packetsync($$zipPacketPath)"
 		},
-		"Step-11": {
-			"Description": "Generates packet template based on the persona data",
-			"Input Parameters": "Process and persona file path",
-			"Return Value": "Generated Template file path",
-			"Action": "$$templatePath1=e2e_getPacketTemplate(NEW,$$personaFilePath,15/*BIOMETRIC_QUALITY_SCORE*/)"
-		},
-		"Step-12": {
-			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
-			"Action": "$$zipPacketPath1=e2e_packetcreator(NEW,$$templatePath1)"
-		},
-		"Step-13": {
-			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
-			"Action": "$$rid1=e2e_ridsync(NEW,$$zipPacketPath1)"
-		},
-		"Step-14": {
-			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "NA",
-			"Action": "e2e_packetsync($$zipPacketPath1)"
-		},
-		"Step-15": {
+		"Step-9": {
 			"Description": "Gets additional request ID for correction packet",
 			"Input Parameters": "Additional request ID key",
 			"Return Value": "Additional request ID",
 			"Action": "$$additionalReqId=e2e_getAdditionalReqId(additionalReqId_86)"
 		},
-		"Step-16": {
+		"Step-10": {
+			"Description": "Generates persona data",
+			"Input Parameters": "Details are in parameter in-line comments",
+			"Return Value": "Persona file path",
+			"Action": "$$personaFilePath1=e2e_getResidentData(1/*NUMBER_OF_RESIDENTS*/,adult,false/*GUARDIAN_FLAG*/,Male)"
+		},
+		"Step-11": {
 			"Description": "Generates packet template based on the persona data",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
-			"Action": "$$templatePath2=e2e_getPacketTemplate(BIOMETRIC_CORRECTION,$$personaFilePath)"
+			"Action": "$$templatePath1=e2e_getPacketTemplate(BIOMETRIC_CORRECTION,$$personaFilePath1)"
 		},
-		"Step-17": {
+		"Step-12": {
+			"Description": "Generates the hash for the given modalities",
+			"Input Parameters": "Modalitie and persona file path. Other details can be found in the parameter in-line comments",
+			"Return Value": "Hash value",
+			"Action": "$$modalityHashValue=e2e_getBioModalityHash(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger@@Left LittleFinger,$$personaFilePath1)"
+		},
+		"Step-13": {
+			"Description": "Sets expectatation on mock ABIS",
+			"Input Parameters": "Modalities hash value. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_configureMockAbis(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger,true/*DUPLICATE_FLAG*/,Right IndexFinger,$$personaFilePath1,$$modalityHashValue,-1/*DEFAULT_MOCK_DELAY*/,@@Duplicate/*STATUS_CODE*/)"
+		},
+		"Step-14": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "$$zipPacketPath2=e2e_packetcreator(BIOMETRIC_CORRECTION,$$templatePath2,$$additionalReqId)"
+			"Action": "$$zipPacketPath1=e2e_packetcreator(BIOMETRIC_CORRECTION,$$templatePath1,$$additionalReqId)"
 		},
-		"Step-18": {
+		"Step-15": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "$$rid2=e2e_ridsync(BIOMETRIC_CORRECTION,$$zipPacketPath2,$$additionalReqId)"
+			"Action": "$$rid1=e2e_ridsync(BIOMETRIC_CORRECTION,$$zipPacketPath1,$$additionalReqId)"
 		},
-		"Step-19": {
+		"Step-16": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
-			"Action": "e2e_packetsync($$zipPacketPath2)"
+			"Action": "e2e_packetsync($$zipPacketPath1)"
 		},
-		"Step-20": {
+		"Step-17": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(processed,$$rid2)"
+			"Action": "e2e_checkStatus(processed,$$rid1)"
 		}
 	},
 	{
@@ -13483,7 +13465,7 @@
 			"Action": "e2e_bioAuthentication(faceDevice,$$lostUin,$$vidwithoutotp,$$personaFilePath)"
 		}
 	},
-	{
+		{
 		"Scenario": "115",
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
@@ -13622,10 +13604,10 @@
 			"Action": "$$childUin=e2e_getUINByRid($$childRid)"
 		},
 		"Step-22": {
-			"Description": "Gets Email ID configuired for the UIN",
-			"Input Parameters": "UIN",
-			"Return Value": "Email ID",
-			"Action": "$$email=e2e_getEmailByUIN($$childUin)"
+			"Description": "Generates VID without OTP",
+			"Input Parameters": "VID tyoe and UIN",
+			"Return Value": "VID",
+			"Action": "$$vidwithoutotp=e2e_GenerateVIDWithoutOTP(Perpetual,$$childUin)"
 		},
 		"Step-23": {
 			"Description": "Waits for given period in seconds",
@@ -13634,36 +13616,24 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-24": {
-			"Description": "Generated VID for the given UIN",
-			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
-			"Return Value": "VID",
-			"Action": "$$vid=e2e_generateVID(Perpetual,$$childUin,$$email)"
-		},
-		"Step-25": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
-		},
-		"Step-26": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
-			"Action": "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
+			"Action": "e2e_demoAuthentication(name,$$childUin,$$childPersona,$$vidwithoutotp)"
 		},
-		"Step-27": {
+		"Step-25": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$parentRid,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-28": {
+		"Step-26": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-29": {
+		"Step-27": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
@@ -16096,7 +16066,7 @@
 			"Description": "Checks for given modality data BDB",
 			"Input Parameters": "UNI and modalities",
 			"Return Value": "NA",
-			"Action": "e2e_CheckForBDBPresence($$uin2,FINGER_Left RingFinger@@FINGER_Right LittleFinger@@FACE@@FINGER_Left LittleFinger@@IRIS_Right@@FINGER_Left MiddleFinger@@FINGER_Left IndexFinger@@FINGER_Right IndexFinger@@IRIS_Left@@FINGER_Right RingFinger@@FINGER_Left Thumb@@FINGER_Right MiddleFinger@@FINGER_Right Thumb,false)"
+			"Action": "e2e_CheckForBDBPresence($$uin2,FINGER_Left RingFinger@@FINGER_Right LittleFinger@@FACE@@FINGER_Left LittleFinger@@IRIS_Right@@FINGER_Left MiddleFinger@@FINGER_Left IndexFinger@@FINGER_Right IndexFinger@@IRIS_Left@@FINGER_Right RingFinger@@FINGER_Right MiddleFinger@@FINGER_Right Thumb,true)"
 		}
 	},
 	{
