@@ -94,8 +94,8 @@ public class MosipDataSetup {
 				+ "v1/masterdata/machines/";
 		
 		url = url + machineId + "/ ";
-		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
-		Object o =getCache(url,run_context);
+//		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
+		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (List<MosipMachineModel>) o);
 		
@@ -107,7 +107,7 @@ public class MosipDataSetup {
 				machines = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
 				
-				setCache(url, machines,run_context);
+				setCache(url, machines,contextKey);
 			
 			}
 			
@@ -124,9 +124,9 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()
 				+ "v1/masterdata/machines/search";
 		
-		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
+//		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
 		
-		Object o =getCache(url,run_context);
+		Object o =getCache(url,contextKey);
 		if(o != null)
 			return( (List<MosipMachineModel>) o);
 		
@@ -168,7 +168,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				machines = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
 				
-				setCache(url, machines,run_context);
+				setCache(url, machines,contextKey);
 			
 			}
 			

@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -249,7 +250,7 @@ public class EmailableReport implements IReporter {
 			writer.print(Utils.escapeHtml(
 				    suiteResult.getSuiteName() + " ---- " +
 				    "Report Date: " + formattedDate + " ---- " +
-				    "Tested Environment: " + System.getProperty("env.user").substring(System.getProperty("env.user").lastIndexOf(".") + 1) + " ---- " +
+				    "Tested Environment: " + System.getProperty("env.endpoint").replaceAll(".*?\\.([^\\.]+)\\..*", "$1") + " ---- " +
 				    "Testrig details: Branch Name - " + branch + ", Commit ID - " + getCommitId()));
 			
 			writer.print("</th></tr>");
