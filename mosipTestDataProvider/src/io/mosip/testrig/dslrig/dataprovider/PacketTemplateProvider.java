@@ -251,7 +251,7 @@ public class PacketTemplateProvider {
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
 			for (MosipDocument doc : resident.getDocuments()) {
-				if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
+				if (s.getSubType() != null && doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
 					DocumentDto documentDto = new DocumentDto();
 					if (json.has(s.getId())) {
 						JSONObject formateJson = json.getJSONObject(s.getId());
@@ -311,7 +311,11 @@ public class PacketTemplateProvider {
 			RestClient.logInfo(contextKey, s.toJSONString());
 			String primVal = "";
 			String secVal = "";
-			if (s.getFieldCategory().equals(EVIDENCE) && (s.getInputRequired() || s.getRequired())) {
+			
+			if (s.getFieldCategory() != null && (
+				    (s.getInputRequired() != null && s.getInputRequired()) ||
+				    (s.getRequired() != null && s.getRequired())
+				) && s.getFieldCategory().equals(EVIDENCE))  {
 
 				if (s.getRequired() && s.getRequiredOn() != null && !s.getRequiredOn().isEmpty()) {
 
