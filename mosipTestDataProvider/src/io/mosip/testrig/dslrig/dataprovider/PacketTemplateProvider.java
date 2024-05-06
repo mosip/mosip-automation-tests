@@ -864,6 +864,8 @@ public class PacketTemplateProvider {
 				for (DynamicFieldModel dfm : dynaFields.get(primaryLanguage)) {
 					if (dfm.getIsActive() && dfm.getName().equals(s.getId())) {
 						primaryValue = dfm.getFieldVal().get(0).getCode();
+						if (s.getId().contains("residenceStatus"))
+						VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", primaryValue);
 						dfmPrim = dfm;
 						break;
 					}
@@ -874,6 +876,8 @@ public class PacketTemplateProvider {
 					for (DynamicFieldModel dfm1 : dynaFields.get(secLanguage)) {
 						if (dfm1.getIsActive() && dfm1.getName().equals(s.getId())) {
 							secValue = dfm1.getFieldVal().get(0).getCode();
+							if (s.getId().contains("residenceStatus"))
+							VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", secValue);
 							break;
 						}
 					}
@@ -947,6 +951,10 @@ public class PacketTemplateProvider {
 				identity.put(s.getId(), contextSchemaDetail.getSchemaVersion());
 				continue;
 			}
+			
+		    if (s.getId().contains("residenceStatus")) {
+				VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", resident.getResidentStatus().getCode());
+			}
 
 			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
 				continue;
@@ -992,9 +1000,8 @@ public class PacketTemplateProvider {
 						primaryValue = addrLines.getValue0();
 						secValue = addrLines.getValue1();
 					}
-				} else if (s.getSubType().toLowerCase().contains("residenceStatus")) {
+				} else if (s.getId().contains("residenceStatus")) {
 					primaryValue = resident.getResidentStatus().getCode();
-					VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", primaryValue);
 					secValue = primaryValue;
 				} else if (VariableManager.getVariableValue(contextKey, "emailId") != null
 						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
