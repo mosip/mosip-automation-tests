@@ -7,8 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Assert;
 
-import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
-import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 
 import io.mosip.testrig.apirig.testscripts.GetWithQueryParam;
 import io.mosip.testrig.apirig.testscripts.PatchWithPathParam;
