@@ -251,7 +251,7 @@ public class PacketTemplateProvider {
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
 			for (MosipDocument doc : resident.getDocuments()) {
-				if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
+				if (s.getSubType() != null && doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
 					DocumentDto documentDto = new DocumentDto();
 					if (json.has(s.getId())) {
 						JSONObject formateJson = json.getJSONObject(s.getId());
@@ -311,7 +311,11 @@ public class PacketTemplateProvider {
 			RestClient.logInfo(contextKey, s.toJSONString());
 			String primVal = "";
 			String secVal = "";
-			if (s.getFieldCategory().equals(EVIDENCE) && (s.getInputRequired() || s.getRequired())) {
+			
+			if (s.getFieldCategory() != null && (
+				    (s.getInputRequired() != null && s.getInputRequired()) ||
+				    (s.getRequired() != null && s.getRequired())
+				) && s.getFieldCategory().equals(EVIDENCE))  {
 
 				if (s.getRequired() && s.getRequiredOn() != null && !s.getRequiredOn().isEmpty()) {
 
@@ -860,6 +864,8 @@ public class PacketTemplateProvider {
 				for (DynamicFieldModel dfm : dynaFields.get(primaryLanguage)) {
 					if (dfm.getIsActive() && dfm.getName().equals(s.getId())) {
 						primaryValue = dfm.getFieldVal().get(0).getCode();
+						if (s.getId().contains("residenceStatus"))
+						VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", primaryValue);
 						dfmPrim = dfm;
 						break;
 					}
@@ -870,6 +876,8 @@ public class PacketTemplateProvider {
 					for (DynamicFieldModel dfm1 : dynaFields.get(secLanguage)) {
 						if (dfm1.getIsActive() && dfm1.getName().equals(s.getId())) {
 							secValue = dfm1.getFieldVal().get(0).getCode();
+							if (s.getId().contains("residenceStatus"))
+							VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", secValue);
 							break;
 						}
 					}
@@ -943,6 +951,10 @@ public class PacketTemplateProvider {
 				identity.put(s.getId(), contextSchemaDetail.getSchemaVersion());
 				continue;
 			}
+			
+		    if (s.getId().contains("residenceStatus")) {
+				VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", resident.getResidentStatus().getCode());
+			}
 
 			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
 				continue;
@@ -988,9 +1000,8 @@ public class PacketTemplateProvider {
 						primaryValue = addrLines.getValue0();
 						secValue = addrLines.getValue1();
 					}
-				} else if (s.getSubType().toLowerCase().contains("residenceStatus")) {
+				} else if (s.getId().contains("residenceStatus")) {
 					primaryValue = resident.getResidentStatus().getCode();
-					VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", primaryValue);
 					secValue = primaryValue;
 				} else if (VariableManager.getVariableValue(contextKey, "emailId") != null
 						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
