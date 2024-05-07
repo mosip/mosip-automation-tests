@@ -388,17 +388,6 @@ public class Orchestrator {
 			logger.info(identifier);
 
 			try {
-				/*
-				 * // Check whether the scenario is in the defined execute list if
-				 * (!scenario.getId().equalsIgnoreCase("0") &&
-				 * !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) { if
-				 * (!ConfigManager.isInTobeExecuteList(scenario.getId())) {
-				 * extentTest.skip(scenario.getId() +
-				 * ": Skipping scenario as it is not in the scneario to be executed list");
-				 * throw new SkipException(scenario.getId() +
-				 * ": Skipping scenario as it is not in the scneario to be executed list"); } }
-				 */
-
 				extentTest.info(identifier + " - running"); //
 				extentTest.info("parameters: " + step.getParameters().toString());
 				StepInterface st = getInstanceOf(step);
