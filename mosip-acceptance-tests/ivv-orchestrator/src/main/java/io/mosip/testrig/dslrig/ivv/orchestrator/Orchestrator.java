@@ -228,16 +228,26 @@ public class Orchestrator {
 		HashMap<String, String> globals = parser.getGlobals();
 		ArrayList<RegistrationUser> rcUsers = parser.getRCUsers();
 		totalScenario = scenarios.size();
-		Object[][] dataArray = new Object[scenarios.size()][5];
-		for (int i = 0; i < scenarios.size(); i++) {
-			dataArray[i][0] = i;
-			dataArray[i][1] = scenarios.get(i);
-			dataArray[i][2] = configs;
-			dataArray[i][3] = globals;
-			dataArray[i][4] = properties;
+		 ArrayList<Scenario> filteredScenarios = new ArrayList<>();
+		    for (Scenario scenario : scenarios) {
+		        if (scenario.getId().equalsIgnoreCase("0") || 
+		            scenario.getId().equalsIgnoreCase("AFTER_SUITE") ||
+		            ConfigManager.isInTobeExecuteList(scenario.getId())) {
+		            filteredScenarios.add(scenario);
+		        }
+		    }
+
+		    totalScenario = filteredScenarios.size();
+		    Object[][] dataArray = new Object[filteredScenarios.size()][5];
+		    for (int i = 0; i < filteredScenarios.size(); i++) {
+		        dataArray[i][0] = i;
+		        dataArray[i][1] = filteredScenarios.get(i);
+		        dataArray[i][2] = configs;
+		        dataArray[i][3] = globals;
+		        dataArray[i][4] = properties;
+		    }
+		    return dataArray;
 		}
-		return dataArray;
-	}
 
 	@BeforeMethod
 	public void beforeMethod(Method method) {
@@ -378,15 +388,16 @@ public class Orchestrator {
 			logger.info(identifier);
 
 			try {
-				// Check whether the scenario is in the defined execute list
-				if (!scenario.getId().equalsIgnoreCase("0") && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
-					if (!ConfigManager.isInTobeExecuteList(scenario.getId())) {
-						extentTest.skip(scenario.getId()
-								+ ": Skipping scenario as it is not in the scneario to be executed list");
-						throw new SkipException(scenario.getId()
-								+ ": Skipping scenario as it is not in the scneario to be executed list");
-					}
-				}
+				/*
+				 * // Check whether the scenario is in the defined execute list if
+				 * (!scenario.getId().equalsIgnoreCase("0") &&
+				 * !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) { if
+				 * (!ConfigManager.isInTobeExecuteList(scenario.getId())) {
+				 * extentTest.skip(scenario.getId() +
+				 * ": Skipping scenario as it is not in the scneario to be executed list");
+				 * throw new SkipException(scenario.getId() +
+				 * ": Skipping scenario as it is not in the scneario to be executed list"); } }
+				 */
 
 				extentTest.info(identifier + " - running"); //
 				extentTest.info("parameters: " + step.getParameters().toString());
