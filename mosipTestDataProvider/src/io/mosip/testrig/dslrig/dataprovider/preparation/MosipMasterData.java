@@ -541,7 +541,7 @@ public  class MosipMasterData {
 			// JSONArray screens = resp.getJSONObject("updateProcess").getJSONArray("screens");
 			JSONArray screens = resp.getJSONObject(process).getJSONArray("screens");
 				for (int i = 0; i < screens.length(); i++) {
-					idSchema.putAll(screens.getJSONObject(i).getJSONArray("fields"));
+					idSchema.put(screens.getJSONObject(i).getJSONArray("fields"));
 				}
 			 
 			logger.info(idSchema.toString());

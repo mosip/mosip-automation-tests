@@ -35,7 +35,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import javax.xml.bind.DatatypeConverter;
 
 import org.json.JSONArray;
