@@ -31,14 +31,15 @@
 	</parent>
 	<groupId>io.mosip.testrig.dslrig.packetcreator</groupId>
 	<artifactId>dslrig-packetcreator</artifactId>
-	<version>1.2.0.1-SNAPSHOT</version>
+	<version>1.2.1-java21-SNAPSHOT</version>
 	<name>dslrig-packetcreator</name>
 	<description>dslrig-packetcreator</description>
 
 	<properties>
-		<java.version>11</java.version>
+		<java.version>21</java.version>
 		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
 		<spring-cloud.version>2020.0.0</spring-cloud.version>
+		<kernel.core.version>1.2.1-java21-SNAPSHOT</kernel.core.version>
 	</properties>
 
 	<dependencies>
@@ -83,11 +84,11 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -102,7 +103,7 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20201115</version>
+			<!--<version>20201115</version>-->
 		</dependency>
 
 
@@ -143,8 +144,7 @@
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.dataprovider</groupId>
 			<artifactId>dslrig-dataprovider</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
-
+			<version>1.2.1-java21-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-configuration</groupId>
@@ -155,13 +155,13 @@
 		<dependency>
 			<groupId>io.rest-assured</groupId>
 			<artifactId>rest-assured</artifactId>
-			<version>4.2.0</version>
+			<!--<version>4.2.0</version>-->
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured-all -->
 		<dependency>
 			<groupId>io.rest-assured</groupId>
 			<artifactId>rest-assured-all</artifactId>
-			<version>4.2.0</version>
+			<!--<version>4.2.0</version>-->
 		</dependency>
 
 		<!-- <dependency>
@@ -173,7 +173,7 @@
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-websubclient-api</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-java21-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.bouncycastle</groupId>
@@ -187,6 +187,41 @@
 			<artifactId>spring-cloud-starter-bootstrap</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-core</artifactId>
+			<version>${kernel.core.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.32</version>
+			<scope>compile</scope>
+		</dependency>
 
 	</dependencies>
 
@@ -205,7 +240,14 @@
 				<artifactId>commons-lang3</artifactId>
 				<version>3.4</version>
 			</dependency>
-
+			
+			<dependency>
+				<groupId>io.mosip.kernel</groupId>
+				<artifactId>kernel-bom</artifactId>
+				<version>1.2.1-java21-SNAPSHOT</version>
+				<type>pom</type>
+			    <scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -214,6 +256,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.2.3</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
