@@ -5,14 +5,14 @@
     <parent>
         <groupId>io.mosip.testrig.dslrig.ivv</groupId>
         <artifactId>dslrig-ivv-parent</artifactId>
-        <version>1.2.0.1-SNAPSHOT</version>
+        <version>1.2.1-java21-SNAPSHOT</version>
 
     </parent>
 
     <groupId>io.mosip.testrig.dslrig.ivv.orchestrator</groupId>
     <artifactId>dslrig-ivv-orchestrator</artifactId>
     <name>mosip-dsl-test</name>
-     <version>1.2.0.1-SNAPSHOT</version>
+    <version>1.2.1-java21-SNAPSHOT</version>
     <properties>
         <suiteXmlFile>testng.xml</suiteXmlFile>
         <maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
@@ -43,8 +43,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>21</source>
+                    <target>21</target>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
                 </configuration>
             </plugin>
@@ -94,19 +94,19 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.11</version>
+            <!--<version>3.11</version>-->
         </dependency>
 
         <!--   core dependencies     -->
         <dependency>
             <groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
             <artifactId>dslrig-ivv-core</artifactId>
-            <version>1.2.0.1-SNAPSHOT</version>
+            <version>1.2.1-java21-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
             <artifactId>dslrig-ivv-dg</artifactId>
-            <version>1.2.0.1-SNAPSHOT</version>
+            <version>1.2.1-java21-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.aventstack</groupId>
@@ -141,13 +141,13 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.10.5</version>
+            <!--<version>2.10.5</version>-->
         </dependency>
 		<!-- https://mvnrepository.com/artifact/javax.cache/cache-api -->
 		<dependency>
 			<groupId>javax.cache</groupId>
 			<artifactId>cache-api</artifactId>
-			<version>1.0.0</version>
+			<!--<version>1.0.0</version>-->
 		</dependency>
 
 		<dependency>
@@ -158,11 +158,32 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.10.1</version>
+            <!--<version>2.10.1</version>-->
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-jaxrs -->
+        
+        <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-batch</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+		</dependency>
 
     </dependencies>
+    
+        <dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.mosip.kernel</groupId>
+				<artifactId>kernel-bom</artifactId>
+				<version>1.2.1-java21-SNAPSHOT</version>
+				<type>pom</type>
+			    <scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
     <profiles>
         <profile>
