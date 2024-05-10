@@ -1,6 +1,6 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 
 public class GlobalConstants {
 	public static final String PREREG = "prereg";
