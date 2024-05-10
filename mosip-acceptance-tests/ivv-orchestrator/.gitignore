@@ -1,0 +1,33 @@
+# Eclipse specific files #
+*bin/
+*target/
+*testng-report/
+*testRun/
+
+# intelliJ specific files #
+.DS_Store
+.idea/
+*.iml
+*.eml
+
+# output files #
+*testRun/logs/*
+*testRun/reports/*
+*testRun/surefire
+*test-output
+*TestRun_Logs
+*TestRun_Reports
+*TestRun_Results
+*PacketStore
+*testng-report
+
+# properties file #
+*/db
+*services_jar/*
+*.jar
+*.log
+/.tmp
+*.settings/*
+.settings/
+.classpath
+.project
