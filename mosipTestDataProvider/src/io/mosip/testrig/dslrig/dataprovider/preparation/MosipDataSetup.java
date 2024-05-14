@@ -94,8 +94,8 @@ public class MosipDataSetup {
 				+ "v1/masterdata/machines/";
 		
 		url = url + machineId + "/ ";
-//		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
-		Object o =getCache(url,contextKey);
+		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
+		Object o =getCache(url,run_context);
 		if(o != null)
 			return( (List<MosipMachineModel>) o);
 		
@@ -107,7 +107,7 @@ public class MosipDataSetup {
 				machines = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
 				
-				setCache(url, machines,contextKey);
+				setCache(url, machines,run_context);
 			
 			}
 			
@@ -124,9 +124,9 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()
 				+ "v1/masterdata/machines/search";
 		
-//		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
+		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
 		
-		Object o =getCache(url,contextKey);
+		Object o =getCache(url,run_context);
 		if(o != null)
 			return( (List<MosipMachineModel>) o);
 		
@@ -168,7 +168,7 @@ public static List<MosipMachineModel> searchMachineDetail(String machineId, Stri
 				machines = objectMapper.readValue(typeArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipMachineModel.class));
 				
-				setCache(url, machines,contextKey);
+				setCache(url, machines,run_context);
 			
 			}
 			
@@ -377,11 +377,6 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 	  String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 	  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machine"
 	  ).toString();
-
-	  
-	 
-		
-		
 		JSONObject jsonMachine = new JSONObject();
 		jsonMachine.put("id", machine.getId());
 		jsonMachine.put("ipAddress", machine.getIpAddress());
