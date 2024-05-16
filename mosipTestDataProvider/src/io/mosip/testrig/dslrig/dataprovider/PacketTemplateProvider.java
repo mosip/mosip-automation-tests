@@ -1013,6 +1013,8 @@ public class PacketTemplateProvider {
 					secValue = primaryValue;
 				} else if (VariableManager.getVariableValue(contextKey, "individualBiometrics") != null
 						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "individualBiometrics"))) {
+					if(!VariableManager.getVariableValue(contextKey, "skipBiometricClassificationFlag").toString().contentEquals("skipBiometricClassification"))
+					{
 					JSONObject o = new JSONObject();
 					o.put(FORMAT, CBEFF);
 					o.put(VERSION, 1.0f);
@@ -1021,7 +1023,7 @@ public class PacketTemplateProvider {
 					fileInfo.put(RID_FOLDER, v);
 					o.put(VALUE, s.getId() + BIO_CBEFF);
 					identity.put(s.getId(), o);
-
+					}
 					String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
 					try {
 						List<String> missAttribs = resident.getMissAttributes();
@@ -1141,7 +1143,6 @@ public class PacketTemplateProvider {
 							String docFile = doc.getDocs().get(0);
 							RestClient.logInfo(contextKey,
 									DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
-
 							JSONObject o = new JSONObject();
 							o.put(FORMAT, "pdf");
 							o.put("type", doc.getType().get(0).getDocTypeCode());
@@ -1151,12 +1152,11 @@ public class PacketTemplateProvider {
 							o.put(VALUE, s.getId());
 
 							identity.put(s.getId(), o);
-
 							String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
 							try {
 //								Files.copy(Paths.get(docFile), Paths.get(outFile));
+						   if(!VariableManager.getVariableValue(contextKey, "skipApplicantDocumentsFlag").toString().contentEquals("skipApplicantDocuments"))  // Applican documents missing in packet
 								CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
-
 							} catch (Exception e) {
 								logger.error(GENERATEIDJSONV2, e);
 							}

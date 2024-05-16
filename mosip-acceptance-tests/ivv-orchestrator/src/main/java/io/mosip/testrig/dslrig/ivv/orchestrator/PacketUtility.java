@@ -770,7 +770,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,
 			String consent, boolean changeSupervisorNameToDiffCase, String invalidEncryptedHashFlag,
-			String invalidCheckSum , String invalidIdSchemaFlag) throws RigInternalError {
+			String invalidCheckSum , String invalidIdSchemaFlag ,String skipBiometricClassification,String skipApplicantDocuments) throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
 
@@ -808,6 +808,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("introducerName", getValueFromIdJson("introducerName"));
 		jsonReq.put("invalidCheckSum", invalidCheckSum);
 		jsonReq.put("invalidIdSchemaFlag", invalidIdSchemaFlag);
+		jsonReq.put("skipBiometricClassificationFlag", skipBiometricClassification);
+		jsonReq.put("skipApplicantDocumentsFlag", skipApplicantDocuments);
 		jsonReq.put("invalidEncryptedHashFlag", invalidEncryptedHashFlag);
 		jsonReq.put("changeSupervisorNameToDiffCase", changeSupervisorNameToDiffCase);
 		jsonReq.put("consent", consent);
