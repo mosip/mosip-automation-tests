@@ -696,7 +696,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String createContexts(String key, String userAndMachineDetailParam, String mosipVersion,
+	public String createContexts(String key, String userAndMachineDetailParam, 
 			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step) throws RigInternalError {
 		String url = this.baseUrl + "/context/server/";
 		Map<String, String> map = new HashMap<String, String>();
@@ -753,9 +753,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (status != null && !status.isBlank()) {
 			jsonReq.put("machineStatus", status);
 		}
-		if (mosipVersion != null && !mosipVersion.isEmpty()) {
-			jsonReq.put("mosip.version", mosipVersion);
-		}
+		/*
+		 * if (mosipVersion != null && !mosipVersion.isEmpty()) {
+		 * jsonReq.put("mosip.version", mosipVersion); }
+		 */
 		Response response = postRequest(url, jsonReq.toString(), SETCONTEXT, step);
 		GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
@@ -766,7 +767,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String createContexts(String negative, String key, HashMap<String, String> map, String mosipVersion,
+	public String createContexts(String negative, String key, HashMap<String, String> map, 
 
 			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,
 			String consent, boolean changeSupervisorNameToDiffCase, String invalidEncryptedHashFlag,
@@ -838,9 +839,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
-		if (mosipVersion != null && !mosipVersion.isEmpty())
-
-			jsonReq.put("mosip.version", mosipVersion);
+		/*
+		 * if (mosipVersion != null && !mosipVersion.isEmpty())
+		 * 
+		 * jsonReq.put("mosip.version", mosipVersion);
+		 */
 
 		if (!negative.contains("@@")) // This is to null supervisor,operator details
 		{

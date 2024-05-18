@@ -16,67 +16,65 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
-	  private static final Logger logger = Logger.getLogger(GetPingHealth.class);
-	  
-		static {
-			if (ConfigManager.IsDebugEnabled())
-				logger.setLevel(Level.ALL);
-			else
-				logger.setLevel(Level.ERROR);
-		}
+	private static final Logger logger = Logger.getLogger(GetPingHealth.class);
+
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
 	@Override
 	public void run() throws RigInternalError {
 
-		String modules = null,uri=null;
+		String modules = null, uri = null;
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
-		
+
 			modules = "";
 		} else {
-			
+
 			if (step.getParameters().size() == 1)
 				modules = step.getParameters().get(0);
 			else
 				modules = "";
 		}
-		if(modules.length()>0 && modules.equalsIgnoreCase("packetcreator")) {
-			
+		if (modules.length() > 0 && modules.equalsIgnoreCase("packetcreator")) {
+
 			// Check packet creator up or not..
 			try {
-			String packetcreatorUri=baseUrl +"/actuator/health";
-			String serviceStatus = checkActuatorNoAuth(packetcreatorUri);
-			if (serviceStatus.equalsIgnoreCase("UP") == false) {
-				this.hasError=true;
-				throw new SkipException("Packet creator Not responding");
-			}
-			}
-			catch (Exception e) {
+				String packetcreatorUri = baseUrl + "/actuator/health";
+				String serviceStatus = checkActuatorNoAuth(packetcreatorUri);
+				if (serviceStatus.equalsIgnoreCase("UP") == false) {
+					this.hasError = true;
+					throw new SkipException("Packet creator Not responding");
+				}
+			} catch (Exception e) {
 				this.hasError = true;
 				logger.error(e.getMessage());
 				throw new RigInternalError("Connection Refused");
 			}
-		}
-		else {
-		uri=baseUrl + "/ping/"+ !ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET);
-		
-		Response response = getRequest(uri, "Health Check",step);
-		JSONObject res = new JSONObject(response.asString());
-		logger.info(res.toString());
-		if (res.get("status").equals(true)) {
-			logger.info("RESPONSE=" + res.toString());
 		} else {
-			logger.error("RESPONSE=" + res.toString());
-			this.hasError=true;
-			throw new SkipException("Health check status" + res.toString());
-		}
+			uri = baseUrl + "/ping/" + !ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET);
+
+			Response response = getRequest(uri, "Health Check", step);
+			JSONObject res = new JSONObject(response.asString());
+			logger.info(res.toString());
+			if (res.get("status").equals(true)) {
+				logger.info("RESPONSE=" + res.toString());
+			} else {
+				logger.error("RESPONSE=" + res.toString());
+				this.hasError = true;
+				throw new SkipException("Health check status" + res.toString());
+			}
 		}
 	}
-	
+
 	public static String checkActuatorNoAuth(String actuatorURL) {
-		Response response =null;
+		Response response = null;
 		response = given().contentType(ContentType.JSON).get(actuatorURL);
-		if(response != null && 	response.getStatusCode() == 200 ) {
-			logger.info(response.getBody().asString());        	
+		if (response != null && response.getStatusCode() == 200) {
+			logger.info(response.getBody().asString());
 			JSONObject jsonResponse = new JSONObject(response.getBody().asString());
 			return jsonResponse.getString("status");
 		}
