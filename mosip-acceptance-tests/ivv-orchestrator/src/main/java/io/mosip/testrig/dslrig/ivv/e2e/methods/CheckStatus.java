@@ -74,12 +74,13 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 	public void checkStatus(String _ridStatusParam, String _expectedRidProcessed, Scenario.Step step)
 			throws RigInternalError {
 		String waitTime = props.getProperty("waitTime");
-		List<String> allowedParam = Arrays.asList("processed", "rejected", "failed", "reregister");
-		if (!(allowedParam.contains(_ridStatusParam.toLowerCase()))) {
-			this.hasError = true;
-			throw new RigInternalError("Parameter : " + _ridStatusParam
-					+ "not supported only allowed are [processed/rejected/failed/reregister]");
-		}
+		/*
+		 * List<String> allowedParam = Arrays.asList("processed", "rejected", "failed",
+		 * "reregister"); if (!(allowedParam.contains(_ridStatusParam.toLowerCase()))) {
+		 * this.hasError = true; throw new RigInternalError("Parameter : " +
+		 * _ridStatusParam +
+		 * "not supported only allowed are [processed/rejected/failed/reregister]"); }
+		 */
 		try {
 			for (String rid : tempPridAndRid.values()) {
 				int counter = 0;
