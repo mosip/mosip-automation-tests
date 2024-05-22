@@ -30,7 +30,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String contextKeyValue = "dev_context";
 
 		String userAndMachineDetailParam = null;
-		String mosipVersion = null;
+//		String mosipVersion = null;
 		boolean generatePrivateKey = Boolean.FALSE;
 		String status = null;
 		String negative = "valid";
@@ -64,56 +64,57 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 					map = step.getScenario().getVariables();
 				}
 			}
-			if (step.getParameters().size() > 2) { // 1@@2(mosip.version)
-				List<String> version = PacketUtility.getParamsArg(step.getParameters().get(2), "@@");
-				if (!(version.contains("-1")))
-					mosipVersion = version.get(0) + "." + version.get(1);
-			}
-			if (step.getParameters().size() > 3) // true/false (want to generate privatekey)
-				generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(3));
+			/*
+			 * if (step.getParameters().size() > 2) { // 1@@2(mosip.version) List<String>
+			 * version = PacketUtility.getParamsArg(step.getParameters().get(2), "@@"); if
+			 * (!(version.contains("-1"))) mosipVersion = version.get(0) + "." +
+			 * version.get(1); }
+			 */
+			if (step.getParameters().size() > 2) // true/false (want to generate privatekey)
+				generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(2));
 
-			if (step.getParameters().size() > 4) // deactivate
-				status = step.getParameters().get(4);
+			if (step.getParameters().size() > 3) // deactivate
+				status = step.getParameters().get(3);
 			
 			
-			if (step.getParameters().size() > 5) // for negative operator and supervisor
-				negative = step.getParameters().get(5);
+			if (step.getParameters().size() > 4) // for negative operator and supervisor
+				negative = step.getParameters().get(4);
 
-			if (step.getParameters().size() == 5 && step.getParameters().get(4).contains("true"))
-				invalidCertFlag = Boolean.parseBoolean(step.getParameters().get(4));
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("true"))
+				invalidCertFlag = Boolean.parseBoolean(step.getParameters().get(3));
 			
-			if (step.getParameters().size() == 5  && step.getParameters().get(4).contains("invalidIdSchema")) 	//invalidIdSchema
-				invalidIdSchemaFlag = step.getParameters().get(4);
+			if (step.getParameters().size() == 4  && step.getParameters().get(3).contains("invalidIdSchema")) 	//invalidIdSchema
+				invalidIdSchemaFlag = step.getParameters().get(3);
 			
-			if (step.getParameters().size() == 5  && step.getParameters().get(4).contains("skipBiometricClassification")) 	//Skip individualBiometric parameter in id.json
-				skipBiometricClassificationFlag = step.getParameters().get(4);
+			if (step.getParameters().size() == 4  && step.getParameters().get(3).contains("skipBiometricClassification")) 	//Skip individualBiometric parameter in id.json
+				skipBiometricClassificationFlag = step.getParameters().get(3);
 			
-			if (step.getParameters().size() == 5  && step.getParameters().get(4).contains("skipApplicantDocuments")) 	//Skip applicant documents in the packet
-				skipApplicantDocumentsFlag = step.getParameters().get(4);
+			if (step.getParameters().size() == 4  && step.getParameters().get(3).contains("skipApplicantDocuments")) 	//Skip applicant documents in the packet
+				skipApplicantDocumentsFlag = step.getParameters().get(3);
 
 			// consent value either "yes" or "no"
-			if (step.getParameters().size() == 6
-					&& (step.getParameters().get(5).contains("yes") || step.getParameters().get(5).contains("no")))
-				consent = step.getParameters().get(5);
+			if (step.getParameters().size() == 5
+					&& (step.getParameters().get(4).contains("yes") || step.getParameters().get(4).contains("no")))
+				consent = step.getParameters().get(4);
 
 			// supervisorIDFlag
-			if (step.getParameters().size() > 6 && step.getParameters().get(6).contains("true"))
-				changeSupervisorNameToDiffCase = Boolean.parseBoolean(step.getParameters().get(6));
+			if (step.getParameters().size() > 5 && step.getParameters().get(5).contains("true"))
+				changeSupervisorNameToDiffCase = Boolean.parseBoolean(step.getParameters().get(5));
 
 			// encryptedHashFlag
-			if (step.getParameters().size() > 7 && step.getParameters().get(7).contains("invalidEncryptedHash"))
-				invalidEncryptedHashFlag = step.getParameters().get(7);
+			if (step.getParameters().size() > 6 && step.getParameters().get(6).contains("invalidEncryptedHash"))
+				invalidEncryptedHashFlag = step.getParameters().get(6);
 			// checksumFlag
-			if (step.getParameters().size() == 9 && step.getParameters().get(8).contains("invalidCheckSum"))
-				invalidCheckSum = step.getParameters().get(8);
+			if (step.getParameters().size() == 8 && step.getParameters().get(7).contains("invalidCheckSum"))
+				invalidCheckSum = step.getParameters().get(7);
 
 		}
 		PersonaDataManager.setVariableValue(step.getScenario().getId(), "PersonaID", step.getScenario().getId());
 		if (userAndMachineDetailParam != null)
-			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion, generatePrivateKey,
+			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, generatePrivateKey,
 					status, BaseTestCase.ApplnURI + "/", step);
 		else if (map != null)
-			packetUtility.createContexts(negative, contextKeyValue, map, mosipVersion, generatePrivateKey, status,
+			packetUtility.createContexts(negative, contextKeyValue, map, generatePrivateKey, status,
 					BaseTestCase.ApplnURI + "/", step, invalidCertFlag, consent, changeSupervisorNameToDiffCase,
 					invalidEncryptedHashFlag, invalidCheckSum,invalidIdSchemaFlag,skipBiometricClassificationFlag,skipApplicantDocumentsFlag);
 		

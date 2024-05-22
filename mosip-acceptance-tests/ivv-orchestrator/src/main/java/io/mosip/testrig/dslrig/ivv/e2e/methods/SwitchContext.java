@@ -26,7 +26,6 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		String contextKeyValue = null;
-		String mosipVersion = null;
 		boolean generatePrivateKey =Boolean.FALSE;
 		boolean invalidCertFlag =Boolean.FALSE;
 		HashMap<String, String> map = new HashMap<String, String>();
@@ -46,18 +45,14 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 				if (userAndMachineDetailParam.startsWith("$$")) {
 					map = step.getScenario().getVariables();
 				}
-				if (step.getParameters().size() > 2) {   // 1@@2(mosip.version)
-					List<String> version = PacketUtility.getParamsArg(step.getParameters().get(2), "@@");
-					if (!(version.contains("-1")))
-						mosipVersion = version.get(0) + "." + version.get(1);
-				}
-				if (step.getParameters().size() > 3)  // true/false  (want to generate privatekey)
-					generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(3));
+
+				if (step.getParameters().size() > 2)  // true/false  (want to generate privatekey)
+					generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(2));
 				if (map != null)
-					packetUtility.createContexts("",contextKeyValue, map, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/",step,invalidCertFlag,consent,supervisorFlag,invalidEncryptedHashFlag,invalidCheckSum,invalidIdSchemaFlag,skipBiometricClassificationFlag,skipApplicantDocumentsFlag);
+					packetUtility.createContexts("",contextKeyValue, map, generatePrivateKey,null,BaseTestCase.ApplnURI + "/",step,invalidCertFlag,consent,supervisorFlag,invalidEncryptedHashFlag,invalidCheckSum,invalidIdSchemaFlag,skipBiometricClassificationFlag,skipApplicantDocumentsFlag);
 					
 				else if (userAndMachineDetailParam != null)
-				packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, mosipVersion,generatePrivateKey,null,BaseTestCase.ApplnURI + "/",step);
+				packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, generatePrivateKey,null,BaseTestCase.ApplnURI + "/",step);
 				
 				
 				
