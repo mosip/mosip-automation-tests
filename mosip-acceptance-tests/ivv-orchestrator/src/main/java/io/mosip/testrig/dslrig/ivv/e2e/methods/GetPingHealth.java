@@ -5,6 +5,7 @@ import static io.restassured.RestAssured.given;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.SkipException;
 
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
@@ -49,6 +50,8 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 					this.hasError = true;
 					throw new SkipException("Packet creator Not responding");
 				}
+				else
+					Reporter.log("Packet creator status is up and healthy<br>");
 			} catch (Exception e) {
 				this.hasError = true;
 				logger.error(e.getMessage());
@@ -67,6 +70,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 				this.hasError = true;
 				throw new SkipException("Health check status" + res.toString());
 			}
+			Reporter.log("Target env status is up and healthy<br>");
 		}
 	}
 
