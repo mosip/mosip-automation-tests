@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.testng.Assert;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -76,7 +77,6 @@ public class Orchestrator {
 	public static long suiteStartTime = System.currentTimeMillis();
 	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
-	
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
@@ -84,10 +84,6 @@ public class Orchestrator {
 		}
 	};
 
-	/*
-	 * HashMap<String, String> packages = (HashMap<String, String>)
-	 * Collections.singletonMap("e2e", "io.mosip.testrig.dslrig.ivv.e2e.methods");
-	 */
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -127,30 +123,6 @@ public class Orchestrator {
 		else
 			logger.setLevel(Level.ERROR);
 
-		/*
-		 * if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) { // EXTENT
-		 * REPORT File repotFile2 = new File(System.getProperty("user.dir") + "/" +
-		 * System.getProperty("testng.outpur.dir") + "/" +
-		 * System.getProperty("emailable.report3.name")); logger.info("reportFile is::"
-		 * + System.getProperty("user.dir") + "/" +
-		 * System.getProperty("testng.outpur.dir") + "/" +
-		 * System.getProperty("emailable.report3.name"));
-		 * 
-		 * S3Adapter s3Adapter = new S3Adapter(); boolean isStoreSuccess = false; try {
-		 * isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(),
-		 * BaseTestCase.testLevel, null, null,
-		 * System.getProperty("emailable.report3.name"), repotFile2);
-		 * 
-		 * isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(),
-		 * BaseTestCase.testLevel, null, null,
-		 * System.getProperty("emailable.report3.name"), repotFile2);
-		 * 
-		 * logger.info("isStoreSuccess:: " + isStoreSuccess); } catch (Exception e) {
-		 * logger.info("error occured while pushing the object" +
-		 * e.getLocalizedMessage()); logger.error(e.getMessage()); } if (isStoreSuccess)
-		 * { logger.info("Pushed file to S3"); } else {
-		 * logger.info("Failed while pushing file to S3"); } }
-		 */
 	}
 
 	@BeforeTest
@@ -171,21 +143,6 @@ public class Orchestrator {
 		Properties properties = Utils.getProperties(configFile);
 
 		scenarioSheet = getScenarioSheet();
-
-		/*
-		 * scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" +
-		 * "scenarios-" + BaseTestCase.testLevel + "-" + BaseTestCase.environment +
-		 * ".csv";
-		 * 
-		 * Path path = Paths.get(scenarioSheet);
-		 * 
-		 * if (!Files.exists(path)) { scenarioSheet =
-		 * ConfigManager.getmountPathForScenario() + "/default/" + "scenarios-" +
-		 * BaseTestCase.testLevel + "-" + "default" + ".csv"; } else if (scenarioSheet
-		 * == null || scenarioSheet.isEmpty()) { throw new
-		 * RigInternalError("ScenarioSheet argument missing"); }
-		 */
-
 		ParserInputDTO parserInputDTO = new ParserInputDTO();
 		parserInputDTO.setConfigProperties(properties);
 		parserInputDTO.setDocumentsFolder(
@@ -228,26 +185,25 @@ public class Orchestrator {
 		HashMap<String, String> globals = parser.getGlobals();
 		ArrayList<RegistrationUser> rcUsers = parser.getRCUsers();
 		totalScenario = scenarios.size();
-		 ArrayList<Scenario> filteredScenarios = new ArrayList<>();
-		    for (Scenario scenario : scenarios) {
-		        if (scenario.getId().equalsIgnoreCase("0") || 
-		            scenario.getId().equalsIgnoreCase("AFTER_SUITE") ||
-		            ConfigManager.isInTobeExecuteList(scenario.getId())) {
-		            filteredScenarios.add(scenario);
-		        }
-		    }
-
-		    totalScenario = filteredScenarios.size();
-		    Object[][] dataArray = new Object[filteredScenarios.size()][5];
-		    for (int i = 0; i < filteredScenarios.size(); i++) {
-		        dataArray[i][0] = i;
-		        dataArray[i][1] = filteredScenarios.get(i);
-		        dataArray[i][2] = configs;
-		        dataArray[i][3] = globals;
-		        dataArray[i][4] = properties;
-		    }
-		    return dataArray;
+		ArrayList<Scenario> filteredScenarios = new ArrayList<>();
+		for (Scenario scenario : scenarios) {
+			if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
+					|| ConfigManager.isInTobeExecuteList(scenario.getId())) {
+				filteredScenarios.add(scenario);
+			}
 		}
+
+		totalScenario = filteredScenarios.size();
+		Object[][] dataArray = new Object[filteredScenarios.size()][5];
+		for (int i = 0; i < filteredScenarios.size(); i++) {
+			dataArray[i][0] = i;
+			dataArray[i][1] = filteredScenarios.get(i);
+			dataArray[i][2] = configs;
+			dataArray[i][3] = globals;
+			dataArray[i][4] = properties;
+		}
+		return dataArray;
+	}
 
 	@BeforeMethod
 	public void beforeMethod(Method method) {
@@ -256,7 +212,6 @@ public class Orchestrator {
 
 	private synchronized void updateRunStatistics(Scenario scenario)
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-//		logger.info(Thread.currentThread().getName() + ": " + counterLock.getAndIncrement());
 		logger.info("Updating statistics for scenario: " + scenario.getId() + " -- updating the executed count to: "
 				+ counterLock.getAndIncrement());
 		if (scenario.getId().equalsIgnoreCase("0")) {
@@ -273,7 +228,7 @@ public class Orchestrator {
 			beforeSuiteExeuted = true;
 			logger.info("Before Suite executed");
 		}
- 
+
 		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
 
 	}
@@ -397,17 +352,21 @@ public class Orchestrator {
 				st.setStep(step);
 				st.setup();
 				st.validateStep();
-				String[] stepDetails = getStepDetails("e2e_" + step.getName());
-				
+
+				String stepAction = "e2e_" + step.getName() + step.getParameters();
+				stepAction = trimSpaceWithinSquareBrackets(stepAction);
+				String stepParams[] = getStepDetails("S_" + step.getScenario().getId() + stepAction);
+
 				StringBuilder sb = new StringBuilder();
-				sb.append("<div> <textarea style='border:solid 1px gray; background-color: darkgray;' name='headers' rows='3' cols='160' readonly='true'>");
-				sb.append("Step Name: " + step.getName()+ "\n");
-				sb.append("Step Description:" + stepDetails[0]+ "\n");
-				sb.append("Step Parameters: " + stepDetails[1]);
+				sb.append(
+						"<div> <textarea style='border:solid 1px gray; background-color: darkgray;' name='headers' rows='3' cols='160' readonly='true'>");
+				sb.append("Step Name: " + step.getName() + "\n");
+				sb.append("Step Description:" + stepParams[0] + "\n");
+				sb.append("Step Parameters: " + stepParams[1]);
 				sb.append("</textarea> </div>");
-				
+
 				Reporter.log(sb.toString());
-				
+
 				st.run();
 
 				st.assertHttpStatus();
@@ -476,10 +435,8 @@ public class Orchestrator {
 				Assert.assertTrue(false);
 				return;
 			} catch (FeatureNotSupportedError e) {
-//				extentTest.error(identifier + " - FeatureNotSupportedError --> " + e.getMessage());
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
-//				Assert.assertTrue(false);
 			}
 		}
 		updateRunStatistics(scenario);
@@ -610,13 +567,12 @@ public class Orchestrator {
 					Matcher matcher = pattern.matcher(stepAction);
 
 					if (matcher.matches()) {
-//						logger.info("The string contains a comma between parentheses");
 						stepList.add(stepAction == null ? "" : "\"" + stepAction + "\"");
 					} else {
 						stepList.add(stepAction == null ? "" : stepAction);
-//						logger.info("The string does not contain a comma between parentheses");
 					}
-					addStepDetails(stepAction, stepDescription);
+					addAllStepDetails(stepAction, jsonNode.get("Scenario").asText(), stepDescription);
+					addUniqueStepDetails(stepAction, stepDescription);
 				}
 
 				for (String string : stepList) {
@@ -632,7 +588,7 @@ public class Orchestrator {
 		if (ConfigManager.IsDebugEnabled()) {
 			String keyValues = "";
 			// Iterate through the map and print its contents
-			for (Map.Entry<String, String[]> entry : stepsMap.entrySet()) {
+			for (Map.Entry<String, String[]> entry : uniqueStepsMap.entrySet()) {
 				keyValues += entry.getKey();
 				String[] values = entry.getValue();
 				for (int i = 0; i < values.length; i++) {
@@ -645,9 +601,9 @@ public class Orchestrator {
 		return tempCSVPath;
 	}
 
-	private static final Map<String, String[]> stepsMap = new HashMap<>();
+	private static final Map<String, String[]> uniqueStepsMap = new HashMap<>();
 
-	private static void addStepDetails(String stepInput, String description) {
+	private static void addUniqueStepDetails(String stepInput, String description) {
 		if (stepInput.isEmpty() || description.isEmpty())
 			return;
 		// Find the index of the first "(" character
@@ -655,17 +611,59 @@ public class Orchestrator {
 		if (indexOfOpenParenthesis != -1) {
 			// Extract the substring "e2e_" up to the first "("
 			String step = stepInput.substring(stepInput.indexOf("e2e_"), indexOfOpenParenthesis);
-			if (stepsMap.get(step) == null) {
+			if (uniqueStepsMap.get(step) == null) {
 				String[] descAndExample = new String[2];
 				descAndExample[0] = description;
 				descAndExample[1] = stepInput;
-				stepsMap.put(step, descAndExample);
+				uniqueStepsMap.put(step, descAndExample);
 			}
 		}
 	}
 
+	private static final Map<String, String[]> allStepsMap = new HashMap<>();
+
+	private static void addAllStepDetails(String stepInput, String scenarioNumber, String description) {
+		if (stepInput == null || stepInput.isEmpty()) {
+			return;
+		}
+		// Extract the value part if there's an "=" delimiter
+		String processedStepInput = stepInput;
+		int equalsIndex = stepInput.indexOf('=');
+		if (equalsIndex != -1) {
+			processedStepInput = stepInput.substring(equalsIndex + 1);
+		}
+		// Remove parts enclosed in /*...*/
+		processedStepInput = processedStepInput.replaceAll("/\\*.*?\\*/", "");
+		// Replace ( with [ and ) with ]
+		processedStepInput = processedStepInput.replace('(', '[').replace(')', ']');
+		processedStepInput = trimSpaceWithinSquareBrackets(processedStepInput);
+		String[] descAndExample = new String[2];
+		descAndExample[0] = description;
+		descAndExample[1] = stepInput;
+		allStepsMap.put("S_" + scenarioNumber + processedStepInput, descAndExample);
+	}
+
 	private static String[] getStepDetails(String stepName) {
-		return stepsMap.get(stepName);
+		return allStepsMap.get(stepName);
+	}
+
+	private static String trimSpaceWithinSquareBrackets(String stringToTrim) {
+		// Find the part within square brackets
+		int openBracketIndex = stringToTrim.indexOf('[');
+		int closeBracketIndex = stringToTrim.lastIndexOf(']');
+
+		if (openBracketIndex != -1 && closeBracketIndex != -1 && openBracketIndex < closeBracketIndex) {
+			// Extract the content within the square brackets
+			String withinBrackets = stringToTrim.substring(openBracketIndex + 1, closeBracketIndex);
+
+			// Remove spaces within the square brackets
+			withinBrackets = withinBrackets.replaceAll("\\s+", "");
+
+			// Reconstruct the stepAction without spaces within brackets
+			stringToTrim = stringToTrim.substring(0, openBracketIndex + 1) + withinBrackets
+					+ stringToTrim.substring(closeBracketIndex);
+		}
+		return stringToTrim;
 	}
 
 }
