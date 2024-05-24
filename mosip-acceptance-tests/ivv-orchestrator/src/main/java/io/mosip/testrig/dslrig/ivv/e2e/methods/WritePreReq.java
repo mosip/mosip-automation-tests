@@ -62,6 +62,7 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 				propertiesMap.put((String) entry.getKey(), (String) entry.getValue());
 			}
 			prereqDataSet.put(path, propertiesMap);
+			Reporter.log("Written pre requisite data into map to be consumed during scenario execution<br>");
 			/*
 			 * if (ConfigManager.IsDebugEnabled()) Reporter.log(props.toString());
 			 */
