@@ -66,6 +66,7 @@ public class BiometricDataProvider {
 
 	// String constants
 	private static final String XMLNS = "xmlns";
+	private static final String XMLNS_URL = "http://standards.iso.org/iso-iec/19785/-3/ed-2/";
 	private static final String MAJOR = "Major";
 	private static final String MINOR = "Minor";
 	private static final String CBEFFVERSION = "CBEFFVersion";
@@ -106,12 +107,12 @@ public class BiometricDataProvider {
 			boolean genarateValidCbeff, String exception, String contextKey) throws ParserConfigurationException,
 			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
-		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, XMLNS_URL)
 				.e(VERSION).e(MAJOR).t("1").up().e(MINOR).t("1").up().up().e(CBEFFVERSION).e(MAJOR).t("1").up().e(MINOR)
 				.t("1").up().up().e(BIRINFO).e(INTEGRITY).t(FALSE).up().up().e(BDBINFO).e(FORMAT).e(ORGANIZATION)
 				.t(MOSIP).up().e("Type").t("9").up().up().e(CREATIONDATE).t(today).up().e("Type").t("Iris").up()
 				.e(SUBTYPE).t(irisName).up().e(LEVEL).t("Raw").up().e(PURPOSE).t(ENROLL).up().e(QUALITY).e(ALGORITHM)
-				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t(qualityScore).up().up().up()
+				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t((int) Math.round(Double.parseDouble(qualityScore)) + "").up().up().up()
 				.e("BDB").t(irisInfo).up().up();
 		if (jtwSign != null && payload != null) {
 			jtwSign = Base64.getEncoder().encodeToString(jtwSign.getBytes());
@@ -121,7 +122,7 @@ public class BiometricDataProvider {
 					.e(ENTRY).a("key", SDK_SCORE).t("0.0").up().e(ENTRY).a("key", FORCE_CAPTURED).t(FALSE).up().e(ENTRY)
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 		}
-		if (Integer.parseInt(qualityScore) >= 80)
+		if (Double.parseDouble(qualityScore) >= 80)
 			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Iris", "level-9");
 		else
 			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Iris", "level-2");
@@ -129,7 +130,6 @@ public class BiometricDataProvider {
 	}
 
 	static String buildBirFinger(String fingerInfo, String fingerName, String jtwSign, String payload,
-
 			String qualityScore, boolean generateValidCbeff, String exception, String contextKey)
 			throws ParserConfigurationException, FactoryConfigurationError, TransformerException,
 			FileNotFoundException {
@@ -138,12 +138,12 @@ public class BiometricDataProvider {
 		String bdbKey = "BDB";
 		if (generateValidCbeff == false)
 			bdbKey = "invalidBDB";
-		builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/").e(VERSION)
+		builder = XMLBuilder.create("BIR").a(XMLNS, XMLNS_URL).e(VERSION)
 				.e(MAJOR).t("1").up().e(MINOR).t("1").up().up().e(CBEFFVERSION).e(MAJOR).t("1").up().e(MINOR).t("1")
 				.up().up().e(BIRINFO).e(INTEGRITY).t(FALSE).up().up().e(BDBINFO).e(FORMAT).e(ORGANIZATION).t(MOSIP).up()
 				.e("Type").t("7").up().up().e(CREATIONDATE).t(today).up().e("Type").t("Finger").up().e(SUBTYPE)
 				.t(fingerName).up().e(LEVEL).t("Raw").up().e(PURPOSE).t(ENROLL).up().e(QUALITY).e(ALGORITHM)
-				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t(qualityScore).up().up().up()
+				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t((int) Math.round(Double.parseDouble(qualityScore)) + "").up().up().up()
 				.e(bdbKey).t(fingerInfo).up().up();
 		if (jtwSign != null && payload != null) {
 			jtwSign = Base64.getEncoder().encodeToString(jtwSign.getBytes());
@@ -153,7 +153,7 @@ public class BiometricDataProvider {
 					.e(ENTRY).a("key", SDK_SCORE).t("0.0").up().e(ENTRY).a("key", FORCE_CAPTURED).t(FALSE).up().e(ENTRY)
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 		}
-		if (Integer.parseInt(qualityScore) >= 80)
+		if (Double.parseDouble(qualityScore) >= 80)
 			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Finger", "level-9");
 		else
 			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Finger", "level-2");
@@ -164,12 +164,12 @@ public class BiometricDataProvider {
 			boolean genarateValidCbeff, String exception, String contextKey) throws ParserConfigurationException,
 			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
-		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, XMLNS_URL)
 				.e(VERSION).e(MAJOR).t("1").up().e(MINOR).t("1").up().up().e(CBEFFVERSION).e(MAJOR).t("1").up().e(MINOR)
 				.t("1").up().up().e(BIRINFO).e(INTEGRITY).t(FALSE).up().up().e(BDBINFO).e(FORMAT).e(ORGANIZATION)
 				.t(MOSIP).up().e("Type").t("8").up().up().e(CREATIONDATE).t(today).up().e("Type").t("Face").up()
 				.e(SUBTYPE).t("").up().e(LEVEL).t("Raw").up().e(PURPOSE).t(ENROLL).up().e(QUALITY).e(ALGORITHM)
-				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t(qualityScore).up().up().up()
+				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t((int) Math.round(Double.parseDouble(qualityScore)) + "").up().up().up()
 				.e("BDB").t(faceInfo).up().up();
 		if (jtwSign != null && payload != null) {
 			jtwSign = Base64.getEncoder().encodeToString(jtwSign.getBytes());
@@ -180,7 +180,7 @@ public class BiometricDataProvider {
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 
 		}
-		if (Integer.parseInt(qualityScore) >= 80)
+		if (Double.parseDouble(qualityScore) >= 80)
 			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Face", "level-9");
 		else
 			VariableManager.setVariableValue(contextKey, "Biometric_Quality-Face", "level-2");
@@ -191,12 +191,12 @@ public class BiometricDataProvider {
 			boolean genarateValidCbeff, String exception, String contextKey) throws ParserConfigurationException,
 			FactoryConfigurationError, TransformerException, FileNotFoundException {
 		String today = CommonUtil.getUTCDateTime(null);
-		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, XMLNS_URL)
 				.e(VERSION).e(MAJOR).t("1").up().e(MINOR).t("1").up().up().e(CBEFFVERSION).e(MAJOR).t("1").up().e(MINOR)
 				.t("1").up().up().e(BIRINFO).e(INTEGRITY).t(FALSE).up().up().e(BDBINFO).e(FORMAT).e(ORGANIZATION)
 				.t(MOSIP).up().e("Type").t("8").up().up().e(CREATIONDATE).t(today).up().e("Type").t("ExceptionPhoto")
 				.up().e(SUBTYPE).t("").up().e(LEVEL).t("Raw").up().e(PURPOSE).t(ENROLL).up().e(QUALITY).e(ALGORITHM)
-				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t(qualityScore).up().up().up()
+				.e(ORGANIZATION).t("HMAC").up().e("Type").t(SHA_256).up().up().e(SCORE).t((int) Math.round(Double.parseDouble(qualityScore)) + "").up().up().up()
 				.e("BDB").t(faceInfo).up().up();
 		if (jtwSign != null && payload != null) {
 			jtwSign = Base64.getEncoder().encodeToString(jtwSign.getBytes());
@@ -224,7 +224,6 @@ public class BiometricDataProvider {
 
 	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey, String purpose,
 			String qualityScore) throws Exception {
-
 		BiometricDataModel biodata = null;
 		MDSRCaptureModel capture = null;
 
@@ -529,7 +528,7 @@ public class BiometricDataProvider {
 
 		}
 
-		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, XMLNS_URL)
 				.e(BIRINFO).e(INTEGRITY).t(FALSE).up().up();
 
 		builder.getDocument().setXmlStandalone(true);
@@ -782,7 +781,7 @@ public class BiometricDataProvider {
 			boolean genarateValidCbeff, String contextKey) throws Exception {
 		String retXml = "";
 
-		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, "http://standards.iso.org/iso-iec/19785/-3/ed-2/")
+		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, XMLNS_URL)
 				.e(BIRINFO).e(INTEGRITY).t(FALSE).up().up();
 
 		builder.getDocument().setXmlStandalone(true);
