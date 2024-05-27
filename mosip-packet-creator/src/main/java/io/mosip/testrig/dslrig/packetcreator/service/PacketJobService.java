@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
@@ -21,14 +22,16 @@ public class PacketJobService {
 	@Autowired
 	private PreregSyncService preregSyncService;
 
-	@Autowired
 	private PacketMakerService packetMakerService;
-
-	@Autowired
 	private PacketSyncService packetSyncService;
 
 	@Autowired
 	private ZipUtils zipUtils;
+	
+	public PacketJobService(@Lazy PacketSyncService packetSyncService, @Lazy PacketMakerService packetMakerService) {
+		this.packetSyncService = packetSyncService;
+		this.packetMakerService = packetMakerService;
+	}
 
 	@Job(name = "Create Packet with pre-reg sync")
 	public void execute(String contextKey) {
