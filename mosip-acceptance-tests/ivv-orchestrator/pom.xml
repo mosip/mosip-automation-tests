@@ -58,7 +58,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<finalName>dslrig-ivv-orchestrator-1.2.0.1-SNAPSHOT-jar-with-dependencies</finalName>
+							<finalName>dslrig-ivv-orchestrator-1.2.1-java21-SNAPSHOT-jar-with-dependencies</finalName>
 							<transformers>
 								<!-- need this to merge the services files properly -->
 								<transformer
@@ -94,7 +94,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <!--<version>3.11</version>-->
         </dependency>
 
         <!--   core dependencies     -->
@@ -122,6 +121,10 @@
                 <exclusion>
                     <groupId>com.sun.jersey</groupId>
                     <artifactId>jersey-client</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>org.slf4j</groupId>
+                	<artifactId>slf4j-reload4j</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -175,48 +178,73 @@
 			<groupId>com.slack.api</groupId>
 			<artifactId>slack-api-client</artifactId>
 			<version>1.6.1-RC1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-			<!--<version>2.10.5</version>-->
         </dependency>
 
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-biometrics-api</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-java21-SNAPSHOT</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/javax.cache/cache-api -->
 		<dependency>
 			<groupId>javax.cache</groupId>
 			<artifactId>cache-api</artifactId>
-			<!--<version>1.0.0</version>-->
 		</dependency>
 
 		<dependency>
 			<groupId>org.ehcache</groupId>
 			<artifactId>jcache</artifactId>
 			<version>1.0.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-			<!--<version>2.10.1</version>-->
         </dependency>
 		<!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-jaxrs -->
         
         <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-batch</artifactId>
-		</dependency>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+        </dependency>
 		<dependency>
 			<groupId>org.hibernate.validator</groupId>
 			<artifactId>hibernate-validator</artifactId>
 		</dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
     
         <dependencyManagement>
 		<dependencies>
