@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
@@ -147,7 +148,6 @@ public class PacketMakerService {
 	@Autowired
 	private ContextUtils contextUtils;
 
-	@Autowired
 	private PacketSyncService packetSyncService;
 
 	private String newRegId;
@@ -160,6 +160,10 @@ public class PacketMakerService {
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
+	
+	public PacketMakerService(@Lazy PacketSyncService packetSyncService) {
+		this.packetSyncService = packetSyncService;
+	}
 
 	@PostConstruct
 	public void initService() {

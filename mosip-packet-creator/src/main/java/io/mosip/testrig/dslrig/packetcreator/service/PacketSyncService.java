@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
@@ -96,11 +97,10 @@ public class PacketSyncService {
 
 	@Autowired
 	private ZipUtils zipUtils;
-	@Autowired
+	
 	private PacketMakerService packetMakerService;
-
-	@Autowired
 	private PacketSyncService packetSyncService;
+	
 	@Autowired
 	private ContextUtils contextUtils;
 
@@ -142,6 +142,11 @@ public class PacketSyncService {
 
 	@Value("${mosip.test.idrepo.idvidpath}")
 	private String idvid;
+	
+	public PacketSyncService(@Lazy PacketSyncService packetSyncService, @Lazy PacketMakerService packetMakerService) {
+		this.packetSyncService = packetSyncService;
+		this.packetMakerService = packetMakerService;
+	}
 
 	void loadServerContextProperties(String contextKey) {
 
