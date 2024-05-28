@@ -16,6 +16,7 @@
 		<url>https://github.com/mosip/mosip-ref-impl</url>
 		<tag>HEAD</tag>
 	</scm>
+
 	<developers>
 		<developer>
 			<name>Mosip</name>
@@ -24,12 +25,14 @@
 			<organizationUrl>https://github.com/mosip/mosip-ref-impl</organizationUrl>
 		</developer>
 	</developers>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.2.3</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>io.mosip.testrig.dslrig.packetcreator</groupId>
 	<artifactId>dslrig-packetcreator</artifactId>
 	<version>1.2.1-java21-SNAPSHOT</version>
@@ -190,7 +193,6 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-bootstrap</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.hibernate.validator</groupId>
 			<artifactId>hibernate-validator</artifactId>
@@ -213,7 +215,6 @@
 			<artifactId>lombok</artifactId>
 			<scope>compile</scope>
 		</dependency>
-
 	</dependencies>
 
 	<dependencyManagement>
@@ -232,7 +233,6 @@
 				<artifactId>commons-lang3</artifactId>
 				<version>3.4</version>
 			</dependency>
-
 			<dependency>
 				<groupId>io.mosip.kernel</groupId>
 				<artifactId>kernel-bom</artifactId>
@@ -330,7 +330,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<plugin>
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-maven-plugin</artifactId>
@@ -401,5 +400,4 @@
 			</build>
 		</profile>
 	</profiles>
-
 </project>
