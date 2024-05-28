@@ -333,7 +333,7 @@ public class Orchestrator {
 		store.setRegistrationUsers(scenario.getRegistrationUsers());
 		store.setPartners(scenario.getPartners());
 		store.setProperties(this.properties);
-		Reporter.log("<b><u>" + "Scenario_" + scenario.getId() + ": " + scenario.getDescription() + "</u></b>");
+		Reporter.log("<div style='background-color: black; color: white; padding: 10px; border-radius: 5px;'><b><u>Scenario_" + scenario.getId() + ": " + scenario.getDescription() + "</u></b></div>");
 		for (Scenario.Step step : scenario.getSteps()) {
 
 			identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters()
