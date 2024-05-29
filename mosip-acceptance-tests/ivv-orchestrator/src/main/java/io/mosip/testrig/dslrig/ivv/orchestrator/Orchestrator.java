@@ -20,11 +20,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.testng.Assert;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.SkipException;
@@ -44,7 +42,6 @@ import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.testrig.apirig.authentication.fw.util.ReportUtil;
 import io.mosip.testrig.apirig.kernel.util.ConfigManager;
 import io.mosip.testrig.apirig.service.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
@@ -57,7 +54,6 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
-import io.mosip.testrig.dslrig.ivv.e2e.methods.Center;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
 import com.sun.management.OperatingSystemMXBean;
 
@@ -355,6 +351,10 @@ public class Orchestrator {
 
 				String stepAction = "e2e_" + step.getName() + step.getParameters();
 				stepAction = trimSpaceWithinSquareBrackets(stepAction);
+				
+				if(step.getOutVarName()!= null)
+					stepAction = step.getOutVarName() + "=" + stepAction;
+				
 				String stepParams[] = getStepDetails("S_" + step.getScenario().getId() + stepAction);
 
 				StringBuilder sb = new StringBuilder();
@@ -626,21 +626,18 @@ public class Orchestrator {
 		if (stepInput == null || stepInput.isEmpty()) {
 			return;
 		}
-		// Extract the value part if there's an "=" delimiter
-		String processedStepInput = stepInput;
-		int equalsIndex = stepInput.indexOf('=');
-		if (equalsIndex != -1) {
-			processedStepInput = stepInput.substring(equalsIndex + 1);
-		}
 		// Remove parts enclosed in /*...*/
-		processedStepInput = processedStepInput.replaceAll("/\\*.*?\\*/", "");
+		String processedStepInput = stepInput.replaceAll("/\\*.*?\\*/", "");
 		// Replace ( with [ and ) with ]
 		processedStepInput = processedStepInput.replace('(', '[').replace(')', ']');
 		processedStepInput = trimSpaceWithinSquareBrackets(processedStepInput);
+		
+		if (allStepsMap.get("S_" + scenarioNumber + processedStepInput) == null) {
 		String[] descAndExample = new String[2];
 		descAndExample[0] = description;
 		descAndExample[1] = stepInput;
 		allStepsMap.put("S_" + scenarioNumber + processedStepInput, descAndExample);
+		}
 	}
 
 	private static String[] getStepDetails(String stepName) {
