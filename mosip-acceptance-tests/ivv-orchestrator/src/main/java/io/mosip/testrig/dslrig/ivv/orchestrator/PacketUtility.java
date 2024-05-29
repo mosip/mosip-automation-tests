@@ -435,7 +435,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		map.put("UIN", uin);
 		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
 				"link Resident data with UIN", step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
+//		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to add UIN in resident data");
@@ -585,7 +585,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonwrapper.put(REQUESTS, jsonReq);
 		String url = baseUrl + props.getProperty(UPDATERESIDENTURL);
 		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
+//		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
@@ -1314,7 +1314,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + props.getProperty("mockAbis");
 		Response response = postRequestWithQueryParamAndBody(url, jsonreq.toString(), contextKey, "Mockabis Expectaion",
 				step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonreq.toString(), response.getBody().asString());
+//		GlobalMethods.ReportRequestAndResponse("", "", url, jsonreq.toString(), response.getBody().asString());
 		logger.info("****" + response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;

@@ -604,7 +604,7 @@ public class EmailableReport implements IReporter {
 	}
 
 	protected void writeStackTrace(Throwable throwable) {
-		if(!ConfigManager.IsDebugEnabled()) {
+		if(ConfigManager.IsDebugEnabled()) {
 		writer.print("<div class=\"stacktrace\">");
 		writer.print(Utils.shortStackTrace(throwable, true));
 		writer.print("</div>");
