@@ -329,8 +329,14 @@ public class Orchestrator {
 		store.setRegistrationUsers(scenario.getRegistrationUsers());
 		store.setPartners(scenario.getPartners());
 		store.setProperties(this.properties);
-		Reporter.log("<div style='background-color: black; color: white; padding: 10px; border-radius: 5px;'><b><u>Scenario_" + scenario.getId() + ": " + scenario.getDescription() + "</u></b></div>");
-		for (Scenario.Step step : scenario.getSteps()) {
+		Reporter.log(
+				"<div style='background-color: black; color: white; padding: 10px; border-radius: 5px;'><b><u>Scenario_"
+						+ scenario.getId() + ": " + scenario.getDescription() + "</u></b></div>");
+//		for (Scenario.Step step : scenario.getSteps()) {
+		int jumpBackIndex = 0;
+		int iterationCount = 0;
+		for (int stepIndex = 0; stepIndex < scenario.getSteps().size(); stepIndex++) {
+			Scenario.Step step = scenario.getSteps().get(stepIndex);
 
 			identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters()
 					+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
@@ -351,24 +357,45 @@ public class Orchestrator {
 
 				String stepAction = "e2e_" + step.getName() + step.getParameters();
 				stepAction = trimSpaceWithinSquareBrackets(stepAction);
-				
-				if(step.getOutVarName()!= null)
+
+				if (step.getOutVarName() != null)
 					stepAction = step.getOutVarName() + "=" + stepAction;
-				
+
 				String stepParams[] = getStepDetails("S_" + step.getScenario().getId() + stepAction);
 
-				StringBuilder sb = new StringBuilder();
-				sb.append(
-						"<div> <textarea style='border:solid 1px gray; background-color: darkgray;' name='headers' rows='3' cols='160' readonly='true'>");
-				sb.append("Step Name: " + step.getName() + "\n");
-				sb.append("Step Description:" + stepParams[0] + "\n");
-				sb.append("Step Parameters: " + stepParams[1]);
-				sb.append("</textarea> </div>");
+				if (!step.getName().contains("loopWindow")) {
 
-				Reporter.log(sb.toString());
+					StringBuilder sb = new StringBuilder();
+					sb.append(
+							"<div> <textarea style='border:solid 1px gray; background-color: darkgray;' name='headers' rows='3' cols='160' readonly='true'>");
+					sb.append("Step Name: " + step.getName() + "\n");
+					sb.append("Step Description:" + stepParams[0] + "\n");
+					sb.append("Step Parameters: " + stepParams[1]);
+					sb.append("</textarea> </div>");
 
+					Reporter.log(sb.toString());
+				}
+				
+				// Steps can be added in scenario sheet as: ---- e2e_loopWindow(START /*LOOP_WINDOW_MARKER*/) ----e2e_loopWindow(END/*LOOP_WINDOW_MARKER*/,loopCount/* LOOP_COUNT*/)
+                // Add step/steps to be repeated for a given loopCount in between the above mentioned steps in the scenario sheet
+				if (step.getName().contains("loopWindow")) {
+
+					if (step.getParameters().get(0).contains("START")) {
+						jumpBackIndex = stepIndex + 1;
+						iterationCount = 1;
+					} else if (step.getParameters().size() > 1 && step.getParameters().get(0).contains("END")) {
+						int loopCount = Integer.parseInt(step.getParameters().get(1));
+						if (iterationCount < loopCount) {
+							stepIndex = jumpBackIndex - 1;
+							iterationCount++;
+							logger.info("Repeating loop, iteration: " + iterationCount + " of " + loopCount);
+							continue;
+						} else {
+							logger.info("Loop completed after " + iterationCount + " iterations.");
+						}
+					}
+				}
 				st.run();
-
 				st.assertHttpStatus();
 				if (st.hasError()) {
 					extentTest.fail(identifier + " - failed");
@@ -631,12 +658,12 @@ public class Orchestrator {
 		// Replace ( with [ and ) with ]
 		processedStepInput = processedStepInput.replace('(', '[').replace(')', ']');
 		processedStepInput = trimSpaceWithinSquareBrackets(processedStepInput);
-		
+
 		if (allStepsMap.get("S_" + scenarioNumber + processedStepInput) == null) {
-		String[] descAndExample = new String[2];
-		descAndExample[0] = description;
-		descAndExample[1] = stepInput;
-		allStepsMap.put("S_" + scenarioNumber + processedStepInput, descAndExample);
+			String[] descAndExample = new String[2];
+			descAndExample[0] = description;
+			descAndExample[1] = stepInput;
+			allStepsMap.put("S_" + scenarioNumber + processedStepInput, descAndExample);
 		}
 	}
 
