@@ -392,7 +392,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		logger.info(GlobalConstants.REST_ASSURED_STRING_3 + getResponse.time());
 
 		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
-				getResponse.getBody().asString());
+				getResponse.asString());
 		return getResponse;
 	}
 	
