@@ -205,7 +205,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 
 		GlobalMethods.ReportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, body,
-				puttResponse.getBody().asString());
+				puttResponse.asString(),true);
 
 		return puttResponse;
 	}
@@ -317,7 +317,7 @@ public class BaseTestCaseUtil extends BaseStep {
 				MediaType.APPLICATION_JSON);
 
 		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
-				apiResponse.getBody().asString());
+				apiResponse.asString(),true);
 		return apiResponse;
 	}
 
