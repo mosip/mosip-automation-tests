@@ -235,8 +235,6 @@ public class EmailableReport implements IReporter {
 	}
 
 
-
-
 	protected void writeBody() {
 		writer.print("<body>");
 		writeSuiteSummary();
@@ -328,7 +326,7 @@ public class EmailableReport implements IReporter {
 	            writeTableData(decimalFormat.format(totalTests), "num num-center"); // Center alignment for total
 	            writeTableData(integerFormat.format(passedTests), (passedTests > 0 ? "num green-bg num-center" : "num num-center")); // Center alignment for passed
 	            writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num orange-bg num-center" : "num num-center")); // Center alignment for skipped
-	            writeTableData(integerFormat.format(failedTests), (failedTests > 0 ? "num attn num-center" : "num num-center")); // Center alignment for failed
+				writeTableData(integerFormat.format(failedTests),  (failedTests > 0 ? "num attn num-center red-text" : "num num-center"));
 	            writeTableData(decimalFormat.format(duration), "num num-center"); // Center alignment for time
 
 	            writer.print("</tr>");
@@ -448,9 +446,9 @@ public class EmailableReport implements IReporter {
 						long scenarioDuration = result.getEndMillis() - scenarioStart;
 
 						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
-								.append(scenarioIndex).append("\">").append(scenarioName).append("</a></td>")
-								.append("<td>").append(scenarioDescription).append("</td>")
-								.append("<td>").append(scenarioDuration).append("</td></tr>");
+					      .append(scenarioIndex).append("\">").append(scenarioName).append("</a></td>")
+					      .append("<td style=\"text-align: left;\">").append(scenarioDescription).append("</td>")
+					      .append("<td>").append(scenarioDuration).append("</td></tr>");
 
 						scenarioIndex++;
 					}
