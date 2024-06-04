@@ -259,7 +259,8 @@ public class BiometricDataProvider {
 						.parseBoolean(VariableManager.getVariableValue(contextKey, "invalidCertFlag").toString());
 
 				if (invalidCertFlag)
-					p12path = Paths.get(certsDir, "invalid_cert");
+					p12path = Paths.get(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "invalidCertpath")
+							.toString());
 				else
 					p12path = Paths.get(certsDir,
 							"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
