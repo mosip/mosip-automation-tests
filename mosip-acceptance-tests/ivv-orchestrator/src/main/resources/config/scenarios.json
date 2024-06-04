@@ -9862,7 +9862,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,false,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/,true/*INVALID_DEVICE_CERTIFICATE*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
