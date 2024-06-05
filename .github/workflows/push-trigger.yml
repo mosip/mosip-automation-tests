@@ -17,7 +17,7 @@ on:
       - '!release-branch'
       - release*
       - master
-      - develop
+      - develop*
       - 1.*
       - MOSIP*
       
