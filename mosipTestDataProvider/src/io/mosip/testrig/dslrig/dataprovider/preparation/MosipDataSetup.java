@@ -93,7 +93,7 @@ public class MosipDataSetup {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()
 				+ "v1/masterdata/machines/";
 		
-		url = url + machineId + "/ ";
+		url = url + machineId ;
 		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
 		Object o =getCache(url,run_context);
 		if(o != null)
