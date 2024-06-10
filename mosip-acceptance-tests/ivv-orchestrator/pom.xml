@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>io.mosip.testrig.dslrig.ivv</groupId>
 		<artifactId>dslrig-ivv-parent</artifactId>
-		<version>1.2.0.1-SNAPSHOT</version>
+		<version>1.2.1-SNAPSHOT</version>
 
 	</parent>
 
 	<groupId>io.mosip.testrig.dslrig.ivv.orchestrator</groupId>
 	<artifactId>dslrig-ivv-orchestrator</artifactId>
 	<name>mosip-dsl-test</name>
-	<version>1.2.0.1-SNAPSHOT</version>
+	<version>1.2.1-SNAPSHOT</version>
 	<properties>
 		<suiteXmlFile>testng.xml</suiteXmlFile>
 		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
@@ -60,7 +60,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<finalName>dslrig-ivv-orchestrator-1.2.0.1-SNAPSHOT-jar-with-dependencies</finalName>
+							<finalName>dslrig-ivv-orchestrator-1.2.1-SNAPSHOT-jar-with-dependencies</finalName>
 							<transformers>
 								<!-- need this to merge the services files properly -->
 								<transformer
@@ -103,12 +103,12 @@
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
 			<artifactId>dslrig-ivv-core</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
 			<artifactId>dslrig-ivv-dg</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.aventstack</groupId>
@@ -117,9 +117,9 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>io.mosip.testrig.apirig.automationtests.commons</groupId>
-			<artifactId>automationtests-commons</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<groupId>io.mosip.testrig.apirig.apitest.commons</groupId>
+			<artifactId>apitest-commons</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
 
 			<exclusions>
 				<exclusion>
@@ -132,46 +132,46 @@
 		<dependency>
 			<groupId>io.mosip.esignet</groupId>
 			<artifactId>apitest-esignet</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		
 				<dependency>
 			<groupId>io.mosip.authentication</groupId>
 			<artifactId>apitest-auth</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		
 						<dependency>
 			<groupId>io.mosip.idrepo</groupId>
 			<artifactId>apitest-idrepo</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		
 								<dependency>
 			<groupId>io.mosip.masterdata</groupId>
 			<artifactId>apitest-masterdata</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 										<dependency>
 			<groupId>io.mosip.mimoto</groupId>
 			<artifactId>apitest-mimoto</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		
 												<dependency>
 			<groupId>io.mosip.testrig.apirig.apitests.partner</groupId>
 			<artifactId>apitests-partner</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 														<dependency>
 			<groupId>io.mosip.testrig.apirig.automationtests.prereg</groupId>
 			<artifactId>automationtests-prereg</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 																<dependency>
 			<groupId>io.mosip.testrig.apirig.automationtests.resident</groupId>
 			<artifactId>automationtests-resident</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
