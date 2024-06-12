@@ -41,9 +41,8 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
