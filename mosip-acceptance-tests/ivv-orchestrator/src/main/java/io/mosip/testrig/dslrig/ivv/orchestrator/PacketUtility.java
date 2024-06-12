@@ -1208,7 +1208,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReqInner.put(PERSONAFILEPATH, resFilePath);
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
-		Response response = getReqest(url, jsonReq.toString(), "Retrive BiometricData", step);
+		Response response = getRequest(url, jsonReq.toString(), "Retrive BiometricData", step);
 		if (response.getBody().asString().equals("")) {
 			this.hasError = true;
 			throw new RigInternalError(
@@ -1220,7 +1220,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	private Response getReqest(String url, String body, String opsToLog, Scenario.Step step) {
+	private Response getRequest(String url, String body, String opsToLog, Scenario.Step step) {
 		Response apiResponse = getRequestWithbody(url, body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON,
 				step);
 		return apiResponse;
@@ -1240,7 +1240,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").when()
 					.body(body).get(url).then().extract().response();
 		}
-		GlobalMethods.ReportRequestAndResponse("", "", url, body, getResponse.getBody().asString());
+		/*
+		 * GlobalMethods.ReportRequestAndResponse(null,
+		 * getResponse.getHeaders().asList().toString(), url, body,
+		 * getResponse.asString(),true);
+		 */
 		return getResponse;
 	}
 
