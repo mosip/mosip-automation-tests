@@ -1,9 +1,13 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
@@ -12,7 +16,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
 import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
 import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
 import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
@@ -28,7 +31,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 	static Logger logger = Logger.getLogger(DemoAuthentication.class);
 	private static final String DEMOPATH = "idaData/DemoAuth/DemoAuth.yml";
 	DemoAuthSimplePostForAutoGenId demoAuth = new DemoAuthSimplePostForAutoGenId();
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -50,6 +53,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		Object[] casesListUIN = null;
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 		Object[] casesListVID = null;
+		String updateAgeFlag = null;
 
 		// AuthPartnerProcessor.startProcess();
 		// step.getScenario().getUinPersonaProp().put("2759239619",
@@ -57,7 +61,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+			this.hasError = true;
+			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 			demofields = step.getParameters().get(0);
 			if (!StringUtils.isBlank(demofields))
@@ -94,6 +99,9 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		} else
 			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
+		if (step.getParameters().size() > 4)
+			updateAgeFlag = step.getParameters().get(4);
+
 		Object[] testObj = demoAuth.getYmlTestData(DEMOPATH);
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
 		// test.setEndPoint(test.getEndPoint().replace("$PartnerKey$",
@@ -105,17 +113,17 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				personFilePathvalue = _personFilePath;
 			} else if (step.getScenario().getUinPersonaProp().containsKey(uin))
 				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
-			else
-				{
-				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
-				}
+			else {
+				this.hasError = true;
+				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+			}
 
 			List<String> demoFetchList = new ArrayList<String>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
-			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList,step);
+			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList, step);
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
-			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList,step);
+			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList, step);
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 			JSONObject inputJson = new JSONObject(input);
@@ -130,16 +138,28 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				String demoValue = null;
 
 				switch (demoField) {
-				case E2EConstants.DEMODOB:
+				case E2EConstants.DEMOAGE:
 					demoFieldValueKey = E2EConstants.DEMODOB;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
-					if (demoValue == null)
-						{
-						this.hasError=true;throw new RigInternalError(
-						
+					
+					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease") ) {
+						demoValue = decreaseAge(demoValue);
+					}
+					else {
+					    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+					    LocalDate birthDate = LocalDate.parse(demoValue, formatter);
+					    LocalDate currentDate = LocalDate.now();
+
+					    demoValue = String.valueOf(ChronoUnit.YEARS.between(birthDate, currentDate));
+					}
+
+					if (demoValue == null) {
+						this.hasError = true;
+						throw new RigInternalError(
+
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}
+					}
 					inputJson.put(demoField, demoValue);
 					break;
 
@@ -147,10 +167,11 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					demoFieldValueKey = E2EConstants.DEMOEMAIL;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
-					if (demoValue == null)
-						{this.hasError=true;throw new RigInternalError(
+					if (demoValue == null) {
+						this.hasError = true;
+						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}
+					}
 					inputJson.put(demoField, demoValue);
 					break;
 
@@ -158,9 +179,11 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					demoFieldValueKey = E2EConstants.DEMOPHONE;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
-					if (demoValue == null)
-						{this.hasError=true;throw new RigInternalError(
-							"Unable to get the Demo value for field " + demoField + " from Persona");}
+					if (demoValue == null) {
+						this.hasError = true;
+						throw new RigInternalError(
+								"Unable to get the Demo value for field " + demoField + " from Persona");
+					}
 					inputJson.put(demoField, demoValue);
 					break;
 
@@ -174,15 +197,15 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						addLine3 = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
 								E2EConstants.DEMOADDRESSLINE3);
 					} catch (Exception e) {
-						this.hasError=true;throw new RigInternalError(e.getMessage());
+						this.hasError = true;
+						throw new RigInternalError(e.getMessage());
 					}
-					if (addLine1 == null || addLine2 == null || addLine3 == null)
-						{
-						this.hasError=true;
+					if (addLine1 == null || addLine2 == null || addLine3 == null) {
+						this.hasError = true;
 						throw new RigInternalError(
-						
+
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}
+					}
 					JSONArray addressLine1Array = new JSONArray();
 					JSONObject addressLine1Obj = new JSONObject();
 					addressLine1Obj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -213,11 +236,12 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOMNAME);
 					lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
-					if (firstNm == null || midNm == null || lastNm == null)
-						{
-						this.hasError=true;throw new RigInternalError(
+					if (firstNm == null || midNm == null || lastNm == null) {
+						this.hasError = true;
+						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}fullname = firstNm + " " + midNm + " " + lastNm;
+					}
+					fullname = firstNm + " " + midNm + " " + lastNm;
 					JSONArray nameArray = new JSONArray();
 					JSONObject nameObj = new JSONObject();
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -235,12 +259,12 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					genderObj.put("language", BaseTestCase.getLanguageList().get(0));
 					genderObj.put("value", demoValue);
 					genArray.put(genderObj);
-					if (demoValue == null)
-						{
-						this.hasError=true;
+					if (demoValue == null) {
+						this.hasError = true;
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}inputJson.put(demoField, genArray);
+					}
+					inputJson.put(demoField, genArray);
 					break;
 
 				default:
@@ -286,7 +310,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						}
 					} catch (AuthenticationTestException | AdminTestException e) {
 
-						this.hasError=true;throw new RigInternalError(e.getMessage());
+						this.hasError = true;
+						throw new RigInternalError(e.getMessage());
 
 					}
 				}
@@ -300,18 +325,18 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				personFilePathvalue = _personFilePath;
 			} else if (step.getScenario().getVidPersonaProp().containsKey(vid))
 				personFilePathvalue = step.getScenario().getVidPersonaProp().getProperty(vid);
-			else
-				{
+			else {
 
-				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + vid);
-				}
+				this.hasError = true;
+				throw new RigInternalError("Persona doesn't exist for the given UIN " + vid);
+			}
 
 			List<String> demoFetchList = new ArrayList<String>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
-			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList,step);
+			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList, step);
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
-			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList,step);
+			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList, step);
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
 			JSONObject inputJson = new JSONObject(input);
@@ -323,40 +348,56 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			for (String demoField : demofieldList) {
 				String demoFieldValueKey = null;
 				String demoValue = null;
+				int age = 0;
 
 				switch (demoField) {
-				case E2EConstants.DEMODOB:
+				case E2EConstants.DEMOAGE:
 					demoFieldValueKey = E2EConstants.DEMODOB;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
-					if (demoValue == null)
-						{
+					
+					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease") ) {
+						demoValue = decreaseAge(demoValue);
+					}
+					else {
+					    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+					    LocalDate birthDate = LocalDate.parse(demoValue, formatter);
+					    LocalDate currentDate = LocalDate.now();
 
-						this.hasError=true;throw new RigInternalError(
+					    demoValue = String.valueOf(ChronoUnit.YEARS.between(birthDate, currentDate));
+					}
+				if (demoValue == null) {
+
+						this.hasError = true;
+						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}inputJson.put(demoField, demoValue);
+					}
+					inputJson.put(demoField, demoValue);
 					break;
+					
 
 				case E2EConstants.DEMOEMAIL:
 					demoFieldValueKey = E2EConstants.DEMOEMAIL;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
-					if (demoValue == null)
-						{
-						this.hasError=true;throw new RigInternalError(
+					if (demoValue == null) {
+						this.hasError = true;
+						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}inputJson.put(demoField, demoValue);
+					}
+					inputJson.put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOYMLPHONE:
 					demoFieldValueKey = E2EConstants.DEMOPHONE;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
-					if (demoValue == null)
-						{
-						this.hasError=true;throw new RigInternalError(
+					if (demoValue == null) {
+						this.hasError = true;
+						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}	inputJson.put(demoField, demoValue);
+					}
+					inputJson.put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOADDRESSFETCH:
@@ -368,15 +409,15 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 								E2EConstants.DEMOADDRESSLINE2);
 						addLine3 = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
 								E2EConstants.DEMOADDRESSLINE3);
-					} catch (Exception e) 
-						{
-							this.hasError=true;throw new RigInternalError(e.getMessage());
+					} catch (Exception e) {
+						this.hasError = true;
+						throw new RigInternalError(e.getMessage());
 					}
-					if (addLine1 == null || addLine2 == null || addLine3 == null)
-						{
-						this.hasError=true;throw new RigInternalError(
+					if (addLine1 == null || addLine2 == null || addLine3 == null) {
+						this.hasError = true;
+						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}
+					}
 					JSONArray addressLine1Array = new JSONArray();
 					JSONObject addressLine1Obj = new JSONObject();
 					addressLine1Obj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -407,11 +448,12 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOMNAME);
 					lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
-					if (firstNm == null || midNm == null || lastNm == null)
-						{
-						this.hasError=true;throw new RigInternalError(
+					if (firstNm == null || midNm == null || lastNm == null) {
+						this.hasError = true;
+						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}fullname = firstNm + " " + midNm + " " + lastNm;
+					}
+					fullname = firstNm + " " + midNm + " " + lastNm;
 					JSONArray nameArray = new JSONArray();
 					JSONObject nameObj = new JSONObject();
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -429,11 +471,12 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					genderObj.put("language", BaseTestCase.getLanguageList().get(0));
 					genderObj.put("value", demoValue);
 					genArray.put(genderObj);
-					if (demoValue == null)
-						{
-						this.hasError=true;throw new RigInternalError(
+					if (demoValue == null) {
+						this.hasError = true;
+						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
-						}inputJson.put(demoField, genArray);
+					}
+					inputJson.put(demoField, genArray);
 					break;
 
 				default:
@@ -479,7 +522,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						}
 					} catch (AuthenticationTestException | AdminTestException e) {
 
-						this.hasError=true;throw new RigInternalError(e.getMessage());
+						this.hasError = true;
+						throw new RigInternalError(e.getMessage());
 
 					}
 				}
@@ -488,4 +532,43 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		}
 
 	}
+
+	public static String decreaseAge(String dateString) {
+	    // Assuming dateString comes in the format "YYYY/MM/DD"
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+	    LocalDate birthDate = LocalDate.parse(dateString, formatter);
+	    LocalDate currentDate = LocalDate.now();
+
+	    long currentAge = ChronoUnit.YEARS.between(birthDate, currentDate);
+
+	    // If the age is less than 1 year, we cannot decrease it
+	    if (currentAge < 1) {
+	        return "0"; // Return "0" as a string
+	    }
+
+	    Random random = new Random();
+	    int yearsToSubtract = random.nextInt((int) currentAge) + 1; // Random number between 1 and currentAge
+
+	    int decreasedAge = (int) currentAge - yearsToSubtract;
+
+	    // Convert the decreased age to a string and return it
+	    return String.valueOf(decreasedAge);
+	}
+
+
+
+	public static String increaseAge(String dateString) {
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+	    LocalDate birthDate = LocalDate.parse(dateString, formatter);
+
+	    Random random = new Random();
+	    int yearsToAdd = random.nextInt(10) + 1;
+	    LocalDate newDate = birthDate.plusYears(yearsToAdd);
+
+	    LocalDate currentDate = LocalDate.now();
+	    long newAge = ChronoUnit.YEARS.between(newDate, currentDate);
+
+	    return String.valueOf(newAge);
+	}
+
 }
