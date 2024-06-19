@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Properties;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;

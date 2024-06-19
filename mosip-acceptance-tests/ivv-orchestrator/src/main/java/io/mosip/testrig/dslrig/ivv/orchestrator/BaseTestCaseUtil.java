@@ -21,22 +21,20 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Reporter;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
-import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
-import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.testrig.apirig.authentication.fw.util.RestClient;
-import io.mosip.testrig.apirig.global.utils.GlobalConstants;
-import io.mosip.testrig.apirig.global.utils.GlobalMethods;
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
-import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
+import io.mosip.testrig.apirig.utils.RestClient;
+import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.KernelAuthentication;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;

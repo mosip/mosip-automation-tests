@@ -1,44 +1,46 @@
 package io.mosip.testrig.dslrig.packetcreator.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springdoc.core.models.GroupedOpenApi;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-
-@Configuration
-@EnableSwagger2
+@Configuration(value = "packetcreator_swagger_config")
 public class SwaggerConfig {
 
-    private static final String SERVICE_VERSION = "0.0.1";
-    private static final String TITLE = "Test Data Service";
-    private static final String DESCRIPTION = "Test Data Service";
+	private static final Logger logger = LoggerFactory.getLogger(SwaggerConfig.class);
 
+	@Autowired
+	private OpenApiProperties openApiProperties;
 
-    /**
-     * Produce Docket bean
-     *
-     * @return Docket bean
-     */
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo()).select()
-                .paths(PathSelectors.regex("(?!/(error).*).*")).build();
-    }
+	@Bean
+	public OpenAPI openApi() {
+		OpenAPI api = new OpenAPI().components(new Components())
+				.info(new Info().title(openApiProperties.getInfo().getTitle())
+						.version(openApiProperties.getInfo().getVersion())
+						.description(openApiProperties.getInfo().getDescription())
+						.license(new License().name(openApiProperties.getInfo().getLicense().getName())
+								.url(openApiProperties.getInfo().getLicense().getUrl())));
 
-    /**
-     * Produces {@link ApiInfo}
-     *
-     * @return {@link ApiInfo}
-     */
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder().title(TITLE).description(DESCRIPTION).version(SERVICE_VERSION).build();
-    }
+		openApiProperties.getService().getServers().forEach(server -> {
+			api.addServersItem(new Server().description(server.getDescription()).url(server.getUrl()));
+		});
+		logger.info("swagger open api bean is ready");
+		return api;
+	}
+
+	@Bean
+	public GroupedOpenApi groupedOpenApi() {
+		return GroupedOpenApi.builder().group(openApiProperties.getGroup().getName())
+				.pathsToMatch(openApiProperties.getGroup().getPaths().stream().toArray(String[]::new)).build();
+	}
 
 }
