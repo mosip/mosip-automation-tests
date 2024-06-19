@@ -1,13 +1,17 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -148,8 +152,7 @@ public class EmailableReport implements IReporter {
 		try (InputStream is = EmailableReport.class.getClassLoader().getResourceAsStream("git.properties")) {
 			properties.load(is);
 
-			return "Commit Id is: " + properties.getProperty("git.commit.id.abbrev") + " & Branch Name is:"
-					+ properties.getProperty("git.branch");
+			return properties.getProperty("git.commit.id.abbrev");
 
 		} catch (IOException io) {
 			logger.error(io.getMessage());
@@ -217,6 +220,22 @@ public class EmailableReport implements IReporter {
 	protected void writeSuiteSummary() {
 		NumberFormat integerFormat = NumberFormat.getIntegerInstance();
 		NumberFormat decimalFormat = NumberFormat.getNumberInstance();
+		LocalDate currentDate = LocalDate.now();
+		String formattedDate =null;
+		 String branch = null;
+
+		// Format the current date as per your requirement
+		try {
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	    formattedDate = currentDate.format(formatter);
+		Process process = Runtime.getRuntime().exec("git rev-parse --abbrev-ref HEAD");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        branch = reader.readLine();
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
 
 		totalPassedTests = 0;
 		totalSkippedTests = 0;
@@ -227,22 +246,39 @@ public class EmailableReport implements IReporter {
 		for (SuiteResult suiteResult : suiteResults) {
 
 			writer.print("<tr><th colspan=\"7\">");
-			writer.print(Utils.escapeHtml(suiteResult.getSuiteName() + "-" + getCommitId()));
+			writer.print(Utils.escapeHtml(
+				    suiteResult.getSuiteName() + " ---- " +
+				    "Report Date: " + formattedDate + " ---- " +
+				    "Tested Environment: " + System.getProperty("env.user").substring(System.getProperty("env.user").lastIndexOf(".") + 1) + " ---- " +
+				    "Testrig details: Branch Name - " + branch + ", Commit ID - " + getCommitId()));
+			
 			writer.print("</th></tr>");
+			
+			
+			writer.print("<tr>");
 
-			writer.print("<tr><th colspan=\"7\"><span class=\"not-bold\"><pre>");
-			writer.print(Utils.escapeHtml("Server Component Details " + AdminTestUtil.getServerComponentsDetails()));
-			writer.print("</pre></span>");
+			// Left column: "Server Component Details" with central alignment
+			writer.print("<th style=\"text-align: center; vertical-align: middle;\" colspan=\"2\"><span class=\"not-bold\"><pre>");
+			writer.print(Utils.escapeHtml("Tested Component Details"));
+			writer.print("</span></th>");
+
+			// Right column: Details from AdminTestUtil.getServerComponentsDetails() without bold formatting
+			writer.print("<td colspan=\"5\"><pre>");
+			writer.print(Utils.escapeHtml(AdminTestUtil.getServerComponentsDetails()));
+			writer.print("</pre></td>");
+
+			writer.print("</tr>");
 			writer.print(GlobalConstants.TRTR);
 
 			writer.print("<tr>");
-//			writer.print("<th>Test Suite</th>");
+			writer.print("<th colspan=\"4\"><strong>Summary of Test Results</strong></th>");
+			writer.print("</tr>");
+			
+			writer.print("<tr>");
 			writer.print("<th># Passed</th>");
 			writer.print("<th># Skipped</th>");
 			writer.print("<th># Failed</th>");
 			writer.print("<th>Time (ms)</th>");
-			// writer.print("<th>Included Groups</th>");
-			// writer.print("<th>Excluded Groups</th>");
 			writer.print("</tr>");
 
 			for (TestResult testResult : suiteResult.getTestResults()) {

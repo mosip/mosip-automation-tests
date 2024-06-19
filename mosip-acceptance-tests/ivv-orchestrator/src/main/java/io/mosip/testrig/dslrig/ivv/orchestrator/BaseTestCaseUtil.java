@@ -159,7 +159,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.accept(MediaType.APPLICATION_JSON).when().get(url).then().extract().response();
 		}
 		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
-				getResponse.getBody().asString());
+				getResponse.getBody().asString(),true);
 		return getResponse;
 	}
 
@@ -187,7 +187,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		Response apiResponse = RestClient.postRequest(url, body, MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);
 		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
-				apiResponse.getBody().asString());
+				apiResponse.getBody().asString(),true);
 		return apiResponse;
 	}
 
