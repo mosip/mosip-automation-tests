@@ -398,10 +398,10 @@ public class Orchestrator {
 				String[] stepDetails = getStepDetails("e2e_" + step.getName());
 				
 				StringBuilder sb = new StringBuilder();
-				sb.append("<div> <textarea style='border:solid 1px gray; background-color: darkgray;' name='headers' rows='4' cols='160' readonly='true'>");
+				sb.append("<div> <textarea style='border:solid 1px gray; background-color: darkgray;' name='headers' rows='3' cols='160' readonly='true'>");
 				sb.append("Step Name: " + step.getName()+ "\n");
 				sb.append("Step Description:" + stepDetails[0]+ "\n");
-				sb.append("Step Parameters: " + stepDetails[1]+ "\n");
+				sb.append("Step Parameters: " + stepDetails[1]);
 				sb.append("</textarea> </div>");
 				
 				Reporter.log(sb.toString());
