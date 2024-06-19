@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.testng.Reporter;
 
-import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
+import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.restassured.response.Response;
 
