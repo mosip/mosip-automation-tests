@@ -1,13 +1,18 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -148,8 +153,7 @@ public class EmailableReport implements IReporter {
 		try (InputStream is = EmailableReport.class.getClassLoader().getResourceAsStream("git.properties")) {
 			properties.load(is);
 
-			return "Commit Id is: " + properties.getProperty("git.commit.id.abbrev") + " & Branch Name is:"
-					+ properties.getProperty("git.branch");
+			return properties.getProperty("git.commit.id.abbrev");
 
 		} catch (IOException io) {
 			logger.error(io.getMessage());
@@ -181,26 +185,55 @@ public class EmailableReport implements IReporter {
 	}
 
 	protected void writeStylesheet() {
-		writer.print("<style type=\"text/css\">");
-		writer.print("table {margin-bottom:10px;border-collapse:collapse;empty-cells:show}");
-		writer.print("th,td {border:1px solid #009;padding:.25em .5em}");
-		writer.print("th {vertical-align:bottom}");
-		writer.print("td {vertical-align:top}");
-		writer.print("table a {font-weight:bold}");
-		writer.print(".stripe td {background-color: #E6EBF9}");
-		writer.print(".num {text-align:center}");
-		writer.print(".passedodd td {background-color: #3F3}");
-		writer.print(".passedeven td {background-color: #0A0}");
-		writer.print(".skippedodd td {background-color: #FFA500}");
-		writer.print(".skippedeven td {background-color: #FFA500}");
-		writer.print(".failedodd td,.attn {background-color: #F33}");
-		writer.print(".failedeven td,.stripe .attn {background-color: #D00}");
-		writer.print(".stacktrace {white-space:pre;font-family:monospace}");
-		writer.print(".totop {font-size:85%;text-align:center;border-bottom:2px solid #000}");
-		writer.print(".orange-bg {background-color: #FFA500}");
-		writer.print(".green-bg {background-color: #0A0}");
-		writer.print("</style>");
+	    writer.print("<style type=\"text/css\">");
+	    
+	    // General table styling
+	    writer.print("table {margin-bottom:10px;border-collapse:collapse;empty-cells:show;width:100%;}");
+	    
+	    // Uniform cell styling for all tables with reduced padding
+	    writer.print("th, td {border:1px solid #009;padding:.25em .5em;background-color:#FFF;vertical-align:middle;}");
+	    
+	    // Header specific styling
+	    writer.print("th {background-color:#f2f2f2; text-align:center;}"); // Central alignment for headers
+	    
+	    // Links inside table cells
+	    writer.print("table a {font-weight:bold}");
+	    
+	    // Striped rows for all tables
+	    writer.print(".stripe tr:nth-child(odd) td {background-color: #E6EBF9}");
+	    writer.print(".stripe tr:nth-child(even) td {background-color: #FFF}");
+	    
+	    // Passed rows styling
+	    writer.print(".passedodd td, .passedeven td {background-color: #0A0; color: #FFF; text-align:center;}"); // Central alignment for passed rows
+	    
+	    // Skipped rows styling
+	    writer.print(".skippedodd td, .skippedeven td {background-color: #FFA500; color: #FFF; text-align:center;}"); // Central alignment for skipped rows
+	    
+	    // Failed rows styling
+	    writer.print(".failedodd td, .failedeven td {background-color: #F33; color: #FFF; text-align:center;}"); // Central alignment for failed rows
+	    
+	    // Specific styling for stacktrace
+	    writer.print(".stacktrace {white-space:pre;font-family:monospace}");
+	    
+	    // To top link
+	    writer.print(".totop {font-size:85%;text-align:center;border-bottom:2px solid #000}");
+	    
+	    // Background color utility classes
+	    writer.print(".orange-bg {background-color: #FFA500; color: #FFF;}");
+	    writer.print(".green-bg {background-color: #0A0; color: #FFF;}");
+	    
+	    // Uniform width for specific columns and center alignment for specific cells
+	    writer.print(".num-center {text-align:center;}");
+	    
+	    // Left alignment for scenario steps
+	    writer.print(".scenario-step {text-align:left;}");
+	    
+	    // New class for log box
+	    writer.print(".log-box {background-color: black; color: white; padding: 10px; border-radius: 5px;}");
+	    
+	    writer.print("</style>");
 	}
+
 
 	protected void writeBody() {
 		writer.print("<body>");
@@ -215,84 +248,111 @@ public class EmailableReport implements IReporter {
 	}
 
 	protected void writeSuiteSummary() {
-		NumberFormat integerFormat = NumberFormat.getIntegerInstance();
-		NumberFormat decimalFormat = NumberFormat.getNumberInstance();
+	    NumberFormat integerFormat = NumberFormat.getIntegerInstance();
+	    NumberFormat decimalFormat = NumberFormat.getNumberInstance();
+	    LocalDate currentDate = LocalDate.now();
+	    String formattedDate = null;
+	    String branch = null;
 
-		totalPassedTests = 0;
-		totalSkippedTests = 0;
-		totalFailedTests = 0;
-		long totalDuration = 0;
-		writer.print("<table>");
-		int testIndex = 0;
-		for (SuiteResult suiteResult : suiteResults) {
+	    // Format the current date as per your requirement
+	    try {
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	        formattedDate = currentDate.format(formatter);
+	        Process process = Runtime.getRuntime().exec("git rev-parse --abbrev-ref HEAD");
+	        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+	        branch = reader.readLine();
+	    } catch (Exception e) {
+	        // TODO: handle exception
+	    }
 
-			writer.print("<tr><th colspan=\"7\">");
-			writer.print(Utils.escapeHtml(suiteResult.getSuiteName() + "-" + getCommitId()));
-			writer.print("</th></tr>");
+	    totalPassedTests = 0;
+	    totalSkippedTests = 0;
+	    totalFailedTests = 0;
+	    long totalDuration = 0;
+	    writer.print("<table>");
+	    int testIndex = 0;
+	    for (SuiteResult suiteResult : suiteResults) {
 
-			writer.print("<tr><th colspan=\"7\"><span class=\"not-bold\"><pre>");
-			writer.print(Utils.escapeHtml("Server Component Details " + AdminTestUtil.getServerComponentsDetails()));
-			writer.print("</pre></span>");
-			writer.print(GlobalConstants.TRTR);
+	        writer.print("<tr><th colspan=\"7\">");
+	        writer.print(Utils.escapeHtml(
+	            suiteResult.getSuiteName() + " ---- " +
+	            "Report Date: " + formattedDate + " ---- " +
+	            "Tested Environment: " + System.getProperty("env.endpoint").replaceAll(".*?\\.([^\\.]+)\\..*", "$1") + " ---- " +
+	            "Testrig details: Branch Name - " + branch + ", Commit ID - " + getCommitId()));
+	        
+	        writer.print("</th></tr>");
+	        
+	        writer.print("<tr>");
 
-			writer.print("<tr>");
-//			writer.print("<th>Test Suite</th>");
-			writer.print("<th># Passed</th>");
-			writer.print("<th># Skipped</th>");
-			writer.print("<th># Failed</th>");
-			writer.print("<th>Time (ms)</th>");
-			// writer.print("<th>Included Groups</th>");
-			// writer.print("<th>Excluded Groups</th>");
-			writer.print("</tr>");
+	        // Left column: "Server Component Details" with central alignment
+	        writer.print("<th style=\"text-align: center; vertical-align: middle;\" colspan=\"2\"><span class=\"not-bold\"><pre>");
+	        writer.print(Utils.escapeHtml("Tested Component Details"));
+	        writer.print("</span></th>");
 
-			for (TestResult testResult : suiteResult.getTestResults()) {
-				int passedTests = testResult.getPassedTestCount();
-				int skippedTests = testResult.getSkippedTestCount();
-				int failedTests = testResult.getFailedTestCount();
-				long duration = testResult.getDuration();
+	        // Right column: Details from AdminTestUtil.getServerComponentsDetails() without bold formatting
+	        writer.print("<td colspan=\"5\"><pre>");
+	        writer.print(Utils.escapeHtml(AdminTestUtil.getServerComponentsDetails()));
+	        writer.print("</pre></td>");
 
-				writer.print("<tr");
-				if ((testIndex % 2) == 1) {
-					writer.print(" class=\"stripe\"");
-				}
-				writer.print(">");
+	        writer.print("</tr>");
+	        writer.print(GlobalConstants.TRTR);
 
-				buffer.setLength(0);
-//				writeTableData(buffer.append("<a href=\"#t").append(testIndex).append("\">")
-//						.append(Utils.escapeHtml(testResult.getTestName())).append("</a>").toString());
-				writeTableData(integerFormat.format(passedTests), (passedTests > 0 ? "num green-bg" : "num"));
-				writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num orange-bg" : "num"));
-				writeTableData(integerFormat.format(failedTests), (failedTests > 0 ? "num attn" : "num"));
-				writeTableData(decimalFormat.format(duration), "num");
-				/*
-				 * writeTableData(testResult.getIncludedGroups());
-				 * writeTableData(testResult.getExcludedGroups());
-				 */
+	        writer.print("<tr>");
+	        writer.print("<th colspan=\"5\"><strong>Summary of Test Results</strong></th>");
+	        writer.print("</tr>");
+	        
+	        writer.print("<tr>");
+	        writer.print("<th># Total</th>");
+	        writer.print("<th># Passed</th>");
+	        writer.print("<th># Skipped</th>");
+	        writer.print("<th># Failed</th>");
+	        writer.print("<th>Time (ms)</th>");
+	        writer.print("</tr>");
 
-				writer.print("</tr>");
+	        for (TestResult testResult : suiteResult.getTestResults()) {
+	            int passedTests = testResult.getPassedTestCount();
+	            int skippedTests = testResult.getSkippedTestCount();
+	            int failedTests = testResult.getFailedTestCount();
+	            int totalTests = passedTests + skippedTests + failedTests;
+	            long duration = testResult.getDuration();
 
-				totalPassedTests += passedTests;
-				totalSkippedTests += skippedTests;
-				totalFailedTests += failedTests;
-				totalDuration += duration;
+	            writer.print("<tr");
+	            if ((testIndex % 2) == 1) {
+	                writer.print(" class=\"stripe\"");
+	            }
+	            writer.print(">");
 
-				testIndex++;
-			}
-		}
+	            buffer.setLength(0);
+	            writeTableData(decimalFormat.format(totalTests), "num num-center"); // Center alignment for total
+	            writeTableData(integerFormat.format(passedTests), (passedTests > 0 ? "num green-bg num-center" : "num num-center")); // Center alignment for passed
+	            writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num orange-bg num-center" : "num num-center")); // Center alignment for skipped
+				writeTableData(integerFormat.format(failedTests),  (failedTests > 0 ? "num attn num-center red-text" : "num num-center"));
+	            writeTableData(decimalFormat.format(duration), "num num-center"); // Center alignment for time
 
-		// Print totals if there was more than one test
-		if (testIndex > 1) {
-			writer.print("<tr>");
-			writer.print("<th>Total</th>");
-			writeTableHeader(integerFormat.format(totalPassedTests), "num");
-			writeTableHeader(integerFormat.format(totalSkippedTests), (totalSkippedTests > 0 ? "num attn" : "num"));
-			writeTableHeader(integerFormat.format(totalFailedTests), (totalFailedTests > 0 ? "num attn" : "num"));
-			writeTableHeader(decimalFormat.format(totalDuration), "num");
-			writer.print("<th colspan=\"2\"></th>");
-			writer.print("</tr>");
-		}
+	            writer.print("</tr>");
 
-		writer.print("</table>");
+	            totalPassedTests += passedTests;
+	            totalSkippedTests += skippedTests;
+	            totalFailedTests += failedTests;
+	            totalDuration += duration;
+
+	            testIndex++;
+	        }
+	    }
+
+	    // Print totals if there was more than one test
+	    if (testIndex > 1) {
+	        writer.print("<tr>");
+	        writer.print("<th>Total</th>");
+	        writeTableHeader(integerFormat.format(totalPassedTests), "num num-center"); // Center alignment for total
+	        writeTableHeader(integerFormat.format(totalSkippedTests), (totalSkippedTests > 0 ? "num attn num-center" : "num num-center")); // Center alignment for skipped
+	        writeTableHeader(integerFormat.format(totalFailedTests), (totalFailedTests > 0 ? "num attn num-center" : "num num-center")); // Center alignment for failed
+	        writeTableHeader(decimalFormat.format(totalDuration), "num num-center"); // Center alignment for time
+	        writer.print("<th colspan=\"2\"></th>");
+	        writer.print("</tr>");
+	    }
+
+	    writer.print("</table>");
 	}
 
 	/**
@@ -386,9 +446,9 @@ public class EmailableReport implements IReporter {
 						long scenarioDuration = result.getEndMillis() - scenarioStart;
 
 						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
-								.append(scenarioIndex).append("\">").append(scenarioName).append("</a></td>")
-								.append("<td>").append(scenarioDescription).append("</td>")
-								.append("<td>").append(scenarioDuration).append("</td></tr>");
+					      .append(scenarioIndex).append("\">").append(scenarioName).append("</a></td>")
+					      .append("<td style=\"text-align: left;\">").append(scenarioDescription).append("</td>")
+					      .append("<td>").append(scenarioDuration).append("</td></tr>");
 
 						scenarioIndex++;
 					}
@@ -542,9 +602,11 @@ public class EmailableReport implements IReporter {
 	}
 
 	protected void writeStackTrace(Throwable throwable) {
+		if(ConfigManager.IsDebugEnabled()) {
 		writer.print("<div class=\"stacktrace\">");
 		writer.print(Utils.shortStackTrace(throwable, true));
 		writer.print("</div>");
+		}
 	}
 
 	/**

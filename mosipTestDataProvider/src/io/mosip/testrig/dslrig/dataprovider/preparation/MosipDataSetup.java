@@ -93,7 +93,7 @@ public class MosipDataSetup {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString()
 				+ "v1/masterdata/machines/";
 		
-		url = url + machineId + "/ ";
+		url = url + machineId ;
 		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
 		Object o =getCache(url,run_context);
 		if(o != null)
@@ -377,11 +377,6 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 	  String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 	  VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"machine"
 	  ).toString();
-
-	  
-	 
-		
-		
 		JSONObject jsonMachine = new JSONObject();
 		jsonMachine.put("id", machine.getId());
 		jsonMachine.put("ipAddress", machine.getIpAddress());
