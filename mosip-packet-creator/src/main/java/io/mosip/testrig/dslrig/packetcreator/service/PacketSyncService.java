@@ -675,7 +675,9 @@ public class PacketSyncService {
 		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 		ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 
+		       if(otp != null && otp.isEmpty()) {
 		preReg.fetchOtp(contextKey);
+       }
 		return preReg.verifyOtp(to, otp, contextKey);
 
 	}
