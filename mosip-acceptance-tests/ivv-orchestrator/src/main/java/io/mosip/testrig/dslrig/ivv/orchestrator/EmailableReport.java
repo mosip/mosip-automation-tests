@@ -33,11 +33,11 @@ import org.testng.collections.Lists;
 import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
 
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
-import io.mosip.testrig.apirig.global.utils.GlobalConstants;
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.kernel.util.S3Adapter;
-import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.S3Adapter;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 
 /**
@@ -218,9 +218,14 @@ public class EmailableReport implements IReporter {
 	    // To top link
 	    writer.print(".totop {font-size:85%;text-align:center;border-bottom:2px solid #000}");
 	    
+	    // Base class for all boxes
+	    writer.print(".box {padding: 10px; border-radius: 5px; color: #FFF; word-wrap: break-word; max-width: 100%;}");
+	    
 	    // Background color utility classes
-	    writer.print(".orange-bg {background-color: #FFA500; color: #FFF;}");
-	    writer.print(".green-bg {background-color: #0A0; color: #FFF;}");
+	    writer.print(".orange-bg {background-color: #FFA500;}");
+	    writer.print(".green-bg {background-color: #0A0;}");
+	    writer.print(".black-bg {background-color: black;}");
+	    writer.print(".darkgray-bg {background-color: darkgray;}");
 	    
 	    // Uniform width for specific columns and center alignment for specific cells
 	    writer.print(".num-center {text-align:center;}");
@@ -229,7 +234,13 @@ public class EmailableReport implements IReporter {
 	    writer.print(".scenario-step {text-align:left;}");
 	    
 	    // New class for log box
-	    writer.print(".log-box {background-color: black; color: white; padding: 10px; border-radius: 5px;}");
+	    writer.print(".log-box {background-color: black;}");
+	    
+	    // Class for textarea styling
+	    writer.print(".textarea-box {border:solid 1px gray; background-color: darkgray; padding: 10px; border-radius: 5px; width: 100%; resize: none;}");
+	    
+	    // Class for left-aligned boxes
+	    writer.print(".left-aligned {text-align:left;}");
 	    
 	    writer.print("</style>");
 	}

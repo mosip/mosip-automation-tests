@@ -41,9 +41,8 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
@@ -329,9 +328,12 @@ public class Orchestrator {
 		store.setRegistrationUsers(scenario.getRegistrationUsers());
 		store.setPartners(scenario.getPartners());
 		store.setProperties(this.properties);
+		
 		Reporter.log(
-				"<div style='background-color: black; color: white; padding: 10px; border-radius: 5px;'><b><u>Scenario_"
-						+ scenario.getId() + ": " + scenario.getDescription() + "</u></b></div>");
+			    "<div class='box black-bg left-aligned' style='max-width: 100%; word-wrap: break-word;'><b><u>Scenario_" 
+			    + scenario.getId() + ": " + scenario.getDescription() + "</u></b></div>"
+			);
+
 //		for (Scenario.Step step : scenario.getSteps()) {
 		int jumpBackIndex = 0;
 		int iterationCount = 0;
@@ -364,20 +366,22 @@ public class Orchestrator {
 				String stepParams[] = getStepDetails("S_" + step.getScenario().getId() + stepAction);
 
 				if (!step.getName().contains("loopWindow")) {
+					
 
 					StringBuilder sb = new StringBuilder();
-					sb.append(
-							"<div> <textarea style='border:solid 1px gray; background-color: darkgray;' name='headers' rows='3' cols='160' readonly='true'>");
+
+					sb.append("<div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='3' readonly='true'>");
 					sb.append("Step Name: " + step.getName() + "\n");
-					sb.append("Step Description:" + stepParams[0] + "\n");
+					sb.append("Step Description: " + stepParams[0] + "\n");
 					sb.append("Step Parameters: " + stepParams[1]);
-					sb.append("</textarea> </div>");
+					sb.append("</textarea></div>");
 
 					Reporter.log(sb.toString());
+
 				}
-				
+
 				// Steps can be added in scenario sheet as: ---- e2e_loopWindow(START /*LOOP_WINDOW_MARKER*/) ----e2e_loopWindow(END/*LOOP_WINDOW_MARKER*/,loopCount/* LOOP_COUNT*/)
-                // Add step/steps to be repeated for a given loopCount in between the above mentioned steps in the scenario sheet
+				// Add step/steps to be repeated for a given loopCount in between the above mentioned steps in the scenario sheet
 				if (step.getName().contains("loopWindow")) {
 
 					if (step.getParameters().get(0).contains("START")) {

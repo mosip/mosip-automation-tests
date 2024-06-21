@@ -1,148 +1,196 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>io.mosip.testrig.dslrig.ivv</groupId>
-        <artifactId>dslrig-ivv-parent</artifactId>
-        <version>1.2.0.1-SNAPSHOT</version>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>io.mosip.testrig.dslrig.ivv</groupId>
+		<artifactId>dslrig-ivv-parent</artifactId>
+		<version>1.2.1-SNAPSHOT</version>
 
-    </parent>
+	</parent>
 
-    <groupId>io.mosip.testrig.dslrig.ivv.orchestrator</groupId>
-    <artifactId>dslrig-ivv-orchestrator</artifactId>
-    <name>mosip-dsl-test</name>
-     <version>1.2.0.1-SNAPSHOT</version>
-    <properties>
-        <suiteXmlFile>testng.xml</suiteXmlFile>
-        <maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
-    </properties>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>make-jar-executable</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <!-- Create a shell script to run the JAR file with executable permission -->
-                                <chmod file="${project.build.directory}/*.jar" perm="ugo+rx"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                    <argLine>-Dfile.encoding=UTF-8</argLine>
-                </configuration>
-            </plugin>
+	<groupId>io.mosip.testrig.dslrig.ivv.orchestrator</groupId>
+	<artifactId>dslrig-ivv-orchestrator</artifactId>
+	<name>mosip-dsl-test</name>
+	<version>1.2.1-SNAPSHOT</version>
+	<properties>
+		<suiteXmlFile>testng.xml</suiteXmlFile>
+		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>make-jar-executable</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<!-- Create a shell script to run the JAR file with executable permission -->
+								<chmod file="${project.build.directory}/*.jar"
+									perm="ugo+rx" />
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+					<argLine>-Dfile.encoding=UTF-8</argLine>
+				</configuration>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>dslrig-ivv-orchestrator-1.2.0.1-SNAPSHOT-jar-with-dependencies</finalName>
-                            <transformers>
-                                <!-- need this to merge the services files properly -->
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                                <!-- add Main-Class to manifest file -->
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner</mainClass>
-                                </transformer>
-                            </transformers>
-                            <!-- add this to prevent some security issues when merging everything together -->
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.4</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<finalName>dslrig-ivv-orchestrator-1.2.1-SNAPSHOT-jar-with-dependencies</finalName>
+							<transformers>
+								<!-- need this to merge the services files properly -->
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+								<!-- add Main-Class to manifest file -->
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner</mainClass>
+								</transformer>
+							</transformers>
+							<!-- add this to prevent some security issues when merging everything 
+								together -->
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
-        </plugins>
-    </build>
-    <dependencies>
+		</plugins>
+	</build>
+	<dependencies>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.11</version>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.11</version>
+		</dependency>
 
-        <!--   core dependencies     -->
-        <dependency>
-            <groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
-            <artifactId>dslrig-ivv-core</artifactId>
-            <version>1.2.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
-            <artifactId>dslrig-ivv-dg</artifactId>
-            <version>1.2.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aventstack</groupId>
-            <artifactId>extentreports</artifactId>
-            <version>3.0.7</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.mosip.testrig.apirig.automationtests</groupId>
-            <artifactId>automationtests</artifactId>
-            <version>1.2.0.1-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sun.jersey</groupId>
-                    <artifactId>jersey-client</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+		<!-- core dependencies -->
+		<dependency>
+			<groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
+			<artifactId>dslrig-ivv-core</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
+			<artifactId>dslrig-ivv-dg</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.aventstack</groupId>
+			<artifactId>extentreports</artifactId>
+			<version>3.0.7</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.testrig.apirig.apitest.commons</groupId>
+			<artifactId>apitest-commons</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
 
-        <dependency>
-            <groupId>com.slack.api</groupId>
-            <artifactId>slack-api-client</artifactId>
-            <version>1.6.1-RC1</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sun.jersey</groupId>
+					<artifactId>jersey-client</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
-        <dependency>
-            <groupId>io.mosip.kernel</groupId>
-            <artifactId>kernel-biometrics-api</artifactId>
-            <version>1.2.0.1-SNAPSHOT</version>
-        </dependency>
+		<dependency>
+			<groupId>io.mosip.esignet</groupId>
+			<artifactId>apitest-esignet</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		
+				<dependency>
+			<groupId>io.mosip.authentication</groupId>
+			<artifactId>apitest-auth</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		
+						<dependency>
+			<groupId>io.mosip.idrepo</groupId>
+			<artifactId>apitest-idrepo</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		
+								<dependency>
+			<groupId>io.mosip.masterdata</groupId>
+			<artifactId>apitest-masterdata</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+										<dependency>
+			<groupId>io.mosip.mimoto</groupId>
+			<artifactId>apitest-mimoto</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		
+												<dependency>
+			<groupId>io.mosip.partner</groupId>
+			<artifactId>apitest-pms</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+														<dependency>
+			<groupId>io.mosip.prereg</groupId>
+			<artifactId>apitest-prereg</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+																<dependency>
+			<groupId>io.mosip.resident</groupId>
+			<artifactId>apitest-resident</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.slack.api</groupId>
+			<artifactId>slack-api-client</artifactId>
+			<version>1.6.1-RC1</version>
+		</dependency>
 
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.10.5</version>
-        </dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-biometrics-api</artifactId>
+			<version>1.2.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.10.5</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/javax.cache/cache-api -->
 		<dependency>
 			<groupId>javax.cache</groupId>
@@ -155,44 +203,44 @@
 			<artifactId>jcache</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.10.1</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-jaxrs -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.10.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-jaxrs -->
 
-    </dependencies>
+	</dependencies>
 
-    <profiles>
-        <profile>
-            <id>sonar</id>
-            <properties>
-                <sonar.sources>.</sonar.sources>
-                <sonar.inclusions>src/main/java/**,src/main/resources/**</sonar.inclusions>
-                <sonar.exclusions>${sonar.coverage.exclusions}</sonar.exclusions>
-                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-            </properties>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.sonarsource.scanner.maven</groupId>
-                        <artifactId>sonar-maven-plugin</artifactId>
-                        <version>${maven.sonar.plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sonar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+	<profiles>
+		<profile>
+			<id>sonar</id>
+			<properties>
+				<sonar.sources>.</sonar.sources>
+				<sonar.inclusions>src/main/java/**,src/main/resources/**</sonar.inclusions>
+				<sonar.exclusions>${sonar.coverage.exclusions}</sonar.exclusions>
+				<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+			</properties>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.sonarsource.scanner.maven</groupId>
+						<artifactId>sonar-maven-plugin</artifactId>
+						<version>${maven.sonar.plugin.version}</version>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>sonar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
