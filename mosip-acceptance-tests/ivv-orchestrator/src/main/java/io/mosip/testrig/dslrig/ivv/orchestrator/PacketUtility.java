@@ -47,14 +47,14 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
-import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
-import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
-import io.mosip.testrig.apirig.global.utils.GlobalMethods;
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
+import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.BioAuth;
 import io.mosip.testrig.apirig.testscripts.EsignetBioAuth;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
@@ -1208,7 +1208,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReqInner.put(PERSONAFILEPATH, resFilePath);
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
-		Response response = getReqest(url, jsonReq.toString(), "Retrive BiometricData", step);
+		Response response = getRequest(url, jsonReq.toString(), "Retrive BiometricData", step);
 		if (response.getBody().asString().equals("")) {
 			this.hasError = true;
 			throw new RigInternalError(
@@ -1220,7 +1220,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	private Response getReqest(String url, String body, String opsToLog, Scenario.Step step) {
+	private Response getRequest(String url, String body, String opsToLog, Scenario.Step step) {
 		Response apiResponse = getRequestWithbody(url, body, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON,
 				step);
 		return apiResponse;
@@ -1240,7 +1240,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").when()
 					.body(body).get(url).then().extract().response();
 		}
-		GlobalMethods.ReportRequestAndResponse("", "", url, body, getResponse.getBody().asString());
+		/*
+		 * GlobalMethods.ReportRequestAndResponse(null,
+		 * getResponse.getHeaders().asList().toString(), url, body,
+		 * getResponse.asString(),true);
+		 */
 		return getResponse;
 	}
 
