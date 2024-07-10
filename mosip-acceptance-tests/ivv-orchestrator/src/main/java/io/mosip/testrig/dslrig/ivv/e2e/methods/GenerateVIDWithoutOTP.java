@@ -10,6 +10,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
@@ -22,12 +24,14 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.restassured.response.Response;
 
+@Scope("prototype")
+@Component
 public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(GenerateVIDWithoutOTP.class);
 	private static final String GenerateVID = "idaData/CreateVID/CreateVid.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
 	SimplePostForAutoGenId generatevid = new SimplePostForAutoGenId();
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -43,13 +47,14 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 		List<String> uinList = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("VID Type[Perpetual/Temporary] parameter is  missing from DSL step");
-			this.hasError=true;throw new RigInternalError("VID Type[Perpetual/Temporary] paramter is  missing in step: " + step.getName());
+			this.hasError = true;
+			throw new RigInternalError("VID Type[Perpetual/Temporary] paramter is  missing in step: " + step.getName());
 		} else {
 			vidtype = step.getParameters().get(0);
 
 		}
-		if (step.getParameters().size() == 2 && step.getParameters().get(1).startsWith("$$")) { 
-			uins = step.getParameters().get(1);  //"$$vidwithoutotp=e2e_GenerateVID(Perpetual,$$uin)"
+		if (step.getParameters().size() == 2 && step.getParameters().get(1).startsWith("$$")) {
+			uins = step.getParameters().get(1); // "$$vidwithoutotp=e2e_GenerateVID(Perpetual,$$uin)"
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
@@ -60,12 +65,10 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 		} else
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
-		
 
 		Object[] testObj = generatevid.getYmlTestData(GenerateVID);
 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
-		
 
 		for (String uin : uinList) {
 			String input = test.getInput();
@@ -93,7 +96,8 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 				}
 
 			} catch (AuthenticationTestException | AdminTestException e) {
-				this.hasError=true;throw new RigInternalError(e.getMessage());
+				this.hasError = true;
+				throw new RigInternalError(e.getMessage());
 
 			}
 		}

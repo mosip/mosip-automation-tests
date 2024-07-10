@@ -1094,7 +1094,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
 			BioAuth bioAuth, Scenario.Step step) throws RigInternalError {
-
 		if(test.getTestCaseName().contains("EKYC")) {
 			test.setEndPoint(test.getEndPoint().replace("$kycPartnerKey$", kycPartnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$kycPartnerName$", kycPartnerId));
@@ -1103,26 +1102,29 @@ public class PacketUtility extends BaseTestCaseUtil {
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 		}
 		
-		test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
+//		test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, INDIVIDUALID);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(BIOSUBTYPE), BIOSUBTYPE);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(BIOTYPE), BIOTYPE);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICECODE), DEVICECODE);
+		logger.info("After UIN: "+ input);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(BIOSUBTYPE), "identityRequest."+BIOSUBTYPE);
+		logger.info("After BioSubType: "+ input);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(BIOTYPE), "identityRequest."+BIOTYPE);
+		logger.info("After BioSubType: "+ input);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICECODE), "identityRequest."+DEVICECODE);
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICEPROVIDERID),
-				DEVICEPROVIDERID);
+				"identityRequest."+DEVICEPROVIDERID);
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICESERVICEID),
-				DEVICESERVICEID);
+				"identityRequest."+DEVICESERVICEID);
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICESERVICEVERSION),
-				DEVICESERVICEVERSION);
+				"identityRequest."+DEVICESERVICEVERSION);
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICEPROVIDER),
-				DEVICEPROVIDER);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICESUBTYPE), DEVICESUBTYPE);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("make"), "make");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(MODEL), MODEL);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(SERIALNO), SERIALNO);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"), "type");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "bioValue");
+				"identityRequest."+DEVICEPROVIDER);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICESUBTYPE), "identityRequest."+DEVICESUBTYPE);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("make"), "identityRequest.make");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(MODEL), "identityRequest."+MODEL);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(SERIALNO), "identityRequest."+SERIALNO);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"), "identityRequest.type");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
 		test.setInput(input);
 		Reporter.log("<b><u>" + test.getTestCaseName() + "_" + modility + "</u></b>");
 

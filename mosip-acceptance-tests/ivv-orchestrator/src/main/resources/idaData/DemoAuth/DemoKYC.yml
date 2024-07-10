@@ -1,13 +1,21 @@
-DemoAuth:
-  auth_DemoAuth_Valid_Smoke_deg:
-      endPoint: /v1/identity/authenticate?moduleName=$MODULENAME$&certsDir=$CERTSDIR$&id=uinnumber&isKyc=true&partnerUrlSuffix=$PartnerKeyURL$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
-      role: resident
+EkycDemo:
+  auth_EkycDemo_Auth_With_Valid_UIN_Smoke:
+      endPoint: /idauthentication/v1/kyc/$ekycPartnerKeyURL$
+      role: ida
       restMethod: post
-      inputTemplate: idaData/DemoAuth/DemoIdentityEncrypt
+      inputTemplate: idaData/DemoAuth/ekycDemo
       outputTemplate: idaData/DemoAuth/demoEkycResult
       input: '{
-        "timestamp": "$TIMESTAMP$",
-        "transactionId": "1234567890"
+		"requestTime": "$TIMESTAMP$",
+		"individualId": "uinnumber",
+		"transactionId": "1234567890",
+	    "individualIdType": "UIN",
+        "bio": false,
+        "demo": true,
+        "otp": false,
+        "identityRequest":{
+    "identityRequestTemplate": "idaData/DemoAuth/DemoIdentityEncrypt"
+    }
     }'
       output: '{
   "kycStatus": "true"

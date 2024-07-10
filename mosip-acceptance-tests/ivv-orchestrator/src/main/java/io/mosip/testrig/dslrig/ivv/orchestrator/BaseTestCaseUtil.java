@@ -386,11 +386,9 @@ public class BaseTestCaseUtil extends BaseStep {
 			getResponse = given().relaxedHTTPSValidation().cookie(cookieName, cookieValue).when().get(url).then()
 					.extract().response();
 		}
-		logger.info(GlobalConstants.REST_ASSURED_STRING_2 + getResponse.asString());
-		logger.info(GlobalConstants.REST_ASSURED_STRING_3 + getResponse.time());
 
 		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
-				getResponse.asString());
+				getResponse.asString(),true);
 		return getResponse;
 	}
 	

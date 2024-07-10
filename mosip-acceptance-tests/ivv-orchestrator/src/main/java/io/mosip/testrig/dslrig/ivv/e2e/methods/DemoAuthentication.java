@@ -1,6 +1,5 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -14,6 +13,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -21,16 +23,20 @@ import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
-import io.mosip.testrig.apirig.testscripts.DemoAuthSimplePostForAutoGenId;
+import io.mosip.testrig.apirig.testscripts.DemoAuth;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
+@Scope("prototype")
+@Component
 public class DemoAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(DemoAuthentication.class);
 	private static final String DEMOPATH = "idaData/DemoAuth/DemoAuth.yml";
-	DemoAuthSimplePostForAutoGenId demoAuth = new DemoAuthSimplePostForAutoGenId();
+
+	@Autowired
+	private DemoAuth demoAuth;
 
 	static {
 		if (ConfigManager.IsDebugEnabled())
@@ -55,10 +61,6 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		Object[] casesListVID = null;
 		String updateAgeFlag = null;
 
-		// AuthPartnerProcessor.startProcess();
-		// step.getScenario().getUinPersonaProp().put("2759239619",
-		// "C:\\Users\\NEEHAR~1.GAR\\AppData\\Local\\Temp\\residents_2140454779925252334\\498484984849848.json");
-
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
 			this.hasError = true;
@@ -70,10 +72,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 		}
 		if (step.getParameters().size() == 2) {
-			uins = step.getParameters().get(1); // "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
+			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else if (step.getParameters().size() > 2) { // "e2e_demoAuthentication(name,$$uin,$$personaFilePath)"
+		} else if (step.getParameters().size() > 2) {
 			uins = step.getParameters().get(1);
 			_personFilePath = step.getParameters().get(2);
 			if (uins.startsWith("$$") && _personFilePath.startsWith("$$")) {
@@ -85,10 +87,10 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		if (step.getParameters().size() == 2) {
-			vids = step.getParameters().get(1); // "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
+			vids = step.getParameters().get(1);
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
-		} else if (step.getParameters().size() > 2) { // "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
+		} else if (step.getParameters().size() > 2) {
 			vids = step.getParameters().get(3);
 			_personFilePath = step.getParameters().get(2);
 			if (vids.startsWith("$$") && _personFilePath.startsWith("$$")) {
@@ -102,13 +104,9 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		if (step.getParameters().size() > 4)
 			updateAgeFlag = step.getParameters().get(4);
 
-		Object[] testObj = demoAuth.getYmlTestData(DEMOPATH);
-		TestCaseDTO test = (TestCaseDTO) testObj[0];
-		// test.setEndPoint(test.getEndPoint().replace("$PartnerKey$",
-		// props.getProperty("partnerKey")));
-
 		for (String uin : uinList) {
 			String personFilePathvalue = null;
+
 			if (step.getParameters().size() > 2) {
 				personFilePathvalue = _personFilePath;
 			} else if (step.getScenario().getUinPersonaProp().containsKey(uin))
@@ -124,15 +122,12 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
 			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList, step);
+			Object[] testObj = demoAuth.getYmlTestData(DEMOPATH);
+			TestCaseDTO test = (TestCaseDTO) testObj[0];
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 			JSONObject inputJson = new JSONObject(input);
 
-			/*
-			 * if(inputJson.has("identityRequest")) { identityRequest =
-			 * inputJson.get("identityRequest").toString(); }
-			 */
-			// JSONObject identityReqJson = new JSONObject(identityRequest);
 			for (String demoField : demofieldList) {
 				String demoFieldValueKey = null;
 				String demoValue = null;
@@ -142,16 +137,15 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					demoFieldValueKey = E2EConstants.DEMODOB;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
-					
-					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease") ) {
-						demoValue = decreaseAge(demoValue);
-					}
-					else {
-					    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-					    LocalDate birthDate = LocalDate.parse(demoValue, formatter);
-					    LocalDate currentDate = LocalDate.now();
 
-					    demoValue = String.valueOf(ChronoUnit.YEARS.between(birthDate, currentDate));
+					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease")) {
+						demoValue = decreaseAge(demoValue);
+					} else {
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+						LocalDate birthDate = LocalDate.parse(demoValue, formatter);
+						LocalDate currentDate = LocalDate.now();
+
+						demoValue = String.valueOf(ChronoUnit.YEARS.between(birthDate, currentDate));
 					}
 
 					if (demoValue == null) {
@@ -160,7 +154,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					inputJson.put(demoField, demoValue);
+					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOEMAIL:
@@ -172,7 +166,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					inputJson.put(demoField, demoValue);
+					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOYMLPHONE:
@@ -184,7 +178,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					inputJson.put(demoField, demoValue);
+					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOADDRESSFETCH:
@@ -225,7 +219,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					addressLine3Obj.put("language", BaseTestCase.getLanguageList().get(0));
 					addressLine3Obj.put("value", addLine3);
 					addressLine3Array.put(addressLine3Obj);
-					inputJson.put(E2EConstants.DEMOADDRESSLINE3, addressLine3Array);
+					inputJson.getJSONObject("identityRequest").put(E2EConstants.DEMOADDRESSLINE3, addressLine3Array);
 					break;
 				case E2EConstants.DEMONAME:
 
@@ -247,7 +241,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
 					nameObj.put("value", fullname);
 					nameArray.put(nameObj);
-					inputJson.put(demoField, nameArray);
+					inputJson.getJSONObject("identityRequest").put(demoField, nameArray);
 					break;
 
 				case E2EConstants.DEMOGENDER:
@@ -264,7 +258,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					inputJson.put(demoField, genArray);
+					inputJson.getJSONObject("identityRequest").put(demoField, genArray);
 					break;
 
 				default:
@@ -298,21 +292,13 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {
 					test = (TestCaseDTO) object;
-					test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
-					test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
-					test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
 					test.setInput(inputJson.toString());
 					try {
-						try {
-							demoAuth.test(test);
-						} catch (NoSuchAlgorithmException e) {
-							logger.error(e.getMessage());
-						}
+						demoAuth.test(test);
 					} catch (AuthenticationTestException | AdminTestException e) {
-
+						logger.error(e.getMessage());
 						this.hasError = true;
 						throw new RigInternalError(e.getMessage());
-
 					}
 				}
 			}
@@ -321,6 +307,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 		for (String vid : vidList) {
 			String personFilePathvalue = null;
+
 			if (step.getParameters().size() > 2) {
 				personFilePathvalue = _personFilePath;
 			} else if (step.getScenario().getVidPersonaProp().containsKey(vid))
@@ -337,14 +324,12 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
 			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList, step);
+			Object[] testObj = demoAuth.getYmlTestData(DEMOPATH);
+			TestCaseDTO test = (TestCaseDTO) testObj[0];
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "individualIdType");
 			JSONObject inputJson = new JSONObject(input);
-			/*
-			 * if(inputJson.has("identityRequest")) { identityRequest =
-			 * inputJson.get("identityRequest").toString(); }
-			 */
-			// JSONObject identityReqJson = new JSONObject(identityRequest);
 			for (String demoField : demofieldList) {
 				String demoFieldValueKey = null;
 				String demoValue = null;
@@ -355,26 +340,24 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					demoFieldValueKey = E2EConstants.DEMODOB;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
-					
-					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease") ) {
-						demoValue = decreaseAge(demoValue);
-					}
-					else {
-					    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-					    LocalDate birthDate = LocalDate.parse(demoValue, formatter);
-					    LocalDate currentDate = LocalDate.now();
 
-					    demoValue = String.valueOf(ChronoUnit.YEARS.between(birthDate, currentDate));
+					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease")) {
+						demoValue = decreaseAge(demoValue);
+					} else {
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+						LocalDate birthDate = LocalDate.parse(demoValue, formatter);
+						LocalDate currentDate = LocalDate.now();
+
+						demoValue = String.valueOf(ChronoUnit.YEARS.between(birthDate, currentDate));
 					}
-				if (demoValue == null) {
+					if (demoValue == null) {
 
 						this.hasError = true;
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					inputJson.put(demoField, demoValue);
+					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
 					break;
-					
 
 				case E2EConstants.DEMOEMAIL:
 					demoFieldValueKey = E2EConstants.DEMOEMAIL;
@@ -385,7 +368,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					inputJson.put(demoField, demoValue);
+					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOYMLPHONE:
@@ -397,7 +380,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					inputJson.put(demoField, demoValue);
+					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
 					break;
 
 				case E2EConstants.DEMOADDRESSFETCH:
@@ -437,7 +420,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					addressLine3Obj.put("language", BaseTestCase.getLanguageList().get(0));
 					addressLine3Obj.put("value", addLine3);
 					addressLine3Array.put(addressLine3Obj);
-					inputJson.put(E2EConstants.DEMOADDRESSLINE3, addressLine3Array);
+					inputJson.getJSONObject("identityRequest").put(E2EConstants.DEMOADDRESSLINE3, addressLine3Array);
 					break;
 				case E2EConstants.DEMONAME:
 
@@ -459,7 +442,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
 					nameObj.put("value", fullname);
 					nameArray.put(nameObj);
-					inputJson.put(demoField, nameArray);
+					inputJson.getJSONObject("identityRequest").put(demoField, nameArray);
 					break;
 
 				case E2EConstants.DEMOGENDER:
@@ -476,7 +459,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					inputJson.put(demoField, genArray);
+					inputJson.getJSONObject("identityRequest").put(demoField, genArray);
 					break;
 
 				default:
@@ -510,21 +493,14 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			if (casesListVID != null) {
 				for (Object object : casesListVID) {
 					test = (TestCaseDTO) object;
-					test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
-					test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
-					test.setEndPoint(test.getEndPoint().replace("uinnumber", vid));
 					test.setInput(inputJson.toString());
-					try {
-						try {
-							demoAuth.test(test);
-						} catch (NoSuchAlgorithmException e) {
-							logger.error(e.getMessage());
-						}
-					} catch (AuthenticationTestException | AdminTestException e) {
 
+					try {
+						demoAuth.test(test);
+					} catch (AuthenticationTestException | AdminTestException e) {
+						logger.error(e.getMessage());
 						this.hasError = true;
 						throw new RigInternalError(e.getMessage());
-
 					}
 				}
 			}
@@ -534,41 +510,33 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 	}
 
 	public static String decreaseAge(String dateString) {
-	    // Assuming dateString comes in the format "YYYY/MM/DD"
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-	    LocalDate birthDate = LocalDate.parse(dateString, formatter);
-	    LocalDate currentDate = LocalDate.now();
+		// Assuming dateString comes in the format "YYYY/MM/DD"
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+		LocalDate birthDate = LocalDate.parse(dateString, formatter);
+		LocalDate currentDate = LocalDate.now();
 
-	    long currentAge = ChronoUnit.YEARS.between(birthDate, currentDate);
+		long currentAge = ChronoUnit.YEARS.between(birthDate, currentDate);
 
-	    // If the age is less than 1 year, we cannot decrease it
-	    if (currentAge < 1) {
-	        return "0"; // Return "0" as a string
-	    }
-
-	    Random random = new Random();
-	    int yearsToSubtract = random.nextInt((int) currentAge) + 1; // Random number between 1 and currentAge
-
-	    int decreasedAge = (int) currentAge - yearsToSubtract;
-
-	    // Convert the decreased age to a string and return it
-	    return String.valueOf(decreasedAge);
+		// If the age is less than 1 year, we cannot decrease it
+		if (currentAge < 1) {
+			return "0"; // Return "0" as a string
+		}
+		Random random = new Random();
+		int yearsToSubtract = random.nextInt((int) currentAge) + 1; // Random number between 1 and currentAge
+		int decreasedAge = (int) currentAge - yearsToSubtract;
+		return String.valueOf(decreasedAge);
 	}
 
-
-
 	public static String increaseAge(String dateString) {
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-	    LocalDate birthDate = LocalDate.parse(dateString, formatter);
 
-	    Random random = new Random();
-	    int yearsToAdd = random.nextInt(10) + 1;
-	    LocalDate newDate = birthDate.plusYears(yearsToAdd);
-
-	    LocalDate currentDate = LocalDate.now();
-	    long newAge = ChronoUnit.YEARS.between(newDate, currentDate);
-
-	    return String.valueOf(newAge);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+		LocalDate birthDate = LocalDate.parse(dateString, formatter);
+		Random random = new Random();
+		int yearsToAdd = random.nextInt(10) + 1;
+		LocalDate newDate = birthDate.plusYears(yearsToAdd);
+		LocalDate currentDate = LocalDate.now();
+		long newAge = ChronoUnit.YEARS.between(newDate, currentDate);
+		return String.valueOf(newAge);
 	}
 
 }
