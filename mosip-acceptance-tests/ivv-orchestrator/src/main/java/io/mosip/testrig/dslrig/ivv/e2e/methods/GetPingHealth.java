@@ -5,6 +5,8 @@ import static io.restassured.RestAssured.given;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 import org.testng.SkipException;
 
@@ -16,6 +18,8 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
+@Scope("prototype")
+@Component
 public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 	private static final Logger logger = Logger.getLogger(GetPingHealth.class);
 
@@ -49,8 +53,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 				if (serviceStatus.equalsIgnoreCase("UP") == false) {
 					this.hasError = true;
 					throw new SkipException("Packet creator Not responding");
-				}
-				else
+				} else
 					Reporter.log("Packet creator status is up and healthy<br>");
 			} catch (Exception e) {
 				this.hasError = true;
