@@ -602,8 +602,13 @@ public class PacketMakerService {
 			if (preregId != null && !preregId.equalsIgnoreCase("0")) // newly added
 
 				updatePacketMetaInfo(packetRootFolder, METADATA, "preRegistrationId", preregId, true);
-
-			updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", APIRequestUtil.getUTCDateTime(null), true);
+			
+			if (VariableManager.getVariableValue(contextKey, "invalidDateFlag").toString().equals("invalidCreationDate")) {
+				updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", null, true);
+			}
+			else {
+				updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", APIRequestUtil.getUTCDateTime(null), true);
+			}
 			updatePacketMetaInfo(packetRootFolder, METADATA, "machineId", machineId, false);
 			updatePacketMetaInfo(packetRootFolder, METADATA, "centerId", centerId, false);
 			updatePacketMetaInfo(packetRootFolder, METADATA, "registrationType",
