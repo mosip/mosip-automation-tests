@@ -134,46 +134,46 @@
 			<artifactId>apitest-esignet</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-		
-				<dependency>
+
+		<dependency>
 			<groupId>io.mosip.authentication</groupId>
 			<artifactId>apitest-auth</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-		
-						<dependency>
+
+		<dependency>
 			<groupId>io.mosip.idrepo</groupId>
 			<artifactId>apitest-idrepo</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-		
-								<dependency>
+
+		<dependency>
 			<groupId>io.mosip.masterdata</groupId>
 			<artifactId>apitest-masterdata</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-										<dependency>
+		<dependency>
 			<groupId>io.mosip.mimoto</groupId>
 			<artifactId>apitest-mimoto</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-		
-												<dependency>
+
+		<dependency>
 			<groupId>io.mosip.partner</groupId>
 			<artifactId>apitest-pms</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-														<dependency>
+		<dependency>
 			<groupId>io.mosip.prereg</groupId>
 			<artifactId>apitest-prereg</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-																<dependency>
+		<dependency>
 			<groupId>io.mosip.resident</groupId>
 			<artifactId>apitest-resident</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.slack.api</groupId>
 			<artifactId>slack-api-client</artifactId>
@@ -209,6 +209,7 @@
 			<version>2.10.1</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-jaxrs -->
+		
 
 	</dependencies>
 
@@ -216,6 +217,22 @@
 		<profile>
 			<id>sonar</id>
 			<properties>
+			
+					<!-- Spring version -->
+		<spring.version>5.0.6.RELEASE</spring.version>
+
+		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
+		<spring.data.jpa.version>2.0.7.RELEASE</spring.data.jpa.version>
+		<spring.security.test.version>5.0.5.RELEASE</spring.security.test.version>
+		<spring-cloud-config.version>2.0.0.RELEASE</spring-cloud-config.version>
+
+		<swagger.core.version>2.0.7</swagger.core.version>
+		<swagger.annotations.version>1.5.20</swagger.annotations.version>
+		<springfox.version>2.9.2</springfox.version>
+
+		<vertx.version>3.6.2</vertx.version>
+		<vertx.health.check.version>3.7.0</vertx.health.check.version>
+
 				<sonar.sources>.</sonar.sources>
 				<sonar.inclusions>src/main/java/**,src/main/resources/**</sonar.inclusions>
 				<sonar.exclusions>${sonar.coverage.exclusions}</sonar.exclusions>

@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.io.File;
+
 import java.io.FileWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
@@ -23,6 +24,12 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.testng.Assert;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.SkipException;
@@ -42,6 +49,7 @@ import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.admin.fw.config.BeanConfig;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -53,10 +61,13 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
+import io.mosip.testrig.dslrig.ivv.e2e.methods.BioAuthentication;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
 import com.sun.management.OperatingSystemMXBean;
 
-public class Orchestrator {
+
+@ContextConfiguration(classes = {BeanConfig.class})
+public class Orchestrator extends AbstractTestNGSpringContextTests {
 	private static Logger logger = Logger.getLogger(Orchestrator.class);
 	String message = null;
 	int countScenarioPassed = 0;
@@ -72,6 +83,10 @@ public class Orchestrator {
 	public static long suiteStartTime = System.currentTimeMillis();
 	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
+	
+	
+	@Autowired
+	private ApplicationContext appContext;
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
@@ -501,7 +516,8 @@ public class Orchestrator {
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 		String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
 				+ step.getName().substring(1);
-		return (StepInterface) Class.forName(className).newInstance();
+//		return (StepInterface) Class.forName(className).newInstance();
+		return (StepInterface) appContext.getBean(Class.forName(className));
 	}
 
 	private void configToSystemProperties() {

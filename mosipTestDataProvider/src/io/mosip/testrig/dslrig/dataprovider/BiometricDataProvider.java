@@ -2,22 +2,16 @@ package io.mosip.testrig.dslrig.dataprovider;
 
 import java.io.BufferedReader;
 import java.io.File;
-//import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-//import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-//import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-//import java.time.LocalDateTime;
-//import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-//import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -35,8 +29,6 @@ import io.mosip.testrig.dslrig.dataprovider.mds.MDSClient;
 import io.mosip.testrig.dslrig.dataprovider.mds.MDSClientInterface;
 import io.mosip.testrig.dslrig.dataprovider.mds.MDSClientNoMDS;
 import io.mosip.testrig.dslrig.dataprovider.models.BioModality;
-//import org.apache.commons.io.IOUtils;
-//import org.apache.commons.lang3.tuple.Pair;
 import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
@@ -54,8 +46,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.jamesmurty.utils.XMLBuilder;
-//import java.util.Date;
-
 import io.mosip.mock.sbi.test.CentralizedMockSBI;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
@@ -1180,14 +1170,11 @@ public class BiometricDataProvider {
 
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
-			// If the available impressions are less than scenario number, pick the random
-			// one
-
+			// If the available impressions are less than scenario number, pick the random one
 			// otherwise pick the impression of same of scenario number
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
 			File folder = new File(srcPath + "/" + String.format("%03d", impressionToPick));
-
 			File[] listOfFiles = folder.listFiles();
 
 			for (File file : listOfFiles) {
