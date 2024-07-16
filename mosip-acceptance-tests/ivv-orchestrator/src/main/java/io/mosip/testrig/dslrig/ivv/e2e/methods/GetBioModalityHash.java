@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.ConfigManager;
@@ -17,6 +19,8 @@ import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 
+@Scope("prototype")
+@Component
 public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterface {
 	Map<String, String> modalityHashValueMap = new HashMap<>();
 	static Logger logger = Logger.getLogger(GetBioModalityHash.class);
@@ -33,7 +37,7 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 		List<String> inputList = null;
 		String personaPath = null;
 		String personaId = null;
-		if (step.getParameters().size() == 2) { /// id=878787877
+		if (step.getParameters().size() == 2) {
 			personaId = step.getParameters().get(0);
 			if (!personaId.equals("-1")) {
 				if (step.getScenario().getResidentPersonaIdPro().get(personaId) == null) {
@@ -54,9 +58,7 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 					break;
 				}
 			}
-		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 3) { // "$$modalityHashValue=e2e_getBioModalityHash(-1,Right
-																							// IndexFinger@@Left
-																							// LittleFinger,$$personaFilePath)"
+		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 3) {
 			personaPath = step.getParameters().get(2);
 			if (personaPath.startsWith("$$")) {
 				personaPath = step.getScenario().getVariables().get(personaPath);
@@ -65,7 +67,7 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 			this.hasError = true;
 			throw new RigInternalError("missing input param [personaid,List<String> modalitySubType]");
 		}
-		inputList = PacketUtility.getParamsArg(step.getParameters().get(1), "@@"); // List<String> ModalitysubTypeList
+		inputList = PacketUtility.getParamsArg(step.getParameters().get(1), "@@");
 		inputList.stream().forEach(key -> modalitySubTypeList.add(key));
 
 		String modalityKeyTogetHashValue = null;

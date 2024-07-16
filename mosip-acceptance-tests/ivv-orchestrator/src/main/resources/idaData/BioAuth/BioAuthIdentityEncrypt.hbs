@@ -1,5 +1,4 @@
 {
-  "identityRequest": {
     "biometrics": [
       {
         "data": {
@@ -20,12 +19,12 @@
             "serialNo": "{{serialNo}}",
             "type": "{{type}}"
           },
-          "domainUri": "baseurl",
+          "domainUri": "$DOMAINURI$",
           "env": "Staging",
           "purpose": "AUTH",
           "qualityScore": 70,
           "requestedScore": 70,
-          "timestamp": "timestamp",
+          "timestamp": "$DATETIME$",
           "transactionId": "{{transactionId}}"
         },
         "hash": "hash",
@@ -33,7 +32,6 @@
         "thumbprint": "IDAFIRthumbprint"
       }
     ],
-    "timestamp": "timestamp",
+    "timestamp": "$DATETIME$",
     "transactionID": "{{transactionId}}"
   }
-}

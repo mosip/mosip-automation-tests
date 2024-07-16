@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
@@ -14,6 +16,8 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 
+@Scope("prototype")
+@Component
 public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(WritePreReq.class);
 
@@ -30,7 +34,6 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		String value = null;
 		String appendedkey = null;
 		HashMap<String, String> map = new HashMap<String, String>();
-//		Reporter.log("==========STEP ====== WritePreReq ");
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("PreRequisite Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else if (step.getParameters().size() >= 1) {
@@ -54,7 +57,6 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 				} else if (entry.getValue() != null)
 					props.setProperty(entry.getKey(), entry.getValue());
 			}
-			// props.putAll(map);
 			String path = (TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
 					+ appendedkey + ".properties");
 			HashMap<String, String> propertiesMap = new HashMap<String, String>();
@@ -63,9 +65,6 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 			}
 			prereqDataSet.put(path, propertiesMap);
 			Reporter.log("Written pre requisite data into map to be consumed during scenario execution<br>");
-			/*
-			 * if (ConfigManager.IsDebugEnabled()) Reporter.log(props.toString());
-			 */
 		} catch (Exception e) {
 			this.hasError = true;
 			logger.error(e.getMessage());

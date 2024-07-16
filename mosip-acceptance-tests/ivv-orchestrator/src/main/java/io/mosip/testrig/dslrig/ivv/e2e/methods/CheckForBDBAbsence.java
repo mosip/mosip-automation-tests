@@ -12,7 +12,8 @@ import io.mosip.kernel.biometrics.entities.BIR;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -24,6 +25,8 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.restassured.response.Response;
 
+@Scope("prototype")
+@Component
 public class CheckForBDBAbsence extends BaseTestCaseUtil implements StepInterface {
 	private static final Logger logger = Logger.getLogger(CheckForBDBAbsence.class);
 	private static final String CheckForBDB = "idaData/RetrieveBioDocumentByID/RetrieveBioDocumentByID.yml";
@@ -61,27 +64,22 @@ public class CheckForBDBAbsence extends BaseTestCaseUtil implements StepInterfac
 			try {
 				checkForBDB.test(test);
 
-			Response response = checkForBDB.response;
-			JSONObject responseJson = new JSONObject(response.asString());
-			JSONObject responseData = responseJson.getJSONObject("response");
-			JSONArray responseArray = responseData.getJSONArray("documents");
+				Response response = checkForBDB.response;
+				JSONObject responseJson = new JSONObject(response.asString());
+				JSONObject responseData = responseJson.getJSONObject("response");
+				JSONArray responseArray = responseData.getJSONArray("documents");
 
-			String bioData = responseArray.getJSONObject(0).getString("value");
+				String bioData = responseArray.getJSONObject(0).getString("value");
+				Base64.Decoder decoder = Base64.getUrlDecoder();
 
-//				String cleanedString = cleanBase64String(bioData);
+				// Decode the base64 encoded string.
+				byte[] decodedBytes = decoder.decode(bioData);
 
-			Base64.Decoder decoder = Base64.getUrlDecoder();
-
-			// Decode the base64 encoded string.
-			byte[] decodedBytes = decoder.decode(bioData);
-
-			// Convert the decoded bytes to a string.
-			decodedString = new String(decodedBytes);
-
-			logger.info(decodedString);
-
-			BIR bir = null;
-			Map<String, String> finalMap = new HashMap<>();
+				// Convert the decoded bytes to a string.
+				decodedString = new String(decodedBytes);
+				logger.info(decodedString);
+				BIR bir = null;
+				Map<String, String> finalMap = new HashMap<>();
 				bir = CbeffValidator.getBIRFromXML(decodedBytes);
 
 				boolean isXmlValid = CbeffValidator.validateXML(bir);
