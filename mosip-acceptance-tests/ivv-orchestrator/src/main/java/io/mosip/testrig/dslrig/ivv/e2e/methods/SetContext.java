@@ -45,6 +45,8 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String invalidIdSchemaFlag = "";
 		String skipBiometricClassificationFlag = "";
 		String skipApplicantDocumentsFlag = "";
+		String invalidDateFlag = "";
+		
 		HashMap<String, String> map = new HashMap<String, String>();
 		HashMap<String, String> dummyholder = new HashMap<String, String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
@@ -85,6 +87,9 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			
 			if (step.getParameters().size() == 4  && step.getParameters().get(3).contains("skipApplicantDocuments")) 	//Skip applicant documents in the packet
 				skipApplicantDocumentsFlag = step.getParameters().get(3);
+			
+			if (step.getParameters().size() == 4  && step.getParameters().get(3).contains("invalidCreationDate")) 	//Invalid packet creation date 
+				invalidDateFlag = step.getParameters().get(3);
 
 			// consent value either "yes" or "no"
 			if (step.getParameters().size() == 5
@@ -110,7 +115,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		else if (map != null)
 			packetUtility.createContexts(negative, contextKeyValue, map, generatePrivateKey, status,
 					BaseTestCase.ApplnURI + "/", step, invalidCertFlag, consent, changeSupervisorNameToDiffCase,
-					invalidEncryptedHashFlag, invalidCheckSum,invalidIdSchemaFlag,skipBiometricClassificationFlag,skipApplicantDocumentsFlag);
+					invalidEncryptedHashFlag, invalidCheckSum,invalidIdSchemaFlag,skipBiometricClassificationFlag,skipApplicantDocumentsFlag,invalidDateFlag);
 		
 	}
 }

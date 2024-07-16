@@ -18776,6 +18776,67 @@
 		}
 	},
 	{
+		"Scenario": "169",
+		"Tag": "Negative_Test",
+		"Persona": "ResidentFemaleAdult",
+		"Group": "Adult_New",
+		"Description": "Resident attempts to obtain UIN but Packet Creation Date is Null ",
+		"Step-0": {
+			"Description": "Performs health check of given component",
+			"Input Parameters": "Keyword to check, only packetcreator is supported",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(packetcreator)"
+		},
+		"Step-1": {
+			"Description": "Reads the pre-requisite data at the given index",
+			"Input Parameters": "Details can be found in in-line comments on the parameters",
+			"Return Value": "pre-requiste details",
+			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+		},
+		"Step-2": {
+			"Description": "Sets the context for scenario execution",
+			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Return Value": "NA",
+			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/,invalidCreationDate/*INVALID_PACKET_CREATION_DATE*/)"
+		},
+		"Step-3": {
+			"Description": "Performs health check of required server components to run end-to-end scenarios",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(targetenv)"
+		},
+		"Step-4": {
+			"Description": "Generates persona data",
+			"Input Parameters": "Details are in parameter in-line comments",
+			"Return Value": "Persona file path",
+			"Action": "$$personaFilePath=e2e_getResidentData(1,adult/*PERSONA_TYPE*/,false,Female)"
+		},
+		"Step-5": {
+			"Description": "Generates packet template based on the persona data",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
+			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
+		},
+		"Step-6": {
+			"Description": "Genertes and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
+		},
+		"Step-7": {
+			"Description": "Checkes the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-8": {
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$rid,CMD_VALIDATION,ERROR)"
+		}
+	},
+	{
 		"Scenario": "AFTER_SUITE",
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
