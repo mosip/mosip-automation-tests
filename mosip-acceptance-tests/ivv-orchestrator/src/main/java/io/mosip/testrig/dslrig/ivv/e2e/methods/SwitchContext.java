@@ -40,6 +40,7 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 		String invalidIdSchemaFlag = "";
 		String skipBiometricClassificationFlag = "";
 		String skipApplicantDocumentsFlag = "";
+		String invalidDateFlag = "";
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("SwitchContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else {
@@ -53,7 +54,7 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 				if (step.getParameters().size() > 2)  // true/false  (want to generate privatekey)
 					generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(2));
 				if (map != null)
-					packetUtility.createContexts("",contextKeyValue, map, generatePrivateKey,null,BaseTestCase.ApplnURI + "/",step,invalidCertFlag,consent,supervisorFlag,invalidEncryptedHashFlag,invalidCheckSum,invalidIdSchemaFlag,skipBiometricClassificationFlag,skipApplicantDocumentsFlag);
+					packetUtility.createContexts("",contextKeyValue, map, generatePrivateKey,null,BaseTestCase.ApplnURI + "/",step,invalidCertFlag,consent,supervisorFlag,invalidEncryptedHashFlag,invalidCheckSum,invalidIdSchemaFlag,skipBiometricClassificationFlag,skipApplicantDocumentsFlag,invalidDateFlag);
 					
 				else if (userAndMachineDetailParam != null)
 				packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, generatePrivateKey,null,BaseTestCase.ApplnURI + "/",step);

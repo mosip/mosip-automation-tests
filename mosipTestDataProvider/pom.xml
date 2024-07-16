@@ -277,7 +277,7 @@
 			<dependency>
 			<groupId>io.mosip.mock.mds</groupId>
 			<artifactId>mock-mds</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
+			<version>1.2.0.2</version>
 		</dependency>
 
 		<dependency>

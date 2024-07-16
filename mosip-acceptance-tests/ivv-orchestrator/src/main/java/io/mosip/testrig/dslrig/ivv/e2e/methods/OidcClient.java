@@ -339,7 +339,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 		step.getScenario().getOidcPmsProp().put("oidcJwkKey" + step.getScenario().getId(), oidcJwkKey);
 
 		if (inputForOidcClient.contains("$OIDCJWKKEY$")) {
-			inputForOidcClient = inputForOidcClient.replace("$OIDCJWKKEY$", oidcJwkKey.toString());
+			inputForOidcClient = inputForOidcClient.replace("$OIDCJWKKEY$", oidcJwkKey);
 		}
 
 		// String inputForOidcClient = test11.getInput();
