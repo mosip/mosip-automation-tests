@@ -26,7 +26,7 @@ ENV work_dir=/home/${container_user}/
 
 ARG KUBECTL_VERSION=1.22.9
 
-## install packages and create user
+# install packages and create user
 RUN apt-get update \
     && apt install jq -y \
     && groupadd -g ${container_user_gid} ${container_user_group} \
