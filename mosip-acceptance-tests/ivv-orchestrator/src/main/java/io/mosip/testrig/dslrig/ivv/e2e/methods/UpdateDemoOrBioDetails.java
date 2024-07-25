@@ -32,6 +32,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 		String missFields = null;
 		String updateAttribute = null;
 		String blocklistedWord = null;
+		String testPersona = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			this.hasError = true;
@@ -59,9 +60,15 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 
 		if (!step.getParameters().isEmpty() && step.getParameters().size() > 3) { // "var1=e2e_updateDemoOrBioDetails(0,0,0,$$personaPath)"
 			String personaFilePath = step.getParameters().get(3);
+			
+			if(step.getParameters().size() == 5) {
+			    testPersona =  step.getParameters().get(4);
+				testPersona = step.getScenario().getVariables().get(testPersona);
+			}
+			
 			if (personaFilePath.startsWith("$$")) {
 				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
-				packetUtility.updateDemoOrBioDetail(personaFilePath,
+				packetUtility.updateDemoOrBioDetail(personaFilePath, testPersona ,
 						(regenAttributeList.get(0).equalsIgnoreCase("0")) ? null : regenAttributeList,
 						(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>()
 								: missFieldsAttributeList,
@@ -70,7 +77,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 			}
 		} else {
 			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
-				packetUtility.updateDemoOrBioDetail(resDataPath,
+				packetUtility.updateDemoOrBioDetail(resDataPath,testPersona ,
 						(regenAttributeList.get(0).equalsIgnoreCase("0")) ? null : regenAttributeList,
 						(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>()
 								: missFieldsAttributeList,
