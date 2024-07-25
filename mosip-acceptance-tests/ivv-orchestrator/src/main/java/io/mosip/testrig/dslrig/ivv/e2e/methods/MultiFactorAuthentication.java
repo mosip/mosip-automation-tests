@@ -22,7 +22,6 @@ import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.testscripts.BioAuth;
 import io.mosip.testrig.apirig.testscripts.DemoAuth;
-import io.mosip.testrig.apirig.testscripts.DemoAuthSimplePostForAutoGenId;
 import io.mosip.testrig.apirig.testscripts.MultiFactorAuthNew;
 import io.mosip.testrig.apirig.testscripts.OtpAuthNew;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;

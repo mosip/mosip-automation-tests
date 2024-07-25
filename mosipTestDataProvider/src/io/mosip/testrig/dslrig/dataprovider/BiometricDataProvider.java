@@ -1,7 +1,12 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -249,8 +255,8 @@ public class BiometricDataProvider {
 						.parseBoolean(VariableManager.getVariableValue(contextKey, "invalidCertFlag").toString());
 
 				if (invalidCertFlag)
-					p12path = Paths.get(VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "invalidCertpath")
-							.toString());
+					p12path = Paths.get(
+							VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "invalidCertpath").toString());
 				else
 					p12path = Paths.get(certsDir,
 							"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
@@ -265,7 +271,7 @@ public class BiometricDataProvider {
 						port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device",
 								p12path.toString());
 					} catch (Exception e) {
-						logger.error("Exception occured during startSBI " + contextKey,e);
+						logger.error("Exception occured during startSBI " + contextKey, e);
 					}
 					if (port != 0) {
 						RestClient.logInfo(contextKey, "Found the port " + contextKey + " port number is: " + port);
@@ -939,7 +945,7 @@ public class BiometricDataProvider {
 
 						if (index > 9)
 							break;
-						
+
 						byte[] fdata = CommonUtil.read(f.getAbsolutePath());
 						fingerPrintRaw[index] = fdata;
 						fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
@@ -1009,7 +1015,7 @@ public class BiometricDataProvider {
 
 					if (index > 9)
 						break;
-					
+
 					byte[] fdata;
 					try {
 						fdata = CommonUtil.read(f.getAbsolutePath());
@@ -1031,6 +1037,68 @@ public class BiometricDataProvider {
 			}
 
 		}
+		return data;
+	}
+
+	public static BiometricDataModel updateFingerData(String contextKey) throws IOException {
+
+		BiometricDataModel data = new BiometricDataModel();
+		// reach cached finger prints from folder
+		String dirPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
+		RestClient.logInfo(contextKey, DIRPATH + dirPath);
+		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
+		File dir = new File(dirPath);
+
+		File listDir[] = dir.listFiles();
+		int numberOfSubfolders = listDir.length;
+
+		int min = 1;
+		int max = numberOfSubfolders;
+		int randomNumber;
+		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
+		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+		int currentScenarioNumber = Integer.valueOf(afterscenario);
+
+		// Generate a random number that is not equal to currentScenarioNumber
+		randomNumber = (int) (Math.random() * (max - min)) + min;
+		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+
+		for (int i = min; i <= max; i++) {
+			List<File> lst = CommonUtil.listFiles(dirPath + String.format("/Impression_%d/fp_1/", i));
+			tblFiles.put(i, lst);
+		}
+
+		String[] fingerPrints = new String[10];
+		String[] fingerPrintHash = new String[10];
+		byte[][] fingerPrintRaw = new byte[10][1];
+		List<File> firstSet = tblFiles.get(impressionToPick);
+		RestClient.logInfo(contextKey, "Impression used " + impressionToPick);
+
+		int index = 0;
+		for (File f : firstSet) {
+
+			if (index > 9)
+				break;
+
+			byte[] fdata;
+			try {
+				fdata = CommonUtil.read(f.getAbsolutePath());
+				fingerPrintRaw[index] = fdata;
+				fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
+
+				fingerPrintHash[index] = CommonUtil.getHexEncodedHash(fdata);
+
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+			index++;
+
+		}
+		data.setFingerPrint(fingerPrints);
+		data.setFingerHash(fingerPrintHash);
+		data.setFingerRaw(fingerPrintRaw);
+
 		return data;
 	}
 
@@ -1170,7 +1238,8 @@ public class BiometricDataProvider {
 
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
-			// If the available impressions are less than scenario number, pick the random one
+			// If the available impressions are less than scenario number, pick the random
+			// one
 			// otherwise pick the impression of same of scenario number
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
@@ -1226,6 +1295,141 @@ public class BiometricDataProvider {
 		}
 
 		return retVal;
+	}
+
+	// Left Eye, Right Eye
+	static List<IrisDataModel> updateIris(String contextKey) throws Exception {
+
+		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
+		IrisDataModel m = new IrisDataModel();
+		String srcPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString();
+		String leftbmp = null;
+		String rightbmp = null;
+		// reach cached finger prints from folder
+		RestClient.logInfo(contextKey, DIRPATH + srcPath);
+		File dir = new File(srcPath);
+
+		File listDir[] = dir.listFiles();
+		int numberOfSubfolders = listDir.length;
+
+		int min = 1;
+		int max = numberOfSubfolders;
+		int randomNumber;
+		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
+		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+		int currentScenarioNumber = Integer.valueOf(afterscenario);
+
+		// Generate a random number that is not equal to currentScenarioNumber
+		randomNumber = (int) (Math.random() * (max - min)) + min;
+		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+
+		File folder = new File(srcPath + "/" + String.format("%03d", impressionToPick));
+
+		File[] listOfFiles = folder.listFiles();
+
+		for (File file : listOfFiles) {
+			if (file.getName().contains("L")) {
+				leftbmp = file.getName();
+			} else {
+				rightbmp = file.getName();
+			}
+		}
+
+		if (leftbmp == null) {
+			leftbmp = rightbmp;
+		}
+		if (rightbmp == null) {
+			rightbmp = leftbmp;
+		}
+		String fPathL = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
+		String fPathR = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
+
+		String leftIrisData = "";
+		String rightIrisData = "";
+		String irisHash = "";
+		byte[] fldata = null;
+		byte[] frdata = null;
+		if (Files.exists(Paths.get(fPathL))) {
+			fldata = CommonUtil.read(fPathL);
+			leftIrisData = Hex.encodeHexString(fldata);
+			irisHash = CommonUtil.getHexEncodedHash(fldata);
+			m.setLeftHash(irisHash);
+		}
+		if (Files.exists(Paths.get(fPathR))) {
+			frdata = CommonUtil.read(fPathR);
+			rightIrisData = Hex.encodeHexString(frdata);
+			irisHash = CommonUtil.getHexEncodedHash(frdata);
+			m.setRightHash(irisHash);
+		}
+		if (leftIrisData.equals("")) {
+			fldata = frdata;
+			leftIrisData = rightIrisData;
+		} else if (rightIrisData.equals("")) {
+			frdata = fldata;
+			rightIrisData = leftIrisData;
+		}
+		m.setLeft(leftIrisData);
+		m.setRight(rightIrisData);
+		m.setRawLeft(fldata);
+		m.setRawRight(frdata);
+		retVal.add(m);
+
+		return retVal;
+	}
+
+	static byte[][] updateFaceData(String contextKey) {
+
+		byte[] bencoded = null;
+		byte[] bData = null;
+		try {
+
+			String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString();
+
+			File dir = new File(dirPath);
+			FileFilter filter = new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					return !pathname.isDirectory();
+				}
+			};
+			File[] listDir = dir.listFiles(filter);
+			int numberOfSubfolders = listDir.length;
+
+			int min = 1;
+			int max = numberOfSubfolders;
+			int randomNumber;
+			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
+			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+			int currentScenarioNumber = Integer.valueOf(afterscenario);
+
+			// Generate a random number that is not equal to currentScenarioNumber
+			randomNumber = (int) (Math.random() * (max - min)) + min;
+			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+
+			File file = new File(dirPath + String.format("/face%04d.jpg", impressionToPick));
+			BufferedImage img = null;
+
+			try (FileInputStream fos = new FileInputStream(file);
+					BufferedInputStream bis = new BufferedInputStream(fos)) {
+				img = ImageIO.read(bis);
+				logger.info("Image picked from this path=" + file);
+			}
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+			ImageIO.write(img, "jpg", baos);
+			baos.flush();
+			bData = baos.toByteArray();
+			bencoded = PhotoProvider.encodeFaceImageData(bData);
+
+			baos.close();
+
+		} catch (Exception e) {
+
+			logger.error(e.getMessage());
+		}
+		return new byte[][] { bencoded, bData };
 	}
 
 	public static void main(String[] args) {
