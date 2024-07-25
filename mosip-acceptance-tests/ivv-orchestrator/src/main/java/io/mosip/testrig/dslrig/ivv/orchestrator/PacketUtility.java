@@ -771,7 +771,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,
 			String consent, boolean changeSupervisorNameToDiffCase, String invalidEncryptedHashFlag,
-			String invalidCheckSum , String invalidIdSchemaFlag ,String skipBiometricClassification,String skipApplicantDocuments, String invalidDateFlag) throws RigInternalError {
+			String invalidCheckSum , String invalidIdSchemaFlag ,String skipBiometricClassification,String skipApplicantDocuments, String invalidDateFlag, String invalidOfficerIDFlag) throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
 
@@ -812,6 +812,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("skipBiometricClassificationFlag", skipBiometricClassification);
 		jsonReq.put("skipApplicantDocumentsFlag", skipApplicantDocuments);
 		jsonReq.put("invalidDateFlag", invalidDateFlag);
+		jsonReq.put("invalidOfficerIDFlag", invalidOfficerIDFlag);
 		jsonReq.put("invalidEncryptedHashFlag", invalidEncryptedHashFlag);
 		jsonReq.put("changeSupervisorNameToDiffCase", changeSupervisorNameToDiffCase);
 		jsonReq.put("consent", consent);
@@ -971,7 +972,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return jsonMachine;
 	}
 
-	public String updateDemoOrBioDetail(String resFilePath, List<String> attributeList, List<String> missAttributeList,
+	public String updateDemoOrBioDetail(String resFilePath, String testPersona,  List<String> attributeList, List<String> missAttributeList,
 			List<String> updateAttributeList, Scenario.Step step) throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePersonaData");
 		JSONObject jsonReqInner = new JSONObject();
@@ -979,6 +980,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (missAttributeList != null)
 			jsonReqInner.put("missAttributeList", missAttributeList);
 		jsonReqInner.put(PERSONAFILEPATH, resFilePath);
+		jsonReqInner.put("testPersonaPath", testPersona);
 		if (attributeList != null && !(attributeList.isEmpty()))
 			jsonReqInner.put("regenAttributeList", attributeList);
 		if (updateAttributeList != null && !(updateAttributeList.isEmpty())) {

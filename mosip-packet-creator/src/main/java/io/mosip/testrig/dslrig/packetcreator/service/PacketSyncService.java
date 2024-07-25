@@ -1202,8 +1202,12 @@ public class PacketSyncService {
 				List<String> regenAttrs = req.getRegenAttributeList();
 				if (regenAttrs != null) {
 					for (String attr : regenAttrs) {
-						ResidentDataProvider.updateBiometric(persona, attr, contextKey);
-
+						if (req.getTestPersonaPath() != null) {
+							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath());
+							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
+						} else {
+							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
+						}
 					}
 				}
 				Properties updateAttrs = req.getUpdateAttributeList();
@@ -1213,6 +1217,7 @@ public class PacketSyncService {
 				List<String> missList = req.getMissAttributeList();
 				if (missList != null && !missList.isEmpty())
 					persona.setMissAttributes(missList);
+				persona.save();
 
 				persona.writePersona(req.getPersonaFilePath());
 

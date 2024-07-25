@@ -205,7 +205,6 @@ public class MDSClient implements MDSClientInterface {
 
 	}
 
-
 	public void removeProfile(String profilePath,String profile,int port,String contextKey) {
 		setProfile("Default",port,contextKey);
 		File profDir = new File(profilePath + "/"+ profile);

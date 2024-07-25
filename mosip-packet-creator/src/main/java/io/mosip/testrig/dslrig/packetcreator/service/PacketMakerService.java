@@ -626,9 +626,10 @@ public class PacketMakerService {
 				logger.error(e1.getMessage());
 			}
 			officerId = p.getProperty(MOSIP_TEST_REGCLIENT_USERID);
-
-			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerId", officerId, false);
-
+			
+			if (!VariableManager.getVariableValue(contextKey, "invalidOfficerIDFlag").toString().equals("invalidOfficerID")) {
+		   updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerId", officerId, false);
+			}
 			supervisorId = p.getProperty(MOSIPTEST_REGCLIENT_SUPERVISORID);
 
 			if (VariableManager.getVariableValue(contextKey, CHANGESUPERVISORNAMETODIFFCASE).toString()
