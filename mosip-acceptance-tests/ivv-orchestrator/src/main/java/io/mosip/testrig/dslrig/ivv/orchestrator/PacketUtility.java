@@ -983,6 +983,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReqInner.put("testPersonaPath", testPersona);
 		if (attributeList != null && !(attributeList.isEmpty()))
 			jsonReqInner.put("regenAttributeList", attributeList);
+		
+	    // Handle the special case for "updateLargeDocInPersona"
+	    if (step.getParameters().size() > 2 && step.getParameters().get(2).equalsIgnoreCase("updateLargeDocInPersona")) {
+	        String docPathValue = "yourDocPathValue"; 
+	        String poaValue = String.format("{\"typeCode\": \"DOC016\",\"docPath\": \"%s\"}", docPathValue);
+	        updateAttribute.put("POA", poaValue);
+	    }
+	    else {
 		if (updateAttributeList != null && !(updateAttributeList.isEmpty())) {
 			String langcode = null;
 			for (String keys : updateAttributeList) {
@@ -1013,8 +1021,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 					updateAttribute.put(key, "");
 				}
 			}
-			jsonReqInner.put("updateAttributeList", updateAttribute);
 		}
+	    }
+	    jsonReqInner.put("updateAttributeList", updateAttribute);
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
 		Response response = putRequestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail", step);
