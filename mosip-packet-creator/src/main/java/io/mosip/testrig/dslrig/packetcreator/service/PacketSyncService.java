@@ -901,7 +901,7 @@ public class PacketSyncService {
 
 	}
 
-	void updatePersona(Properties updateAttrs, ResidentModel persona) {
+	void updatePersona(Properties updateAttrs, ResidentModel persona ,String contextKey) {
 		Iterator<Object> it = updateAttrs.keys().asIterator();
 		BiometricDataModel bioData = null;
 
@@ -932,7 +932,7 @@ public class PacketSyncService {
 						break;
 				}
 				if (indx >= 0 && indx < doc.getType().size()) {
-					String docFilePath = jsonDoc.has("docPath") ? jsonDoc.getString("docPath").toString() : null;
+					String docFilePath = jsonDoc.has("docPath") ? VariableManager.getVariableValue(contextKey,"mountPath").toString()+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.largedocumentpath").toString()+ "largeDocument.pdf" : null;
 					if (docFilePath != null)
 						doc.getDocs().set(indx, docFilePath);
 				}
@@ -1212,7 +1212,7 @@ public class PacketSyncService {
 				}
 				Properties updateAttrs = req.getUpdateAttributeList();
 				if (updateAttrs != null) {
-					updatePersona(updateAttrs, persona);
+					updatePersona(updateAttrs, persona ,contextKey);
 				}
 				List<String> missList = req.getMissAttributeList();
 				if (missList != null && !missList.isEmpty())

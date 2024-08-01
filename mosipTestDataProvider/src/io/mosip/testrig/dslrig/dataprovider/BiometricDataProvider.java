@@ -242,13 +242,14 @@ public class BiometricDataProvider {
 				mdsprofilePath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsprofilepath")
 						.toString();
 
-				String certsDir = System.getenv(AUTHCERTSPATH) == null
-						? VariableManager.getVariableValue(contextKey, AUTHCERTSPATH).toString()
-						: System.getenv(AUTHCERTSPATH);
-
-				if (certsDir == null || certsDir.length() == 0) {
-					certsDir = System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS";
-				}
+				/*
+				 * String certsDir = System.getenv(AUTHCERTSPATH) == null ?
+				 * VariableManager.getVariableValue(contextKey, AUTHCERTSPATH).toString() :
+				 * System.getenv(AUTHCERTSPATH);
+				 * 
+				 * if (certsDir == null || certsDir.length() == 0) { certsDir =
+				 * System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS"; }
+				 */
 
 				Path p12path = null;
 				boolean invalidCertFlag = Boolean
@@ -258,8 +259,7 @@ public class BiometricDataProvider {
 					p12path = Paths.get(
 							VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "invalidCertpath").toString());
 				else
-					p12path = Paths.get(certsDir,
-							"DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
+					p12path = Paths.get(System.getProperty("java.io.tmpdir"), VariableManager.getVariableValue(contextKey, "db-server").toString());
 
 				RestClient.logInfo(contextKey, "p12path" + p12path);
 

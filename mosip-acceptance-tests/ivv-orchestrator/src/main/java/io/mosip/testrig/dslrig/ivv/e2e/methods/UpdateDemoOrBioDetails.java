@@ -43,6 +43,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 				missFields = step.getParameters().get(1);
 			if (step.getParameters().size() > 2)
 				updateAttribute = step.getParameters().get(2);
+			
 
 			if (!updateAttribute.contentEquals("0")) {
 				if (updateAttribute.contains("$$")) {
