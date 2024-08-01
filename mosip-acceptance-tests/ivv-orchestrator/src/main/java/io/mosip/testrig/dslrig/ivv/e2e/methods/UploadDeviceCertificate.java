@@ -50,9 +50,13 @@ public class UploadDeviceCertificate extends BaseTestCaseUtil implements StepInt
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                this.hasError = true;
+                throw new RigInternalError("Unable to upload device certificate ");
             }
         } else {
             logger.error("File does not exist: " + p12);
+            this.hasError = true;
+            throw new RigInternalError("File does not exists");
         }
     }
 }
