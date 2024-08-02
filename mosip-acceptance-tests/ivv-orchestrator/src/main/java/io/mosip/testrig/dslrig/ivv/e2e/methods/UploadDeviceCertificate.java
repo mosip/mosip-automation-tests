@@ -34,7 +34,7 @@ public class UploadDeviceCertificate extends BaseTestCaseUtil implements StepInt
         Response response = null;
         String url = baseUrl + props.getProperty("uploadDeviceCert");
         String certsDir = System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS";
-        String p12 = certsDir + File.separator + "DSL-IDA-" + propsKernel.getProperty("db-server") + File.separator + "device-partner.p12";
+        String p12 = certsDir + File.separator + "DSL-IDA-" + ConfigManager.getTargetEnvName() + File.separator + "device-partner.p12";
         File file = new File(p12);
 
         if (file.exists()) {
@@ -56,7 +56,7 @@ public class UploadDeviceCertificate extends BaseTestCaseUtil implements StepInt
         } else {
             logger.error("File does not exist: " + p12);
             this.hasError = true;
-            throw new RigInternalError("File does not exists");
+            throw new RigInternalError("File does not exists: " + p12);
         }
     }
 }
