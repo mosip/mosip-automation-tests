@@ -20,43 +20,49 @@ import io.restassured.response.Response;
 @Scope("prototype")
 @Component
 public class UploadDeviceCertificate extends BaseTestCaseUtil implements StepInterface {
-    public static Logger logger = Logger.getLogger(UploadDeviceCertificate.class);
+	public static Logger logger = Logger.getLogger(UploadDeviceCertificate.class);
 
-    static {
-        if (ConfigManager.IsDebugEnabled())
-            logger.setLevel(Level.ALL);
-        else
-            logger.setLevel(Level.ERROR);
-    }
+	static {
+		if (ConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 
-    @Override
-    public void run() throws RigInternalError {
-        Response response = null;
-        String url = baseUrl + props.getProperty("uploadDeviceCert");
-        String certsDir = System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS";
-        String p12 = certsDir + File.separator + "DSL-IDA-" + ConfigManager.getTargetEnvName() + File.separator + "device-partner.p12";
-        File file = new File(p12);
+	@Override
+	public void run() throws RigInternalError {
+		Response response = null;
+		String url = baseUrl + props.getProperty("uploadDeviceCert");
 
-        if (file.exists()) {
-            try {
-               byte[] fileBytes = Files.readAllBytes(file.toPath());
-               String encodedBytes = Base64.getEncoder().encodeToString(fileBytes);
-                response = postRequest(url, encodedBytes, "UPLOAD_DEVICE_CERT", step);
+		String certsDir = System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS";
+		if (System.getProperty("os.name").toLowerCase().contains("windows") == false) {
+			certsDir = ConfigManager.getauthCertsPath();
+		}
 
-                // Log the response
-                if (response != null) {
-                    logger.info("Response Status: " + response.getStatusCode());
-                    logger.info("Response Body: " + response.getBody().asString());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                this.hasError = true;
-                throw new RigInternalError("Unable to upload device certificate ");
-            }
-        } else {
-            logger.error("File does not exist: " + p12);
-            this.hasError = true;
-            throw new RigInternalError("File does not exists: " + p12);
-        }
-    }
+		String p12 = certsDir + File.separator + "DSL-IDA-" + ConfigManager.getTargetEnvName() + File.separator
+				+ "device-partner.p12";
+		File file = new File(p12);
+
+		if (file.exists()) {
+			try {
+				byte[] fileBytes = Files.readAllBytes(file.toPath());
+				String encodedBytes = Base64.getEncoder().encodeToString(fileBytes);
+				response = postRequest(url, encodedBytes, "UPLOAD_DEVICE_CERT", step);
+
+				// Log the response
+				if (response != null) {
+					logger.info("Response Status: " + response.getStatusCode());
+					logger.info("Response Body: " + response.getBody().asString());
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				this.hasError = true;
+				throw new RigInternalError("Unable to upload device certificate ");
+			}
+		} else {
+			logger.error("File does not exist: " + p12);
+			this.hasError = true;
+			throw new RigInternalError("File does not exists: " + p12);
+		}
+	}
 }
