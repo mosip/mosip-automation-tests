@@ -259,7 +259,7 @@ public class BiometricDataProvider {
 					p12path = Paths.get(
 							VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "invalidCertpath").toString());
 				else
-					p12path = Paths.get(System.getProperty("java.io.tmpdir") + File.separator + VariableManager.getVariableValue(contextKey, "db-server").toString());
+					p12path = Paths.get(System.getProperty("java.io.tmpdir"), VariableManager.getVariableValue(contextKey, "db-server").toString());
 
 				RestClient.logInfo(contextKey, "p12path" + p12path);
 
