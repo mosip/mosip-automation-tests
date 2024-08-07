@@ -6,10 +6,12 @@ import java.util.Properties;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.kernel.util.KernelAuthentication;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
@@ -18,23 +20,19 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.restassured.response.Response;
 
+@Scope("prototype")
+@Component
 public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(ActivateDeactivate.class);
 	KernelAuthentication kernelAuthLib = new KernelAuthentication();
 	ActivateDeactivateHelper helper = new ActivateDeactivateHelper();
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
 	}
-	
-	// Machine [type=machine@@value=10002@@machineSpecId=1001@@zoneCode=SAL@@status=true]
-	// RegCenter [type=regcenter@@value=10001@@locationCode=14023@@zoneCode=SAL@@status=true]
-	// Operator [type=operator@@value=110124@@status=true]
-	// Device [type=device@@id=1001@@status=true]
-	// Device-LTS [type=devicelts@@value=1001@@status=true]
 
 	@Override
 	public void run() throws RigInternalError {
@@ -57,9 +55,9 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 				}
 			}
 		} else {
-			 this.hasError=true;
+			this.hasError = true;
 			throw new RigInternalError(helper.missingInputParameter());
-			
+
 		}
 
 		String token = kernelAuthLib.getTokenByRole("admin");
@@ -77,7 +75,7 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 				}
 				JSONObject jsonResp = new JSONObject(getMachineResponse.getBody().asString());
 				Boolean machineStatus = packetUtility.activateDeActiveMachine(jsonResp.toString(),
-						prop.getProperty("machineSpecId"), value, prop.getProperty("zoneCode"), token, status,step);
+						prop.getProperty("machineSpecId"), value, prop.getProperty("zoneCode"), token, status, step);
 				if (!(machineStatus == Boolean.parseBoolean(status))) {
 					String message = (status.equals("true")) ? "Activate machine" : "DeActivate machine";
 					throw new RigInternalError("Unable to " + message);
@@ -141,7 +139,7 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 				}
 				JSONObject jsonRegcenterResp = new JSONObject(getregCenterResponse.getBody().asString());
 				Boolean regCenterStatus = packetUtility.activateDeActiveRegCenter(jsonRegcenterResp.toString(), value,
-						prop.getProperty("locationCode"), prop.getProperty("zoneCode"), token, status,step);
+						prop.getProperty("locationCode"), prop.getProperty("zoneCode"), token, status, step);
 				if (!(regCenterStatus == Boolean.parseBoolean(status))) {
 					String message = (status.equals("true")) ? "Activate RegCenter" : "DeActivate RegCenter";
 					throw new RigInternalError("Unable to " + message);
@@ -150,18 +148,18 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 				helper.deActivateRegCenter(prop, token);
 			}
 			break;
-			
+
 		case E2EConstants.DEVICE:
 			JSONObject jsonResp = helper.filterRecordByColumnName(filterColumnName, filterByValue,
 					Boolean.valueOf(status), token);
 			String deiceJsonReq = helper.buildDeviceRequest(jsonResp, Boolean.valueOf(status));
 			url = endPoint + props.getProperty("devices");
 			Response deviceResponse = packetUtility.putReqestWithCookiesAndBody(url, deiceJsonReq, token,
-					"Device activate/deactivate",step);
+					"Device activate/deactivate", step);
 			if (deviceResponse.getBody().asString().toLowerCase().contains("errorcode"))
 				throw new RigInternalError("Failed to activate/deactivate device");
 			break;
-			
+
 		case E2EConstants.DEVICElTS:
 			url = endPoint + props.getProperty("devices");
 			HashMap<String, String> queryParam = new HashMap<>();
@@ -174,7 +172,7 @@ public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterfac
 						(Boolean.valueOf(status)) ? "Unable to Activate device" : "Unable to Deactivate Device");
 			break;
 		default:
-			 this.hasError=true;
+			this.hasError = true;
 			throw new RigInternalError(
 					type + "is not supported only allowed [machine/operator/partner/device/regcenter]");
 		}

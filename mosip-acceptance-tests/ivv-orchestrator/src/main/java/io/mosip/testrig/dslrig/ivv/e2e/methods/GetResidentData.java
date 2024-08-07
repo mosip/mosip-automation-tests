@@ -8,8 +8,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -17,6 +19,8 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 import io.restassured.response.Response;
 
+@Scope("prototype")
+@Component
 public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(GetResidentData.class);
 
@@ -40,8 +44,6 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 			nofResident = Integer.parseInt(step.getParameters().get(0));
 			ageCategory = step.getParameters().get(1);
 			bSkipGuardian = Boolean.parseBoolean(step.getParameters().get(2));
-
-			/// Get Gender and Bio attributes miss flag
 
 			if (step.getParameters().get(3).contains("@@")) {
 				bioFlag = step.getParameters().get(3).split("@@");
@@ -111,10 +113,10 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 	}
 
 	private void cleanData() {
-		step.getScenario().getPridsAndRids().clear(); // step.getScenario().getPridsAndRids().clear();
-		step.getScenario().getUinReqIds().clear(); // step.getScenario().getUinReqIds().clear();
-		step.getScenario().getResidentTemplatePaths().clear();// step.getScenario().getResidentTemplatePaths().clear();
-		step.getScenario().getResidentPathsPrid().clear(); // esidentPathsPrid.clear();
-		step.getScenario().getTemplatePacketPath().clear();// step.getScenario().getTemplatePacketPath().clear();
+		step.getScenario().getPridsAndRids().clear();
+		step.getScenario().getUinReqIds().clear();
+		step.getScenario().getResidentTemplatePaths().clear();
+		step.getScenario().getResidentPathsPrid().clear();
+		step.getScenario().getTemplatePacketPath().clear();
 	}
 }

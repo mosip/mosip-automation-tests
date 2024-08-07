@@ -2,15 +2,19 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
+@Scope("prototype")
+@Component
 public class GenerateAndUploadPacket extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(GenerateAndUploadPacket.class);
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -22,30 +26,35 @@ public class GenerateAndUploadPacket extends BaseTestCaseUtil implements StepInt
 	public void run() throws RigInternalError {
 		String responseStatus = "success";
 		Boolean isForChildPacket = false;
-		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) {
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
-			if (isForChildPacket && step.getScenario().getPrid_updateResident() != null && step.getScenario().getTemplatPath_updateResident() != null)
-				step.getScenario().setRid_updateResident(packetUtility.generateAndUploadPacket(step.getScenario().getPrid_updateResident(), 
-						step.getScenario().getTemplatPath_updateResident(), step.getScenario().getCurrentStep(),
-						responseStatus,step));
+			if (isForChildPacket && step.getScenario().getPrid_updateResident() != null
+					&& step.getScenario().getTemplatPath_updateResident() != null)
+				step.getScenario().setRid_updateResident(packetUtility.generateAndUploadPacket(
+						step.getScenario().getPrid_updateResident(), step.getScenario().getTemplatPath_updateResident(),
+						step.getScenario().getCurrentStep(), responseStatus, step));
 		} else {
-			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {  // "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
+			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {
 				String prid = step.getParameters().get(0);
 				String templatePath = step.getParameters().get(1);
 				if (prid.startsWith("$$") && templatePath.startsWith("$$")) {
 					prid = step.getScenario().getVariables().get(prid);
 					templatePath = step.getScenario().getVariables().get(templatePath);
-					String rid = packetUtility.generateAndUploadPacket(prid, templatePath, step.getScenario().getCurrentStep(), "success",step);
+					String rid = packetUtility.generateAndUploadPacket(prid, templatePath,
+							step.getScenario().getCurrentStep(), "success", step);
 					if (step.getOutVarName() != null)
 						step.getScenario().getVariables().put(step.getOutVarName(), rid);
 
 				}
 			} else {
 				for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
-					String rid = packetUtility.generateAndUploadPacket(step.getScenario().getResidentPathsPrid().get(resDataPath),
-							step.getScenario().getResidentTemplatePaths().get(resDataPath), step.getScenario().getCurrentStep(), responseStatus,step);
+					String rid = packetUtility.generateAndUploadPacket(
+							step.getScenario().getResidentPathsPrid().get(resDataPath),
+							step.getScenario().getResidentTemplatePaths().get(resDataPath),
+							step.getScenario().getCurrentStep(), responseStatus, step);
 					if (rid != null) {
-						step.getScenario().getPridsAndRids().put(step.getScenario().getResidentPathsPrid().get(resDataPath), rid);
+						step.getScenario().getPridsAndRids()
+								.put(step.getScenario().getResidentPathsPrid().get(resDataPath), rid);
 						step.getScenario().getRidPersonaPath().put(rid, resDataPath);
 					}
 

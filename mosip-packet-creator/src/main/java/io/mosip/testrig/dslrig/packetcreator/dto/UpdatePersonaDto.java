@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class UpdatePersonaDto {
 	String personaFilePath;
+	String testPersonaPath;
 	Properties updateAttributeList;
 	List<String> regenAttributeList;
 	List<String> missAttributeList;	//ID Scheme elements or biometric sub modalities to be added to exception list

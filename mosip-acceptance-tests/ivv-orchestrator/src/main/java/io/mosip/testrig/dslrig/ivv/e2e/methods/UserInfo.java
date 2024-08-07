@@ -6,15 +6,16 @@ import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.nimbusds.jose.jwk.RSAKey;
-
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
-import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
-import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.GetWithParam;
 import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded;
@@ -26,6 +27,8 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.restassured.response.Response;
 
+@Scope("prototype")
+@Component
 public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(UserInfo.class);
 	private static final String AuthorizationCodeYml = "idaData/AuthorizationCode/AuthorizationCode.yml";
@@ -55,7 +58,6 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {
 		
-		// check if esignet is installed on the target system
 		if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}

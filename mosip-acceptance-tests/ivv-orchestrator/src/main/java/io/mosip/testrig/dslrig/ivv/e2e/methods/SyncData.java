@@ -4,18 +4,22 @@ import java.util.HashMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.SyncDataHelper;
 
+@Scope("prototype")
+@Component
 public class SyncData extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(SyncData.class);
 
 	SyncDataHelper syncDataHelper = new SyncDataHelper();
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -61,7 +65,6 @@ public class SyncData extends BaseTestCaseUtil implements StepInterface {
 
 			if (step.getOutVarName() != null) {
 				machineDetailsmap.put("keyindex", keyindex);
-				// step.getScenario().getVariables().put(step.getOutVarName(), keyIndex);
 				step.getScenario().getVariables().putAll(machineDetailsmap);
 			}
 			break;

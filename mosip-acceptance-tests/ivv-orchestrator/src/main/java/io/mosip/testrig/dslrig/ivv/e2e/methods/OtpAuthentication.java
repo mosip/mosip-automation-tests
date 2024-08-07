@@ -7,25 +7,32 @@ import java.util.Properties;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
-import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
-import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.OtpAuthNew;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
+@Scope("prototype")
+@Component
 public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(OtpAuthentication.class);
 	private static final String OTPAUTHYml = "idaData/OtpAuth/OtpAuth.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
-	OtpAuthNew otpauth = new OtpAuthNew();
-	
+
+	@Autowired
+	private OtpAuthNew otpauth;
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -48,41 +55,43 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
-		} 
-		
-		if (step.getParameters().size() == 5 && step.getParameters().get(4).startsWith("$$")) { 
+			this.hasError = true;
+			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+		}
+
+		if (step.getParameters().size() == 5 && step.getParameters().get(4).startsWith("$$")) {
 			emailId = step.getParameters().get(4);
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
 			}
-			if(emailId==null ||(emailId!=null && emailId.isBlank())) {
-				//in somecases Email Id is not passed so OTP Authentication is not supported
+			if (emailId == null || (emailId != null && emailId.isBlank())) {
+				// in somecases Email Id is not passed so OTP Authentication is not supported
 				throw new FeatureNotSupportedError("Email id is Empty hence we cannot perform OTP Authentication");
-				
+
 			}
 		}
 
 		// Fetching UIN
 
-		if (step.getParameters().size() == 5) { //"e2e_otpAuthentication(uin,$$uin,vid,$$vid,$$email)"
+		if (step.getParameters().size() == 5) { // "e2e_otpAuthentication(uin,$$uin,vid,$$vid,$$email)"
 			uins = step.getParameters().get(1);
+
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 			}
-		}  else
+		} else
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
 		// Fetching VID
 
-		if (step.getParameters().size() == 5) { //"e2e_otpAuthentication(uin,$$uin,vid,$$vid,$$email)"
+		if (step.getParameters().size() == 5) { // "e2e_otpAuthentication(uin,$$uin,vid,$$vid,$$email)"
 			vids = step.getParameters().get(3);
 			if (vids.startsWith("$$")) {
 				vids = step.getScenario().getVariables().get(vids);
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
 			}
-		}  else
+		} else
 			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
@@ -102,7 +111,6 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 			casesListVID = otpauth.getYmlTestData(OTPAUTHYml);
 		}
 
-
 		for (String uin : uinList) {
 			Object[] testObj = otpauth.getYmlTestData(OTPAUTHYml);
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
@@ -113,7 +121,7 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 			}
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
-			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "sendOtp.individualId");
 
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
@@ -144,6 +152,9 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 			}
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "sendOtp.individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "individualIdType");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "sendOtp.individualIdType");
 
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
@@ -154,10 +165,10 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 					test.setInput(input);
 					try {
 						otpauth.test(test);
-					} catch (AuthenticationTestException e) {
+					} catch (AuthenticationTestException | AdminTestException e) {
+						this.hasError = true;
 						logger.error(e.getMessage());
-					} catch (AdminTestException e) {
-						logger.error(e.getMessage());
+						throw new RigInternalError("Otp Auth failed ");
 					}
 				}
 			}

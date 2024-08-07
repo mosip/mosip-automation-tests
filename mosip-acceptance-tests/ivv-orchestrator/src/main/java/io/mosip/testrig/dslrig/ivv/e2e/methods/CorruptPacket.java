@@ -5,13 +5,17 @@ import java.util.Base64;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.restassured.response.Response;
 
+@Scope("prototype")
+@Component
 public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(CorruptPacket.class);
 	
@@ -32,7 +36,7 @@ public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
 			for (String packetPath : step.getScenario().getTemplatePacketPath().values()) {
 				corruptPacket(packetPath, offset, dataToEncdoeInBase64);
 			}
-		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 3) { // "$$var=e2e_corruptPacket(1024,Hello Auto,$$zipPacketPath)"
+		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 3) { 
 			offset = step.getParameters().get(0);
 			dataToEncdoeInBase64 = step.getParameters().get(1);
 			String _zipPacketPath = step.getParameters().get(2);
@@ -46,8 +50,6 @@ public class CorruptPacket extends BaseTestCaseUtil implements StepInterface {
 	}
 
 	private void corruptPacket(String packetPath, String offset, String dataToEncdoeInBase64) throws RigInternalError {
-		//uri=baseUrl + "/ping&module="+modules;
-		//http://localhost:8080/writeFile?offset=1024/api-internal.qa-121_context
 		String url = baseUrl + props.getProperty("writeFile") + offset;
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("filePath", packetPath);

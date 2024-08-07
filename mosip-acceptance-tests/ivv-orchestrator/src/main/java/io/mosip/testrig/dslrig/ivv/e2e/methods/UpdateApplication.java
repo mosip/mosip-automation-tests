@@ -4,7 +4,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -23,7 +23,6 @@ public class UpdateApplication extends BaseTestCaseUtil implements StepInterface
 	public void run() throws RigInternalError {
 		for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
 			Reporter.log("<b><u>" + "UpdateApplication testCase </u></b>");
-			//packetUtility.updateApplication(resDataPath, residentPathsPrid, contextKey);
 		}
 	}
 }

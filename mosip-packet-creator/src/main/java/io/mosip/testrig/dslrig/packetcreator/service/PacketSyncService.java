@@ -675,7 +675,9 @@ public class PacketSyncService {
 		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 		ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 
+		       if(otp != null && otp.isEmpty()) {
 		preReg.fetchOtp(contextKey);
+       }
 		return preReg.verifyOtp(to, otp, contextKey);
 
 	}
@@ -899,7 +901,7 @@ public class PacketSyncService {
 
 	}
 
-	void updatePersona(Properties updateAttrs, ResidentModel persona) {
+	void updatePersona(Properties updateAttrs, ResidentModel persona ,String contextKey) {
 		Iterator<Object> it = updateAttrs.keys().asIterator();
 		BiometricDataModel bioData = null;
 
@@ -930,7 +932,7 @@ public class PacketSyncService {
 						break;
 				}
 				if (indx >= 0 && indx < doc.getType().size()) {
-					String docFilePath = jsonDoc.has("docPath") ? jsonDoc.getString("docPath").toString() : null;
+					String docFilePath = jsonDoc.has("docPath") ? VariableManager.getVariableValue(contextKey,"mountPath").toString()+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.largedocumentpath").toString()+ "largeDocument.pdf" : null;
 					if (docFilePath != null)
 						doc.getDocs().set(indx, docFilePath);
 				}
@@ -1200,17 +1202,22 @@ public class PacketSyncService {
 				List<String> regenAttrs = req.getRegenAttributeList();
 				if (regenAttrs != null) {
 					for (String attr : regenAttrs) {
-						ResidentDataProvider.updateBiometric(persona, attr, contextKey);
-
+						if (req.getTestPersonaPath() != null) {
+							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath());
+							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
+						} else {
+							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
+						}
 					}
 				}
 				Properties updateAttrs = req.getUpdateAttributeList();
 				if (updateAttrs != null) {
-					updatePersona(updateAttrs, persona);
+					updatePersona(updateAttrs, persona ,contextKey);
 				}
 				List<String> missList = req.getMissAttributeList();
 				if (missList != null && !missList.isEmpty())
 					persona.setMissAttributes(missList);
+				persona.save();
 
 				persona.writePersona(req.getPersonaFilePath());
 

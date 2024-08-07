@@ -10,26 +10,29 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.testng.Reporter;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
-import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
-import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
-import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
+@Scope("prototype")
+@Component
 public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInterface {
 	private static final String check_status_YML = "preReg/checkStatus/checkstatus.yml";
 	public static Logger logger = Logger.getLogger(CheckMultipleRidStatus.class);
 	public HashMap<String, String> tempPridAndRid = null;
 	public HashMap<String, String> ridStatusMap = new LinkedHashMap<>();
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -38,37 +41,37 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 	}
 
 	@Override
-    public void run() throws RigInternalError {
-		String status_param =null;
+	public void run() throws RigInternalError {
+		String status_param = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
-			assertTrue(false,"StatusCode paramter is  missing in step: "+step.getName());
+			assertTrue(false, "StatusCode paramter is  missing in step: " + step.getName());
 		} else {
-			status_param =step.getParameters().get(0);
+			status_param = step.getParameters().get(0);
 		}
 		checkStatus(status_param);
 	}
-    
+
 	public void checkStatus(String status_param) throws RigInternalError {
-		String status_Message=null;
-		switch(status_param.toLowerCase()) {
+		String status_Message = null;
+		switch (status_param.toLowerCase()) {
 		case E2EConstants.PROCESSED:
-			status_Message=status_param;
+			status_Message = status_param;
 			break;
 		case E2EConstants.REJECTED:
-			status_Message=E2EConstants.REJECTED_MSG;
+			status_Message = E2EConstants.REJECTED_MSG;
 			break;
 		case E2EConstants.FAILED:
-			status_Message=E2EConstants.FAILED_MSG;
+			status_Message = E2EConstants.FAILED_MSG;
 			break;
 		default:
-			this.hasError=true;
+			this.hasError = true;
 			throw new RigInternalError("Parameter not supported only allowed are [processed/rejected/failed]");
 		}
-		if(tempPridAndRid ==null)
-    		tempPridAndRid =step.getScenario().getPridsAndRids() ;
-		
-			try {
+		if (tempPridAndRid == null)
+			tempPridAndRid = step.getScenario().getPridsAndRids();
+
+		try {
 			for (String rid : this.tempPridAndRid.values()) {
 				boolean packetProcessed = false;
 				SimplePost postScript = new SimplePost();
@@ -89,48 +92,49 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 						Reporter.log("<b><u>" + test.getTestCaseName() + "</u></b>");
 						long startTime = System.currentTimeMillis();
 						logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
-						logger.info(this.getClass().getSimpleName()+" Rid :"+rid);
+						logger.info(this.getClass().getSimpleName() + " Rid :" + rid);
 						postScript.test(test);
-						ridStatusMap.put(rid, JsonPrecondtion.getValueFromJson(postScript.response.getBody().asString(), "response.ridStatus"));
+						ridStatusMap.put(rid, JsonPrecondtion.getValueFromJson(postScript.response.getBody().asString(),
+								"response.ridStatus"));
 						long stopTime = System.currentTimeMillis();
 						long elapsedTime = stopTime - startTime;
-						logger.info("Time taken to execute "+ this.getClass().getSimpleName()+": " +elapsedTime +" MilliSec");
+						logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
+								+ " MilliSec");
 						packetProcessed = true;
-						if(tempPridAndRid.size() > 1)
-						status_Message="processed";
-						} catch (AuthenticationTestException | AdminTestException e) {
-							logger.error("Failed at checking Packet status with error: " + e.getMessage());
-							status=postScript.response.getBody().asString().toLowerCase();
-							ridStatusMap.put(rid, JsonPrecondtion.getValueFromJson(postScript.response.getBody().asString(), "response.ridStatus"));
-							if(tempPridAndRid.size()==1) {
-								if(!ridStatusMap.containsValue(E2EConstants.UNDER_PROCESSING_MSG))
-									{
+						if (tempPridAndRid.size() > 1)
+							status_Message = "processed";
+					} catch (AuthenticationTestException | AdminTestException e) {
+						logger.error("Failed at checking Packet status with error: " + e.getMessage());
+						status = postScript.response.getBody().asString().toLowerCase();
+						ridStatusMap.put(rid, JsonPrecondtion.getValueFromJson(postScript.response.getBody().asString(),
+								"response.ridStatus"));
+						if (tempPridAndRid.size() == 1) {
+							if (!ridStatusMap.containsValue(E2EConstants.UNDER_PROCESSING_MSG)) {
 
-									this.hasError=true;throw new RigInternalError(ridStatusMap.get(rid));
-									}
+								this.hasError = true;
+								throw new RigInternalError(ridStatusMap.get(rid));
 							}
 						}
 					}
-					}	
+				}
+			}
 		} catch (InterruptedException e) {
 			logger.error("Failed due to thread sleep: " + e.getMessage());
 			Thread.currentThread().interrupt();
 		}
-		List<String> valuesList =ridStatusMap.values().stream().collect(Collectors.toList());
-		if(tempPridAndRid != null) {
+		List<String> valuesList = ridStatusMap.values().stream().collect(Collectors.toList());
+		if (tempPridAndRid != null) {
 			if (tempPridAndRid.size() > 1) {
 				if (valuesList.size() != new HashSet<String>(ridStatusMap.values()).size())
 					assertTrue(false, "Testcase is failed");
 				else
 					assertTrue(true, "Testcase is passed");
-			}else if( tempPridAndRid.size()==1 && !valuesList.contains(status_Message.toUpperCase()))
+			} else if (tempPridAndRid.size() == 1 && !valuesList.contains(status_Message.toUpperCase()))
 				assertTrue(false, "Testcase is failed");
-		}
-		else {
+		} else {
 			logger.info("tempPridAndRid is Null");
 		}
-		
-		
+
 	}
 
 }

@@ -5,16 +5,16 @@ import javax.cache.Cache;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
-import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
-import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
-import io.mosip.testrig.apirig.authentication.fw.util.OutputValidationUtil;
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.kernel.util.S3Adapter;
-import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.utils.OutputValidationUtil;
+import io.mosip.testrig.apirig.utils.S3Adapter;
 import io.mosip.testrig.apirig.testscripts.GetWithParam;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+@Scope("prototype")
+@Component
 public class WritePersonaData extends BaseTestCaseUtil implements StepInterface {
 	private static final Logger logger = Logger.getLogger(WritePersonaData.class);
 	private static final String GetIdentityYml = "idaData/RetrieveIdentityByUin/RetrieveIdentityByUin.yml";
@@ -43,7 +45,6 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 	public void run() throws RigInternalError {
 		String jsonFilePath = TestRunner.getExternalResourcePath() + "/config/personaData.json";
 		JSONArray jsonArray = new JSONArray();
-		// Iterating using Map.Entry and enhanced for loop
 		for (Map.Entry<String, Cache<String, Object>> entry : PersonaDataManager.personaDataCollection.entrySet()) {
 			Cache<String, Object> personaCache = entry.getValue();
 			String uin = (String) personaCache.get("UIN");

@@ -9,19 +9,21 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.testng.Reporter;
-
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestException;
-import io.mosip.testrig.apirig.admin.fw.util.AdminTestUtil;
-import io.mosip.testrig.apirig.admin.fw.util.TestCaseDTO;
-import io.mosip.testrig.apirig.authentication.fw.precon.JsonPrecondtion;
-import io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestException;
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.testscripts.BioAuth;
-import io.mosip.testrig.apirig.testscripts.DemoAuthSimplePostForAutoGenId;
+import io.mosip.testrig.apirig.testscripts.DemoAuth;
 import io.mosip.testrig.apirig.testscripts.MultiFactorAuthNew;
-import io.mosip.testrig.apirig.testscripts.OtpAuth;
+import io.mosip.testrig.apirig.testscripts.OtpAuthNew;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -29,16 +31,13 @@ import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 
-//"e2e_multiFactorAuthentication(faceDevice,phoneNumber,UIN,$$uin,$$personaFilePath)"
+@Scope("prototype")
+@Component
 public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(MultiFactorAuthentication.class);
 	private static final String MULTIFACTOR = "idaData/MultiFactorAuth/MultiFactorAuth.yml";
 	Properties deviceProp = null;
 	Properties uinResidentDataPathFinalProps = new Properties();
-	OtpAuth otpAuth = new OtpAuth();
-	MultiFactorAuthNew multiFactorAuth = new MultiFactorAuthNew();
-	BioAuth bioAuth = new BioAuth();
-	DemoAuthSimplePostForAutoGenId demoAuth = new DemoAuthSimplePostForAutoGenId();
 	List<String> demoAuthList = null;
 	List<String> bioAuthList = null;
 	String individualType = null;
@@ -55,7 +54,19 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 	String demoResponse = null;
 	String emailId = null;
 	List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
-	
+
+	@Autowired
+	private DemoAuth demoAuth;
+
+	@Autowired
+	private BioAuth bioAuth;
+
+	@Autowired
+	private OtpAuthNew otpauth;
+
+	@Autowired
+	private MultiFactorAuthNew multiFactorAuth;
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -74,10 +85,11 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+			this.hasError = true;
+			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		}
-		
-		if (step.getParameters().size() > 1 && step.getParameters().get(6).startsWith("$$")) { 
+
+		if (step.getParameters().size() > 1 && step.getParameters().get(6).startsWith("$$")) {
 			emailId = step.getParameters().get(6);
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
@@ -90,7 +102,8 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 					if (!StringUtils.isBlank(step.getParameters().get(i))) {
 						bioAuthList = Arrays.asList(step.getParameters().get(i).split("@@"));
 					} else {
-						bioAuthList = new ArrayList<String>(step.getScenario().getUinPersonaProp().stringPropertyNames());
+						bioAuthList = new ArrayList<String>(
+								step.getScenario().getUinPersonaProp().stringPropertyNames());
 					}
 				}
 
@@ -100,7 +113,8 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						demoFetchList = new ArrayList<String>();
 						demoFetchList.add(E2EConstants.DEMOFETCH);
 					} else {
-						demoAuthList = new ArrayList<String>(step.getScenario().getUinPersonaProp().stringPropertyNames());
+						demoAuthList = new ArrayList<String>(
+								step.getScenario().getUinPersonaProp().stringPropertyNames());
 					}
 				}
 
@@ -123,7 +137,8 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						uinList = new ArrayList<>();
 						uinList.add(individualIdAuth);// uin actual value
 					} else {
-						individualIdAuth = step.getScenario().getUinPersonaProp().stringPropertyNames().iterator().next();
+						individualIdAuth = step.getScenario().getUinPersonaProp().stringPropertyNames().iterator()
+								.next();
 						uinList = new ArrayList<>();
 						uinList.add(individualIdAuth);
 					}
@@ -170,13 +185,12 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				if (casesListUIN != null) {
 					for (Object object : casesListUIN) {
 						test = (TestCaseDTO) object;
-						test = demoAuthE2eTest(demoFetchList, uin, test,step);
+						test = demoAuthE2eTest(demoFetchList, uin, test, step);
 						test = bioAuthE2eTest(bioAuthList, uin, test);
-						if(emailId==null ||(emailId!=null && emailId.isBlank())) {
+						if (emailId == null || (emailId != null && emailId.isBlank())) {
 							test = otpAuthE2eTest(uin, test);
 						}
-						
-						
+
 						try {
 							try {
 								multiFactorAuth.test(test);
@@ -188,7 +202,6 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						}
 					}
 				}
-
 
 			}
 
@@ -220,7 +233,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				if (casesListVID != null) {
 					for (Object object : casesListVID) {
 						test = (TestCaseDTO) object;
-						test = demoAuthE2eTest(demoFetchList, vid, test,step);
+						test = demoAuthE2eTest(demoFetchList, vid, test, step);
 						test = bioAuthE2eTest(bioAuthList, vid, test);
 						test = otpAuthE2eTest(vid, test);
 						try {
@@ -234,7 +247,6 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						}
 					}
 				}
-
 
 			}
 
@@ -265,8 +277,8 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 
 	}
 
-	private TestCaseDTO demoAuthE2eTest(List<String> demoFetchList, String individualIdAuth, TestCaseDTO testInput,Scenario.Step step)
-			throws RigInternalError {
+	private TestCaseDTO demoAuthE2eTest(List<String> demoFetchList, String individualIdAuth, TestCaseDTO testInput,
+			Scenario.Step step) throws RigInternalError {
 
 		String personFilePathvalue = null;
 		if (step.getParameters().size() > 4) {
@@ -277,10 +289,11 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 			}
 		} else if (step.getScenario().getUinPersonaProp().containsKey(individualIdAuth))
 			personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(individualIdAuth);
-		else
-		{this.hasError=true;	throw new RigInternalError("Persona doesn't exist for the given UIN " + individualIdAuth);
+		else {
+			this.hasError = true;
+			throw new RigInternalError("Persona doesn't exist for the given UIN " + individualIdAuth);
 		}
-		demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList,step);
+		demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList, step);
 
 		// testInput.setEndPoint(testInput.getEndPoint().replace("$PartnerKey$",
 		// partnerKeyUrl));
@@ -304,13 +317,16 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				demoFieldValueKey = E2EConstants.DEMOAGE;
 				break;
 			default:
-				this.hasError=true;throw new RigInternalError("Given DEMO doesn't match with the options in the script");
+				this.hasError = true;
+				throw new RigInternalError("Given DEMO doesn't match with the options in the script");
 			}
 
 			demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
 					E2EConstants.DEMOFETCH + "." + demoFieldValueKey);
-			if (demoValue == null)
-				{this.hasError=true;throw new RigInternalError("Received null value from Persona for" + demoField);}
+			if (demoValue == null) {
+				this.hasError = true;
+				throw new RigInternalError("Received null value from Persona for" + demoField);
+			}
 			input = testInput.getInput();
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, demoField, "key");
@@ -330,9 +346,11 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				deviceInfoFilePath = TestRunner.getExternalResourcePath()
 						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
-			} else
-				{this.hasError=true;throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
-				}String personFilePathvalue = null;
+			} else {
+				this.hasError = true;
+				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
+			}
+			String personFilePathvalue = null;
 			if (step.getParameters().size() > 4) {
 				String _personFilePath = step.getParameters().get(4);
 				if (_personFilePath.startsWith("$$")) {
@@ -341,10 +359,10 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 				}
 			} else if (step.getScenario().getUinPersonaProp().containsKey(uin))
 				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
-			else
-				{
-				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
-				}
+			else {
+				this.hasError = true;
+				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+			}
 
 			String bioType = null, bioSubType = null;
 			List<String> modalityList = new ArrayList<>();
@@ -371,11 +389,12 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
-					this.hasError=true;throw new RigInternalError("Given BIO Type in device property file is not valid");
+					this.hasError = true;
+					throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
 
-			multiFactorResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
+			multiFactorResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList, step);
 			logger.info("saddjha");
 			if (multiFactorResponse != null && !multiFactorResponse.isEmpty() && modalityKeyTogetBioValue != null) {
 				String bioValue = JsonPrecondtion.getValueFromJson(multiFactorResponse, modalityKeyTogetBioValue);

@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.testng.IAlterSuiteListener;
 import org.testng.xml.XmlSuite;
 
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 
 public class ThreadCountChanger implements IAlterSuiteListener  {
 	static Logger logger = Logger.getLogger(ThreadCountChanger.class);

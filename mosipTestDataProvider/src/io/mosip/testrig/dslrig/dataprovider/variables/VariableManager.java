@@ -115,16 +115,22 @@ public final class VariableManager {
 			Init(contextKey);
 
 		Cache<String, ?> ht = null;
-		Object ret = null;
+		Object ret = null; // To do ---- new Object()
+
 		try {
 			ht = varNameSpaces.get(contextKey);
-
 			if (ht != null) {
 				ret = ht.get(varName);
+				if (ret == null && contextKey.equalsIgnoreCase(NS_DEFAULT)) {
+					// Cache expired , reloading the default namespace
+					loadNamespaceFromPropertyFile(VariableManager.CONFIG_PATH + "default.properties",
+							VariableManager.NS_DEFAULT);
+					ht = varNameSpaces.get(contextKey);
+					ret = ht.get(varName);
+				}
 				return ret;
 			}
 		} catch (Exception e) {
-
 			logger.error(e.getMessage());
 		}
 		return ret;

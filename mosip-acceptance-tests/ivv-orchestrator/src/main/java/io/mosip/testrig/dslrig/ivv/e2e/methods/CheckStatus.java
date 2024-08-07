@@ -9,15 +9,17 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.testng.Reporter;
-
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.restassured.response.Response;
 
+@Scope("prototype")
+@Component
 public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 	private String getRidStatusUrl = "/resident/status/";
 	public static Logger logger = Logger.getLogger(CheckStatus.class);
@@ -45,18 +47,17 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				tempPridAndRid = step.getScenario().getPridsAndRids();
 			checkStatus(_ridStatusParam, _expectedRidProcessed, step);
 		} else {
-			if (step.getParameters().size() >= 2) { // "$$var=e2e_checkStatus(processed,$$rid)"
+			if (step.getParameters().size() >= 2) {
 				_ridStatusParam = step.getParameters().get(0);
 				String _rid = step.getParameters().get(1);
 				if (_rid.startsWith("$$")) {
-					_rid = step.getScenario().getVariables().get(_rid); // 11000000101010101000000000
+					_rid = step.getScenario().getVariables().get(_rid);
 					if (_rid == null)
 						logger.info("RID is null");
 					if (tempPridAndRid == null) {
 						tempPridAndRid = new HashMap<>();
-						tempPridAndRid.put("rid", _rid); // 11000000101010101000000000
-						if (step.getParameters().size() > 3) { // "$$var=e2e_checkStatus(processed,$$rid,$$rid2,any)" in
-																// case of BulkUpload
+						tempPridAndRid.put("rid", _rid);
+						if (step.getParameters().size() > 3) {
 							String _rid2 = step.getParameters().get(2);
 							_expectedRidProcessed = step.getParameters().get(3);
 							if (_rid2.startsWith("$$")) {
@@ -74,12 +75,6 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 	public void checkStatus(String _ridStatusParam, String _expectedRidProcessed, Scenario.Step step)
 			throws RigInternalError {
 		String waitTime = props.getProperty("waitTime");
-		List<String> allowedParam = Arrays.asList("processed", "rejected", "failed", "reregister");
-		if (!(allowedParam.contains(_ridStatusParam.toLowerCase()))) {
-			this.hasError = true;
-			throw new RigInternalError("Parameter : " + _ridStatusParam
-					+ "not supported only allowed are [processed/rejected/failed/reregister]");
-		}
 		try {
 			for (String rid : tempPridAndRid.values()) {
 				int counter = 0;
@@ -102,10 +97,6 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 					ridStatus = response.asString().toLowerCase();
 				}
 				ridStatusMap.put(rid, ridStatus);
-				/*
-				 * if (!ridStatus.contains(_ridStatusParam.toLowerCase())) throw new
-				 * RigInternalError("Failed at Packet Processing");
-				 */
 
 			}
 			if (ridStatusMap.size() == 1) {

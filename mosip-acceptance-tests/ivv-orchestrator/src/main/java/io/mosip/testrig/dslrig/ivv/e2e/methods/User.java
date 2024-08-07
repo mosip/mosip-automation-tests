@@ -6,16 +6,19 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.testng.Reporter;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
-import io.mosip.testrig.apirig.kernel.util.KeycloakUserManager;
-import io.mosip.testrig.apirig.service.BaseTestCase;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.KeycloakUserManager;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.UserHelper;
 
+@Scope("prototype")
+@Component
 public class User extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(User.class);
 
@@ -28,7 +31,6 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			logger.setLevel(Level.ERROR);
 	}
 
-	// GetWithParam
 	@Override
 	public void run() throws RigInternalError {
 		String id = null;
@@ -96,8 +98,6 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().putAll(map);
 			userHelper.deleteCenterMapping(user);
-
-			Reporter.log(map.toString());
 			break;
 		case "DELETE_ZONEMAPPING":
 			userHelper.deleteZoneMapping(user, zone);
@@ -119,17 +119,14 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		case "CREATE_ZONESEARCH":
 			map = userHelper.createZoneSearch(user, map);
 			step.getScenario().getVariables().putAll(map);
-			Reporter.log(map.toString());
 			break;
 		case "ADD_User":
 			HashMap<String, List<String>> attrmap = new HashMap<String, List<String>>();
 			List<String> list = new ArrayList<String>();
 			String val = map.get("uin") != null ? map.get("uin") : "11000000";
 			list.add(val);
-			attrmap.put("individualId", list);	
-			// Create User at Keycloak
+			attrmap.put("individualId", list);
 			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap);
-			// Get the xone of the user if zone mapping already existing doubtt
 			zone = userHelper.getZoneOfUser(user);
 			if (zone != null && zone.equalsIgnoreCase("NOTSET")) {
 				zone = userHelper.getLeafZones();
@@ -142,18 +139,17 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			step.getScenario().getVariables().putAll(userdetails);
 
 			break;
-			
+
 		case "UPDATE_UIN":
 			HashMap<String, List<String>> attrmap1 = new HashMap<String, List<String>>();
 			List<String> list1 = new ArrayList<String>();
 			String val1 = map.get("uin") != null ? map.get("uin") : "11000000";
 			list1.add(val1);
-			attrmap1.put("individualId", list1);	
-			// Create User at Keycloak
-			//Utilizing the remove user functionality to update  the attribute "individualId" with UIN
-		    KeycloakUserManager.removeUser(user);
+			attrmap1.put("individualId", list1);
+			// Utilizing the remove user functionality to update the attribute
+			// "individualId" with UIN
+			KeycloakUserManager.removeUser(user);
 			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap1);
-			// Get the xone of the user if zone mapping already existing doubtt
 			zone = userHelper.getZoneOfUser(user);
 			if (zone != null && zone.equalsIgnoreCase("NOTSET")) {
 				zone = userHelper.getLeafZones();
@@ -174,8 +170,6 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			list2.add(val2);
 			attrmap2.put("individualId", list2);
 			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap2);
-			// BaseTestCase.mapUserToZone(user,zone);
-			// BaseTestCase.mapZone(user);
 			HashMap<String, String> userdetails2 = new HashMap<String, String>();
 			userdetails2.put("user", user);
 			userdetails2.put("pwd", pwd);

@@ -10,17 +10,21 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import io.mosip.testrig.apirig.kernel.util.ConfigManager;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 
+@Scope("prototype")
+@Component
 public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(ConfigureMockAbis.class);
 	boolean isFound = false;
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -43,28 +47,24 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		String failureReason = null;
 
 		long waitTimeFromActuator = 0;
-//		Long waitTime = DEFAULT_WAIT_TIME;
-
-		// "e2e_configureMockAbis(-1,Right IndexFinger,true,Right
-		// IndexFinger,$$personaFilePath,$$modalityHashValue,-1,@@Duplicate)"
-
 		if (step.getParameters().size() >= 9 && step.getParameters().get(8).contains("true")) {
 			waitTimeFromActuator = PacketUtility.getActuatorDelay();
 			delaysec = TIME_IN_MILLISEC * waitTimeFromActuator;
 		}
-
-		if (step.getParameters().size() == 4) { /// id=878787877
+		if (step.getParameters().size() == 4) {
 			personaId = step.getParameters().get(0);
 			if (!personaId.equals("-1")) {
 				if (step.getScenario().getResidentPersonaIdPro().get(personaId) == null) {
 					logger.error("Persona id : [" + personaId + "] is not present is the system");
-					this.hasError=true;throw new RigInternalError("Persona id : [" + personaId + "] is not present is the system");
+					this.hasError = true;
+					throw new RigInternalError("Persona id : [" + personaId + "] is not present is the system");
 				}
 				personaPath = step.getScenario().getResidentPersonaIdPro().get(personaId).toString();
 				if (StringUtils.isBlank(personaPath)) {
-					this.hasError=true;
+					this.hasError = true;
 					throw new RigInternalError(
-							"PersonaPath is not present in the system for persona id : [" + personaId + "]");}
+							"PersonaPath is not present in the system for persona id : [" + personaId + "]");
+				}
 			} else {
 				for (String personaid : step.getScenario().getResidentPersonaIdPro().stringPropertyNames()) {
 					personaId = personaid;
@@ -79,7 +79,8 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 				personaPath = step.getScenario().getVariables().get(personaPath);
 				isFound = true;
 			}
-		} else {this.hasError=true;
+		} else {
+			this.hasError = true;
 			throw new RigInternalError(
 					"missing input param [personaid,List<String> modalitySubType,duplicate,List<String> hashModality]");
 		}
@@ -99,7 +100,6 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			delaysec = Long.parseLong(step.getParameters().get(6));
 		}
 
-
 		if (step.getParameters().size() >= 7) {
 
 			if (step.getParameters().get(7).contains("@@")) {
@@ -113,15 +113,14 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		JSONArray jsonOutterReq = buildMockRequest(personaPath, duplicate, hashModality, modalitysubTypeList, personaId,
 				delaysec, statusCode, failureReason);
 		packetUtility.setMockabisExpectaion(jsonOutterReq, step.getScenario().getCurrentStep(), step);
-		// hashtable.clear();
 
 	}
 
 	private JSONArray buildMockRequest(String personaPath, boolean duplicate, List<String> hashModality,
-			List<String> modalitysubTypeList, String personaId, long delaySec, String statusCode, String failureReason) {
+			List<String> modalitysubTypeList, String personaId, long delaySec, String statusCode,
+			String failureReason) {
 		Map<String, String> modalityHashValueMap = new HashMap<>();
 		if (isFound) {
-			// $$modalityHashValue
 			modalityHashValueMap.clear();
 			String _hashValue = step.getParameters().get(5);
 			if (_hashValue.startsWith("$$"))
@@ -161,11 +160,6 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		jsonOutterReq.put("failureReason", failureReason);
 
 		JSONArray refHashs = new JSONArray();
-		/*
-		 * if (!hashModality.isEmpty() && hashModality.size() > 0)
-		 * hashModality.stream().forEach(hashModal ->
-		 * refHashs.put(modalityHashValueMap.get(hashModal)));
-		 */
 		if (!hashModality.isEmpty() && hashModality.size() > 0) {
 			for (String hash : hashModality) {
 				refHashs.put(modalityHashValueMap.get(hash));
