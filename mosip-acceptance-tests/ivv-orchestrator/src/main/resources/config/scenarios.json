@@ -17891,7 +17891,7 @@
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
-			"Action": "$$details8=e2e_ReadPreReq(8/*APPEND_KEY_TO_READ_PREREQUISITE_DATA*/*/)"
+			"Action": "$$details8=e2e_ReadPreReq(8/*APPEND_KEY_TO_READ_PREREQUISITE_DATA*/)"
 		},
 		"Step-13": {
 			"Description": "Sets the context for scenario execution",
