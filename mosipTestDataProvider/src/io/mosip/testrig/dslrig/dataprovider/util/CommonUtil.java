@@ -95,13 +95,15 @@ public class CommonUtil {
 		return utcTime;
 	}
 
-	public static String genStringAsperRegex(String regex) throws Exception {
+	public static String genStringAsperRegex(String regex, String contextKey) throws Exception {
 		if (Generex.isValidPattern(regex)) {
 
 			Generex generex = new Generex(regex);
 
 			String randomStr = generex.random();
-//			logger.info(randomStr);
+			if (RestClient.isDebugEnabled(contextKey)) {
+				logger.info(randomStr);
+			}
 			// Generate all String that matches the given Regex.
 			boolean bFound = false;
 			do {
@@ -307,7 +309,8 @@ public class CommonUtil {
 		String regex5 = "^(1869|18[7-9][0-9]|19[0-9][0-9]|20[0-9][0-9])/([0][1-9]|1[0-2])/([0][1-9]|[1-2][0-9]|3[01])$";
 
 		String rex = regex5;
-		String values = genStringAsperRegex(rex);
+		String contextKey= null;
+		String values = genStringAsperRegex(rex,contextKey);
 		Pattern p = Pattern.compile(rex);// . represents single character
 		Matcher m = p.matcher(values);
 		boolean b = m.matches();
