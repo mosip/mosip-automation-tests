@@ -101,7 +101,7 @@ public class CommonUtil {
 			Generex generex = new Generex(regex);
 
 			String randomStr = generex.random();
-			logger.info(randomStr);
+//			logger.info(randomStr);
 			// Generate all String that matches the given Regex.
 			boolean bFound = false;
 			do {

@@ -157,7 +157,7 @@ public class ContextUtils {
 					+ ".reg.key", keypair.getPrivate().getEncoded());
 
 			final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
-			logger.info("publicKey: " + publicKey);
+//			logger.info("publicKey: " + publicKey);
 			if (publicKey != null && !publicKey.isEmpty()) {
 				List<MosipMachineModel> machines = null;
 				String status = contextProperties.getProperty("machineStatus");
