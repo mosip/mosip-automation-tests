@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import io.mosip.testrig.dslrig.dataprovider.models.ExecContext;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
+import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 @Component
@@ -157,7 +158,9 @@ public class ContextUtils {
 					+ ".reg.key", keypair.getPrivate().getEncoded());
 
 			final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
-			logger.info("publicKey: " + publicKey);
+			if (RestClient.isDebugEnabled(contextKey)) {
+				logger.info("publicKey: " + publicKey);
+			}
 			if (publicKey != null && !publicKey.isEmpty()) {
 				List<MosipMachineModel> machines = null;
 				String status = contextProperties.getProperty("machineStatus");
