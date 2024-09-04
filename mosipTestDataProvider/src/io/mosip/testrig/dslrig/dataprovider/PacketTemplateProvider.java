@@ -781,7 +781,7 @@ public class PacketTemplateProvider {
 	}
 
 	public static String generateDefaultAttributes(MosipIDSchema schemaItem, ResidentModel resident,
-			JSONObject identity) {
+			JSONObject identity, String contextKey) {
 		byte bytes[] = new byte[20];
 		rand.nextBytes(bytes);
 		String someVal = null;
@@ -792,7 +792,7 @@ public class PacketTemplateProvider {
 					String regexpr = v.getValidator();
 					if (regexpr != null && !regexpr.equals(""))
 						try {
-							someVal = CommonUtil.genStringAsperRegex(regexpr);
+							someVal = CommonUtil.genStringAsperRegex(regexpr,contextKey);
 						} catch (Exception e) {
 							logger.error(e.getMessage());
 						}
@@ -1169,7 +1169,7 @@ public class PacketTemplateProvider {
 						&& s.getId().equals(prop.getProperty("identitynumber"))) {
 					List<SchemaValidator> validators = s.getValidators();
 					if (validators != null) {
-						primaryValue = generateDefaultAttributes(s, resident, identity);
+						primaryValue = generateDefaultAttributes(s, resident, identity,contextKey);
 					} else {
 						primaryValue = resident.getId();
 					}
@@ -1198,7 +1198,7 @@ public class PacketTemplateProvider {
 					}
 
 				if (primaryValue == null || primaryValue.equals("")) {
-					primaryValue = generateDefaultAttributes(s, resident, identity);
+					primaryValue = generateDefaultAttributes(s, resident, identity, contextKey);
 					if (secLanguage != null) {
 						secValue = Translator.translate(secLanguage, primaryValue, contextKey);
 					}
