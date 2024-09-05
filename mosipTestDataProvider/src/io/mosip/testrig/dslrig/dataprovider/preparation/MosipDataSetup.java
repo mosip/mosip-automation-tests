@@ -57,6 +57,7 @@ public class MosipDataSetup {
 	public static Object getCache(String key,String contextKey) {
 	
 		try {
+			logger.info("Getting cache for key: " + key + "with context: " + contextKey );
 			return VariableManager.getVariableValue(contextKey,key);
 		}catch(Exception e) {
 			logger.error(e.getMessage());
