@@ -56,16 +56,6 @@ public  class MosipMasterData {
 	private static final Logger logger = LoggerFactory.getLogger(MosipMasterData.class);
 	private static String RUN_CONTEXT = "run_context";
 
-
-	/*
-	 * public static Object getCache(String key,String contextKey) { try { return
-	 * VariableManager.getVariableValue(contextKey,key); }catch(Exception e) {
-	 * logger.error(e.getMessage()); } return null; } public static void
-	 * setCache(String key, Object value, String contextKey) {
-	 * 
-	 * VariableManager.setVariableValue(contextKey,key, value); }
-	 */
-
 	public static List<MosipBiometricAttributeModel> getBiometricAttrByTypes(String bioType,String lang,String contextKey){
 		
 		List<MosipBiometricAttributeModel> biotypes =null;
