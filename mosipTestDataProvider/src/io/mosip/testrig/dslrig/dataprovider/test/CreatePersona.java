@@ -111,8 +111,9 @@ public class CreatePersona {
 		Hashtable<Double,Properties>  tbl1 = MosipMasterData.getIDSchemaLatestVersion(contextKey);
 		tbl = MosipMasterData.getPreregIDSchemaLatestVersion(contextKey);
 		Double schemaversion = tbl.keys().nextElement();
+		Double schemaversion1 = tbl1.keys().nextElement();
 		List<MosipIDSchema>  lstSchema =(List<MosipIDSchema>) tbl.get(schemaversion).get("schemaList");
-		List<String> requiredAttribs = (List<String>) tbl1.get(schemaversion).get("requiredAttributes");
+		List<String> requiredAttribs = (List<String>) tbl1.get(schemaversion1).get("requiredAttributes");
 		JSONArray locaitonherirachyArray = (JSONArray)tbl.get(schemaversion).get("locaitonherirachy");
 		
 		JSONObject identity = new JSONObject();
