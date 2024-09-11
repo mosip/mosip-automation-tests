@@ -3,6 +3,8 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.utils.AdminTestException;
@@ -14,6 +16,8 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
+@Scope("prototype")
+@Component
 public class UpdateUINDetail extends BaseTestCaseUtil implements StepInterface {
 	private static final String UPDATE_DEMOPHRAPIC_DETAIL = "preReg/updateUINDetail/UpdateUIN.yml";
 	static Logger logger = Logger.getLogger(UpdateUINDetail.class);

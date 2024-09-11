@@ -5,7 +5,6 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.aventstack.extentreports.ExtentTest;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
@@ -18,7 +17,6 @@ import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Store;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.ErrorMiddleware;
-import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 
 public class BaseStep {
 	private static final Logger logger = LoggerFactory.getLogger(BaseStep.class);

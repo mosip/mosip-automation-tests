@@ -7,6 +7,10 @@ import java.util.Properties;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.ConfigManager;
@@ -19,12 +23,13 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
+@Scope("prototype")
+@Component
 public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EkycOtp.class);
 	private static final String EKYCOTP = "idaData/EkycOtp/EkycOtp.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
-	OtpAuthNew otpauth = new OtpAuthNew();
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -32,63 +37,52 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			logger.setLevel(Level.ERROR);
 	}
 
+	@Autowired
+	private OtpAuthNew otpauth;
+
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {
-		// AuthPartnerProcessor.startProcess();
-		// step.getScenario().getUinPersonaProp().put("7209149850",
-		// "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
-
 		String uins = null;
 		String vids = null;
 		List<String> uinList = null;
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 		List<String> vidList = null;
-		String emailId ="";
-
-		
-
+		String emailId = "";
 		Object[] casesListUIN = null;
 		Object[] casesListVID = null;
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
-			this.hasError=true;throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
-		} 
-		
-		
-		//Fetching EMAIL
-		if (step.getParameters().size() == 5 && step.getParameters().get(4).startsWith("$$")) { 
-			emailId = step.getParameters().get(4); 
+			this.hasError = true;
+			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+		}
+		if (step.getParameters().size() == 5 && step.getParameters().get(4).startsWith("$$")) {
+			emailId = step.getParameters().get(4);
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
 			}
-			if(emailId==null ||(emailId!=null && emailId.isBlank())) {
-				//in somecases Email Id is not passed so Ekyc OTP is not supported
+			if (emailId == null || (emailId != null && emailId.isBlank())) {
 				throw new FeatureNotSupportedError("Email id is Empty hence we cannot perform Ekyc OTP Authentication");
-				
+
 			}
 		}
 
-		// Fetching UIN
-
-		if (step.getParameters().size() == 5) { // "e2e_ekycOtp(uin,$$uin,vid,$$vid,$$email)"
+		if (step.getParameters().size() == 5) {
 			uins = step.getParameters().get(1);
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 			}
-		}  else
+		} else
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
-		// Fetching VID
-
-		if (step.getParameters().size() == 5) { // "e2e_ekycOtp(uin,$$uin,vid,$$vid,$$email)"
+		if (step.getParameters().size() == 5) {
 			vids = step.getParameters().get(3);
 			if (vids.startsWith("$$")) {
 				vids = step.getScenario().getVariables().get(vids);
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
 			}
-		}  else
+		} else
 			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
@@ -108,9 +102,6 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			casesListVID = otpauth.getYmlTestData(EKYCOTP);
 		}
 
-		// test.setEndPoint(test.getEndPoint().replace("$PartnerKey$",
-		// props.getProperty("partnerKey")));
-
 		for (String uin : uinList) {
 			Object[] testObj = otpauth.getYmlTestData(EKYCOTP);
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
@@ -121,8 +112,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			}
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
-			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
-
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "sendOtp.individualId");
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 			test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
@@ -130,13 +120,16 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {
 					test.setInput(input);
-//					test = (TestCaseDTO) object;
 					try {
 						otpauth.test(test);
 					} catch (AuthenticationTestException e) {
+						this.hasError = true;
 						logger.error(e.getMessage());
+						throw new RigInternalError("EkycOtp Auth failed ");
 					} catch (AdminTestException e) {
+						this.hasError = true;
 						logger.error(e.getMessage());
+						throw new RigInternalError("EkycOtp Auth failed");
 					}
 				}
 			}
@@ -153,7 +146,9 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			}
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
-			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "sendOtp.individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "individualIdType");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "sendOtp.individualIdType");
 
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
@@ -162,13 +157,12 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			if (casesListVID != null) {
 				for (Object object : casesListVID) {
 					test.setInput(input);
-//					test = (TestCaseDTO) object;
 					try {
 						otpauth.test(test);
-					} catch (AuthenticationTestException e) {
+					} catch (AuthenticationTestException | AdminTestException e) {
+						this.hasError = true;
 						logger.error(e.getMessage());
-					} catch (AdminTestException e) {
-						logger.error(e.getMessage());
+						throw new RigInternalError("EkycOtp Auth failed ");
 					}
 				}
 			}

@@ -7,6 +7,9 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.ConfigManager;
@@ -20,6 +23,8 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
 
+@Scope("prototype")
+@Component
 public class EsignetAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EsignetAuthentication.class);
 	private static final String AuthenticateUserYml = "idaData/AuthenticateUser/AuthenticateUser.yml";
@@ -35,8 +40,6 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {
-		
-		// check if esignet is installed on the target system
 		if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
@@ -57,24 +60,23 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
 
-		
 		if (step.getParameters().size() == 6) {
 			emailId = step.getParameters().get(3);
 			if (emailId.startsWith("$$")) {
 				emailId = step.getScenario().getVariables().get(emailId);
 			}
-			
-			if(emailId==null ||(emailId!=null && emailId.isBlank())) {
-				//in somecases Email Id is not passed so E-signet OTP Authentication is not supported
-				throw new FeatureNotSupportedError("Email id is Empty hence we cannot perform E-signet OTP Authentication");
-				
+
+			if (emailId == null || (emailId != null && emailId.isBlank())) {
+				throw new FeatureNotSupportedError(
+						"Email id is Empty hence we cannot perform E-signet OTP Authentication");
+
 			}
 
 		}
-		
+
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transactionId parameter is  missing from DSL step");
-			this.hasError=true;
+			this.hasError = true;
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
@@ -84,7 +86,7 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("transa from DSL step");
-			this.hasError=true;
+			this.hasError = true;
 			throw new RigInternalError(
 					"transactionId parameter is  missingctionId paramter is  missing in step: " + step.getName());
 		} else {
@@ -93,7 +95,7 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 
 		}
 		if (step.getParameters().size() == 6 && step.getParameters().get(1).startsWith("$$")) {
-			uins = step.getParameters().get(1); //"e2e_IdpAuthentication($$transactionId1,$$uin,OTP,$$email,$$vid,$$transactionId2)"
+			uins = step.getParameters().get(1);
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
@@ -123,9 +125,6 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 			authType = step.getParameters().get(2);
 
 		}
-
-
-		
 
 		if (step.getParameters().size() == 6 && step.getParameters().get(2).contains("OTP")) {
 

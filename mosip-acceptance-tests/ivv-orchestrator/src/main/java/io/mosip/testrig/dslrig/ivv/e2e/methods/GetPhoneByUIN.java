@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -18,6 +20,8 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.restassured.response.Response;
 
+@Scope("prototype")
+@Component
 public class GetPhoneByUIN extends BaseTestCaseUtil implements StepInterface {
 	private static final Logger logger = Logger.getLogger(GetPhoneByUIN.class);
 	private static final String GetPhoneYml = "idaData/RetrieveIdentityByUin/RetrieveIdentityByUin.yml";
@@ -39,7 +43,7 @@ public class GetPhoneByUIN extends BaseTestCaseUtil implements StepInterface {
 		Object[] testObj = getPhone.getYmlTestData(GetPhoneYml);
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
 		if (step.getParameters().size() == 1 && step.getParameters().get(0).startsWith("$$")) {
-			uins = step.getParameters().get(0); // $$email=e2e_getEmailByUIN($$uin)
+			uins = step.getParameters().get(0);
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
@@ -62,10 +66,10 @@ public class GetPhoneByUIN extends BaseTestCaseUtil implements StepInterface {
 				}
 				JSONObject identityData = responseData.getJSONObject("identity");
 				phone = identityData.getString("phone");
-			}catch (AuthenticationTestException | AdminTestException e) {
-                                logger.error(e.getMessage()); 
-                       } catch (Exception e) {
-                                logger.error(e.getMessage());
+			} catch (AuthenticationTestException | AdminTestException e) {
+				logger.error(e.getMessage());
+			} catch (Exception e) {
+				logger.error(e.getMessage());
 			}
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().put(step.getOutVarName(), phone);

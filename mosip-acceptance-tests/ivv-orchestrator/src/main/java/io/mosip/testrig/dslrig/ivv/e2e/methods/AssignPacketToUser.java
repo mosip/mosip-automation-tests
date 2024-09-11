@@ -5,6 +5,8 @@ import static org.testng.Assert.assertTrue;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -14,6 +16,8 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
+@Scope("prototype")
+@Component
 public class AssignPacketToUser extends BaseTestCaseUtil implements StepInterface {
 	private static final String ASSIGNDATA_YML = "preReg/assignPacketToUser/assignData.yml";
 	public static Logger logger = Logger.getLogger(AssignPacketToUser.class);

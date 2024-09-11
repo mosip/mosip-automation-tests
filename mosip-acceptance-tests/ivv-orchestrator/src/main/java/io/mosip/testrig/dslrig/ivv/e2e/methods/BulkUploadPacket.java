@@ -6,6 +6,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -14,9 +16,11 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.restassured.response.Response;
 
+@Scope("prototype")
+@Component
 public class BulkUploadPacket extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(BulkUploadPacket.class);
-	
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -34,19 +38,22 @@ public class BulkUploadPacket extends BaseTestCaseUtil implements StepInterface 
 			for (String id : personaIdValue.stringPropertyNames()) {
 				String value = personaIdValue.get(id).toString();
 				if (step.getScenario().getResidentPersonaIdPro().get(value) == null) {
-					logger.error("Persona id : [" + value + "] is not present is the system");this.hasError=true;
+					logger.error("Persona id : [" + value + "] is not present is the system");
+					this.hasError = true;
 					throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
 				}
 				String personaPath = step.getScenario().getResidentPersonaIdPro().get(value).toString();
 				String templatePath = step.getScenario().getResidentTemplatePaths().get(personaPath);
-				if (StringUtils.isBlank(templatePath))
-					{this.hasError=true;throw new RigInternalError(
-							"Template path is not present in the system for persona id : [" + value + "]");}
-				String packetPath  = step.getScenario().getTemplatePacketPath().get(templatePath);
+				if (StringUtils.isBlank(templatePath)) {
+					this.hasError = true;
+					throw new RigInternalError(
+							"Template path is not present in the system for persona id : [" + value + "]");
+				}
+				String packetPath = step.getScenario().getTemplatePacketPath().get(templatePath);
 				if (packetPath != null && !packetPath.isEmpty())
 					packetPathArray.put(packetPath);
 			}
-		}else if(!step.getParameters().isEmpty() && step.getParameters().size()>1) {  // "e2e_bulkUploadPacket($$zipPacketPath,$$zipPacketPath2)"
+		} else if (!step.getParameters().isEmpty() && step.getParameters().size() > 1) { // "e2e_bulkUploadPacket($$zipPacketPath,$$zipPacketPath2)"
 			String _zipPacketPath = null;
 			for (int i = 0; i < step.getParameters().size(); i++) {
 				_zipPacketPath = step.getParameters().get(i);
@@ -61,10 +68,12 @@ public class BulkUploadPacket extends BaseTestCaseUtil implements StepInterface 
 				packetPathArray.put(packetPath);
 		}
 		String url = baseUrl + props.getProperty("bulkupload");
-		Response response = packetUtility.postRequestWithQueryParamAndBody(url, packetPathArray.toString(),step.getScenario().getCurrentStep(),"BulkUpload",step);
-		if (!response.getBody().asString().toLowerCase().contains("success"))
-			{
-			this.hasError=true;throw new RigInternalError("Unable to perform bulkupload from packet utility");
-	}}
+		Response response = packetUtility.postRequestWithQueryParamAndBody(url, packetPathArray.toString(),
+				step.getScenario().getCurrentStep(), "BulkUpload", step);
+		if (!response.getBody().asString().toLowerCase().contains("success")) {
+			this.hasError = true;
+			throw new RigInternalError("Unable to perform bulkupload from packet utility");
+		}
+	}
 
 }

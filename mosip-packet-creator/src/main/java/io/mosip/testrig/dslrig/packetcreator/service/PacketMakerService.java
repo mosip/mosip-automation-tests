@@ -606,8 +606,13 @@ public class PacketMakerService {
 			if (preregId != null && !preregId.equalsIgnoreCase("0")) // newly added
 
 				updatePacketMetaInfo(packetRootFolder, METADATA, "preRegistrationId", preregId, true);
-
-			updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", APIRequestUtil.getUTCDateTime(null), true);
+			
+			if (VariableManager.getVariableValue(contextKey, "invalidDateFlag").toString().equals("invalidCreationDate")) {
+				updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", null, true);
+			}
+			else {
+				updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", APIRequestUtil.getUTCDateTime(null), true);
+			}
 			updatePacketMetaInfo(packetRootFolder, METADATA, "machineId", machineId, false);
 			updatePacketMetaInfo(packetRootFolder, METADATA, "centerId", centerId, false);
 			updatePacketMetaInfo(packetRootFolder, METADATA, "registrationType",
@@ -625,9 +630,10 @@ public class PacketMakerService {
 				logger.error(e1.getMessage());
 			}
 			officerId = p.getProperty(MOSIP_TEST_REGCLIENT_USERID);
-
-			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerId", officerId, false);
-
+			
+			if (!VariableManager.getVariableValue(contextKey, "invalidOfficerIDFlag").toString().equals("invalidOfficerID")) {
+		   updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerId", officerId, false);
+			}
 			supervisorId = p.getProperty(MOSIPTEST_REGCLIENT_SUPERVISORID);
 
 			if (VariableManager.getVariableValue(contextKey, CHANGESUPERVISORNAMETODIFFCASE).toString()
@@ -731,7 +737,6 @@ public class PacketMakerService {
 		synchronized (this) {
 			Files.delete(Path.of(containerRootFolder + UNENCZIP));
 			FileSystemUtils.deleteRecursively(Path.of(containerRootFolder));
-	
 		}
 	
 		String containerMetaDataFileLocation = containerRootFolder + JSON;
@@ -771,12 +776,16 @@ public class PacketMakerService {
 	 * { logger.error("Encryption failed!!! "); return false; } } return true; }
 	 */
 
-	public boolean zipAndEncrypt(Path zipSrcFolder, String contextKey) throws Exception {
+	public synchronized boolean zipAndEncrypt(Path zipSrcFolder, String contextKey) throws Exception {
 		Path finalZipFile = Path.of(zipSrcFolder + UNENCZIP);
 		// Use buffered streams
 		try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(
 				new FileOutputStream(finalZipFile.toFile()))) {
 			zipper.zipFolder(zipSrcFolder, bufferedOutputStream, contextKey);
+		}
+		catch (Exception e) {
+			logger.error("Failed to zip the folder ");
+			return false;
 		}
 		try (BufferedInputStream zipFileInputStream = new BufferedInputStream(
 				new FileInputStream(finalZipFile.toFile().getAbsolutePath()))) {
@@ -788,6 +797,10 @@ public class PacketMakerService {
 				logger.error("Encryption failed!!! ");
 				return false;
 			}
+		}
+		catch (Exception e) {
+			logger.error("Failed to zip the folder ");
+			return false;
 		}
 		return true;
 	}

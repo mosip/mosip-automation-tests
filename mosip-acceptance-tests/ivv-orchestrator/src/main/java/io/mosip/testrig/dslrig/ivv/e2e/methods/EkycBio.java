@@ -9,6 +9,10 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.ConfigManager;
@@ -22,17 +26,21 @@ import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 
+@Scope("prototype")
+@Component
 public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EkycBio.class);
 	private static final String BIOMETRIC_FACE = "idaData/EkycBio/EkycBio.yml";
-	Properties deviceProp =null;
+	Properties deviceProp = null;
 	Properties uinResidentDataPathFinalProps = new Properties();
-	BioAuth bioAuth = new BioAuth();
 	String bioResponse = null;
 	List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 	List<Object> casesListUIN = null;
 	List<Object> casesListVID = null;
-	
+
+	@Autowired
+	private BioAuth bioAuth;
+
 	static {
 		if (ConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -42,16 +50,14 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError {
-		 //AuthPartnerProcessor.startProcess();
-		 //step.getScenario().getUinPersonaProp().put("9719375326","C:\\Users\\Sohan.Dey\\AppData\\Local\\Temp\\residents_182289324539364480\\3337515223.json");
-		//step.getScenario().getUinPersonaProp().put("7209149850", "C:\\Users\\username\\AppData\\Local\\Temp\\residents_629388943910840643\\604866048660486.json");
 		String deviceInfoFilePath = null;
 		String uins = null;
 		String vids = null;
 		List<String> uinList = null;
 		List<String> vidList = null;
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
-			logger.error("Parameter is  missing from DSL step");this.hasError=true;
+			logger.error("Parameter is  missing from DSL step");
+			this.hasError = true;
 			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
 		} else {
 			deviceInfoFilePath = step.getParameters().get(0);
@@ -60,8 +66,10 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 						+ props.getProperty("ivv.path.deviceinfo.folder") + deviceInfoFilePath + ".properties";
 				deviceProp = AdminTestUtil.getproperty(deviceInfoFilePath);
 			} else {
-				this.hasError=true;	throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
-		}}
+				this.hasError = true;
+				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
+			}
+		}
 		if (step.getParameters().size() == 2) {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
@@ -100,10 +108,10 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 			String personFilePathvalue = null;
 			if (step.getScenario().getUinPersonaProp().containsKey(uin))
 				personFilePathvalue = step.getScenario().getUinPersonaProp().getProperty(uin);
-			else
-				{
-				this.hasError=true;throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
-				}
+			else {
+				this.hasError = true;
+				throw new RigInternalError("Persona doesn't exist for the given UIN " + uin);
+			}
 
 			String bioType = null, bioSubType = null;
 			List<String> modalityList = new ArrayList<>();
@@ -130,49 +138,38 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
-					this.hasError=true;throw new RigInternalError("Given BIO Type in device property file is not valid");
+					this.hasError = true;
+					throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
 
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
-
-			//System.out.println("bioMetricValue= " + bioResponse);
-
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList, step);
 			String fileName = BIOMETRIC_FACE;
 			bioAuth.isInternal = false;
-			Object[] casesListUIN = null; // bioAuth.getYmlTestData(fileName);
-			Object[] casesListVID = null; // bioAuth.getYmlTestData(fileName);
-			// Get the id types from server
-//			if idtypes.contains "UIN" { casesListUIN = bioAuth.getYmlTestData(fileName);
-//			if idtypes.contains "VID" { casesListVID = bioAuth.getYmlTestData(fileName);
-
+			Object[] casesListUIN = null;
+			Object[] casesListVID = null;
 			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
-
 				casesListUIN = bioAuth.getYmlTestData(fileName);
 
-			}
-
-			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
+			} else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
 				casesListVID = bioAuth.getYmlTestData(fileName);
-			}
-
-			else {
+			} else {
 				casesListUIN = bioAuth.getYmlTestData(fileName);
 				casesListVID = bioAuth.getYmlTestData(fileName);
 			}
-
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue != null) {
 				String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
 
 				byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
 				bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
 
-				if (bioValue == null || bioValue.length() < 100)
-					{this.hasError=true;throw new RigInternalError(
+				if (bioValue == null || bioValue.length() < 100) {
+					this.hasError = true;
+					throw new RigInternalError(
 							"Not able to get the bio value for field " + modalityToLog + " from persona");
-					}
+				}
 				if (idType.contains("UIN") || idType.contains("uin")) {
 					casesListUIN = bioAuth.getYmlTestData(fileName);
 				}
@@ -180,7 +177,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 				if (casesListUIN != null) {
 					for (Object object : casesListUIN) {
 						TestCaseDTO test = (TestCaseDTO) object;
-						packetUtility.bioAuth(modalityToLog, bioValue, uin, deviceProp, test, bioAuth,step);
+						packetUtility.bioAuth(modalityToLog, bioValue, uin, deviceProp, test, bioAuth, step);
 					}
 				}
 
@@ -188,6 +185,9 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 		}
 
 		for (String vid : vidList) {
+			Object[] testObj = bioAuth.getYmlTestData(BIOMETRIC_FACE);
+			TestCaseDTO test = (TestCaseDTO) testObj[0];
+			String input = test.getInput();
 			String personFilePathvalue = null;
 			if (step.getScenario().getVidPersonaProp().containsKey(vid))
 				personFilePathvalue = step.getScenario().getVidPersonaProp().getProperty(vid);
@@ -219,57 +219,49 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 					modalityKeyTogetBioValue = bioSubType;
 					break;
 				default:
-					this.hasError=true;throw new RigInternalError("Given BIO Type in device property file is not valid");
+					this.hasError = true;
+					throw new RigInternalError("Given BIO Type in device property file is not valid");
 				}
 			}
 
-			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList,step);
-
-			//System.out.println("bioMetricValue= " + bioResponse);
+			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList, step);
 
 			String fileName = BIOMETRIC_FACE;
 			bioAuth.isInternal = false;
-			Object[] casesListUIN = null; // bioAuth.getYmlTestData(fileName);
-			Object[] casesListVID = null; // bioAuth.getYmlTestData(fileName);
-			// Get the id types from server
-//		if idtypes.contains "UIN" { casesListUIN = bioAuth.getYmlTestData(fileName);
-//		if idtypes.contains "VID" { casesListVID = bioAuth.getYmlTestData(fileName);
+			Object[] casesListUIN = null;
+			Object[] casesListVID = null;
+
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "individualIdType");
 
 			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
 
 				casesListUIN = bioAuth.getYmlTestData(fileName);
 
-			}
-
-			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
+			} else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
 				casesListVID = bioAuth.getYmlTestData(fileName);
-			}
-
-			else {
+			} else {
 				casesListUIN = bioAuth.getYmlTestData(fileName);
 				casesListVID = bioAuth.getYmlTestData(fileName);
 			}
-
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue != null) {
 				String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
-
 				byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
 				bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
-
-				if (bioValue == null || bioValue.length() < 100)
-					{this.hasError=true;throw new RigInternalError(
+				if (bioValue == null || bioValue.length() < 100) {
+					this.hasError = true;
+					throw new RigInternalError(
 							"Not able to get the bio value for field " + modalityToLog + " from persona");
-					}
+				}
 				if (idType.contains("VID") || idType.contains("vid")) {
 					casesListVID = bioAuth.getYmlTestData(fileName);
 				}
 
 				if (casesListVID != null) {
 					for (Object object : casesListVID) {
-						TestCaseDTO test = (TestCaseDTO) object;
-						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth,step);
+						test.setInput(input);
+						packetUtility.bioAuth(modalityToLog, bioValue, vid, deviceProp, test, bioAuth, step);
 					}
 				}
 

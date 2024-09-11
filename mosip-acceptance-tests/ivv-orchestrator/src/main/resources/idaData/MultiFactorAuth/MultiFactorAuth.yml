@@ -1,14 +1,29 @@
 MultiFactorAuth:
   auth_MultiFactorAuth_Biometric_Face_With_Valid_Smoke_Pos:
-      endPoint: /v1/identity/authenticate?moduleName=$MODULENAME$&certsDir=$CERTSDIR$&id=uinnumber&partnerUrlSuffix=$partnerKeyURL$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
+      endPoint: /idauthentication/v1/auth/$partnerKeyURL$
       role: resident
       restMethod: post
+      checkErrorsOnlyInResponse: true
       inputTemplate: idaData/MultiFactorAuth/multiFactorAuth
       outputTemplate: idaData/MultiFactorAuth/multiFactorAuthResult
       input: '{
-          "individualId": "idaData",
-          "otp": "otp",
-          "bioSubType": "",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "3974189657",
+        "transactionId": "1234567890",
+        "individualIdType": "UIN",
+        "bio": true,
+        "demo": true,
+        "otp": true,
+        "sendOtp":{
+    "transactionID": "1234567890",
+    "requestTime": "$TIMESTAMP$",
+    "individualId": "3974189657",
+    "individualIdType": "UIN",
+    "sendOtpReqTemplate": "idaData/MultiFactorAuth/sendOtp",
+    "sendOtpEndPoint": "/idauthentication/v1/otp/$partnerKeyURL$",
+    },
+        "identityRequest":{
+          "bioSubType": "UNKNOWN",
           "bioType": "FACE",
           "bioValue": "$FACE$",
           "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
@@ -18,15 +33,17 @@ MultiFactorAuth:
           "deviceServiceVersion": "SB.WIN.001",
           "deviceProvider": "SYNCBYTE",
           "deviceProviderId": "SYNCBYTE.LTC165",
-          "deviceSubType": "Single",
+          "deviceSubType": "Full face",
           "make": "Logitech",
           "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
           "serialNo": "78467171",
           "type": "Face",
           "key": "dob",
-          "value": "1970/07/08",
-          "transactionId": "1234567890",
-          "timestamp": "$TIMESTAMP$"
+          "value": "1999/01/01",
+    "transactionId": "1234567890",
+    "identityRequestTemplate": "idaData/MultiFactorAuth/MultiFactorIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
     }'
       output: '{
   "authStatus": "true",

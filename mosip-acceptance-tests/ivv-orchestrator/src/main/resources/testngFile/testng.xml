@@ -1,7 +1,7 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="End-to-End Use Cases Test Report">
+<suite name="Use Cases Test Report">
 	<parameter name="scenarioFilter" value="random" />
 	<parameter name="stopOnError" value="false" />
 	<test name="E2E-AUTOMATION-TEST" group-by-instances="true">

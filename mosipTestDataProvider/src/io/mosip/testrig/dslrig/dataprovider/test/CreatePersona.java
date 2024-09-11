@@ -381,7 +381,7 @@ public class CreatePersona {
 							String regexpr = v.getValidator();
 							if(regexpr != null && !regexpr.equals(""))
 								try {
-									someVal = CommonUtil.genStringAsperRegex(regexpr);
+									someVal = CommonUtil.genStringAsperRegex(regexpr,contextKey);
 								} catch (Exception e) {
 									logger.error(e.getMessage());
 								}

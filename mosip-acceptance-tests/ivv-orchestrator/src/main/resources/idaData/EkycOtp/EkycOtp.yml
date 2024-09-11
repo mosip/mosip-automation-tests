@@ -1,22 +1,36 @@
 EkycOtp:
-  Ida_EkycOtp_Auth_With_Valid_Smoke_Pos:
-      endPoint: /v1/identity/authenticate?moduleName=$MODULENAME$&certsDir=$CERTSDIR$&transactionId=$TRANSACTIONID$&id=uinnumber&isKyc=true&partnerUrlSuffix=$partnerKeyURL$&keyFileNameByPartnerName=true&partnerName=$PartnerName$
+  auth_EkycOtp_Auth_With_Valid_UIN_Smoke:
+      endPoint: /idauthentication/v1/kyc/$ekycPartnerKeyURL$
       role: resident
       restMethod: post
+      checkErrorsOnlyInResponse: true
       inputTemplate: idaData/EkycOtp/ekycOtp
       outputTemplate: idaData/EkycOtp/ekycOtpResult
       input: '{
-        "individualId": "uinnumber",
-        "otp": "1111dgsg",
-        "transactionID": "$TRANSACTIONID$",
-        "timestamp": "$TIMESTAMP$"
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "3974189657",
+        "transactionId": "$TRANSACTIONID$",
+        "individualIdType": "UIN",
+        "bio": false,
+        "demo": false,
+        "otp": true,
+        "sendOtp":{
+    "transactionID": "$TRANSACTIONID$",
+    "requestTime": "$TIMESTAMP$",
+    "individualId": "3974189657",
+    "individualIdType": "UIN",
+    "sendOtpReqTemplate": "idaData/EkycOtp/sendOtp",
+    "sendOtpEndPoint": "/idauthentication/v1/otp/$ekycPartnerKeyURL$",
+    "otpIdentyEnryptRequestPath": "idaData/EkycOtp/EkycotpIdentityEncrypt.json"
+    }
     }'
       output: '{
   "kycStatus": "true",
  "sendOtpResp":{
-        "transactionID": "1234567890",
+        "transactionID": "$TRANSACTIONID$",
         "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"idaData/EkycOtp/sendOtpRes",
         "maskedEmail": "$IGNORE$"
     }
 }'
+  
