@@ -110,7 +110,7 @@ public class RegistrationSteps {
 		reqWrapper.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
 		reqWrapper.put("version", "v1");
 		req.put("individualId", rid);
-		req.put("individualIdType", "RID");
+		req.put("individualIdType", "RID"); 
 		reqWrapper.put("request", req);
 
 		JSONObject response = RestClient.post(url, reqWrapper, "resident", contextKey);

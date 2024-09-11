@@ -203,7 +203,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 
 		GlobalMethods.ReportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, body,
-				puttResponse.getBody().asString());
+				puttResponse.asString(),true);
 
 		return puttResponse;
 	}
@@ -315,7 +315,7 @@ public class BaseTestCaseUtil extends BaseStep {
 				MediaType.APPLICATION_JSON);
 
 		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
-				apiResponse.getBody().asString());
+				apiResponse.asString(),true);
 		return apiResponse;
 	}
 
@@ -386,11 +386,9 @@ public class BaseTestCaseUtil extends BaseStep {
 			getResponse = given().relaxedHTTPSValidation().cookie(cookieName, cookieValue).when().get(url).then()
 					.extract().response();
 		}
-		logger.info(GlobalConstants.REST_ASSURED_STRING_2 + getResponse.asString());
-		logger.info(GlobalConstants.REST_ASSURED_STRING_3 + getResponse.time());
 
 		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
-				getResponse.getBody().asString());
+				getResponse.asString(),true);
 		return getResponse;
 	}
 	

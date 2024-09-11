@@ -1,0 +1,69 @@
+name: DSL Orchestrator Build
+
+on:
+  release:
+    types: [published]
+  pull_request:
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Message for manually triggering'
+        required: false
+        default: 'Triggered for Updates'
+        type: string
+  push:
+    branches:
+      - '!release-branch'
+      - release*
+      - master
+      - develop
+      - 1.*
+      - MOSIP*
+    paths:
+      - 'mosip-acceptance-tests/**'
+
+jobs:
+  call-automationtests:
+    uses: ./.github/workflows/automationtests.yaml
+    with:
+      SERVICE_LOCATION: 'mosip-acceptance-tests/ivv-orchestrator'
+
+  build-dsl-orchestrator-docker:
+    needs: call-automationtests
+    strategy:
+      matrix:
+        include:
+          - SERVICE_LOCATION: 'mosip-acceptance-tests/ivv-orchestrator'
+            SERVICE_NAME: 'dsl-orchestrator'
+            BUILD_ARTIFACT: 'mosip-acceptance-tests'
+            ONLY_DOCKER: true
+      fail-fast: false
+    name: ${{ matrix.SERVICE_NAME }}
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    with:
+      SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
+      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
+      BUILD_ARTIFACT: ${{ matrix.BUILD_ARTIFACT }}
+      ONLY_DOCKER: ${{ matrix.ONLY_DOCKER }}
+    secrets:
+      DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
+      ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
+      RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+     
+  sonar_analysis:
+    needs: call-automationtests
+    if: "${{  github.event_name != 'pull_request' }}"
+    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master
+    with:
+      SERVICE_LOCATION: ./
+      PROJECT_KEY: mosip_mosip-dsl-test-rig
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      ORG_KEY: ${{ secrets.ORG_KEY }}
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

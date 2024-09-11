@@ -2,6 +2,8 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.utils.AdminTestException;
@@ -13,6 +15,8 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 
+@Scope("prototype")
+@Component
 public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInterface {
 	private static final String check_status_YML = "preReg/credentialStatus/credentialStatus.yml";
 	public static Logger logger = Logger.getLogger(CheckCredentialStatus.class);
@@ -27,12 +31,10 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 	@SuppressWarnings("static-access")
 	@Override
 	public void run() throws RigInternalError {
-		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // "$$var=e2e_credentialRequest($$requestId)"
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { 
 			String _requestId = step.getParameters().get(0);
 			if (_requestId.startsWith("$$")) {
 				_requestId = step.getScenario().getVariables().get(_requestId);
-				// if ( step.getScenario().getUinReqIds() == null)
-				// neeha step.getScenario().getUinReqIds() = new HashMap<>();
 				step.getScenario().getUinReqIds().clear();
 				step.getScenario().getUinReqIds().put("requestId", _requestId);
 			}
@@ -56,7 +58,6 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 							Thread.sleep(Long.parseLong(props.getProperty("waitTime")));
 							TestCaseDTO test = (TestCaseDTO) object;
 							test.setInput(test.getInput().replace("$requestId$", requestid));
-//						test.setOutput(test.getOutput().replace("$requestId$", requestid));
 							Reporter.log("<b><u>" + test.getTestCaseName() + "</u></b>");
 
 							long startTime = System.currentTimeMillis();
@@ -74,8 +75,6 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 							logger.error("Failed at checking Credential status with error: " + e.getMessage());
 						}
 					}
-					// assertTrue(getWithPathParam.response.asString().contains("printing"), "Failed
-					// at credential issuance status check Response validation");
 					if (!getWithPathParam.response.getBody().asString().toLowerCase().contains("printed")
 							&& !getWithPathParam.response.getBody().asString().toLowerCase().contains("printing")) {
 						this.hasError = true;

@@ -7,12 +7,11 @@
 		<artifactId>dslrig-ivv-parent</artifactId>
 		<version>1.2.1-java21-SNAPSHOT</version>
 	</parent>
-
 	<modelVersion>4.0.0</modelVersion>
 	<version>1.2.1-java21-SNAPSHOT</version>
 	<groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
 	<artifactId>dslrig-ivv-dg</artifactId>
-
+	
 	<properties>
 		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
 	</properties>

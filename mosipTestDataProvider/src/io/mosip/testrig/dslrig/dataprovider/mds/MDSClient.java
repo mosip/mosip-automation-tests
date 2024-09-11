@@ -205,7 +205,6 @@ public class MDSClient implements MDSClientInterface {
 
 	}
 
-
 	public void removeProfile(String profilePath,String profile,int port,String contextKey) {
 		setProfile("Default",port,contextKey);
 		File profDir = new File(profilePath + "/"+ profile);
@@ -219,17 +218,22 @@ public class MDSClient implements MDSClientInterface {
 			for(File file : files) {
 				boolean isDeleted = file.delete();
 				if (!isDeleted) {
-					logger.info("File Deleted successfully");
-
+					if (RestClient.isDebugEnabled(contextKey)) {
+						logger.info("File Deleted successfully");
+					}
 				}
 				isFileDeleted=file.delete();
 				if(!isFileDeleted) {
-					logger.info("File Deleted successfully");	
+					if (RestClient.isDebugEnabled(contextKey)) {
+						logger.info("File Deleted successfully");
+					}
 				}
 			}
 			isProfDirDeleted=profDir.delete();
 			if(!isProfDirDeleted) {
-				logger.info("File Deleted successfully");	
+				if (RestClient.isDebugEnabled(contextKey)) {
+					logger.info("File Deleted successfully");
+				}
 			}
 		}
 

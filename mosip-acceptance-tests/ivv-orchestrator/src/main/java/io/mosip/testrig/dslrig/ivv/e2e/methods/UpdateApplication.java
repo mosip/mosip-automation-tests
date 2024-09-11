@@ -23,7 +23,6 @@ public class UpdateApplication extends BaseTestCaseUtil implements StepInterface
 	public void run() throws RigInternalError {
 		for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
 			Reporter.log("<b><u>" + "UpdateApplication testCase </u></b>");
-			//packetUtility.updateApplication(resDataPath, residentPathsPrid, contextKey);
 		}
 	}
 }
