@@ -141,7 +141,7 @@ jobs:
           cp -r ./src/main/resources/dockersupport/centralized/mountvolume/profile_resource ./profile_resource
           zip -r ${{ env.NEW_BUILD_ARTIFACT }}.zip build_files/* profile_resource
       - name: Upload the springboot jars
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.NEW_BUILD_ARTIFACT }}
           path: ./${{env.SERVICE_LOCATION}}/${{ env.NEW_BUILD_ARTIFACT }}.zip
