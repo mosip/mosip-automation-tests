@@ -29,5 +29,4 @@
 /.tmp
 *.settings/*
 .settings/
-.classpath
 .project

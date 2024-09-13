@@ -37,20 +37,17 @@ import io.mosip.kernel.websub.api.model.UnsubscriptionRequest;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.webSubEventModel;
 import io.mosip.testrig.dslrig.packetcreator.service.CryptoCoreUtil;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Api(value = "PrintController", description = "REST APIs for Websub subscription client")
+
 @RequestMapping(value = "/print")
 @RestController
+@Tag(name = "PrintController", description = "REST APIs for Websub subscription client")
 public class PrintController {
 
-	@Autowired
 	SubscriptionClient<SubscriptionChangeRequest,UnsubscriptionRequest, SubscriptionChangeResponse> sb; 
 	@Autowired
 	CryptoCoreUtil cryptoCoreUtil;
-	
-//	@Autowired
-//	PrintService printService;
 	
 	@Value("${mosip.test.print.topic}")
 	private String topic;
@@ -63,7 +60,6 @@ public class PrintController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(preRegController.class);
 	   
-
 	 @PostMapping(value = "/print/callback",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	 @PreAuthenticateContentAndVerifyIntent(secret = "${mosip.test.print.event.secret}",
 	 		callback = "/print/print/callback",topic = "${mosip.test.print.topic}")
