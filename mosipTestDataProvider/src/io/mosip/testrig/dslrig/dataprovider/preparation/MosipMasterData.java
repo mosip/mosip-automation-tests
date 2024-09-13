@@ -504,7 +504,7 @@ public  class MosipMasterData {
 	    process = process.toLowerCase().trim() + "Process";
 	    Object o = MosipDataSetup.getCache(url,run_context);
 	    if (o != null) {
-	        return (Hashtable<Double, Properties>) cache;
+	        return (Hashtable<Double, Properties>) o;
 	    }
 	    try {
 	        JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject(), contextKey);
@@ -554,7 +554,7 @@ public  class MosipMasterData {
 	                prop.put("schemaList", listSchema);
 	                prop.put("requiredAttributes", requiredAttributes);
 	                tbl.put(schemaVersion, prop);
-	                setCache(url, tbl, run_context);
+	                MosipDataSetup.setCache(url, tbl, run_context);
 	            }
 	        }
 	    } catch (Exception e) {
