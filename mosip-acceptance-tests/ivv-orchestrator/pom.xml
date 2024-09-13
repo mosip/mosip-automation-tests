@@ -5,18 +5,18 @@
 	<parent>
 		<groupId>io.mosip.testrig.dslrig.ivv</groupId>
 		<artifactId>dslrig-ivv-parent</artifactId>
-		<version>1.2.1-SNAPSHOT</version>
-
+		<version>1.2.1-java21-SNAPSHOT</version>
 	</parent>
 
 	<groupId>io.mosip.testrig.dslrig.ivv.orchestrator</groupId>
 	<artifactId>dslrig-ivv-orchestrator</artifactId>
 	<name>mosip-dsl-test</name>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.2.1-java21-SNAPSHOT</version>
 	<properties>
 		<suiteXmlFile>testng.xml</suiteXmlFile>
 		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
 	</properties>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -32,7 +32,8 @@
 						</goals>
 						<configuration>
 							<target>
-								<!-- Create a shell script to run the JAR file with executable permission -->
+								<!-- Create a shell script to run the JAR file
+								with executable permission -->
 								<chmod file="${project.build.directory}/*.jar"
 									perm="ugo+rx" />
 							</target>
@@ -44,12 +45,11 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<source>11</source>
-					<target>11</target>
+					<source>21</source>
+					<target>21</target>
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -60,18 +60,22 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<finalName>dslrig-ivv-orchestrator-1.2.1-SNAPSHOT-jar-with-dependencies</finalName>
+							<finalName>
+								dslrig-ivv-orchestrator-1.2.1-java21-SNAPSHOT-jar-with-dependencies</finalName>
 							<transformers>
-								<!-- need this to merge the services files properly -->
+								<!-- need this to merge the services files
+								properly -->
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
 								<!-- add Main-Class to manifest file -->
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner</mainClass>
+									<mainClass>
+										io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner</mainClass>
 								</transformer>
 							</transformers>
-							<!-- add this to prevent some security issues when merging everything 
+							<!-- add this to prevent some security issues when
+							merging everything 
 								together -->
 							<filters>
 								<filter>
@@ -87,28 +91,25 @@
 					</execution>
 				</executions>
 			</plugin>
-
 		</plugins>
 	</build>
-	<dependencies>
 
+	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.11</version>
 		</dependency>
-
-		<!-- core dependencies -->
+		<!--   core dependencies     -->
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
 			<artifactId>dslrig-ivv-core</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
+			<version>1.2.1-java21-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
 			<artifactId>dslrig-ivv-dg</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
+			<version>1.2.1-java21-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.aventstack</groupId>
@@ -120,78 +121,114 @@
 			<groupId>io.mosip.testrig.apirig.apitest.commons</groupId>
 			<artifactId>apitest-commons</artifactId>
 			<version>1.2.2-SNAPSHOT</version>
-
 			<exclusions>
 				<exclusion>
 					<groupId>com.sun.jersey</groupId>
 					<artifactId>jersey-client</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-reload4j</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
-
-
-
+		<dependency>
+			<groupId>io.mosip.esignet</groupId>
+			<artifactId>apitest-esignet</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>io.mosip.authentication</groupId>
 			<artifactId>apitest-auth</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-			<dependency>
+		<dependency>
 			<groupId>io.mosip.masterdata</groupId>
 			<artifactId>apitest-masterdata</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-		
-				<dependency>
+		<dependency>
 			<groupId>io.mosip.resident</groupId>
 			<artifactId>apitest-resident</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
-		
-					<dependency>
-			<groupId>io.mosip.esignet</groupId>
-			<artifactId>apitest-esignet</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.slack.api</groupId>
 			<artifactId>slack-api-client</artifactId>
 			<version>1.6.1-RC1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-
-		<dependency>
-			<groupId>io.mosip.kernel</groupId>
-			<artifactId>kernel-biometrics-api</artifactId>
-			<version>1.2.0.1</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.10.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-biometrics-api</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/javax.cache/cache-api -->
 		<dependency>
 			<groupId>javax.cache</groupId>
 			<artifactId>cache-api</artifactId>
-			<version>1.0.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.ehcache</groupId>
 			<artifactId>jcache</artifactId>
 			<version>1.0.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>2.10.1</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-jaxrs -->
-		
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-batch</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.mosip.kernel</groupId>
+				<artifactId>kernel-bom</artifactId>
+				<version>1.2.1-java21-SNAPSHOT</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<profiles>
 		<profile>
