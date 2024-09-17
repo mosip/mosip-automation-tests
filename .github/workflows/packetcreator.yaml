@@ -60,7 +60,7 @@ jobs:
           cp -r ./src/main/resources/dockersupport/centralized/mountvolume/profile_resource ./profile_resource
           zip -r ${{ env.NEW_BUILD_ARTIFACT }}.zip build_files/* profile_resource
       - name: Upload the springboot jars
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.NEW_BUILD_ARTIFACT }}
           path: ./${{env.SERVICE_LOCATION}}/${{ env.NEW_BUILD_ARTIFACT }}.zip
@@ -76,7 +76,7 @@ jobs:
             ONLY_DOCKER: true
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -91,7 +91,7 @@ jobs:
   sonar_analysis:
     needs: call-automationtests
     if: "${{  github.event_name != 'pull_request' }}"
-    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master
+    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master-java21
     with:
       SERVICE_LOCATION: ./
       PROJECT_KEY: mosip_mosip-dsl-test-rig
