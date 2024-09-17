@@ -1,4 +1,4 @@
-FROM openjdk:11-jre
+FROM mosipdev/openjdk-21-jre:latest
 
 ARG SOURCE
 ARG COMMIT_HASH
@@ -27,8 +27,8 @@ ENV work_dir=/home/${container_user}/
 ARG KUBECTL_VERSION=1.22.9
 
 # install packages and create user
-RUN apt-get update \
-    && apt install jq -y \
+RUN apt-get -y update \
+    && apt-get install -y unzip jq curl \
     && groupadd -g ${container_user_gid} ${container_user_group} \
     && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/bash -m ${container_user} -d ${work_dir} \
     && curl -LO "https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
