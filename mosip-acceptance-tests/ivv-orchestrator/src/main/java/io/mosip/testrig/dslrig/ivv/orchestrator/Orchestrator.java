@@ -1,9 +1,9 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.io.File;
-
 import java.io.FileWriter;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,22 +21,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.testng.Assert;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
@@ -48,10 +45,12 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.testrig.apirig.utils.ConfigManager;
+import com.sun.management.OperatingSystemMXBean;
+
 import io.mosip.testrig.apirig.admin.fw.config.BeanConfig;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
 import io.mosip.testrig.dslrig.ivv.core.dtos.RegistrationUser;
@@ -61,9 +60,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
-import io.mosip.testrig.dslrig.ivv.e2e.methods.BioAuthentication;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
-import com.sun.management.OperatingSystemMXBean;
 
 
 @ContextConfiguration(classes = {BeanConfig.class})
@@ -221,7 +218,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	}
 
 	private synchronized void updateRunStatistics(Scenario scenario)
-			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+			throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 		logger.info("Updating statistics for scenario: " + scenario.getId() + " -- updating the executed count to: "
 				+ counterLock.getAndIncrement());
 		if (scenario.getId().equalsIgnoreCase("0")) {
@@ -246,7 +243,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
-			IllegalAccessException, InstantiationException {
+			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 
 		OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
@@ -511,13 +508,25 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 		return;
 	}
 
+	
+	/*
+	 * public StepInterface getInstanceOf(Scenario.Step step) throws
+	 * ClassNotFoundException, IllegalAccessException, InstantiationException {
+	 * String className = getPackage(step) + "." + step.getName().substring(0,
+	 * 1).toUpperCase() + step.getName().substring(1); // return (StepInterface)
+	 * Class.forName(className).newInstance(); return (StepInterface)
+	 * appContext.getBean(Class.forName(className)); }
+	 */
+	
 	@SuppressWarnings("deprecation")
 	public StepInterface getInstanceOf(Scenario.Step step)
-			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-		String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
-				+ step.getName().substring(1);
-//		return (StepInterface) Class.forName(className).newInstance();
-		return (StepInterface) appContext.getBean(Class.forName(className));
+	        throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+	    String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
+	            + step.getName().substring(1);
+	    // Load the class
+	    Class<?> clazz = Class.forName(className);
+	    // Use the new approach to create an instance
+	    return (StepInterface) clazz.getDeclaredConstructor().newInstance();
 	}
 
 	private void configToSystemProperties() {
