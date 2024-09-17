@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,23 +23,32 @@ import io.mosip.testrig.dslrig.packetcreator.dto.MockABISExpectationsDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.PersonaRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.UpdatePersonaDto;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Api(value = "PersonaController", description = "REST APIs for Persona management")
 @RestController
+@Tag(name = "PersonaController", description = "REST APIs for Persona management")
 public class PersonaController {
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
-	@Autowired
-	PacketSyncService packetSyncService;
+
+	private PacketSyncService packetSyncService;
+	
 	@Value("${mosip.test.persona.Angulipath}")
 	private String personaAnguliPath;
 
 	private static final Logger logger = LoggerFactory.getLogger(PersonaController.class);
 
-	@ApiOperation(value = "Update given persona record with the given list of attribute values", response = String.class)
+	public PersonaController(@Lazy PacketSyncService packetSyncService) {
+		this.packetSyncService = packetSyncService;
+	}
+
+	@Operation(summary = "Update given persona record with the given list of attribute values")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successfully updated the persona record") })
 	@PutMapping(value = "/persona/{id}/{contextKey}")
 	public @ResponseBody String updatePersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto,
 			@PathVariable("id") String id, @PathVariable("contextKey") String contextKey) {
@@ -58,7 +67,9 @@ public class PersonaController {
 
 	}
 
-	@ApiOperation(value = "Update given persona record with the given list of biometric exceptions", response = String.class)
+	@Operation(summary = "Update given persona record with the given list of biometric exceptions")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successfully updated the persona record") })
 	@PutMapping(value = "/persona/bioexceptions/{contextKey}")
 	public @ResponseBody String updatePersonaBioExceptions(@RequestBody BioExceptionDto personaBERequestDto,
 			// @PathVariable("id") String id,
@@ -76,7 +87,9 @@ public class PersonaController {
 
 	}
 
-	@ApiOperation(value = "Create persona record as per the given specification", response = String.class)
+	@Operation(summary = "Create persona record as per the given specification")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successfully created the persona record") })
 	@PostMapping(value = "/persona/{count}/{contextKey}")
 	public @ResponseBody String generateResidentData(@RequestBody PersonaRequestDto residentRequestDto,
 			@PathVariable("count") int count, @PathVariable("contextKey") String contextKey) {
@@ -106,7 +119,8 @@ public class PersonaController {
 		return "{Failed}";
 	}
 
-	@ApiOperation(value = "Return from the given persona record , list of specified attribute values", response = String.class)
+	@Operation(summary = "Return from the given persona record , list of specified attribute values")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Persona record retrived successfully") })
 	@GetMapping(value = "/persona/{contextKey}")
 	public @ResponseBody String getPersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto,
 			@PathVariable("contextKey") String contextKey) {
@@ -123,7 +137,9 @@ public class PersonaController {
 
 	}
 
-	@ApiOperation(value = "Extended API to set Persona specific expectations in mock ABIS ", response = String.class)
+	@Operation(summary = "Extended API to set Persona specific expectations in mock ABIS")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successfully created the specific expectations in mock ABIS") })
 	@PostMapping(value = "/persona/mockabis/v2/expectations/{contextKey}")
 	public @ResponseBody String setPersonaMockABISExpectationV2(@RequestBody List<MockABISExpectationsDto> expectations,
 			@PathVariable("contextKey") String contextKey) {
@@ -141,7 +157,8 @@ public class PersonaController {
 
 	}
 
-	@ApiOperation(value = "Delete expectation for a given Id", response = String.class)
+	@Operation(summary = "Delete expectation for a given Id")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted") })
 	@DeleteMapping(value = "/mock-abis-service/config/expectation/{contextKey}")
 	public @ResponseBody String deleteExpectations(@PathVariable("contextKey") String contextKey) {
 
@@ -149,7 +166,9 @@ public class PersonaController {
 
 	}
 
-	@ApiOperation(value = "Update the machine details ", response = String.class)
+	@Operation(summary = "Update the machine details")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successfully updated the machine details") })
 	@PutMapping(value = "/updateMachine/{contextKey}")
 	public @ResponseBody String updateMachine(@RequestBody MosipMachineModel machine,
 			@PathVariable("contextKey") String contextKey) {
