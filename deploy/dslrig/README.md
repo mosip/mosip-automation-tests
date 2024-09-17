@@ -28,7 +28,7 @@ DSLRIG will test end-to-end functional flows involving multiple MOSIP modules.
 
 #### Rancher UI
 * Run dslrig manually via Rancher UI.
-  ![dslrig-1.png](./images/dslrig-1.png)
+  ![dslrig-1.png](../../docs/_images/dslrig-1.png)
 * There are two modes of dslrig `sanity` & `full`.
     * By default, dslrig will execute in `full` mode.
     * If you want to run dslrig with `sanity` mode,
@@ -36,7 +36,7 @@ DSLRIG will test end-to-end functional flows involving multiple MOSIP modules.
 
 #### CLI
 * Download Kubernetes cluster `kubeconfig` file from `rancher dashboard` to your local.
-  ![apitestrig-1.png](./images/apitestrig-1.png)
+  ![apitestrig-1.png](../../docs/_images/apitestrig-1.png)
 * Install `kubectl` package to your local machine.
 * Run dslrig manually via CLI by creating a new job from an existing k8s cronjob.
   ```
