@@ -62,8 +62,7 @@ import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
 
-
-@ContextConfiguration(classes = {BeanConfig.class})
+@ContextConfiguration(classes = { BeanConfig.class })
 public class Orchestrator extends AbstractTestNGSpringContextTests {
 	private static Logger logger = Logger.getLogger(Orchestrator.class);
 	String message = null;
@@ -80,10 +79,9 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	public static long suiteStartTime = System.currentTimeMillis();
 	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
-	
-	
+
 	@Autowired
-	private ApplicationContext appContext;
+	private ApplicationContext context;
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
@@ -217,8 +215,8 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 
 	}
 
-	private synchronized void updateRunStatistics(Scenario scenario)
-			throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+	private synchronized void updateRunStatistics(Scenario scenario) throws ClassNotFoundException,
+			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 		logger.info("Updating statistics for scenario: " + scenario.getId() + " -- updating the executed count to: "
 				+ counterLock.getAndIncrement());
 		if (scenario.getId().equalsIgnoreCase("0")) {
@@ -340,11 +338,10 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 		store.setRegistrationUsers(scenario.getRegistrationUsers());
 		store.setPartners(scenario.getPartners());
 		store.setProperties(this.properties);
-		
+
 		Reporter.log(
-			    "<div class='box black-bg left-aligned' style='max-width: 100%; word-wrap: break-word;'><b><u>Scenario_" 
-			    + scenario.getId() + ": " + scenario.getDescription() + "</u></b></div>"
-			);
+				"<div class='box black-bg left-aligned' style='max-width: 100%; word-wrap: break-word;'><b><u>Scenario_"
+						+ scenario.getId() + ": " + scenario.getDescription() + "</u></b></div>");
 
 //		for (Scenario.Step step : scenario.getSteps()) {
 		int jumpBackIndex = 0;
@@ -378,11 +375,11 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 				String stepParams[] = getStepDetails("S_" + step.getScenario().getId() + stepAction);
 
 				if (!step.getName().contains("loopWindow")) {
-					
 
 					StringBuilder sb = new StringBuilder();
 
-					sb.append("<div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='3' readonly='true'>");
+					sb.append(
+							"<div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='3' readonly='true'>");
 					sb.append("Step Name: " + step.getName() + "\n");
 					sb.append("Step Description: " + stepParams[0] + "\n");
 					sb.append("Step Parameters: " + stepParams[1]);
@@ -392,8 +389,11 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 
 				}
 
-				// Steps can be added in scenario sheet as: ---- e2e_loopWindow(START /*LOOP_WINDOW_MARKER*/) ----e2e_loopWindow(END/*LOOP_WINDOW_MARKER*/,loopCount/* LOOP_COUNT*/)
-				// Add step/steps to be repeated for a given loopCount in between the above mentioned steps in the scenario sheet
+				// Steps can be added in scenario sheet as: ---- e2e_loopWindow(START
+				// /*LOOP_WINDOW_MARKER*/)
+				// ----e2e_loopWindow(END/*LOOP_WINDOW_MARKER*/,loopCount/* LOOP_COUNT*/)
+				// Add step/steps to be repeated for a given loopCount in between the above
+				// mentioned steps in the scenario sheet
 				if (step.getName().contains("loopWindow")) {
 
 					if (step.getParameters().get(0).contains("START")) {
@@ -508,7 +508,6 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 		return;
 	}
 
-	
 	/*
 	 * public StepInterface getInstanceOf(Scenario.Step step) throws
 	 * ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -517,16 +516,16 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	 * Class.forName(className).newInstance(); return (StepInterface)
 	 * appContext.getBean(Class.forName(className)); }
 	 */
-	
+
 	@SuppressWarnings("deprecation")
-	public StepInterface getInstanceOf(Scenario.Step step)
-	        throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-	    String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
-	            + step.getName().substring(1);
-	    // Load the class
-	    Class<?> clazz = Class.forName(className);
-	    // Use the new approach to create an instance
-	    return (StepInterface) clazz.getDeclaredConstructor().newInstance();
+	public StepInterface getInstanceOf(Scenario.Step step) throws ClassNotFoundException, NoSuchMethodException,
+			InvocationTargetException, InstantiationException, IllegalAccessException {
+		String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
+				+ step.getName().substring(1);
+		// Load the class
+		Class<?> clazz = Class.forName(className);
+		// Retrieve the bean from the Spring application context
+		return (StepInterface) context.getBean(clazz);
 	}
 
 	private void configToSystemProperties() {
