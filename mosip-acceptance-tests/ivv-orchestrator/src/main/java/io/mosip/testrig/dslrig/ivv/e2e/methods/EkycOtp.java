@@ -37,8 +37,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			logger.setLevel(Level.ERROR);
 	}
 
-	@Autowired
-	private OtpAuthNew otpauth;
+   OtpAuthNew otpauth = new OtpAuthNew();
 
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {

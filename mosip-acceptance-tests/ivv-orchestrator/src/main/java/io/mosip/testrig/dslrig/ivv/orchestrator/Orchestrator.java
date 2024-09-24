@@ -25,6 +25,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
@@ -47,7 +48,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.management.OperatingSystemMXBean;
 
-import io.mosip.testrig.apirig.admin.fw.config.BeanConfig;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.apirig.utils.ConfigManager;
@@ -60,6 +60,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
+import io.mosip.testrig.dslrig.ivv.e2e.config.BeanConfig;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
 
 @ContextConfiguration(classes = { BeanConfig.class })
@@ -79,9 +80,6 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	public static long suiteStartTime = System.currentTimeMillis();
 	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
-
-	@Autowired
-	private ApplicationContext context;
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
@@ -508,25 +506,29 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 		return;
 	}
 
-	/*
-	 * public StepInterface getInstanceOf(Scenario.Step step) throws
-	 * ClassNotFoundException, IllegalAccessException, InstantiationException {
-	 * String className = getPackage(step) + "." + step.getName().substring(0,
-	 * 1).toUpperCase() + step.getName().substring(1); // return (StepInterface)
-	 * Class.forName(className).newInstance(); return (StepInterface)
-	 * appContext.getBean(Class.forName(className)); }
-	 */
-
-	@SuppressWarnings("deprecation")
-	public StepInterface getInstanceOf(Scenario.Step step) throws ClassNotFoundException, NoSuchMethodException,
-			InvocationTargetException, InstantiationException, IllegalAccessException {
-		String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
-				+ step.getName().substring(1);
-		// Load the class
-		Class<?> clazz = Class.forName(className);
-		// Retrieve the bean from the Spring application context
-		return (StepInterface) context.getBean(clazz);
+	
+	
+	public StepInterface getInstanceOf(Scenario.Step step)
+			throws ClassNotFoundException, IllegalAccessException, InstantiationException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	    String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
+	            + step.getName().substring(1);
+	    // Load the class
+	    Class<?> clazz = Class.forName(className);
+	    // Use the new approach to create an instance
+	    return (StepInterface) clazz.getDeclaredConstructor().newInstance();
 	}
+	 
+	 
+	/*
+	 * @SuppressWarnings("deprecation") public StepInterface
+	 * getInstanceOf(Scenario.Step step) throws ClassNotFoundException,
+	 * NoSuchMethodException, InvocationTargetException, InstantiationException,
+	 * IllegalAccessException { String className = getPackage(step) + "." +
+	 * step.getName().substring(0, 1).toUpperCase() + step.getName().substring(1);
+	 * // Load the class Class<?> clazz = Class.forName(className); // Retrieve the
+	 * bean from the Spring application context return (StepInterface)
+	 * context.getBean(clazz); }
+	 */
 
 	private void configToSystemProperties() {
 		Set<String> keys = this.properties.stringPropertyNames();

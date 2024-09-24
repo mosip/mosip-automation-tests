@@ -55,17 +55,13 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 	String emailId = null;
 	List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 
-	@Autowired
-	private DemoAuth demoAuth;
+	DemoAuth demoAuth = new DemoAuth();
 
-	@Autowired
-	private BioAuth bioAuth;
+	BioAuth bioAuth = new BioAuth();
 
-	@Autowired
-	private OtpAuthNew otpauth;
+	OtpAuthNew otpauth = new OtpAuthNew();
 
-	@Autowired
-	private MultiFactorAuthNew multiFactorAuth;
+	MultiFactorAuthNew multiFactorAuth = new MultiFactorAuthNew();
 
 	static {
 		if (ConfigManager.IsDebugEnabled())
@@ -76,10 +72,6 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 
 	@Override
 	public void run() throws RigInternalError {
-		// AuthPartnerProcessor.startProcess();
-		// step.getScenario().getUinPersonaProp().put("2310290713",
-		// "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\residents_8783170256176160783\\\\915849158491584.json");
-
 		List<String> demoFetchList = null;
 		TestCaseDTO test = null;
 
