@@ -38,8 +38,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 	List<Object> casesListUIN = null;
 	List<Object> casesListVID = null;
 
-	@Autowired
-	private BioAuth bioAuth;
+	BioAuth bioAuth = new BioAuth();
 
 	static {
 		if (ConfigManager.IsDebugEnabled())
