@@ -30,8 +30,7 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 	private static final String OTPAUTHYml = "idaData/OtpAuth/OtpAuth.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
 
-	@Autowired
-	private OtpAuthNew otpauth;
+  OtpAuthNew otpauth = new OtpAuthNew();
 
 	static {
 		if (ConfigManager.IsDebugEnabled())
