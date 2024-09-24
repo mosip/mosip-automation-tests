@@ -35,8 +35,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 	static Logger logger = Logger.getLogger(DemoAuthentication.class);
 	private static final String DEMOPATH = "idaData/DemoAuth/DemoAuth.yml";
 
-	@Autowired
-	private DemoAuth demoAuth;
+   DemoAuth demoAuth = new DemoAuth();
 
 	static {
 		if (ConfigManager.IsDebugEnabled())
