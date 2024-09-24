@@ -38,8 +38,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 			logger.setLevel(Level.ERROR);
 	}
 
-	@Autowired
-	private DemoAuth demoAuth;
+    DemoAuth demoAuth = new DemoAuth();
 
 	@Override
 	public void run() throws RigInternalError {
