@@ -43,18 +43,17 @@ public class ResidentService {
 	    	}
 	    }
 
-
 	  public String downloadCard(String personaPath, String uin, String context) throws Exception{
 		  
 			loadServerContextProperties(context);
-			ResidentModel resident = ResidentModel.readPersona(personaPath);
+			ResidentModel resident = ResidentModel.readPersona(personaPath, context);
 			RegistrationSteps steps = new RegistrationSteps();
 			String resp = steps.downloadCard(resident, uin,context);
 			  
 			return resp;
 	  }
 	  public String getRIDStatus(String rid, String context) {
-		  VariableManager.Init(context); 
+//		  VariableManager.Init(context); 
 		  loadServerContextProperties(context);
 		 
 		  RegistrationSteps steps = new RegistrationSteps();
@@ -67,7 +66,7 @@ public class ResidentService {
 	  }
 	  public String getUINByRID(String rid, String context) throws Exception {
 		  
-		  VariableManager.Init(context);
+//		  VariableManager.Init(context);
 		  loadServerContextProperties(context);
 		  RegistrationSteps steps = new RegistrationSteps();
 		//  try {
@@ -80,7 +79,7 @@ public class ResidentService {
 	  
   public Response getStagesByRID(String rid, String context) throws Exception {
 		  
-		  VariableManager.Init(context);
+//		  VariableManager.Init(context);
 		  loadServerContextProperties(context);
 		  RegistrationSteps steps = new RegistrationSteps();
 		//  try {
