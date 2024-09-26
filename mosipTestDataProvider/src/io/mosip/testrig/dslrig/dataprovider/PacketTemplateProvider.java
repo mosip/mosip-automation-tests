@@ -655,7 +655,7 @@ public class PacketTemplateProvider {
 				bos.close();
 			}
 		}
-		resident.save();
+		resident.save(contextKey);
 		return true;
 	}
 
