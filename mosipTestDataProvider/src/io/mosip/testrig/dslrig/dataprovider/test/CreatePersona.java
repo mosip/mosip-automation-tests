@@ -75,29 +75,30 @@ public class CreatePersona {
 		List<String> failedSchemaIds = new ArrayList<String>();
 		
 		for(MosipIDSchema s: schema) {
+			String id = s.getId();
 			if(s.getRequired() || s.getInputRequired()) {
 				List<SchemaValidator> validators = s.getValidators();
 				if(validators != null) {
-					if(!identity.has(s.getId())) {
-						failedSchemaIds.add(s.getId());
+					if(!identity.has(id)) {
+						failedSchemaIds.add(id);
 						continue;
 					}
 					String fValue = "";
 					if(s.getType().equals("simpleType")) {
-						JSONArray arr = identity.getJSONArray(s.getId());
+						JSONArray arr = identity.getJSONArray(id);
 						if(!arr.isEmpty() && arr.getJSONObject(0).has("value") )
 							fValue = arr.getJSONObject(0).get("value").toString();
 					}
 					else
 					{
-						fValue  =identity.get(s.getId()).toString();
+						fValue  =identity.get(id).toString();
 					}
 					
 					for(SchemaValidator v: validators) {
 						if(v.getType().equals("regex")) {
 								String expr = v.getValidator();
 								if(!fValue.matches(expr))
-									failedSchemaIds.add(s.getId());
+									failedSchemaIds.add(id);
 						}
 					}
 				}
