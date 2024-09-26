@@ -14,7 +14,7 @@ This repo contains test framework for end2end testing of MOSIP functionality.  T
    
 
 ## Execution flow	
-![](docs/test-orchestrator.png)
+![](docs/_images/test-orchestrator.png)
 
 ## Prerequisites
 
