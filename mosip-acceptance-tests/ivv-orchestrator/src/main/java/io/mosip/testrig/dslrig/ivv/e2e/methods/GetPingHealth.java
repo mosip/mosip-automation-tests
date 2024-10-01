@@ -13,11 +13,11 @@ import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 import org.testng.SkipException;
 
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
@@ -48,7 +48,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 	private static final Logger logger = Logger.getLogger(GetPingHealth.class);
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -179,7 +179,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 
 	private void executeTargetEnvPingHealthCheck() throws Exception {
 
-		String uri = baseUrl + "/ping/" + !ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET);
+		String uri = baseUrl + "/ping/" + !dslConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET);
 		Response response = getRequest(uri, "Health Check", step);
 		JSONObject res = new JSONObject(response.asString());
 		logger.info(res.toString());

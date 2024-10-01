@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
@@ -25,6 +24,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 @Scope("prototype")
@@ -49,7 +49,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 	
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -58,7 +58,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {
 		
-		if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
+		if (dslConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
 

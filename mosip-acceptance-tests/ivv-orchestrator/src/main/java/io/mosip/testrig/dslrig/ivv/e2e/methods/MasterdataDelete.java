@@ -6,11 +6,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.apirig.dbaccess.DBManager;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 @Scope("prototype")
 @Component
@@ -21,8 +21,8 @@ public class MasterdataDelete extends BaseTestCaseUtil implements StepInterface 
 	public void run() throws RigInternalError {
 		Session session = null;
 		try {
-			session = DBManager.getDataBaseConnection(ConfigManager.getMASTERDbUrl(), ConfigManager.getMasterDbUser(),
-					ConfigManager.getMasterDbPass(), ConfigManager.getMasterDbSchema());
+			session = DBManager.getDataBaseConnection(dslConfigManager.getMASTERDbUrl(), dslConfigManager.getMasterDbUser(),
+					dslConfigManager.getMasterDbPass(), dslConfigManager.getMasterDbSchema());
 			DBManager.executeQueries(session,
 					MosipTestRunner.getGlobalResourcePath() + "/" + "config/masterDataDeleteQueries.txt");
 		} catch (Exception e) {
