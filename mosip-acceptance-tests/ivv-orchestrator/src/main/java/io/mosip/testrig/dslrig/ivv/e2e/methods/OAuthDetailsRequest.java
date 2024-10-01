@@ -15,7 +15,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId;
@@ -24,6 +23,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 @Scope("prototype")
@@ -34,7 +34,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 	SimplePostForAutoGenId oAuthDetails = new SimplePostForAutoGenId();
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -44,7 +44,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 	public void run() throws RigInternalError, FeatureNotSupportedError {
 
 		// check if esignet is installed on the target system
-		if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
+		if (dslConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
 

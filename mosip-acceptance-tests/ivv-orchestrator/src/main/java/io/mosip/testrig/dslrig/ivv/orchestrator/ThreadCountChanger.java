@@ -7,13 +7,12 @@ import org.apache.log4j.Logger;
 import org.testng.IAlterSuiteListener;
 import org.testng.xml.XmlSuite;
 
-import io.mosip.testrig.apirig.utils.ConfigManager;
 
 public class ThreadCountChanger implements IAlterSuiteListener  {
 	static Logger logger = Logger.getLogger(ThreadCountChanger.class);
 	
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -23,7 +22,7 @@ public class ThreadCountChanger implements IAlterSuiteListener  {
 		/* System.err.println("**Alter is invoked**"); */
 
        // ConfigManager.init();
-        int count = Integer.parseInt(ConfigManager.getThreadCount());
+        int count = Integer.parseInt(dslConfigManager.getThreadCount());
         
         logger.info("Running suite with thread count : "+count);
 

@@ -8,8 +8,6 @@ import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.ITest;
 import org.testng.ITestContext;
@@ -29,11 +27,11 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.restassured.response.Response;
 
@@ -46,7 +44,7 @@ public class SimplePost extends AdminTestUtil implements ITest {
 
 	@BeforeClass
 	public static void setLogLevel() {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -136,14 +134,14 @@ public class SimplePost extends AdminTestUtil implements ITest {
 		}
 
 		else {
-			String tempUrl = ConfigManager.getEsignetBaseUrl();
+			String tempUrl = dslConfigManager.getEsignetBaseUrl();
 			if (testCaseName.contains("ESignet_")) {
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$") && testCaseName.contains("SunBirdRC")) {
-					if (ConfigManager.isInServiceNotDeployedList("sunbirdrc"))
+					if (dslConfigManager.isInServiceNotDeployedList("sunbirdrc"))
 						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 					
-					if(ConfigManager.getEsignetMockBaseURL() != null && !ConfigManager.getEsignetMockBaseURL().isBlank())
-						tempUrl = ApplnURI.replace("api-internal.", ConfigManager.getEsignetMockBaseURL());
+					if(dslConfigManager.getEsignetMockBaseURL() != null && !dslConfigManager.getEsignetMockBaseURL().isBlank())
+						tempUrl = ApplnURI.replace("api-internal.", dslConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
 				}
 				if (testCaseName.contains("ESignet_SendBindingOtp")) {

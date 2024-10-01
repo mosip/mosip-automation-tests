@@ -11,10 +11,10 @@ import org.json.JSONObject;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 @Scope("prototype")
@@ -23,7 +23,7 @@ public class UploadDeviceCertificate extends BaseTestCaseUtil implements StepInt
 	public static Logger logger = Logger.getLogger(UploadDeviceCertificate.class);
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -36,10 +36,10 @@ public class UploadDeviceCertificate extends BaseTestCaseUtil implements StepInt
 
 		String certsDir = System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS";
 		if (System.getProperty("os.name").toLowerCase().contains("windows") == false) {
-			certsDir = ConfigManager.getauthCertsPath();
+			certsDir = dslConfigManager.getauthCertsPath();
 		}
 
-		String p12 = certsDir + File.separator + "DSL-IDA-" + ConfigManager.getTargetEnvName() + File.separator
+		String p12 = certsDir + File.separator + "DSL-IDA-" + dslConfigManager.getTargetEnvName() + File.separator
 				+ "device-partner.p12";
 		File file = new File(p12);
 

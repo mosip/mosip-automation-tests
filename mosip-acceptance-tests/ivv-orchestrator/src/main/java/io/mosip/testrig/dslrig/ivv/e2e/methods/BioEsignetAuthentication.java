@@ -23,6 +23,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 @Scope("prototype")
 @Component
@@ -35,7 +36,7 @@ public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepIn
 	String bioResponse = null;
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -45,7 +46,7 @@ public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepIn
 	public void run() throws RigInternalError, FeatureNotSupportedError {
 
 		// check if esignet is installed on the target system
-		if (ConfigManager.isInServiceNotDeployedList("eSignet")) {
+		if (dslConfigManager.isInServiceNotDeployedList("eSignet")) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
 

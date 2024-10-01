@@ -35,7 +35,6 @@ import org.testng.xml.XmlSuite;
 
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.S3Adapter;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
@@ -62,7 +61,7 @@ public class EmailableReport implements IReporter {
 	int totalFailedTests = 0;
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -114,12 +113,12 @@ public class EmailableReport implements IReporter {
 				orignialReportFile.delete();
 				logger.info("Report File re-named successfully!");
 
-				if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
+				if (dslConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 					S3Adapter s3Adapter = new S3Adapter();
 					boolean isStoreSuccess = false;
 					boolean isStoreSuccess2 = false;
 					try {
-						isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null,
+						isStoreSuccess = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null,
 								null, newString, newReportFile);
 						logger.info("isStoreSuccess:: " + isStoreSuccess);
 
@@ -127,7 +126,7 @@ public class EmailableReport implements IReporter {
 
 						File extentReport = new File(BaseTestCaseUtil.getExtentReportName());
 
-						isStoreSuccess2 = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel,
+						isStoreSuccess2 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
 
 								null, null, "ExtentReport-" + newString, extentReport);
 
@@ -245,7 +244,6 @@ public class EmailableReport implements IReporter {
 	    writer.print("</style>");
 	}
 
-
 	protected void writeBody() {
 		writer.print("<body>");
 		writeSuiteSummary();
@@ -256,6 +254,14 @@ public class EmailableReport implements IReporter {
 
 	protected void writeDocumentEnd() {
 		writer.print("</html>");
+	}
+	
+	private static String convertMillisToTime(long milliseconds) {
+		long seconds = (milliseconds / 1000) % 60;
+		long minutes = (milliseconds / (1000 * 60)) % 60;
+		long hours = (milliseconds / (1000 * 60 * 60)) % 24;
+		// Format time into HH:MM:SS
+		return String.format("%02d:%02d:%02d", hours, minutes, seconds);
 	}
 
 	protected void writeSuiteSummary() {
@@ -317,15 +323,16 @@ public class EmailableReport implements IReporter {
 	        writer.print("<th># Passed</th>");
 	        writer.print("<th># Skipped</th>");
 	        writer.print("<th># Failed</th>");
-	        writer.print("<th>Time (ms)</th>");
+	        writer.print("<th>Time (HH:MM:SS)</th>");
 	        writer.print("</tr>");
-
+	        totalDuration = 0;
 	        for (TestResult testResult : suiteResult.getTestResults()) {
+	            long duration = testResult.getDuration();
+	            totalDuration += duration;
 	            int passedTests = testResult.getPassedTestCount();
 	            int skippedTests = testResult.getSkippedTestCount();
 	            int failedTests = testResult.getFailedTestCount();
 	            int totalTests = passedTests + skippedTests + failedTests;
-	            long duration = testResult.getDuration();
 
 	            writer.print("<tr");
 	            if ((testIndex % 2) == 1) {
@@ -338,7 +345,7 @@ public class EmailableReport implements IReporter {
 	            writeTableData(integerFormat.format(passedTests), (passedTests > 0 ? "num green-bg num-center" : "num num-center")); // Center alignment for passed
 	            writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num orange-bg num-center" : "num num-center")); // Center alignment for skipped
 				writeTableData(integerFormat.format(failedTests),  (failedTests > 0 ? "num attn num-center red-text" : "num num-center"));
-	            writeTableData(decimalFormat.format(duration), "num num-center"); // Center alignment for time
+	            writeTableData(convertMillisToTime(duration), "num num-center"); // Center alignment for time
 
 	            writer.print("</tr>");
 
@@ -352,13 +359,14 @@ public class EmailableReport implements IReporter {
 	    }
 
 	    // Print totals if there was more than one test
+	 // Printing the total row
 	    if (testIndex > 1) {
 	        writer.print("<tr>");
 	        writer.print("<th>Total</th>");
-	        writeTableHeader(integerFormat.format(totalPassedTests), "num num-center"); // Center alignment for total
-	        writeTableHeader(integerFormat.format(totalSkippedTests), (totalSkippedTests > 0 ? "num attn num-center" : "num num-center")); // Center alignment for skipped
-	        writeTableHeader(integerFormat.format(totalFailedTests), (totalFailedTests > 0 ? "num attn num-center" : "num num-center")); // Center alignment for failed
-	        writeTableHeader(decimalFormat.format(totalDuration), "num num-center"); // Center alignment for time
+	        writeTableHeader(integerFormat.format(totalPassedTests), "num num-center");
+	        writeTableHeader(integerFormat.format(totalSkippedTests), "num num-center");
+	        writeTableHeader(integerFormat.format(totalFailedTests), "num num-center");
+	        writeTableHeader(convertMillisToTime(totalDuration), "num num-center");  // Correct total duration format
 	        writer.print("<th colspan=\"2\"></th>");
 	        writer.print("</tr>");
 	    }
@@ -376,7 +384,7 @@ public class EmailableReport implements IReporter {
 		// writer.print("<th>Class</th>");
 		writer.print("<th>Scenario</th>");
 		writer.print("<th>Scenario Description</th>");
-		writer.print("<th>Time (ms)</th>");
+		writer.print("<th>Time (HH:MM:SS)</th>");
 		writer.print("</tr>");
 		writer.print("</thead>");
 
@@ -459,7 +467,7 @@ public class EmailableReport implements IReporter {
 						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
 					      .append(scenarioIndex).append("\">").append(scenarioName).append("</a></td>")
 					      .append("<td style=\"text-align: left;\">").append(scenarioDescription).append("</td>")
-					      .append("<td>").append(scenarioDuration).append("</td></tr>");
+					      .append("<td>").append(convertMillisToTime(scenarioDuration)).append("</td></tr>");
 
 						scenarioIndex++;
 					}
@@ -613,7 +621,7 @@ public class EmailableReport implements IReporter {
 	}
 
 	protected void writeStackTrace(Throwable throwable) {
-		if(ConfigManager.IsDebugEnabled()) {
+		if(dslConfigManager.IsDebugEnabled()) {
 		writer.print("<div class=\"stacktrace\">");
 		writer.print(Utils.shortStackTrace(throwable, true));
 		writer.print("</div>");
@@ -813,6 +821,7 @@ public class EmailableReport implements IReporter {
 			}
 			return classResults;
 		}
+		
 
 		public String getTestName() {
 			return testName;
