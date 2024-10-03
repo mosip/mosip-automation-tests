@@ -27,6 +27,7 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
@@ -41,7 +42,7 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 
 	@BeforeClass
 	public static void setLogLevel() {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -120,7 +121,7 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 
 		else {
 			if (testCaseName.contains("ESignet_")) {
-				String tempUrl = ConfigManager.getEsignetBaseUrl();
+				String tempUrl = dslConfigManager.getEsignetBaseUrl();
 				response = getWithPathParamAndCookie(tempUrl + testCaseDTO.getEndPoint(),
 						getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
 						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());

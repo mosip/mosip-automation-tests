@@ -15,6 +15,7 @@ import io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 @Scope("prototype")
 @Component
@@ -23,7 +24,7 @@ public class ApproveRejectPacket extends BaseTestCaseUtil implements StepInterfa
 	public static Logger logger = Logger.getLogger(ApproveRejectPacket.class);
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);

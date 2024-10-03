@@ -15,10 +15,10 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 @Scope("prototype")
 @Component
@@ -26,7 +26,7 @@ public class ClonePersonaAndUpdate extends BaseTestCaseUtil implements StepInter
 	static Logger logger = Logger.getLogger(ClonePersonaAndUpdate.class);
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);

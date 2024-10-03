@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 import io.mosip.testrig.apirig.utils.FileUtil;
 import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestResources;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 @Scope("prototype")
@@ -33,7 +33,7 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
 	KernelAuthentication kauth = new KernelAuthentication();
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);

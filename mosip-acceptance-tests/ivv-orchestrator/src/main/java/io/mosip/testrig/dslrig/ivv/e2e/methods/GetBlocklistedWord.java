@@ -8,15 +8,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
-
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 @Scope("prototype")
@@ -27,7 +25,7 @@ public class GetBlocklistedWord extends BaseTestCaseUtil implements StepInterfac
 	KernelAuthentication kernelAuthLib = new KernelAuthentication();
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);

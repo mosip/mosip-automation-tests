@@ -12,7 +12,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +52,6 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.BioAuth;
 import io.mosip.testrig.apirig.testscripts.EsignetBioAuth;
@@ -67,7 +65,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	static Logger logger = Logger.getLogger(PacketUtility.class);
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -711,8 +709,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		}
 		JSONObject jsonReq = new JSONObject();
-		jsonReq.put("enableDebug", ConfigManager.getEnableDebug());
-		logger.info("Running suite with enableDebug : " + ConfigManager.getEnableDebug());
+		jsonReq.put("enableDebug", dslConfigManager.getEnableDebug());
+		logger.info("Running suite with enableDebug : " + dslConfigManager.getEnableDebug());
 		jsonReq.put("baselang", BaseTestCase.getLanguageList().get(0));
 
 		if (status != null) {
@@ -817,8 +815,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("changeSupervisorNameToDiffCase", changeSupervisorNameToDiffCase);
 		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
-		jsonReq.put("enableDebug", ConfigManager.getEnableDebug());
-		logger.info("Running suite with enableDebug : " + ConfigManager.getEnableDebug());
+		jsonReq.put("enableDebug", dslConfigManager.getEnableDebug());
+		logger.info("Running suite with enableDebug : " + dslConfigManager.getEnableDebug());
 		jsonReq.put(URLBASE, envbaseUrl);
 		jsonReq.put(MOSIP_TEST_BASEURL, envbaseUrl);
 		jsonReq.put(MOSIP_TEST_REGCLIENT_MACHINEID,
@@ -1246,7 +1244,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		logger.info("REQUEST: Sending a GET request to " + url);
 		url = addContextToUrl(url, step);
 		Response getResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").log().all()
 					.when().body(body).get(url).then().extract().response();
 			logger.info("REST-ASSURED: The response Time is: " + getResponse.time());
@@ -1372,7 +1370,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			Scenario.Step step) {
 
 		Response puttResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 					.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).put(url).then().log().all().extract()
 					.response();
@@ -1388,7 +1386,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
 		Response posttResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			posttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 					.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).post(url).then().log().all()
 					.extract().response();
@@ -1404,7 +1402,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public Response patchReqestWithCookiesAndBody(String url, String body, String token, String opsToLog) {
 		Response puttResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 					.accept("*/*").log().all().when().cookie(AUTHORIZATION, token).patch(url).then().log().all()
 					.extract().response();
@@ -1420,7 +1418,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			String opsToLog) {
 
 		Response patchResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			patchResponse = given().relaxedHTTPSValidation().queryParams(queryParam)
 					.contentType(MediaType.APPLICATION_JSON).cookie(AUTHORIZATION, token).accept("*/*").log().all()
 					.when().patch(url).then().log().all().extract().response();
@@ -1678,7 +1676,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public Response putReqestWithCookiesAndNoBody(String url, String token, String opsToLog, Scenario.Step step) {
 		Response puttResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON).accept("*/*").log()
 					.all().when().cookie(AUTHORIZATION, token).put(url).then().log().all().extract().response();
 		} else {

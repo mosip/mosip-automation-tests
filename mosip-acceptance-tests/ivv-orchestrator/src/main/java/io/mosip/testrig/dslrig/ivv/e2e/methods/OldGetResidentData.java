@@ -10,12 +10,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Reporter;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 public class OldGetResidentData extends BaseTestCaseUtil implements StepInterface {
@@ -23,7 +23,7 @@ public class OldGetResidentData extends BaseTestCaseUtil implements StepInterfac
 	static Logger logger = Logger.getLogger(OldGetResidentData.class);
 	
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);

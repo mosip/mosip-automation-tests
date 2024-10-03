@@ -18,7 +18,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import io.mosip.kernel.core.util.StringUtils;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 
 public class S3Adapter {
 	public static Logger logger = Logger.getLogger(S3Adapter.class); 
@@ -40,19 +39,19 @@ public class S3Adapter {
 		if (connection != null)
 			return connection;
 
-		logger.info("ConfigManager.getS3UserKey() :: "+ConfigManager.getS3UserKey());
-		logger.info("ConfigManager.getS3Host() :: "+ConfigManager.getS3Host());
-		logger.info("ConfigManager.getS3Region() :: "+ConfigManager.getS3Region());
-		logger.info("ConfigManager.getS3SecretKey() :: "+ConfigManager.getS3SecretKey());
+		logger.info("ConfigManager.getS3UserKey() :: "+dslConfigManager.getS3UserKey());
+		logger.info("ConfigManager.getS3Host() :: "+dslConfigManager.getS3Host());
+		logger.info("ConfigManager.getS3Region() :: "+dslConfigManager.getS3Region());
+		logger.info("ConfigManager.getS3SecretKey() :: "+dslConfigManager.getS3SecretKey());
 		try {
-			AWSCredentials awsCredentials = new BasicAWSCredentials(ConfigManager.getS3UserKey(),
-					ConfigManager.getS3SecretKey());
+			AWSCredentials awsCredentials = new BasicAWSCredentials(dslConfigManager.getS3UserKey(),
+					dslConfigManager.getS3SecretKey());
 			connection = AmazonS3ClientBuilder.standard()
 					.withCredentials(new AWSStaticCredentialsProvider(awsCredentials)).enablePathStyleAccess()
 					.withClientConfiguration(
 							new ClientConfiguration().withMaxConnections(maxConnection).withMaxErrorRetry(maxRetry))
-					.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(ConfigManager.getS3Host(),
-							ConfigManager.getS3Region()))
+					.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(dslConfigManager.getS3Host(),
+							dslConfigManager.getS3Region()))
 					.build();
 
 			connection.doesBucketExistV2(bucketName);
@@ -73,22 +72,6 @@ public class S3Adapter {
 		}
 		return connection;
 	}
-
-	/*
-	 * public boolean putObject(String account, final String container, String
-	 * source, String process, String objectName, File file) { String
-	 * finalObjectName = null; String bucketName = null;
-	 *logger.info("useAccountAsBucketname:: "+useAccountAsBucketname); if
-	 * (useAccountAsBucketname) { finalObjectName = getName(container, source,
-	 * process, objectName); bucketName = account; } else { finalObjectName =
-	 * getName(source, process, objectName); bucketName = container; }
-	 *logger.info("bucketName :: "+bucketName); AmazonS3 connection =
-	 * getConnection(bucketName); if (!doesBucketExists(bucketName)) {
-	 * connection.createBucket(bucketName); if (useAccountAsBucketname)
-	 * existingBuckets.add(bucketName); }
-	 * 
-	 * connection.putObject(bucketName, finalObjectName, file); return true; }
-	 */
 	
 	public boolean putObject(String account, final String container, String source, String process, String objectName, File file) {
 		String finalObjectName = null;
@@ -131,27 +114,6 @@ public class S3Adapter {
 			return connection.doesBucketExistV2(bucketName);
 	}
 	
-	/*
-	 * public boolean reportRetentionPolicy(String bucketName) {
-	 * 
-	 * ObjectMetadata metadata = new ObjectMetadata();logger.info("size:" +
-	 * bytes.length); metadata.setContentLength(bytes.length);
-	 * metadata.setContentType(contentType); Date expirationTime = new Date(2025, 5,
-	 * 10); metadata.setExpirationTime(DateTime.now().toDate());
-	 * metadata.setHeader("x-amz-object-lock-retain-until-date", closerDate +
-	 * "T00:00:00.000Z"); metadata.setHeader("x-amz-object-lock-mode",
-	 * "COMPLIANCE"); byte[] md5 = Md5Utils.computeMD5Hash(baInputStream); String
-	 * md5Base64 = BinaryUtils.toBase64(md5); metadata.setHeader("Content-MD5",
-	 * md5Base64); baInputStream.reset(); PutObjectRequest putRequest = new
-	 * PutObjectRequest(bucketName, finalObjectName, baInputStream, metadata);
-	 * s3client.putObject(putRequest);
-	 * 
-	 * 
-	 * return true;
-	 * 
-	 * }
-	 */
-
 	public static String getName(String container, String source, String process, String objectName) {
 		String finalObjectName = "";
 		if (StringUtils.isNotEmpty(container))

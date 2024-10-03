@@ -23,9 +23,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
@@ -50,7 +47,6 @@ import com.sun.management.OperatingSystemMXBean;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
 import io.mosip.testrig.dslrig.ivv.core.dtos.RegistrationUser;
@@ -88,7 +84,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	};
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -121,7 +117,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 
 		extent.attachReporter(htmlReporter);
 
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -191,7 +187,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 		ArrayList<Scenario> filteredScenarios = new ArrayList<>();
 		for (Scenario scenario : scenarios) {
 			if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
-					|| ConfigManager.isInTobeExecuteList(scenario.getId())) {
+					|| dslConfigManager.isInTobeExecuteList(scenario.getId())) {
 				filteredScenarios.add(scenario);
 			}
 		}
@@ -318,12 +314,12 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
 
 		// Check whether the scenario is in the defined skipped list
-		if (ConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
+		if (dslConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
 			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
 			updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
 		}
-		if (ConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
+		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
 			extentTest.skip("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
 			updateRunStatistics(scenario);
 			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
@@ -545,9 +541,9 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	public static String getScenarioSheet() throws RigInternalError {
 		String scenarioSheet = null;
 		// Use external Scenario sheet
-		if (ConfigManager.useExternalScenarioSheet()) {
+		if (dslConfigManager.useExternalScenarioSheet()) {
 			// Check first for the JSON file
-			scenarioSheet = ConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
+			scenarioSheet = dslConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
 					+ BaseTestCase.testLevel + "-" + BaseTestCase.environment + ".json";
 			Path path = Paths.get(scenarioSheet);
 			if (!Files.exists(path)) {
@@ -642,7 +638,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 			// Log the error
 			return "";
 		}
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			String keyValues = "";
 			// Iterate through the map and print its contents
 			for (Map.Entry<String, String[]> entry : uniqueStepsMap.entrySet()) {
