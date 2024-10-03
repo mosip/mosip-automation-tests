@@ -256,13 +256,32 @@ public class EmailableReport implements IReporter {
 		writer.print("</html>");
 	}
 	
-	private static String convertMillisToTime(long milliseconds) {
-		long seconds = (milliseconds / 1000) % 60;
-		long minutes = (milliseconds / (1000 * 60)) % 60;
-		long hours = (milliseconds / (1000 * 60 * 60)) % 24;
-		// Format time into HH:MM:SS
-		return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+	private static String convertNanosToTime(long nanoseconds) {
+	    long totalSeconds = nanoseconds / 1_000_000_000;
+	    long seconds = totalSeconds % 60;
+	    long totalMinutes = totalSeconds / 60;
+	    long minutes = totalMinutes % 60;
+	    long hours = totalMinutes / 60; // No % 24 to account for total hours
+
+	    // Format time into HH:MM:SS
+	    return String.format("%02d:%02d:%02d", hours, Math.abs(minutes), Math.abs(seconds));
 	}
+
+	
+	public static String getExecutionTime() {
+	    long duration = BaseTestCaseUtil.exectionEndTime - BaseTestCaseUtil.exectionStartTime;
+
+	    // Convert nanoseconds to total seconds, minutes, and hours
+	    long totalSeconds = duration / 1_000_000_000;
+	    long seconds = totalSeconds % 60;
+	    long totalMinutes = totalSeconds / 60;
+	    long minutes = totalMinutes % 60;
+	    long hours = totalMinutes / 60; // Total hours
+
+	    // Ensure the format is always HH:MM:SS
+	    return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+	}
+
 
 	protected void writeSuiteSummary() {
 	    NumberFormat integerFormat = NumberFormat.getIntegerInstance();
@@ -327,8 +346,9 @@ public class EmailableReport implements IReporter {
 	        writer.print("</tr>");
 	        totalDuration = 0;
 	        for (TestResult testResult : suiteResult.getTestResults()) {
-	            long duration = testResult.getDuration();
-	            totalDuration += duration;
+				/*
+				 * long duration = testResult.getDuration(); totalDuration += duration;
+				 */
 	            int passedTests = testResult.getPassedTestCount();
 	            int skippedTests = testResult.getSkippedTestCount();
 	            int failedTests = testResult.getFailedTestCount();
@@ -345,14 +365,14 @@ public class EmailableReport implements IReporter {
 	            writeTableData(integerFormat.format(passedTests), (passedTests > 0 ? "num green-bg num-center" : "num num-center")); // Center alignment for passed
 	            writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num orange-bg num-center" : "num num-center")); // Center alignment for skipped
 				writeTableData(integerFormat.format(failedTests),  (failedTests > 0 ? "num attn num-center red-text" : "num num-center"));
-	            writeTableData(convertMillisToTime(duration), "num num-center"); // Center alignment for time
+	            writeTableData(getExecutionTime(), "num num-center"); // Center alignment for time
 
 	            writer.print("</tr>");
 
 	            totalPassedTests += passedTests;
 	            totalSkippedTests += skippedTests;
 	            totalFailedTests += failedTests;
-	            totalDuration += duration;
+//	            totalDuration += duration;
 
 	            testIndex++;
 	        }
@@ -366,7 +386,7 @@ public class EmailableReport implements IReporter {
 	        writeTableHeader(integerFormat.format(totalPassedTests), "num num-center");
 	        writeTableHeader(integerFormat.format(totalSkippedTests), "num num-center");
 	        writeTableHeader(integerFormat.format(totalFailedTests), "num num-center");
-	        writeTableHeader(convertMillisToTime(totalDuration), "num num-center");  // Correct total duration format
+	        writeTableHeader(getExecutionTime(), "num num-center");  // Correct total duration format
 	        writer.print("<th colspan=\"2\"></th>");
 	        writer.print("</tr>");
 	    }
@@ -461,13 +481,24 @@ public class EmailableReport implements IReporter {
 						String scenarioName = Utils.escapeHtml("Scenario_" + scenarioDetails[0]);
 						String scenarioDescription = Utils.escapeHtml(scenarioDetails[1]);
 						
-						long scenarioStart = result.getStartMillis();
-						long scenarioDuration = result.getEndMillis() - scenarioStart;
+						/*
+						 * long scenarioStart = result.getStartMillis(); long scenarioDuration =
+						 * result.getEndMillis() - scenarioStart;
+						 */
+						
+						String scenarioStart = BaseTestCaseUtil.sceanrioExecutionStatistics.get("Scenario_" + scenarioDetails[0] + "_startTime");
+						String scenarioEnd = BaseTestCaseUtil.sceanrioExecutionStatistics.get("Scenario_" + scenarioDetails[0] + "_endTime");
 
+						long startTime = Long.parseLong(scenarioStart);
+						long endTime = Long.parseLong(scenarioEnd);
+
+						// Calculate the duration in milliseconds
+						long scenarioDuration = endTime - startTime;
+						
 						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
 					      .append(scenarioIndex).append("\">").append(scenarioName).append("</a></td>")
 					      .append("<td style=\"text-align: left;\">").append(scenarioDescription).append("</td>")
-					      .append("<td>").append(convertMillisToTime(scenarioDuration)).append("</td></tr>");
+					      .append("<td>").append(convertNanosToTime(scenarioDuration)).append("</td></tr>");
 
 						scenarioIndex++;
 					}
