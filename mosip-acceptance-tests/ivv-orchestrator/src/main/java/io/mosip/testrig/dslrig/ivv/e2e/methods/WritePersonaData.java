@@ -11,7 +11,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.S3Adapter;
@@ -21,6 +20,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PersonaDataManager;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 import java.io.File;
@@ -35,7 +35,7 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 	GetWithParam getIdentity = new GetWithParam();
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -90,12 +90,12 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 
 		}
 		writeJSONArrayToFile(jsonArray, jsonFilePath);
-		if (ConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
+		if (dslConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 			File jsonFile = new File(jsonFilePath);
 			S3Adapter s3Adapter = new S3Adapter();
 			boolean isStoreSuccess = false;
 			try {
-				isStoreSuccess = s3Adapter.putObject(ConfigManager.getS3Account(), BaseTestCase.testLevel, null, null,
+				isStoreSuccess = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null, null,
 						"personaData.json", jsonFile);
 				logger.info("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {

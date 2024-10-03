@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -32,7 +33,6 @@ import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
@@ -46,16 +46,22 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	public static Properties props = new AdminTestUtil()
 			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
-	public static Properties propsKernel = new AdminTestUtil()
-			.getproperty(TestRunner.getExternalResourcePath() + "/config/Kernel.properties");
-	public String baseUrl = ConfigManager.getpacketUtilityBaseUrl();
+	/*
+	 * public static Properties propsKernel = new AdminTestUtil()
+	 * .getproperty(TestRunner.getExternalResourcePath() +
+	 * "/config/Kernel.properties");
+	 */
+	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
 
 	public static final long DEFAULT_WAIT_TIME = 30000l;
 	public static final long TIME_IN_MILLISEC = 1000l;
 
 	public static PacketUtility packetUtility = new PacketUtility();
 	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
-
+	
+	public static Map<String, String> sceanrioExecutionStatistics = Collections
+			.synchronizedMap(new HashMap<String, String>());
+	
 	// public static String scenario = null; // Neeed to check how to add in
 	// scenario
 	public static String partnerKeyUrl = null;
@@ -64,6 +70,8 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static String kycPartnerId = null;
 	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
 	public static String extentReportName="";
+    public static long exectionStartTime = 0;
+    public static long exectionEndTime = 0;
 
 	public static String getExtentReportName() {
 		return extentReportName;
@@ -150,7 +158,7 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static Response getRequest(String url, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Response getResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 					.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract()
 					.response();
@@ -168,7 +176,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		url = addContextToUrl(url, step);
 
 		Response getResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			getResponse = given().relaxedHTTPSValidation().queryParams(contextKey).accept("*/*").log().all().when()
 					.get(url).then().log().all().extract().response();
 		} else {
@@ -194,7 +202,7 @@ public class BaseTestCaseUtil extends BaseStep {
 	public Response putRequestWithBody(String url, String body, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Response puttResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 					.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
 		} else {
@@ -211,7 +219,7 @@ public class BaseTestCaseUtil extends BaseStep {
 	public Response putRequestWithBody(String url, String body, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Response puttResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 					.accept("*/*").log().all().when().put(url).then().log().all().extract().response();
 		} else {
@@ -228,7 +236,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		url = addContextToUrl(url, step);
 
 		Response putResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			putResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 					.accept(MediaType.APPLICATION_JSON).log().all().when().put(url).then().log().all().extract()
 					.response();
@@ -246,7 +254,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		url = addContextToUrl(url, step);
 
 		Response deleteResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 					.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract()
 					.response();
@@ -264,7 +272,7 @@ public class BaseTestCaseUtil extends BaseStep {
 	public Response deleteRequestWithoutStep(String url, String opsToLog) {
 
 		Response deleteResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 					.accept(MediaType.APPLICATION_JSON).log().all().when().delete(url).then().log().all().extract()
 					.response();
@@ -284,7 +292,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		url = addContextToUrl(url, step);
 
 		Response deleteResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").log().all().when()
 					.delete(url).then().log().all().extract().response();
 		} else {
@@ -323,7 +331,7 @@ public class BaseTestCaseUtil extends BaseStep {
 			String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Response apiResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			apiResponse = given().contentType(ContentType.JSON).pathParams(map).body(body).log().all().when().post(url)
 					.then().log().all().extract().response();
 		} else {
@@ -342,7 +350,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		url = addContextToUrl(url, step);
 
 		Response postResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			postResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 					.accept("*/*").log().all().when().cookie("Authorization", token).post(url).then().log().all()
 					.extract().response();
@@ -362,7 +370,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		url = addContextToUrl(url, step);
 
 		Response puttResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			puttResponse = given().queryParams(map).relaxedHTTPSValidation().log().all().when().put(url).then().log()
 					.all().extract().response();
 		} else {
@@ -379,7 +387,7 @@ public class BaseTestCaseUtil extends BaseStep {
 			String cookieName, String cookieValue) {
 		logger.info("REST-ASSURED: Sending a GET request to " + url);
 		Response getResponse = null;
-		if (ConfigManager.IsDebugEnabled()) {
+		if (dslConfigManager.IsDebugEnabled()) {
 			getResponse = given().relaxedHTTPSValidation().cookie(cookieName, cookieValue).log().all().when().get(url)
 					.then().log().all().extract().response();
 		} else {

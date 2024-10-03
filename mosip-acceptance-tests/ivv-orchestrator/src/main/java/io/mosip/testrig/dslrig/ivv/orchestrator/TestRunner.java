@@ -18,7 +18,6 @@ import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.KeyCloakUserAndAPIKeyGeneration;
 import io.mosip.testrig.apirig.utils.MispPartnerAndLicenseKeyGeneration;
 import io.mosip.testrig.apirig.utils.PartnerRegistration;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.MockSMTPListener;
 
@@ -38,9 +37,10 @@ public class TestRunner {
 		BaseTestCase.testLevel = System.getProperty("env.testLevel");
 
 		// Initializing or setting up execution
-		ConfigManager.init();
+//		ConfigManager.init();
+		dslConfigManager.init();
 		
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			LOGGER.setLevel(Level.ALL);
 		else
 			LOGGER.setLevel(Level.ERROR);
@@ -53,10 +53,10 @@ public class TestRunner {
 		// Selecting the language based on index for example- eng,ara,fra (To run suite
 		// in ara lang pass 1 in langselect property)
 		
-    if(ConfigManager.getLangselect() > BaseTestCase.languageList.size()-1)
+    if(dslConfigManager.getLangselect() > BaseTestCase.languageList.size()-1)
     	BaseTestCase.languageCode = BaseTestCase.languageList.get(0);
     else
-		BaseTestCase.languageCode = BaseTestCase.languageList.get(ConfigManager.getLangselect());
+		BaseTestCase.languageCode = BaseTestCase.languageList.get(dslConfigManager.getLangselect());
 
 		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
 		

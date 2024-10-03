@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.PatchWithPathParam;
 import io.mosip.testrig.apirig.testscripts.PatchWithPathParamsAndBody;
@@ -43,7 +42,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 
 	public MachineHelper() {
 		  super();
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.testscripts.BioAuth;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -23,6 +22,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
+import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 @Scope("prototype")
 @Component
@@ -34,7 +34,7 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 	String bioResponse = null;
 
 	static {
-		if (ConfigManager.IsDebugEnabled())
+		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
