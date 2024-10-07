@@ -5,14 +5,12 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.apirig.testscripts.PostWithOnlyPathParam;
 import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId;
@@ -26,8 +24,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(OidcClient.class);
 
@@ -335,7 +331,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 
 		String inputForOidcClient = PacketUtility.getJsonFromTemplate(test11.getInput(), test11.getInputTemplate());
 
-		String oidcJwkKey = MosipTestRunner.generateJWKPublicKey();
+		String oidcJwkKey = AdminTestUtil.generateJWKPublicKey();
 		step.getScenario().getOidcPmsProp().put("oidcJwkKey" + step.getScenario().getId(), oidcJwkKey);
 
 		if (inputForOidcClient.contains("$OIDCJWKKEY$")) {

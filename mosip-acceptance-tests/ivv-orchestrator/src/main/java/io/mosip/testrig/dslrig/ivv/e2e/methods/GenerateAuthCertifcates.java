@@ -2,8 +2,6 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.CertificateGenerationUtil;
 import io.mosip.testrig.apirig.utils.PartnerRegistration;
@@ -12,8 +10,6 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class GenerateAuthCertifcates extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(GenerateAuthCertifcates.class);
 	PartnerRegistration partnerRegistration = new PartnerRegistration();

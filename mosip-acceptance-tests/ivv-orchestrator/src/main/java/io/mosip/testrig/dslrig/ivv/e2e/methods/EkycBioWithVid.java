@@ -6,13 +6,9 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 
-//import io.mosip.testrig.apirig.testscripts.BioAuthOld;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
@@ -24,8 +20,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EkycBioWithVid.class);
 	private static final String BIOMETRIC_FACE = "idaData/EkycBio/EkycBio.yml";

@@ -13,7 +13,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -29,13 +28,11 @@ import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class DemoAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(DemoAuthentication.class);
 	private static final String DEMOPATH = "idaData/DemoAuth/DemoAuth.yml";
 
-   DemoAuth demoAuth = new DemoAuth();
+	DemoAuth demoAuth = new DemoAuth();
 
 	static {
 		if (dslConfigManager.IsDebugEnabled())
