@@ -4,8 +4,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -13,8 +11,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(CheckRIDStage.class);
 
@@ -70,9 +66,9 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 					}
 				}
 			}
-		   if(flag == true)
+			if (flag == true)
 				break;
-			
+
 			else {
 				logger.info("Waiting for " + Long.parseLong(waitTime) / 1000 + " sec to get desired response");
 				counter++;
@@ -82,12 +78,12 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 					logger.error(e.getMessage());
 					Thread.currentThread().interrupt();
 				}
+			}
 		}
-		}
-		   logger.info(res.toString());
+		logger.info(res.toString());
 		if (flag == false) {
 			this.hasError = true;
-			throw new RigInternalError("RESPONSE = doesn't contain " + transactionTypeCode + " " +statusCode);
+			throw new RigInternalError("RESPONSE = doesn't contain " + transactionTypeCode + " " + statusCode);
 		}
 	}
 }

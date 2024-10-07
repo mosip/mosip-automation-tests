@@ -46,7 +46,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.management.OperatingSystemMXBean;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
-import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
 import io.mosip.testrig.dslrig.ivv.core.dtos.RegistrationUser;
@@ -56,11 +55,9 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
-import io.mosip.testrig.dslrig.ivv.e2e.config.BeanConfig;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
 
-@ContextConfiguration(classes = { BeanConfig.class })
-public class Orchestrator extends AbstractTestNGSpringContextTests {
+public class Orchestrator {
 	private static Logger logger = Logger.getLogger(Orchestrator.class);
 	String message = null;
 	int countScenarioPassed = 0;
@@ -572,7 +569,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 			if (scenarioSheet.isEmpty())
 				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
 		} else { // Use the scenario sheet bundled with jar
-			scenarioSheet = MosipTestRunner.getGlobalResourcePath() + "/config/scenarios.json";
+			scenarioSheet = TestRunner.getGlobalResourcePath() + "/config/scenarios.json";
 			logger.info("Scenario sheet path is: " + scenarioSheet);
 			Path path = Paths.get(scenarioSheet);
 			if (!Files.exists(path)) {
@@ -587,7 +584,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	}
 
 	public static String JsonToCsvConverter(String jsonFilePath) {
-		String tempCSVPath = MosipTestRunner.getGlobalResourcePath() + "/scenarios.csv";
+		String tempCSVPath = TestRunner.getGlobalResourcePath() + "/scenarios.csv";
 		int maxSteps = 151;
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();

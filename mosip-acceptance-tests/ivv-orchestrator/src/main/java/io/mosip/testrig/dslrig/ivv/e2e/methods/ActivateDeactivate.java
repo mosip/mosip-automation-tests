@@ -2,14 +2,10 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.util.HashMap;
 import java.util.Properties;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.testng.Reporter;
-
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -20,8 +16,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class ActivateDeactivate extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(ActivateDeactivate.class);
 	KernelAuthentication kernelAuthLib = new KernelAuthentication();

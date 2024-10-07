@@ -6,9 +6,6 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import io.mosip.testrig.apirig.utils.KeycloakUserManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -17,8 +14,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.UserHelper;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class User extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(User.class);
 
@@ -63,8 +58,8 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				if (user.contains("masterdata-0"))
 					user = "masterdata-" + dslConfigManager.getUserAdminName();
 				else
-					user = dslConfigManager.getUserAdminName().substring(0, dslConfigManager.getUserAdminName().length() - 1)
-							+ user;
+					user = dslConfigManager.getUserAdminName().substring(0,
+							dslConfigManager.getUserAdminName().length() - 1) + user;
 				pwd = userDetails[1];
 				if (userDetails.length == 3) {
 					zone = userDetails[2];

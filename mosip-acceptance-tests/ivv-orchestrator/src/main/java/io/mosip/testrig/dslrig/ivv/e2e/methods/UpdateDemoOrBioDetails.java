@@ -6,16 +6,11 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(UpdateDemoOrBioDetails.class);
 
@@ -43,7 +38,6 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 				missFields = step.getParameters().get(1);
 			if (step.getParameters().size() > 2)
 				updateAttribute = step.getParameters().get(2);
-			
 
 			if (!updateAttribute.contentEquals("0")) {
 				if (updateAttribute.contains("$$")) {
@@ -61,15 +55,15 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 
 		if (!step.getParameters().isEmpty() && step.getParameters().size() > 3) { // "var1=e2e_updateDemoOrBioDetails(0,0,0,$$personaPath)"
 			String personaFilePath = step.getParameters().get(3);
-			
-			if(step.getParameters().size() == 5) {
-			    testPersona =  step.getParameters().get(4);
+
+			if (step.getParameters().size() == 5) {
+				testPersona = step.getParameters().get(4);
 				testPersona = step.getScenario().getVariables().get(testPersona);
 			}
-			
+
 			if (personaFilePath.startsWith("$$")) {
 				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
-				packetUtility.updateDemoOrBioDetail(personaFilePath, testPersona ,
+				packetUtility.updateDemoOrBioDetail(personaFilePath, testPersona,
 						(regenAttributeList.get(0).equalsIgnoreCase("0")) ? null : regenAttributeList,
 						(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>()
 								: missFieldsAttributeList,
@@ -78,7 +72,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 			}
 		} else {
 			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
-				packetUtility.updateDemoOrBioDetail(resDataPath,testPersona ,
+				packetUtility.updateDemoOrBioDetail(resDataPath, testPersona,
 						(regenAttributeList.get(0).equalsIgnoreCase("0")) ? null : regenAttributeList,
 						(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>()
 								: missFieldsAttributeList,
