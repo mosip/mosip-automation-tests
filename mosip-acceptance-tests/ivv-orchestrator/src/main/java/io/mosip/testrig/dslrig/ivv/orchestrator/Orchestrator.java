@@ -46,7 +46,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.management.OperatingSystemMXBean;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
-import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
 import io.mosip.testrig.dslrig.ivv.core.dtos.RegistrationUser;
@@ -56,11 +55,9 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
-import io.mosip.testrig.dslrig.ivv.e2e.config.BeanConfig;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
 
-@ContextConfiguration(classes = { BeanConfig.class })
-public class Orchestrator extends AbstractTestNGSpringContextTests {
+public class Orchestrator {
 	private static Logger logger = Logger.getLogger(Orchestrator.class);
 	String message = null;
 	int countScenarioPassed = 0;
@@ -73,7 +70,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	public static Boolean beforeSuiteFailed = false;
 	public static Boolean beforeSuiteExeuted = false;
 	public static final Object lock = new Object();
-	public static long suiteStartTime = System.currentTimeMillis();
+	public static long suiteStartTime = 0;
 	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
 
@@ -93,6 +90,9 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	@BeforeSuite
 	public void beforeSuite() {
 
+		suiteStartTime = System.nanoTime();
+		BaseTestCaseUtil.exectionStartTime = suiteStartTime;
+		logger.info("Suite start time is: " + BaseTestCaseUtil.exectionStartTime);
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
 		Utils.setupLogger(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
 				+ this.properties.getProperty("ivv._path.auditlog"));
@@ -131,6 +131,8 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 
 	@AfterSuite
 	public void afterSuite() {
+		BaseTestCaseUtil.exectionEndTime = System.nanoTime();
+		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
 		extent.flush();
 	}
 
@@ -213,6 +215,11 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 		logger.info("Updating statistics for scenario: " + scenario.getId() + " -- updating the executed count to: "
 				+ counterLock.getAndIncrement());
+
+		long endTime = System.nanoTime();
+		BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_endTime",
+				String.valueOf(endTime));
+
 		if (scenario.getId().equalsIgnoreCase("0")) {
 			/// Check if all steps in Before are passed or not
 			for (Scenario.Step step : scenario.getSteps()) {
@@ -237,6 +244,10 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
 			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 
+		// Capture the start time of the scenario execution
+		long startTime = System.nanoTime();
+		BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
+				String.valueOf(startTime));
 		OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
 		logger.info("getProcessCpuLoad What % CPU load this current JVM is taking, from 0.0-1.0"
@@ -276,6 +287,9 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 							+ counterLock.get() + "- " + scenario.getId());
 					Thread.sleep(10000); // Sleep for 10 sec
 				}
+				startTime = System.nanoTime();
+				BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
+						String.valueOf(startTime));
 			} else {
 
 				// Wait for before suite executed
@@ -285,8 +299,11 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 					logger.info(" Thread ID: " + Thread.currentThread().getId()
 							+ " inside beforeSuiteExecuted == false " + counterLock.get() + "- " + scenario.getId());
 				}
-				// Check if the beforeSuite is successful. If not skip the scenario execution
+				startTime = System.nanoTime();
+				BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
+						String.valueOf(startTime));
 
+				// Check if the beforeSuite is successful. If not skip the scenario execution
 				if (beforeSuiteFailed == true) {
 					updateRunStatistics(scenario);
 					throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
@@ -502,19 +519,17 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 		return;
 	}
 
-	
-	
 	public StepInterface getInstanceOf(Scenario.Step step)
-			throws ClassNotFoundException, IllegalAccessException, InstantiationException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-	    String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
-	            + step.getName().substring(1);
-	    // Load the class
-	    Class<?> clazz = Class.forName(className);
-	    // Use the new approach to create an instance
-	    return (StepInterface) clazz.getDeclaredConstructor().newInstance();
+			throws ClassNotFoundException, IllegalAccessException, InstantiationException, IllegalArgumentException,
+			InvocationTargetException, NoSuchMethodException, SecurityException {
+		String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
+				+ step.getName().substring(1);
+		// Load the class
+		Class<?> clazz = Class.forName(className);
+		// Use the new approach to create an instance
+		return (StepInterface) clazz.getDeclaredConstructor().newInstance();
 	}
-	 
-	 
+
 	/*
 	 * @SuppressWarnings("deprecation") public StepInterface
 	 * getInstanceOf(Scenario.Step step) throws ClassNotFoundException,
@@ -554,7 +569,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 			if (scenarioSheet.isEmpty())
 				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
 		} else { // Use the scenario sheet bundled with jar
-			scenarioSheet = MosipTestRunner.getGlobalResourcePath() + "/config/scenarios.json";
+			scenarioSheet = TestRunner.getGlobalResourcePath() + "/config/scenarios.json";
 			logger.info("Scenario sheet path is: " + scenarioSheet);
 			Path path = Paths.get(scenarioSheet);
 			if (!Files.exists(path)) {
@@ -569,7 +584,7 @@ public class Orchestrator extends AbstractTestNGSpringContextTests {
 	}
 
 	public static String JsonToCsvConverter(String jsonFilePath) {
-		String tempCSVPath = MosipTestRunner.getGlobalResourcePath() + "/scenarios.csv";
+		String tempCSVPath = TestRunner.getGlobalResourcePath() + "/scenarios.csv";
 		int maxSteps = 151;
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();

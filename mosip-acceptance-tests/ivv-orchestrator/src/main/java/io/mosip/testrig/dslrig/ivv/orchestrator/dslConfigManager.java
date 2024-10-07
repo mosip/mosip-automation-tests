@@ -1,10 +1,6 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +8,6 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 
 public class dslConfigManager extends ConfigManager {
@@ -22,7 +17,7 @@ public class dslConfigManager extends ConfigManager {
 		Map<String, Object> moduleSpecificPropertiesMap = new HashMap<>();
 		// Load scope specific properties
 		try {
-			String path = MosipTestRunner.getGlobalResourcePath() + "/config/dsl.properties";
+			String path = TestRunner.getGlobalResourcePath() + "/config/dsl.properties";
 			Properties props = getproperties(path);
 			// Convert Properties to Map and add to moduleSpecificPropertiesMap
 			for (String key : props.stringPropertyNames()) {

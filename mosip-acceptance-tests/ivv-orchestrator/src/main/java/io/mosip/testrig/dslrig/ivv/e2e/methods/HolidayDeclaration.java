@@ -5,9 +5,6 @@ import java.time.format.DateTimeFormatter;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
@@ -21,8 +18,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.CenterHelper;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class HolidayDeclaration extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(HolidayDeclaration.class);
 	private static final String GenerateHolidayYml = "ivv_masterdata/Holiday/CreateHoliday.yml";

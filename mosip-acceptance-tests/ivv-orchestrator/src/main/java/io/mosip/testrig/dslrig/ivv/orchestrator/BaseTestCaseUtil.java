@@ -73,6 +73,7 @@ public class BaseTestCaseUtil extends BaseStep {
     public static long exectionStartTime = 0;
     public static long exectionEndTime = 0;
 
+
 	public static String getExtentReportName() {
 		return extentReportName;
 	}

@@ -4,8 +4,6 @@ import java.util.HashMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -14,8 +12,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PersonaDataManager;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class SetContext extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(SetContext.class);
 
@@ -45,7 +41,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String skipApplicantDocumentsFlag = "";
 		String invalidDateFlag = "";
 		String invalidOfficerIDFlag = "";
-		
+
 		HashMap<String, String> map = new HashMap<String, String>();
 		HashMap<String, String> dummyholder = new HashMap<String, String>();
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
@@ -56,7 +52,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			step.getScenario().getCurrentStep().put(contextKeyValue, "true");
 			step.getScenario().getCurrentStep().clear();
 			step.getScenario().getCurrentStep().put("contextKey", contextKeyValue);
-			if (step.getParameters().size() > 1) { 
+			if (step.getParameters().size() > 1) {
 				String value = step.getParameters().get(1);
 				if (!(value.equalsIgnoreCase("-1")) && value.contains("@@"))
 					userAndMachineDetailParam = value;
@@ -70,27 +66,40 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 
 			if (step.getParameters().size() > 3) // deactivate
 				status = step.getParameters().get(3);
-			
-			
+
 			if (step.getParameters().size() > 4) // for negative operator and supervisor
 				negative = step.getParameters().get(4);
 
 			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("true"))
 				invalidCertFlag = Boolean.parseBoolean(step.getParameters().get(3));
-			
-			if (step.getParameters().size() == 4  && step.getParameters().get(3).contains("invalidIdSchema")) 	//invalidIdSchema
+
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidIdSchema")) // invalidIdSchema
 				invalidIdSchemaFlag = step.getParameters().get(3);
-			
-			if (step.getParameters().size() == 4  && step.getParameters().get(3).contains("skipBiometricClassification")) 	//Skip individualBiometric parameter in id.json
+
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("skipBiometricClassification")) // Skip
+																															// individualBiometric
+																															// parameter
+																															// in
+																															// id.json
 				skipBiometricClassificationFlag = step.getParameters().get(3);
-			
-			if (step.getParameters().size() == 4  && step.getParameters().get(3).contains("skipApplicantDocuments")) 	//Skip applicant documents in the packet
+
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("skipApplicantDocuments")) // Skip
+																													// applicant
+																													// documents
+																													// in
+																													// the
+																													// packet
 				skipApplicantDocumentsFlag = step.getParameters().get(3);
-			
-			if (step.getParameters().size() == 4  && step.getParameters().get(3).contains("invalidCreationDate")) 	//Invalid packet creation date 
+
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidCreationDate")) // Invalid
+																													// packet
+																													// creation
+																													// date
 				invalidDateFlag = step.getParameters().get(3);
-			
-			if (step.getParameters().size() == 4  && step.getParameters().get(3).contains("invalidOfficerID")) 	//Invalid Officer ID
+
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidOfficerID")) // Invalid
+																												// Officer
+																												// ID
 				invalidOfficerIDFlag = step.getParameters().get(3);
 
 			// consent value either "yes" or "no"
@@ -112,12 +121,13 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		}
 		PersonaDataManager.setVariableValue(step.getScenario().getId(), "PersonaID", step.getScenario().getId());
 		if (userAndMachineDetailParam != null)
-			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, generatePrivateKey,
-					status, BaseTestCase.ApplnURI + "/", step);
+			packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, generatePrivateKey, status,
+					BaseTestCase.ApplnURI + "/", step);
 		else if (map != null)
 			packetUtility.createContexts(negative, contextKeyValue, map, generatePrivateKey, status,
 					BaseTestCase.ApplnURI + "/", step, invalidCertFlag, consent, changeSupervisorNameToDiffCase,
-					invalidEncryptedHashFlag, invalidCheckSum,invalidIdSchemaFlag,skipBiometricClassificationFlag,skipApplicantDocumentsFlag,invalidDateFlag,invalidOfficerIDFlag);
-		
+					invalidEncryptedHashFlag, invalidCheckSum, invalidIdSchemaFlag, skipBiometricClassificationFlag,
+					skipApplicantDocumentsFlag, invalidDateFlag, invalidOfficerIDFlag);
+
 	}
 }
