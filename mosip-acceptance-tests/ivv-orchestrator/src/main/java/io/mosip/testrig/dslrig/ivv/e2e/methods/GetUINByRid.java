@@ -5,8 +5,6 @@ import java.util.HashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -16,8 +14,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PersonaDataManager;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 
 	private String getIdentityUrl = "/resident/uin/";

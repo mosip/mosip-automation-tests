@@ -2,15 +2,10 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.io.File;
 import java.util.HashMap;
-
 import javax.ws.rs.core.MediaType;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import io.mosip.testrig.apirig.utils.FileUtil;
 import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
@@ -23,8 +18,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.TestResources;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface {
 
 	private String getIdentityUrl = "/idrepository/v1/identity/idvid/";

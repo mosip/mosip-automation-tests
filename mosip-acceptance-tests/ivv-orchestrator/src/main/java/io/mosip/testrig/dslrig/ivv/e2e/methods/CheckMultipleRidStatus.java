@@ -7,15 +7,11 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
-
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.testscripts.SimplePost;
@@ -25,8 +21,6 @@ import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInterface {
 	private static final String check_status_YML = "preReg/checkStatus/checkstatus.yml";
 	public static Logger logger = Logger.getLogger(CheckMultipleRidStatus.class);

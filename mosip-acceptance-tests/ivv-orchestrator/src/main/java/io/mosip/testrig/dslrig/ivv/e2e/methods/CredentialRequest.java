@@ -3,8 +3,6 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.utils.AdminTestException;
@@ -17,8 +15,6 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class CredentialRequest extends BaseTestCaseUtil implements StepInterface {
 	private static final String CredentialIssue_YML = "preReg/credentialIssue/credentialIssue.yml";
 	private static final String CredentialIssueWithoutOtp_YML = "preReg/credentialIssue/credentialIssuewithoutotp.yml";

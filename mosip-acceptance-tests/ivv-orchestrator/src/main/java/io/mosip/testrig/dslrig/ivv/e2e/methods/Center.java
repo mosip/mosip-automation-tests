@@ -4,9 +4,6 @@ import java.util.HashMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testscripts.PatchWithPathParam;
 import io.mosip.testrig.apirig.testscripts.PutWithPathParam;
@@ -19,8 +16,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.CenterHelper;
 import io.mosip.testrig.dslrig.ivv.orchestrator.UserHelper;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class Center extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(Center.class);
 	UserHelper userHelper = new UserHelper();

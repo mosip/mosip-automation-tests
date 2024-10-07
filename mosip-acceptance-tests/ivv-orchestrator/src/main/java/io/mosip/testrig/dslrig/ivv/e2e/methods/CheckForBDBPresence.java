@@ -6,14 +6,10 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import io.mosip.kernel.biometrics.commons.CbeffValidator;
 import io.mosip.kernel.biometrics.entities.BIR;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -25,8 +21,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class CheckForBDBPresence extends BaseTestCaseUtil implements StepInterface {
 	private static final Logger logger = Logger.getLogger(CheckForBDBPresence.class);
 	private static final String CheckForBDB = "idaData/RetrieveBioDocumentByID/RetrieveBioDocumentByID.yml";

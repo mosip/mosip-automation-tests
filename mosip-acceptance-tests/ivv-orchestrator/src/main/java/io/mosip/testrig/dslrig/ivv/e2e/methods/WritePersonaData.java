@@ -5,8 +5,6 @@ import javax.cache.Cache;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -27,8 +25,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-@Scope("prototype")
-@Component
 public class WritePersonaData extends BaseTestCaseUtil implements StepInterface {
 	private static final Logger logger = Logger.getLogger(WritePersonaData.class);
 	private static final String GetIdentityYml = "idaData/RetrieveIdentityByUin/RetrieveIdentityByUin.yml";
@@ -95,8 +91,8 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 			S3Adapter s3Adapter = new S3Adapter();
 			boolean isStoreSuccess = false;
 			try {
-				isStoreSuccess = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null, null,
-						"personaData.json", jsonFile);
+				isStoreSuccess = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null,
+						null, "personaData.json", jsonFile);
 				logger.info("isStoreSuccess:: " + isStoreSuccess);
 			} catch (Exception e) {
 				logger.error("error occured while pushing the object" + e.getMessage());

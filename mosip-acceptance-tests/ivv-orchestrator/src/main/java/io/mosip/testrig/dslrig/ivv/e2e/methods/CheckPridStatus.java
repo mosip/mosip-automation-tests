@@ -4,13 +4,9 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -18,8 +14,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class CheckPridStatus extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(CheckStatus.class);
 
