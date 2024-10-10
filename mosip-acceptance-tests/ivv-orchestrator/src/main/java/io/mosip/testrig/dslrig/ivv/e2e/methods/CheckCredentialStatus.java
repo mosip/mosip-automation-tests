@@ -2,10 +2,7 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.testng.Reporter;
-
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
@@ -15,8 +12,6 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInterface {
 	private static final String check_status_YML = "preReg/credentialStatus/credentialStatus.yml";
 	public static Logger logger = Logger.getLogger(CheckCredentialStatus.class);
@@ -31,7 +26,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 	@SuppressWarnings("static-access")
 	@Override
 	public void run() throws RigInternalError {
-		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { 
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) {
 			String _requestId = step.getParameters().get(0);
 			if (_requestId.startsWith("$$")) {
 				_requestId = step.getScenario().getVariables().get(_requestId);
@@ -50,8 +45,7 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 			for (Object object : testCaseList) {
 				for (String requestid : this.step.getScenario().getUinReqIds().values()) {
 					int counter = 0;
-					while (!credentialIssued
-							&& counter < Integer.parseInt(props.getProperty("loopCount"))) {
+					while (!credentialIssued && counter < Integer.parseInt(props.getProperty("loopCount"))) {
 						counter++;
 						try {
 							logger.info("Waiting for 30 sec to get credential Issued");
@@ -69,7 +63,8 @@ public class CheckCredentialStatus extends BaseTestCaseUtil implements StepInter
 									+ " MilliSec");
 
 							if (getWithPathParam.response.getBody().asString().toLowerCase().contains("printed")
-									|| getWithPathParam.response.getBody().asString().toLowerCase().contains("printing"))
+									|| getWithPathParam.response.getBody().asString().toLowerCase()
+											.contains("printing"))
 								credentialIssued = true;
 						} catch (AuthenticationTestException | AdminTestException e) {
 							logger.error("Failed at checking Credential status with error: " + e.getMessage());
