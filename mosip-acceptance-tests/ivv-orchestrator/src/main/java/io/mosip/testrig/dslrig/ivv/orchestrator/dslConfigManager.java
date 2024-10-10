@@ -21,7 +21,9 @@ public class dslConfigManager extends ConfigManager {
 			Properties props = getproperties(path);
 			// Convert Properties to Map and add to moduleSpecificPropertiesMap
 			for (String key : props.stringPropertyNames()) {
-				moduleSpecificPropertiesMap.put(key, props.getProperty(key));
+                  
+				String value = System.getenv(key) == null ? props.getProperty(key) : System.getenv(key);
+				moduleSpecificPropertiesMap.put(key, value);
 			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
@@ -30,20 +32,21 @@ public class dslConfigManager extends ConfigManager {
 		init(moduleSpecificPropertiesMap);
 	}
 
-	
-	  public static String getmountPathForScenario() { return
-	  ConfigManager.getproperty("mountPathForScenario"); }
-	  
-	  public static String getThreadCount() { return
-	  ConfigManager.getproperty("threadCount"); }
-	  
-	  public static Boolean useExternalScenarioSheet() { return
-	  ConfigManager.getproperty("useExternalScenarioSheet").equalsIgnoreCase("yes");
-	  }
-	  
-	  public static String getpacketUtilityBaseUrl() { return
-	  ConfigManager.getproperty("packetUtilityBaseUrl"); }
-	 
+	public static String getmountPathForScenario() {
+		return ConfigManager.getproperty("mountPathForScenario");
+	}
+
+	public static String getThreadCount() {
+		return ConfigManager.getproperty("threadCount");
+	}
+
+	public static Boolean useExternalScenarioSheet() {
+		return ConfigManager.getproperty("useExternalScenarioSheet").equalsIgnoreCase("yes");
+	}
+
+	public static String getpacketUtilityBaseUrl() {
+		return ConfigManager.getproperty("packetUtilityBaseUrl");
+	}
 
 	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
 		String toSkippedList = ConfigManager.getproperty("servicesNotDeployed");
