@@ -8,9 +8,6 @@ import java.util.Base64;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -26,8 +23,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.GlobalConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(OAuthDetailsRequest.class);
 	private static final String OAuthDetailsYml = "idaData/OAuthDetailsRequest/OAuthDetailsRequest.yml";
