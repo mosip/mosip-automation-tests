@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -20,8 +18,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class GetEmailByUIN extends BaseTestCaseUtil implements StepInterface {
 	private static final Logger logger = Logger.getLogger(GetEmailByUIN.class);
 	private static final String GetEmailYml = "idaData/RetrieveIdentityByUin/RetrieveIdentityByUin.yml";

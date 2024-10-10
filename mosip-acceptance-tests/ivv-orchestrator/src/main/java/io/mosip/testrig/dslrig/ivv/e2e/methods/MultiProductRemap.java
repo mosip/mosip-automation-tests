@@ -9,8 +9,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
@@ -20,8 +18,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-@Scope("prototype")
-@Component
 public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface {
 
 	KernelAuthentication kernelAuthLib = new KernelAuthentication();

@@ -318,7 +318,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 		String inputForOidcClient = PacketUtility.getJsonFromTemplate(test11.getInput(), test11.getInputTemplate());
 
 		String oidcJwkKey = AdminTestUtil.generateJWKPublicKey();
-//		String inputForOidcClient = test11.getInput();
+
 		step.getScenario().getOidcPmsProp().put("oidcJwkKey" + step.getScenario().getId(), oidcJwkKey);
 
 		if (inputForOidcClient.contains("$OIDCJWKKEY$")) {
