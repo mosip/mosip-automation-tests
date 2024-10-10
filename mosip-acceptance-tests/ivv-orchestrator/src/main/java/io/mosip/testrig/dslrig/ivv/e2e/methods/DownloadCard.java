@@ -5,8 +5,6 @@ import java.io.IOException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 
@@ -19,8 +17,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.mosip.testrig.dslrig.ivv.orchestrator.TestResources;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-@Scope("prototype")
-@Component
 public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 	private static final String downLoadCard_YML = "preReg/downloadCard/downloadCard.yml";
 	private static final String PDFFILEPATH = "preReg/downloadCard";

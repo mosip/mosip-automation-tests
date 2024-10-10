@@ -19,7 +19,7 @@ import io.mosip.testrig.apirig.utils.KeyCloakUserAndAPIKeyGeneration;
 import io.mosip.testrig.apirig.utils.MispPartnerAndLicenseKeyGeneration;
 import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
-import io.mosip.testrig.apirig.testrunner.MockSMTPListener;
+import io.mosip.testrig.apirig.testrunner.OTPListener;
 
 public class TestRunner {
 	private static final Logger LOGGER = Logger.getLogger(TestRunner.class);
@@ -30,7 +30,7 @@ public class TestRunner {
 		if (checkRunType().equalsIgnoreCase("JAR")) {
 			extractResourceFromJar();
 		}
-		
+		BaseTestCase.setRunContext(checkRunType(), jarUrl);
 		copyTestResources();
 		BaseTestCase.environment = System.getProperty("env.user");
 		BaseTestCase.ApplnURI = System.getProperty("env.endpoint");
@@ -39,6 +39,7 @@ public class TestRunner {
 		// Initializing or setting up execution
 //		ConfigManager.init();
 		dslConfigManager.init();
+		AdminTestUtil.init();
 		
 		if (dslConfigManager.IsDebugEnabled())
 			LOGGER.setLevel(Level.ALL);
@@ -60,7 +61,7 @@ public class TestRunner {
 
 		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
 		
-		MockSMTPListener mockSMTPListener = new MockSMTPListener();
+		OTPListener mockSMTPListener = new OTPListener();
 		mockSMTPListener.run();
 		startTestRunner();
 	}
@@ -96,7 +97,7 @@ public class TestRunner {
 				+ "EXTENT" + "-run-" + System.currentTimeMillis() + "-report.html");
 		runner.run();
 		
-		MockSMTPListener mockSMTPListener = new MockSMTPListener();
+		OTPListener mockSMTPListener = new OTPListener();
 		mockSMTPListener.bTerminate = true;
 
 		System.exit(0);
