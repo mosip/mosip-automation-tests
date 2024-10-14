@@ -14,21 +14,20 @@ This repo contains test framework for end2end testing of MOSIP functionality.  T
    
 
 ## Execution flow	
-![](docs/_images/test-orchestrator.png)
+![](docs/_images/dsl-orchestrator.png)
 
 ## Prerequisites
 
 For Windows/Linux
 
-* Java (11) and Maven  software should be installed on the machine from where the automation tests will be executed
+* Java (21) and Maven  software should be installed on the machine from where the automation tests will be executed
 * Git bash
    
 ## Repository details
 Below are repository details of various modules used for the automation
 
 ### DSL Orchestrator
-* Authentication Demo Service in [mosip-functional-tests](https://github.com/mosip/mosip-functional-tests/).
-* Automation tests in [mosip-functional-tests](https://github.com/mosip/mosip-functional-tests/).
+* apitest-commons in [mosip-functional-tests](https://github.com/mosip/mosip-functional-tests/).
 * [IVV Orchestrator](mosip-acceptance-tests/ivv-orchestrator/)
 
 ### Packet Utility(Packet Generation tool)
@@ -37,15 +36,14 @@ Below are repository details of various modules used for the automation
 
 ## Build and run
 ### To build end to end automation 
-* Authentication Demo Service `mvn clean install -Dgpg.skip`
-* Automation Tests `mvn clean install -Dgpg.skip`
-* Acceptance Tests(location: mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator) `mvn clean install -Dgpg.skip -Dgpg.skip`
-    - After Successful build will get the jar (dslrig-ivv-orchestrator-1.2.1-develop-SNAPSHOT-jar-with-dependencies.jar)
+* apitest-commons `mvn clean install -Dgpg.skip`
+* Acceptance Tests(location: mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator) `mvn clean install -Dgpg.skip`
+    - After Successful build will get the jar (dslrig-ivv-orchestrator-version-SNAPSHOT-jar-with-dependencies.jar)
 
 ### To build Packet Utility
 * Mosip Test Data Provider `mvn clean install -Dgpg.skip`
 * Mosip-Packet-Creator `mvn clean install -Dgpg.skip`
-    - After successful build will get the jar (dslrig-packetcreator-1.2.1-develop-SNAPSHOT.jar)
+    - After successful build will get the jar (dslrig-packetcreator-version-SNAPSHOT.jar)
     - Packet Utility is used to create and uploads the packet which is used by the e2e automation
 
 ## Configuration - Packet Utility
@@ -65,10 +63,10 @@ Below are repository details of various modules used for the automation
 ## Configuration - DSL Orchestrator
 1. Build the E2E_Automation acceptance test project and get the jar  `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\target`
 2. Take the config folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\config`
-3. Update kernel properties secret keys based on the env details.
-1. Update kernel file property `scenariosToExecute=2` update scenario number for execution and keep this empty to run entire full suite
-1. Command to execute the e2e automation (dslrig-ivv-orchestrator-1.2.1-develop-SNAPSHOT-jar-with-dependencies.jar) utility with below vm arguments
-     * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl -jar dslrig-ivv-orchestrator-1.2.1-develop-SNAPSHOT-jar-with-dependencies.jar
+3. Update kernel properties secret keys based on the env details inside `mosip-functional-tests\apitest-commons\src\main\resources\config\Kernel.properties`
+1. Update dsl file property `scenariosToExecute=2` update scenario number for execution and keep this empty to run entire full suite
+1. Command to execute the e2e automation (dslrig-ivv-orchestrator-version-SNAPSHOT-jar-with-dependencies.jar) utility with below vm arguments
+     * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl -jar dslrig-ivv-orchestrator-version-SNAPSHOT-jar-with-dependencies.jar
      * `env.user`  =  environment name example qa, qa2, dev
      * `env.endpoint` = base environment
 1. After the execution completes, the test report can be found in the path `..\testng-report\emailable-report.html`
@@ -78,10 +76,6 @@ Below are repository details of various modules used for the automation
 
 
 ## Docker setup build
-1. Deploy Auth demo service
-	-Use these branches of code.
-	`https://github.com/mosip/mosip-functional-tests/tree/release-1.2.0.1`
-	`https://github.com/mosip/mosip-helm/tree/1.2.0.1/charts/authdemo`
 1. Deploy Packet creator
 	-Use these branches of code.
 	`https://github.com/mosip/mosip-automation-tests/tree/release-1.2.0.1`
