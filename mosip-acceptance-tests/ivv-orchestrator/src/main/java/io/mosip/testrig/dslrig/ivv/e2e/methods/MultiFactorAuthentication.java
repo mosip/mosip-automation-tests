@@ -12,8 +12,6 @@ import org.apache.log4j.Logger;
 import org.testng.Reporter;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
-import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.testscripts.BioAuth;
@@ -177,16 +175,20 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						if (emailId == null || (emailId != null && emailId.isBlank())) {
 							test = otpAuthE2eTest(uin, test);
 						}
-
+						String input = test.getInput();
+						input = JsonPrecondtion.parseAndReturnJsonContent(input,
+								"UIN", "individualIdType");
+						input = JsonPrecondtion.parseAndReturnJsonContent(input,
+								"UIN", "sendOtp.individualIdType");
+						test.setInput(input);
 						try {
-							try {
-								multiFactorAuth.test(test);
-							} catch (AdminTestException e) {
-								logger.error(e.getMessage());
-							}
-						} catch (AuthenticationTestException e) {
+							multiFactorAuth.test(test);
+						} catch (Exception e) {
 							logger.error(e.getMessage());
+							this.hasError = true;
+							throw new RigInternalError(e.getMessage());
 						}
+
 					}
 				}
 
@@ -222,16 +224,23 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						test = (TestCaseDTO) object;
 						test = demoAuthE2eTest(demoFetchList, vid, test, step);
 						test = bioAuthE2eTest(bioAuthList, vid, test);
-						test = otpAuthE2eTest(vid, test);
-						try {
-							try {
-								multiFactorAuth.test(test);
-							} catch (AdminTestException e) {
-								logger.error(e.getMessage());
-							}
-						} catch (AuthenticationTestException e) {
-							logger.error(e.getMessage());
+						if (emailId == null || (emailId != null && emailId.isBlank())) {
+							test = otpAuthE2eTest(vid, test);
 						}
+						String input = test.getInput();
+						input = JsonPrecondtion.parseAndReturnJsonContent(input,
+								"VID", "individualIdType");
+						input = JsonPrecondtion.parseAndReturnJsonContent(input,
+								"VID", "sendOtp.individualIdType");
+						test.setInput(input);
+						try {
+							multiFactorAuth.test(test);
+						} catch (Exception e) {
+							logger.error(e.getMessage());
+							this.hasError = true;
+							throw new RigInternalError(e.getMessage());
+						}
+
 					}
 				}
 
@@ -246,12 +255,12 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 		test.setEndPoint(test.getEndPoint().replace("uinnumber", individualIdAuth));
 
 		String input = test.getInput();
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, individualIdAuth, "individualId");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, individualIdAuth, "sendOtp.individualId");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
-		/*
-		 * input = JsonPrecondtion.parseAndReturnJsonContent(input, individualType,
-		 * "individualIdType");
-		 */
+
+		//		input = JsonPrecondtion.parseAndReturnJsonContent(input, individualType,
+		//				"individualIdType");
+
 		/*
 		 * input = JsonPrecondtion.parseAndReturnJsonContent(input, individualIdAuth,
 		 * "sendOtp.individualId"); input =
@@ -316,8 +325,8 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 			}
 			input = testInput.getInput();
 
-			input = JsonPrecondtion.parseAndReturnJsonContent(input, demoField, "key");
-			input = JsonPrecondtion.parseAndReturnJsonContent(input, demoValue, "value");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, demoField, "identityRequest.key");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, demoValue, "identityRequest.value");
 			// testInput=filterOutTestCase(testObj,testFilterKey);
 			testInput.setInput(input);
 		}
@@ -418,11 +427,14 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("model"), "model");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("serialNo"), "serialNo");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"), "type");
-		/*
-		 * input = JsonPrecondtion.parseAndReturnJsonContent(input,
-		 * deviceProps.getProperty("individualIdType"), "individualIdType");
-		 */
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "bioValue");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "sendOtp.individualId");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otpChannel");
+
+		//		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
+		//		  deviceProps.getProperty("individualIdType"), "individualIdType");
+
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
+
 		test.setInput(input);
 
 		Reporter.log("<b><u>" + test.getTestCaseName() + "_" + modalityToLog + "</u></b>");
