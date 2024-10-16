@@ -1,14 +1,16 @@
 MultiFactorAuth:
   auth_MultiFactorAuth_Biometric_Face_With_Valid_Smoke_Pos:
       endPoint: /idauthentication/v1/auth/$partnerKeyURL$
+      description: Multifactor auth with Demographic,otp and biometric
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       inputTemplate: idaData/MultiFactorAuth/multiFactorAuth
       outputTemplate: idaData/MultiFactorAuth/multiFactorAuthResult
       input: '{
+        "otpChannel": "$ID:AddIdentity_ValidParam_smoke_Pos_EMAIL$",
         "requestTime": "$TIMESTAMP$",
-        "individualId": "3974189657",
+        "individualId": "$UIN$",
         "transactionId": "1234567890",
         "individualIdType": "UIN",
         "bio": true,
@@ -17,10 +19,10 @@ MultiFactorAuth:
         "sendOtp":{
     "transactionID": "1234567890",
     "requestTime": "$TIMESTAMP$",
-    "individualId": "3974189657",
+    "individualId": "$UIN$",
     "individualIdType": "UIN",
     "sendOtpReqTemplate": "idaData/MultiFactorAuth/sendOtp",
-    "sendOtpEndPoint": "/idauthentication/v1/otp/$partnerKeyURL$",
+    "sendOtpEndPoint": "/idauthentication/v1/otp/$partnerKeyURL$"
     },
         "identityRequest":{
           "bioSubType": "UNKNOWN",
