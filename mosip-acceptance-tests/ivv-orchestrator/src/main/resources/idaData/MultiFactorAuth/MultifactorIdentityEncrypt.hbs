@@ -1,37 +1,7 @@
 {
-	"identityRequest": {
 		"otp": "931646",
 		"demographics": {
-			"dob": "{{dob}}",
-			"emailId": "{{emailId}}",
-			"phoneNumber": "{{phoneNumber}}",
-			"fullAddress": [
-      {{#each fullAddress}}
-            {
-            "language": "{{language}}",
-            "value": "{{value}}"
-        }
-          {{#unless @last}},{{/unless}}
-      	{{/each}}
-			],
-				"gender": [
-      {{#each gender}}
-            {
-            "language": "{{language}}",
-            "value": "{{value}}"
-        }
-          {{#unless @last}},{{/unless}}
-      	{{/each}}
-			],
-			"name": [
-      {{#each name}}
-            {
-            "language": "{{language}}",
-            "value": "{{value}}"
-        }
-          {{#unless @last}},{{/unless}}
-      	{{/each}}
-			]
+			"{{key}}": "{{value}}"
 		},
 		"biometrics": [
       {
@@ -58,7 +28,7 @@
           "purpose": "AUTH",
           "qualityScore": 70,
           "requestedScore": 70,
-          "timestamp": "timestamp",
+          "timestamp": "$DATETIME$",
           "transactionId": "{{transactionId}}"
         },
         "hash": "hash",
@@ -66,7 +36,6 @@
         "thumbprint": "IDAFIRthumbprint"
       }
     ],
-		"timestamp": "timestamp",
+		"timestamp": "$DATETIME$",
     "transactionID": "{{transactionId}}"
 	}
-}
