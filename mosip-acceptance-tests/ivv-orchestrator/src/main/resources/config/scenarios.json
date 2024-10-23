@@ -9464,7 +9464,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process with biometric exception for face and iris and gets UIN card. Later updates Biometric data for face and iris and performs authentication with face biometrics",
+		"Description": "Resident walk-ins to registration center completes the process with biometric exception for iris and gets UIN card. Later updates Biometric data for face and iris and performs authentication with face biometrics",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -9493,129 +9493,135 @@
 			"Description": "Generates the persona file",
 			"Input Parameters": "Details are in parameters in-line comments",
 			"Return Value": "Persona file path",
-			"Action": "$$personaFilePath=e2e_getResidentData(1/*NUMBER_OF_RESIDENTS*/,adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male,leftIris@@rightIris@@face)"
+			"Action": "$$personaFilePath=e2e_getResidentData(1/*NUMBER_OF_RESIDENTS*/,adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
 		},
 		"Step-5": {
+			"Description": "Updates persona with Biometric exception",
+			"Input Parameters": "Details are in parameters in-line comments",
+			"Return Value": "Persona file path",
+			"Action": "e2e_UpdateBioExceptionInPersona($$personaFilePath,Iris:Left@@Iris:Right)"
+		},
+		"Step-6": {
 			"Description": "Generates packet template based on the persona data",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
 			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
 		},
-		"Step-6": {
+		"Step-7": {
 			"Description": "Genertes and uploads packet with given persona and packet template skipping pre-registration step",
 			"Input Parameters": "Persona file path and template file path",
 			"Return Value": "RID",
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
-		"Step-7": {
+		"Step-8": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
 		},
-		"Step-8": {
+		"Step-9": {
 			"Description": "Gets the UIN for the given RID",
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin=e2e_getUINByRid($$rid)"
 		},
-		"Step-9": {
+		"Step-10": {
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
 			"Action": "e2e_wait(90)"
 		},
-		"Step-10": {
+		"Step-11": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(face@@leftiris@@rightIris,0/*MISS_FIELDS*/,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris,0/*MISS_FIELDS*/,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath)"
 		},
-		"Step-11": {
+		"Step-12": {
 			"Description": "Updates persona with UIN",
 			"Input Parameters": "Persona file path and UIN",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithUIN($$personaFilePath,$$uin)"
 		},
-		"Step-12": {
+		"Step-13": {
 			"Description": "Generates packet template based on the persona data",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
 			"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$personaFilePath)"
 		},
-		"Step-13": {
+		"Step-14": {
 			"Description": "Genertes and uploads packet with given persona and packet template skipping pre-registration step",
 			"Input Parameters": "Persona file path and template file path",
 			"Return Value": "RID",
 			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$updateTemplate)"
 		},
-		"Step-14": {
+		"Step-15": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
 		},
-		"Step-15": {
+		"Step-16": {
 			"Description": "Gets the UIN for the given RID",
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin2=e2e_getUINByRid($$rid2)"
 		},
-		"Step-16": {
+		"Step-17": {
 			"Description": "Gets Email ID configuired for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
 		},
-		"Step-17": {
+		"Step-18": {
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
 			"Action": "e2e_wait(90)"
 		},
-		"Step-18": {
+		"Step-19": {
 			"Description": "Generated VID for the given UIN",
 			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
 			"Return Value": "VID",
 			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin2,$$email)"
 		},
-		"Step-19": {
+		"Step-20": {
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
 			"Action": "e2e_wait(90)"
 		},
-		"Step-20": {
+		"Step-21": {
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$uin2,$$vid,$$personaFilePath)"
 		},
-		"Step-21": {
+		"Step-22": {
 			"Description": "Creates OIDC client",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "$$clientId=e2e_OidcClient()"
 		},
-		"Step-22": {
+		"Step-23": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
 		},
-		"Step-23": {
+		"Step-24": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
 		},
-		"Step-24": {
+		"Step-25": {
 			"Description": "Peforms eSignet based biometric authentication",
 			"Input Parameters": "Modalities, persona file path, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_BioEsignetAuthentication(faceDevice,$$uin2,$$personaFilePath,$$transactionId1,$$vid,$$transactionId2)"
 		},
-		"Step-25": {
+		"Step-26": {
 			"Description": "Gets user info after eSignet based authentication",
 			"Input Parameters": "Transaction ID and OIDC client ID",
 			"Return Value": "NA",
