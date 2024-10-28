@@ -88,7 +88,7 @@ public class TestDataController {
 		this.packetJobService = packetJobService;
 	}
 
-	@Operation(summary = "Create the server context")
+	@Operation(summary = "Initialize the server context")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully created the server context") })
 	@PostMapping(value = "/servercontext/{contextKey}")
@@ -103,7 +103,7 @@ public class TestDataController {
 		}
 	}
 
-	@Operation(summary = "Get the server context")
+	@Operation(summary = "Retrieve the server context")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrived the server context") })
 	@GetMapping(value = "/servercontext/{contextKey}")
@@ -183,7 +183,7 @@ public class TestDataController {
 		return Base64.getUrlEncoder().encodeToString(cryptoUtil.encrypt("test".getBytes(), "referenceId", contextKey));
 	}
 
-	@Operation(summary = "Sync the RID")
+	@Operation(summary = "Synchronize the packet")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "RID synced successfully") })
 	@PostMapping(value = "/ridsync/{contextKey}")
 	public @ResponseBody String syncRid(@RequestBody SyncRidDto syncRidDto,
@@ -427,7 +427,7 @@ public class TestDataController {
 	 * Download from pre-reg, merge with the given packet template and upload to
 	 * register
 	 */
-	@Operation(summary = "Registering for a given pre-registration-Id")
+	@Operation(summary = "Sync and upload the packet")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully registered for pre-registration") })
 	@PostMapping(value = "/packet/sync/{preregId}/{getRidFromSync}/{genarateValidCbeff}/{contextKey}")
