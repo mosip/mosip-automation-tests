@@ -48,7 +48,7 @@ public class PacketController {
 	 * Create a packet from Resident data for the target context requestDto may
 	 * contain PersonaRequestType.PR_Options
 	 */
-	@Operation(summary = "Creating packet")
+	@Operation(summary = "Create a packet")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Packet created successfully") })
 	@PostMapping(value = "/packet/create/{contextKey}")
 	public @ResponseBody String createPacket(@RequestBody PreRegisterRequestDto requestDto,
@@ -69,7 +69,7 @@ public class PacketController {
 		return "{\"Failed\"}";
 	}
 
-	@Operation(summary = "Packing the packet")
+	@Operation(summary = "Pack the packet")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Packet packed successfully") })
 	@PostMapping(value = "/packet/pack/{contextKey}")
 	public @ResponseBody String packPacket(@RequestBody PreRegisterRequestDto requestDto,
@@ -95,7 +95,7 @@ public class PacketController {
 		return "{\"Failed\"}";
 	}
 
-	@Operation(summary = "Create the CBEFF template for packet processing")
+	@Operation(summary = "Create the packet template for synchronization and upload")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "CBEFF template created successfully") })
 	@PostMapping(value = "/packet/template/{process}/{qualityScore}/{genarateValidCbeff}/{contextKey}")
 	public @ResponseBody String createTemplate(@RequestBody PreRegisterRequestDto requestDto,
@@ -117,7 +117,7 @@ public class PacketController {
 		}
 	}
 
-	@Operation(summary = "Bulk uploading of the packets")
+	@Operation(summary = "Bulk upload of packets")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Bulk upload of packet is successful") })
 	@PostMapping(value = "/packet/bulkupload/{contextKey}")
 	public @ResponseBody String bulkUploadPackets(@RequestBody List<String> packetPaths,
@@ -137,7 +137,7 @@ public class PacketController {
 
 	}
 
-	@Operation(summary = "Get the tags of the packet")
+	@Operation(summary = "Fetch the tags related to the packet")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved the tags of the packet") })
 	@GetMapping(value = "/packet/getTags/{contextKey}")
@@ -151,7 +151,7 @@ public class PacketController {
 		return "{\"Failed\"}";
 	}
 
-	@Operation(summary = "Get the device certificate cache")
+	@Operation(summary = "Clear the device certificate cache from mock mds")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Validation successful") })
 	@GetMapping(value = "/clearDeviceCertCache/{contextKey}")
 	public @ResponseBody String clearDeviceCertCache(@PathVariable("contextKey") String contextKey) {

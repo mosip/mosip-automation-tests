@@ -46,7 +46,7 @@ public class PersonaController {
 		this.packetSyncService = packetSyncService;
 	}
 
-	@Operation(summary = "Update given persona record with the given list of attribute values")
+	@Operation(summary = "Update the specified persona record with the provided attribute values")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully updated the persona record") })
 	@PutMapping(value = "/persona/{id}/{contextKey}")
@@ -67,7 +67,7 @@ public class PersonaController {
 
 	}
 
-	@Operation(summary = "Update given persona record with the given list of biometric exceptions")
+	@Operation(summary = "Update the specified persona record with the provided biometric exceptions")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully updated the persona record") })
 	@PutMapping(value = "/persona/bioexceptions/{contextKey}")
@@ -87,7 +87,7 @@ public class PersonaController {
 
 	}
 
-	@Operation(summary = "Create persona record as per the given specification")
+	@Operation(summary = "Create a persona record based on the provided specifications")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully created the persona record") })
 	@PostMapping(value = "/persona/{count}/{contextKey}")
@@ -119,7 +119,7 @@ public class PersonaController {
 		return "{Failed}";
 	}
 
-	@Operation(summary = "Return from the given persona record , list of specified attribute values")
+	@Operation(summary = "Retrieve specified attribute values from the given persona record")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Persona record retrived successfully") })
 	@GetMapping(value = "/persona/{contextKey}")
 	public @ResponseBody String getPersonaData(@RequestBody List<UpdatePersonaDto> personaRequestDto,

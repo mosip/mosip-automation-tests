@@ -36,7 +36,7 @@ public class ContextController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ContextController.class);
 
-	@Operation(summary = "Creating the server context")
+	@Operation(summary = "Initialize the server context")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully created the server context") })
 	@PostMapping(value = "/context/server/{contextKey}")
@@ -82,7 +82,7 @@ public class ContextController {
 		}
 	}
 
-	@Operation(summary = "Getting the server context")
+	@Operation(summary = "Retrieve the server context")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved the server context") })
 	@GetMapping(value = "/context/server/{contextKey}")
@@ -96,7 +96,7 @@ public class ContextController {
 		return bRet;
 	}
 
-	@Operation(summary = "Reset the context data")
+	@Operation(summary = "Reset the server context data")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Context data reset successfully") })
 	@GetMapping(value = "/resetContextData/{contextKey}")
 	public @ResponseBody String resetContextData(@PathVariable("contextKey") String contextKey) {
