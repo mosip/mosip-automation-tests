@@ -132,12 +132,16 @@ public class TestDataController {
 		return "Failed!";
 	}
 
-	@Operation(summary = "Get the API test data")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully retrived the test data") })
-	@GetMapping(value = "/auth/{contextKey}")
-	public @ResponseBody String getAPITestData(@PathVariable("contextKey") String contextKey) {
-		return String.valueOf(apiUtil.initToken(contextKey));
-	}
+	/*
+	 * @Operation(summary = "Get the API test data")
+	 * 
+	 * @ApiResponses(value = { @ApiResponse(responseCode = "200", description =
+	 * "Successfully retrived the test data") })
+	 * 
+	 * @GetMapping(value = "/auth/{contextKey}") public @ResponseBody String
+	 * getAPITestData(@PathVariable("contextKey") String contextKey) { return
+	 * String.valueOf(apiUtil.initToken(contextKey)); }
+	 */
 
 	@Operation(summary = "Clear the token")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Token is cleared successfully") })
@@ -220,14 +224,17 @@ public class TestDataController {
 		}
 	}
 
-	@Operation(summary = "Start the job")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Job is started successfully") })
-	@GetMapping(value = "/startjob/{contextKey}")
-	public @ResponseBody String startJob(@PathVariable("contextKey") String contextKey) {
-		String response = jobScheduler.scheduleRecurrently(() -> packetJobService.execute(contextKey),
-				Cron.every5minutes());
-		return response;
-	}
+	/*
+	 * @Operation(summary = "Start the job")
+	 * 
+	 * @ApiResponses(value = { @ApiResponse(responseCode = "200", description =
+	 * "Job is started successfully") })
+	 * 
+	 * @GetMapping(value = "/startjob/{contextKey}") public @ResponseBody String
+	 * startJob(@PathVariable("contextKey") String contextKey) { String response =
+	 * jobScheduler.scheduleRecurrently(() -> packetJobService.execute(contextKey),
+	 * Cron.every5minutes()); return response; }
+	 */
 
 	@Operation(summary = "Make the packet and sync it")
 	@ApiResponses(value = {

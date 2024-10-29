@@ -166,22 +166,24 @@ public class PersonaController {
 
 	}
 
-	@Operation(summary = "Update the machine details")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Successfully updated the machine details") })
-	@PutMapping(value = "/updateMachine/{contextKey}")
-	public @ResponseBody String updateMachine(@RequestBody MosipMachineModel machine,
-			@PathVariable("contextKey") String contextKey) {
-		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
-			return packetSyncService.updateMachine(machine, contextKey);
-
-		} catch (Exception ex) {
-			logger.error("updateMachine", ex);
-		}
-		return "{Failed}";
-	}
+	/*
+	 * @Operation(summary = "Update the machine details")
+	 * 
+	 * @ApiResponses(value = {
+	 * 
+	 * @ApiResponse(responseCode = "200", description =
+	 * "Successfully updated the machine details") })
+	 * 
+	 * @PutMapping(value = "/updateMachine/{contextKey}") public @ResponseBody
+	 * String updateMachine(@RequestBody MosipMachineModel machine,
+	 * 
+	 * @PathVariable("contextKey") String contextKey) { try { if (personaConfigPath
+	 * != null && !personaConfigPath.equals("")) { DataProviderConstants.RESOURCE =
+	 * personaConfigPath; } return packetSyncService.updateMachine(machine,
+	 * contextKey);
+	 * 
+	 * } catch (Exception ex) { logger.error("updateMachine", ex); } return
+	 * "{Failed}"; }
+	 */
 
 }
