@@ -34,6 +34,8 @@
  * 
  * @Autowired CommandsService commandsService;
  * 
+ * 
+ * 
  * @GetMapping(value = "/exec/{testcaseId}/{IsSynchronous}/{contextKey}")
  * 
  * @Operation(summary = "Executing the job")
@@ -128,25 +130,7 @@
  * } catch (IOException e) { logger.error(e.getMessage()); } return "{Failed}";
  * }
  * 
- * @GetMapping("/ping/{eSignetDeployed}/{contextKey}")
  * 
- * @Operation(summary = "Verify target environment", description =
- * "Verify if the target environment (context) is available.", responses = {
- * 
- * @ApiResponse(responseCode = "200", description =
- * "Target environment verified successfully") }) public @ResponseBody String
- * checkContext(@RequestParam(name = "module", required = false) String module,
- * 
- * @PathVariable String eSignetDeployed, @PathVariable("contextKey") String
- * contextKey) {
- * 
- * try {
- * 
- * return commandsService.checkContext(contextKey, module, eSignetDeployed);
- * 
- * } catch (Exception e) {
- * 
- * logger.error(e.getMessage()); } return "{Failed}"; }
  * 
  * @GetMapping(value = "/generatekey/{machineId}/{contextKey}")
  * 

@@ -3,6 +3,8 @@ package io.mosip.testrig.dslrig.packetcreator.controller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 
 import org.jobrunr.scheduling.cron.Cron;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
+import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.PreRegisterRequestDto;
@@ -105,6 +109,8 @@ public class CertificateController {
 	 * 
 	 * return "failed"; }
 	 */
+	
+	@Operation(summary = "Upload a device PKCS#12 file")
     @PostMapping(value = "/uploadDeviceCert/{contextKey}")
     public @ResponseBody String uploadDeviceCert( @RequestBody String encodedDeviceCert,@PathVariable("contextKey") String contextKey) {
         try {
@@ -124,6 +130,30 @@ public class CertificateController {
             return "{\"error\":\"" + e.getMessage() + "\"}";
         }
     }
+    
+	@Operation(summary = "Clear the device certificate cache from mock mds")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Validation successful") })
+	@GetMapping(value = "/clearDeviceCertCache/{contextKey}")
+	public @ResponseBody String clearDeviceCertCache(@PathVariable("contextKey") String contextKey) {
+		try {
+			Path p12path = null;
+			String certsDir = System.getenv(BiometricDataProvider.AUTHCERTSPATH) == null
+					? VariableManager.getVariableValue(contextKey, BiometricDataProvider.AUTHCERTSPATH).toString()
+					: System.getenv(BiometricDataProvider.AUTHCERTSPATH);
+
+			if (certsDir == null || certsDir.length() == 0) {
+				certsDir = System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS";
+			}
+
+			p12path = Paths.get(certsDir, "DSL-IDA-" + VariableManager.getVariableValue(contextKey, "db-server"));
+
+			SBIDeviceHelper.evictKeys(p12path.toString());
+			return "{\"Success\"}";
+		} catch (Exception ex) {
+			logger.error("Clear device certificate cache ", ex);
+		}
+		return "{\"Failed\"}";
+	}
 
 	/*
 	 * @Operation(summary = "Generating and uploading the partner certificate")
