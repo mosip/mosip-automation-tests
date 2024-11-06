@@ -35,7 +35,7 @@
 
 	<groupId>io.mosip.testrig.dslrig.packetcreator</groupId>
 	<artifactId>dslrig-packetcreator</artifactId>
-	<version>1.2.1-java21-SNAPSHOT</version>
+	<version>1.2.1-SNAPSHOT</version>
 	<name>dslrig-packetcreator</name>
 	<description>dslrig-packetcreator</description>
 
@@ -43,7 +43,7 @@
 		<java.version>21</java.version>
 		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
 		<spring-cloud.version>2023.0.1</spring-cloud.version>
-		<kernel.core.version>1.2.1-java21-SNAPSHOT</kernel.core.version>
+		<kernel.core.version>1.2.1-SNAPSHOT</kernel.core.version>
 	</properties>
 
 	<dependencies>
@@ -136,7 +136,7 @@
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.dataprovider</groupId>
 			<artifactId>dslrig-dataprovider</artifactId>
-			<version>1.2.1-java21-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>io.mosip.kernel</groupId>
@@ -236,7 +236,7 @@
 			<dependency>
 				<groupId>io.mosip.kernel</groupId>
 				<artifactId>kernel-bom</artifactId>
-				<version>1.2.1-java21-SNAPSHOT</version>
+				<version>1.2.1-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
