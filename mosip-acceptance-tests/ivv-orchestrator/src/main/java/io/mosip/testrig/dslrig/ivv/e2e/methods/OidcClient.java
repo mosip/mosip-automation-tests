@@ -5,14 +5,14 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.idrepo.testscripts.PostWithOnlyPathParam;
+import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
+import io.mosip.testrig.apirig.masterdata.testscripts.SimplePostForAutoGenId;
+import io.mosip.testrig.apirig.masterdata.testscripts.SimplePut;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.testscripts.PostWithOnlyPathParam;
-import io.mosip.testrig.apirig.testscripts.SimplePost;
-import io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId;
-import io.mosip.testrig.apirig.testscripts.SimplePut;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -33,7 +33,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 	private static final String UploadPartnerCertificateYml = "idaData/PmsIntegration/UploadCert/UploadCert.yml";
 	private static final String RequestAPIKeyForAuthPartnerYml = "idaData/PmsIntegration/RequestAPIKey/RequestAPIKey.yml";
 	private static final String ApproveAPIKeyYml = "idaData/PmsIntegration/ApproveAPIKey/ApproveAPIKey.yml";
-	private static final String OidcClientYml = "idaData/OidcClient/OIDCClient.yml";
+	private static final String OidcClientYml = "idaData/CreateOIDCClient/CreateOIDCClient.yml";
 	SimplePostForAutoGenId createPolicyGroup = new SimplePostForAutoGenId();
 	SimplePostForAutoGenId definePolicy = new SimplePostForAutoGenId();
 	PostWithOnlyPathParam publishPolicy = new PostWithOnlyPathParam();
