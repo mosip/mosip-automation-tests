@@ -6,13 +6,13 @@
     <parent>
         <groupId>io.mosip.testrig.dslrig.ivv</groupId>
         <artifactId>dslrig-ivv-parent</artifactId>
-        <version>1.2.1-java21-SNAPSHOT</version>
+        <version>1.2.1-SNAPSHOT</version>
     </parent>
 
     <groupId>io.mosip.testrig.dslrig.ivv.orchestrator</groupId>
     <artifactId>dslrig-ivv-orchestrator</artifactId>
     <name>mosip-dsl-test</name>
-    <version>1.2.1-java21-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
 
     <properties>
         <suiteXmlFile>testng.xml</suiteXmlFile>
@@ -61,7 +61,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>dslrig-ivv-orchestrator-1.2.1-java21-SNAPSHOT-jar-with-dependencies</finalName>
+                            <finalName>dslrig-ivv-orchestrator-1.2.1-SNAPSHOT-jar-with-dependencies</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -94,13 +94,13 @@
         <dependency>
             <groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
             <artifactId>dslrig-ivv-core</artifactId>
-            <version>1.2.1-java21-SNAPSHOT</version>
+            <version>1.2.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
             <artifactId>dslrig-ivv-dg</artifactId>
-            <version>1.2.1-java21-SNAPSHOT</version>
+            <version>1.2.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -228,7 +228,7 @@
             <dependency>
                 <groupId>io.mosip.kernel</groupId>
                 <artifactId>kernel-bom</artifactId>
-                <version>1.2.1-java21-SNAPSHOT</version>
+                <version>1.2.1-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
