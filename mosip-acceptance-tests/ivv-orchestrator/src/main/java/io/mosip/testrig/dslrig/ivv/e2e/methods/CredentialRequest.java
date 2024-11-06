@@ -6,10 +6,10 @@ import org.json.JSONObject;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.auth.testscripts.PostWithBodyWithOtpGenerate;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.testscripts.PostWithBodyWithOtpGenerate;
-import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
