@@ -33,7 +33,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 	private static final String UploadPartnerCertificateYml = "idaData/PmsIntegration/UploadCert/UploadCert.yml";
 	private static final String RequestAPIKeyForAuthPartnerYml = "idaData/PmsIntegration/RequestAPIKey/RequestAPIKey.yml";
 	private static final String ApproveAPIKeyYml = "idaData/PmsIntegration/ApproveAPIKey/ApproveAPIKey.yml";
-	private static final String OidcClientYml = "idaData/CreateOIDCClient/CreateOIDCClient.yml";
+	private static final String OidcClientYml = "idaData/OidcClient/OIDCClient.yml";
 	SimplePostForAutoGenId createPolicyGroup = new SimplePostForAutoGenId();
 	SimplePostForAutoGenId definePolicy = new SimplePostForAutoGenId();
 	PostWithOnlyPathParam publishPolicy = new PostWithOnlyPathParam();
