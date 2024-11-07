@@ -12463,7 +12463,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$ridLost,PRINT_SERVICE,PROCESSED,RPR-UIN-SUCCESS-005)"
+			"Action": "e2e_CheckRIDStage($$ridLost,PRINT_SERVICE,PROCESSED)"
 		}
 	},
 	{
