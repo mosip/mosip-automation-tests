@@ -9,7 +9,7 @@ import org.testng.Reporter;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 
 import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.testscripts.GetWithParamForDownloadCard;
+import io.mosip.testrig.apirig.resident.testscripts.GetWithParamForDownloadCard;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;

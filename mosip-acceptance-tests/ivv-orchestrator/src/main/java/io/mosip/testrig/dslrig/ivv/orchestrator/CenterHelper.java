@@ -6,14 +6,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.masterdata.testscripts.PatchWithPathParam;
+import io.mosip.testrig.apirig.masterdata.testscripts.PutWithPathParam;
+import io.mosip.testrig.apirig.masterdata.testscripts.SimplePut;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
-import io.mosip.testrig.apirig.testscripts.GetWithParam;
-import io.mosip.testrig.apirig.testscripts.GetWithQueryParam;
-import io.mosip.testrig.apirig.testscripts.PatchWithPathParam;
-import io.mosip.testrig.apirig.testscripts.PutWithPathParam;
-import io.mosip.testrig.apirig.testscripts.SimplePost;
-import io.mosip.testrig.apirig.testscripts.SimplePut;
+import io.mosip.testrig.apirig.masterdata.testscripts.GetWithParam;
+import io.mosip.testrig.apirig.masterdata.testscripts.GetWithQueryParam;
+import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.restassured.response.Response;
 
