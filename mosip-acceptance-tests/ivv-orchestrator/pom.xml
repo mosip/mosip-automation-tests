@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>io.mosip.testrig.dslrig.ivv</groupId>
@@ -34,8 +32,7 @@
 							<target>
 								<!-- Create a shell script to run the JAR file
 								with executable permission -->
-								<chmod file="${project.build.directory}/*.jar"
-									perm="ugo+rx" />
+								<chmod file="${project.build.directory}/*.jar" perm="ugo+rx" />
 							</target>
 						</configuration>
 					</execution>
@@ -65,11 +62,9 @@
 							<transformers>
 								<!-- need this to merge the services files
 								properly -->
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
 								<!-- add Main-Class to manifest file -->
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>
 										io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner</mainClass>
 								</transformer>
@@ -133,18 +128,23 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>io.mosip.authentication</groupId>
+			<artifactId>apitest-auth</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+        	<dependency>
 			<groupId>io.mosip.esignet</groupId>
 			<artifactId>apitest-esignet</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>io.mosip.authentication</groupId>
-			<artifactId>apitest-auth</artifactId>
+			<groupId>io.mosip.masterdata</groupId>
+			<artifactId>apitest-masterdata</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>io.mosip.masterdata</groupId>
-			<artifactId>apitest-masterdata</artifactId>
+			<groupId>io.mosip.idrepo</groupId>
+			<artifactId>apitest-idrepo</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -234,21 +234,21 @@
 		<profile>
 			<id>sonar</id>
 			<properties>
-			
-					<!-- Spring version -->
-		<spring.version>5.0.6.RELEASE</spring.version>
 
-		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
-		<spring.data.jpa.version>2.0.7.RELEASE</spring.data.jpa.version>
-		<spring.security.test.version>5.0.5.RELEASE</spring.security.test.version>
-		<spring-cloud-config.version>2.0.0.RELEASE</spring-cloud-config.version>
+				<!-- Spring version -->
+				<spring.version>5.0.6.RELEASE</spring.version>
 
-		<swagger.core.version>2.0.7</swagger.core.version>
-		<swagger.annotations.version>1.5.20</swagger.annotations.version>
-		<springfox.version>2.9.2</springfox.version>
+				<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
+				<spring.data.jpa.version>2.0.7.RELEASE</spring.data.jpa.version>
+				<spring.security.test.version>5.0.5.RELEASE</spring.security.test.version>
+				<spring-cloud-config.version>2.0.0.RELEASE</spring-cloud-config.version>
 
-		<vertx.version>3.6.2</vertx.version>
-		<vertx.health.check.version>3.7.0</vertx.health.check.version>
+				<swagger.core.version>2.0.7</swagger.core.version>
+				<swagger.annotations.version>1.5.20</swagger.annotations.version>
+				<springfox.version>2.9.2</springfox.version>
+
+				<vertx.version>3.6.2</vertx.version>
+				<vertx.health.check.version>3.7.0</vertx.health.check.version>
 
 				<sonar.sources>.</sonar.sources>
 				<sonar.inclusions>src/main/java/**,src/main/resources/**</sonar.inclusions>
