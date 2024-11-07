@@ -166,7 +166,7 @@ public class PacketSyncService {
 		}
 	}
 
-	public String generateResidentData(int count, PersonaRequestDto residentRequestDto, String contextKey) {
+	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) {
 		logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
 		// TO do --Check why we need to load the context here
 //		loadServerContextProperties(contextKey);
@@ -177,7 +177,7 @@ public class PacketSyncService {
 		if (props.containsKey("Gender")) {
 			enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
 		}
-		provider.addCondition(ResidentAttribute.RA_Count, count);
+//		provider.addCondition(ResidentAttribute.RA_Count, count);
 
 		if (props.containsKey("Age")) {
 
