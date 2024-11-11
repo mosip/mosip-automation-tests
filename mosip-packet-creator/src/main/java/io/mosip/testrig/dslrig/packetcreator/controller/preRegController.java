@@ -1,7 +1,5 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
-import java.util.HashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -158,66 +156,6 @@ public class preRegController {
 		}
 		return "{Failed}";
 	}
-	
-	/*
-	 * @Operation(summary = "Requesting the OTP")
-	 * 
-	 * @ApiResponses(value = { @ApiResponse(responseCode = "200", description =
-	 * "OTP requested successfully") })
-	 * 
-	 * @PostMapping(value = "/requestotp/{to}/{contextKey}") public @ResponseBody
-	 * String requestOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-	 * 
-	 * @PathVariable("to") String to, @PathVariable("contextKey") String contextKey)
-	 * {
-	 * 
-	 * try { if (personaConfigPath != null && !personaConfigPath.equals("")) {
-	 * DataProviderConstants.RESOURCE = personaConfigPath; } return
-	 * packetSyncService.requestOtp(preRegisterRequestDto.getPersonaFilePath(), to,
-	 * contextKey);
-	 * 
-	 * } catch (Exception ex) { logger.error("requestOtp", ex); } return "{Failed}";
-	 * }
-	 */
-
-	@Operation(summary = "Verifying the OTP")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OTP verified successfully") })
-	@PostMapping(value = "/verifyotp/{to}/{contextKey}")
-	public @ResponseBody String verifyOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-			@PathVariable("to") String to, @PathVariable("contextKey") String contextKey) {
-
-		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
-			return packetSyncService.verifyOtp(preRegisterRequestDto.getPersonaFilePath().get(0), to, null, contextKey);
-
-		} catch (Exception ex) {
-			logger.error("verifyOtp", ex);
-		}
-		return "{Failed}";
-	}
-
-	/*
-	 * Book first nn th available slot
-	 */
-	@Operation(summary = "Booking the Appointment for a given pre-registration-Id")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Appointment booked successfully") })
-	@PostMapping(value = "/bookappointment/{preregid}/{nthSlot}/{contextKey}")
-	public @ResponseBody String bookAppointment1(@PathVariable("preregid") String preregId,
-			@PathVariable("nthSlot") int nthSlot, @PathVariable("contextKey") String contextKey) {
-
-		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
-			return packetSyncService.bookAppointment(preregId, nthSlot, contextKey);
-
-		} catch (Exception ex) {
-			logger.error("bookAppointment", ex);
-		}
-		return "{\"Failed\"}";
-	}
 
 	/*
 	 * Book first nn th available slot
@@ -301,6 +239,25 @@ public class preRegController {
 		return "{\"Failed\"}";
 	}
 
+	@Operation(summary = "Upload documents for a given pre-registration-Id from specified persona")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully uploaded the documents") })
+	@PostMapping(value = "/documents/{preregid}/{contextKey}")
+	public @ResponseBody String uploadDocuments(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
+			@PathVariable("preregid") String preregId, @PathVariable("contextKey") String contextKey) {
+
+		try {
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+			return packetSyncService.uploadDocuments(preRegisterRequestDto.getPersonaFilePath().get(0), preregId,
+					contextKey);
+
+		} catch (Exception ex) {
+			logger.error("uploadDocuments", ex);
+		}
+		return "{\"Failed\"}";
+	}
+
 	@Operation(summary = "Cancel appointment for a given pre-registration-Id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully cancelled the appointment") })
@@ -347,62 +304,6 @@ public class preRegController {
 			logger.error("updatePreRegStatus", ex);
 		}
 		return "{Failed}";
-	}
-	
-	@Operation(summary = "Uploading the document for a given pre-registration-Id")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Document uploaded successfully") })
-	@PostMapping(value = "/documents/{preregid}/{contextKey}")
-	public @ResponseBody String uploadDocuments(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-			@PathVariable("preregid") String preregId, @PathVariable("contextKey") String contextKey) {
-
-		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
-			return packetSyncService.uploadDocuments(preRegisterRequestDto.getPersonaFilePath().get(0), preregId,
-					contextKey);
-
-		} catch (Exception ex) {
-			logger.error("uploadDocuments", ex);
-		}
-		return "{\"Failed\"}";
-	}
-
-	@Operation(summary = "Delete Booking appointment for a given pre-registration-Id")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted the appointment") })
-	@DeleteMapping(value = "/preregistration/v1/applications/appointment/{contextKey}")
-	public @ResponseBody String deleteAppointment(@RequestParam(name = "preRegistrationId") String preregId,
-			@PathVariable("contextKey") String contextKey) {
-		HashMap<String, String> map = new HashMap<String, String>();
-		map.put("preRegistrationId", preregId);
-		return packetSyncService.discardBooking(map, contextKey);
-
-	}
-
-	@Operation(summary = "Update appointment for a given PreRegID")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully updated the appointment") })
-	@PutMapping(value = "/preregistration/v1/applications/appointment/{preregid}/{contextKey}")
-	public @ResponseBody String updateAppointment(@PathVariable("preregid") String preregid,
-			@PathVariable("contextKey") String contextKey) {
-		try {
-
-			return packetSyncService.updatePreRegAppointment(preregid, contextKey);
-
-		} catch (Exception ex) {
-			logger.error("registerResident", ex);
-		}
-		return "{Failed}";
-	}
-
-	@Operation(summary = "Discard Applications for a given pre-registration-Id")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Successfully discarded the application") })
-	@DeleteMapping(value = "/preregistration/v1/applications/{preregid}/{contextKey}")
-	public @ResponseBody String discardApplication(@PathVariable("preregid") String preregId,
-			@PathVariable("contextKey") String contextKey) {
-
-		return packetSyncService.deleteApplication(preregId, contextKey);
-
 	}
 
 }

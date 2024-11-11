@@ -58,7 +58,7 @@ public class ResidentDataProvider {
 	
 	public ResidentDataProvider() {
 		attributeList = new Properties();
-		//attributeList.put(ResidentAttribute.RA_Count, 1);
+		attributeList.put(ResidentAttribute.RA_Count, 1);
 		//attributeList.put(ResidentAttribute.RA_PRIMARAY_LANG, DataProviderConstants.LANG_CODE_ENGLISH);
 		//attributeList.put(ResidentAttribute.RA_Country, "PHIL");
 		RestClient.clearToken();
@@ -73,7 +73,7 @@ public class ResidentDataProvider {
 		attributes.forEach( (k,v) ->{
 			attributeList.put(k, v);
 		});
-		//attributeList.put(ResidentAttribute.RA_Count, 1);
+		attributeList.put(ResidentAttribute.RA_Count, 1);
 		attributeList.put(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
 		attributeList.put(ResidentAttribute.RA_Gender, Gender.Any);
 		
@@ -209,7 +209,7 @@ public class ResidentDataProvider {
 		
 		List<ResidentModel> residents = new ArrayList<ResidentModel>();
 		
-		int count = 1;
+		int count = (int) attributeList.get(ResidentAttribute.RA_Count);
 		Gender gender =  (Gender) attributeList.get(ResidentAttribute.RA_Gender);
 		String primary_lang = (String) attributeList.get(ResidentAttribute.RA_PRIMARAY_LANG);
 		String sec_lang = (String) attributeList.get(ResidentAttribute.RA_SECONDARY_LANG);
@@ -518,7 +518,7 @@ public class ResidentDataProvider {
 	public static void main(String[] args) throws Exception {
 		
 		ResidentDataProvider residentProvider = new ResidentDataProvider();
-		residentProvider
+		residentProvider.addCondition(ResidentAttribute.RA_Count, 1)
 		.addCondition(ResidentAttribute.RA_SECONDARY_LANG, "ara")
 		.addCondition(ResidentAttribute.RA_Gender, Gender.Any)
 		.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
