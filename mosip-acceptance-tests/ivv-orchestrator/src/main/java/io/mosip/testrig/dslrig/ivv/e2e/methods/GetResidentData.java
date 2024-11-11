@@ -29,17 +29,19 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 
+		int nofResident = 1;
 		String ageCategory = "";
 		Boolean bSkipGuardian = false;
 		String missFields = null;
 		String[] bioFlag = null;
 		HashMap<String, String> genderAndBioFlag = new HashMap<String, String>();
-		if (!step.getParameters().isEmpty() && step.getParameters().size() >= 3) {
-			ageCategory = step.getParameters().get(0);
-			bSkipGuardian = Boolean.parseBoolean(step.getParameters().get(1));
+		if (!step.getParameters().isEmpty() && step.getParameters().size() > 3) {
+			nofResident = Integer.parseInt(step.getParameters().get(0));
+			ageCategory = step.getParameters().get(1);
+			bSkipGuardian = Boolean.parseBoolean(step.getParameters().get(2));
 
-			if (step.getParameters().get(2).contains("@@")) {
-				bioFlag = step.getParameters().get(2).split("@@");
+			if (step.getParameters().get(3).contains("@@")) {
+				bioFlag = step.getParameters().get(3).split("@@");
 				genderAndBioFlag.put("Gender", bioFlag[0]);
 				genderAndBioFlag.put("Iris", bioFlag[1]);
 				genderAndBioFlag.put("Finger", bioFlag[2]);
@@ -47,7 +49,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 
 			} else {
 
-				genderAndBioFlag.put("Gender", step.getParameters().get(2));
+				genderAndBioFlag.put("Gender", step.getParameters().get(3));
 				genderAndBioFlag.put("Iris", "true");
 				genderAndBioFlag.put("Finger", "true");
 				genderAndBioFlag.put("Face", "true");
@@ -56,8 +58,8 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 
 			// Get Miss attrobutes list
 
-			if (step.getParameters().size() > 3)
-				missFields = step.getParameters().get(3).replaceAll("@@", ",");
+			if (step.getParameters().size() > 4)
+				missFields = step.getParameters().get(4).replaceAll("@@", ",");
 
 		} else {
 			logger.warn("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");
@@ -67,7 +69,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 
 		// Generate Resident for all ages
 		cleanData();
-		Response response = packetUtility.generateResident(ageCategory, bSkipGuardian, missFields,
+		Response response = packetUtility.generateResident(nofResident, ageCategory, bSkipGuardian, missFields,
 				genderAndBioFlag, step);
 		JSONObject jsonObject = new JSONObject(response.getBody().asString());
 		JSONArray resp = new JSONObject(response.getBody().asString()).getJSONArray("response");
