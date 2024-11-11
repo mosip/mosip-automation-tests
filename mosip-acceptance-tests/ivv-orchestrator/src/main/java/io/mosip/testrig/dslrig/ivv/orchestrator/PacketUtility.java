@@ -173,10 +173,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public Response generateResident(String ageCategory, Boolean bSkipGuardian, String missFields,
+	public Response generateResident(int n, String ageCategory, Boolean bSkipGuardian, String missFields,
 			HashMap<String, String> genderAndBioFlag, Scenario.Step step) throws RigInternalError {
 
-		String url = baseUrl + props.getProperty("getResidentUrl");
+		String url = baseUrl + props.getProperty("getResidentUrl") + n;
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
 		JSONObject residentAttrib = new JSONObject();
