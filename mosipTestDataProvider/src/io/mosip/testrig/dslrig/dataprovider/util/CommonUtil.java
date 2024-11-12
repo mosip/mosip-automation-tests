@@ -36,9 +36,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
-
-import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
-
 import java.io.*;
 
 public class CommonUtil {
@@ -279,11 +276,6 @@ public class CommonUtil {
 //		try (OutputStream outputStream = new FileOutputStream(filePath.toString())) {
 //			mapper.writeValue(outputStream, bytes);
 //		}
-	}
-	
-	public static void writeToCache(Path filePath, byte[] bytes ,String contextKey) throws IOException {
-		 String fileContent = new String(bytes, StandardCharsets.UTF_8);
-		VariableManager.setVariableValue(contextKey, filePath.toString(), fileContent);
 	}
 	
 	

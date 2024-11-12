@@ -9,7 +9,6 @@ import com.ibm.icu.text.Transliterator;
 
 import io.mosip.testrig.dslrig.dataprovider.CSVHelper;
 import io.mosip.testrig.dslrig.dataprovider.models.Name;
-import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class Translator {
@@ -25,14 +24,9 @@ public class Translator {
 	static String getLanguageID(String langIsoCode,String contextKey) {
 	
 		String v ="Any-Any";
-		IDlookupFile =VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.datapath").toString()+"Address/lang-isocode-transid.csv";
-		
-		Object obj = VariableManager.getVariableValue(MosipMasterData.RUN_CONTEXT, IDlookupFile);
-		if (obj != null) {
-			return  (String) obj;
-		}
 		
 		try {
+			IDlookupFile =VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.datapath").toString()+"Address/lang-isocode-transid.csv";
 			CSVHelper csv = new CSVHelper(IDlookupFile);
 			String[] rec;
 			csv.open();
@@ -48,7 +42,6 @@ public class Translator {
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
-		VariableManager.setVariableValue(MosipMasterData.RUN_CONTEXT, IDlookupFile, v);
 		return v;
 	}
 	
