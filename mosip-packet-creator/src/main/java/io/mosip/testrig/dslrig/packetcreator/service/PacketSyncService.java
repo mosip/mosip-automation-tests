@@ -169,6 +169,7 @@ public class PacketSyncService {
 	public String generateResidentData(int count, PersonaRequestDto residentRequestDto, String contextKey) {
 
 		loadServerContextProperties(contextKey);
+		logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
 		VariableManager.setVariableValue(contextKey, "process", "NEW");
 		Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
 		Gender enumGender = Gender.Any;
@@ -176,7 +177,7 @@ public class PacketSyncService {
 		if (props.containsKey("Gender")) {
 			enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
 		}
-//		provider.addCondition(ResidentAttribute.RA_Count, count);
+		provider.addCondition(ResidentAttribute.RA_Count, count);
 
 		if (props.containsKey("Age")) {
 

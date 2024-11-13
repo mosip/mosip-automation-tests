@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +19,6 @@ import com.sun.management.OperatingSystemMXBean;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
-import io.mosip.testrig.dslrig.packetcreator.service.CommandsService;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,12 +34,9 @@ public class ContextController {
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
-	@Autowired
-	CommandsService commandsService;
-
 	private static final Logger logger = LoggerFactory.getLogger(ContextController.class);
 
-	@Operation(summary = "Initialize the server context")
+	@Operation(summary = "Creating the server context")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully created the server context") })
 	@PostMapping(value = "/context/server/{contextKey}")
@@ -86,7 +81,7 @@ public class ContextController {
 			 * "Returns the total amount of swap space in bytes:" +
 			 * Long.toString(osBean.getTotalSwapSpaceSize())); }
 			 */
-
+			 
 			return contextUtils.createUpdateServerContext(contextProperties, contextKey);
 		} catch (Exception ex) {
 			logger.error("createServerContext", ex);
@@ -94,27 +89,7 @@ public class ContextController {
 		}
 	}
 
-	@GetMapping("/ping/{eSignetDeployed}/{contextKey}")
-
-	@Operation(summary = "Verify target environment", description = "Verify if the target environment (context) is available.", responses = {
-
-			@ApiResponse(responseCode = "200", description = "Target environment verified successfully") })
-	public @ResponseBody String checkContext(@RequestParam(name = "module", required = false) String module,
-
-			@PathVariable String eSignetDeployed, @PathVariable("contextKey") String contextKey) {
-
-		try {
-
-			return commandsService.checkContext(contextKey, module, eSignetDeployed);
-
-		} catch (Exception e) {
-
-			logger.error(e.getMessage());
-		}
-		return "{Failed}";
-	}
-
-	@Operation(summary = "Retrieve the server context")
+	@Operation(summary = "Getting the server context")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved the server context") })
 	@GetMapping(value = "/context/server/{contextKey}")
@@ -128,7 +103,7 @@ public class ContextController {
 		return bRet;
 	}
 
-	@Operation(summary = "Reset the server context data")
+	@Operation(summary = "Reset the context data")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Context data reset successfully") })
 	@GetMapping(value = "/resetContextData/{contextKey}")
 	public @ResponseBody String resetContextData(@PathVariable("contextKey") String contextKey) {
