@@ -53,8 +53,15 @@ public class ContextController {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals(""))
 				DataProviderConstants.RESOURCE = personaConfigPath;
-//			VariableManager.Init(contextKey);
-
+			VariableManager.Init(contextKey);
+			/**
+			 * String generatePrivateKey =
+			 * contextProperties.getProperty("generatePrivateKey"); boolean isRequired =
+			 * Boolean.parseBoolean(generatePrivateKey); if (isRequired)
+			 * contextUtils.generateKeyAndUpdateMachineDetail(contextProperties,
+			 * contextKey);
+			 **/
+			
 			/*
 			 * if (RestClient.isDebugEnabled(contextKey)) { OperatingSystemMXBean osBean =
 			 * ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class); logger.

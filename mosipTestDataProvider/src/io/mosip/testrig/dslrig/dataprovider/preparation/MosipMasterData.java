@@ -54,7 +54,7 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public  class MosipMasterData {
 	private static final Logger logger = LoggerFactory.getLogger(MosipMasterData.class);
-	public static String RUN_CONTEXT = "run_context";
+	private static String RUN_CONTEXT = "run_context";
 
 	public static List<MosipBiometricAttributeModel> getBiometricAttrByTypes(String bioType,String lang,String contextKey){
 		
