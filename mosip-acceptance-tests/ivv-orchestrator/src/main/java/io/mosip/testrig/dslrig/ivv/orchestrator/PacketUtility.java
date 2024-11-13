@@ -1067,7 +1067,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		logger.info(jsonObject.toString());
 
 		Response response = putRequestWithBody(url, jsonObject.toString(), step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonObject.toString(), response.getBody().asString());
+//		GlobalMethods.ReportRequestAndResponse("", "", url, jsonObject.toString(), response.getBody().asString());
 		if (!(response.getStatusCode() == 200)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update bio exception  from packet utility");
