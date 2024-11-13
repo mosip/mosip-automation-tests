@@ -298,7 +298,7 @@ public class TestDataController {
 			}
 			// String uin = "";
 			// String rid = "1234567890";
-			return packetSyncService.updateResidentData(personaRequestDto.getRequests(), uin, rid, contextKey);
+			return packetSyncService.updateResidentData(personaRequestDto.getRequests(), uin, rid);
 
 		} catch (Exception ex) {
 			logger.error("registerResident", ex);

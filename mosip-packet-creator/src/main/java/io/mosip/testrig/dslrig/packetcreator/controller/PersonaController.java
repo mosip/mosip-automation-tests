@@ -56,7 +56,7 @@ public class PersonaController {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
-//			VariableManager.Init(contextKey);
+			VariableManager.Init(contextKey);
 
 			return packetSyncService.updatePersonaData(personaRequestDto, contextKey);
 
