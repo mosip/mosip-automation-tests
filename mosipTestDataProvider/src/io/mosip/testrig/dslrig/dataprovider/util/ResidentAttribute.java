@@ -1,7 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider.util;
 
 public enum ResidentAttribute {
-	RA_Count ,
 	RA_PRIMARAY_LANG,
 	RA_SECONDARY_LANG,
 	RA_THIRD_LANG,
@@ -27,4 +26,3 @@ public enum ResidentAttribute {
 	RA_MissList,
 	RA_SCHEMA_VERSION
 }
-

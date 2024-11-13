@@ -166,9 +166,10 @@ public class PacketSyncService {
 		}
 	}
 
-	public String generateResidentData(int count, PersonaRequestDto residentRequestDto, String contextKey) {
-
-		loadServerContextProperties(contextKey);
+	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) {
+		logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
+		// TO do --Check why we need to load the context here
+//		loadServerContextProperties(contextKey);
 		VariableManager.setVariableValue(contextKey, "process", "NEW");
 		Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
 		Gender enumGender = Gender.Any;
@@ -176,7 +177,7 @@ public class PacketSyncService {
 		if (props.containsKey("Gender")) {
 			enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
 		}
-		provider.addCondition(ResidentAttribute.RA_Count, count);
+//		provider.addCondition(ResidentAttribute.RA_Count, count);
 
 		if (props.containsKey("Age")) {
 
@@ -248,8 +249,13 @@ public class PacketSyncService {
 				r.setPath(tempPath.toString());
 
 				String jsonStr = r.toJSONString();
+				
+				
+				String personaAbsPath = tempPath.toFile().getAbsolutePath();
+				VariableManager.setVariableValue(contextKey, personaAbsPath, jsonStr);
 
-				CommonUtil.write(tempPath, jsonStr.getBytes());
+				// Write to a file only when debug enabled
+//			To Do --------- CommonUtil.write(tempPath, jsonStr.getBytes());
 
 				JSONObject id = new JSONObject();
 				id.put("id", r.getId());
@@ -264,6 +270,7 @@ public class PacketSyncService {
 		JSONObject response = new JSONObject();
 		response.put(STATUS, SUCCESS);
 		response.put(RESPONSE, outIds);
+		logger.info("Persona generated at time: " + System.currentTimeMillis());
 		return response.toString();
 	}
 
@@ -277,7 +284,7 @@ public class PacketSyncService {
 			String additionalInfoReqId, boolean getRidFromSync, boolean genarateValidCbeff) throws Exception {
 		if (RestClient.isDebugEnabled(contextKey))
 			logger.info("makePacketAndSync for PRID : {}", preregId);
-
+		logger.info("Entered makePacketAndSync at time: " + System.currentTimeMillis());
 		Path idJsonPath = null;
 		Path docPath = null;
 		preregId = preregId.trim();
@@ -317,9 +324,10 @@ public class PacketSyncService {
 			logger.info("Packet created : {}", packetPath);
 
 		if (getRidFromSync) {
-
+			logger.info("About to sync packet at time: " + System.currentTimeMillis());
 			response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", null, contextKey,
 					additionalInfoReqId);
+			logger.info("packet sync done  at time: " + System.currentTimeMillis());
 			if (RestClient.isDebugEnabled(contextKey))
 				logger.info("RID Sync response : {}", response);
 			JSONObject functionResponse = new JSONObject();
@@ -331,7 +339,9 @@ public class PacketSyncService {
 				if (resp.getString(STATUS).equals(SUCCESS)) {
 
 					String rid = resp.getString(REGISTRATIONID);
+					logger.info("About to upload packet at time: " + System.currentTimeMillis());
 					response = packetSyncService.uploadPacket(packetPath, contextKey);
+					logger.info("Uploaded packet at time: " + System.currentTimeMillis());
 					if (RestClient.isDebugEnabled(contextKey))
 						logger.info("Packet Sync response : {}", response);
 					JSONObject obj = new JSONObject(response);
@@ -363,7 +373,7 @@ public class PacketSyncService {
 
 				// Get the rid from the packet template
 				nobj.put(REGISTRATIONID, packetMakerService.getNewRegId());
-
+				logger.info("Packet sync and upload completed at time: " + System.currentTimeMillis());
 				return functionResponse;
 			}
 
@@ -828,13 +838,14 @@ public class PacketSyncService {
 
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
+		logger.info("Template generation started at time: " + System.currentTimeMillis());
 		boolean packetDirCreated = false;
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
 
 		RestClient.logInfo(contextKey, "createPacketTemplates->outDir:" + outDir);
 
-		loadServerContextProperties(contextKey);
+//		loadServerContextProperties(contextKey);
 		if (process != null) {
 			VariableManager.setVariableValue(contextKey, "process", process);
 		}
@@ -894,6 +905,7 @@ public class PacketSyncService {
 
 		JSONObject response = new JSONObject();
 		response.put("packets", packetPaths);
+		logger.info("Template generated at time: " + System.currentTimeMillis());
 		return response.toString();
 
 	}
@@ -1222,7 +1234,7 @@ public class PacketSyncService {
 				List<String> missList = req.getMissAttributeList();
 				if (missList != null && !missList.isEmpty())
 					persona.setMissAttributes(missList);
-				persona.save();
+//				persona.save();
 
 				persona.writePersona(req.getPersonaFilePath());
 
@@ -1234,7 +1246,7 @@ public class PacketSyncService {
 		return ret;
 	}
 
-	public String updateResidentData(Hashtable<PersonaRequestType, Properties> hashtable, String uin, String rid)
+	public String updateResidentData(Hashtable<PersonaRequestType, Properties> hashtable, String uin, String rid, String contextKey)
 			throws IOException {
 
 		Properties list = hashtable.get(PersonaRequestType.PR_ResidentList);

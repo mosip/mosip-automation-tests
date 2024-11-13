@@ -54,7 +54,7 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public  class MosipMasterData {
 	private static final Logger logger = LoggerFactory.getLogger(MosipMasterData.class);
-	private static String RUN_CONTEXT = "run_context";
+	public static String RUN_CONTEXT = "run_context";
 
 	public static List<MosipBiometricAttributeModel> getBiometricAttrByTypes(String bioType,String lang,String contextKey){
 		
@@ -1129,8 +1129,7 @@ public  class MosipMasterData {
 	static void testSchemaRule(String contextKey) {
 		
 		ResidentDataProvider residentProvider = new ResidentDataProvider();
-		residentProvider.addCondition(ResidentAttribute.RA_Count, 1)
-		.addCondition(ResidentAttribute.RA_SECONDARY_LANG, "ara")
+		residentProvider.addCondition(ResidentAttribute.RA_SECONDARY_LANG, "ara")
 		.addCondition(ResidentAttribute.RA_Gender, Gender.Any)
 		.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult)
 		.addCondition(ResidentAttribute.RA_Finger, false);
