@@ -167,7 +167,9 @@ public class PacketSyncService {
 	}
 
 	public String generateResidentData(int count, PersonaRequestDto residentRequestDto, String contextKey) {
-		String personaId=VariableManager.getVariableValue(contextKey, "personaId").toString();
+		String personaId = VariableManager.getVariableValue(contextKey, "personaId") != null 
+                ? VariableManager.getVariableValue(contextKey, "personaId").toString() 
+                : null;
 		JSONArray outIds = new JSONArray();
 		if(personaId!=null && !personaId.isEmpty()) {
 			JSONObject id = new JSONObject();
