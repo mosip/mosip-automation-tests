@@ -247,16 +247,8 @@ public class PacketSyncService {
 			for (ResidentModel r : lst) {
 				Path tempPath = Path.of(tmpDir, r.getId() + ".json");
 				r.setPath(tempPath.toString());
-
 				String jsonStr = r.toJSONString();
-				
-				
-				String personaAbsPath = tempPath.toFile().getAbsolutePath();
-				VariableManager.setVariableValue(contextKey, personaAbsPath, jsonStr);
-
-				// Write to a file only when debug enabled
-//			To Do --------- CommonUtil.write(tempPath, jsonStr.getBytes());
-
+				CommonUtil.write(tempPath, jsonStr.getBytes());
 				JSONObject id = new JSONObject();
 				id.put("id", r.getId());
 				id.put("path", tempPath.toFile().getAbsolutePath());
