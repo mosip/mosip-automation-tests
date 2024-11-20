@@ -56,7 +56,7 @@ public class PersonaController {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
-//			VariableManager.Init(contextKey);
+			VariableManager.Init(contextKey);
 
 			return packetSyncService.updatePersonaData(personaRequestDto, contextKey);
 
@@ -111,7 +111,7 @@ public class PersonaController {
 			// clear all tokens
 			// VariableManager.setVariableValue("urlSwitched", "true");
 
-			return packetSyncService.generateResidentData(count, residentRequestDto, contextKey).toString();
+			return packetSyncService.generateResidentData(residentRequestDto, contextKey).toString();
 
 		} catch (Exception ex) {
 			logger.error("generateResidentData", ex);
