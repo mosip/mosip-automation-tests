@@ -48,7 +48,7 @@ public class ContextController {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals(""))
 				DataProviderConstants.RESOURCE = personaConfigPath;
-//			VariableManager.Init(contextKey);
+			VariableManager.Init(contextKey);
 			
 			/*
 			 * if (RestClient.isDebugEnabled(contextKey)) { OperatingSystemMXBean osBean =
