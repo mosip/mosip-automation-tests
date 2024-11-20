@@ -54,9 +54,6 @@ public class PrintController {
 
 	@Value("${mosip.test.print.event.secret}")
 	private String websubSecret;
-
-	//@Value("${mosip.test.temp}")
-	private String tempPath;
 	
 	private static final Logger logger = LoggerFactory.getLogger(preRegController.class);
 	   

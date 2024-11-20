@@ -54,7 +54,6 @@ public class SchemaManagerController {
 	@GetMapping(value = "/schema/{contextKey}")
 	public @ResponseBody String getSchema(@PathVariable("contextKey") String contextKey) {
 
-		int i;
 		String schema;
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
