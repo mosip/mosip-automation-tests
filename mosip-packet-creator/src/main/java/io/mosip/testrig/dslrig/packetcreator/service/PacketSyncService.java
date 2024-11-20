@@ -166,117 +166,99 @@ public class PacketSyncService {
 		}
 	}
 
-	public String generateResidentData(int count, PersonaRequestDto residentRequestDto, String contextKey) {
-		String personaId = VariableManager.getVariableValue(contextKey, "personaId") != null 
-                ? VariableManager.getVariableValue(contextKey, "personaId").toString() 
-                : null;
-		JSONArray outIds = new JSONArray();
-		if(personaId!=null && !personaId.isEmpty()) {
-			JSONObject id = new JSONObject();
-			id.put("id",VariableManager.getVariableValue(contextKey, "id").toString());
-			id.put("path", personaId);
-			outIds.put(id);
-		}else {
-			logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
-			// TO do --Check why we need to load the context here
-//			loadServerContextProperties(contextKey);
-			VariableManager.setVariableValue(contextKey, "process", "NEW");
-			Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
-			Gender enumGender = Gender.Any;
-			ResidentDataProvider provider = new ResidentDataProvider();
-			if (props.containsKey("Gender")) {
-				enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
-			}
-			provider.addCondition(ResidentAttribute.RA_Count, count);
-
-			if (props.containsKey("Age")) {
-
-				provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.valueOf(props.get("Age").toString()));
-			} else
-				provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
-
-			if (props.containsKey("SkipGaurdian")) {
-				provider.addCondition(ResidentAttribute.RA_SKipGaurdian, props.get("SkipGaurdian"));
-			}
-			provider.addCondition(ResidentAttribute.RA_Gender, enumGender);
-
-			String primaryLanguage = "eng";
-			if (props.containsKey("PrimaryLanguage")) {
-				primaryLanguage = props.get("PrimaryLanguage").toString();
-				provider.addCondition(ResidentAttribute.RA_PRIMARAY_LANG, primaryLanguage);
-			}
-
-			if (props.containsKey("SecondaryLanguage")) {
-				provider.addCondition(ResidentAttribute.RA_SECONDARY_LANG, props.get("SecondaryLanguage").toString());
-			}
-			if (props.containsKey("Finger")) {
-				provider.addCondition(ResidentAttribute.RA_Finger, Boolean.parseBoolean(props.get("Finger").toString()));
-			}
-			if (props.containsKey("Iris")) {
-				provider.addCondition(ResidentAttribute.RA_Iris, Boolean.parseBoolean(props.get("Iris").toString()));
-			}
-			if (props.containsKey("Face")) {
-				provider.addCondition(ResidentAttribute.RA_Photo, Boolean.parseBoolean(props.get("Face").toString()));
-			}
-			if (props.containsKey("Document")) {
-				provider.addCondition(ResidentAttribute.RA_Document,
-						Boolean.parseBoolean(props.get("Document").toString()));
-			}
-			if (props.containsKey("Invalid")) {
-				List<String> invalidList = Arrays.asList(props.get("invalid").toString().split(",", -1));
-				provider.addCondition(ResidentAttribute.RA_InvalidList, invalidList);
-			}
-			if (props.containsKey("Miss")) {
-
-				List<String> missedList = Arrays.asList(props.get("Miss").toString().split(",", -1));
-				provider.addCondition(ResidentAttribute.RA_MissList, missedList);
-				RestClient.logInfo(contextKey, "before Genrate: missthese:" + missedList.toString());
-			}
-			if (props.containsKey("ThirdLanguage")) {
-
-				provider.addCondition(ResidentAttribute.RA_THIRD_LANG, props.get("ThirdLanguage").toString());
-			}
-			if (props.containsKey("SchemaVersion")) {
-
-				provider.addCondition(ResidentAttribute.RA_SCHEMA_VERSION, props.get("SchemaVersion").toString());
-			}
-
-			RestClient.logInfo(contextKey, "before Genrate");
-			List<ResidentModel> lst = provider.generate(contextKey);
-			RestClient.logInfo(contextKey, "After Genrate");
-
-			try {
-				String tmpDir;
-
-				tmpDir = Files.createTempDirectory("residents_").toFile().getAbsolutePath();
-
-				VariableManager.setVariableValue(contextKey, "residents_", tmpDir);
-
-				for (ResidentModel r : lst) {
-					Path tempPath = Path.of(tmpDir, r.getId() + ".json");
-					r.setPath(tempPath.toString());
-
-					String jsonStr = r.toJSONString();
-					
-					
-					String personaAbsPath = tempPath.toFile().getAbsolutePath();
-					VariableManager.setVariableValue(contextKey, "id", r.getId());
-					VariableManager.setVariableValue(contextKey, "personaId", personaAbsPath);
-					VariableManager.setVariableValue(contextKey, personaAbsPath, jsonStr);
-
-					// Write to a file only when debug enabled
-//				To Do --------- CommonUtil.write(tempPath, jsonStr.getBytes());
-
-					JSONObject id = new JSONObject();
-					id.put("id", r.getId());
-					id.put("path", tempPath.toFile().getAbsolutePath());
-					outIds.put(id);
-				}
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-				return "{\"" + e.getMessage() + "\"}";
-			}
+	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) {
+		logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
+		// TO do --Check why we need to load the context here
+//		loadServerContextProperties(contextKey);
+		VariableManager.setVariableValue(contextKey, "process", "NEW");
+		Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
+		Gender enumGender = Gender.Any;
+		ResidentDataProvider provider = new ResidentDataProvider();
+		if (props.containsKey("Gender")) {
+			enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
 		}
+//		provider.addCondition(ResidentAttribute.RA_Count, count);
+
+		if (props.containsKey("Age")) {
+
+			provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.valueOf(props.get("Age").toString()));
+		} else
+			provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
+
+		if (props.containsKey("SkipGaurdian")) {
+			provider.addCondition(ResidentAttribute.RA_SKipGaurdian, props.get("SkipGaurdian"));
+		}
+		provider.addCondition(ResidentAttribute.RA_Gender, enumGender);
+
+		String primaryLanguage = "eng";
+		if (props.containsKey("PrimaryLanguage")) {
+			primaryLanguage = props.get("PrimaryLanguage").toString();
+			provider.addCondition(ResidentAttribute.RA_PRIMARAY_LANG, primaryLanguage);
+		}
+
+		if (props.containsKey("SecondaryLanguage")) {
+			provider.addCondition(ResidentAttribute.RA_SECONDARY_LANG, props.get("SecondaryLanguage").toString());
+		}
+		if (props.containsKey("Finger")) {
+			provider.addCondition(ResidentAttribute.RA_Finger, Boolean.parseBoolean(props.get("Finger").toString()));
+		}
+		if (props.containsKey("Iris")) {
+			provider.addCondition(ResidentAttribute.RA_Iris, Boolean.parseBoolean(props.get("Iris").toString()));
+		}
+		if (props.containsKey("Face")) {
+			provider.addCondition(ResidentAttribute.RA_Photo, Boolean.parseBoolean(props.get("Face").toString()));
+		}
+		if (props.containsKey("Document")) {
+			provider.addCondition(ResidentAttribute.RA_Document,
+					Boolean.parseBoolean(props.get("Document").toString()));
+		}
+		if (props.containsKey("Invalid")) {
+			List<String> invalidList = Arrays.asList(props.get("invalid").toString().split(",", -1));
+			provider.addCondition(ResidentAttribute.RA_InvalidList, invalidList);
+		}
+		if (props.containsKey("Miss")) {
+
+			List<String> missedList = Arrays.asList(props.get("Miss").toString().split(",", -1));
+			provider.addCondition(ResidentAttribute.RA_MissList, missedList);
+			RestClient.logInfo(contextKey, "before Genrate: missthese:" + missedList.toString());
+		}
+		if (props.containsKey("ThirdLanguage")) {
+
+			provider.addCondition(ResidentAttribute.RA_THIRD_LANG, props.get("ThirdLanguage").toString());
+		}
+		if (props.containsKey("SchemaVersion")) {
+
+			provider.addCondition(ResidentAttribute.RA_SCHEMA_VERSION, props.get("SchemaVersion").toString());
+		}
+
+		RestClient.logInfo(contextKey, "before Genrate");
+		List<ResidentModel> lst = provider.generate(contextKey);
+		RestClient.logInfo(contextKey, "After Genrate");
+
+		JSONArray outIds = new JSONArray();
+
+		try {
+			String tmpDir;
+
+			tmpDir = Files.createTempDirectory("residents_").toFile().getAbsolutePath();
+
+			VariableManager.setVariableValue(contextKey, "residents_", tmpDir);
+
+			for (ResidentModel r : lst) {
+				Path tempPath = Path.of(tmpDir, r.getId() + ".json");
+				r.setPath(tempPath.toString());
+				String jsonStr = r.toJSONString();
+				CommonUtil.write(tempPath, jsonStr.getBytes());
+				JSONObject id = new JSONObject();
+				id.put("id", r.getId());
+				id.put("path", tempPath.toFile().getAbsolutePath());
+				outIds.put(id);
+			}
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+			return "{\"" + e.getMessage() + "\"}";
+		}
+
 		JSONObject response = new JSONObject();
 		response.put(STATUS, SUCCESS);
 		response.put(RESPONSE, outIds);
