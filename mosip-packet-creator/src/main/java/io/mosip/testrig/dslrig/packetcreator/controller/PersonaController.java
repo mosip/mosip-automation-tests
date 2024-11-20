@@ -111,7 +111,7 @@ public class PersonaController {
 			// clear all tokens
 			// VariableManager.setVariableValue("urlSwitched", "true");
 
-			return packetSyncService.generateResidentData(residentRequestDto, contextKey).toString();
+			return packetSyncService.generateResidentData(count,residentRequestDto, contextKey).toString();
 
 		} catch (Exception ex) {
 			logger.error("generateResidentData", ex);
