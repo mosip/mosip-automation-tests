@@ -46,7 +46,7 @@ public class ResidentService {
 	  public String downloadCard(String personaPath, String uin, String context) throws Exception{
 		  
 			loadServerContextProperties(context);
-			ResidentModel resident = ResidentModel.readPersona(personaPath, context);
+			ResidentModel resident = ResidentModel.readPersona(personaPath);
 			RegistrationSteps steps = new RegistrationSteps();
 			String resp = steps.downloadCard(resident, uin,context);
 			  
