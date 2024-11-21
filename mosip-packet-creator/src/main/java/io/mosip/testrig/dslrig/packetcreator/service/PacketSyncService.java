@@ -166,99 +166,117 @@ public class PacketSyncService {
 		}
 	}
 
-	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) {
-		logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
-		// TO do --Check why we need to load the context here
-//		loadServerContextProperties(contextKey);
-		VariableManager.setVariableValue(contextKey, "process", "NEW");
-		Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
-		Gender enumGender = Gender.Any;
-		ResidentDataProvider provider = new ResidentDataProvider();
-		if (props.containsKey("Gender")) {
-			enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
-		}
-//		provider.addCondition(ResidentAttribute.RA_Count, count);
-
-		if (props.containsKey("Age")) {
-
-			provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.valueOf(props.get("Age").toString()));
-		} else
-			provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
-
-		if (props.containsKey("SkipGaurdian")) {
-			provider.addCondition(ResidentAttribute.RA_SKipGaurdian, props.get("SkipGaurdian"));
-		}
-		provider.addCondition(ResidentAttribute.RA_Gender, enumGender);
-
-		String primaryLanguage = "eng";
-		if (props.containsKey("PrimaryLanguage")) {
-			primaryLanguage = props.get("PrimaryLanguage").toString();
-			provider.addCondition(ResidentAttribute.RA_PRIMARAY_LANG, primaryLanguage);
-		}
-
-		if (props.containsKey("SecondaryLanguage")) {
-			provider.addCondition(ResidentAttribute.RA_SECONDARY_LANG, props.get("SecondaryLanguage").toString());
-		}
-		if (props.containsKey("Finger")) {
-			provider.addCondition(ResidentAttribute.RA_Finger, Boolean.parseBoolean(props.get("Finger").toString()));
-		}
-		if (props.containsKey("Iris")) {
-			provider.addCondition(ResidentAttribute.RA_Iris, Boolean.parseBoolean(props.get("Iris").toString()));
-		}
-		if (props.containsKey("Face")) {
-			provider.addCondition(ResidentAttribute.RA_Photo, Boolean.parseBoolean(props.get("Face").toString()));
-		}
-		if (props.containsKey("Document")) {
-			provider.addCondition(ResidentAttribute.RA_Document,
-					Boolean.parseBoolean(props.get("Document").toString()));
-		}
-		if (props.containsKey("Invalid")) {
-			List<String> invalidList = Arrays.asList(props.get("invalid").toString().split(",", -1));
-			provider.addCondition(ResidentAttribute.RA_InvalidList, invalidList);
-		}
-		if (props.containsKey("Miss")) {
-
-			List<String> missedList = Arrays.asList(props.get("Miss").toString().split(",", -1));
-			provider.addCondition(ResidentAttribute.RA_MissList, missedList);
-			RestClient.logInfo(contextKey, "before Genrate: missthese:" + missedList.toString());
-		}
-		if (props.containsKey("ThirdLanguage")) {
-
-			provider.addCondition(ResidentAttribute.RA_THIRD_LANG, props.get("ThirdLanguage").toString());
-		}
-		if (props.containsKey("SchemaVersion")) {
-
-			provider.addCondition(ResidentAttribute.RA_SCHEMA_VERSION, props.get("SchemaVersion").toString());
-		}
-
-		RestClient.logInfo(contextKey, "before Genrate");
-		List<ResidentModel> lst = provider.generate(contextKey);
-		RestClient.logInfo(contextKey, "After Genrate");
-
+	public String generateResidentData(int count, PersonaRequestDto residentRequestDto, String contextKey) {
+		String personaId = VariableManager.getVariableValue(contextKey, "personaId") != null 
+                ? VariableManager.getVariableValue(contextKey, "personaId").toString() 
+                : null;
 		JSONArray outIds = new JSONArray();
-
-		try {
-			String tmpDir;
-
-			tmpDir = Files.createTempDirectory("residents_").toFile().getAbsolutePath();
-
-			VariableManager.setVariableValue(contextKey, "residents_", tmpDir);
-
-			for (ResidentModel r : lst) {
-				Path tempPath = Path.of(tmpDir, r.getId() + ".json");
-				r.setPath(tempPath.toString());
-				String jsonStr = r.toJSONString();
-				CommonUtil.write(tempPath, jsonStr.getBytes());
-				JSONObject id = new JSONObject();
-				id.put("id", r.getId());
-				id.put("path", tempPath.toFile().getAbsolutePath());
-				outIds.put(id);
+		if(personaId!=null && !personaId.isEmpty()) {
+			JSONObject id = new JSONObject();
+			id.put("id",VariableManager.getVariableValue(contextKey, "id").toString());
+			id.put("path", personaId);
+			outIds.put(id);
+		}else {
+			logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
+			// TO do --Check why we need to load the context here
+//			loadServerContextProperties(contextKey);
+			VariableManager.setVariableValue(contextKey, "process", "NEW");
+			Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
+			Gender enumGender = Gender.Any;
+			ResidentDataProvider provider = new ResidentDataProvider();
+			if (props.containsKey("Gender")) {
+				enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
 			}
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-			return "{\"" + e.getMessage() + "\"}";
-		}
+			provider.addCondition(ResidentAttribute.RA_Count, count);
 
+			if (props.containsKey("Age")) {
+
+				provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.valueOf(props.get("Age").toString()));
+			} else
+				provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
+
+			if (props.containsKey("SkipGaurdian")) {
+				provider.addCondition(ResidentAttribute.RA_SKipGaurdian, props.get("SkipGaurdian"));
+			}
+			provider.addCondition(ResidentAttribute.RA_Gender, enumGender);
+
+			String primaryLanguage = "eng";
+			if (props.containsKey("PrimaryLanguage")) {
+				primaryLanguage = props.get("PrimaryLanguage").toString();
+				provider.addCondition(ResidentAttribute.RA_PRIMARAY_LANG, primaryLanguage);
+			}
+
+			if (props.containsKey("SecondaryLanguage")) {
+				provider.addCondition(ResidentAttribute.RA_SECONDARY_LANG, props.get("SecondaryLanguage").toString());
+			}
+			if (props.containsKey("Finger")) {
+				provider.addCondition(ResidentAttribute.RA_Finger, Boolean.parseBoolean(props.get("Finger").toString()));
+			}
+			if (props.containsKey("Iris")) {
+				provider.addCondition(ResidentAttribute.RA_Iris, Boolean.parseBoolean(props.get("Iris").toString()));
+			}
+			if (props.containsKey("Face")) {
+				provider.addCondition(ResidentAttribute.RA_Photo, Boolean.parseBoolean(props.get("Face").toString()));
+			}
+			if (props.containsKey("Document")) {
+				provider.addCondition(ResidentAttribute.RA_Document,
+						Boolean.parseBoolean(props.get("Document").toString()));
+			}
+			if (props.containsKey("Invalid")) {
+				List<String> invalidList = Arrays.asList(props.get("invalid").toString().split(",", -1));
+				provider.addCondition(ResidentAttribute.RA_InvalidList, invalidList);
+			}
+			if (props.containsKey("Miss")) {
+
+				List<String> missedList = Arrays.asList(props.get("Miss").toString().split(",", -1));
+				provider.addCondition(ResidentAttribute.RA_MissList, missedList);
+				RestClient.logInfo(contextKey, "before Genrate: missthese:" + missedList.toString());
+			}
+			if (props.containsKey("ThirdLanguage")) {
+
+				provider.addCondition(ResidentAttribute.RA_THIRD_LANG, props.get("ThirdLanguage").toString());
+			}
+			if (props.containsKey("SchemaVersion")) {
+
+				provider.addCondition(ResidentAttribute.RA_SCHEMA_VERSION, props.get("SchemaVersion").toString());
+			}
+
+			RestClient.logInfo(contextKey, "before Genrate");
+			List<ResidentModel> lst = provider.generate(contextKey);
+			RestClient.logInfo(contextKey, "After Genrate");
+
+			try {
+				String tmpDir;
+
+				tmpDir = Files.createTempDirectory("residents_").toFile().getAbsolutePath();
+
+				VariableManager.setVariableValue(contextKey, "residents_", tmpDir);
+
+				for (ResidentModel r : lst) {
+					Path tempPath = Path.of(tmpDir, r.getId() + ".json");
+					r.setPath(tempPath.toString());
+
+					String jsonStr = r.toJSONString();
+					
+					
+					String personaAbsPath = tempPath.toFile().getAbsolutePath();
+					VariableManager.setVariableValue(contextKey, "id", r.getId());
+					VariableManager.setVariableValue(contextKey, "personaId", personaAbsPath);
+					VariableManager.setVariableValue(contextKey, personaAbsPath, jsonStr);
+
+					// Write to a file only when debug enabled
+//				To Do --------- CommonUtil.write(tempPath, jsonStr.getBytes());
+
+					JSONObject id = new JSONObject();
+					id.put("id", r.getId());
+					id.put("path", tempPath.toFile().getAbsolutePath());
+					outIds.put(id);
+				}
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+				return "{\"" + e.getMessage() + "\"}";
+			}
+		}
 		JSONObject response = new JSONObject();
 		response.put(STATUS, SUCCESS);
 		response.put(RESPONSE, outIds);
@@ -381,7 +399,7 @@ public class PacketSyncService {
 	public Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFile);
+		ResidentModel resident = ResidentModel.readPersona(personaFile, contextKey);
 		JSONObject jsonIdentity = CreatePersona.createIdentity(resident, null, contextKey);
 		JSONObject jsonWrapper = new JSONObject();
 		jsonWrapper.put("identity", jsonIdentity);
@@ -613,7 +631,7 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 
 		for (String path : personaFilePath) {
-			ResidentModel resident = ResidentModel.readPersona(path);
+			ResidentModel resident = ResidentModel.readPersona(path,contextKey);
 			String response = PreRegistrationSteps.postApplication(resident, null, contextKey);
 			// preregid
 			saveRegIDMap(response, path);
@@ -626,7 +644,7 @@ public class PacketSyncService {
 			throws IOException {
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath,contextKey);
 		return PreRegistrationSteps.putApplication(resident, preregId, contextKey);
 
 	}
@@ -668,7 +686,7 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 
 		for (String path : personaFilePath) {
-			ResidentModel resident = ResidentModel.readPersona(path);
+			ResidentModel resident = ResidentModel.readPersona(path, contextKey);
 			ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 			builder.append(preReg.sendOtpTo(to, contextKey));
 
@@ -679,7 +697,7 @@ public class PacketSyncService {
 	public String verifyOtp(String personaFilePath, String to, String otp, String contextKey) throws IOException {
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath, contextKey);
 		ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 
 		       if(otp != null && otp.isEmpty()) {
@@ -815,7 +833,7 @@ public class PacketSyncService {
 		String response = "";
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath, contextKey);
 
 		for (MosipDocument a : resident.getDocuments()) {
 			JSONObject respObject = PreRegistrationSteps.UploadDocument(a.getDocCategoryCode(),
@@ -869,7 +887,7 @@ public class PacketSyncService {
 						new JSONObject(), contextKey);
 			}
 			for (String path : personaFilePaths) {
-				ResidentModel resident = ResidentModel.readPersona(path);
+				ResidentModel resident = ResidentModel.readPersona(path,contextKey);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				RestClient.logInfo(contextKey, "packetPath=" + packetPath);
 				machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
@@ -1050,7 +1068,7 @@ public class PacketSyncService {
 
 		for (UpdatePersonaDto req : getPersonaRequest) {
 
-			ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
+			ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath(), contextKey);
 			List<String> retrieveAttrs = req.getRetriveAttributeList();
 			if (retrieveAttrs != null) {
 				for (String attr : retrieveAttrs) {
@@ -1207,12 +1225,12 @@ public class PacketSyncService {
 		String ret = "{Sucess}";
 		for (UpdatePersonaDto req : updatePersonaRequest) {
 			try {
-				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
+				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath(), contextKey);
 				List<String> regenAttrs = req.getRegenAttributeList();
 				if (regenAttrs != null) {
 					for (String attr : regenAttrs) {
 						if (req.getTestPersonaPath() != null) {
-							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath());
+							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath(), contextKey);
 							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
 						} else {
 							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
@@ -1228,7 +1246,7 @@ public class PacketSyncService {
 					persona.setMissAttributes(missList);
 //				persona.save();
 
-				persona.writePersona(req.getPersonaFilePath());
+				persona.writePersona(req.getPersonaFilePath(), contextKey);
 
 			} catch (IOException e) {
 				logger.error("updatePersonaData:" + e.getMessage());
@@ -1252,24 +1270,24 @@ public class PacketSyncService {
 			String keyS = key.toString().toLowerCase();
 			if (keyS.startsWith("uin")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident);
+				persona = ResidentModel.readPersona(filePathResident, contextKey);
 				persona.setUIN(uin);
 			} else if (keyS.toString().startsWith("rid")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident);
+				persona = ResidentModel.readPersona(filePathResident, contextKey);
 				persona.setRID(rid);
 			} else if (keyS.toString().startsWith("child")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident);
+				persona = ResidentModel.readPersona(filePathResident, contextKey);
 			} else if (keyS.startsWith("guardian")) {
 				filePathParent = list.get(key).toString();
-				guardian = ResidentModel.readPersona(filePathParent);
+				guardian = ResidentModel.readPersona(filePathParent, contextKey);
 			}
 		}
 		if (guardian != null && persona != null)
 			persona.setGuardian(guardian);
 		if (persona != null) {
-			CommonUtil.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
+			CommonUtil.writeToCache(Paths.get(filePathResident), persona.toJSONString().getBytes(), contextKey);
 			return "{\"response\":\"SUCCESS\"}";
 		} else {
 			return "{\"response\":\"FAIL\"}";
@@ -1283,11 +1301,11 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 		String ret = "{Sucess}";
 		try {
-			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath());
+			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath(),contextKey);
 
 			persona.setBioExceptions(personaBERequestDto.getExceptions());
 
-			persona.writePersona(personaBERequestDto.getPersonaFilePath());
+			persona.writePersona(personaBERequestDto.getPersonaFilePath(), contextKey);
 		} catch (Exception e) {
 			logger.error("updatePersonaBioExceptions:" + e.getMessage());
 		}
@@ -1420,7 +1438,7 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 		for (MockABISExpectationsDto expct : expectations) {
 
-			ResidentModel persona = ResidentModel.readPersona(expct.getPersonaPath());
+			ResidentModel persona = ResidentModel.readPersona(expct.getPersonaPath(), contextKey);
 
 			List<String> modalities = expct.getModalities();
 			List<MDSDeviceCaptureModel> capFingers = persona.getBiometric().getCapture()
