@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
+import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import lombok.Data;
 import java.io.*;
 import java.io.FileInputStream;
@@ -118,8 +120,11 @@ public class ResidentModel  implements Serializable {
 		return jsonStr;
 	}
 	
-	public void save() throws IOException {
-		Files.write(Paths.get(path), this.toJSONString().getBytes());
+	public void save(String contextKey) throws IOException {
+		if(RestClient.isDebugEnabled(contextKey)) {
+			Files.write(Paths.get(path), this.toJSONString().getBytes());
+		}
+		VariableManager.setVariableValue(contextKey, path, this.toJSONString());
 	}
 	
 	
@@ -132,29 +137,31 @@ public class ResidentModel  implements Serializable {
 //	    }
 //	}
 	
-	public static ResidentModel readPersona(String filePath) throws IOException {
-    	
-    	ObjectMapper mapper = new ObjectMapper();
-    	//mapper.registerModule(new SimpleModule().addDeserializer(Pair.class,new PairDeserializer()));
-    //	mapper.registerModule(new SimpleModule().addSerializer(Pair.class, new PairSerializer()));
-    	byte[] bytes = CommonUtil.read(filePath);
-    	ResidentModel model = mapper.readValue(bytes, ResidentModel.class);
-		model.setPath(filePath);
+	public static ResidentModel readPersona(String filePath, String contextKey) throws IOException {
+
+		ResidentModel model = null;
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			byte[] bytes = VariableManager.getVariableValue(contextKey, filePath).toString().getBytes();
+//        	byte[] bytes = CommonUtil.read(filePath);
+			model = mapper.readValue(bytes, ResidentModel.class);
+			model.setPath(filePath);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+
 		return model;
-    }
-	
-	
-//	public void writePersona(String filePath) throws IOException {
-//	    ObjectMapper mapper = new ObjectMapper();
-//   try (OutputStream outputStream = new FileOutputStream(filePath)) {
-//	   mapper.writeValue(outputStream, this.toJSONString().getBytes());
-//
-//	    }
-//	}
-	
-	public void writePersona(String filePath) throws IOException {
-		Files.write(Paths.get(filePath), this.toJSONString().getBytes());
 	}
+	
+	
+	public void writePersona(String filePath, String contextKey) throws IOException {
+		
+		if(RestClient.isDebugEnabled(contextKey)) {
+			Files.write(Paths.get(filePath), this.toJSONString().getBytes());
+		}
+		VariableManager.setVariableValue(contextKey, filePath, this.toJSONString());
+	}
+	
 	public static void main(String [] args) {
 		
 		ResidentModel model  = new ResidentModel();
