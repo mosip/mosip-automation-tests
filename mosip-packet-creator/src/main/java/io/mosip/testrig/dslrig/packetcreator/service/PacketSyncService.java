@@ -255,6 +255,10 @@ public class PacketSyncService {
 					Path tempPath = Path.of(tmpDir, r.getId() + ".json");
 					r.setPath(tempPath.toString());
 					String jsonStr = r.toJSONString();
+					String personaAbsPath = tempPath.toFile().getAbsolutePath();
+					VariableManager.setVariableValue(contextKey, "id", r.getId());
+					VariableManager.setVariableValue(contextKey, "personaId", personaAbsPath);
+					VariableManager.setVariableValue(contextKey, personaAbsPath, jsonStr);
 					CommonUtil.write(tempPath, jsonStr.getBytes());
 					JSONObject id = new JSONObject();
 					id.put("id", r.getId());
@@ -388,7 +392,7 @@ public class PacketSyncService {
 	public Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFile, contextKey);
+		ResidentModel resident = ResidentModel.readPersona(personaFile,contextKey);
 		JSONObject jsonIdentity = CreatePersona.createIdentity(resident, null, contextKey);
 		JSONObject jsonWrapper = new JSONObject();
 		jsonWrapper.put("identity", jsonIdentity);
@@ -675,7 +679,7 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 
 		for (String path : personaFilePath) {
-			ResidentModel resident = ResidentModel.readPersona(path, contextKey);
+			ResidentModel resident = ResidentModel.readPersona(path,contextKey);
 			ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 			builder.append(preReg.sendOtpTo(to, contextKey));
 
@@ -686,7 +690,7 @@ public class PacketSyncService {
 	public String verifyOtp(String personaFilePath, String to, String otp, String contextKey) throws IOException {
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath, contextKey);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath,contextKey);
 		ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 
 		       if(otp != null && otp.isEmpty()) {
@@ -822,7 +826,7 @@ public class PacketSyncService {
 		String response = "";
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath, contextKey);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath,contextKey);
 
 		for (MosipDocument a : resident.getDocuments()) {
 			JSONObject respObject = PreRegistrationSteps.UploadDocument(a.getDocCategoryCode(),
@@ -1057,7 +1061,7 @@ public class PacketSyncService {
 
 		for (UpdatePersonaDto req : getPersonaRequest) {
 
-			ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath(), contextKey);
+			ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath(),contextKey);
 			List<String> retrieveAttrs = req.getRetriveAttributeList();
 			if (retrieveAttrs != null) {
 				for (String attr : retrieveAttrs) {
@@ -1214,12 +1218,12 @@ public class PacketSyncService {
 		String ret = "{Sucess}";
 		for (UpdatePersonaDto req : updatePersonaRequest) {
 			try {
-				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath(), contextKey);
+				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath(),contextKey);
 				List<String> regenAttrs = req.getRegenAttributeList();
 				if (regenAttrs != null) {
 					for (String attr : regenAttrs) {
 						if (req.getTestPersonaPath() != null) {
-							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath(), contextKey);
+							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath(),contextKey);
 							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
 						} else {
 							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
@@ -1235,7 +1239,7 @@ public class PacketSyncService {
 					persona.setMissAttributes(missList);
 //				persona.save();
 
-				persona.writePersona(req.getPersonaFilePath(), contextKey);
+				persona.writePersona(req.getPersonaFilePath(),contextKey);
 
 			} catch (IOException e) {
 				logger.error("updatePersonaData:" + e.getMessage());
@@ -1259,24 +1263,24 @@ public class PacketSyncService {
 			String keyS = key.toString().toLowerCase();
 			if (keyS.startsWith("uin")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident, contextKey);
+				persona = ResidentModel.readPersona(filePathResident,contextKey);
 				persona.setUIN(uin);
 			} else if (keyS.toString().startsWith("rid")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident, contextKey);
+				persona = ResidentModel.readPersona(filePathResident,contextKey);
 				persona.setRID(rid);
 			} else if (keyS.toString().startsWith("child")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident, contextKey);
+				persona = ResidentModel.readPersona(filePathResident,contextKey);
 			} else if (keyS.startsWith("guardian")) {
 				filePathParent = list.get(key).toString();
-				guardian = ResidentModel.readPersona(filePathParent, contextKey);
+				guardian = ResidentModel.readPersona(filePathParent,contextKey);
 			}
 		}
 		if (guardian != null && persona != null)
 			persona.setGuardian(guardian);
 		if (persona != null) {
-			CommonUtil.writeToCache(Paths.get(filePathResident), persona.toJSONString().getBytes(), contextKey);
+			CommonUtil.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
 			return "{\"response\":\"SUCCESS\"}";
 		} else {
 			return "{\"response\":\"FAIL\"}";
@@ -1294,7 +1298,7 @@ public class PacketSyncService {
 
 			persona.setBioExceptions(personaBERequestDto.getExceptions());
 
-			persona.writePersona(personaBERequestDto.getPersonaFilePath(), contextKey);
+			persona.writePersona(personaBERequestDto.getPersonaFilePath(),contextKey);
 		} catch (Exception e) {
 			logger.error("updatePersonaBioExceptions:" + e.getMessage());
 		}
@@ -1427,7 +1431,7 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 		for (MockABISExpectationsDto expct : expectations) {
 
-			ResidentModel persona = ResidentModel.readPersona(expct.getPersonaPath(), contextKey);
+			ResidentModel persona = ResidentModel.readPersona(expct.getPersonaPath(),contextKey);
 
 			List<String> modalities = expct.getModalities();
 			List<MDSDeviceCaptureModel> capFingers = persona.getBiometric().getCapture()
