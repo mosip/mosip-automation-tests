@@ -120,11 +120,8 @@ public class ResidentModel  implements Serializable {
 		return jsonStr;
 	}
 	
-	public void save(String contextKey) throws IOException {
-		if(RestClient.isDebugEnabled(contextKey)) {
-			Files.write(Paths.get(path), this.toJSONString().getBytes());
-		}
-		VariableManager.setVariableValue(contextKey, path, this.toJSONString());
+	public void save() throws IOException {
+		Files.write(Paths.get(path), this.toJSONString().getBytes());
 	}
 	
 	
