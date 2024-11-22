@@ -167,6 +167,7 @@ public class PacketSyncService {
 	}
 
 	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) {
+		
 		String personaId = VariableManager.getVariableValue(contextKey, "personaId") != null 
 				? VariableManager.getVariableValue(contextKey, "personaId").toString() 
 						: null;
