@@ -166,10 +166,10 @@ public class PacketSyncService {
 		}
 	}
 
-	public String generateResidentData(int count, PersonaRequestDto residentRequestDto, String contextKey) {
+	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) {
 		String personaId = VariableManager.getVariableValue(contextKey, "personaId") != null 
-                ? VariableManager.getVariableValue(contextKey, "personaId").toString() 
-                : null;
+				? VariableManager.getVariableValue(contextKey, "personaId").toString() 
+						: null;
 		JSONArray outIds = new JSONArray();
 		if(personaId!=null && !personaId.isEmpty()) {
 			JSONObject id = new JSONObject();
@@ -179,7 +179,7 @@ public class PacketSyncService {
 		}else {
 			logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
 			// TO do --Check why we need to load the context here
-//			loadServerContextProperties(contextKey);
+			//				loadServerContextProperties(contextKey);
 			VariableManager.setVariableValue(contextKey, "process", "NEW");
 			Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
 			Gender enumGender = Gender.Any;
@@ -187,7 +187,7 @@ public class PacketSyncService {
 			if (props.containsKey("Gender")) {
 				enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
 			}
-			provider.addCondition(ResidentAttribute.RA_Count, count);
+			//				provider.addCondition(ResidentAttribute.RA_Count, count);
 
 			if (props.containsKey("Age")) {
 
@@ -244,7 +244,6 @@ public class PacketSyncService {
 			RestClient.logInfo(contextKey, "before Genrate");
 			List<ResidentModel> lst = provider.generate(contextKey);
 			RestClient.logInfo(contextKey, "After Genrate");
-
 			try {
 				String tmpDir;
 
@@ -255,18 +254,8 @@ public class PacketSyncService {
 				for (ResidentModel r : lst) {
 					Path tempPath = Path.of(tmpDir, r.getId() + ".json");
 					r.setPath(tempPath.toString());
-
 					String jsonStr = r.toJSONString();
-					
-					
-					String personaAbsPath = tempPath.toFile().getAbsolutePath();
-					VariableManager.setVariableValue(contextKey, "id", r.getId());
-					VariableManager.setVariableValue(contextKey, "personaId", personaAbsPath);
-					VariableManager.setVariableValue(contextKey, personaAbsPath, jsonStr);
-
-					// Write to a file only when debug enabled
-//				To Do --------- CommonUtil.write(tempPath, jsonStr.getBytes());
-
+					CommonUtil.write(tempPath, jsonStr.getBytes());
 					JSONObject id = new JSONObject();
 					id.put("id", r.getId());
 					id.put("path", tempPath.toFile().getAbsolutePath());
