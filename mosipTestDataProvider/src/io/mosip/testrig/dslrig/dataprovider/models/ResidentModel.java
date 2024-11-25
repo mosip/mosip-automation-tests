@@ -184,8 +184,7 @@ public class ResidentModel  implements Serializable {
 		}
 	}			
     
-	
-	
+		
 	public JSONObject loadDemoData() {
 		JSONObject demodata = new JSONObject();
 		demodata.put("id", id);
