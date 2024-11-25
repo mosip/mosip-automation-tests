@@ -120,10 +120,16 @@ public class ResidentModel  implements Serializable {
 		return jsonStr;
 	}
 	
+//	public void save(String contextKey) throws IOException {
+//		if(RestClient.isDebugEnabled(contextKey)) {
+//			Files.write(Paths.get(path), this.toJSONString().getBytes());
+//		}
+//		VariableManager.setVariableValue(contextKey, path, this.toJSONString());
+//	}
+	
 	public void save() throws IOException {
 		Files.write(Paths.get(path), this.toJSONString().getBytes());
 	}
-	
 	
 //	public static ResidentModel readPersona(String filePath) throws IOException {
 //	    ObjectMapper mapper = new ObjectMapper();
@@ -184,7 +190,8 @@ public class ResidentModel  implements Serializable {
 		}
 	}			
     
-		
+	
+	
 	public JSONObject loadDemoData() {
 		JSONObject demodata = new JSONObject();
 		demodata.put("id", id);
