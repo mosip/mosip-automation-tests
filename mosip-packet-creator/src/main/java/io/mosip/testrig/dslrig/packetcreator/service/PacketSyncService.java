@@ -1277,7 +1277,7 @@ public class PacketSyncService {
 		if (guardian != null && persona != null)
 			persona.setGuardian(guardian);
 		if (persona != null) {
-			CommonUtil.writeToCache(Paths.get(filePathResident), persona.toJSONString().getBytes(), contextKey);
+			CommonUtil.write(Paths.get(filePathResident), persona.toJSONString().getBytes());
 			return "{\"response\":\"SUCCESS\"}";
 		} else {
 			return "{\"response\":\"FAIL\"}";
