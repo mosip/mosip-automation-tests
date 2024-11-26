@@ -162,7 +162,7 @@ public class ResidentModel  implements Serializable {
 		if(RestClient.isDebugEnabled(contextKey)) {
 			Files.write(Paths.get(filePath), this.toJSONString().getBytes());
 		}
-		VariableManager.setVariableValue(contextKey, filePath, this.toJSONString());
+//		VariableManager.setVariableValue(contextKey, filePath, this.toJSONString());
 	}
 	
 	public static void main(String [] args) {
