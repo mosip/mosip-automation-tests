@@ -248,10 +248,6 @@ public class PacketSyncService {
 				Path tempPath = Path.of(tmpDir, r.getId() + ".json");
 				r.setPath(tempPath.toString());
 				String jsonStr = r.toJSONString();
-				String personaAbsPath = tempPath.toFile().getAbsolutePath();
-				VariableManager.setVariableValue(contextKey, "id", r.getId());
-				VariableManager.setVariableValue(contextKey, "personaId", personaAbsPath);
-				VariableManager.setVariableValue(contextKey, personaAbsPath, jsonStr);
 				CommonUtil.write(tempPath, jsonStr.getBytes());
 				JSONObject id = new JSONObject();
 				id.put("id", r.getId());
