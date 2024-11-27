@@ -69,7 +69,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 
 		// Generate Resident for all ages
 		cleanData();
-		Response response = packetUtility.generateResident(nofResident, ageCategory, bSkipGuardian, missFields,
+		Response response = packetUtility.generateResident(ageCategory, bSkipGuardian, missFields,
 				genderAndBioFlag, step);
 		JSONObject jsonObject = new JSONObject(response.getBody().asString());
 		JSONArray resp = new JSONObject(response.getBody().asString()).getJSONArray("response");
