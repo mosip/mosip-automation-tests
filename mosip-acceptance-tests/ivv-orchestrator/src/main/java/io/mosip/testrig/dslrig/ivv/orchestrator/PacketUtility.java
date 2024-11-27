@@ -173,7 +173,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public Response generateResident( String ageCategory, Boolean bSkipGuardian, String missFields,
+	public Response generateResident(String ageCategory, Boolean bSkipGuardian, String missFields,
 			HashMap<String, String> genderAndBioFlag, Scenario.Step step) throws RigInternalError {
 
 		String url = baseUrl + props.getProperty("getResidentUrl");
