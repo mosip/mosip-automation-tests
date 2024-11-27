@@ -279,13 +279,7 @@ public class CommonUtil {
 //		try (OutputStream outputStream = new FileOutputStream(filePath.toString())) {
 //			mapper.writeValue(outputStream, bytes);
 //		}
-	}
-	
-	public static void writeToCache(Path filePath, byte[] bytes ,String contextKey) throws IOException {
-		 String fileContent = new String(bytes, StandardCharsets.UTF_8);
-		VariableManager.setVariableValue(contextKey, filePath.toString(), fileContent);
-	}
-	
+	}	
 	
 	public static void write( byte[] bytes,File file) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
