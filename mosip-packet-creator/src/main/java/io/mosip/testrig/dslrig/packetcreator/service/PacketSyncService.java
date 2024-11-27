@@ -97,10 +97,10 @@ public class PacketSyncService {
 
 	@Autowired
 	private ZipUtils zipUtils;
-
+	
 	private PacketMakerService packetMakerService;
 	private PacketSyncService packetSyncService;
-
+	
 	@Autowired
 	private ContextUtils contextUtils;
 
@@ -142,7 +142,7 @@ public class PacketSyncService {
 
 	@Value("${mosip.test.idrepo.idvidpath}")
 	private String idvid;
-
+	
 	public PacketSyncService(@Lazy PacketSyncService packetSyncService, @Lazy PacketMakerService packetMakerService) {
 		this.packetSyncService = packetSyncService;
 		this.packetMakerService = packetMakerService;
@@ -166,11 +166,10 @@ public class PacketSyncService {
 		}
 	}
 
-	public String generateResidentData(int count, PersonaRequestDto residentRequestDto, String contextKey) {
-		JSONArray outIds = new JSONArray();
+	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) {
 		logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
 		// TO do --Check why we need to load the context here
-		//			loadServerContextProperties(contextKey);
+//		loadServerContextProperties(contextKey);
 		VariableManager.setVariableValue(contextKey, "process", "NEW");
 		Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
 		Gender enumGender = Gender.Any;
@@ -178,7 +177,7 @@ public class PacketSyncService {
 		if (props.containsKey("Gender")) {
 			enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
 		}
-		provider.addCondition(ResidentAttribute.RA_Count, count);
+//		provider.addCondition(ResidentAttribute.RA_Count, count);
 
 		if (props.containsKey("Age")) {
 
@@ -236,6 +235,8 @@ public class PacketSyncService {
 		List<ResidentModel> lst = provider.generate(contextKey);
 		RestClient.logInfo(contextKey, "After Genrate");
 
+		JSONArray outIds = new JSONArray();
+
 		try {
 			String tmpDir;
 
@@ -246,18 +247,12 @@ public class PacketSyncService {
 			for (ResidentModel r : lst) {
 				Path tempPath = Path.of(tmpDir, r.getId() + ".json");
 				r.setPath(tempPath.toString());
-
 				String jsonStr = r.toJSONString();
-
-
 				String personaAbsPath = tempPath.toFile().getAbsolutePath();
 				VariableManager.setVariableValue(contextKey, "id", r.getId());
 				VariableManager.setVariableValue(contextKey, "personaId", personaAbsPath);
 				VariableManager.setVariableValue(contextKey, personaAbsPath, jsonStr);
-
-				// Write to a file only when debug enabled
-				//				To Do --------- CommonUtil.write(tempPath, jsonStr.getBytes());
-
+				CommonUtil.write(tempPath, jsonStr.getBytes());
 				JSONObject id = new JSONObject();
 				id.put("id", r.getId());
 				id.put("path", tempPath.toFile().getAbsolutePath());
@@ -267,6 +262,7 @@ public class PacketSyncService {
 			logger.error(e.getMessage());
 			return "{\"" + e.getMessage() + "\"}";
 		}
+
 		JSONObject response = new JSONObject();
 		response.put(STATUS, SUCCESS);
 		response.put(RESPONSE, outIds);
@@ -389,7 +385,7 @@ public class PacketSyncService {
 	public Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFile, contextKey);
+		ResidentModel resident = ResidentModel.readPersona(personaFile);
 		JSONObject jsonIdentity = CreatePersona.createIdentity(resident, null, contextKey);
 		JSONObject jsonWrapper = new JSONObject();
 		jsonWrapper.put("identity", jsonIdentity);
@@ -442,7 +438,7 @@ public class PacketSyncService {
 
 	private RidSyncRequestData prepareRidSyncRequest(String containerFile, String name, String supervisorStatus,
 			String supervisorComment, String proc, String contextKey, String additionalInfoReqId)
-					throws Exception, Exception {
+			throws Exception, Exception {
 		if (contextKey != null && !contextKey.equals("")) {
 
 			Properties props = contextUtils.loadServerContext(contextKey);
@@ -621,7 +617,7 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 
 		for (String path : personaFilePath) {
-			ResidentModel resident = ResidentModel.readPersona(path,contextKey);
+			ResidentModel resident = ResidentModel.readPersona(path);
 			String response = PreRegistrationSteps.postApplication(resident, null, contextKey);
 			// preregid
 			saveRegIDMap(response, path);
@@ -634,7 +630,7 @@ public class PacketSyncService {
 			throws IOException {
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath,contextKey);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 		return PreRegistrationSteps.putApplication(resident, preregId, contextKey);
 
 	}
@@ -676,7 +672,7 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 
 		for (String path : personaFilePath) {
-			ResidentModel resident = ResidentModel.readPersona(path, contextKey);
+			ResidentModel resident = ResidentModel.readPersona(path);
 			ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 			builder.append(preReg.sendOtpTo(to, contextKey));
 
@@ -687,12 +683,12 @@ public class PacketSyncService {
 	public String verifyOtp(String personaFilePath, String to, String otp, String contextKey) throws IOException {
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath, contextKey);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 		ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 
-		if(otp != null && otp.isEmpty()) {
-			preReg.fetchOtp(contextKey);
-		}
+		       if(otp != null && otp.isEmpty()) {
+		preReg.fetchOtp(contextKey);
+       }
 		return preReg.verifyOtp(to, otp, contextKey);
 
 	}
@@ -823,7 +819,7 @@ public class PacketSyncService {
 		String response = "";
 
 		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath, contextKey);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 
 		for (MosipDocument a : resident.getDocuments()) {
 			JSONObject respObject = PreRegistrationSteps.UploadDocument(a.getDocCategoryCode(),
@@ -845,7 +841,7 @@ public class PacketSyncService {
 
 		RestClient.logInfo(contextKey, "createPacketTemplates->outDir:" + outDir);
 
-		//		loadServerContextProperties(contextKey);
+//		loadServerContextProperties(contextKey);
 		if (process != null) {
 			VariableManager.setVariableValue(contextKey, "process", process);
 		}
@@ -877,7 +873,7 @@ public class PacketSyncService {
 						new JSONObject(), contextKey);
 			}
 			for (String path : personaFilePaths) {
-				ResidentModel resident = ResidentModel.readPersona(path,contextKey);
+				ResidentModel resident = ResidentModel.readPersona(path);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				RestClient.logInfo(contextKey, "packetPath=" + packetPath);
 				machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
@@ -1058,7 +1054,7 @@ public class PacketSyncService {
 
 		for (UpdatePersonaDto req : getPersonaRequest) {
 
-			ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath(), contextKey);
+			ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
 			List<String> retrieveAttrs = req.getRetriveAttributeList();
 			if (retrieveAttrs != null) {
 				for (String attr : retrieveAttrs) {
@@ -1143,7 +1139,7 @@ public class PacketSyncService {
 							}
 						}
 					}
-					break;
+						break;
 					case "iris_hash":
 						IrisDataModel irisvalueh = null;
 						if (persona.getBiometric().getCapture() != null) {
@@ -1215,12 +1211,12 @@ public class PacketSyncService {
 		String ret = "{Sucess}";
 		for (UpdatePersonaDto req : updatePersonaRequest) {
 			try {
-				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath(), contextKey);
+				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
 				List<String> regenAttrs = req.getRegenAttributeList();
 				if (regenAttrs != null) {
 					for (String attr : regenAttrs) {
 						if (req.getTestPersonaPath() != null) {
-							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath(), contextKey);
+							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath());
 							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
 						} else {
 							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
@@ -1234,9 +1230,9 @@ public class PacketSyncService {
 				List<String> missList = req.getMissAttributeList();
 				if (missList != null && !missList.isEmpty())
 					persona.setMissAttributes(missList);
-				//				persona.save();
+//				persona.save();
 
-				persona.writePersona(req.getPersonaFilePath(), contextKey);
+				persona.writePersona(req.getPersonaFilePath());
 
 			} catch (IOException e) {
 				logger.error("updatePersonaData:" + e.getMessage());
@@ -1260,18 +1256,18 @@ public class PacketSyncService {
 			String keyS = key.toString().toLowerCase();
 			if (keyS.startsWith("uin")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident, contextKey);
+				persona = ResidentModel.readPersona(filePathResident);
 				persona.setUIN(uin);
 			} else if (keyS.toString().startsWith("rid")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident, contextKey);
+				persona = ResidentModel.readPersona(filePathResident);
 				persona.setRID(rid);
 			} else if (keyS.toString().startsWith("child")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident, contextKey);
+				persona = ResidentModel.readPersona(filePathResident);
 			} else if (keyS.startsWith("guardian")) {
 				filePathParent = list.get(key).toString();
-				guardian = ResidentModel.readPersona(filePathParent, contextKey);
+				guardian = ResidentModel.readPersona(filePathParent);
 			}
 		}
 		if (guardian != null && persona != null)
@@ -1291,11 +1287,11 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 		String ret = "{Sucess}";
 		try {
-			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath(),contextKey);
+			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath());
 
 			persona.setBioExceptions(personaBERequestDto.getExceptions());
 
-			persona.writePersona(personaBERequestDto.getPersonaFilePath(), contextKey);
+			persona.writePersona(personaBERequestDto.getPersonaFilePath());
 		} catch (Exception e) {
 			logger.error("updatePersonaBioExceptions:" + e.getMessage());
 		}
@@ -1312,19 +1308,19 @@ public class PacketSyncService {
 
 	public String getPacketTags(String contextKey) {
 
-		//		loadServerContextProperties(contextKey);
+//		loadServerContextProperties(contextKey);
 
 		JSONObject packetTags = new JSONObject();
 
 		packetTags.put("META_INFO-OPERATIONS_DATA-supervisorId",
 				VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId")
-						.toString());
+								.toString());
 
 		packetTags.put("Biometric_Quality-Iris",
 				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris").toString());
 
 		packetTags.put("INTRODUCER_AVAILABILITY",
@@ -1332,28 +1328,28 @@ public class PacketSyncService {
 
 		packetTags.put("META_INFO-CAPTURED_REGISTERED_DEVICES-Finger",
 				VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger")
-						.toString());
+								.toString());
 
 		packetTags.put("META_INFO-META_DATA-centerId",
 				VariableManager.getVariableValue(contextKey, "META_INFO-META_DATA-centerId") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "META_INFO-META_DATA-centerId").toString());
 
 		packetTags.put("Biometric_Quality-Face",
 				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Face") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "Biometric_Quality-Face").toString());
 
 		packetTags.put("Biometric_Quality-Finger",
 				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Finger") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "Biometric_Quality-Finger").toString());
 
 		packetTags.put("EXCEPTION_BIOMETRICS",
 				VariableManager.getVariableValue(contextKey, "EXCEPTION_BIOMETRICS") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "EXCEPTION_BIOMETRICS").toString());
 
 		packetTags.put("ID_OBJECT-gender",
@@ -1362,9 +1358,9 @@ public class PacketSyncService {
 
 		packetTags.put("META_INFO-CAPTURED_REGISTERED_DEVICES-Face",
 				VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face")
-						.toString());
+								.toString());
 
 		packetTags.put("AGE_GROUP",
 				VariableManager.getVariableValue(contextKey, "AGE_GROUP") == null ? "--TAG_VALUE_NOT_AVAILABLE--"
@@ -1372,18 +1368,18 @@ public class PacketSyncService {
 
 		packetTags.put("SUPERVISOR_APPROVAL_STATUS",
 				VariableManager.getVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS").toString());
 
 		packetTags.put("META_INFO-OPERATIONS_DATA-officerId",
 				VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId")
-						.toString());
+								.toString());
 
 		packetTags.put("ID_OBJECT-residenceStatus",
 				VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus") == null
-				? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus").toString());
 
 		return packetTags.toString();
@@ -1428,7 +1424,7 @@ public class PacketSyncService {
 		loadServerContextProperties(contextKey);
 		for (MockABISExpectationsDto expct : expectations) {
 
-			ResidentModel persona = ResidentModel.readPersona(expct.getPersonaPath(), contextKey);
+			ResidentModel persona = ResidentModel.readPersona(expct.getPersonaPath());
 
 			List<String> modalities = expct.getModalities();
 			List<MDSDeviceCaptureModel> capFingers = persona.getBiometric().getCapture()
