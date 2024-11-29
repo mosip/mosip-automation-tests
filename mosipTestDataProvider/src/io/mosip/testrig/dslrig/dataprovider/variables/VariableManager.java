@@ -35,58 +35,50 @@ public final class VariableManager {
 	static boolean bInit = false;
 
 	static {
-		Init(NS_DEFAULT);
+		Init();
 	}
 
 	public static boolean isInit() {
 		return bInit;
 	}
 
-	public static void Init(String contextKey) {
+	public static synchronized void Init() {
+        synchronized (VariableManager.class) {
+            if (bInit) return;
+            // resolve a cache manager
+            CachingProvider cachingProvider = Caching.getCachingProvider();
+            cacheManager = cachingProvider.getCacheManager();
+            // configure the cache
+            cacheConfig = new MutableConfiguration<String, Object>()
+                    .setTypes(String.class, Object.class)
+                    .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_DAY))
+                    .setStatisticsEnabled(true);
+            // create the cache
+            if (varNameSpaces == null) {
+                varNameSpaces = new Hashtable<String, Cache<String, Object>>();
+                Cache<String, Object> cache = cacheManager.createCache(NS_DEFAULT, cacheConfig);
+                varNameSpaces.put(NS_DEFAULT, cache);
+            }
+            CONFIG_PATH = DataProviderConstants.RESOURCE + "config/";
+            Boolean bret = loadNamespaceFromPropertyFile(CONFIG_PATH + "default.properties", NS_DEFAULT);
+            bInit = bret;
+        }
+    }
 
-		if (bInit)
-			return;
-		// resolve a cache manager
-		CachingProvider cachingProvider = Caching.getCachingProvider();
-		cacheManager = cachingProvider.getCacheManager();
+	 static Cache<String, Object> createNameSpace(String contextKey) {
+	            Cache<String, Object> ht = varNameSpaces.get(contextKey);
+	            if (ht == null) {
+	                ht = cacheManager.createCache(contextKey, cacheConfig);
+	                varNameSpaces.put(contextKey, ht);
+	            }
+	            return ht;
+	    }
 
-		// configure the cache
-		cacheConfig = new MutableConfiguration<String, Object>().setTypes(String.class, Object.class)
-				.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_DAY)).setStatisticsEnabled(true);
-
-		// create the cache
-		if (varNameSpaces == null) {
-			varNameSpaces = new Hashtable<String, Cache<String, Object>>();
-			// load predefined variables
-
-			Cache<String, Object> cache = cacheManager.createCache(contextKey, cacheConfig);
-			varNameSpaces.put(contextKey, cache);
-
-		}
-		CONFIG_PATH = DataProviderConstants.RESOURCE + "config/";
-		Boolean bret = loadNamespaceFromPropertyFile(CONFIG_PATH + "default.properties", NS_DEFAULT);
-		bInit = bret;
-
-	}
-
-	static Cache<String, Object> createNameSpace(String contextKey) {
-		Cache<String, Object> ht = null;
-		try {
-			ht = varNameSpaces.get(contextKey);
-		} catch (Exception e) {
-		}
-		if (ht == null) {
-			ht = cacheManager.createCache(contextKey, cacheConfig);
-			varNameSpaces.put(contextKey, ht);
-		}
-		return ht;
-	}
-
-	public static Object setVariableValue(String contextKey, String varName, Object value) {
-		Cache<String, Object> ht = createNameSpace(contextKey);
-		ht.put(varName, value);
-		return value;
-	}
+	    public static Object setVariableValue(String contextKey, String varName, Object value) {
+	            Cache<String, Object> ht = createNameSpace(contextKey);
+	            ht.put(varName, value);
+	            return value;
+	    }
 
 	public static String[] findVariables(String text) {
 
@@ -109,32 +101,25 @@ public final class VariableManager {
 		return set.toArray(a);
 	}
 
-	public static Object getVariableValue(String contextKey, String varName) {
-
-		if (!bInit)
-			Init(contextKey);
-
-		Cache<String, ?> ht = null;
-		Object ret = null; // To do ---- new Object()
-
-		try {
-			ht = varNameSpaces.get(contextKey);
-			if (ht != null) {
-				ret = ht.get(varName);
-				if (ret == null && contextKey.equalsIgnoreCase(NS_DEFAULT)) {
-					// Cache expired , reloading the default namespace
-					loadNamespaceFromPropertyFile(VariableManager.CONFIG_PATH + "default.properties",
-							VariableManager.NS_DEFAULT);
-					ht = varNameSpaces.get(contextKey);
-					ret = ht.get(varName);
-				}
-				return ret;
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-		return ret;
-	}
+	   public static Object getVariableValue(String contextKey, String varName) {
+	        if (!bInit) Init();
+	            Cache<String, ?> ht = varNameSpaces.get(contextKey);
+	            Object ret = null;
+	            try {
+	                if (ht != null) {
+	                    ret = ht.get(varName);
+	                    if (ret == null && contextKey.equalsIgnoreCase(NS_DEFAULT)) {
+	                        // Cache expired, reloading the default namespace
+	                        loadNamespaceFromPropertyFile(CONFIG_PATH + "default.properties", NS_DEFAULT);
+	                        ht = varNameSpaces.get(contextKey);
+	                        ret = ht.get(varName);
+	                    }
+	                }
+	            } catch (Exception e) {
+	                logger.error(e.getMessage());
+	            }
+	            return ret;
+	    }
 
 	public static Boolean loadNamespaceFromPropertyFile(String propFile, String contextKey) {
 		Boolean bRet = false;
@@ -155,21 +140,21 @@ public final class VariableManager {
 		return bRet;
 	}
 
-	public static String deleteNameSpace(String contextKey) {
-		try {
-			printAllContents();
-			Cache<String, Object> cache = varNameSpaces.remove(contextKey);
-			if (cache != null) {
-				synchronized (cacheManager) {
-					cacheManager.destroyCache(contextKey);
-				}
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-			return "false";
-		}
-		return "true";
-	}
+    public static String deleteNameSpace(String contextKey) {
+            try {
+                printAllContents();
+                Cache<String, Object> cache = varNameSpaces.remove(contextKey);
+                if (cache != null) {
+                    synchronized (cacheManager) {
+                        cacheManager.destroyCache(contextKey);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                return "false";
+            }
+        return "true";
+    }
 
 	public static void printAllContents() {
 		StringBuffer s = new StringBuffer();
