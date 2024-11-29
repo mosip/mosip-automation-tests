@@ -36,6 +36,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
+
+import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+
 import java.io.*;
 
 public class CommonUtil {
@@ -276,8 +279,7 @@ public class CommonUtil {
 //		try (OutputStream outputStream = new FileOutputStream(filePath.toString())) {
 //			mapper.writeValue(outputStream, bytes);
 //		}
-	}
-	
+	}	
 	
 	public static void write( byte[] bytes,File file) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
