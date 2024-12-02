@@ -530,9 +530,12 @@ public class PacketMakerService {
 		String dataToMerge = null;
 		if (dataFilePath != null)
 			dataToMerge = Files.readString(Path.of(dataFilePath));
-
-		JSONObject jb = new JSONObject(dataToMerge).getJSONObject(IDENTITY);
-
+		JSONObject jb=null;
+		try {
+			jb = new JSONObject(dataToMerge).getJSONObject(IDENTITY);
+		}catch(Exception e){
+			jb = new JSONObject(dataToMerge);
+		}
 		// workaround for MOSIP-18123
 
 		JSONObject jb1 = new JSONObject(dataToMerge);
