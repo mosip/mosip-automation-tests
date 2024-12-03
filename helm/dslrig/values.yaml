@@ -414,7 +414,7 @@ containers:
   dslorchestrator:
     image:
       registry: docker.io
-      repository: syedsalman041997/dsl-orchestrator
+      repository: mosipqa/dsl-orchestrator
       tag: develop
       pullPolicy: Always
     volumes:
@@ -470,7 +470,7 @@ containers:
   authdemo:
     image:
       registry: docker.io
-      repository: mosipdev/authentication-demo-service
+      repository: mosipqa/authentication-demo-service
       tag: develop
       pullPolicy: Always
     springServicePort: 8082
@@ -526,7 +526,7 @@ containers:
   packetcreator-data:
     image:
       registry: docker.io
-      repository: syedsalman041997/dsl-packetcreator
+      repository: mosipqa/dsl-packetcreator
       tag: develop
       pullPolicy: Always
     springServicePort: 8080
