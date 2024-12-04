@@ -51,6 +51,7 @@ public class ResidentModel  implements Serializable {
 	ApplicationConfigIdSchema appConfigIdSchema_secLang;
 	
 	private Contact contact;
+	private NrcId nrcId;
 	private Name name;
 	private Name name_seclang;
 	private MosipIndividualTypeModel residentStatus;
@@ -193,6 +194,7 @@ public class ResidentModel  implements Serializable {
 		demodata.put("UIN", UIN);
 		demodata.put("RID", RID);
 		demodata.put("emailId", contact.getEmailId());
+		demodata.put("nrcId", nrcId.getNrcId());
 		demodata.put("mobileNumber", contact.getMobileNumber());
 		demodata.put("residenceNumber", contact.getResidenceNumber());
 		
