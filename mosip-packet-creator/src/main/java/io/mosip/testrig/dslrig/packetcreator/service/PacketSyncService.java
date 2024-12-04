@@ -1316,7 +1316,7 @@ public class PacketSyncService {
 
 		packetTags.put("Biometric_Quality-Iris",
 				VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris") == null
-						? "--TAG_VALUE_NOT_AVAILABLE--"
+						? "--Biometrics-Not-Available--"
 						: VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris").toString());
 
 		packetTags.put("INTRODUCER_AVAILABILITY",
