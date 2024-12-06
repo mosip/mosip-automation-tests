@@ -106,9 +106,11 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "sendOtp.individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otpChannel");
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 			test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
+			
 
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {
@@ -142,6 +144,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "sendOtp.individualId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "individualIdType");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "sendOtp.individualIdType");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otpChannel");
 
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
