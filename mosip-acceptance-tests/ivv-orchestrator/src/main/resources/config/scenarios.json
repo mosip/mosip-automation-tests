@@ -19984,6 +19984,12 @@
 			"Action": "e2e_Center(DCOM,$$details3,3/*CENTER_INDEX*/)"
 		},
 		"Step-17": {
+			"Description": "Decomissions certificates and onboarding the partners",
+			"Input Parameters": "<<<Step inputs values details>>>",
+			"Return Value": "NA",
+			"Action": "e2e_DeleteCertificatesAndOnboardingPartners()"
+		},
+		"Step-18": {
 			"Description": "Write the persona data into a json file",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
