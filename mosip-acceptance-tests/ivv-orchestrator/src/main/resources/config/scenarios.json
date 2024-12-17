@@ -19877,7 +19877,7 @@
 	},
 	{
 		"Scenario": "178",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "Generate UIN1 by creating RID1 in Profile1 then update UIN1 with Profile1 by capturing all biometrics",
