@@ -19880,7 +19880,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
-		"Description": "Resident walks into registration center and Generates UIN1 by creating RID1 with exception biometrics in Profile1 then updates UIN1 with Profile1 by capturing all biometric",
+		"Description": "Resident walks into registration center and Generates UIN1 by creating RID1 with Profile1 then updates UIN1 with Profile1 by capturing all biometric with Abis false",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
