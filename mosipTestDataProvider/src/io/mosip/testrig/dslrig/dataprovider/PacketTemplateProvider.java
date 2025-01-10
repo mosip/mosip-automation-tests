@@ -177,7 +177,6 @@ public class PacketTemplateProvider {
 		}
 		JSONObject processMVEL = processMVEL(resident, idJson, process, contextSchemaDetail, contextKey);
 		idJson = processMVEL.toString();
-		
 		CommonUtil.write(Paths.get(ridFolder + ID_JSON), idJson.getBytes());
 		String metadataJson = generateMetaDataJson(resident, preregId, machineId, centerId, fileInfo, contextKey,
 				contextSchemaDetail);
@@ -239,12 +238,6 @@ public class PacketTemplateProvider {
 					}
 				}
 			}
-		}
-		//if the json is not under the identity element put inside identity
-		if(!json.has("identity")) {
-			JSONObject identityWrapper = new JSONObject();
-			identityWrapper.put("identity", json.toMap());
-			json = identityWrapper; // Reassign the updated JSON
 		}
 		return json;
 	}
@@ -662,7 +655,7 @@ public class PacketTemplateProvider {
 				bos.close();
 			}
 		}
-		resident.save();
+		resident.save(contextKey);
 		return true;
 	}
 
@@ -968,10 +961,7 @@ public class PacketTemplateProvider {
 			}
 			if (processDynamicFields(s, identity, resident, contextKey))
 				continue;
-			if (s.getFieldCategory().equals("evidence") && s.getId().equals("nrcId") ) {
-				identity.put(s.getId(),resident.getNrcId().getNrcId());
-				continue;
-			}
+
 			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
 				String primaryValue = "";
 				String secValue = "";
