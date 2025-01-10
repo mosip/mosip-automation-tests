@@ -50,6 +50,7 @@ import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.testscripts.EsignetBioAuth;
+import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
@@ -1198,7 +1199,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	
 	private String getAuthTransactionId(String oidcTransactionId) {
 	    final String transactionId = oidcTransactionId.replaceAll("_|-", "");
-	    String lengthOfTransactionId =  AdminTestUtil.getValueFromEsignetActuator("/mosip/mosip-config/esignet-default.properties", "mosip.esignet.auth-txn-id-length");
+	    String lengthOfTransactionId =  EsignetUtil.getValueFromEsignetActuator("/mosip/mosip-config/esignet-default.properties", "mosip.esignet.auth-txn-id-length");
 	   int authTransactionIdLength = lengthOfTransactionId != null ? Integer.parseInt(lengthOfTransactionId): 0;
 	    final byte[] oidcTransactionIdBytes = transactionId.getBytes();
 	    final byte[] authTransactionIdBytes = new byte[authTransactionIdLength];
