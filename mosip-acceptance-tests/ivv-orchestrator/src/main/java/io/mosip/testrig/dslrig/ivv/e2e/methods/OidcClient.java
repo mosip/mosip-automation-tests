@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.idrepo.testscripts.PostWithOnlyPathParam;
 import io.mosip.testrig.apirig.auth.testscripts.SimplePost;
-import io.mosip.testrig.apirig.auth.testscripts.SimplePostForAutoGenId;
+import io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePut;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
