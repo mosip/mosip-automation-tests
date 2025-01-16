@@ -34,7 +34,7 @@ public class PhotoProvider {
 			FileFilter filter = new FileFilter() {
 				@Override
 				public boolean accept(File pathname) {
-					return !pathname.isDirectory();
+					return !pathname.isDirectory( ) && pathname.getName().startsWith("face");
 				}
 			};
 			File[] listDir = dir.listFiles(filter);
