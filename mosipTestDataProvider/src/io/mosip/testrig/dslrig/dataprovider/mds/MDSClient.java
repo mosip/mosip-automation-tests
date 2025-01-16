@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.dataprovider.mds;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -128,9 +129,19 @@ public class MDSClient implements MDSClientInterface {
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 		File dir = new File(dirPath);
 
-		File listDir[] = dir.listFiles();
-		int numberOfSubfolders = listDir.length;
-
+		File listDir[]=null;
+		if (dir.isDirectory()) {
+            // Use FileFilter to filter files
+			 listDir = dir.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    // Check if it's a directory and starts with "Impression"
+                    return file.isDirectory() && file.getName().startsWith("Impression");
+                }
+            });		           
+        } else {
+        	logger.error(dirPath + " is not a directory.");
+        }		int numberOfSubfolders = listDir.length;
 		int min=1;
 		int max=numberOfSubfolders ;
 		int randomNumber = (int) (Math.random()*(max-min)) + min;
