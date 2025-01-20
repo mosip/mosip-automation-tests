@@ -39,8 +39,8 @@ jobs:
       SERVICE_LOCATION: mosip-packet-creator
       CONFIG_LOCATION: 'src/main/resources/dockersupport/centralized/mosip-packet-creator'
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
         if: ${{ ( env.BUILD_ARTIFACT != 'false' ) }}
         with:
           name: ${{ env.BUILD_ARTIFACT }}
