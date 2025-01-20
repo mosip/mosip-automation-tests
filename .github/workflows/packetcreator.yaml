@@ -39,8 +39,8 @@ jobs:
       SERVICE_LOCATION: mosip-packet-creator
       CONFIG_LOCATION: 'src/main/resources/dockersupport/centralized/mosip-packet-creator'
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
         if: ${{ ( env.BUILD_ARTIFACT != 'false' ) }}
         with:
           name: ${{ env.BUILD_ARTIFACT }}
@@ -60,7 +60,7 @@ jobs:
           cp -r ./src/main/resources/dockersupport/centralized/mountvolume/profile_resource ./profile_resource
           zip -r ${{ env.NEW_BUILD_ARTIFACT }}.zip build_files/* profile_resource
       - name: Upload the springboot jars
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.NEW_BUILD_ARTIFACT }}
           path: ./${{env.SERVICE_LOCATION}}/${{ env.NEW_BUILD_ARTIFACT }}.zip
