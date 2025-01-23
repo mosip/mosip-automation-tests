@@ -8664,7 +8664,7 @@
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_SyncData(CLIENT_SETTINGS_INVALID,$$keyIndex,53/*CENTER_INDEX*/)"
+			"Action": "e2e_SyncData(CLIENT_SETTINGS_INVALID,$$keyIndex,531/*CENTER_INDEX*/)"
 		},
 		"Step-33": {
 			"Description": "<<<Step detailed description>>>",
@@ -8676,33 +8676,15 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details53)"
+			"Action": "e2e_Machine(DCOM,$$details531/*USER_DETAILS*/)"
 		},
 		"Step-35": {
 			"Description": "Deletes center mapping",
 			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Updated center details",
-			"Action": "$$details53=e2e_User(DELETE_CENTERMAPPING,53/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details53)"
-		},
-		"Step-36": {
-			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
-			"Return Value": "NA",
-			"Action": "e2e_Center(DCOM,$$details53,53/*CENTER_INDEX*/)"
-		},
-		"Step-37": {
-			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
-			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details531/*USER_DETAILS*/)"
-		},
-		"Step-38": {
-			"Description": "Deletes center mapping",
-			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
-			"Return Value": "Updated center details",
 			"Action": "$$details531=e2e_User(DELETE_CENTERMAPPING,531/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details531)"
 		},
-		"Step-39": {
+		"Step-36": {
 			"Description": "Decomissions the center",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
