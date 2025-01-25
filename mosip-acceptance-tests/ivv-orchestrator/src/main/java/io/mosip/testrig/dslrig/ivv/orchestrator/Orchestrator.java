@@ -90,7 +90,7 @@ public class Orchestrator {
 	@BeforeSuite
 	public void beforeSuite() {
 
-		suiteStartTime = System.nanoTime();
+		suiteStartTime = System.currentTimeMillis();
 		BaseTestCaseUtil.exectionStartTime = suiteStartTime;
 		logger.info("Suite start time is: " + BaseTestCaseUtil.exectionStartTime);
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
@@ -131,7 +131,7 @@ public class Orchestrator {
 
 	@AfterSuite
 	public void afterSuite() {
-		BaseTestCaseUtil.exectionEndTime = System.nanoTime();
+		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
 		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
 		extent.flush();
 	}
@@ -341,6 +341,12 @@ public class Orchestrator {
 			updateRunStatistics(scenario);
 			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
 		}
+//		if (System.currentTimeMillis() - suiteStartTime >= suiteMaxTimeInMillis && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
+//			logger.error("Exhausted the maximum suite execution time.Hence, terminating the execution");
+//			extentTest.skip(scenario.getId() + ": Skipping scenario due to Exhausted the maximum suite execution time.Hence, terminating the execution");
+//			updateRunStatistics(scenario);
+//			throw new SkipException(scenario.getId() + ": Skipping scenario due to Exhausted the maximum suite execution time.Hence, terminating the execution");
+//		}
 
 		Store store = new Store();
 		store.setConfigs(configs);
