@@ -138,7 +138,7 @@
 		<dependency>
 			<groupId>io.mosip.esignet</groupId>
 			<artifactId>apitest-esignet</artifactId>
-			<version>1.5.1-SNAPSHOT</version>
+			<version>1.5.1-develop-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
