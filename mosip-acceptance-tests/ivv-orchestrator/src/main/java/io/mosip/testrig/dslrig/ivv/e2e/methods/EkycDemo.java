@@ -1,10 +1,6 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
-import java.io.IOException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,16 +8,13 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.bouncycastle.operator.OperatorCreationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.KeyMgrUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.DemoAuth;
