@@ -3246,7 +3246,13 @@
 			"Description": "Performs eKYC OTP authentication",
 			"Input Parameters": "UIN, VID and Email ID",
 			"Return Value": "NA",
-			"Action": "e2e_ekycOtp(uin,$$uin2,vid,$$vid,$$email)"
+			"Action": "ekycData=e2e_ekycOtp(uin,$$uin2,vid,$$vid,$$email)"
+		},
+		"Step-21": {
+			"Description": "validate Ekyc Data",
+			"Input Parameters": "",
+			"Return Value": "NA",
+			"Action": "e2e_validateKycData(photo,ekycData)"
 		}
 	},
 	{
@@ -12960,7 +12966,13 @@
 			"Description": "Performs eKYC demographic authentication",
 			"Input Parameters": "Demo graphic data key, UIN, VID, persona and flag mention to get VID with or without OTP",
 			"Return Value": "NA",
-			"Action": "e2e_ekycDemo(name,$$childUin,$$childPersona,$$vidwithoutotp)"
+			"Action": "ekycData=e2e_ekycDemo(name,$$childUin,$$childPersona,$$vidwithoutotp)"
+		},
+		"Step-20": {
+			"Description": "validate Ekyc Data",
+			"Input Parameters": "",
+			"Return Value": "NA",
+			"Action": "e2e_validateKycData(photo,ekycData)"
 		}
 	},
 	{
@@ -13099,9 +13111,15 @@
 			"Description": "Performs eKYC demographic authentication",
 			"Input Parameters": "Demo graphic data key, UIN, VID, persona and flag mention to get VID with or without OTP",
 			"Return Value": "NA",
-			"Action": "e2e_ekycDemo(name,$$childUin,$$childPersona,$$vidwithoutotp)"
+			"Action": "ekycData=e2e_ekycDemo(name,$$childUin,$$childPersona,$$vidwithoutotp)"
 		},
 		"Step-22": {
+			"Description": "validate Ekyc Data",
+			"Input Parameters": "",
+			"Return Value": "NA",
+			"Action": "e2e_validateKycData(photo,ekycData)"
+		},
+		"Step-23": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
