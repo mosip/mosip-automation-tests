@@ -21016,7 +21016,7 @@
 			"Action": "e2e_DeleteCertificatesAndOnboardingPartners()"
 		},
 		"Step-18": {
-			"Description": "Creates user with given user name and password",
+			"Description": "Delete user with given user name",
 			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_User,masterdata-0/*MASTER_USER*/@@Techno@123/*PASSWORD*/)"
