@@ -137,7 +137,11 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			step.getScenario().getVariables().putAll(userdetails);
 
 			break;
+			
+		case "DELETE_User":
+			KeycloakUserManager.removeUser(user);
 
+			break;
 		case "UPDATE_UIN":
 			HashMap<String, List<String>> attrmap1 = new HashMap<String, List<String>>();
 			List<String> list1 = new ArrayList<String>();
