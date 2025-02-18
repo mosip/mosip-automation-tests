@@ -21016,6 +21016,12 @@
 			"Action": "e2e_DeleteCertificatesAndOnboardingPartners()"
 		},
 		"Step-18": {
+			"Description": "Delete user with given user name",
+			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_User(DELETE_User,masterdata-0/*MASTER_USER*/@@Techno@123/*PASSWORD*/)"
+		},
+		"Step-19": {
 			"Description": "Write the persona data into a json file",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
