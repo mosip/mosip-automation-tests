@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.KeycloakUserManager;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -131,10 +133,15 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			HashMap<String, String> userdetails = new HashMap<String, String>();
 			userdetails.put("user" + indexOfUser, user);
 			userdetails.put("pwd", pwd);
+			AdminTestUtil.getRequiredField();
 			step.getScenario().getVariables().putAll(userdetails);
 
 			break;
+			
+		case "DELETE_User":
+			KeycloakUserManager.removeUser(user);
 
+			break;
 		case "UPDATE_UIN":
 			HashMap<String, List<String>> attrmap1 = new HashMap<String, List<String>>();
 			List<String> list1 = new ArrayList<String>();
