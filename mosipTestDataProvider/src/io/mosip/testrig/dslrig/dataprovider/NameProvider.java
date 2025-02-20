@@ -148,10 +148,6 @@ public class NameProvider {
 					+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/girl_names.csv";
 			resPath = String.format(resourceName_female, lang);
 		}
-		Object obj = VariableManager.getVariableValue(MosipMasterData.RUN_CONTEXT, resPath);
-		if (obj != null) {
-			return (List<Name>) obj;
-		}
 
 		try {
 
