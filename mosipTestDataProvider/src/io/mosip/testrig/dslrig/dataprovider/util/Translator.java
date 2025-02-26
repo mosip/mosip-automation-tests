@@ -27,11 +27,6 @@ public class Translator {
 		String v ="Any-Any";
 		IDlookupFile =VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.datapath").toString()+"Address/lang-isocode-transid.csv";
 		
-		Object obj = VariableManager.getVariableValue(MosipMasterData.RUN_CONTEXT, IDlookupFile);
-		if (obj != null) {
-			return  (String) obj;
-		}
-		
 		try {
 			CSVHelper csv = new CSVHelper(IDlookupFile);
 			String[] rec;
