@@ -7,10 +7,13 @@ import java.util.Properties;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
+
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.KeyMgrUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.OtpAuthNew;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -18,6 +21,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
+import io.restassured.response.Response;
 
 public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EkycOtp.class);
@@ -43,6 +47,8 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 		String emailId = "";
 		Object[] casesListUIN = null;
 		Object[] casesListVID = null;
+		String res ="";
+		KeyMgrUtil keyMgrUtil = new KeyMgrUtil(); 
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
@@ -106,9 +112,11 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "sendOtp.individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otpChannel");
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 			test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
+			
 
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {
@@ -142,6 +150,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "sendOtp.individualId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "individualIdType");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "sendOtp.individualIdType");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otpChannel");
 
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
@@ -152,12 +161,21 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 					test.setInput(input);
 					try {
 						otpauth.test(test);
+						Response response = otpauth.response;
+						JSONObject resJsonObject = new JSONObject(response.asString());
+						resJsonObject = new JSONObject(response.getBody().asString()).getJSONObject("response");
+						 res = keyMgrUtil.ekycDataDecryption(resJsonObject, kycPartnerId);
 					} catch (AuthenticationTestException | AdminTestException e) {
+						this.hasError = true;
+						logger.error(e.getMessage());
+						throw new RigInternalError("EkycOtp Auth failed ");
+					}catch (Exception e) {
 						this.hasError = true;
 						logger.error(e.getMessage());
 						throw new RigInternalError("EkycOtp Auth failed ");
 					}
 				}
+				step.getScenario().getVariables().put(step.getOutVarName(), res);
 			}
 
 		}

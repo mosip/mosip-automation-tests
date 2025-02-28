@@ -28,6 +28,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.MosipIndividualTypeModel;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipLanguage;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipPreRegLoginConfig;
 import io.mosip.testrig.dslrig.dataprovider.models.Name;
+import io.mosip.testrig.dslrig.dataprovider.models.NrcId;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
@@ -314,6 +315,7 @@ public class ResidentDataProvider {
 		}
 
 		List<Contact> contacts = ContactProvider.generate(eng_names, count);
+		List<NrcId> nrcIds = NrcIdProvider.generate( count);
 		ApplicationConfigIdSchema locations = LocationProvider.generate(primary_lang, count,contextKey);
 		ApplicationConfigIdSchema locations_secLang  = null;
 		if(sec_lang != null)
@@ -365,6 +367,7 @@ public class ResidentDataProvider {
 			if(bloodGroups != null && !bloodGroups.isEmpty())
 				res.setBloodgroup(bloodGroups.get(res.getPrimaryLanguage()).get(i));
 			res.setContact(contacts.get(i));
+			res.setNrcId(nrcIds.get(i));
 			res.setDob( DateOfBirthProvider.generate((ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age),contextKey));
 			ResidentAttribute age =  (ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age);
 			Boolean skipGaurdian = false;

@@ -8,7 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
+import io.mosip.testrig.apirig.esignet.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
@@ -176,37 +176,6 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 
 			}
 
-			for (String vid : vidList) {
-
-				input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId2, "transactionId");
-
-				input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
-
-				input = JsonPrecondtion.parseAndReturnJsonContent(input,
-						step.getScenario().getOidcClientProp().getProperty("urlEncodedResp2"), "encodedHash");
-
-				testForOtp.setInput(input);
-
-				if (idType.contains("VID") || idType.contains("vid")) {
-					casesListVID = authenticateUser.getYmlTestData(OtpUserYml);
-				}
-				if (casesListVID != null) {
-					for (Object object : casesListVID) {
-						test.setInput(input);
-						test = (TestCaseDTO) object;
-						try {
-							authenticateUser.test(testForOtp);
-						} catch (AuthenticationTestException e) {
-							logger.error(e.getMessage());
-						} catch (AdminTestException e) {
-							logger.error(e.getMessage());
-						}
-					}
-				}
-
-			}
-
-		}
 
 		for (String uin : uinList) {
 
@@ -237,7 +206,7 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {
 					test = (TestCaseDTO) object;
-					String input = test.getInput();
+					 input = test.getInput();
 					input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId1, "transactionId");
 					input = JsonPrecondtion.parseAndReturnJsonContent(input,
 							step.getScenario().getOidcClientProp().getProperty("urlEncodedResp1"), "encodedHash");
@@ -258,6 +227,38 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 			}
 
 		}
+		for (String vid : vidList) {
+			input = testForOtp.getInput();
+			
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId2, "transactionId");
+
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
+
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					step.getScenario().getOidcClientProp().getProperty("urlEncodedResp2"), "encodedHash");
+
+			testForOtp.setInput(input);
+
+			if (idType.contains("VID") || idType.contains("vid")) {
+				casesListVID = authenticateUser.getYmlTestData(OtpUserYml);
+			}
+			if (casesListVID != null) {
+				for (Object object : casesListVID) {
+					test.setInput(input);
+					test = (TestCaseDTO) object;
+					try {
+						authenticateUser.test(testForOtp);
+					} catch (AuthenticationTestException e) {
+						logger.error(e.getMessage());
+					} catch (AdminTestException e) {
+						logger.error(e.getMessage());
+					}
+				}
+			}
+
+		}
+
+	}
 		for (String vid : vidList) {
 
 			if (idType.contains("VID") || idType.contains("vid")) {

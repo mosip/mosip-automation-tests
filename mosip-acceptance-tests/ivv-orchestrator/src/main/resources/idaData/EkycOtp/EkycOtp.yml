@@ -7,6 +7,7 @@ EkycOtp:
       inputTemplate: idaData/EkycOtp/ekycOtp
       outputTemplate: idaData/EkycOtp/ekycOtpResult
       input: '{
+        "otpChannel": "EMAIL",
         "requestTime": "$TIMESTAMP$",
         "individualId": "3974189657",
         "transactionId": "$TRANSACTIONID$",

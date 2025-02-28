@@ -50,7 +50,6 @@ public class TestRunner {
 		BaseTestCase.initialize();
 		
 		BaseTestCase.languageList = BaseTestCase.getLanguageList();
-
 		// Selecting the language based on index for example- eng,ara,fra (To run suite
 		// in ara lang pass 1 in langselect property)
 		

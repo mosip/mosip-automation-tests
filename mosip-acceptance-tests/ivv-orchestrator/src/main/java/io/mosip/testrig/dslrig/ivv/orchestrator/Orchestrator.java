@@ -90,7 +90,7 @@ public class Orchestrator {
 	@BeforeSuite
 	public void beforeSuite() {
 
-		suiteStartTime = System.nanoTime();
+		suiteStartTime = System.currentTimeMillis();
 		BaseTestCaseUtil.exectionStartTime = suiteStartTime;
 		logger.info("Suite start time is: " + BaseTestCaseUtil.exectionStartTime);
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
@@ -131,7 +131,7 @@ public class Orchestrator {
 
 	@AfterSuite
 	public void afterSuite() {
-		BaseTestCaseUtil.exectionEndTime = System.nanoTime();
+		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
 		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
 		extent.flush();
 	}

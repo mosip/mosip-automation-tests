@@ -8,8 +8,8 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.masterdata.testscripts.GetWithParam;
-import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
+import io.mosip.testrig.apirig.esignet.testscripts.GetWithParam;
+import io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId;
 import io.mosip.testrig.apirig.resident.testscripts.SimplePostForAutoGenIdForUrlEncoded;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
@@ -29,7 +29,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 	private static final String AuthorizationCodeYml = "idaData/AuthorizationCode/AuthorizationCode.yml";
 	private static final String GenerateTokenYml = "idaData/GenerateToken/GenerateToken.yml";
 	private static final String GetUserInfoYml = "idaData/GetOidcUserInfo/GetOidcUserInfo.yml";
-	SimplePost authorizationCode = new SimplePost();
+	SimplePostForAutoGenId authorizationCode = new SimplePostForAutoGenId();
 	SimplePostForAutoGenIdForUrlEncoded generateToken = new SimplePostForAutoGenIdForUrlEncoded();
 	GetWithParam getUserInfo = new GetWithParam();
 	String clientId = "";
@@ -129,7 +129,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 				}
 
-			} catch (AuthenticationTestException | AdminTestException e) {
+			} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException e) {
 				this.hasError = true;
 				throw new RigInternalError(e.getMessage());
 
@@ -157,7 +157,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 				}
 
-			} catch (AuthenticationTestException | AdminTestException e) {
+			} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException e) {
 				this.hasError = true;
 				throw new RigInternalError(e.getMessage());
 

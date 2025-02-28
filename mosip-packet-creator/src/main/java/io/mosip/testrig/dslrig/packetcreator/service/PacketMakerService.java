@@ -530,17 +530,16 @@ public class PacketMakerService {
 		String dataToMerge = null;
 		if (dataFilePath != null)
 			dataToMerge = Files.readString(Path.of(dataFilePath));
-
-		JSONObject jb = new JSONObject(dataToMerge).getJSONObject(IDENTITY);
-
+		JSONObject jb=null;
+			jb = new JSONObject(dataToMerge).getJSONObject(IDENTITY);
 		// workaround for MOSIP-18123
 
 		JSONObject jb1 = new JSONObject(dataToMerge);
 		List<String> jsonList = jb.keySet().stream().filter(j -> j.startsWith("proof")).collect(Collectors.toList());
 		jsonList.forEach(o -> {
-			jb1.getJSONObject(IDENTITY).getJSONObject(o).put(VALUE, o);
+				jb1.getJSONObject(IDENTITY).getJSONObject(o).put(VALUE, o);
 
-			jb1.getJSONObject(IDENTITY).getJSONObject(o).remove("refNumber");
+				jb1.getJSONObject(IDENTITY).getJSONObject(o).remove("refNumber");
 		});
 
 		dataToMerge = jb1.toString();

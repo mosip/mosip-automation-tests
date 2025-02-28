@@ -26,12 +26,7 @@ public class NameProvider {
 				+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/surnames.csv";
 
 		String resPath = String.format(resourceName_surname, lang);
-
-		Object obj = VariableManager.getVariableValue(MosipMasterData.RUN_CONTEXT, resPath);
-		if (obj != null) {
-			return (String[]) obj;
-		}
-
+		
 		String[] values = new String[count];
 		int i = 0;
 		try {
@@ -152,10 +147,6 @@ public class NameProvider {
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.namesdatapath").toString() + "/"
 					+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/girl_names.csv";
 			resPath = String.format(resourceName_female, lang);
-		}
-		Object obj = VariableManager.getVariableValue(MosipMasterData.RUN_CONTEXT, resPath);
-		if (obj != null) {
-			return (List<Name>) obj;
 		}
 
 		try {

@@ -976,7 +976,19 @@ public class BiometricDataProvider {
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				File dir = new File(dirPath);
 
-				File listDir[] = dir.listFiles();
+				File listDir[]=null;
+				if (dir.isDirectory()) {
+		            // Use FileFilter to filter files
+					 listDir = dir.listFiles(new FileFilter() {
+		                @Override
+		                public boolean accept(File file) {
+		                    // Check if it's a directory and starts with "Impression"
+		                    return file.isDirectory() && file.getName().startsWith("Impression");
+		                }
+		            });		           
+		        } else {
+		        	logger.error(dirPath + " is not a directory.");
+		        }
 				int numberOfSubfolders = listDir.length;
 
 				int min = 1;
@@ -1049,7 +1061,19 @@ public class BiometricDataProvider {
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 		File dir = new File(dirPath);
 
-		File listDir[] = dir.listFiles();
+		File listDir[]=null;
+		if (dir.isDirectory()) {
+            // Use FileFilter to filter files
+			 listDir = dir.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    // Check if it's a directory and starts with "Impression"
+                    return file.isDirectory() && file.getName().startsWith("Impression");
+                }
+            });		           
+        } else {
+        	logger.error(dirPath + " is not a directory.");
+        }
 		int numberOfSubfolders = listDir.length;
 
 		int min = 1;
