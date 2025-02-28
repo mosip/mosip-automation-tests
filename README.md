@@ -52,6 +52,7 @@ Below are repository details of various modules used for the automation
 1. Biometric Devices= Contains Mockmds specific files.
 1. config= application.properties configurations
 1. config=default.properties
+1. dslConfig=dsl.properties
 1. mapper=demographic mappings environment specific or default setup.
 1. privatekeys=machine specific details for encrypting and signing the packet.					
 1.	Update ..\run.bat as mentioned below
@@ -74,6 +75,44 @@ Below are repository details of various modules used for the automation
 ## DSL execution logs
 1. We can verify the failure in the logs `mosip-acceptance-tests\ivv-orchestrator\src\logs\mosip-api-test.log`
 
+## Importing the Project into an IDE
+
+To work with the project in an Integrated Development Environment (IDE), follow these steps:
+
+1.**Supported IDEs:**
+   - IntelliJ IDEA (Recommended)
+   - Eclipse IDE
+
+2.**Prerequisites:**
+   - Ensure **Java 21** and **Maven** are installed and configured in your system.
+   - Git Bash (for cloning the repository and running scripts).
+
+3.**Steps to Import the Project:**
+   - Clone the repository using the command:
+     ```
+     git clone https://github.com/mosip/mosip-automation-tests.git
+     ```
+   - Open the IDE of your choice.
+   - Select **File > Open Project** (or **File > Import** in Eclipse).
+   - Navigate to the directory where the repository is cloned.
+   - Select the `pom.xml` file and import the project as a **Maven Project**.
+
+4.**Dependencies:**
+   - The project uses Maven for dependency management. Ensure all dependencies are downloaded by running:
+     ```
+     mvn clean install -Dgpg.skip
+     ```
+     This step will also verify that the project builds successfully.
+
+5.**Environment-Specific Configurations:**
+   - Update the `Kernel.properties` file and other configuration files under the `src/main/resources/config` directory as per your environment setup.
+
+6.**Run the Project:**
+   - After importing, locate the main class to run the project:
+     - For DSL Orchestrator: `io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner`.
+   - Use the IDE’s **Run** feature or execute the JAR file with VM arguments for testing.
+
+By following these steps, you can seamlessly set up and work with the project in your preferred IDE.
 
 ## Docker setup build
 1. Deploy Packet creator
@@ -96,3 +135,4 @@ Below are repository details of various modules used for the automation
 
 ## License
 This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
+

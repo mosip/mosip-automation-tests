@@ -271,8 +271,8 @@ public class EmailableReport implements IReporter {
 	public static String getExecutionTime() {
 	    long duration = BaseTestCaseUtil.exectionEndTime - BaseTestCaseUtil.exectionStartTime;
 
-	    // Convert nanoseconds to total seconds, minutes, and hours
-	    long totalSeconds = duration / 1_000_000_000;
+	    // Convert milliseconds to total seconds, minutes, and hours
+	    long totalSeconds = duration / 1000;
 	    long seconds = totalSeconds % 60;
 	    long totalMinutes = totalSeconds / 60;
 	    long minutes = totalMinutes % 60;
@@ -488,10 +488,13 @@ public class EmailableReport implements IReporter {
 						
 						String scenarioStart = BaseTestCaseUtil.sceanrioExecutionStatistics.get("Scenario_" + scenarioDetails[0] + "_startTime");
 						String scenarioEnd = BaseTestCaseUtil.sceanrioExecutionStatistics.get("Scenario_" + scenarioDetails[0] + "_endTime");
+						long endTime;
+						if (scenarioEnd == null || scenarioEnd.isEmpty())
+							 endTime= System.nanoTime();
+						else
+							 endTime = Long.parseLong(scenarioEnd);
 
 						long startTime = Long.parseLong(scenarioStart);
-						long endTime = Long.parseLong(scenarioEnd);
-
 						// Calculate the duration in milliseconds
 						long scenarioDuration = endTime - startTime;
 						

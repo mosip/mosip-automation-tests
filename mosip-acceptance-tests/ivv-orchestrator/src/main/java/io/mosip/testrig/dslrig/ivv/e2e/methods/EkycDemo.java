@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +15,7 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.KeyMgrUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.DemoAuth;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -21,6 +23,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
+import io.restassured.response.Response;
 
 public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(EkycDemo.class);
@@ -49,6 +52,8 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 		Object[] casesListUIN = null;
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 		Object[] casesListVID = null;
+		String res ="";
+		KeyMgrUtil keyMgrUtil = new KeyMgrUtil();
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
@@ -451,12 +456,17 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 					test.setInput(inputJson.toString());
 					try {
 						demoAuth.test(test);
-					} catch (AuthenticationTestException | AdminTestException e) {
-						logger.error(e.getMessage());
+						Response response = demoAuth.response;
+						JSONObject resJsonObject = new JSONObject(response.asString());
+						resJsonObject = new JSONObject(response.getBody().asString()).getJSONObject("response");
+						res = keyMgrUtil.ekycDataDecryption(resJsonObject, kycPartnerId);
+					}catch (Exception e) {
 						this.hasError = true;
-						throw new RigInternalError(e.getMessage());
+						logger.error(e.getMessage());
+						throw new RigInternalError("EkyDemo Auth failed ");
 					}
 				}
+				step.getScenario().getVariables().put(step.getOutVarName(), res);
 			}
 
 		}
