@@ -20,6 +20,8 @@ import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -72,7 +74,8 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static String extentReportName="";
     public static long exectionStartTime = 0;
     public static long exectionEndTime = 0;
-
+	public static JSONArray regProcActuatorResponseArray = null;
+	public static String regProcWaitInterval = "";
 
 	public static String getExtentReportName() {
 		return extentReportName;
@@ -455,6 +458,39 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 
 		return bioMetricData;
+	}
+	
+	public static String getRegprocWaitFromActuator() {
+		String url = BaseTestCase.ApplnURI + dslConfigManager.getproperty("actuatorRegprocEndpoint");
+		
+		if (regProcWaitInterval != null && !regProcWaitInterval.isEmpty())
+			return regProcWaitInterval;
+
+		try {
+			if (regProcActuatorResponseArray == null) {
+				Response response = null;
+				JSONObject responseJson = null;
+				response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+				GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+
+				responseJson = new JSONObject(response.getBody().asString());
+				regProcActuatorResponseArray = responseJson.getJSONArray("propertySources");
+			}
+
+			for (int i = 0, size = regProcActuatorResponseArray.length(); i < size; i++) {
+				JSONObject eachJson = regProcActuatorResponseArray.getJSONObject(i);
+				if (eachJson.get("name").toString().contains("registration-processor-default.properties")) {
+					regProcWaitInterval = eachJson.getJSONObject(GlobalConstants.PROPERTIES)
+							.getJSONObject("registration.processor.reprocess.minutes").get(GlobalConstants.VALUE)
+							.toString();
+					break;
+				}
+			}
+			return regProcWaitInterval;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return regProcWaitInterval;
+		}
 	}
 
 }
