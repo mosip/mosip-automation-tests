@@ -9,14 +9,12 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class PhotoProvider {
@@ -55,15 +53,10 @@ public class PhotoProvider {
 
 			// otherwise pick the impression of same of scenario number
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
-			
-			FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
-			
+
 			logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders=" + numberOfSubfolders
 					+ " impressionToPick=" + impressionToPick);
-			
-			List<File> firstSet = CommonUtil.listFiles(dirPath+"/output/"+currentScenarioNumber + "/face_data/");
-			
-			List<File> filteredFiles = firstSet.stream().filter(file -> file.getName().contains("00"+impressionToPick)).toList();
+			File file = new File(dirPath + String.format(Photo_File_Format, impressionToPick));
 
 			Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "enableExternalBiometricSource");
 			boolean bExternalSrc = false;
@@ -82,10 +75,10 @@ public class PhotoProvider {
 				}
 			} else {
 
-				try (FileInputStream fos = new FileInputStream(filteredFiles.get(0));
+				try (FileInputStream fos = new FileInputStream(file);
 						BufferedInputStream bis = new BufferedInputStream(fos)) {
 					img = ImageIO.read(bis);
-					logger.info("Image picked from this path=" + filteredFiles.get(0));
+					logger.info("Image picked from this path=" + file);
 				}
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
