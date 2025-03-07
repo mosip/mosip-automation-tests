@@ -317,18 +317,21 @@ public class Orchestrator {
 				+ scenario.getId());
 
 		extent.flush();
-		String tags = System.getProperty("ivv.tags");
+		String testLevel = System.getProperty("env.testLevel");
 		String identifier = null;
-		if (tags == null || tags.isEmpty()) {
+		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
+		if (testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression")) {
 			logger.info("Running Scenario #" + scenario.getId());
-		} else if (!matchTags(tags, scenario.getTags())) {
-			logger.info("Skipping Scenario #" + scenario.getId());
-			throw new SkipException("Skipping Scenario #" + scenario.getId());
+		} else if (matchTags("Negative_Test", scenario.getTags()) && testLevel.equalsIgnoreCase("smoke")) {
+		    extentTest.skip("S-" + scenario.getId() + ": Skipping scenario as it is marked as a Negative Test case");
+		    updateRunStatistics(scenario);
+		    throw new SkipException("S-" + scenario.getId() + ": Skipping scenario as it is marked as a Negative Test case");
 		}
+
 
 		message = "Scenario_" + scenario.getId() + ": " + scenario.getDescription();
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
-		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
+		
 
 		// Check whether the scenario is in the defined skipped list
 		if (dslConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {

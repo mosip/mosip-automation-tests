@@ -1,5 +1,5 @@
 RetrieveIdentity:
-  IdRepository_RetrieveBioDocument_With_ID:
+  IdRepository_RetrieveBioDocument_With_ID_Smoke:
       endPoint: /idrepository/v1/identity/idvid/{id}?type=bio
       role: idrepo
       restMethod: get

@@ -1,5 +1,5 @@
 GetPacketTagsInfo:
-  RegProc_GetPacketTagsInfo_With_RID:
+  RegProc_GetPacketTagsInfo_With_RID_Smoke_Pos:
       endPoint: /commons/v1/packetmanager/info
       role: regpro
       checkErrorsOnlyInResponse: true
