@@ -1,0 +1,40 @@
+BioAuth:
+  Ida_BioAuth_Biometric_InValid_Data_smoke_neg:
+      endPoint: /idauthentication/v1/auth/$partnerKeyURL$
+      role: resident
+      restMethod: post
+      inputTemplate: idaData/BioAuth/bioAuth
+      outputTemplate: idaData/BioAuth/bioAuthResultNegative
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "uinnumber",
+        "transactionId": "$TRANSACTIONID$",
+        "individualIdType": "UIN",
+        "bio": true,
+        "demo": false,
+        "otp": false,
+        "identityRequest":{
+          "bioSubType": "UNKNOWN",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Full face",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "idaData/BioAuth/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+  	"authStatus": "false",
+  	"errorCode": "IDA-BIA-006"
+}'
