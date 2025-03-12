@@ -24,7 +24,7 @@ public class NameProvider {
 		resourceName_surname = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.namesdatapath").toString() + "/"
 				+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/surnames.csv";
-
+		logger.info("resourceName surname : "+ resourceName_surname);
 		String resPath = String.format(resourceName_surname, lang);
 		
 		String[] values = new String[count];
@@ -139,6 +139,7 @@ public class NameProvider {
 			resourceName_male = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.namesdatapath").toString() + "/"
 					+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/boy_names.csv";
+			logger.info("resourceName  : "+ resourceName_male);
 
 			resPath = String.format(resourceName_male, lang);
 			recGender = Gender.Male;
@@ -146,6 +147,8 @@ public class NameProvider {
 			resourceName_female = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.namesdatapath").toString() + "/"
 					+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/girl_names.csv";
+			logger.info("resourceName  : "+ resourceName_female);
+
 			resPath = String.format(resourceName_female, lang);
 		}
 

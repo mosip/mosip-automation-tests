@@ -103,6 +103,7 @@ public class CountryProvider extends LocationProviderBase {
 				.readFromJSONFile(System.getProperty("java.io.tmpdir") + VariableManager
 						.getVariableValue(contextKey, "mosip.test.persona.locationsdatapath").toString() + "/" + isoCode
 						+ "/country.json");
+		logger.info("File path : "+ strJson);
 		ObjectMapper objectMapper = new ObjectMapper();
 		return objectMapper.readValue(strJson, CountryModel.class);
 
