@@ -333,6 +333,7 @@ public class ResidentDataProvider {
 		try {
 			if(bIrisRequired)
 				irisList = BiometricDataProvider.generateIris(count,contextKey);
+			logger.info(irisList.toString());
 		} catch (  Exception e1) {
 			logger.error(e1.getMessage());
 		}
