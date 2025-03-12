@@ -105,7 +105,7 @@ public class FingerprintVariationGenerator {
                 String segment2 = parentPath.getName(parentPath.getNameCount() - 1).toString();
 
                 // Combine the segments to get the desired output
-                String extractedPath = segment1 + "\\" + segment2 + "\\";
+                String extractedPath = segment1 + "//" + segment2 + "//";
 
                 // System.out.println("fileNameAbsPath: " + fileNameAbsPath + "
                 // outputUniqueFingerprintDataPath : " + outputUniqueFingerprintDataPath + "
@@ -202,7 +202,7 @@ public class FingerprintVariationGenerator {
         }
 
 //        strFingervariation = "Original";
-        String outputFingerprintPath = outputUniqueFingerprintDataRelativePath + "\\" + FPPath + strFingervariation
+        String outputFingerprintPath = outputUniqueFingerprintDataRelativePath + "//" + FPPath + strFingervariation
                 + "_" + FileName;
         // Create directories if they do not exist
         Path outputPath = Paths.get(outputFingerprintPath).getParent();
@@ -226,7 +226,7 @@ public class FingerprintVariationGenerator {
 
             fingerprintImageWithVariation = postProcessFingerprint(fingerprintImageWithVariation);
 
-            outputFingerprintPath = outputUniqueFingerprintDataRelativePath + "\\" + FPPath
+            outputFingerprintPath = outputUniqueFingerprintDataRelativePath + "//" + FPPath
                     + strFingervariation + "_" + FileName;
 
             try {

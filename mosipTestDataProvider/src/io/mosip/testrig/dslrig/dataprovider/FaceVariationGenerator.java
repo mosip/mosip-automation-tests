@@ -159,7 +159,7 @@ public class FaceVariationGenerator {
             return;
         }
 
-        String outputFacePath = outputUniqueFaceDataPath + "\\" + FACEPath + "\\" + strFaceVariation + "_" + FileName;
+        String outputFacePath = outputUniqueFaceDataPath + "//" + FACEPath + "//" + strFaceVariation + "_" + FileName;
         // System.out.println("------------------" + outputFacePath);
         // Create directories if they do not exist
         Path outputPath = Paths.get(outputFacePath).getParent();
@@ -180,7 +180,7 @@ public class FaceVariationGenerator {
                     .get((j - 1) % activeVariations.size());
             BufferedImage faceImageWithVariation = Variation.apply(faceImage, j);
 
-            outputFacePath = outputUniqueFaceDataPath + "\\" + FACEPath + "\\" + strFaceVariation + "_" + FileName;
+            outputFacePath = outputUniqueFaceDataPath + "//" + FACEPath + "//" + strFaceVariation + "_" + FileName;
             // System.out.println("XXXXXXXXXXXXXXXX------------------" + outputFacePath);
 
             try {

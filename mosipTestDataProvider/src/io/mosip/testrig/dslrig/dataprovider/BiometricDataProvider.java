@@ -1238,7 +1238,6 @@ public class BiometricDataProvider {
 			
 			String srcPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString();
-			logger.info("genrateIrissrcPath : "+srcPath);
 
 			int num = new File(srcPath).list().length;
 			int[] index = CommonUtil.generateRandomNumbers(count, num, 1);
@@ -1250,8 +1249,6 @@ public class BiometricDataProvider {
 			File dir = new File(srcPath);
 
 			File listDir[] = dir.listFiles();
-			logger.info("listOfFiles : " +Arrays.stream(listDir).map(File::getName).collect(Collectors.toList()));
-			logger.info("list of files : "+dir.listFiles().toString() + ", srcPath : "+srcPath);
 			int numberOfSubfolders = listDir.length;
 
 			int min = 1;
@@ -1273,7 +1270,6 @@ public class BiometricDataProvider {
 
 			File[] listOfFiles = folder.listFiles();
 			//			listOfFiles=getRandomIrisVariation(listOfFiles);
-			logger.info("listOfFiles : " +Arrays.stream(listOfFiles).map(File::getName).collect(Collectors.toList()));
 
 			for (File file : listOfFiles) {
 				if (file.getName().contains("L")) {
@@ -1290,9 +1286,7 @@ public class BiometricDataProvider {
 				rightbmp = leftbmp;
 			}
 			String fPathL = srcPath +"/output/"+currentScenarioNumber + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
-			logger.info("fPathL : " +fPathL);
 			String fPathR = srcPath +"/output/"+currentScenarioNumber + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
-			logger.info("fPathR : " +fPathR);
 			String leftIrisData = "";
 			String rightIrisData = "";
 			String irisHash = "";
