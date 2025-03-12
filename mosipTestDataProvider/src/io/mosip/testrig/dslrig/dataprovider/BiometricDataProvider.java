@@ -1186,7 +1186,6 @@ public class BiometricDataProvider {
 
 	// Left Eye, Right Eye
 	static List<IrisDataModel> generateIris(int count, String contextKey) throws Exception {
-logger.info("generateIris : "+count);
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
 
 		IrisDataModel m = new IrisDataModel();
@@ -1199,13 +1198,10 @@ logger.info("generateIris : "+count);
 			bExternalSrc = Boolean.valueOf(val.toString());
 
 		if (bExternalSrc) {
-			logger.info("bExternalSrc : "+bExternalSrc);
 
 			// folder where all bio input available
 			String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "externalBiometricsource")
 					.toString();
-			logger.info("bExternalSrc : "+bioSrc);
-
 			String fPathL = bioSrc + "Left Iris.jp2";
 			String fPathR = bioSrc + "Right Iris.jp2";
 
@@ -1254,6 +1250,7 @@ logger.info("generateIris : "+count);
 			File dir = new File(srcPath);
 
 			File listDir[] = dir.listFiles();
+			logger.info("list of files : "+dir.listFiles() + "srcPath : "+srcPath);
 			int numberOfSubfolders = listDir.length;
 
 			int min = 1;
@@ -1271,6 +1268,8 @@ logger.info("generateIris : "+count);
 			IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
 
 			File folder = new File(srcPath + "/output/"+currentScenarioNumber+"/" + String.format("%03d", impressionToPick));
+			logger.info(srcPath + "/output/"+currentScenarioNumber+"/" + String.format("%03d", impressionToPick));
+
 			File[] listOfFiles = folder.listFiles();
 			//			listOfFiles=getRandomIrisVariation(listOfFiles);
 
