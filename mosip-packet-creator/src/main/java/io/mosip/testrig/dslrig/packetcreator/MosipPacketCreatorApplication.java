@@ -13,6 +13,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
+import io.mosip.testrig.dslrig.packetcreator.service.GitFolderDownloader;
+
+
 @SpringBootApplication
 @ComponentScan(basePackages = { "io.mosip.testrig.dslrig.packetcreator.*" })
 public class MosipPacketCreatorApplication {
@@ -25,7 +28,7 @@ public class MosipPacketCreatorApplication {
 		// System.setProperty("security.basic.enabled", "false");
 		// System.setProperty("management.security.enabled", "false");
 		// System.setProperty("security.ignored", "/**");
-
+		GitFolderDownloader.getProfileResourceFromGit();
 		context = SpringApplication.run(MosipPacketCreatorApplication.class, args);
 	}
 
