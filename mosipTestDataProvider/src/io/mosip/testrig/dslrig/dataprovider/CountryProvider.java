@@ -35,7 +35,7 @@ public class CountryProvider extends LocationProviderBase {
 		List<CountryLookup> list = null;
 		try {
 			String strJson = CommonUtil.readFromJSONFile(
-					VariableManager.getVariableValue(contextKey, "mountPath").toString() + VariableManager
+					System.getProperty("java.io.tmpdir") + VariableManager
 							.getVariableValue(contextKey, "mosip.test.persona.locationsdatapath").toString()
 							+ "/countries.json");
 
@@ -86,7 +86,7 @@ public class CountryProvider extends LocationProviderBase {
 			}
 
 		}
-		try (FileWriter myWriter = new FileWriter(VariableManager.getVariableValue(contextKey, "mountPath").toString()
+		try (FileWriter myWriter = new FileWriter(System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.locationsdatapath").toString()
 				+ "/countries.json");) {
 			myWriter.write(Obj.writeValueAsString(clList));
@@ -100,7 +100,7 @@ public class CountryProvider extends LocationProviderBase {
 			throws JsonParseException, JsonMappingException, IOException {
 
 		String strJson = CommonUtil
-				.readFromJSONFile(VariableManager.getVariableValue(contextKey, "mountPath").toString() + VariableManager
+				.readFromJSONFile(System.getProperty("java.io.tmpdir") + VariableManager
 						.getVariableValue(contextKey, "mosip.test.persona.locationsdatapath").toString() + "/" + isoCode
 						+ "/country.json");
 		ObjectMapper objectMapper = new ObjectMapper();

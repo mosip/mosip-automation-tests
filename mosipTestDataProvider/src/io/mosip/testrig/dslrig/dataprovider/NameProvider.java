@@ -21,7 +21,7 @@ public class NameProvider {
 	private static String resourceName_surname;
 
 	static String[] getSurNames(String lang, int count, String contextKey) {
-		resourceName_surname = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+		resourceName_surname = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.namesdatapath").toString() + "/"
 				+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/surnames.csv";
 
@@ -136,14 +136,14 @@ public class NameProvider {
 		Gender recGender = Gender.Female;
 
 		if (gender == Gender.Male) {
-			resourceName_male = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+			resourceName_male = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.namesdatapath").toString() + "/"
 					+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/boy_names.csv";
 
 			resPath = String.format(resourceName_male, lang);
 			recGender = Gender.Male;
 		} else {
-			resourceName_female = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+			resourceName_female = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.namesdatapath").toString() + "/"
 					+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/girl_names.csv";
 			resPath = String.format(resourceName_female, lang);
