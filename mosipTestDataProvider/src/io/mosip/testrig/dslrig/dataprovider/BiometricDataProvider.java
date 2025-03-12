@@ -1272,6 +1272,7 @@ public class BiometricDataProvider {
 
 			File[] listOfFiles = folder.listFiles();
 			//			listOfFiles=getRandomIrisVariation(listOfFiles);
+			logger.info("listOfFiles : " +folder.listFiles());
 
 			for (File file : listOfFiles) {
 				if (file.getName().contains("L")) {
@@ -1288,8 +1289,9 @@ public class BiometricDataProvider {
 				rightbmp = leftbmp;
 			}
 			String fPathL = srcPath +"/output/"+currentScenarioNumber + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
+			logger.info("fPathL : " +fPathL);
 			String fPathR = srcPath +"/output/"+currentScenarioNumber + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
-
+			logger.info("fPathR : " +fPathR);
 			String leftIrisData = "";
 			String rightIrisData = "";
 			String irisHash = "";
