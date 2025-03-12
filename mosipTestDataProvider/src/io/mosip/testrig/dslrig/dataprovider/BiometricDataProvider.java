@@ -1250,7 +1250,7 @@ public class BiometricDataProvider {
 			File dir = new File(srcPath);
 
 			File listDir[] = dir.listFiles();
-			logger.info("list of files : "+dir.listFiles() + "srcPath : "+srcPath);
+			logger.info("list of files : "+dir.listFiles().toString() + ", srcPath : "+srcPath);
 			int numberOfSubfolders = listDir.length;
 
 			int min = 1;
@@ -1272,7 +1272,7 @@ public class BiometricDataProvider {
 
 			File[] listOfFiles = folder.listFiles();
 			//			listOfFiles=getRandomIrisVariation(listOfFiles);
-			logger.info("listOfFiles : " +folder.listFiles());
+			logger.info("listOfFiles : " +folder.listFiles().toString());
 
 			for (File file : listOfFiles) {
 				if (file.getName().contains("L")) {

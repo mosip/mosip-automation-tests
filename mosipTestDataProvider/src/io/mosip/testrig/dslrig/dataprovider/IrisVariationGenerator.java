@@ -18,6 +18,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import javax.imageio.ImageIO;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 import java.awt.geom.QuadCurve2D;
@@ -31,6 +34,7 @@ import java.awt.*;
 public class IrisVariationGenerator {
 
     static String strIRISvariation = "Original";
+	private static final Logger logger = LoggerFactory.getLogger(IrisVariationGenerator.class);
 
     public static final int BLUR_IRIS = 1 << 0; // 00000001
     public static final int BRIGHT_IRIS = 1 << 1; // 00000010
@@ -61,11 +65,12 @@ public class IrisVariationGenerator {
         /// Provide folder where the base template image present
         String inputIRISTemplateDirectoryPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString()+"/"+String.format("%03d", impressionToPick);
-        
+        logger.info("inputIRISTemplateDirectoryPath : "+inputIRISTemplateDirectoryPath);
         /// Provide folder to where the generated variant images should be copied
         String outputUniqueIRISDataPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString()+"/output/"+currentScenarioNumber;
-        
+        logger.info("outputUniqueIRISDataPath : "+outputUniqueIRISDataPath);
+
         generateIRISVariations(inputIRISTemplateDirectoryPath, outputUniqueIRISDataPath);
     }
 
