@@ -1186,7 +1186,7 @@ public class BiometricDataProvider {
 
 	// Left Eye, Right Eye
 	static List<IrisDataModel> generateIris(int count, String contextKey) throws Exception {
-
+logger.info("generateIris : "+count);
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
 
 		IrisDataModel m = new IrisDataModel();
@@ -1199,9 +1199,12 @@ public class BiometricDataProvider {
 			bExternalSrc = Boolean.valueOf(val.toString());
 
 		if (bExternalSrc) {
+			logger.info("bExternalSrc : "+bExternalSrc);
+
 			// folder where all bio input available
 			String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "externalBiometricsource")
 					.toString();
+			logger.info("bExternalSrc : "+bioSrc);
 
 			String fPathL = bioSrc + "Left Iris.jp2";
 			String fPathR = bioSrc + "Right Iris.jp2";
@@ -1236,8 +1239,10 @@ public class BiometricDataProvider {
 			m.setRawRight(frdata);
 			retVal.add(m);
 		} else {
+			
 			String srcPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString();
+			logger.info("genrateIrissrcPath : "+srcPath);
 
 			int num = new File(srcPath).list().length;
 			int[] index = CommonUtil.generateRandomNumbers(count, num, 1);
