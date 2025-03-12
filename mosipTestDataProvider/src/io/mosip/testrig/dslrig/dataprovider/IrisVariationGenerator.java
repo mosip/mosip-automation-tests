@@ -111,6 +111,7 @@ public class IrisVariationGenerator {
                 generateIRISVariations(fileNameAbsPath, outputUniqueIRISDataPath, extractedPath, fileName);
             }
         } catch (IOException e) {
+        	logger.error(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -183,6 +184,7 @@ public class IrisVariationGenerator {
             irisImage = ImageIO.read(new File(fileNameAbsPath));
         } catch (IOException e) {
             // Handle the exception (e.g., log it, notify the user, etc.)
+        	logger.error(e.getMessage());
             e.printStackTrace();
         }
 
@@ -191,7 +193,7 @@ public class IrisVariationGenerator {
             return;
         }
 
-        String outputIRISPath = outputUniqueIRISDataPath + "\\" + IRISPath + "\\" + strIRISvariation + "_" + FileName;
+        String outputIRISPath = outputUniqueIRISDataPath + "//" + IRISPath + "//" + strIRISvariation + "_" + FileName;
         // System.out.println("------------------" + outputIRISPath);
         // Create directories if they do not exist
         Path outputPath = Paths.get(outputIRISPath).getParent();
@@ -203,6 +205,7 @@ public class IrisVariationGenerator {
             }
 //            ImageIO.write(irisImage, "png", new File(outputIRISPath));
         } catch (IOException e) {
+        	logger.error(e.getMessage());
             System.err.println(e.getMessage());
         }
 
@@ -212,7 +215,7 @@ public class IrisVariationGenerator {
                     .get((j - 1) % activeVariations.size());
             BufferedImage irisImageWithVariation = Variation.apply(irisImage, j);
 
-            outputIRISPath = outputUniqueIRISDataPath + "\\" + IRISPath + "\\" + strIRISvariation + "_" + FileName;
+            outputIRISPath = outputUniqueIRISDataPath + "//" + IRISPath + "//" + strIRISvariation + "_" + FileName;
             // System.out.println("XXXXXXXXXXXXXXXX------------------" + outputIRISPath);
 
             try {
