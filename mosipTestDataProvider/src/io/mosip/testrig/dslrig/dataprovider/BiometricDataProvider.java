@@ -852,7 +852,7 @@ public class BiometricDataProvider {
 
 	public static Hashtable<Integer, List<File>> impressionCaptureList(String contextKey) {
 		// reach cached finger prints from folder
-		String dirPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+		String dirPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
 		RestClient.logInfo(contextKey, DIRPATH + dirPath);
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
@@ -972,7 +972,7 @@ public class BiometricDataProvider {
 				}
 			} else {
 				// reach cached finger prints from folder
-				String dirPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString() + VariableManager
+				String dirPath = System.getProperty("java.io.tmpdir") + VariableManager
 						.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
 				RestClient.logInfo(contextKey, DIRPATH + dirPath);
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
@@ -1055,7 +1055,7 @@ public class BiometricDataProvider {
 
 		BiometricDataModel data = new BiometricDataModel();
 		// reach cached finger prints from folder
-		String dirPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+		String dirPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
 		RestClient.logInfo(contextKey, DIRPATH + dirPath);
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
@@ -1236,7 +1236,7 @@ public class BiometricDataProvider {
 			retVal.add(m);
 		} else {
 			
-			String srcPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+			String srcPath = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString();
 
 			int num = new File(srcPath).list().length;
@@ -1326,7 +1326,7 @@ public class BiometricDataProvider {
 
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
 		IrisDataModel m = new IrisDataModel();
-		String srcPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+		String srcPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString();
 		String leftbmp = null;
 		String rightbmp = null;
@@ -1410,7 +1410,7 @@ public class BiometricDataProvider {
 		byte[] bData = null;
 		try {
 
-			String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+			String dirPath = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString();
 
 			File dir = new File(dirPath);

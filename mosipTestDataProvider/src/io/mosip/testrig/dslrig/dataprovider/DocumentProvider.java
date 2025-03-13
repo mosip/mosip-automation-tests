@@ -41,7 +41,7 @@ public class DocumentProvider {
 			String contextKey) {
 
 		FileTemplateResolver templateResolver = new FileTemplateResolver();// ClassLoaderTemplateResolver();
-		templateResolver.setPrefix(VariableManager.getVariableValue(contextKey, "mountPath").toString()
+		templateResolver.setPrefix(System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.documentsdatapath").toString());
 		templateResolver.setSuffix(".html");
 		templateResolver.setTemplateMode(TemplateMode.HTML);
@@ -63,7 +63,7 @@ public class DocumentProvider {
 			String contextKey) {
 
 		FileTemplateResolver templateResolver = new FileTemplateResolver();// ClassLoaderTemplateResolver();
-		templateResolver.setPrefix(VariableManager.getVariableValue(contextKey, "mountPath").toString()
+		templateResolver.setPrefix(System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.documentsdatapath").toString());
 		templateResolver.setSuffix(".html");
 		templateResolver.setTemplateMode(TemplateMode.HTML);

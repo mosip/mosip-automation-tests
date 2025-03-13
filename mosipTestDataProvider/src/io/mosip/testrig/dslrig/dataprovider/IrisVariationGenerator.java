@@ -63,11 +63,11 @@ public class IrisVariationGenerator {
 
     public static void irisVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) {
         /// Provide folder where the base template image present
-        String inputIRISTemplateDirectoryPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+        String inputIRISTemplateDirectoryPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString()+"/"+String.format("%03d", impressionToPick);
         logger.info("inputIRISTemplateDirectoryPath : "+inputIRISTemplateDirectoryPath);
         /// Provide folder to where the generated variant images should be copied
-        String outputUniqueIRISDataPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+        String outputUniqueIRISDataPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString()+"/output/"+currentScenarioNumber;
         logger.info("outputUniqueIRISDataPath : "+outputUniqueIRISDataPath);
 
