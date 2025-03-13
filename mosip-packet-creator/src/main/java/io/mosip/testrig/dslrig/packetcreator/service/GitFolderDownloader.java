@@ -5,7 +5,6 @@ import java.net.URL;
 import java.nio.file.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,24 +12,39 @@ public class GitFolderDownloader {
 
     private static final Logger logger = LoggerFactory.getLogger(GitFolderDownloader.class);
 
-    private static final String REPO_URL = "https://github.com/mosip/mosip-automation-tests/archive/refs/heads/develop.zip";
+    // Base URL to fetch ZIP from GitHub
+    private static final String GITHUB_BASE_URL = "https://github.com/mosip/mosip-automation-tests/archive/refs/heads/";
+    
+    // Default branch (can be changed dynamically)
+    private static final String DEFAULT_BRANCH = "develop";
+
+    // Temporary directory for storing extracted profile resources
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator + "profile_resource";
 
-    private static final String[] REQUIRED_FOLDERS = {
-            "mosip-automation-tests-develop/mosip-packet-creator/src/main/resources/dockersupport/centralized/mountvolume/profile_resource/location_data",
-            "mosip-automation-tests-develop/mosip-packet-creator/src/main/resources/dockersupport/centralized/mountvolume/profile_resource/names_data",
-            "mosip-automation-tests-develop/mosip-packet-creator/src/main/resources/dockersupport/centralized/mountvolume/profile_resource/templates_data",
-            "mosip-automation-tests-develop/mosip-packet-creator/src/main/resources/dockersupport/centralized/mountvolume/profile_resource/Address"
+    // Base path for profile resources inside the repo
+    private static final String PROFILE_RESOURCE_BASE = "mosip-packet-creator/src/main/resources/dockersupport/centralized/mountvolume/profile_resource/";
 
+    // Required folders (relative to profile_resource/)
+    private static final String[] REQUIRED_FOLDERS = {
+            "location_data",
+            "names_data",
+            "templates_data",
+            "Address",
+            "CBEFF_validated_data",
+            "documents_data",
+            "face_data",
+            "fp_data",
+            "iris_data"
     };
 
     public static void getProfileResourceFromGit() {
         try {
+            String repoUrl = GITHUB_BASE_URL + DEFAULT_BRANCH + ".zip";
             logger.info("🗑️ Cleaning up old temp directory...");
             deleteOldTempDir();
 
-            logger.info("📥 Downloading required folders from GitHub...");
-            Path zipFilePath = downloadZip();
+            logger.info("📥 Downloading required folders from GitHub branch: {}", DEFAULT_BRANCH);
+            Path zipFilePath = downloadZip(repoUrl);
 
             logger.info("✅ Download complete. Extracting required folders...");
             extractRequiredFolders(zipFilePath);
@@ -42,7 +56,6 @@ public class GitFolderDownloader {
         }
     }
 
-    // 🔹 Delete old TEMP_DIR if it exists
     private static void deleteOldTempDir() throws IOException {
         Path tempPath = Paths.get(TEMP_DIR);
         if (Files.exists(tempPath)) {
@@ -61,9 +74,9 @@ public class GitFolderDownloader {
         }
     }
 
-    private static Path downloadZip() throws IOException {
+    private static Path downloadZip(String repoUrl) throws IOException {
         Path zipPath = Files.createTempFile("repo", ".zip");
-        try (InputStream in = new URL(REPO_URL).openStream();
+        try (InputStream in = new URL(repoUrl).openStream();
              FileOutputStream out = new FileOutputStream(zipPath.toFile())) {
             byte[] buffer = new byte[1024];
             int bytesRead;
@@ -77,11 +90,19 @@ public class GitFolderDownloader {
 
     private static void extractRequiredFolders(Path zipFilePath) throws IOException {
         Files.createDirectories(Paths.get(TEMP_DIR));
+        
+        String rootFolder = null;
 
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFilePath))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                for (String requiredPath : REQUIRED_FOLDERS) {
+                if (rootFolder == null) {
+                    rootFolder = entry.getName().split("/")[0]; // Extract first folder name
+                    logger.info("📁 Detected root folder: {}", rootFolder);
+                }
+
+                for (String requiredSubPath : REQUIRED_FOLDERS) {
+                    String requiredPath = rootFolder + "/" + PROFILE_RESOURCE_BASE + requiredSubPath;
                     if (entry.getName().startsWith(requiredPath)) {
                         Path targetPath = Paths.get(TEMP_DIR, entry.getName().substring(requiredPath.lastIndexOf("/") + 1));
                         if (entry.isDirectory()) {
@@ -95,4 +116,5 @@ public class GitFolderDownloader {
             }
         }
     }
+
 }

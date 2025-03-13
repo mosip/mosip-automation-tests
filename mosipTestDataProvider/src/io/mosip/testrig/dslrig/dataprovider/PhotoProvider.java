@@ -29,7 +29,7 @@ public class PhotoProvider {
 		byte[] bData = null;
 		try {
 
-			String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+			String dirPath = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString();
 
 			File dir = new File(dirPath);
@@ -108,14 +108,14 @@ public class PhotoProvider {
 		/// 125 x129
 		try {
 			final BufferedImage source = ImageIO
-					.read(new File(VariableManager.getVariableValue(contextKey, "mountPath").toString()
+					.read(new File(System.getProperty("java.io.tmpdir")
 							+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString()
 							+ "/female/celebrities.jpg"));
 			int idx = 0;
 			for (int y = 0; y < source.getHeight() - 129; y += 129) {
 				for (int x = 0; x < source.getWidth() - 125; x += 125) {
 					ImageIO.write(source.getSubimage(x, y, 125, 129), "jpg",
-							new File(VariableManager.getVariableValue(contextKey, "mountPath").toString()
+							new File(System.getProperty("java.io.tmpdir")
 									+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath")
 											.toString()
 									+ "/female/photo_" + idx++ + ".jpg"));

@@ -47,11 +47,11 @@ public class FaceVariationGenerator {
     public static void faceVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) throws IOException {
 
         /// Provide folder where the base template image present
-        String inputFaceTemplateDirectoryPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+        String inputFaceTemplateDirectoryPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString()+"/"+String.format("/face%04d.jpg", impressionToPick);
 
         /// Provide folder to where the generated variant images should be copied
-        String outputUniqueFaceDataPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+        String outputUniqueFaceDataPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString()+"/output/"+currentScenarioNumber;
 
         generatefaceVariations(inputFaceTemplateDirectoryPath, outputUniqueFaceDataPath);

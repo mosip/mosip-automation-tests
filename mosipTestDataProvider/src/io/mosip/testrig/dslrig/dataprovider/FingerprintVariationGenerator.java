@@ -58,11 +58,11 @@ public class FingerprintVariationGenerator {
 
     public static void fingerprintVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) throws IOException {
         /// Provide folder where the base template image present
-        String inputFPTemplateDirectoryPath =  VariableManager.getVariableValue(contextKey, MOUNTPATH).toString() + VariableManager
+        String inputFPTemplateDirectoryPath =  System.getProperty("java.io.tmpdir") + VariableManager
 				.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString()+"/"+String.format("/Impression_%d/fp_1/", impressionToPick);
 
         /// Provide folder to where the generated variant images should be copied
-        String outputUniqueFingerprintDataPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString() + VariableManager
+        String outputUniqueFingerprintDataPath = System.getProperty("java.io.tmpdir") + VariableManager
 				.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString()+"/output/"+currentScenarioNumber;
 
         generateFingerprintVariations(inputFPTemplateDirectoryPath, outputUniqueFingerprintDataPath);
