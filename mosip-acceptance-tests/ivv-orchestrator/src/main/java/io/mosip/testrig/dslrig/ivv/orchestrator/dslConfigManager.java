@@ -40,14 +40,14 @@ public class dslConfigManager extends ConfigManager {
 		return ConfigManager.getproperty("threadCount");
 	}
 
-	public static Boolean useExternalScenarioSheet() {
-		return ConfigManager.getproperty("useExternalScenarioSheet").equalsIgnoreCase("yes");
-	}
-	
 	public static String getEsignetMockBaseURL() { 
 		return getproperty("esignetMockBaseURL");
 	}
 	
+	public static Boolean useExternalScenarioSheet() {
+		return ConfigManager.getproperty("useExternalScenarioSheet").equalsIgnoreCase("yes");
+	}
+		
 	public static String getpacketUtilityBaseUrl() {
 		return ConfigManager.getproperty("packetUtilityBaseUrl");
 	}
