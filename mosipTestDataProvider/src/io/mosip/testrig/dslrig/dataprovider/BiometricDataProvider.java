@@ -365,7 +365,6 @@ public class BiometricDataProvider {
 						listexceptionBio.add(modality.getSubType());
 
 					}
-
 				}
 
 				List<MDSDevice> irisDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
