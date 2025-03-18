@@ -34,8 +34,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import io.mosip.testrig.dslrig.dataprovider.mds.HttpRCapture;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.restassured.RestAssured;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.http.Header;
@@ -53,6 +51,7 @@ public class RestClient {
 	// String constants
 	private static final String URLBASE = "urlBase";
 	private static final String ADMIN = "admin";
+	private static final String REGPROC = "regproc";
 	private static final String AUTHORIZATION = "Authorization";
 	private static final String SYSTEM = "system";
 	private static final String PREREG = "prereg";
@@ -778,6 +777,8 @@ public class RestClient {
 				initToken_Resident(contextKey);
 			} else if (role.equalsIgnoreCase(ADMIN)) {
 				initToken_admin(contextKey);
+			} else if (role.equalsIgnoreCase(REGPROC)) {
+				initToken_Regproc(contextKey);
 			} else {
 				initToken(contextKey);
 			}
@@ -827,7 +828,9 @@ public class RestClient {
 
 			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 		} else {
-			return new JSONObject("{\"status\":\"" + response.getBody().asString() + "\"}");
+			JSONObject responseJson = new JSONObject();
+			responseJson.put("status", response.getBody().asString());
+			return responseJson;
 		}
 	}
 
@@ -1208,6 +1211,59 @@ public class RestClient {
 			}
 			String token = response.getCookie(AUTHORIZATION);
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + RESIDENT, token);
+
+			return true;
+		} catch (Exception ex) {
+
+		}
+		return false;
+
+	}
+	
+	public static boolean initToken_Regproc(String contextKey) {
+		try {
+			JSONObject requestBody = new JSONObject();
+			JSONObject nestedRequest = new JSONObject();
+			nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
+			nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
+			nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_regprocclient_app_id"));
+			nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_regproc_client_id"));
+			nestedRequest.put("secretKey",
+					VariableManager.getVariableValue(contextKey, "mosip_regproc_client_secret"));
+			requestBody.put(METADATA, new JSONObject());
+			requestBody.put(VERSION, "string");
+			requestBody.put("id", "string");
+			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
+			requestBody.put(REQUEST, nestedRequest);
+
+			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
+					+ "v1/authmanager/authenticate/clientidsecretkey";
+
+			String jsonBody = requestBody.toString();
+			logInfo(contextKey, contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
+
+			Response response = null;
+			try {
+				if (isDebugEnabled(contextKey))
+					response = given().log().all().contentType("application/json").body(jsonBody).post(authUrl).then()
+							.log().all().extract().response();
+				else
+					response = given().contentType("application/json").body(jsonBody).post(authUrl);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+
+			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {
+				boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
+						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
+				if (bSlackit)
+					SlackIt.postMessage(null, authUrl + " Failed to authenticate, Is "
+							+ VariableManager.getVariableValue(contextKey, URLBASE).toString() + " down ?");
+
+				return false;
+			}
+			String token = response.getCookie(AUTHORIZATION);
+			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + REGPROC, token);
 
 			return true;
 		} catch (Exception ex) {
