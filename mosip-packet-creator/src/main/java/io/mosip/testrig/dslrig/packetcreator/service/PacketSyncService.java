@@ -1517,5 +1517,25 @@ public class PacketSyncService {
 		return MosipDataSetup.deleteMockAbisExpectations(contextKey);
 
 	}
+	
+	public String reprocessPacket(String rid,String workflowInstanceId,String contextKey) throws Exception {
+		String url = baseUrl + "registrationprocessor/v1/securezone/notification";
+	    JSONObject requestBody = new JSONObject();
+	    requestBody.put("reg_type", "NEW");
+	    requestBody.put("rid", rid);
+	    requestBody.put("isValid", true);
+	    requestBody.put("internalError", false);
+	    requestBody.put("messageBusAddress", JSONObject.NULL);
+	    requestBody.put("retryCount", JSONObject.NULL);
+	    requestBody.put("tags", JSONObject.NULL);
+	    requestBody.put("lastHopTimestamp", JSONObject.NULL);
+	    requestBody.put("source", JSONObject.NULL);
+	    requestBody.put("iteration", 1);
+	    requestBody.put("workflowInstanceId", workflowInstanceId);
+
+	    JSONObject response = RestClient.post(url,requestBody,"regproc", contextKey);
+	    
+	    return response.toString();
+	}
 
 }
