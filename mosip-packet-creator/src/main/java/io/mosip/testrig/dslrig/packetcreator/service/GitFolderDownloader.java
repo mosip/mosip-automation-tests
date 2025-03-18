@@ -39,6 +39,11 @@ public class GitFolderDownloader {
 
     public static void getProfileResourceFromGit() {
         try {
+            if (isRunningOnRancher()) {
+                logger.info("🚫 Skipping GitFolderDownloader execution on Rancher.");
+                return;
+            }
+
             String repoUrl = GITHUB_BASE_URL + DEFAULT_BRANCH + ".zip";
             logger.info("🗑️ Cleaning up old temp directory...");
             deleteOldTempDir();
@@ -54,6 +59,13 @@ public class GitFolderDownloader {
         } catch (Exception e) {
             logger.error("❌ Error while processing Git folder download: ", e);
         }
+    }
+
+    /**
+     * Checks if the application is running inside Rancher (or Kubernetes).
+     */
+    private static boolean isRunningOnRancher() {
+        return System.getenv("KUBERNETES_SERVICE_HOST") != null || System.getenv("RANCHER_URL") != null;
     }
 
     private static void deleteOldTempDir() throws IOException {
