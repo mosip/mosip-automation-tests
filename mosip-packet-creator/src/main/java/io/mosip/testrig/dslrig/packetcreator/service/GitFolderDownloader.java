@@ -39,24 +39,26 @@ public class GitFolderDownloader {
     };
 
   
-    public static void getProfileResourceFromGit() {
-        try {
-            String repoUrl = GITHUB_BASE_URL + DEFAULT_BRANCH + ".zip";
-            logger.info("🗑️ Cleaning up old temp directory...");
-            deleteOldTempDir();
+	public static void getProfileResourceFromGit() {
+		if (!System.getProperty("os.name").equalsIgnoreCase("Linux")) {
+			try {
+				String repoUrl = GITHUB_BASE_URL + DEFAULT_BRANCH + ".zip";
+				logger.info("🗑️ Cleaning up old temp directory...");
+				deleteOldTempDir();
 
-            logger.info("📥 Downloading required folders from GitHub branch: {}", DEFAULT_BRANCH);
-            Path zipFilePath = downloadZip(repoUrl);
+				logger.info("📥 Downloading required folders from GitHub branch: {}", DEFAULT_BRANCH);
+				Path zipFilePath = downloadZip(repoUrl);
 
-            logger.info("✅ Download complete. Extracting required folders...");
-            extractRequiredFolders(zipFilePath);
+				logger.info("✅ Download complete. Extracting required folders...");
+				extractRequiredFolders(zipFilePath);
 
-            Files.deleteIfExists(zipFilePath); // Cleanup ZIP file
-            logger.info("✅ Extraction complete. Required files are in: {}", TEMP_DIR);
-        } catch (Exception e) {
-            logger.error("❌ Error while processing Git folder download: ", e);
-        }
-    }
+				Files.deleteIfExists(zipFilePath); // Cleanup ZIP file
+				logger.info("✅ Extraction complete. Required files are in: {}", TEMP_DIR);
+			} catch (Exception e) {
+				logger.error("❌ Error while processing Git folder download: ", e);
+			}
+		}
+	}
 
     private static void deleteOldTempDir() throws IOException {
         Path tempPath = Paths.get(TEMP_DIR);
