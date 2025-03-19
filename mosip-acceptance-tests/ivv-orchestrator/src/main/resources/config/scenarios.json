@@ -450,12 +450,6 @@
 			"Input Parameters": "RID",
 			"Return Value": "NA",
 			"Action": "e2e_CheckTags($$rid)"
-		},
-		"Step-11": {
-			"Description": "Compares generated packet tags against on server packet tages",
-			"Input Parameters": "RID",
-			"Return Value": "NA",
-			"Action": "e2e_reprocessPacket($$rid)"
 		}
 	},
 	{
@@ -21679,7 +21673,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REJECTED)"
+			"Action": "e2e_CheckRIDStage($$rid,UIN_GENERATOR,REJECTED)"
 		}
 	},
 	{
