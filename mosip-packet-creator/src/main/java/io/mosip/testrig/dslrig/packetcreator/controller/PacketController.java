@@ -276,9 +276,10 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) throws Exception {
 		try {
 			return packetSyncService.reprocessPacket(requestDto.getRID() ,requestDto.getWorkflowInstanceId(), contextKey);
-		} catch (Exception e) {
-			return e.getMessage();
+		}catch (Exception ex) {
+			logger.error("get tags", ex);
 		}
+		return "{\"Failed\"}";
 	}
 
 	/*
