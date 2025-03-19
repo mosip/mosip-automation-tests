@@ -14,7 +14,7 @@ public class GitFolderDownloader {
     private static final Logger logger = LoggerFactory.getLogger(GitFolderDownloader.class);
 
     // Base URL to fetch ZIP from GitHub
-    private static final String GITHUB_BASE_URL = "https://github.com/jayesh12234/mosip-automation-tests/archive/refs/heads/";
+    private static final String GITHUB_BASE_URL = "https://github.com/mosip/mosip-automation-tests/archive/refs/heads/";
     
     // Default branch (can be changed dynamically)
     private static final String DEFAULT_BRANCH = "develop";

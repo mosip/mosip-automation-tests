@@ -40,7 +40,6 @@ public class FaceVariationGenerator {
     public static final int NOISY_FACE = 1 << 11; // 00001000 00000000
     public static final int SKEWED_FACE = 1 << 12; // 00010000 00000000
     public static final int AGED_FACE = 1 << 13; // 00100000 00000000
-    private static final String MOUNTPATH = "mountPath";
     // Variable to store the combination of variations
     public static int faceVariations = 0;
 
