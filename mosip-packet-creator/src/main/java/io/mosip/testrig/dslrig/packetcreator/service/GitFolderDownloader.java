@@ -8,12 +8,13 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class GitFolderDownloader {
 
     private static final Logger logger = LoggerFactory.getLogger(GitFolderDownloader.class);
 
     // Base URL to fetch ZIP from GitHub
-    private static final String GITHUB_BASE_URL = "https://github.com/mosip/mosip-automation-tests/archive/refs/heads/";
+    private static final String GITHUB_BASE_URL = "https://github.com/jayesh12234/mosip-automation-tests/archive/refs/heads/";
     
     // Default branch (can be changed dynamically)
     private static final String DEFAULT_BRANCH = "develop";
@@ -22,7 +23,7 @@ public class GitFolderDownloader {
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator + "profile_resource";
 
     // Base path for profile resources inside the repo
-    private static final String PROFILE_RESOURCE_BASE = "mosip-packet-creator/src/main/resources/dockersupport/centralized/mountvolume/profile_resource/";
+    private static final String PROFILE_RESOURCE_BASE = "mosip-packet-creator/src/main/resources/dockersupport/centralized/mosip-packet-creator/profile_resource/";
 
     // Required folders (relative to profile_resource/)
     private static final String[] REQUIRED_FOLDERS = {
@@ -37,13 +38,9 @@ public class GitFolderDownloader {
             "iris_data"
     };
 
+  
     public static void getProfileResourceFromGit() {
         try {
-            if (isRunningOnRancher()) {
-                logger.info("🚫 Skipping GitFolderDownloader execution on Rancher.");
-                return;
-            }
-
             String repoUrl = GITHUB_BASE_URL + DEFAULT_BRANCH + ".zip";
             logger.info("🗑️ Cleaning up old temp directory...");
             deleteOldTempDir();
@@ -59,13 +56,6 @@ public class GitFolderDownloader {
         } catch (Exception e) {
             logger.error("❌ Error while processing Git folder download: ", e);
         }
-    }
-
-    /**
-     * Checks if the application is running inside Rancher (or Kubernetes).
-     */
-    private static boolean isRunningOnRancher() {
-        return System.getenv("KUBERNETES_SERVICE_HOST") != null || System.getenv("RANCHER_URL") != null;
     }
 
     private static void deleteOldTempDir() throws IOException {

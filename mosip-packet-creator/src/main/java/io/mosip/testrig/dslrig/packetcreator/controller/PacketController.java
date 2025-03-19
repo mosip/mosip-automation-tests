@@ -1,8 +1,6 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -16,12 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
-import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
-import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.PacketCreateDto;
+import io.mosip.testrig.dslrig.packetcreator.dto.PacketReprocessDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.PreRegisterRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncReqRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncReqResponseDTO;
@@ -265,6 +261,18 @@ public class PacketController {
 		} catch (Exception ex) {
 			logger.error("createPacket", ex);
 			return ex.getMessage();
+		}
+	}
+	
+	@Operation(summary = "Reprocess the packet")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully Reprocessed the packet") })
+	@PostMapping(value = "/packet/reprocess/{contextKey}")
+	public @ResponseBody String packetReprocess(@RequestBody PacketReprocessDto requestDto,
+			@PathVariable("contextKey") String contextKey) throws Exception {
+		try {
+			return packetSyncService.reprocessPacket(requestDto.getRID() ,requestDto.getWorkflowInstanceId(), contextKey);
+		} catch (Exception e) {
+			return e.getMessage();
 		}
 	}
 
