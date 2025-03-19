@@ -52,7 +52,6 @@ public class FingerprintVariationGenerator {
     public static final int SWOLLEN_FINGERS = 1 << 19; // 00001000 00000000 00000000
     public static final int SENSITIVE_FINGERS = 1 << 20; // 00010000 00000000 00000000
     public static final int STEADY_FINGERS = 1 << 21; // 00100000 00000000 00000000
-    private static final String MOUNTPATH = "mountPath";
     // Variable to store the combination of variations
     public static int fingerPrintVariations = 0;
 

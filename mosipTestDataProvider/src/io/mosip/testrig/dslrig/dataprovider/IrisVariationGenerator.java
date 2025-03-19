@@ -56,7 +56,6 @@ public class IrisVariationGenerator {
     public static final int TEXTURE_CHANGE_IRIS = 1 << 17; // 00000010 00000000 00000000
     public static final int COLOR_CHANGE_IRIS = 1 << 18; // 00000100 00000000 00000000
     public static final int WATERY_IRIS = 1 << 19; // 00001000 00000000 00000000
-    private static final String MOUNTPATH = "mountPath";
 
     // Variable to store the combination of variations
     public static int irisVariations = 0;

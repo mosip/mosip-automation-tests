@@ -97,7 +97,6 @@ public class BiometricDataProvider {
 	private static final String LEFTEYE = "leftEye";
 	private static final String RIGHTEYE = "rightEye";
 	private static final String RIGHT = "Right";
-	private static final String MOUNTPATH = "mountPath";
 	private static final String DIRPATH = "dirPath ";
 	private static final String SCENARIO = "scenario";
 
