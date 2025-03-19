@@ -34,8 +34,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import io.mosip.testrig.dslrig.dataprovider.mds.HttpRCapture;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.restassured.RestAssured;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.http.Header;
