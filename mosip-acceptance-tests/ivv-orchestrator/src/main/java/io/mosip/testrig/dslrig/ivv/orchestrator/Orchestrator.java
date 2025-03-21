@@ -138,6 +138,13 @@ public class Orchestrator {
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
 	public static Object[][] dataProvider() throws RigInternalError {
+		int threadCount = Integer.parseInt(dslConfigManager.getThreadCount()); 
+
+	    System.out.println("Executing with thread count: " + threadCount);
+	    logger.info("Executing DataProvider with thread count: " + threadCount);
+
+	    System.setProperty("dataproviderthreadcount", String.valueOf(threadCount));
+		
 		String scenarioSheet = null;
 
 		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
@@ -203,6 +210,8 @@ public class Orchestrator {
 			dataArray[i][3] = globals;
 			dataArray[i][4] = properties;
 		}
+		
+		System.setProperty("testng.threadcount", String.valueOf(dslConfigManager.getThreadCount()));
 		return dataArray;
 	}
 
