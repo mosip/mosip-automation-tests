@@ -20,7 +20,6 @@ public class ThreadCountChanger implements IAlterSuiteListener  {
 	
 	@Override
 	public void alter(List<XmlSuite> suites) {
-	    System.out.println("ThreadCountChanger invoked!");
 	    logger.info("ThreadCountChanger invoked!");
 
 	    int count = Integer.parseInt(dslConfigManager.getThreadCount()); // Read thread count from config
