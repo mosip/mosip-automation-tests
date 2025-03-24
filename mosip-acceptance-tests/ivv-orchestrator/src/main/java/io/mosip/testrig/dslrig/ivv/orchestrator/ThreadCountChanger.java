@@ -17,19 +17,28 @@ public class ThreadCountChanger implements IAlterSuiteListener  {
 		else
 			logger.setLevel(Level.ERROR);
 	}
+	
 	@Override
-    public void alter(List<XmlSuite> suites) {
-		/* System.err.println("**Alter is invoked**"); */
+	public void alter(List<XmlSuite> suites) {
+	    logger.info("ThreadCountChanger invoked!");
 
-       // ConfigManager.init();
-        int count = Integer.parseInt(dslConfigManager.getThreadCount());
-        
-        logger.info("Running suite with thread count : "+count);
+	    int count = Integer.parseInt(dslConfigManager.getThreadCount()); // Read thread count from config
+	    logger.info("Running suite with thread count: " + count);
 
-        for (XmlSuite suite : suites) {
-            suite.setThreadCount(count);
-        }
-    }
+	    for (XmlSuite suite : suites) {
+	        logger.info("Before setting, thread count for suite: " + suite.getName() + " -> " + suite.getThreadCount());
+
+	        suite.setParallel(XmlSuite.ParallelMode.METHODS);
+	        suite.setThreadCount(count);
+
+	        suite.getTests().forEach(test -> {
+	            test.setParallel(XmlSuite.ParallelMode.METHODS);
+	            test.setThreadCount(count);
+	        });
+
+	        logger.info("Thread count set for suite: " + suite.getName() + " -> " + suite.getThreadCount());
+	    }
+	}
 }
 
 
