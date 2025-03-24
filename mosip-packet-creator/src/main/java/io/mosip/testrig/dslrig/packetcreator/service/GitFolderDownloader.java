@@ -14,7 +14,7 @@ public class GitFolderDownloader {
     private static final Logger logger = LoggerFactory.getLogger(GitFolderDownloader.class);
 
     // Base URL to fetch ZIP from GitHub
-    private static final String GITHUB_BASE_URL = "https://github.com/mosip/mosip-automation-tests/archive/refs/heads/";
+    private static final String GITHUB_BASE_URL = "https://github.com/jayesh12234/mosip-automation-tests/archive/refs/heads/";
     
     // Default branch (can be changed dynamically)
     private static final String DEFAULT_BRANCH = "develop";
@@ -92,33 +92,49 @@ public class GitFolderDownloader {
         return zipPath;
     }
 
-    private static void extractRequiredFolders(Path zipFilePath) throws IOException {
-        Files.createDirectories(Paths.get(TEMP_DIR));
-        
-        String rootFolder = null;
+    	private static void extractRequiredFolders(Path zipFilePath) throws IOException {
+    	    Path tempDir = Paths.get(TEMP_DIR);
+    	    Files.createDirectories(tempDir);
 
-        try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFilePath))) {
-            ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
-                if (rootFolder == null) {
-                    rootFolder = entry.getName().split("/")[0]; // Extract first folder name
-                    logger.info("📁 Detected root folder: {}", rootFolder);
-                }
+    	    String rootFolder = null;
 
-                for (String requiredSubPath : REQUIRED_FOLDERS) {
-                    String requiredPath = rootFolder + "/" + PROFILE_RESOURCE_BASE + requiredSubPath;
-                    if (entry.getName().startsWith(requiredPath)) {
-                        Path targetPath = Paths.get(TEMP_DIR, entry.getName().substring(requiredPath.lastIndexOf("/") + 1));
-                        if (entry.isDirectory()) {
-                            Files.createDirectories(targetPath);
-                        } else {
-                            Files.copy(zis, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                        }
-                        logger.info("✅ Extracted: {}", targetPath);
-                    }
-                }
-            }
-        }
-    }
+    	    try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFilePath))) {
+    	        ZipEntry entry;
+    	        while ((entry = zis.getNextEntry()) != null) {
+    	            if (rootFolder == null) {
+    	                rootFolder = entry.getName().split("/")[0]; // Extract first folder name
+    	                logger.info("📁 Detected root folder: {}", rootFolder);
+    	            }
+
+    	            for (String requiredSubPath : REQUIRED_FOLDERS) {
+    	                String requiredPath = rootFolder + "/" + PROFILE_RESOURCE_BASE + requiredSubPath;
+
+    	                if (entry.getName().startsWith(requiredPath)) {
+    	                    
+    	                    // Compute the relative path correctly inside profile_resource
+    	                    String relativePath = entry.getName().substring((rootFolder + "/" + PROFILE_RESOURCE_BASE).length()).replaceFirst("^/+", "");
+
+    	                    if (relativePath.isEmpty()) continue; // Skip if it's an empty directory
+
+    	                    Path targetPath = tempDir.resolve(relativePath).normalize();
+
+    	                    // Ensure extraction stays inside TEMP_DIR
+    	                    if (!targetPath.startsWith(tempDir)) {
+    	                        throw new IOException("🚨 Security Warning! Attempted Zip Slip: " + entry.getName());
+    	                    }
+
+    	                    if (entry.isDirectory()) {
+    	                        Files.createDirectories(targetPath);
+    	                    } else {
+    	                        Files.createDirectories(targetPath.getParent()); // Ensure parent folders exist
+    	                        Files.copy(zis, targetPath, StandardCopyOption.REPLACE_EXISTING);
+    	                    }
+
+    	                    logger.info("✅ Extracted: {}", targetPath);
+    	                }
+    	            }
+    	        }
+    	    }
+    	}
 
 }
