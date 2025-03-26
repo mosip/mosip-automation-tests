@@ -1271,7 +1271,7 @@ public class PacketTemplateProvider {
 	String generateMetaDataJson(ResidentModel resident, String preRegistrationId, String machineId, String centerId,
 			HashMap<String, String[]> fileInfo, String contextKey, ContextSchemaDetail contextSchemaDetail) {
 
-		String templateMetaJsonPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+		String templateMetaJsonPath =System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "templateIDMeta").toString().trim();
 
 		String templateIdentityStr = CommonUtil.readFromJSONFile(templateMetaJsonPath);

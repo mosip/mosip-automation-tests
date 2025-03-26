@@ -195,7 +195,7 @@ public class BiometricFingerPrintProvider {
 				}
 			} else {
 				// reach cached finger prints from folder
-				String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString() + VariableManager
+				String dirPath = System.getProperty("java.io.tmpdir") + VariableManager
 						.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 				for (int i = 1; i <= 2; i++) {
@@ -268,7 +268,7 @@ public class BiometricFingerPrintProvider {
 
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
 
-		String srcPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+		String srcPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString();
 
 		int[] index = CommonUtil.generateRandomNumbers(count, 224, 1);

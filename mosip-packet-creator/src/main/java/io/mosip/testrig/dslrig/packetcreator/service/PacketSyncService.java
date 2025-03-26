@@ -560,7 +560,6 @@ public class PacketSyncService {
 
 		RestClient.logInfo(contextKey, baseUrl + uploadapi + ",path=" + path);
 		JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl + uploadapi, path, contextKey);
-		if (!RestClient.isDebugEnabled(contextKey)) {
 			if (VariableManager.getVariableValue(contextKey, "mosip.test.temp") != null
 					&& VariableManager.getVariableValue(contextKey, "mountPath") != null) {
 
@@ -568,7 +567,6 @@ public class PacketSyncService {
 						+ VariableManager.getVariableValue(contextKey, "mosip.test.temp").toString()
 						+ contextKey.substring(0, contextKey.lastIndexOf("_context")), contextKey);
 			}
-		}
 		return response.toString();
 	}
 
@@ -941,7 +939,7 @@ public class PacketSyncService {
 						break;
 				}
 				if (indx >= 0 && indx < doc.getType().size()) {
-					String docFilePath = jsonDoc.has("docPath") ? VariableManager.getVariableValue(contextKey,"mountPath").toString()+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.largedocumentpath").toString()+ "largeDocument.pdf" : null;
+					String docFilePath = jsonDoc.has("docPath") ? System.getProperty("java.io.tmpdir")+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.largedocumentpath").toString()+ "largeDocument.pdf" : null;
 					if (docFilePath != null)
 						doc.getDocs().set(indx, docFilePath);
 				}

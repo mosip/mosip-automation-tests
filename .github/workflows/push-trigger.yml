@@ -138,7 +138,7 @@ jobs:
           cp -r src/main/resources/application.properties build_files/config/
           cp -r ${{env.CONFIG_LOCATION}}/resource build_files/resource
           cp -r ${{env.CONFIG_LOCATION}}/application.properties build_files/application.properties
-          cp -r ./src/main/resources/dockersupport/centralized/mountvolume/profile_resource ./profile_resource
+          cp -r ./src/main/resources/dockersupport/centralized/mosip-packet-creator/profile_resource ./profile_resource
           zip -r ${{ env.NEW_BUILD_ARTIFACT }}.zip build_files/* profile_resource
       - name: Upload the springboot jars
         uses: actions/upload-artifact@v4
