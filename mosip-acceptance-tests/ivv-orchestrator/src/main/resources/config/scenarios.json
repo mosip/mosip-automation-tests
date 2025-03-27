@@ -9,7 +9,7 @@
 			"Description": "Creates user with given user name and password",
 			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
-			"Action": "e2e_User(ADD_User,masterdata-0/*MASTER_USER*/@@Techno@123/*PASSWORD*/)"
+			"Action": "e2e_User(ADD_User,dsl-0/*MASTER_USER*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-1": {
 			"Description": "Creates user with given user name and password",
@@ -4510,7 +4510,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details1,true/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -4594,7 +4594,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,1@@2,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-17": {
 			"Description": "Generates packet template based on the persona data",
@@ -21794,7 +21794,7 @@
 			"Description": "Delete user with given user name",
 			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_User(DELETE_User,masterdata-0/*MASTER_USER*/@@Techno@123/*PASSWORD*/)"
+			"Action": "e2e_User(DELETE_User,dsl-0/*MASTER_USER*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-19": {
 			"Description": "Write the persona data into a json file",
