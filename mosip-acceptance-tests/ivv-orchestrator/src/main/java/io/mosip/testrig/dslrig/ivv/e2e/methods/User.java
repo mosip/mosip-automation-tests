@@ -57,8 +57,8 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				String userDetails[] = user.split("@@");
 				indexOfUser = userDetails[0];
 				user = userDetails[0];
-				if (user.contains("masterdata-0"))
-					user = "masterdata-" + dslConfigManager.getUserAdminName();
+				if (user.contains("dsl-0"))
+					user = "dsl-" + dslConfigManager.getUserAdminName();
 				else
 					user = dslConfigManager.getUserAdminName().substring(0,
 							dslConfigManager.getUserAdminName().length() - 1) + user;
