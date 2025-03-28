@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -999,8 +1000,15 @@ public class PacketSyncService {
 
 			case "dob":
 			case "dateofbirth":
-				persona.setDob(value);
-				break;
+				if ("minor".equalsIgnoreCase(value)) {
+			        int randomAge = 5 + (int) (Math.random() * (18 - 5 + 1)); // Random age between 5 and 18
+			        LocalDate dob = LocalDate.now().minusYears(randomAge); // Subtract age from current date
+			        String formattedDob = dob.format(DateTimeFormatter.ofPattern("yyyy/MM/dd")); // Format date
+
+			        persona.setDob(formattedDob);
+			    } else {
+			        persona.setDob(value); // Use provided value if not "minor"
+			    }
 			case "bloodgroup":
 			case "bg":
 
