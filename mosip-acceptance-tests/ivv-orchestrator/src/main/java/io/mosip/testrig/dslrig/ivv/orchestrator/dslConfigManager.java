@@ -51,6 +51,10 @@ public class dslConfigManager extends ConfigManager {
 	public static String getEsignetMockBaseURL() { 
 		return getproperty("esignetMockBaseURL");
 	}
+	
+	public static int getLangselect() {	
+		return Integer.parseInt(getproperty("langselect")); 
+	}
 
 	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
 		String toSkippedList = ConfigManager.getproperty("servicesNotDeployed");
