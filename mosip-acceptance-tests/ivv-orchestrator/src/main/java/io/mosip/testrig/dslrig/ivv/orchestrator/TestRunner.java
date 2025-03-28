@@ -41,7 +41,7 @@ public class TestRunner {
 //		ConfigManager.init();
 		dslConfigManager.init();
 		AdminTestUtil.init();
-		BaseTestCase.currentModule = GlobalConstants.MASTERDATA;
+		BaseTestCase.currentModule = GlobalConstants.DSL;
 		KeycloakUserManager.removeUser();
 		KeycloakUserManager.createUsers();
 		KeycloakUserManager.closeKeycloakInstance();
