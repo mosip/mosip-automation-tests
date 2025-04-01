@@ -21852,6 +21852,363 @@
 		}
 	},
 	{
+		"Scenario": "192",
+		"Tag": "Postive_Test",
+		"Persona": "ResidentMaleAdult",
+		"Group": "NA",
+		"Description": "Resident created Infant packet and got UIN and later updated the UIN to a adult then do bio authentication",
+		"Step-0": {
+			"Description": "Performs health check of given component",
+			"Input Parameters": "Keyword to check, only packetcreator is supported",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(packetcreator)"
+		},
+		"Step-1": {
+			"Description": "Reads the pre-requisite data at the given index",
+			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
+			"Return Value": "Pre-requiste details",
+			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+		},
+		"Step-2": {
+			"Description": "Sets the context for scenario execution",
+			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
+		},
+		"Step-3": {
+			"Description": "Performs health check of required server components to run end-to-end scenarios",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(targetenv)"
+		},
+		"Step-4": {
+			"Description": "Generates the persona file",
+			"Input Parameters": "Details can be found in the parameter in-line comments",
+			"Return Value": "Persona file path",
+			"Action": "$$parentPersona=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
+		},
+		"Step-5": {
+			"Description": "Generates packet template based on the persona data",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
+			"Action": "$$parentTemplate=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$parentPersona)"
+		},
+		"Step-6": {
+			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$parentRid=e2e_generateAndUploadPacketSkippingPrereg($$parentPersona,$$parentTemplate)"
+		},
+		"Step-7": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$parentRid)"
+		},
+		"Step-8": {
+			"Description": "Gets the UIN for the given RID",
+			"Input Parameters": "RID",
+			"Return Value": "UIN",
+			"Action": "$$parentUin=e2e_getUINByRid($$parentRid)"
+		},
+		"Step-9": {
+			"Description": "Updates persona with UIN",
+			"Input Parameters": "Persona file path and UIN",
+			"Return Value": "NA",
+			"Action": "e2e_updateResidentWithUIN($$parentPersona,$$parentUin)"
+		},
+		"Step-10": {
+			"Description": "Generates persona data",
+			"Input Parameters": "Details in parameters in-line comments",
+			"Return Value": "Persona file path",
+			"Action": "$$childPersona=e2e_getResidentData(infant/*PERSONA_TYPE*/,true/*GUARDIAN_FLAG*/,Male/*GENDER*/@@false/*FINGER_BIOMETRIC_FLAG*/@@false/*IRIS_BIOMETRIC_FLAG*/@@true/*FACE_BIOMETRIC_FLAG*/)"
+		},
+		"Step-11": {
+			"Description": "Updates persona data with gaudian details",
+			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Return Value": "NA",
+			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
+		},
+		"Step-12": {
+			"Description": "Generates packet template based on the persona data",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
+			"Action": "$$childTemplate=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$childPersona)"
+		},
+		"Step-13": {
+			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$childRid=e2e_generateAndUploadPacketSkippingPrereg($$childPersona,$$childTemplate)"
+		},
+		"Step-14": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$childRid)"
+		},
+		"Step-15": {
+			"Description": "Gets the UIN for the given RID",
+			"Input Parameters": "RID",
+			"Return Value": "UIN",
+			"Action": "$$childUin=e2e_getUINByRid($$childRid)"
+		},
+		"Step-16": {
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
+		},
+		"Step-17": {
+			"Description": "Updates Demo graphic details and biometric in the persona file",
+			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,dob=adult,$$childPersona)"
+		},
+		"Step-18": {
+			"Description": "Updates Demo graphic details and biometric in the persona file",
+			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0/*UPDATE_ATTRIBUTES*/,$$childPersona)"
+		},
+		"Step-19": {
+			"Description": "Updates persona with UIN",
+			"Input Parameters": "Persona file path and UIN",
+			"Return Value": "NA",
+			"Action": "e2e_updateResidentWithUIN($$childPersona,$$childUin)"
+		},
+		"Step-20": {
+			"Description": "Generates packet template based on the persona data",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
+			"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$childPersona)"
+		},
+		"Step-21": {
+			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$childPersona,$$updateTemplate)"
+		},
+		"Step-22": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
+		},
+		"Step-23": {
+			"Description": "Gets the UIN for the given RID",
+			"Input Parameters": "RID",
+			"Return Value": "UIN",
+			"Action": "$$uin=e2e_getUINByRid($$rid2)"
+		},
+		"Step-24": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(90)"
+		},
+		"Step-25": {
+			"Description": "Generates VID without OTP",
+			"Input Parameters": "VID tyoe and UIN",
+			"Return Value": "VID",
+			"Action": "$$vid=e2e_GenerateVIDWithoutOTP(Perpetual,$$uin)"
+		},
+		"Step-26": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(90)"
+		},
+		"Step-27": {
+			"Description": "Performs biometric authentication",
+			"Input Parameters": "Modalitiy UIN VID and persona file path",
+			"Return Value": "NA",
+			"Action": "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$childPersona)"
+		}
+	},
+	{
+		"Scenario": "193",
+		"Tag": "Postive_Test",
+		"Persona": "ResidentMaleAdult",
+		"Group": "Minor_New",
+		"Description": "Resident Minor walk-ins to registration center gets UIN with Guardian RID details later updated the UIN to a adult then do bio authentication",
+		"Step-0": {
+			"Description": "Performs health check of given component",
+			"Input Parameters": "Keyword to check, only packetcreator is supported",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(packetcreator)"
+		},
+		"Step-1": {
+			"Description": "Reads the pre-requisite data at the given index",
+			"Input Parameters": "Details can be found in in-line comments on the parameters",
+			"Return Value": "pre-requiste details",
+			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+		},
+		"Step-2": {
+			"Description": "Sets the context for scenario execution",
+			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
+		},
+		"Step-3": {
+			"Description": "Performs health check of required server components to run end-to-end scenarios",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(targetenv)"
+		},
+		"Step-4": {
+			"Description": "Generates persona data",
+			"Input Parameters": "Details in parameters in-line comments",
+			"Return Value": "Persona file path",
+			"Action": "$$childPersona=e2e_getResidentData(minor/*PERSONA_TYPE*/,true/*GUARDIAN_FLAG*/,Male)"
+		},
+		"Step-5": {
+			"Description": "Generates the persona file",
+			"Input Parameters": "Details are in parameters in-line comments",
+			"Return Value": "Persona file path",
+			"Action": "$$parentPersona=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
+		},
+		"Step-6": {
+			"Description": "Generates packet template based on the persona data",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
+			"Action": "$$parentTemplate=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$parentPersona)"
+		},
+		"Step-7": {
+			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$parentRid=e2e_generateAndUploadPacketSkippingPrereg($$parentPersona,$$parentTemplate)"
+		},
+		"Step-8": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$parentRid)"
+		},
+		"Step-9": {
+			"Description": "Gets the UIN for the given RID",
+			"Input Parameters": "RID",
+			"Return Value": "UIN",
+			"Action": "$$parentUin=e2e_getUINByRid($$parentRid)"
+		},
+		"Step-10": {
+			"Description": "Updates persona with parent RID",
+			"Input Parameters": "Persona file path and RID",
+			"Return Value": "NA",
+			"Action": "e2e_updateResidentWithRID($$parentPersona,$$parentRid)"
+		},
+		"Step-11": {
+			"Description": "Updates persona data with gaudian details",
+			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Return Value": "NA",
+			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
+		},
+		"Step-12": {
+			"Description": "Generates packet template based on the persona data",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
+			"Action": "$$childTemplate=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$childPersona)"
+		},
+		"Step-13": {
+			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$childRid=e2e_generateAndUploadPacketSkippingPrereg($$childPersona,$$childTemplate)"
+		},
+		"Step-14": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$childRid)"
+		},
+		"Step-15": {
+			"Description": "Gets the UIN for the given RID",
+			"Input Parameters": "RID",
+			"Return Value": "UIN",
+			"Action": "$$childUin=e2e_getUINByRid($$childRid)"
+		},
+		"Step-16": {
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$parentRid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-17": {
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$childRid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-18": {
+			"Description": "Updates Demo graphic details and biometric in the persona file",
+			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,dob=adult,$$childPersona)"
+		},
+		"Step-19": {
+			"Description": "Updates Demo graphic details and biometric in the persona file",
+			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0/*UPDATE_ATTRIBUTES*/,$$childPersona)"
+		},
+		"Step-20": {
+			"Description": "Updates persona with UIN",
+			"Input Parameters": "Persona file path and UIN",
+			"Return Value": "NA",
+			"Action": "e2e_updateResidentWithUIN($$childPersona,$$childUin)"
+		},
+		"Step-21": {
+			"Description": "Generates packet template based on the persona data",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
+			"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$childPersona)"
+		},
+		"Step-22": {
+			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$childPersona,$$updateTemplate)"
+		},
+		"Step-23": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
+		},
+		"Step-24": {
+			"Description": "Gets the UIN for the given RID",
+			"Input Parameters": "RID",
+			"Return Value": "UIN",
+			"Action": "$$uin=e2e_getUINByRid($$rid2)"
+		},
+		"Step-25": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(90)"
+		},
+		"Step-26": {
+			"Description": "Generates VID without OTP",
+			"Input Parameters": "VID tyoe and UIN",
+			"Return Value": "VID",
+			"Action": "$$vid=e2e_GenerateVIDWithoutOTP(Perpetual,$$uin)"
+		},
+		"Step-27": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(90)"
+		},
+		"Step-28": {
+			"Description": "Performs biometric authentication",
+			"Input Parameters": "Modalitiy UIN VID and persona file path",
+			"Return Value": "NA",
+			"Action": "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$childPersona)"
+		}
+		
+	},
+	{
 		"Scenario": "AFTER_SUITE",
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
