@@ -7,8 +7,9 @@ public class GlobalConstants {
 	public static final String RESIDENT = "resident";
 	public static final String AUTH = "auth";
 	public static final String RESIDENTNEW = "residentNew";
-	public static final String MASTERDATA = "dsl";
+	public static final String MASTERDATA = "masterdata";
 	public static final String PREREGISTRATIONID = "preRegistrationId";
+	public static final String DSL = "dsl";
 	public static final String OPERATION = "operation";
 	public static final String USERNAME = "username";
 	public static final String IDSCHEMAVERSION = "IDSchemaVersion";
