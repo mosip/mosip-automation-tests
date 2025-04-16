@@ -41,6 +41,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String skipApplicantDocumentsFlag = "";
 		String invalidDateFlag = "";
 		String invalidOfficerIDFlag = "";
+		String flow = "";
 
 		HashMap<String, String> map = new HashMap<String, String>();
 		HashMap<String, String> dummyholder = new HashMap<String, String>();
@@ -101,6 +102,9 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 																												// Officer
 																												// ID
 				invalidOfficerIDFlag = step.getParameters().get(3);
+			
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("CRVS")) 
+				flow = step.getParameters().get(3);
 
 			// consent value either "yes" or "no"
 			if (step.getParameters().size() == 5
@@ -127,7 +131,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			packetUtility.createContexts(negative, contextKeyValue, map, generatePrivateKey, status,
 					BaseTestCase.ApplnURI + "/", step, invalidCertFlag, consent, changeSupervisorNameToDiffCase,
 					invalidEncryptedHashFlag, invalidCheckSum, invalidIdSchemaFlag, skipBiometricClassificationFlag,
-					skipApplicantDocumentsFlag, invalidDateFlag, invalidOfficerIDFlag);
+					skipApplicantDocumentsFlag, invalidDateFlag, invalidOfficerIDFlag,flow);
 
 	}
 }

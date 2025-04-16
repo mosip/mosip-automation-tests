@@ -36,6 +36,7 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 		String skipApplicantDocumentsFlag = "";
 		String invalidDateFlag = "";
 		String invalidOfficerIDFlag = "";
+		String flow = "";
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("SwitchContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else {
@@ -53,7 +54,7 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 							BaseTestCase.ApplnURI + "/", step, invalidCertFlag, consent, supervisorFlag,
 							invalidEncryptedHashFlag, invalidCheckSum, invalidIdSchemaFlag,
 							skipBiometricClassificationFlag, skipApplicantDocumentsFlag, invalidDateFlag,
-							invalidOfficerIDFlag);
+							invalidOfficerIDFlag,flow);
 
 				else if (userAndMachineDetailParam != null)
 					packetUtility.createContexts(contextKeyValue, userAndMachineDetailParam, generatePrivateKey, null,

@@ -43,6 +43,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.AppointmentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.AppointmentTimeSlotModel;
 import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.CenterDetailsModel;
+import io.mosip.testrig.dslrig.dataprovider.models.ContextSchemaDetail;
 import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldValueModel;
 import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipDocTypeModel;
@@ -900,6 +901,44 @@ public class PacketSyncService {
 		return response.toString();
 
 	}
+	
+	public String createPacketUpload(List<String> personaFilePaths, String source, String process, String regId,
+			String contextKey) throws IOException {
+		String machineId;
+		String centerId;
+		logger.info("Template generation started at time: " + System.currentTimeMillis());
+		VariableManager.setVariableValue(contextKey, "process", process).toString();
+		VariableManager.setVariableValue(contextKey, "source", source).toString();
+		VariableManager.setVariableValue(contextKey, "personaFilePath", personaFilePaths.get(0)).toString();
+		baseUrl = VariableManager.getVariableValue(contextKey, "urlBase").toString();
+		String url = baseUrl + "commons/v1/packetmanager/createPacket";
+		JSONObject response;
+		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
+		JSONObject requestNode = new JSONObject();
+		try {
+			Properties props = contextUtils.loadServerContext(contextKey);
+			ResidentModel resident = ResidentModel.readPersona(personaFilePaths.get(0));
+			machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
+
+			centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
+
+			JSONObject returnMsg = packetTemplateProvider.generateCRVSField(source, resident, process, machineId,
+					centerId, contextKey, props, regId);
+			logger.info(returnMsg.toString());
+			requestNode.put("id", regId);
+			requestNode.put("version", "String");
+			requestNode.put("requesttime", CommonUtil.getUTCDateTime(null));
+			requestNode.put("request", returnMsg);
+			logger.info(requestNode.toString());
+
+			response = RestClient.put(url, requestNode, "crvs", contextKey);
+
+		} catch (Exception e) {
+			logger.error("createPacketTemplates", e);
+			return "{\"" + e.getMessage() + "\"}";
+		}
+		return response.toString();
+	}
 
 	public String preRegToRegister(String templatePath, String preRegId, String personaPath, String contextKey,
 			String additionalInfoReqId, boolean getRidFromSync, boolean genarateValidCbeff) throws Exception {
@@ -1548,5 +1587,38 @@ public class PacketSyncService {
 	    
 	    return response.toString();
 	}
+	
+	public String syncAndUpload(String rid, String contextKey)
+			throws Exception {
+		String url = baseUrl + "registrationprocessor/v1/workflowmanager/workflowinstance";
+		ResidentModel resident = ResidentModel.readPersona(VariableManager.getVariableValue(contextKey, "personaFilePath").toString());
+		// Outer JSON
+		JSONObject outerRequest = new JSONObject();
+		outerRequest.put("id", "mosip.registration.processor.workflow.instance");
+		outerRequest.put("requesttime", CommonUtil.getUTCDateTime(null));
+		outerRequest.put("version", "v1");
+
+		// Inner "request" JSON
+		JSONObject innerRequest = new JSONObject();
+		innerRequest.put("registrationId", rid);
+		innerRequest.put("process", VariableManager.getVariableValue(contextKey, "process").toString());
+		innerRequest.put("source", VariableManager.getVariableValue(contextKey, "source").toString());
+		innerRequest.put("additionalInfoReqId", ""); // can be updated if needed
+
+		// Notification info
+		JSONObject notificationInfo = new JSONObject();
+		notificationInfo.put("name", (resident.getName().getFirstName() + " " + resident.getName().getMidName() + " " + resident.getName().getSurName()));// Assuming ResidentModel has getName()
+		notificationInfo.put("phone", resident.getContact().getMobileNumber()); // Assuming ResidentModel has getPhone()
+		notificationInfo.put("email", resident.getContact().getEmailId()); // Assuming ResidentModel has getEmail()
+
+		innerRequest.put("notificationInfo", notificationInfo);
+		outerRequest.put("request", innerRequest);
+
+		// Call the API
+		JSONObject response = RestClient.post(url, outerRequest, "crvs", contextKey);
+
+		return response.toString();
+	}
+
 
 }
