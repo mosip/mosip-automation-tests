@@ -22230,7 +22230,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/,CRVS/*PACKET_TYPE*/)"
+			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/,EXTERNAL/*PACKET_TYPE*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",

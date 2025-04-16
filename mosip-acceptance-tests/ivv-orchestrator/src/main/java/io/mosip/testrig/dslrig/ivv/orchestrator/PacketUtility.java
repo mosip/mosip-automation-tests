@@ -954,7 +954,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			}
 		}
 		
-		if(flow.equalsIgnoreCase("CRVS")) {
+		if(flow.equalsIgnoreCase("EXTERNAL")) {
 			jsonReq.put("mosip.test.regclient.machineid", dslConfigManager.getMachineId());
 			jsonReq.put("mosip.test.regclient.centerid", dslConfigManager.getCenterId());
 
