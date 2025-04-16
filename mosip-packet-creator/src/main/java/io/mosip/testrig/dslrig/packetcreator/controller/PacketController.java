@@ -280,7 +280,7 @@ public class PacketController {
 	}
 	
 	@Operation(summary = "Create the external packet and upload")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "CRVS packet and upload successfully") })
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "External packet and upload successfully") })
 	@PostMapping(value = "/packetmanager/createPacket/{process}/{rid}/{contextKey}")
 	public @ResponseBody String createCRVSPacket(@RequestBody ExternalPacketRequestDTO requestDto,
 			@PathVariable("process") String process,
@@ -296,13 +296,13 @@ public class PacketController {
 					contextKey);
 
 		} catch (Exception ex) {
-			logger.error("createCRVSPacket", ex);
+			logger.error("createExternalPacket", ex);
 			return "{\"" + ex.getMessage() + "\"}";
 		}
 	}
 
-	@Operation(summary = "Create the external packet and upload")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "CRVS packet and upload successfully") })
+	@Operation(summary = "sync the external packet")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "sync the external packet successfully") })
 	@PostMapping(value = "/sync/externalPacket/{rid}/{contextKey}")
 	public @ResponseBody String syncCRVSPacket(@PathVariable("rid") String rid,
 			@PathVariable("contextKey") String contextKey) {
