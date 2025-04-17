@@ -55,6 +55,14 @@ public class dslConfigManager extends ConfigManager {
 	public static int getLangselect() {	
 		return Integer.parseInt(getproperty("langselect")); 
 	}
+	
+	public static String getMachineId() {	
+		return getproperty("machineId"); 
+	}
+	
+	public static String getCenterId() {	
+		return getproperty("centerId"); 
+	}
 
 	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
 		String toSkippedList = ConfigManager.getproperty("servicesNotDeployed");
@@ -81,6 +89,23 @@ public class dslConfigManager extends ConfigManager {
 					+ ", stringToFind : " + stringToFind);
 		for (String string : toBeExecuteList) {
 			if (string.trim().equalsIgnoreCase(stringToFind))
+				return true;
+		}
+		return false;
+	}
+	
+	public static synchronized boolean isInTobeGroupExecuteList(String stringToFind) {
+		// If there are no specific execution list is provided , execute all scenarios
+		String toExecuteList = ConfigManager.getproperty("scenariosFlowToExecute");
+		if (toExecuteList != null && toExecuteList.isEmpty())
+			return true;
+
+		List<String> toBeExecuteList = Arrays.asList(toExecuteList.split(","));
+		if (IsDebugEnabled())
+			LOGGER.info("toExecuteList:  " + toExecuteList + ", toBeExecuteList : " + toBeExecuteList
+					+ ", stringToFind : " + stringToFind);
+		for (String string : toBeExecuteList) {
+			if (stringToFind.toLowerCase().contains(string.toLowerCase()))
 				return true;
 		}
 		return false;
