@@ -563,6 +563,36 @@ public  class MosipMasterData {
 	    return tbl;
 	}
 	
+	public static String getIDSchemaALL(String contextKey) {
+	    String url = VariableManager.getVariableValue(contextKey, "urlBase").toString() +
+	                 VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "idschemaapiAll").toString();
+
+	    String selectedSchemaJson = "";
+	    double maxVersion = -1.0;
+
+	    try {
+	        JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject(), contextKey);
+	        JSONArray dataArray = resp.getJSONArray("data");
+
+	        for (int i = 0; i < dataArray.length(); i++) {
+	            JSONObject item = dataArray.getJSONObject(i);
+	            double version = item.optDouble("idVersion", 0.0);
+
+	            if (version > maxVersion) {
+	                maxVersion = version;
+	                selectedSchemaJson = item.optString("schemaJson", "");
+	            }
+	        }
+
+	    } catch (Exception e) {
+	        logger.error("Error processing ID schema: " + e.getMessage(), e);
+	    }
+
+	    return selectedSchemaJson;
+	}
+
+
+	
 	private static JSONObject createField(String id, String description, String type, boolean required) {
 	    JSONObject field = new JSONObject();
 	    field.put("id", id);

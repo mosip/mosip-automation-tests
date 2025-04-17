@@ -196,7 +196,7 @@ public class Orchestrator {
 		ArrayList<Scenario> filteredScenarios = new ArrayList<>();
 		for (Scenario scenario : scenarios) {
 			if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
-					|| dslConfigManager.isInTobeExecuteList(scenario.getId())) {
+					|| (dslConfigManager.isInTobeExecuteList(scenario.getId()) && dslConfigManager.isInTobeGroupExecuteList(scenario.getGroupName()))) {
 				filteredScenarios.add(scenario);
 			}
 		}

@@ -403,7 +403,7 @@ public static void updateMachine(MosipMachineModel machine,String contextKey) {
 	
 		
 		try {
-			JSONObject resp = RestClient.put(url,jsonReqWrapper,contextKey);
+			JSONObject resp = RestClient.put(url,jsonReqWrapper,"system",contextKey);
 			if(resp != null) {
 				String r = resp.toString();
 				logger.info(r);
