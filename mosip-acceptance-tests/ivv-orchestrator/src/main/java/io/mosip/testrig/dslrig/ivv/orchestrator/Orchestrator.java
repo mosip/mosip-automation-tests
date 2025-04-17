@@ -467,19 +467,19 @@ public class Orchestrator {
 				Reporter.log(e.getMessage());
 				throw new SkipException(e.getMessage());
 			} catch (ClassNotFoundException e) {
-				extentTest.error(identifier + " - ClassNotFoundException --> " + e.getMessage());
+				extentTest.fail(identifier + " - ClassNotFoundException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (IllegalAccessException e) {
-				extentTest.error(identifier + " - IllegalAccessException --> " + e.getMessage());
+				extentTest.fail(identifier + " - IllegalAccessException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (InstantiationException e) {
-				extentTest.error(identifier + " - InstantiationException --> " + e.getMessage());
+				extentTest.fail(identifier + " - InstantiationException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
@@ -488,14 +488,14 @@ public class Orchestrator {
 				if (scenario.getId().equals("0")) {
 					beforeSuiteFailed = true;
 				}
-				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
+				extentTest.fail(identifier + " - RigInternalError --> " + e.getMessage());
 				logger.error(e.getMessage());
 				Reporter.log(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (RuntimeException e) {
-				extentTest.error(identifier + " - RuntimeException --> " + e.getMessage());
+				extentTest.fail(identifier + " - RuntimeException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
