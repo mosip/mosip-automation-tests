@@ -54,6 +54,7 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
@@ -708,9 +709,8 @@ public class PacketMakerService {
 		if (encryptedHashFlag.equalsIgnoreCase("invalidEncryptedHash") && type.equals("id"))
 			encryptedHash = "INVALID_ENCRYPTED_HASH";
 		else
-			encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(
-					messageDigest.digest(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
-
+			encryptedHash = CryptoUtil.encodeToURLSafeBase64(HMACUtils2.generateHash(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
+		
 		String signature = Base64.getUrlEncoder().encodeToString(
 				cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP)), contextKey));
 		Path src = Path.of(containerRootFolder + UNENCZIP);
