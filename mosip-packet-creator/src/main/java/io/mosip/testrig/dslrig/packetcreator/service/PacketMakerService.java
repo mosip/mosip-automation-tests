@@ -711,9 +711,8 @@ public class PacketMakerService {
 			encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(
 					messageDigest.digest(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
 
-		String signature = Base64.getEncoder().encodeToString(
+		String signature = Base64.getUrlEncoder().encodeToString(
 				cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP)), contextKey));
-
 		Path src = Path.of(containerRootFolder + UNENCZIP);
 		Path destination = Path.of(
 				VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
