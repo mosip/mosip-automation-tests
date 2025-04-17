@@ -527,5 +527,10 @@ public class CryptoUtil {
 				new TPMS_PCR_SELECTION[0]);
 		return signingPrimaryResponse;
 	}
+	private static Base64.Encoder urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
+	
+	public static String encodeToURLSafeBase64(byte[] data) {
+	    return urlSafeEncoder.encodeToString(data);
+	}
 
 }
