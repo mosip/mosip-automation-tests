@@ -8,6 +8,7 @@ import java.util.Base64;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -34,7 +35,7 @@ public class UploadDeviceCertificate extends BaseTestCaseUtil implements StepInt
 			certsDir = dslConfigManager.getauthCertsPath();
 		}
 
-		String p12 = certsDir + File.separator + "DSL-IDA-" + dslConfigManager.getTargetEnvName() + File.separator
+		String p12 = certsDir + File.separator + "DSL-IDA-" + BaseTestCase.ApplnURI.replace("https://", "") + File.separator
 				+ "device-partner.p12";
 		File file = new File(p12);
 
