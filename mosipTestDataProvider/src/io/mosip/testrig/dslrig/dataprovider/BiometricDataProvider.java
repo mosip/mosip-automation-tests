@@ -1005,13 +1005,13 @@ public class BiometricDataProvider {
 				// otherwise pick the impression of same of scenario number
 				int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber
 						: randomNumber;
-				FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
+				dirPath = FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
 
 				RestClient.logInfo(contextKey, "currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
 						+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
 
 
-				List<File> firstSet = CommonUtil.listFiles(dirPath + "/output/" + currentScenarioNumber + "/" + String.format("/Impression_%d/fp_1/", impressionToPick));
+				List<File> firstSet = CommonUtil.listFiles(dirPath + "/" + String.format("/Impression_%d/fp_1/", impressionToPick));
 
 
 				String[] fingerPrints = new String[10];
@@ -1042,10 +1042,11 @@ public class BiometricDataProvider {
 				data.setFingerPrint(fingerPrints);
 				data.setFingerHash(fingerPrintHash);
 				data.setFingerRaw(fingerPrintRaw);
-
+				CommonUtil.deleteOldTempDir(dirPath);
 			}
 
 		}
+		
 		return data;
 	}
 
@@ -1085,9 +1086,9 @@ public class BiometricDataProvider {
 		randomNumber = (int) (Math.random() * (max - min)) + min;
 		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
-		FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
+		dirPath = FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
 
-		List<File> firstSet = CommonUtil.listFiles(dirPath + "/output/" + currentScenarioNumber + "/" + String.format("/Impression_%d/fp_1/", impressionToPick));
+		List<File> firstSet = CommonUtil.listFiles(dirPath + "/" + String.format("/Impression_%d/fp_1/", impressionToPick));
 
 		String[] fingerPrints = new String[10];
 		String[] fingerPrintHash = new String[10];
@@ -1117,6 +1118,7 @@ public class BiometricDataProvider {
 		data.setFingerPrint(fingerPrints);
 		data.setFingerHash(fingerPrintHash);
 		data.setFingerRaw(fingerPrintRaw);
+		CommonUtil.deleteOldTempDir(dirPath);
 
 		return data;
 	}
@@ -1261,10 +1263,10 @@ public class BiometricDataProvider {
 			// one
 			// otherwise pick the impression of same of scenario number
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
-			IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
+			srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
 
-			File folder = new File(srcPath + "/output/"+currentScenarioNumber+"/" + String.format("%03d", impressionToPick));
-			logger.info(srcPath + "/output/"+currentScenarioNumber+"/" + String.format("%03d", impressionToPick));
+			File folder = new File(srcPath+"/" + String.format("%03d", impressionToPick));
+			logger.info(srcPath+"/" + String.format("%03d", impressionToPick));
 
 			File[] listOfFiles = folder.listFiles();
 			//			listOfFiles=getRandomIrisVariation(listOfFiles);
@@ -1283,8 +1285,8 @@ public class BiometricDataProvider {
 			if (rightbmp == null) {
 				rightbmp = leftbmp;
 			}
-			String fPathL = srcPath +"/output/"+currentScenarioNumber + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
-			String fPathR = srcPath +"/output/"+currentScenarioNumber + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
+			String fPathL = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
+			String fPathR = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
 			String leftIrisData = "";
 			String rightIrisData = "";
 			String irisHash = "";
@@ -1314,6 +1316,7 @@ public class BiometricDataProvider {
 			m.setRawLeft(fldata);
 			m.setRawRight(frdata);
 			retVal.add(m);
+			CommonUtil.deleteOldTempDir(srcPath);
 		}
 
 		return retVal;
@@ -1346,9 +1349,9 @@ public class BiometricDataProvider {
 		randomNumber = (int) (Math.random() * (max - min)) + min;
 		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
-		IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
+		srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
 
-		File folder = new File(srcPath + "/output/"+currentScenarioNumber+"/" + String.format("%03d", impressionToPick));
+		File folder = new File(srcPath +"/" + String.format("%03d", impressionToPick));
 
 		File[] listOfFiles = folder.listFiles();
 		//		listOfFiles=getRandomIrisVariation(listOfFiles);
@@ -1366,8 +1369,8 @@ public class BiometricDataProvider {
 		if (rightbmp == null) {
 			rightbmp = leftbmp;
 		}
-		String fPathL = srcPath +"/output/"+currentScenarioNumber + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
-		String fPathR = srcPath +"/output/"+currentScenarioNumber + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
+		String fPathL = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
+		String fPathR = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
 
 		String leftIrisData = "";
 		String rightIrisData = "";
@@ -1398,7 +1401,7 @@ public class BiometricDataProvider {
 		m.setRawLeft(fldata);
 		m.setRawRight(frdata);
 		retVal.add(m);
-
+		CommonUtil.deleteOldTempDir(srcPath);
 		return retVal;
 	}
 
@@ -1432,9 +1435,9 @@ public class BiometricDataProvider {
 			randomNumber = (int) (Math.random() * (max - min)) + min;
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
-			FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
+			dirPath=FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
 
-			List<File> firstSet = CommonUtil.listFiles(dirPath+"/output/"+currentScenarioNumber + "/face_data/");
+			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face_data/");
 			
 			List<File> filteredFiles = firstSet.stream().filter(file -> file.getName().contains("00"+impressionToPick)).toList();
 			BufferedImage img = null;
@@ -1452,7 +1455,7 @@ public class BiometricDataProvider {
 			bencoded = PhotoProvider.encodeFaceImageData(bData);
 
 			baos.close();
-
+			CommonUtil.deleteOldTempDir(dirPath);
 		} catch (Exception e) {
 
 			logger.error(e.getMessage());

@@ -43,7 +43,7 @@ public class FaceVariationGenerator {
     // Variable to store the combination of variations
     public static int faceVariations = 0;
 
-    public static void faceVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) throws IOException {
+    public static String faceVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) throws IOException {
 
         /// Provide folder where the base template image present
         String inputFaceTemplateDirectoryPath = System.getProperty("java.io.tmpdir")
@@ -54,6 +54,7 @@ public class FaceVariationGenerator {
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString()+"/output/"+currentScenarioNumber;
 
         generatefaceVariations(inputFaceTemplateDirectoryPath, outputUniqueFaceDataPath);
+		return outputUniqueFaceDataPath;
     }
 
     /**************************************************************
