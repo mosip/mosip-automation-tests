@@ -55,7 +55,7 @@ public class FingerprintVariationGenerator {
     // Variable to store the combination of variations
     public static int fingerPrintVariations = 0;
 
-    public static void fingerprintVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) throws IOException {
+    public static String fingerprintVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) throws IOException {
         /// Provide folder where the base template image present
         String inputFPTemplateDirectoryPath =  System.getProperty("java.io.tmpdir") + VariableManager
 				.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString()+"/"+String.format("/Impression_%d/fp_1/", impressionToPick);
@@ -65,6 +65,7 @@ public class FingerprintVariationGenerator {
 				.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString()+"/output/"+currentScenarioNumber;
 
         generateFingerprintVariations(inputFPTemplateDirectoryPath, outputUniqueFingerprintDataPath);
+		return outputUniqueFingerprintDataPath;
     }
 
 
@@ -83,7 +84,7 @@ public class FingerprintVariationGenerator {
 //                | SMOOTH_FINGERS | CURVED_FINGERS | STRAIGHT_FINGERS | STRONG_FINGERS | BLISTERED_FINGERS
 //                | DELICATE_FINGERS
 //                | SWOLLEN_FINGERS | SENSITIVE_FINGERS | STEADY_FINGERS);
-        setFPVariations(WET_FINGER);
+        setFPVariations(STEADY_FINGERS);
         try {
             // Get all file names in the directory and subdirectories
             List<String> fileNameAbsPaths = listFiles(inputFPTemplateDirectoryPath);
@@ -223,7 +224,7 @@ public class FingerprintVariationGenerator {
                     .get((j - 1) % activeVariations.size());
             BufferedImage fingerprintImageWithVariation = Variation.apply(fingerprintImage, j);
 
-            fingerprintImageWithVariation = postProcessFingerprint(fingerprintImageWithVariation);
+//            fingerprintImageWithVariation = postProcessFingerprint(fingerprintImageWithVariation);
 
             outputFingerprintPath = outputUniqueFingerprintDataRelativePath + "//" + FPPath
                     + strFingervariation + "_" + FileName;

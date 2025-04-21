@@ -56,12 +56,12 @@ public class PhotoProvider {
 			// otherwise pick the impression of same of scenario number
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 			
-			FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
+			dirPath = FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
 			
 			logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders=" + numberOfSubfolders
 					+ " impressionToPick=" + impressionToPick);
 			
-			List<File> firstSet = CommonUtil.listFiles(dirPath+"/output/"+currentScenarioNumber + "/face_data/");
+			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face_data/");
 			
 			List<File> filteredFiles = firstSet.stream().filter(file -> file.getName().contains("00"+impressionToPick)).toList();
 
@@ -96,6 +96,8 @@ public class PhotoProvider {
 			bencoded = encodeFaceImageData(bData);
 
 			baos.close();
+			CommonUtil.deleteOldTempDir(dirPath);
+
 
 		} catch (Exception e) {
 

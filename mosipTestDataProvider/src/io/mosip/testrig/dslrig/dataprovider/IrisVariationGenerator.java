@@ -60,7 +60,7 @@ public class IrisVariationGenerator {
     // Variable to store the combination of variations
     public static int irisVariations = 0;
 
-    public static void irisVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) {
+    public static String irisVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) {
         /// Provide folder where the base template image present
         String inputIRISTemplateDirectoryPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString()+"/"+String.format("%03d", impressionToPick);
@@ -71,6 +71,7 @@ public class IrisVariationGenerator {
         logger.info("outputUniqueIRISDataPath : "+outputUniqueIRISDataPath);
 
         generateIRISVariations(inputIRISTemplateDirectoryPath, outputUniqueIRISDataPath);
+		return outputUniqueIRISDataPath;
     }
 
 
