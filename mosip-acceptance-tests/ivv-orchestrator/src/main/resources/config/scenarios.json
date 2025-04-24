@@ -22401,7 +22401,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
-		"Description": "Resident walk-ins to registration center completes the without signature process and try to gets UIN card",
+		"Description": "Resident walk-ins to registration center create a packet without signature",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -22456,7 +22456,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
-		"Description": "Resident walk-ins to registration center completes the with invalid signature process and try to gets UIN card",
+		"Description": "Resident walk-ins to registration center completes the process with invalid signature and try to gets UIN card",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
