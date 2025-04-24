@@ -555,54 +555,42 @@
 			"Action": "$$uin2=e2e_getUINByRid($$rid2)"
 		},
 		"Step-16": {
-			"Description": "Gets Email ID configuired for the UIN",
-			"Input Parameters": "UIN",
-			"Return Value": "Email ID",
-			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
-		},
-		"Step-17": {
-			"Description": "verifyNotification",
-			"Input Parameters": "email",
-			"Return Value": "",
-			"Action": "e2e_verifyNotification($$email,updated)"
-		},
-		"Step-18": {
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
 			"Action": "e2e_wait(90)"
 		},
-		"Step-19": {
+		"Step-17": {
+			"Description": "Gets Email ID configuired for the UIN",
+			"Input Parameters": "UIN",
+			"Return Value": "Email ID",
+			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
+		},
+		"Step-18": {
 			"Description": "Gets the credentials request ID",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "Request ID",
 			"Action": "$$requestId=e2e_credentialRequest($$uin2,$$email)"
 		},
-		"Step-20": {
+		"Step-19": {
 			"Description": "Check credentials status",
 			"Input Parameters": "Request ID",
 			"Return Value": "NA",
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
-		"Step-21": {
-			"Description": "verifyNotification",
-			"Input Parameters": "email",
-			"Return Value": "",
-			"Action": "e2e_verifyNotification($$email,Credential Issuance Status)"
-		},
-		"Step-22": {
+		"Step-20": {
 			"Description": "<Down loads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
 		},
-		"Step-23": {
+		"Step-21": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-24": {
+		"Step-22": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
