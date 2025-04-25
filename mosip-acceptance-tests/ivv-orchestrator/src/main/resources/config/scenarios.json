@@ -22280,7 +22280,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later updates left index biometrics with VID and perform biometric authentiction with face both using UIN and VID",
+		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later updates name with VID and perform biometric authentiction with name both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -22357,7 +22357,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$personaFilePath)"
 		},
 		"Step-13": {
 			"Description": "Updates persona with UIN",
