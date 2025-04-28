@@ -349,7 +349,7 @@
 			"Action": "e2e_updatePreRegStatus(0/*STATUS_CODE*/,$$prid,valid/*SCENARIO_WITHOUT_PENDING_APPOINTMENT*/)"
 		},
 		"Step-11": {
-			"Description": "Books the appointment for give pre registration",
+			"Description": "Books the appointment for given pre registration",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,1/*SLOT_NUMBER*/)"
@@ -428,7 +428,7 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
@@ -446,7 +446,7 @@
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
 		},
 		"Step-10": {
-			"Description": "Compares generated packet tags against on server packet tages",
+			"Description": "Compares generated packet tags against on server packet tags",
 			"Input Parameters": "RID",
 			"Return Value": "NA",
 			"Action": "e2e_CheckTags($$rid)"
@@ -579,7 +579,7 @@
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-20": {
-			"Description": "<Down loads the card",
+			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
@@ -600,7 +600,7 @@
 	{
 		"Scenario": "5",
 		"Tag": "Negative_Test",
-		"Persona": "ResidentMaleAdult",
+		"Persona": "ResidentMaleMinor",
 		"Group": "Minor_New",
 		"Description": "Resident Minor Child walk-ins to registration center wants to get UIN without Guardian Details",
 		"Step-0": {
@@ -973,7 +973,7 @@
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-20": {
-			"Description": "<Down loads the card",
+			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
@@ -1385,7 +1385,7 @@
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-14": {
-			"Description": "<Down loads the card",
+			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
@@ -1748,7 +1748,7 @@
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-20": {
-			"Description": "<Down loads the card",
+			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
@@ -2730,7 +2730,7 @@
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-13": {
-			"Description": "<Down loads the card",
+			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
@@ -2887,7 +2887,7 @@
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-13": {
-			"Description": "<Down loads the card",
+			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
@@ -3044,7 +3044,7 @@
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-13": {
-			"Description": "<Down loads the card",
+			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
@@ -3727,7 +3727,7 @@
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-20": {
-			"Description": "<Down loads the card",
+			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
@@ -4156,7 +4156,7 @@
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-13": {
-			"Description": "<Down loads the card",
+			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
@@ -17803,7 +17803,7 @@
 			"Action": "e2e_DeleteHoliday($$holidayId)"
 		},
 		"Step-9": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
@@ -18349,7 +18349,7 @@
 			"Action": "e2e_packetsync($$zipPacketPath)"
 		},
 		"Step-9": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
@@ -18373,7 +18373,7 @@
 			"Action": "e2e_packetsync($$zipPacketPath)"
 		},
 		"Step-13": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
@@ -18428,7 +18428,7 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
@@ -18495,7 +18495,7 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
@@ -18586,7 +18586,7 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-12": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
@@ -18835,7 +18835,7 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
@@ -18896,7 +18896,7 @@
 			"Action": "$$rid1=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath1,$$templatePath1)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
@@ -18932,7 +18932,7 @@
 			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath2,$$templatePath2)"
 		},
 		"Step-13": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
@@ -19041,7 +19041,7 @@
 			"Action": "$$rid1=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath1,$$templatePath1)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
@@ -19077,7 +19077,7 @@
 			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath2,$$templatePath2)"
 		},
 		"Step-13": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
@@ -19270,7 +19270,7 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-21": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
@@ -19469,7 +19469,7 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-22": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
@@ -19578,7 +19578,7 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
@@ -19712,7 +19712,7 @@
 			"Action": "$$rid1=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-8": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
@@ -19821,7 +19821,7 @@
 			"Action": "$$rid1=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-8": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
@@ -19924,7 +19924,7 @@
 			"Action": "$$rid1=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
@@ -20027,7 +20027,7 @@
 			"Action": "$$rid1=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath1,$$templatePath1)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
@@ -20069,7 +20069,7 @@
 			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath2,$$templatePath2)"
 		},
 		"Step-14": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
@@ -20178,7 +20178,7 @@
 			"Action": "$$rid1=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
@@ -20347,7 +20347,7 @@
 			"Action": "$$rid1=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
@@ -20473,7 +20473,7 @@
 			"Action": "$$rid4=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath2,$$templatePath2)"
 		},
 		"Step-28": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid4)"
@@ -20588,7 +20588,7 @@
 			"Action": "$$rid1=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
@@ -20793,7 +20793,7 @@
 			"Action": "$$rid1=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
@@ -21495,7 +21495,7 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
@@ -21513,7 +21513,7 @@
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
 		},
 		"Step-10": {
-			"Description": "Compares generated packet tags against on server packet tages",
+			"Description": "Compares generated packet tags against on server packet tags",
 			"Input Parameters": "RID",
 			"Return Value": "NA",
 			"Action": "e2e_CheckTags($$rid)"
@@ -21622,7 +21622,7 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
-			"Description": "Checkes the RID status against given packet processing status",
+			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
@@ -21640,7 +21640,7 @@
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
 		},
 		"Step-10": {
-			"Description": "Compares generated packet tags against on server packet tages",
+			"Description": "Compares generated packet tags against on server packet tags",
 			"Input Parameters": "RID",
 			"Return Value": "NA",
 			"Action": "e2e_CheckTags($$rid)"
@@ -21658,7 +21658,7 @@
 			"Action": "e2e_deactivateUIN($$uin,$$email)"
 		},
 		"Step-13": {
-			"Description": "Compares generated packet tags against on server packet tages",
+			"Description": "Compares generated packet tags against on server packet tags",
 			"Input Parameters": "RID",
 			"Return Value": "NA",
 			"Action": "e2e_reprocessPacket($$rid)"
