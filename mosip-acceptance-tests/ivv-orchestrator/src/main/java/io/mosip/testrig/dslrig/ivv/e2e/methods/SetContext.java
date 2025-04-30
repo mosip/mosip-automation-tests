@@ -35,7 +35,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String consent = "";
 		boolean changeSupervisorNameToDiffCase = Boolean.FALSE;
 		String invalidEncryptedHashFlag = "";
-		String signature = "";
+		String signature = "valid";
 		String invalidCheckSum = "";
 		String invalidIdSchemaFlag = "";
 		String skipBiometricClassificationFlag = "";
@@ -93,9 +93,6 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidOfficerID")) // Invalid
 																												// ID
 				invalidOfficerIDFlag = step.getParameters().get(3);
-			
-			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("CRVS")) 
-				flow = step.getParameters().get(3);
 
 			if (step.getParameters().size() > 4 && (step.getParameters().get(4).contains("emptySignature") || step.getParameters().get(4).contains("invalidSignature")))
 				signature = step.getParameters().get(4);
