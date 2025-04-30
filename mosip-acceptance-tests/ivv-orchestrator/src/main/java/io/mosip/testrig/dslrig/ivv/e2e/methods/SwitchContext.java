@@ -36,8 +36,8 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 		String skipApplicantDocumentsFlag = "";
 		String invalidDateFlag = "";
 		String invalidOfficerIDFlag = "";
+		String signature = "valid";
 		String flow = "";
-		String signature = "";
 		
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("SwitchContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
