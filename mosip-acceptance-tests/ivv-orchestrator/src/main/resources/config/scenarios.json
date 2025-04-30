@@ -600,7 +600,7 @@
 	{
 		"Scenario": "5",
 		"Tag": "Negative_Test",
-		"Persona": "ResidentMaleMinor",
+		"Persona": "ResidentMaleAdult",
 		"Group": "Minor_New",
 		"Description": "Resident Minor Child walk-ins to registration center wants to get UIN without Guardian Details",
 		"Step-0": {
