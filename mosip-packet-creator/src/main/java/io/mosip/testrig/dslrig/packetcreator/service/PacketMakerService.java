@@ -711,8 +711,16 @@ public class PacketMakerService {
 		else
 			encryptedHash = CryptoUtil.encodeToURLSafeBase64(HMACUtils2.generateHash(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
 		
-		String signature = Base64.getUrlEncoder().encodeToString(
-				cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP)), contextKey));
+		String signaturevalue = VariableManager.getVariableValue(contextKey, "signature").toString();
+		String signature="";
+		if(signaturevalue.equalsIgnoreCase("invalidSignature")){
+			String newKey = contextKey.replaceAll("(?<=_S)\\d+(?=_context)", "0");
+			signature = Base64.getUrlEncoder().encodeToString(
+					cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP)), newKey));
+		}else if (!signaturevalue.equalsIgnoreCase("emptySignature"))
+			signature = Base64.getUrlEncoder().encodeToString(
+					cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP)), contextKey));
+
 		Path src = Path.of(containerRootFolder + UNENCZIP);
 		Path destination = Path.of(
 				VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
