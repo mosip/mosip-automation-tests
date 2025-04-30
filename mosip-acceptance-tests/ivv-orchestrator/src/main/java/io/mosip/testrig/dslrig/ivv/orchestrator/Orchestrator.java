@@ -326,7 +326,7 @@ public class Orchestrator {
 				+ scenario.getId());
 
 		extent.flush();
-		String testLevel = System.getProperty("env.testLevel");
+		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
 		if (testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression")) {
