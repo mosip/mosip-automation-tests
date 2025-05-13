@@ -4504,13 +4504,13 @@
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
-			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+			"Action": "$$details2=e2e_ReadPreReq(2/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7175,7 +7175,7 @@
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
-			"Action": "$$details2=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+			"Action": "$$details2=e2e_ReadPreReq(2/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
@@ -7297,13 +7297,13 @@
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
-			"Action": "$$details2=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+			"Action": "$$details3=e2e_ReadPreReq(3/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*SUPERVISOR_ID*/@@invalid/*SUPERVISOR_PASSWORD*/@@valid/*REGCLIENT_USER_ID*/@@valid/*REGCLIENT_PASSWORD*/)"
+			"Action": "e2e_setContext(env_context,$$details3,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*SUPERVISOR_ID*/@@invalid/*SUPERVISOR_PASSWORD*/@@valid/*REGCLIENT_USER_ID*/@@valid/*REGCLIENT_PASSWORD*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7358,7 +7358,7 @@
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
-			"Action": "$$details2=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+			"Action": "$$details2=e2e_ReadPreReq(2/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
@@ -7419,13 +7419,13 @@
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
-			"Action": "$$details2=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+			"Action": "$$details3=e2e_ReadPreReq(3/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*SUPERVISOR_ID*/@@valid/*SUPERVISOR_PASSWORD*/@@invalid/*REGCLIENT_USER_ID*/@@valid/*REGCLIENT_PASSWORD*/)"
+			"Action": "e2e_setContext(env_context,$$details3,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*SUPERVISOR_ID*/@@valid/*SUPERVISOR_PASSWORD*/@@invalid/*REGCLIENT_USER_ID*/@@valid/*REGCLIENT_PASSWORD*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7541,13 +7541,13 @@
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
-			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+			"Action": "$$details2=e2e_ReadPreReq(2/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7589,13 +7589,13 @@
 			"Description": "Creates user with given user name and password",
 			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
-			"Action": "e2e_User(ADD_User,1/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$uin)"
+			"Action": "e2e_User(ADD_User,2/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$uin)"
 		},
 		"Step-10": {
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,null/*SUPERVISOR_ID*/@@null/*SUPERVISOR_PASSWORD*/@@null/*REGCLIENT_ID*/@@null/*REGCLIENT_PASSWORD*/@@OperatorBiometrics_bio_CBEFF@@SupervisorBiometrics_bio_CBEFF)"
+			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,null/*SUPERVISOR_ID*/@@null/*SUPERVISOR_PASSWORD*/@@null/*REGCLIENT_ID*/@@null/*REGCLIENT_PASSWORD*/@@OperatorBiometrics_bio_CBEFF@@SupervisorBiometrics_bio_CBEFF)"
 		},
 		"Step-11": {
 			"Description": "Generates persona data",
@@ -7656,13 +7656,13 @@
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
-			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+			"Action": "$$details3=e2e_ReadPreReq(3/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details3,true/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -22557,7 +22557,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details4,true/*GENERATE_PRIVATE_KEY*/,0,invalidSignature)"
+			"Action": "e2e_setContext(env_context,$$details4,false/*GENERATE_PRIVATE_KEY*/,0,invalidSignature)"
 		},
 		"Step-17": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
