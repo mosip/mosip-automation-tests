@@ -661,7 +661,7 @@
 	{
 		"Scenario": "6",
 		"Tag": "Postive_Test",
-		"Persona": "ResidentMaleAdult",
+		"Persona": "ResidentMaleMinor",
 		"Group": "Minor_New",
 		"Description": "Resident Minor Child walk-ins to registration center gets UIN with Guardian RID details",
 		"Step-0": {
@@ -731,7 +731,7 @@
 			"Action": "e2e_updateResidentWithRID($$parentPersona,$$parentRid)"
 		},
 		"Step-11": {
-			"Description": "Updates persona data with gaudian details",
+			"Description": "Updates persona data with Guardian details",
 			"Input Parameters": "Gaurdian and child persona file pahts",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
@@ -1299,7 +1299,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center gives demo details of already registred another resident but different biometrics",
+		"Description": "Resident walk-ins to registration center gives demo details of already registered another resident but different biometrics",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -1762,7 +1762,7 @@
 	},
 	{
 		"Scenario": "16",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "A non registered Resident walk-ins to registration center without UIN and tries to retrieve the UIN",
@@ -1835,7 +1835,7 @@
 	},
 	{
 		"Scenario": "17",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center completes the process and gets UIN card without providing documents",
@@ -1957,7 +1957,7 @@
 	},
 	{
 		"Scenario": "19",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center tries get Lost UIN without providing biometric",
@@ -2066,7 +2066,7 @@
 	},
 	{
 		"Scenario": "20",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Non-resident walk-ins to registration center completes the process gets UIN for him and his family",
@@ -2650,7 +2650,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. Later updates both fnger.. face biometrics and does eKYC using face biometric",
+		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. Later updates both finger.. face biometrics and does eKYC using face biometric",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -3735,10 +3735,10 @@
 	},
 	{
 		"Scenario": "33",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his email and perform OTP authentiction both using UIN and VID. Also performs eSignet OTP authentication using right finger both using UIN and VID",
+		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his email and perform OTP authentication both using UIN and VID. Also performs eSignet OTP authentication using right finger both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -3901,7 +3901,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident child walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his name and perform demographic authentiction both using UIN and VID",
+		"Description": "Resident child walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his name and perform demographic authentication both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -4076,7 +4076,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later updates left index biometrics and perform biometric authentiction with face both using UIN and VID",
+		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later updates left index biometrics and perform biometric authentication with face both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -4490,7 +4490,7 @@
 	},
 	{
 		"Scenario": "38",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident booked pre-registration with support documents. walk-ins to registration center tries to get UIN after previous UIN application is in progress with different center",
@@ -5774,10 +5774,10 @@
 	},
 	{
 		"Scenario": "49",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident Minor Child walk-ins to registration center UIN card. Later tries to get another UIN by providing different Guardian",
+		"Description": "Resident Minor Child walk-ins to registration center to get UIN card. Later tries to get another UIN by providing different Guardian",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -5928,7 +5928,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident Minor Child walk-ins to registration center UIN card. Later tries to get another UIN by providing same Guardian",
+		"Description": "Resident Minor Child walk-ins to registration center to get UIN card. Later tries to get another UIN by providing same Guardian",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -7757,7 +7757,7 @@
 	},
 	{
 		"Scenario": "76",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. When the packet is created and uploaded with supervisor biometric and without operator biometrics",
@@ -8699,7 +8699,7 @@
 	},
 	{
 		"Scenario": "54",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Inactive machine and verify syncdata client settings calls",
@@ -8856,7 +8856,7 @@
 	},
 	{
 		"Scenario": "55",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Decommission machine and verify syncdata client settings calls",
@@ -9618,7 +9618,7 @@
 	},
 	{
 		"Scenario": "77",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. When the packet is created and uploaded with operator and without supervisor biometrics",
@@ -10265,7 +10265,7 @@
 	},
 	{
 		"Scenario": "#88",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center completes the process. But due to low biometric image quality.. correction flow is initiated. Resident never provided biometrics with good quality. Original packet gets resumed after the PAUSE correction for elapsed time and reject the packet",
@@ -10344,7 +10344,7 @@
 	},
 	{
 		"Scenario": "89",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center completes the process. But due to low biometric image quality.. correction flow is initiated. Resident provides biometrics but still quality is not good. After max number of corrections (correction packets)the original packet gets rejected",
@@ -10507,7 +10507,7 @@
 	},
 	{
 		"Scenario": "90",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center completes the process. But due to low biometric image quality.. correction flow is initiated. Resident provides biometrics with good quality but by then packet kicks-in for the original packet",
@@ -11076,7 +11076,7 @@
 	},
 	{
 		"Scenario": "95",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Two resident walk-ins to registration center tries to get UIN with different demographic details and same biometrics except one finger",
@@ -11197,7 +11197,7 @@
 	},
 	{
 		"Scenario": "96",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Two resident walk-ins to registration center tries to get UIN with same demographic details and same biometrics except one finger",
@@ -12000,7 +12000,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Minor_New",
-		"Description": "Resident Minor Child walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs biometric demogphic OTP authentication both using UIN and VID",
+		"Description": "Resident Minor Child walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs biometric demographic OTP authentication both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -12163,7 +12163,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "New_Infant",
-		"Description": "Resident Minor Child walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs biometric demogphic authentication both using UIN and VID",
+		"Description": "Resident Minor Child walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs biometric demographic authentication both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -12456,7 +12456,7 @@
 	},
 	{
 		"Scenario": "107",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center tries get Lost UIN but Biometric did not match",
@@ -12565,7 +12565,7 @@
 	},
 	{
 		"Scenario": "108",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident Minor Child walk-ins walk-ins to registration center tries get UIN when the parent packet is in the queue for manual verification reject child packet only when parent packet is rejected",
@@ -12756,7 +12756,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demogphic authentication using name both using UIN and VID",
+		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication using name both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -12847,7 +12847,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident Minor walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs eKYC demogphic authentication using name both using UIN and VID",
+		"Description": "Resident Minor walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs eKYC demographic authentication using name both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -12980,7 +12980,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident Infant walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demogphic authentication using name both using UIN and VID",
+		"Description": "Resident Infant walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication using name both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -13653,7 +13653,7 @@
 	},
 	{
 		"Scenario": "116",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center gets the UIN but during packet generation CBEFF is invalid",
@@ -13714,7 +13714,7 @@
 	},
 	{
 		"Scenario": "117",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center tries to update the UIN with invalid UIN",
@@ -14928,7 +14928,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Update_Adult",
-		"Description": "Resident walk-ins to registration center updates demo and biometrics with finger and eye exception  and then performs demo and bio auth without exception finger",
+		"Description": "Resident walk-ins to registration center updates demo and biometrics with finger and eye exception and then performs demo and bio auth without exception finger",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -15730,7 +15730,7 @@
 	},
 	{
 		"Scenario": "135",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "NonResidentMaleAdult",
 		"Group": "Adult_New",
 		"Description": "NonResident adult whose phone number is 11 digts walk-ins to registration center gets UIN",
@@ -16331,7 +16331,7 @@
 	},
 	{
 		"Scenario": "142",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Adult_New",
 		"Description": "Resident walk-ins to registration center completes the process by not providing the consent",
@@ -16386,7 +16386,7 @@
 	},
 	{
 		"Scenario": "143",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Adult_New",
 		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. Later updates dob with invalid format",
@@ -16483,7 +16483,7 @@
 	},
 	{
 		"Scenario": "144",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Machine got unmapped from the center before generating the offline packet",
@@ -16622,7 +16622,7 @@
 	},
 	{
 		"Scenario": "145",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "An offline packet is generated and machine got unmapped from the center before packet is uploaded",
@@ -16834,7 +16834,7 @@
 	},
 	{
 		"Scenario": "147",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "SeniorNonResidentMale",
 		"Group": "Senior_New",
 		"Description": "Senior Non Resident walk-ins to registration center completes the process and gets UIN card",
@@ -17229,7 +17229,7 @@
 	},
 	{
 		"Scenario": "152",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "Resident walk-ins to registration center and tries to complete the process . But during packet sync the checksum is invalid",
@@ -17290,7 +17290,7 @@
 	},
 	{
 		"Scenario": "153",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Adult_New",
 		"Description": "Resident walk-ins to registration center gets UIN card . Another resident tries to get UIN with the same demographics and exception marked for all modalities except face",
@@ -17496,7 +17496,7 @@
 	},
 	{
 		"Scenario": "155",
-		"Tag": "Positive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walks-in to center to get Uin but packet is created with invalid hash. Same resident tries to get Uin by providing all details again",
@@ -18290,7 +18290,7 @@
 	},
 	{
 		"Scenario": "163",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "Upload the resident packet again which has been uplodaded and processed already ",
@@ -18509,7 +18509,7 @@
 	},
 	{
 		"Scenario": "166",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "A non registered resident walk-ins to registration center without UIN and tries to retrieve the UIN . Now new Resident tries to get UIN with the same demographic details ",
@@ -18609,7 +18609,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demogphic authentication with age less than actual age both using UIN and VID",
+		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication with age less than actual age both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -18700,7 +18700,7 @@
 		"Tag": "Positive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demogphic authentication with exact dob both using UIN and VID",
+		"Description": "Resident walk-ins to registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication with exact dob both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -18849,10 +18849,10 @@
 	},
 	{
 		"Scenario": "170",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
-		"Description": "ResidentA and ResidentB got their UINs and  ResidentB is trying to update ResidentA UIN with his  biometrics",
+		"Description": "ResidentA and ResidentB got their UINs and  ResidentB is trying to update ResidentA UIN with his biometrics",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -18994,7 +18994,7 @@
 	},
 	{
 		"Scenario": "171",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": " ResidentA and ResidentB got their UINs and  ResidentB is trying to update ResidentA UIN with  his (Resident-B) IRIS biometrics",
@@ -19139,7 +19139,7 @@
 	},
 	{
 		"Scenario": "172",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Minor_New",
 		"Description": "Minor Resident A and Adult Resident B got their UINs and  Resident B is trying to update Resident A UIN with his biometrics",
@@ -19332,7 +19332,7 @@
 	},
 	{
 		"Scenario": "173",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "New_Infant",
 		"Description": " Infant Resident A and Adult Resident B got their UINs and  Resident B is trying to update Resident A UIN with his biometrics",
@@ -19531,7 +19531,7 @@
 	},
 	{
 		"Scenario": "174",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "Resident walk-ins to registration center completes the process tries to get UIN card with invalid Officer ID",
@@ -19598,7 +19598,7 @@
 	},
 	{
 		"Scenario": "175",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "Generate packet with size greater than 2MB",
@@ -19980,7 +19980,7 @@
 	},
 	{
 		"Scenario": "179",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "ResidentA get uin and ResidentB marking FPs and Iris as exception got their UINs and  ResidentA is trying to update ResidentB with his biometric",
@@ -20300,7 +20300,7 @@
 	},
 		{
 		"Scenario": "181",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "Resident goes to reg-center and gets UIN same person goes to center and updates his biometrics for 2 consecutive times at the reg-center and updates his/her biometrics successfully resident 2 goes to center and generates UIN later resident 2 tries to update his biometrics with resident 1 biometrics",
@@ -20541,7 +20541,7 @@
 	},
 	{
 		"Scenario": "182",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "Resident walks into reg-center and generates UIN1 same person tried to get UIN2 and UIN3 (based on MV decision) resident tries to update UIN1 with biometrics and uploads packet and updates successfully",
@@ -20746,7 +20746,7 @@
 	},
 	{
 		"Scenario": "183",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "Resident walks into reg-center and generated UIN1 same person tried to get UIN 2 and failed to UIN as per MV decision resident tries to update biometrics with UIN1 and updates successfully",
@@ -20903,7 +20903,7 @@
 	},
 		{
 		"Scenario": "184",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "A differently abled resident walk-ins to registration center completes the process with IRIS as exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS",
@@ -21012,7 +21012,7 @@
 	},
 	{
 		"Scenario": "185",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "A differently abled resident walk-ins to registration center completes the process with Fingerprints as exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS",
@@ -21121,7 +21121,7 @@
 	},
 	{
 		"Scenario": "186",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "A differently abled resident walk-ins to registration center completes the process with IRIS and Finger as exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS",
@@ -21333,7 +21333,7 @@
 	},
 	{
 		"Scenario": "188",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "A differently abled resident walk-ins to registration center completes the process with both thumbs as exception and gets UIN card Later performs biometric authentication using IRIS Face Fingerprint that are exception and with fingerprints that are not marked as exception",
@@ -21448,7 +21448,7 @@
 	},
 	{
 		"Scenario": "189",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "User creates UIN through reg center then deactivates it in IDRepo then create an update packet to see if it is rejected at packet validator stage",
@@ -21575,7 +21575,7 @@
 	},
 	{
 		"Scenario": "190",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "User creates UIN through reg center then deactivates it in IDRepo then reprocess the packet to see if it is rejected at packet validator stage",
@@ -21853,7 +21853,7 @@
 	},
 	{
 		"Scenario": "192",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident created Infant packet and got UIN and later updated the UIN to a adult then do bio authentication",
@@ -22210,7 +22210,7 @@
 	},
 	{
 		"Scenario": "194",
-		"Tag": "Postive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "External_New",
 		"Description": "Infant external packet creation and process with out introducerInfoToken",
