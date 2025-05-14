@@ -17,7 +17,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -202,7 +201,7 @@ public class PacketMakerService {
 		return rid;
 	}
 
-	public String packPacketContainer(String packetPath, String source, String proc, String contextKey,
+	public  String packPacketContainer(String packetPath, String source, String proc, String contextKey,
 			boolean isValidChecksum) throws Exception {
 
 		String retPath = "";
@@ -310,7 +309,7 @@ public class PacketMakerService {
 	/*
 	 * Create packet with our without Encryption
 	 */
-	public String createContainer(String dataFile, String templatePacketLocation, String source, String processArg,
+	public synchronized String createContainer(String dataFile, String templatePacketLocation, String source, String processArg,
 			String preregId, String contextKey, boolean bZip, String additionalInfoReqId) throws Exception {
 
 		String packetPath = "";
