@@ -255,69 +255,33 @@
 			"Description": "Creates user with given user name and password",
 			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
-			"Action": "$$user4=e2e_User(ADD_User_External_Packet,4/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
+			"Action": "$$details4=e2e_User(ADD_User_External_Packet,4/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-42": {
-			"Description": "Deletes center mapping",
-			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
-			"Return Value": "Updated center details",
-			"Action": "$$details4=e2e_User(DELETE_CENTERMAPPING,4/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$user4)"
-		},
-		"Step-43": {
-			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
-			"Return Value": "NA",
-			"Action": "e2e_User(DELETE_ZONEMAPPING,$$user4)"
-		},
-		"Step-44": {
-			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
-			"Return Value": "NA",
-			"Action": "e2e_User(CREATE_ZONEMAPPING,$$user4)"
-		},
-		"Step-45": {
-			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
-			"Return Value": "NA",
-			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$user4,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
-		},
-		"Step-46": {
-			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "NA",
-			"Action": "e2e_User(CREATE_CENTERMAPPING,$$user4,4/*CENTER_INDEX*/)"
-		},
-		"Step-47": {
-			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "Action. Other parameter details can be found in parameter in-line comments",
-			"Return Value": "NA",
-			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$user4,T/*USER_CENTER_MAPPING_FLAG*/)"
-		},
-		"Step-48": {
 			"Description": "Writes prerequisite details",
 			"Input Parameters": "Details . Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_WritePreReq($$details4,4/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
-		"Step-49": {
+		"Step-43": {
 			"Description": "Clear the previous device certificate",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_ClearDeviceCertCache()"
 		},
-		"Step-50": {
+		"Step-44": {
 			"Description": "Creates And Onboards Authentication Partner and Device Partner and checks if the device certificate is synced or not",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_GenerateAuthCertifcates()"
 		},
-		"Step-51": {
+		"Step-45": {
 			"Description": "Creates And Onboards Authentication Partner",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_UploadDeviceCertificate()"
 		},	
-		"Step-52": {
+		"Step-46": {
 			"Description": "Resets the context data",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
