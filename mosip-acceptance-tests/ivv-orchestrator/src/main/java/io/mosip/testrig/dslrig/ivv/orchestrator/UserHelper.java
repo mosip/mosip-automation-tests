@@ -14,6 +14,7 @@ import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.masterdata.testscripts.DeleteWithParam;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
+import io.mosip.testrig.apirig.masterdata.testscripts.SimplePut;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.restassured.response.Response;
 
@@ -31,9 +32,11 @@ public class UserHelper extends BaseTestCaseUtil {
 	private static final String LostRid = "ivv_masterdata/LostRid/LostRid.yml";
 	private static final String GetLeafZone = "ivv_masterdata/GetLeafZones/GetLeafZones.yml";
 	private static final String GetZoneOfUser = "ivv_masterdata/GetZoneOfUser/GetZoneOfUser.yml";
+	private static final String UpdateZoneOfUser = "ivv_masterdata/UpdateZoneUser/UpdateZoneUser.yml";
 
 	DeleteWithParam DeleteWithParam=new DeleteWithParam(); 
 	SimplePost simplepost=new SimplePost();
+	SimplePut simpleput=new SimplePut();
 	PatchWithPathParam patchWithPathParam=new PatchWithPathParam();
 	GetWithParam getWithParam=new GetWithParam();
 
@@ -102,6 +105,31 @@ public class UserHelper extends BaseTestCaseUtil {
 
 		}
 
+	}
+	
+	public void UpdateZoneUser(String user , String zone) throws RigInternalError {
+
+		try {
+			Object[] testObjPutDcom=simpleput.getYmlTestData(UpdateZoneOfUser);
+
+			TestCaseDTO testPutDcom=(TestCaseDTO)testObjPutDcom[0];
+			String input=testPutDcom.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					user, "userId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input,
+					zone, "zoneCode");
+			testPutDcom.setInput(input);
+			simpleput.test(testPutDcom);
+			Response response= simplepost.response;
+
+			if (response!= null)
+			{
+				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				logger.info( jsonResp.getJSONObject("response"));}
+
+		} catch (Exception e) {
+
+		}
 	}
 
 	public void createCenterMapping(String user, HashMap<String, String> map,int centerNum) throws RigInternalError {

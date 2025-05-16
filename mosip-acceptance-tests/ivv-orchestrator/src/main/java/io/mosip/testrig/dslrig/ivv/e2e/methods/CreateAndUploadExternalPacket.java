@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.testng.Reporter;
 
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -29,11 +30,21 @@ public class CreateAndUploadExternalPacket extends BaseTestCaseUtil implements S
 		String personaPath = null;
 		String source = null;
 		Properties personaIdValue = null;
+		boolean genrateValidateToken = false;
+		String uin=null;
+		String valid = "valid";
+		
 		if (step.getParameters().isEmpty() && !step.getScenario().getGeneratedResidentData().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			assertTrue(false, "process paramter is  missing in step: " + step.getName());
 		} else {
 			source = step.getParameters().get(0);
+			if(source.contains("@")) {
+				String[] parts = source.split("@");
+				source = parts[0];
+				valid = parts[1];
+				
+			}
 			if (step.getParameters().size() > 1) {
 				process = step.getParameters().get(1);
 			}
@@ -56,11 +67,22 @@ public class CreateAndUploadExternalPacket extends BaseTestCaseUtil implements S
 				}
 				step.getScenario().getResidentTemplatePaths().put(personaPath, null);
 			}
+			
+			if (!step.getParameters().isEmpty() && step.getParameters().size() > 3) {
+				genrateValidateToken = Boolean.parseBoolean(step.getParameters().get(3));
+			}
+			
+			if (!step.getParameters().isEmpty() && step.getParameters().size() > 4) {
+				uin = step.getScenario().getVariables().get(step.getParameters().get(4));
+			}
 
 			String rid = packetUtility.createUploadPacket(step.getScenario().getResidentTemplatePaths().keySet(),
-					source, process, step.getScenario().getCurrentStep(), step);
-			if (rid == null || rid.isEmpty()) {
-				throw new RuntimeException("Unable to upload CRVS packet: RID is null or empty");
+					source, process, genrateValidateToken, uin, step.getScenario().getCurrentStep(), step ,valid);
+			
+			if (valid.equalsIgnoreCase("invalid")) {
+			    Reporter.log("<b style=\"background-color: #0A0;\">Marking test case as passed. As " + rid + "</b>");
+			} else if (rid == null || rid.isEmpty()) {
+			    throw new RuntimeException("Unable to upload CRVS packet: RID is null or empty");
 			}
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().put(step.getOutVarName(), rid);

@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -13,6 +14,7 @@ import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.MachineHelper;
 import io.mosip.testrig.dslrig.ivv.orchestrator.UserHelper;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
@@ -38,6 +40,8 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		int centerNum = 0;
 		String indexOfUser = "";
 		String uin = "";
+		MachineHelper machineHelper = new MachineHelper();
+
 
 		HashMap<String, String> map = new HashMap<String, String>();
 
@@ -97,6 +101,9 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			userHelper.deleteCenterMapping(user);
 			break;
 		case "DELETE_ZONEMAPPING":
+			if(zone==null) {
+			zone = userHelper.getZoneOfUser(user);
+			}
 			userHelper.deleteZoneMapping(user, zone);
 			break;
 		case "CREATE_CENTERMAPPING":
@@ -138,46 +145,49 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 
 			break;
 			
-		case "DELETE_User":
-			KeycloakUserManager.removeUser(user);
-
-			break;
-		case "UPDATE_UIN":
-			HashMap<String, List<String>> attrmap1 = new HashMap<String, List<String>>();
-			List<String> list1 = new ArrayList<String>();
-			String val1 = map.get("uin") != null ? map.get("uin") : "11000000";
-			list1.add(val1);
-			attrmap1.put("individualId", list1);
-			// Utilizing the remove user functionality to update the attribute
-			// "individualId" with UIN
-			KeycloakUserManager.removeUser(user);
-			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap1);
-			zone = userHelper.getZoneOfUser(user);
-			if (zone != null && zone.equalsIgnoreCase("NOTSET")) {
-				zone = userHelper.getLeafZones();
-				BaseTestCase.mapUserToZone(user, zone);
-				BaseTestCase.mapZone(user);
-			}
-			HashMap<String, String> userdetails1 = new HashMap<String, String>();
-			userdetails1.put("user" + indexOfUser, user);
-			userdetails1.put("pwd", pwd);
-			step.getScenario().getVariables().putAll(userdetails1);
-
-			break;
-
-		case "ADD_WOREMOVE_User":
+		case "ADD_User_External_Packet":
 			HashMap<String, List<String>> attrmap2 = new HashMap<String, List<String>>();
 			List<String> list2 = new ArrayList<String>();
-			String val2 = map.get("$$uin") != null ? map.get("$$uin") : "11000000";
+			String val2 = map.get("uin") != null ? map.get("uin") : "11000000";
 			list2.add(val2);
 			attrmap2.put("individualId", list2);
 			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap2);
 			HashMap<String, String> userdetails2 = new HashMap<String, String>();
-			userdetails2.put("user", user);
+			userdetails2.put("user" + indexOfUser, user);
 			userdetails2.put("pwd", pwd);
+			String publicKey = machineHelper.createPublicKey();
+			Map<String, String> result = machineHelper.getIdAndRegCenterIdByPublicKey(publicKey);
+			userdetails2.put("centerId" + indexOfUser, result.get("regCenterId"));
+			userdetails2.put("zoneCode", result.get("zoneCode"));
+			userdetails2.put("langCode", BaseTestCase.languageCode);
+			userdetails2.put("id", result.get("id"));
+			AdminTestUtil.getRequiredField();
 			step.getScenario().getVariables().putAll(userdetails2);
 
 			break;
+			
+		case "DELETE_User":
+			KeycloakUserManager.removeUser(user);
+
+			break;
+
+		case "ADD_WOREMOVE_User":
+			HashMap<String, List<String>> attrmap3 = new HashMap<String, List<String>>();
+			List<String> list3 = new ArrayList<String>();
+			String val3 = map.get("$$uin") != null ? map.get("$$uin") : "11000000";
+			list3.add(val3);
+			attrmap3.put("individualId", list3);
+			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap3);
+			HashMap<String, String> userdetails3 = new HashMap<String, String>();
+			userdetails3.put("user", user);
+			userdetails3.put("pwd", pwd);
+			step.getScenario().getVariables().putAll(userdetails3);
+			
+		case "UPDATE_ZONEMAPPING":
+			userHelper.UpdateZoneUser(user, map.get("zoneCode"));
+			break;
+
+			
 
 		}
 
