@@ -1,7 +1,7 @@
 UpdateZoneUser:
    MasterData_UpdateZoneUser_All_Valid_Smoke:
       endPoint: /v1/masterdata/zoneuser
-      role: admin
+      role: globalAdmin
       restMethod: put
       inputTemplate: ivv_masterdata/ZoneUser/updateZoneUser
       outputTemplate: ivv_masterdata/ZoneUser/zoneUserResult

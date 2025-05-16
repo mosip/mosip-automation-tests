@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -24,6 +26,7 @@ import java.util.UUID;
 
 import org.javatuples.Pair;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +69,6 @@ public class PacketTemplateProvider {
 	public static String RID_FOLDER = "rid_id";
 	public static String RID_EVIDENCE = "rid_evidence";
 	public static String RID_OPTIONAL = "rid_optional";
-
-	private static final String DOMAIN_NAME = ".mosip.net";
-
 	// String constants
 	private static final String ID_JSON = "/ID.json";
 	private static final String PACKET_META_INFO_JSON = "/packet_meta_info.json";
@@ -211,8 +211,8 @@ public class PacketTemplateProvider {
 	}
 
 	public JSONObject generateCRVSField(String source, ResidentModel resident,String process, String machineId, String centerId, String contextKey, Properties props,
-			String RID)
-					throws IOException {
+			String RID ,boolean validateToken , String uin)
+					throws JSONException, Exception {
 		ContextSchemaDetail contextSchemaDetail = getSchema(contextKey);
 		JSONObject requestNode = new JSONObject();
 		requestNode.put("id", RID);
@@ -223,7 +223,7 @@ public class PacketTemplateProvider {
 		requestNode.put("schemaVersion", contextSchemaDetail.getSchemaVersion());
 
 		// Parsing String output of generateFieldsNode() into a JSONObject
-		JSONObject fieldsString = generateCRVSIDJson(resident, contextKey, props, contextSchemaDetail);
+		JSONObject fieldsString = generateCRVSIDJson(resident, contextKey, props, contextSchemaDetail ,validateToken ,uin);
 		requestNode.put("fields", fieldsString);
 
 		// Assuming generateMetaInfoNode() returns a JSONObject
@@ -1322,7 +1322,7 @@ public class PacketTemplateProvider {
 
 
 	JSONObject generateCRVSIDJson(ResidentModel resident, String contextKey,
-			Properties prop, ContextSchemaDetail contextSchemaDetail) {
+			Properties prop, ContextSchemaDetail contextSchemaDetail, boolean validateToken, String uin) throws JSONException, Exception {
 
 		JSONObject identity = new JSONObject();
 
@@ -1343,14 +1343,6 @@ public class PacketTemplateProvider {
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
 
-			if (VariableManager.getVariableValue(contextKey, "uin") != null
-					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "uin"))) {
-				String uin = resident.getUIN();
-				if (uin != null && !uin.trim().equals("")) {
-					identity.put(s.getId(), uin.trim());
-				}
-				continue;
-			}
 			if (!s.getRequired() && !s.getInputRequired()) {
 				continue;
 			}
@@ -1463,7 +1455,7 @@ public class PacketTemplateProvider {
 						secValue = Translator.translate(secLanguage, primaryValue, contextKey);
 					}
 				}
-
+               
 				if (s.getType().equals(SIMPLETYPE)) {
 
 					updateSimpleTypeString(s.getId(), identity, primaryValue, secValue, primaryLanguage, secLanguage,
@@ -1477,7 +1469,19 @@ public class PacketTemplateProvider {
 				}
 			}
 
-		}	
+		}
+		 if(validateToken==true && VariableManager.getVariableValue(contextKey, "process").toString().contains("NEW")) {
+         	identity.put("introducerInfoToken", RestClient.getToken("crvs", contextKey));
+         }else if(validateToken==true && VariableManager.getVariableValue(contextKey, "process").toString().contains("DEATH")) {
+          	identity.put("deceasedInformer", RestClient.getToken("crvs", contextKey));
+          	identity.put("declaredAsDeceased", "Y");
+          	identity.put("UIN", uin);
+          	LocalDate today = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+            String formattedDate = today.format(formatter);
+          	identity.put("deceasedDeclarationDate",formattedDate );
+
+          }
 		return identity;
 	}
 
@@ -1591,7 +1595,7 @@ public class PacketTemplateProvider {
 	            for (int i = 0; i < operationsData.length(); i++) {
 	                JSONObject object = operationsData.getJSONObject(i);
 	                if ("officerId".equals(object.getString("label"))) {
-	                	object.put("value", "crvs");
+	                	object.put("value", VariableManager.getVariableValue(contextKey, "mosip.test.regclient.userid"));
 	                    break;
 	                }
 	            }

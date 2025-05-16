@@ -55,14 +55,6 @@ public class dslConfigManager extends ConfigManager {
 	public static int getLangselect() {	
 		return Integer.parseInt(getproperty("langselect")); 
 	}
-	
-	public static String getMachineId() {	
-		return getproperty("machineId"); 
-	}
-	
-	public static String getCenterId() {	
-		return getproperty("centerId"); 
-	}
 
 	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
 		String toSkippedList = ConfigManager.getproperty("servicesNotDeployed");
