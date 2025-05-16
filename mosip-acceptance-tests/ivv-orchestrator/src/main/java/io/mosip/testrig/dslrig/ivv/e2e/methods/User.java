@@ -162,6 +162,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			userdetails2.put("zoneCode", result.get("zoneCode"));
 			userdetails2.put("langCode", BaseTestCase.languageCode);
 			userdetails2.put("id", result.get("id"));
+			userdetails2.put("userid", user);
 			AdminTestUtil.getRequiredField();
 			userHelper.deleteCenterMapping(user);
 			if (zone == null) {
@@ -193,13 +194,8 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			HashMap<String, String> userdetails3 = new HashMap<String, String>();
 			userdetails3.put("user", user);
 			userdetails3.put("pwd", pwd);
-			step.getScenario().getVariables().putAll(userdetails3);
-			
-		case "UPDATE_ZONEMAPPING":
-			userHelper.UpdateZoneUser(user, map.get("zoneCode"));
+			step.getScenario().getVariables().putAll(userdetails3);	
 			break;
-
-			
 
 		}
 
