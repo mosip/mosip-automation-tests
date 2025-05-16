@@ -146,13 +146,14 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			break;
 			
 		case "ADD_User_External_Packet":
+			HashMap<String, String> userdetails2 = new HashMap<String, String>();
+			try {
 			HashMap<String, List<String>> attrmap2 = new HashMap<String, List<String>>();
 			List<String> list2 = new ArrayList<String>();
 			String val2 = map.get("uin") != null ? map.get("uin") : "11000000";
 			list2.add(val2);
 			attrmap2.put("individualId", list2);
 			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap2);
-			HashMap<String, String> userdetails2 = new HashMap<String, String>();
 			userdetails2.put("user" + indexOfUser, user);
 			userdetails2.put("pwd", pwd);
 			String publicKey = machineHelper.createPublicKey();
@@ -162,8 +163,19 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			userdetails2.put("langCode", BaseTestCase.languageCode);
 			userdetails2.put("id", result.get("id"));
 			AdminTestUtil.getRequiredField();
+			userHelper.deleteCenterMapping(user);
+			if (zone == null) {
+				zone = userHelper.getZoneOfUser(user);
+			}
+			userHelper.deleteZoneMapping(user, zone);
+			userHelper.createZoneMapping(userdetails2, user);
+			userHelper.activateZoneMapping(user, "T");
+			userHelper.createCenterMapping(user, userdetails2, Integer.parseInt(indexOfUser));
+			userHelper.activateCenterMapping(user, "T");
+			}catch(Exception e) {
+				logger.error("Unable to find External Machine daetils to maps with user "+e.getMessage());
+			}
 			step.getScenario().getVariables().putAll(userdetails2);
-
 			break;
 			
 		case "DELETE_User":
