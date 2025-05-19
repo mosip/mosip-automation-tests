@@ -661,7 +661,7 @@
 	{
 		"Scenario": "6",
 		"Tag": "Postive_Test",
-		"Persona": "ResidentMaleMinor",
+		"Persona": "ResidentMaleAdult",
 		"Group": "Minor_New",
 		"Description": "Resident Minor Child walk-ins to registration center gets UIN with Guardian RID details",
 		"Step-0": {
