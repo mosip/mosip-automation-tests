@@ -183,6 +183,29 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			KeycloakUserManager.removeUser(user);
 
 			break;
+			
+		case "UPDATE_UIN":
+			HashMap<String, List<String>> attrmap1 = new HashMap<String, List<String>>();
+			List<String> list1 = new ArrayList<String>();
+			String val1 = map.get("uin") != null ? map.get("uin") : "11000000";
+			list1.add(val1);
+			attrmap1.put("individualId", list1);
+			// Utilizing the remove user functionality to update the attribute
+			// "individualId" with UIN
+			KeycloakUserManager.removeUser(user);
+			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap1);
+			zone = userHelper.getZoneOfUser(user);
+			if (zone != null && zone.equalsIgnoreCase("NOTSET")) {
+				zone = userHelper.getLeafZones();
+				BaseTestCase.mapUserToZone(user, zone);
+				BaseTestCase.mapZone(user);
+			}
+			HashMap<String, String> userdetails1 = new HashMap<String, String>();
+			userdetails1.put("user" + indexOfUser, user);
+			userdetails1.put("pwd", pwd);
+			step.getScenario().getVariables().putAll(userdetails1);
+
+			break;
 
 		case "ADD_WOREMOVE_User":
 			HashMap<String, List<String>> attrmap3 = new HashMap<String, List<String>>();
