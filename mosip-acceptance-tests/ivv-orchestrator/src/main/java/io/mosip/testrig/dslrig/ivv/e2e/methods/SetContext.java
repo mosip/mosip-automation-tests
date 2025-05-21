@@ -90,9 +90,11 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 																										// date
 				invalidDateFlag = step.getParameters().get(3);
 
-			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidOfficerID")) // Invalid
-																												// ID
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidOfficerID")) // Invalid																												// ID
 				invalidOfficerIDFlag = step.getParameters().get(3);
+			
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("EXTERNAL")) 
+				flow = step.getParameters().get(3);
 
 			if (step.getParameters().size() > 4 && (step.getParameters().get(4).contains("emptySignature") || step.getParameters().get(4).contains("invalidSignature")))
 				signature = step.getParameters().get(4);

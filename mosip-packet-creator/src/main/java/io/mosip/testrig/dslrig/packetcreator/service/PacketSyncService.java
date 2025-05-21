@@ -905,8 +905,8 @@ public class PacketSyncService {
 
 	}
 	
-	public String createPacketUpload(List<String> personaFilePaths, String source, String process, String regId,
-			String contextKey) throws IOException {
+	public String createPacketUpload(List<String> personaFilePaths, String source, String process, String uin, String regId,	
+			boolean validateToken, String contextKey) throws IOException {
 		String machineId;
 		String centerId;
 		logger.info("Template generation started at time: " + System.currentTimeMillis());
@@ -926,7 +926,7 @@ public class PacketSyncService {
 			centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
 
 			JSONObject returnMsg = packetTemplateProvider.generateCRVSField(source, resident, process, machineId,
-					centerId, contextKey, props, regId);
+					centerId, contextKey, props, regId ,validateToken , uin);
 			logger.info(returnMsg.toString());
 			requestNode.put("id", regId);
 			requestNode.put("version", "String");

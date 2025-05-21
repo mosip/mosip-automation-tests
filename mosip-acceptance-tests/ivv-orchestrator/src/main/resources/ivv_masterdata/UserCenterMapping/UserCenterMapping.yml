@@ -1,7 +1,7 @@
 UserCenterMapping:
    MasterData_UserCenterMapping_All_Valid_Smoke:
       endPoint: /v1/masterdata/usercentermapping
-      role: admin
+      role: globaladmin
       checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: ivv_masterdata/UserCenterMapping/userCenterMapping
