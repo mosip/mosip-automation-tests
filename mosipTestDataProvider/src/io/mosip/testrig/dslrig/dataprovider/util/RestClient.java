@@ -325,6 +325,14 @@ public class RestClient {
 		}
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
+	
+	public static Response getWithoutParams(String url, String cookie) {
+
+		Cookie.Builder builder = new Cookie.Builder("Authorization", cookie);
+		Response getResponse;
+			getResponse = given().cookie(builder.build()).relaxedHTTPSValidation().log().all().when().get(url);
+		return getResponse;
+	}
 
 	// method used with system role
 	public static JSONArray getDoc(String url, JSONObject requestParams, JSONObject pathParam, String contextKey)
@@ -905,6 +913,25 @@ public class RestClient {
 		} else {
 		    return new JSONObject("{\"status\":\"" + response.getBody().asString() + "\"}");
 		}
+
+	}
+	
+	public static String getToken(String role, String contextKey) throws Exception {
+		if (!isValidToken(role, contextKey)) {
+			if (role.equalsIgnoreCase(RESIDENT)) {
+				initToken_Resident(contextKey);
+			} else if (role.equalsIgnoreCase(ADMIN)) {
+				initToken_admin(contextKey);
+			} else if (role.equalsIgnoreCase(REGPROC)) {
+				initToken_Regproc(contextKey);
+			} else if (role.equalsIgnoreCase(CRVS)) {
+				initToken_crvs1(contextKey);
+			} else {
+				initToken(contextKey);
+			}
+		}
+		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		return token;
 
 	}
 

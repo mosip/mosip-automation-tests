@@ -9,5 +9,6 @@ public class ExternalPacketRequestDTO {
 	
 	private List<String> personaFilePath;
 	private String source;
+	private String uin;
 
 }
