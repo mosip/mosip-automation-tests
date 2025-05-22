@@ -22460,7 +22460,13 @@
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid)"
+			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-8": {
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
 		}
 	},
 	{
@@ -22587,7 +22593,13 @@
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid)"
+			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-20": {
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
 		}
 	},
 	{

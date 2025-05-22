@@ -13,6 +13,7 @@ import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -64,6 +65,8 @@ public class CheckTags extends BaseTestCaseUtil implements StepInterface {
 			} catch (AuthenticationTestException e) {
 				logger.error(e.getMessage());
 			} catch (AdminTestException e) {
+				logger.error(e.getMessage());
+			} catch (SecurityXSSException e) {
 				logger.error(e.getMessage());
 			}
 
