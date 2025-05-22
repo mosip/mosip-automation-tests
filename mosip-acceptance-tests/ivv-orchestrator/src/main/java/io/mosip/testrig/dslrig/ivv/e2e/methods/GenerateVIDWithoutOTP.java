@@ -15,6 +15,7 @@ import io.mosip.testrig.apirig.masterdata.testscripts.SimplePostForAutoGenId;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -75,7 +76,7 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 			try {
 				try {
 					generatevid.test(test);
-				} catch (NoSuchAlgorithmException e) {
+				} catch (NoSuchAlgorithmException | SecurityXSSException e) {
 					logger.error(e.getMessage());
 				}
 				Response response = generatevid.response;
