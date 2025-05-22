@@ -17,6 +17,7 @@ import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -150,7 +151,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 						logger.info(step.getScenario().getVidPersonaProp());
 					}
 
-				} catch (AuthenticationTestException | AdminTestException e) {
+				} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 					this.hasError = true;
 					throw new RigInternalError(e.getMessage());
 
