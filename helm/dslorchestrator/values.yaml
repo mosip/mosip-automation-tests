@@ -463,6 +463,9 @@ types:
     enabled: true
   - name: sanity
     enabled: true
+  - name: smoke
+    enabled: true
+
 
 crontime: "0 3 * * *"    ## run cronjob every day at 3 AM (time hr: 0-23 )
 
