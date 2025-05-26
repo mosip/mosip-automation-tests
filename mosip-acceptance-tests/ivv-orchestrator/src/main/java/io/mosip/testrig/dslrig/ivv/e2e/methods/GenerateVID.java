@@ -118,7 +118,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 						logger.info(step.getScenario().getVidPersonaProp());
 					}
 
-				} catch (AuthenticationTestException | AdminTestException e) {
+				} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 					this.hasError = true;
 					throw new RigInternalError(e.getMessage());
 
