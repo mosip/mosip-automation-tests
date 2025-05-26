@@ -199,7 +199,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			}
 
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
@@ -221,7 +221,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			}
 
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
@@ -248,7 +248,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			}
 
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());

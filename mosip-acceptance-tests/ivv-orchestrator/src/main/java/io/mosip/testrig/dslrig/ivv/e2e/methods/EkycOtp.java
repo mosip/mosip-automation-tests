@@ -14,6 +14,7 @@ import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.KeyMgrUtil;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.OtpAuthNew;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -128,6 +129,10 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 						logger.error(e.getMessage());
 						throw new RigInternalError("EkycOtp Auth failed ");
 					} catch (AdminTestException e) {
+						this.hasError = true;
+						logger.error(e.getMessage());
+						throw new RigInternalError("EkycOtp Auth failed");
+					} catch (SecurityXSSException e) {
 						this.hasError = true;
 						logger.error(e.getMessage());
 						throw new RigInternalError("EkycOtp Auth failed");
