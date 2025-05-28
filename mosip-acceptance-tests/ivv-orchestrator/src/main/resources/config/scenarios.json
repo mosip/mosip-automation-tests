@@ -23096,7 +23096,7 @@
 			"Action": "$$details5=e2e_User(DELETE_CENTERMAPPING,5/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details5)"
 		},
 		"Step-5": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Create zone search for zone",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$details5=e2e_User(CREATE_ZONESEARCH,$$details5)"
@@ -23114,7 +23114,7 @@
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details5)"
 		},
 		"Step-8": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "create a zone mapping",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details5)"
@@ -23126,13 +23126,13 @@
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details5,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
 		"Step-10": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Create a center mapping",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details5,5/*CENTER_INDEX*/)"
 		},
 		"Step-11": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Activate center mapping",
 			"Input Parameters": "Action. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$details5,T/*USER_CENTER_MAPPING_FLAG*/)"
@@ -23229,7 +23229,7 @@
 			"Action": "e2e_getPingHealth(targetenv)"
 		},
 		"Step-4": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Generates persona data",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$parentPersona=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
@@ -23241,7 +23241,7 @@
 			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$parentPersona)"
 		},
 		"Step-6": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Create a packet with template path",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$parentZipPacketPath=e2e_packetcreator(NEW/*PACKET_TYPE*/,$$templatePath)"
@@ -23271,25 +23271,25 @@
 			"Action": "$$childTemplate=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$childPersona)"
 		},
 		"Step-11": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Create a packet with template path",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$childZipPacketPath=e2e_packetcreator(NEW/*PACKET_TYPE*/,$$childTemplate)"
 		},
 		"Step-12": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Syncs packet with given packet template skipping pre-registration step rejected",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$parentRid=e2e_ridSyncRejected(NEW/*PACKET_TYPE*/,$$parentZipPacketPath)"
 		},
 		"Step-13": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Syncs packet with given packet template skipping pre-registration step",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$childRid=e2e_ridsync(NEW/*PACKET_TYPE*/,$$childZipPacketPath)"
 		},
 		"Step-14": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Upload both the packet at onces",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "e2e_bulkUploadPacket($$childZipPacketPath,$$parentZipPacketPath)"
