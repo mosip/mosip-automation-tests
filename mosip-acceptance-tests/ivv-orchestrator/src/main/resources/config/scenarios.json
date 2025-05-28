@@ -23097,8 +23097,8 @@
 		},
 		"Step-5": {
 			"Description": "Create zone search for zone",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Return Value": "Center details",
 			"Action": "$$details5=e2e_User(CREATE_ZONESEARCH,$$details5)"
 		},
 		"Step-6": {
@@ -23115,7 +23115,7 @@
 		},
 		"Step-8": {
 			"Description": "create a zone mapping",
-			"Input Parameters": "<<<Step inputs values details>>>",
+			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details5)"
 		},
@@ -23127,8 +23127,8 @@
 		},
 		"Step-10": {
 			"Description": "Create a center mapping",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details5,5/*CENTER_INDEX*/)"
 		},
 		"Step-11": {
@@ -23230,8 +23230,8 @@
 		},
 		"Step-4": {
 			"Description": "Generates persona data",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Persona type and gender",
+			"Return Value": "Persona file path",
 			"Action": "$$parentPersona=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
 		},
 		"Step-5": {
@@ -23242,8 +23242,8 @@
 		},
 		"Step-6": {
 			"Description": "Create a packet with template path",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "packet type and template path",
+			"Return Value": "Zip packet path",
 			"Action": "$$parentZipPacketPath=e2e_packetcreator(NEW/*PACKET_TYPE*/,$$templatePath)"
 		},
 		"Step-7": {
@@ -23272,26 +23272,26 @@
 		},
 		"Step-11": {
 			"Description": "Create a packet with template path",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Packet type and Packet template",
+			"Return Value": "Zip packet path",
 			"Action": "$$childZipPacketPath=e2e_packetcreator(NEW/*PACKET_TYPE*/,$$childTemplate)"
 		},
 		"Step-12": {
 			"Description": "Syncs packet with given packet template skipping pre-registration step rejected",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Packet type zip packet path",
+			"Return Value": "RID",
 			"Action": "$$parentRid=e2e_ridSyncRejected(NEW/*PACKET_TYPE*/,$$parentZipPacketPath)"
 		},
 		"Step-13": {
 			"Description": "Syncs packet with given packet template skipping pre-registration step",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "packet type packet path",
+			"Return Value": "RID",
 			"Action": "$$childRid=e2e_ridsync(NEW/*PACKET_TYPE*/,$$childZipPacketPath)"
 		},
 		"Step-14": {
 			"Description": "Upload both the packet at onces",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Packet path",
+			"Return Value": "NA",
 			"Action": "e2e_bulkUploadPacket($$childZipPacketPath,$$parentZipPacketPath)"
 		},
 		"Step-15": {
@@ -23429,7 +23429,7 @@
 		},
 		"Step-17": {
 			"Description": "Decomissions certificates and onboarding the partners",
-			"Input Parameters": "<<<Step inputs values details>>>",
+			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_DeleteCertificatesAndOnboardingPartners()"
 		},
