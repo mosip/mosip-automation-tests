@@ -58,6 +58,7 @@ import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.BioAuth;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
@@ -1201,7 +1202,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		try {
 			bioAuth.test(test);
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
@@ -1249,7 +1250,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		try {
 			esignetBioAuth.test(test);
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
@@ -1786,7 +1787,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		try {
 			bioAuth.test(test);
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
