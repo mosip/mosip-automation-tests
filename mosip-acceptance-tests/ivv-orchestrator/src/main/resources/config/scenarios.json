@@ -23061,6 +23061,7 @@
 	},
 	{
 		"Scenario": "205",
+<<<<<<< HEAD
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
@@ -23204,6 +23205,12 @@
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walk-ins to registration center with his child and completes the process. But Adult and Child packet uploaded at same time. in Child packet adult RID is captured as introducer but Introducer packet is Rejected",
+=======
+		"Tag": "Postive_Test",
+		"Persona": "ResidentMaleAdult",
+		"Group": "NA",
+		"Description": "Resident walks-in to registration center completes the process and gets UIN card with handle. Later updates his name and handle and perform demographic authentiction both using UIN and handle",
+>>>>>>> a82ace9c (MOSIP-41296 - Added the new scenario for operations using handles)
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -23212,13 +23219,22 @@
 		},
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
+<<<<<<< HEAD
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Pre-requiste details",
+=======
+			"Input Parameters": "Details can be found in in-line comments on the parameters",
+			"Return Value": "pre-requiste details",
+>>>>>>> a82ace9c (MOSIP-41296 - Added the new scenario for operations using handles)
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
+<<<<<<< HEAD
 			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+=======
+			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+>>>>>>> a82ace9c (MOSIP-41296 - Added the new scenario for operations using handles)
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -23230,14 +23246,21 @@
 		},
 		"Step-4": {
 			"Description": "Generates persona data",
+<<<<<<< HEAD
 			"Input Parameters": "Persona type and gender",
 			"Return Value": "Persona file path",
 			"Action": "$$parentPersona=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
+=======
+			"Input Parameters": "Details are in parameter in-line comments",
+			"Return Value": "Persona file path",
+			"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
+>>>>>>> a82ace9c (MOSIP-41296 - Added the new scenario for operations using handles)
 		},
 		"Step-5": {
 			"Description": "Generates packet template based on the persona data",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
+<<<<<<< HEAD
 			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$parentPersona)"
 		},
 		"Step-6": {
@@ -23318,6 +23341,65 @@
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$parentRid,VALIDATE_PACKET,REJECTED)"
 		}
+=======
+			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
+		},
+		"Step-6": {
+			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
+		},
+		"Step-7": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-8": {
+			"Description": "Gets the UIN for the given RID",
+			"Input Parameters": "RID",
+			"Return Value": "UIN",
+			"Action": "$$uin=e2e_getUINByRid($$rid)"
+		},
+		"Step-9": {
+			"Description": "Updating the identity and handle values using the UIN",
+			"Input Parameters": "UIN",
+			"Return Value": "NA",
+			"Action": "e2e_UpdateIdentityWithArrayHandles($$uin)"
+		},
+		"Step-10": {
+			"Description": "Gets Email ID configuired for the UIN",
+			"Input Parameters": "UIN",
+			"Return Value": "Email ID",
+			"Action": "$$email=e2e_getEmailByUIN($$uin)"
+		},
+		"Step-11": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(90)"
+		},
+		"Step-12": {
+			"Description": "Generated VID for the given UIN",
+			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
+			"Return Value": "VID",
+			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
+		},
+		"Step-13": {
+			"Description": "Get the Handles configuired for the UIN",
+			"Input Parameters": "UIN",
+			"Return Value": "Handles",
+			"Action": "$$handles=e2e_getHandlesByUIN($$uin)"
+		},
+		"Step-14": {
+			"Description": "Peforms demographic authentication",
+			"Input Parameters": "Demo graphic details, persona, UIN and VID",
+			"Return Value": "NA",
+			"Action": "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid,0,$$handles)"
+		}
+		
+>>>>>>> a82ace9c (MOSIP-41296 - Added the new scenario for operations using handles)
 	},
 	{
 		"Scenario": "AFTER_SUITE",
