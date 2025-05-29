@@ -235,6 +235,7 @@ public class TestRunner {
 		TestResources.copyTestResource("/config");
 		TestResources.copyTestResource("/kernel");
 		TestResources.copyTestResource("/idaData");
+		TestResources.copyTestResource("/idRepo");
 		TestResources.copyTestResource("/ivv_masterdata");
 		TestResources.copyTestResource("/syncdata");
 		TestResources.copyTestResource("/regproc");

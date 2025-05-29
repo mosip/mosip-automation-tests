@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang.StringUtils;
@@ -47,8 +48,11 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		List<String> demofieldList = null;
 		String uins = null;
 		String vids = null;
+		String handleKey;
+		Object handles;
 		List<String> uinList = null;
 		List<String> vidList = null;
+		List<String> handleList = new ArrayList<>();
 		String demoResponse = null;
 		String addressResponse = null;
 		String _personFilePath = null;
@@ -99,6 +103,30 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 		if (step.getParameters().size() > 4)
 			updateAgeFlag = step.getParameters().get(4);
+		
+		if (step.getParameters().size() > 5) {
+			handleKey = step.getParameters().get(5);
+			_personFilePath = step.getParameters().get(2);
+			if (handleKey.startsWith("$$") && _personFilePath.startsWith("$$")) {
+				handles = step.getScenario().getObjectVariables().get(handleKey);
+				_personFilePath = step.getScenario().getVariables().get(_personFilePath);
+				
+				if (handles instanceof Map) {
+			        @SuppressWarnings("unchecked")
+			        Map<String, String> handleMap = (Map<String, String>) handles;
+
+			        for (Map.Entry<String, String> entry : handleMap.entrySet()) {
+			            String key = entry.getKey();     // e.g., "phone"
+			            String value = entry.getValue(); // e.g., "89765442"
+			            handleList.add(value + "@" + key);  // e.g., "89765442@phone"
+			        }
+
+			    } else {
+			        logger.error("handleMapObj is not a Map: " + handles);
+			    }
+			}
+		} else
+			handleList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
 		for (String uin : uinList) {
 			String personFilePathvalue = null;
@@ -491,6 +519,192 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					test = (TestCaseDTO) object;
 					test.setInput(inputJson.toString());
 
+					try {
+						demoAuth.test(test);
+					} catch (AuthenticationTestException | AdminTestException e) {
+						logger.error(e.getMessage());
+						this.hasError = true;
+						throw new RigInternalError(e.getMessage());
+					}
+				}
+			}
+
+		}
+		
+		for (String handle : handleList) {
+			String personFilePathvalue = null;
+
+			if (step.getParameters().size() > 2) {
+				personFilePathvalue = _personFilePath;
+			} else if (step.getScenario().getHandlePersonaProp().containsKey(handle))
+				personFilePathvalue = step.getScenario().getHandlePersonaProp().getProperty(handle);
+			else {
+				this.hasError = true;
+				throw new RigInternalError("Persona doesn't exist for the given handle " + handle);
+			}
+
+			List<String> demoFetchList = new ArrayList<String>();
+			demoFetchList.add(E2EConstants.DEMOFETCH);
+			demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList, step);
+			List<String> addressFetchList = new ArrayList<String>();
+			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
+			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList, step);
+			Object[] testObj = demoAuth.getYmlTestData(DEMOPATH);
+			TestCaseDTO test = (TestCaseDTO) testObj[0];
+			String input = test.getInput();
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, handle, "individualId");
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, "HANDLE", "individualIdType");
+			JSONObject inputJson = new JSONObject(input);
+
+			for (String demoField : demofieldList) {
+				String demoFieldValueKey = null;
+				String demoValue = null;
+
+				switch (demoField) {
+				case E2EConstants.DEMOAGE:
+					demoFieldValueKey = E2EConstants.DEMODOB;
+					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+
+					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease")) {
+						demoValue = decreaseAge(demoValue);
+					} else {
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+						LocalDate birthDate = LocalDate.parse(demoValue, formatter);
+						LocalDate currentDate = LocalDate.now();
+
+						demoValue = String.valueOf(ChronoUnit.YEARS.between(birthDate, currentDate));
+					}
+
+					if (demoValue == null) {
+						this.hasError = true;
+						throw new RigInternalError(
+
+								"Unable to get the Demo value for field " + demoField + " from Persona");
+					}
+					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
+					break;
+
+				case E2EConstants.DEMOEMAIL:
+					demoFieldValueKey = E2EConstants.DEMOEMAIL;
+					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+					if (demoValue == null) {
+						this.hasError = true;
+						throw new RigInternalError(
+								"Unable to get the Demo value for field " + demoField + " from Persona");
+					}
+					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
+					break;
+
+				case E2EConstants.DEMOYMLPHONE:
+					demoFieldValueKey = E2EConstants.DEMOPHONE;
+					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+					if (demoValue == null) {
+						this.hasError = true;
+						throw new RigInternalError(
+								"Unable to get the Demo value for field " + demoField + " from Persona");
+					}
+					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
+					break;
+
+				case E2EConstants.DEMOADDRESSFETCH:
+					String addLine1 = null, addLine2 = null, addLine3 = null;
+					try {
+						addLine1 = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
+								E2EConstants.DEMOADDRESSLINE1);
+						addLine2 = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
+								E2EConstants.DEMOADDRESSLINE2);
+						addLine3 = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
+								E2EConstants.DEMOADDRESSLINE3);
+					} catch (Exception e) {
+						this.hasError = true;
+						throw new RigInternalError(e.getMessage());
+					}
+					if (addLine1 == null || addLine2 == null || addLine3 == null) {
+						this.hasError = true;
+						throw new RigInternalError(
+
+								"Unable to get the Demo value for field " + demoField + " from Persona");
+					}
+					JSONArray addressLine1Array = new JSONArray();
+					JSONObject addressLine1Obj = new JSONObject();
+					addressLine1Obj.put("language", BaseTestCase.getLanguageList().get(0));
+					addressLine1Obj.put("value", addLine1);
+					addressLine1Array.put(addressLine1Obj);
+					inputJson.put(E2EConstants.DEMOADDRESSLINE1, addressLine1Array);
+
+					JSONArray addressLine2Array = new JSONArray();
+					JSONObject addressLine2Obj = new JSONObject();
+					addressLine2Obj.put("language", BaseTestCase.getLanguageList().get(0));
+					addressLine2Obj.put("value", addLine2);
+					addressLine2Array.put(addressLine2Obj);
+					inputJson.put(E2EConstants.DEMOADDRESSLINE2, addressLine2Array);
+
+					JSONArray addressLine3Array = new JSONArray();
+					JSONObject addressLine3Obj = new JSONObject();
+					addressLine3Obj.put("language", BaseTestCase.getLanguageList().get(0));
+					addressLine3Obj.put("value", addLine3);
+					addressLine3Array.put(addressLine3Obj);
+					inputJson.getJSONObject("identityRequest").put(E2EConstants.DEMOADDRESSLINE3, addressLine3Array);
+					break;
+				case E2EConstants.DEMONAME:
+
+					String firstNm = null, midNm = null, lastNm = null, fullname = null;
+					firstNm = JsonPrecondtion.getValueFromJson(demoResponse,
+							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOFNAME);
+					midNm = JsonPrecondtion.getValueFromJson(demoResponse,
+							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOMNAME);
+					lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
+							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
+					if (firstNm == null || midNm == null || lastNm == null) {
+						this.hasError = true;
+						throw new RigInternalError(
+								"Unable to get the Demo value for field " + demoField + " from Persona");
+					}
+					fullname = firstNm + " " + midNm + " " + lastNm;
+					JSONArray nameArray = new JSONArray();
+					JSONObject nameObj = new JSONObject();
+					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
+					nameObj.put("value", fullname);
+					nameArray.put(nameObj);
+					inputJson.getJSONObject("identityRequest").put(demoField, nameArray);
+					break;
+
+				case E2EConstants.DEMOGENDER:
+					demoFieldValueKey = E2EConstants.DEMOGENDER;
+					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+					JSONArray genArray = new JSONArray();
+					JSONObject genderObj = new JSONObject();
+					genderObj.put("language", BaseTestCase.getLanguageList().get(0));
+					genderObj.put("value", demoValue);
+					genArray.put(genderObj);
+					if (demoValue == null) {
+						this.hasError = true;
+						throw new RigInternalError(
+								"Unable to get the Demo value for field " + demoField + " from Persona");
+					}
+					inputJson.getJSONObject("identityRequest").put(demoField, genArray);
+					break;
+
+				default:
+					throw new RigInternalError("Given DEMO doesn't match with the options in the script");
+				}
+			}
+
+			// inputJson.put("identityRequest", identityReqJson.toString());
+
+			if (idType.stream()
+				    .anyMatch(s -> s != null && s.toLowerCase().contains("handle"))) {
+				casesListUIN = demoAuth.getYmlTestData(DEMOPATH);
+			}
+
+			if (casesListUIN != null) {
+				for (Object object : casesListUIN) {
+					test = (TestCaseDTO) object;
+					test.setInput(inputJson.toString());
 					try {
 						demoAuth.test(test);
 					} catch (AuthenticationTestException | AdminTestException e) {
