@@ -30,11 +30,20 @@ public class DeleteHoliday extends BaseTestCaseUtil implements StepInterface {
 			try {
 				response = BaseTestCaseUtil.patchWithQueryParamAndCookie(url, jsonReq.toString(),
 						GlobalConstants.AUTHORIZATION, "admin", null);
-				if (response != null) {
-					JSONObject jsonObject = new JSONObject(response);
-					String status = jsonObject.getJSONObject("response").getString("status");
-					logger.info(status);
-				}
+				 if (response != null) {
+			            String body = response.getBody().asString();
+			            System.out.println("Raw Response: " + body);  // For debugging
+
+			            if (body != null && !body.trim().isEmpty() && body.trim().startsWith("{")) {
+			                JSONObject jsonResp = new JSONObject(body);
+			                String status = jsonResp.getJSONObject("response").getString("status");
+			                System.out.println("Status: " + status);
+			            } else {
+			                System.out.println("Invalid or empty response body: " + body);
+			            }
+			        } else {
+			            System.out.println("Response is null");
+			        }
 			} catch (Exception e) {
 				logger.error(e);
 				this.hasError = true;
