@@ -92,7 +92,10 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				map.put("userpassword", pwd);
 			}
 		}
-
+		BaseTestCase.dslUser = user;
+		if(pwd!=null)
+		BaseTestCase.dslUserPwd = pwd;
+		
 		switch (calltype) {
 		case "DELETE_CENTERMAPPING":
 
