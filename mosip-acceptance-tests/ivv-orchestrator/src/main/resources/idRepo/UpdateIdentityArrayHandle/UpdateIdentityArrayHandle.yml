@@ -1,0 +1,30 @@
+UpdateIdentity:
+  IdRepository_UpdateIdentity_dsl_withHandle_all_valid_smoke:
+      endPoint: /idrepository/v1/identity/
+      description: Update Identity with positive value
+      uniqueIdentifier: TC_IDRepo_UpdateIdentityArrayHandle_01
+      role: testrig
+      restMethod: patch
+      inputTemplate: idRepo/UpdateIdentityArrayHandle/UpdateIdentityArrayHandle
+      outputTemplate: idRepo/UpdateIdentityArrayHandle/UpdateIdentityArrayHandleResult
+      input: '{
+	    "registrationId": "$RID$",
+        "id": "mosip.id.update",
+		"status": "ACTIVATED",
+	    "addressCopy": "Y",
+	    "UIN": "UIN",
+	    "dateOfBirth": "1992/04/15",
+	    "postalCode": "14022",
+	    "email": "mosipuser123@mailinator.com",
+	    "phone": "8249742850",
+	    "mobileno": "8249742850",
+	    "referenceIdentityNumber": "6789545678878",
+	    "version": "v1",
+	    "introducerRID": "212124324784879",
+	    "introducerUIN": "212124324784879",
+	    "category": "individualBiometrics",
+	    "requesttime": "$TIMESTAMP$"
+	  }'
+      output: '{
+    "status": "ACTIVATED"
+}'

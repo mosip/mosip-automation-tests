@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import io.mosip.testrig.dslrig.ivv.core.policies.AssertionPolicy;
@@ -19,7 +20,8 @@ public class Scenario {
     private String personaClass, groupName;
     private ArrayList<Step.modules> modules = new ArrayList();
     
-    private  HashMap<String,String> variables = new HashMap<String,String>();
+    private HashMap<String,String> variables = new HashMap<String,String>();
+    private Map<String, Object> objectVariables = new HashMap<String, Object>();
 
     private HashMap<String, String> residentTemplatePaths = new LinkedHashMap<String, String>();
     private HashMap<String, String> residentPathsPrid = new LinkedHashMap<String, String>();
@@ -50,6 +52,7 @@ public class Scenario {
     private  HashMap<String, String> currentStep=new HashMap<String, String>();
 	
     private  Properties uinPersonaProp=new Properties();
+    private  Properties handlePersonaProp=new Properties();
     private  Properties oidcClientProp=new Properties();
     private  String prid=null;
     private  String statusCode=null;
