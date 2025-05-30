@@ -23363,28 +23363,28 @@
 			"Action": "$$uin=e2e_getUINByRid($$rid)"
 		},
 		"Step-9": {
-			"Description": "Updating the identity and handle values using the UIN",
-			"Input Parameters": "UIN",
-			"Return Value": "NA",
-			"Action": "e2e_UpdateIdentityWithArrayHandles($$uin)"
-		},
-		"Step-10": {
 			"Description": "Gets Email ID configuired for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$uin)"
 		},
-		"Step-11": {
+		"Step-10": {
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
 			"Action": "e2e_wait(90)"
 		},
-		"Step-12": {
+		"Step-11": {
 			"Description": "Generated VID for the given UIN",
 			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
 			"Return Value": "VID",
 			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
+		},
+		"Step-12": {
+			"Description": "Updating the identity and handle values using the UIN",
+			"Input Parameters": "UIN",
+			"Return Value": "NA",
+			"Action": "e2e_UpdateIdentityWithArrayHandles($$uin)"
 		},
 		"Step-13": {
 			"Description": "Get the Handles configuired for the UIN",

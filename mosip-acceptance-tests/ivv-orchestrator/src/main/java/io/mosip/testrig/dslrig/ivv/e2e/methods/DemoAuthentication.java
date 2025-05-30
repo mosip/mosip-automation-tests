@@ -708,7 +708,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					test.setInput(inputJson.toString());
 					try {
 						demoAuth.test(test);
-					} catch (AuthenticationTestException | AdminTestException e) {
+					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 						logger.error(e.getMessage());
 						this.hasError = true;
 						throw new RigInternalError(e.getMessage());
