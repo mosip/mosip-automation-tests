@@ -144,7 +144,7 @@ public class ContextUtils {
 	public void generateKeyAndUpdateMachineDetail(Properties contextProperties, String contextKey) {
 		KeyPairGenerator keyGenerator = null;
 		boolean isMachineDetailFound = false;
-		machineId = contextProperties.getProperty("mosip.test.regclient.machineid");
+		String machineId = contextProperties.getProperty("mosip.test.regclient.machineid");
 		if (machineId == null || machineId.isEmpty())
 			throw new RuntimeException("MachineId is null or empty!");
 
