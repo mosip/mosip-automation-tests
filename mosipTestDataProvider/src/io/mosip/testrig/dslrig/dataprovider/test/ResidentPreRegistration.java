@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.dataprovider.test;
 import java.util.List;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,36 +64,46 @@ public class ResidentPreRegistration {
 
 	}
 
-	@When("^request otp for his/her \"(phone|email)\"$")
-	public void sendOtp(String to, String contextKey) {
+//	@When("^request otp for his/her \"(phone|email)\"$")
+//	public void sendOtp(String to, String contextKey) {
+//
+//		sendOtpTo(to, contextKey);
+//
+//	}
 
-		sendOtpTo(to, contextKey);
+	public String sendOtpTo(ResidentModel resident, String to, String contextKey) {
+	    String emailTo = null;
+	    logger.info(String.format("sendOtp %s {}", to));
 
-	}
+	    String otpTarget = resident.getContact().getEmailId();
 
-	public String sendOtpTo(String to, String contextKey) {
+	    if (to.equals("phone")) {
+	        otpTarget = resident.getContact().getMobileNumber();
+	    }
 
-		logger.info(String.format("sendOtp %s {}", to));
+	    // Override to otp email
+	    String bRet = VariableManager.getVariableValue(contextKey, "usePreConfiguredOtp").toString();
 
-		if (to.equals("phone"))
-			otpTarget = person.getContact().getMobileNumber();
-		else
-			otpTarget = person.getContact().getEmailId();
+	    if (bRet.contains("false")) {
+	        emailTo = VariableManager.getVariableValue(contextKey, "otpTargetEmail").toString();
+	        if (emailTo != null && !emailTo.trim().isEmpty()) {
+	            otpTarget = emailTo;
+	        }
+	    }
 
-		// Override to otp email
-		String bRet = VariableManager.getVariableValue(contextKey, "usePreConfiguredOtp").toString();
+	    emailTo = VariableManager.getVariableValue(contextKey, "usePreConfiguredEmail").toString();
+	    if (emailTo != null && !emailTo.trim().isEmpty()) {
+	        otpTarget = emailTo;
+	    }
 
-		if (bRet.contains("false")) {
+	    String result = CreatePersona.sendOtpTo(otpTarget, resident.getPrimaryLanguage(), contextKey);
+	    logger.info(String.format("sendOtp Result %s {}", result));
 
-			otpTarget = VariableManager.getVariableValue(contextKey, "otpTargetEmail").toString();
-		}
-		String emailTo = VariableManager.getVariableValue(contextKey, "usePreConfiguredEmail").toString();
-		if (emailTo != null && !emailTo.equals(""))
-			otpTarget = emailTo;
+	    // Add the otpTarget to the response
+	    JSONObject jsonResult = new JSONObject(result);
+	    jsonResult.put("emailId", otpTarget);  // Add emailId or phone used
 
-		String result = CreatePersona.sendOtpTo(otpTarget, person.getPrimaryLanguage(), contextKey);
-		logger.info(String.format("sendOtp Result %s {}", result));
-		return result;
+	    return jsonResult.toString();
 	}
 
 	@And("^fetch otp$")
@@ -157,7 +168,6 @@ public class ResidentPreRegistration {
 	}
 
 	public String verifyOtp(String to, String otp, String contextKey) {
-
 		if (otp == null || otp.equals(""))
 			otp = VariableManager.getVariableValue(contextKey, "email_otp").toString();
 
@@ -174,8 +184,10 @@ public class ResidentPreRegistration {
 		String bRet = VariableManager.getVariableValue(contextKey, "usePreConfiguredOtp").toString();
 
 		if (bRet.contains("false")) {
-
-			otpTarget = VariableManager.getVariableValue(contextKey, "otpTargetEmail").toString();
+			emailTo = VariableManager.getVariableValue(contextKey, "otpTargetEmail").toString();
+			if (emailTo != null && !emailTo.trim().isEmpty()) {
+				otpTarget = emailTo;
+			}
 		}
 		return CreatePersona.validateOTP(otp, otpTarget, contextKey);
 	}

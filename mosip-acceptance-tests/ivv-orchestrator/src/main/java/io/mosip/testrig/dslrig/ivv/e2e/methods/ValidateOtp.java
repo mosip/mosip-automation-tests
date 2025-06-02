@@ -23,26 +23,28 @@ public class ValidateOtp extends BaseTestCaseUtil implements StepInterface {
 
 		Boolean isForChildPacket = false;
 //		Properties kernelprops=ConfigManager.propsKernel;
-		String emailId = dslConfigManager.getproperty("usePreConfiguredEmail");
+		if (step.getParameters().size() == 2) {
+			String emailId = step.getScenario().getVariables().get(step.getParameters().get(1));
 
-		if (step.getParameters().isEmpty()) {
-			// emailOrPhone =step.getParameters().get(0);
-			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
-				packetUtility.verifyOtp(resDataPath, step.getScenario().getCurrentStep(), emailId, step,
-						OTPListener.getOtp(emailId));
-			}
-		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 1
-				&& !step.getParameters().get(0).startsWith("$$")) { // used for child packet processing
-			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
-			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty())
-				packetUtility.verifyOtp(step.getScenario().getGeneratedResidentData().get(0),
-						step.getScenario().getCurrentStep(), emailId, step, OTPListener.getOtp(emailId));
-		} else {
-			String personaFilePath = step.getParameters().get(0); // "$$var=e2e_validateOtp($$personaFilePath)"
-			if (personaFilePath.startsWith("$$")) {
-				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
-				packetUtility.verifyOtp(personaFilePath, step.getScenario().getCurrentStep(), emailId, step,
-						OTPListener.getOtp(emailId));
+			if (step.getParameters().isEmpty()) {
+				// emailOrPhone =step.getParameters().get(0);
+				for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
+					packetUtility.verifyOtp(resDataPath, step.getScenario().getCurrentStep(), emailId, step,
+							OTPListener.getOtp(emailId));
+				}
+			} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 1
+					&& !step.getParameters().get(0).startsWith("$$")) { // used for child packet processing
+				isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
+				if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty())
+					packetUtility.verifyOtp(step.getScenario().getGeneratedResidentData().get(0),
+							step.getScenario().getCurrentStep(), emailId, step, OTPListener.getOtp(emailId));
+			} else {
+				String personaFilePath = step.getParameters().get(0); // "$$var=e2e_validateOtp($$personaFilePath)"
+				if (personaFilePath.startsWith("$$")) {
+					personaFilePath = step.getScenario().getVariables().get(personaFilePath);
+					packetUtility.verifyOtp(personaFilePath, step.getScenario().getCurrentStep(), emailId, step,
+							OTPListener.getOtp(emailId));
+				}
 			}
 		}
 	}
