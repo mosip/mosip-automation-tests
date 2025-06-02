@@ -334,13 +334,13 @@
 			"Description": "Generates OTP request",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_sendOtp($$personaFilePath)"
+			"Action": "$$email=e2e_sendOtp($$personaFilePath)"
 		},
 		"Step-7": {
 			"Description": "Validates the OTP",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_validateOtp($$personaFilePath)"
+			"Action": "e2e_validateOtp($$personaFilePath,$$email)"
 		},
 		"Step-8": {
 			"Description": "Generates pre registration packet with given persona file",
@@ -2298,13 +2298,13 @@
 			"Description": "Generates OTP request",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_sendOtp($$personaFilePath)"
+			"Action": "$$email=e2e_sendOtp($$personaFilePath)"
 		},
 		"Step-7": {
 			"Description": "Validates the OTP",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_validateOtp($$personaFilePath)"
+			"Action": "e2e_validateOtp($$personaFilePath,$$email)"
 		},
 		"Step-8": {
 			"Description": "Generates pre registration packet with given persona file",
@@ -4546,13 +4546,13 @@
 			"Description": "Generates OTP request",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_sendOtp($$personaFilePath)"
+			"Action": "$$email=e2e_sendOtp($$personaFilePath)"
 		},
 		"Step-7": {
 			"Description": "Validates the OTP",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_validateOtp($$personaFilePath)"
+			"Action": "e2e_validateOtp($$personaFilePath,$$email)"
 		},
 		"Step-8": {
 			"Description": "Generates pre registration packet with given persona file",
@@ -6538,13 +6538,13 @@
 			"Description": "Generates OTP request",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_sendOtp($$personaFilePath)"
+			"Action": "$$email=e2e_sendOtp($$personaFilePath)"
 		},
 		"Step-7": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_validateOtp($$personaFilePath)"
+			"Action": "e2e_validateOtp($$personaFilePath,$$email)"
 		},
 		"Step-8": {
 			"Description": "<<<Step detailed description>>>",
@@ -8036,13 +8036,13 @@
 			"Description": "Generates OTP request",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_sendOtp($$personaFilePath)"
+			"Action": "$$email=e2e_sendOtp($$personaFilePath)"
 		},
 		"Step-7": {
 			"Description": "Validates the OTP",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_validateOtp($$personaFilePath)"
+			"Action": "e2e_validateOtp($$personaFilePath,$$email)"
 		},
 		"Step-8": {
 			"Description": "Generates pre registration packet with given persona file",
@@ -8151,13 +8151,13 @@
 			"Description": "Generates OTP request",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_sendOtp($$personaFilePath)"
+			"Action": "$$email=e2e_sendOtp($$personaFilePath)"
 		},
 		"Step-7": {
 			"Description": "Validates the OTP",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_validateOtp($$personaFilePath)"
+			"Action": "e2e_validateOtp($$personaFilePath,$$email)"
 		},
 		"Step-8": {
 			"Description": "Generates pre registration packet with given persona file",
@@ -8259,14 +8259,14 @@
 		"Step-6": {
 			"Description": "Generates OTP request",
 			"Input Parameters": "Persona file path",
-			"Return Value": "NA",
-			"Action": "e2e_sendOtp($$personaFilePath)"
+			"Return Value": "email id",
+			"Action": "$$email=e2e_sendOtp($$personaFilePath)"
 		},
 		"Step-7": {
 			"Description": "Validates the OTP",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_validateOtp($$personaFilePath)"
+			"Action": "e2e_validateOtp($$personaFilePath,$$email)"
 		},
 		"Step-8": {
 			"Description": "Generates pre registration packet with given persona file",
@@ -13576,13 +13576,13 @@
 			"Description": "Sends OTP request",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_sendOtp($$childPersona)"
+			"Action": "$$email=e2e_sendOtp($$childPersona)"
 		},
 		"Step-14": {
 			"Description": "Validates OTP ",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_validateOtp($$childPersona)"
+			"Action": "e2e_validateOtp($$childPersona,$$email)"
 		},
 		"Step-15": {
 			"Description": "Generates pre registration packet with given persona file",
@@ -16793,7 +16793,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,null/*CONSENT_FLAG*/,true/*SWITCH_CASE_FOR_SUPERVISOR_NAME*/)"
+			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,null/*CONSENT_FLAG*/,false/*SWITCH_CASE_FOR_SUPERVISOR_NAME*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -22674,7 +22674,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card",
+		"Description": "Resident walk-ins to registration center completes the process and gets UIN card later we perform crvs external packet death flow",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
