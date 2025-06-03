@@ -46,6 +46,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.management.OperatingSystemMXBean;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
 import io.mosip.testrig.dslrig.ivv.core.dtos.RegistrationUser;
@@ -194,13 +195,22 @@ public class Orchestrator {
 		ArrayList<RegistrationUser> rcUsers = parser.getRCUsers();
 		totalScenario = scenarios.size();
 		ArrayList<Scenario> filteredScenarios = new ArrayList<>();
-		for (Scenario scenario : scenarios) {
-			if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
-					|| (dslConfigManager.isInTobeExecuteList(scenario.getId()) && dslConfigManager.isInTobeGroupExecuteList(scenario.getGroupName()))) {
-				filteredScenarios.add(scenario);
+		if(ConfigManager.getproperty("scenariosToExecute").isEmpty() && BaseTestCase.testLevel.equalsIgnoreCase("sanity")) {
+			for (Scenario scenario : scenarios) {
+				if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
+						|| scenario.getId().equalsIgnoreCase("2")) {
+					filteredScenarios.add(scenario);
+				}
+			}
+		} else {
+			for (Scenario scenario : scenarios) {
+				if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
+						|| (dslConfigManager.isInTobeExecuteList(scenario.getId())
+								&& dslConfigManager.isInTobeGroupExecuteList(scenario.getGroupName()))) {
+					filteredScenarios.add(scenario);
+				}
 			}
 		}
-
 		totalScenario = filteredScenarios.size();
 		Object[][] dataArray = new Object[filteredScenarios.size()][5];
 		for (int i = 0; i < filteredScenarios.size(); i++) {
@@ -326,7 +336,7 @@ public class Orchestrator {
 				+ scenario.getId());
 
 		extent.flush();
-		String testLevel = System.getProperty("env.testLevel");
+		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
 		if (testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression")) {

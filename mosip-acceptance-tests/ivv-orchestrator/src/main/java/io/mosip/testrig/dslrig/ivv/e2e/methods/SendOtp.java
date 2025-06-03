@@ -24,23 +24,29 @@ public class SendOtp extends BaseTestCaseUtil implements StepInterface {
 //		Properties kernelprops = ConfigManager.propsKernel;
 		String emailId = dslConfigManager.getproperty("usePreConfiguredEmail");
 
+		if (emailId == null || emailId.trim().isEmpty() || emailId.equals("")) {
+			emailId = "email";
+		}
+
 		if (step.getParameters().isEmpty()) {
 			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
-				packetUtility.requestOtp(resDataPath, step.getScenario().getCurrentStep(), emailId, step);
+				emailId = packetUtility.requestOtp(resDataPath, step.getScenario().getCurrentStep(), emailId, step);
 			}
 		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 1
 				&& !step.getParameters().get(0).startsWith("$$")) { // used for child packet processing
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
 			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty())
-				packetUtility.requestOtp(step.getScenario().getGeneratedResidentData().get(0),
+				emailId = packetUtility.requestOtp(step.getScenario().getGeneratedResidentData().get(0),
 						step.getScenario().getCurrentStep(), emailId, step);
 		} else {
 			String personaFilePath = step.getParameters().get(0); // "$$var=e2e_sendOtp($$personaFilePath)"
 			if (personaFilePath.startsWith("$$")) {
 				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
-				packetUtility.requestOtp(personaFilePath, step.getScenario().getCurrentStep(), emailId, step);
+				emailId = packetUtility.requestOtp(personaFilePath, step.getScenario().getCurrentStep(), emailId, step);
 			}
 		}
+		if (step.getOutVarName() != null)
+			step.getScenario().getVariables().put(step.getOutVarName(), emailId);
 	}
 
 }

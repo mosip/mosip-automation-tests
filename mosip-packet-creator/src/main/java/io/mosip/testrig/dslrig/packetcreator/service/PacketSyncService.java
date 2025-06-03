@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
+import io.mosip.testrig.dslrig.dataprovider.NameProvider;
 import io.mosip.testrig.dslrig.dataprovider.PacketTemplateProvider;
 import io.mosip.testrig.dslrig.dataprovider.PhotoProvider;
 import io.mosip.testrig.dslrig.dataprovider.ResidentDataProvider;
@@ -49,6 +50,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipDocTypeModel;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipDocument;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipIndividualTypeModel;
+import io.mosip.testrig.dslrig.dataprovider.models.Name;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSDeviceCaptureModel;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
@@ -62,6 +64,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.ResidentAttribute;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+import io.mosip.testrig.dslrig.dataprovider.util.Translator;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.AppointmentDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.BioExceptionDto;
@@ -670,7 +673,7 @@ public class PacketSyncService {
 		for (String path : personaFilePath) {
 			ResidentModel resident = ResidentModel.readPersona(path);
 			ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
-			builder.append(preReg.sendOtpTo(to, contextKey));
+			builder.append(preReg.sendOtpTo(resident,to, contextKey));
 
 		}
 		return builder.toString();
@@ -902,8 +905,8 @@ public class PacketSyncService {
 
 	}
 	
-	public String createPacketUpload(List<String> personaFilePaths, String source, String process, String regId,
-			String contextKey) throws IOException {
+	public String createPacketUpload(List<String> personaFilePaths, String source, String process, String uin, String regId,	
+			boolean validateToken, String contextKey) throws IOException {
 		String machineId;
 		String centerId;
 		logger.info("Template generation started at time: " + System.currentTimeMillis());
@@ -923,7 +926,7 @@ public class PacketSyncService {
 			centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
 
 			JSONObject returnMsg = packetTemplateProvider.generateCRVSField(source, resident, process, machineId,
-					centerId, contextKey, props, regId);
+					centerId, contextKey, props, regId ,validateToken , uin);
 			logger.info(returnMsg.toString());
 			requestNode.put("id", regId);
 			requestNode.put("version", "String");
@@ -1064,6 +1067,31 @@ public class PacketSyncService {
 				DynamicFieldValueModel ms = persona.getMaritalStatus();
 				ms.setCode(value);
 				break;
+				
+			case "name":
+				persona.getAddress();
+				int count = 1;
+				String primarylang = persona.getPrimaryLanguage();
+				String secLang = persona.getSecondaryLanguage();
+				List<Name> eng_names = null;
+				List<Name> names_primary;
+				List<Name> names_sec;
+				if (primarylang != null) {
+					if (primarylang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
+						names_primary = NameProvider.generateNames(persona.getGender(), primarylang, count, eng_names,
+								contextKey);
+						persona.setName(names_primary.get(0));
+					}
+				}
+				if (secLang != null) {
+					if (!secLang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
+						names_sec = NameProvider.generateNames(persona.getGender(), secLang, count, eng_names, contextKey);
+						persona.setName_seclang(names_sec.get(0));
+
+					}
+				}
+				break;
+			
 			case "residencestatus":
 			case "rs":
 				if (value != null && !value.equals("")) {

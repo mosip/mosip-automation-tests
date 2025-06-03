@@ -281,10 +281,11 @@ public class PacketController {
 	
 	@Operation(summary = "Create the external packet and upload")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "External packet and upload successfully") })
-	@PostMapping(value = "/packetmanager/createPacket/{process}/{rid}/{contextKey}")
+	@PostMapping(value = "/packetmanager/createPacket/{process}/{rid}/{introducerInfoToken}/{contextKey}")
 	public @ResponseBody String createCRVSPacket(@RequestBody ExternalPacketRequestDTO requestDto,
 			@PathVariable("process") String process,
 			@PathVariable("rid") String rid,
+			@PathVariable("introducerInfoToken") boolean validateToken,
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
@@ -292,8 +293,8 @@ public class PacketController {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
 
-			return packetSyncService.createPacketUpload(requestDto.getPersonaFilePath(),requestDto.getSource(), process, rid,
-					contextKey);
+			return packetSyncService.createPacketUpload(requestDto.getPersonaFilePath(),requestDto.getSource(), process, requestDto.getUin(), rid,
+					validateToken,contextKey);
 
 		} catch (Exception ex) {
 			logger.error("createExternalPacket", ex);

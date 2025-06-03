@@ -8,6 +8,7 @@ import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.auth.testscripts.PostWithBodyWithOtpGenerate;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -57,7 +58,7 @@ public class UpdateUINDetail extends BaseTestCaseUtil implements StepInterface {
 						step.getScenario().getPridsAndRids().put(prid, responseJson.get("registrationId").toString());
 					}
 
-				} catch (AuthenticationTestException | AdminTestException e) {
+				} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 					logger.error("Failed at downloading card: " + e.getMessage());
 					this.hasError = true;
 					// assertFalse(true, "Failed at downloading card");
