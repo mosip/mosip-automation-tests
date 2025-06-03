@@ -24,7 +24,7 @@
 			"Action": "$$user1=e2e_User(ADD_User,1/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-3": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center1=e2e_Center(CREATE,$$user1,1/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -42,9 +42,9 @@
 			"Action": "$$details1=e2e_User(DELETE_CENTERMAPPING,1/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details1)"
 		},
 		"Step-6": {
-			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Description": "Creating Zone and mapping with user",
+			"Input Parameters": "Action and center machine user details",
+			"Return Value": "Center Machine User details with zone",
 			"Action": "$$details1=e2e_User(CREATE_ZONESEARCH,$$details1)"
 		},
 		"Step-7": {
@@ -55,24 +55,24 @@
 		},
 		"Step-8": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details1)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details1)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details1,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
 		"Step-11": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Create center and mapping with user",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details1,1/*CENTER_INDEX*/)"
@@ -96,7 +96,7 @@
 			"Action": "$$user2=e2e_User(ADD_User,2/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-15": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center2=e2e_Center(CREATE,$$user2,2/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -145,19 +145,19 @@
 		},
 		"Step-23": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details2)"
 		},
 		"Step-24": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details2)"
 		},
 		"Step-25": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details2,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -186,7 +186,7 @@
 			"Action": "$$user3=e2e_User(ADD_User,3/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-30": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center3=e2e_Center(CREATE,$$user3,3/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -217,19 +217,19 @@
 		},
 		"Step-35": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details3)"
 		},
 		"Step-36": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details3)"
 		},
 		"Step-37": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details3,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -277,325 +277,325 @@
 		}
 	},
 	{
-		"Scenario": "1",
-		"Tag": "Postive_Test",
-		"Persona": "ResidentMaleAdult",
-		"Group": "Adult_New",
-		"Description": "Resident booked pre-registration with support documents. walk-ins to registration center completes the process and gets UIN card",
-		"Step-0": {
-			"Description": "Performs health check of given component",
-			"Input Parameters": "Keyword to check, only packetcreator is supported",
-			"Return Value": "NA",
-			"Action": "e2e_getPingHealth(packetcreator)"
-		},
-		"Step-1": {
-			"Description": "Reads the pre-requisite data at the given index",
-			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
-			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
-		},
-		"Step-2": {
-			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
-			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
-		},
-		"Step-3": {
-			"Description": "Performs health check of required server components to run end-to-end scenarios",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
-			"Action": "e2e_getPingHealth(targetenv)"
-		},
-		"Step-4": {
-			"Description": "Generates persona data",
-			"Input Parameters": "Details are in parameter in-line comments",
-			"Return Value": "Persona file path",
-			"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
-		},
-		"Step-5": {
-			"Description": "Generates packet template based on the persona data",
-			"Input Parameters": "Process and persona file path",
-			"Return Value": "Generated Template file path",
-			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
-		},
-		"Step-6": {
-			"Description": "Generates OTP request",
-			"Input Parameters": "Persona file path",
-			"Return Value": "NA",
-			"Action": "e2e_sendOtp($$personaFilePath)"
-		},
-		"Step-7": {
-			"Description": "Validates the OTP",
-			"Input Parameters": "Persona file path",
-			"Return Value": "NA",
-			"Action": "e2e_validateOtp($$personaFilePath)"
-		},
-		"Step-8": {
-			"Description": "Generates pre registration packet with given persona file",
-			"Input Parameters": "Persona file path",
-			"Return Value": "PRID",
-			"Action": "$$prid=e2e_preRegister($$personaFilePath)"
-		},
-		"Step-9": {
-			"Description": "Uploads mandatory documents for pre-registration",
-			"Input Parameters": "Persona file path and PRID",
-			"Return Value": "NA",
-			"Action": "e2e_uploadDocuments($$personaFilePath,$$prid)"
-		},
-		"Step-10": {
-			"Description": "Update pre registration status",
-			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
-			"Return Value": "NA",
-			"Action": "e2e_updatePreRegStatus(0/*STATUS_CODE*/,$$prid,valid/*SCENARIO_WITHOUT_PENDING_APPOINTMENT*/)"
-		},
-		"Step-11": {
-			"Description": "Books the appointment for given pre registration",
-			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
-			"Return Value": "NA",
-			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,1/*SLOT_NUMBER*/)"
-		},
-		"Step-12": {
-			"Description": "Generates and uploads the packet with pre pregistration",
-			"Input Parameters": "PRID and template file path",
-			"Return Value": "RID",
-			"Action": "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
-		},
-		"Step-13": {
-			"Description": "Checks the RID status against given packet processing status",
-			"Input Parameters": "Packet processing status and RID",
-			"Return Value": "NA",
-			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
-		},
-		"Step-14": {
-			"Description": "Gets the UIN for the given RID",
-			"Input Parameters": "RID",
-			"Return Value": "UIN",
-			"Action": "$$uin=e2e_getUINByRid($$rid)"
-		},
-		"Step-15": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
-		}
+	"Scenario": "1",
+	"Tag": "Positive_Test",
+	"Persona": "ResidentMaleAdult",
+	"Group": "Adult_New",
+	"Description": "The resident successfully completed pre-registration by submitting the necessary supporting documents. They then visited the registration center as a walk-in to complete the process and obtain the UIN card.",
+	"Step-0": {
+		"Description": "Performs a health check on the specified component.",
+		"Input Parameters": "Keyword to check; only 'packetcreator' is supported.",
+		"Return Value": "NA",
+		"Action": "e2e_getPingHealth(packetcreator)"
+	},
+	"Step-1": {
+		"Description": "Retrieves prerequisite data for the given index.",
+		"Input Parameters": "Details are provided in the in-line comments for the parameters.",
+		"Return Value": "Prerequisite details",
+		"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+	},
+	"Step-2": {
+		"Description": "Sets the context required for scenario execution.",
+		"Input Parameters": "Environment and user details; additional parameter information is available in the in-line comments.",
+		"Return Value": "NA",
+		"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
+	},
+	"Step-3": {
+		"Description": "Performs a health check on all necessary server components to support end-to-end scenario execution.",
+		"Input Parameters": "NA",
+		"Return Value": "NA",
+		"Action": "e2e_getPingHealth(targetenv)"
+	},
+	"Step-4": {
+		"Description": "Generates persona data based on specified parameters.",
+		"Input Parameters": "See in-line comments for parameter details.",
+		"Return Value": "Path to the generated persona file",
+		"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
+	},
+	"Step-5": {
+		"Description": "Creates a packet template using the persona data.",
+		"Input Parameters": "Process type and path to the persona file",
+		"Return Value": "Path to the generated template file",
+		"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
+	},
+	"Step-6": {
+		"Description": "Initiates the OTP request for the resident.",
+		"Input Parameters": "Path to the persona file",
+		"Return Value": "NA",
+		"Action": "e2e_sendOtp($$personaFilePath)"
+	},
+	"Step-7": {
+		"Description": "Validates the received OTP for authentication.",
+		"Input Parameters": "Path to the persona file",
+		"Return Value": "NA",
+		"Action": "e2e_validateOtp($$personaFilePath)"
+	},
+	"Step-8": {
+		"Description": "Generates a pre-registration packet using the persona file.",
+		"Input Parameters": "Path to the persona file",
+		"Return Value": "PRID",
+		"Action": "$$prid=e2e_preRegister($$personaFilePath)"
+	},
+	"Step-9": {
+		"Description": "Uploads the required documents for pre-registration.",
+		"Input Parameters": "Path to the persona file and PRID",
+		"Return Value": "NA",
+		"Action": "e2e_uploadDocuments($$personaFilePath,$$prid)"
+	},
+	"Step-10": {
+		"Description": "Updates the status of the pre-registration.",
+		"Input Parameters": "PRID and other details as noted in the in-line comments.",
+		"Return Value": "NA",
+		"Action": "e2e_updatePreRegStatus(0/*STATUS_CODE*/,$$prid,valid/*SCENARIO_WITHOUT_PENDING_APPOINTMENT*/)"
+	},
+	"Step-11": {
+		"Description": "Schedules an appointment for the pre-registration entry.",
+		"Input Parameters": "PRID and other details as noted in the in-line comments.",
+		"Return Value": "NA",
+		"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,1/*SLOT_NUMBER*/)"
+	},
+	"Step-12": {
+		"Description": "Generates and uploads the packet associated with the pre-registration.",
+		"Input Parameters": "PRID and the path to the packet template file",
+		"Return Value": "RID",
+		"Action": "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
+	},
+	"Step-13": {
+		"Description": "Checks the status of the RID against the expected packet processing status.",
+		"Input Parameters": "Expected packet processing status and RID",
+		"Return Value": "NA",
+		"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
+	},
+	"Step-14": {
+		"Description": "Retrieves the UIN using the provided RID.",
+		"Input Parameters": "RID",
+		"Return Value": "UIN",
+		"Action": "$$uin=e2e_getUINByRid($$rid)"
+	},
+	"Step-15": {
+		"Description": "Verifies the stage and status of the specified RID.",
+		"Input Parameters": "RID, stage, and stage status",
+		"Return Value": "NA",
+		"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+	}
 	},
 	{
-		"Scenario": "2",
-		"Tag": "Postive_Test",
-		"Persona": "ResidentFemaleAdult",
-		"Group": "Adult_New",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card",
-		"Step-0": {
-			"Description": "Performs health check of given component",
-			"Input Parameters": "Keyword to check, only packetcreator is supported",
-			"Return Value": "NA",
-			"Action": "e2e_getPingHealth(packetcreator)"
-		},
-		"Step-1": {
-			"Description": "Reads the pre-requisite data at the given index",
-			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
-			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
-		},
-		"Step-2": {
-			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
-			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
-		},
-		"Step-3": {
-			"Description": "Performs health check of required server components to run end-to-end scenarios",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
-			"Action": "e2e_getPingHealth(targetenv)"
-		},
-		"Step-4": {
-			"Description": "Generates persona data",
-			"Input Parameters": "Details are in parameter in-line comments",
-			"Return Value": "Persona file path",
-			"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false,Female)"
-		},
-		"Step-5": {
-			"Description": "Generates packet template based on the persona data",
-			"Input Parameters": "Process and persona file path",
-			"Return Value": "Generated Template file path",
-			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
-		},
-		"Step-6": {
-			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
-			"Input Parameters": "Persona file path and template file path",
-			"Return Value": "RID",
-			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
-		},
-		"Step-7": {
-			"Description": "Checks the RID status against given packet processing status",
-			"Input Parameters": "Packet processing status and RID",
-			"Return Value": "NA",
-			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
-		},
-		"Step-8": {
-			"Description": "Gets the UIN for the given RID",
-			"Input Parameters": "RID",
-			"Return Value": "UIN",
-			"Action": "$$uin=e2e_getUINByRid($$rid)"
-		},
-		"Step-9": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
-		},
-		"Step-10": {
-			"Description": "Compares generated packet tags against on server packet tags",
-			"Input Parameters": "RID",
-			"Return Value": "NA",
-			"Action": "e2e_CheckTags($$rid)"
-		}
+	"Scenario": "2",
+	"Tag": "Positive_Test",
+	"Persona": "ResidentFemaleAdult",
+	"Group": "Adult_New",
+	"Description": "The resident walked into the registration center, completed the process, and received the UIN card.",
+	"Step-0": {
+		"Description": "Performs a health check on the specified component.",
+		"Input Parameters": "Keyword to check; only 'packetcreator' is supported.",
+		"Return Value": "NA",
+		"Action": "e2e_getPingHealth(packetcreator)"
+	},
+	"Step-1": {
+		"Description": "Reads the prerequisite data at the specified index.",
+		"Input Parameters": "Refer to in-line comments for parameter details.",
+		"Return Value": "Prerequisite details",
+		"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+	},
+	"Step-2": {
+		"Description": "Sets the context for executing the scenario.",
+		"Input Parameters": "Environment and user details. Additional parameter details are available in in-line comments.",
+		"Return Value": "NA",
+		"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
+	},
+	"Step-3": {
+		"Description": "Performs a health check of the required server components for end-to-end scenario execution.",
+		"Input Parameters": "NA",
+		"Return Value": "NA",
+		"Action": "e2e_getPingHealth(targetenv)"
+	},
+	"Step-4": {
+		"Description": "Generates persona data for the resident.",
+		"Input Parameters": "Details are provided in the in-line parameter comments.",
+		"Return Value": "Path to the generated persona file",
+		"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false,Female)"
+	},
+	"Step-5": {
+		"Description": "Generates a packet template using the persona data.",
+		"Input Parameters": "Process type and persona file path",
+		"Return Value": "Path to the generated template file",
+		"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
+	},
+	"Step-6": {
+		"Description": "Generates and uploads the packet using the persona and template files, skipping the pre-registration step.",
+		"Input Parameters": "Persona file path and template file path",
+		"Return Value": "RID",
+		"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
+	},
+	"Step-7": {
+		"Description": "Verifies that the RID status matches the expected packet processing status.",
+		"Input Parameters": "Expected packet status and RID",
+		"Return Value": "NA",
+		"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
+	},
+	"Step-8": {
+		"Description": "Retrieves the UIN corresponding to the specified RID.",
+		"Input Parameters": "RID",
+		"Return Value": "UIN",
+		"Action": "$$uin=e2e_getUINByRid($$rid)"
+	},
+	"Step-9": {
+		"Description": "Checks the current stage and status for the specified RID.",
+		"Input Parameters": "RID, stage, and stage status",
+		"Return Value": "NA",
+		"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+	},
+	"Step-10": {
+		"Description": "Compares the generated packet tags with those on the server.",
+		"Input Parameters": "RID",
+		"Return Value": "NA",
+		"Action": "e2e_CheckTags($$rid)"
+	}
 	},
 	{
-		"Scenario": "4",
-		"Tag": "Postive_Test",
-		"Persona": "ResidentMaleAdult",
-		"Group": "Adult_Update",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. Later updates biometrics and downloads UIN card",
-		"Step-0": {
-			"Description": "Performs health check of given component",
-			"Input Parameters": "Keyword to check, only packetcreator is supported",
-			"Return Value": "NA",
-			"Action": "e2e_getPingHealth(packetcreator)"
-		},
-		"Step-1": {
-			"Description": "Reads the pre-requisite data at the given index",
-			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
-			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
-		},
-		"Step-2": {
-			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
-			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
-		},
-		"Step-3": {
-			"Description": "Performs health check of required server components to run end-to-end scenarios",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
-			"Action": "e2e_getPingHealth(targetenv)"
-		},
-		"Step-4": {
-			"Description": "Generates persona data",
-			"Input Parameters": "Details are in parameter in-line comments",
-			"Return Value": "Persona file path",
-			"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
-		},
-		"Step-5": {
-			"Description": "Generates packet template based on the persona data",
-			"Input Parameters": "Process and persona file path",
-			"Return Value": "Generated Template file path",
-			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
-		},
-		"Step-6": {
-			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
-			"Input Parameters": "Persona file path and template file path",
-			"Return Value": "RID",
-			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
-		},
-		"Step-7": {
-			"Description": "Checks the RID status against given packet processing status",
-			"Input Parameters": "Packet processing status and RID",
-			"Return Value": "NA",
-			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
-		},
-		"Step-8": {
-			"Description": "Gets the UIN for the given RID",
-			"Input Parameters": "RID",
-			"Return Value": "UIN",
-			"Action": "$$uin=e2e_getUINByRid($$rid)"
-		},
-		"Step-9": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
-		},
-		"Step-10": {
-			"Description": "Updates Demo graphic details and biometric in the persona file",
-			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
-			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(finger,0/*MISS_FIELDS*/,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath)"
-		},
-		"Step-11": {
-			"Description": "Updates persona with UIN",
-			"Input Parameters": "Persona file path and UIN",
-			"Return Value": "NA",
-			"Action": "e2e_updateResidentWithUIN($$personaFilePath,$$uin)"
-		},
-		"Step-12": {
-			"Description": "Generates packet template based on the persona data",
-			"Input Parameters": "Process and persona file path",
-			"Return Value": "Generated Template file path",
-			"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$personaFilePath)"
-		},
-		"Step-13": {
-			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
-			"Input Parameters": "Persona file path and template file path",
-			"Return Value": "RID",
-			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$updateTemplate)"
-		},
-		"Step-14": {
-			"Description": "Checks the RID status against given packet processing status",
-			"Input Parameters": "Packet processing status and RID",
-			"Return Value": "NA",
-			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
-		},
-		"Step-15": {
-			"Description": "Gets the UIN for the given RID",
-			"Input Parameters": "RID",
-			"Return Value": "UIN",
-			"Action": "$$uin2=e2e_getUINByRid($$rid2)"
-		},
-		"Step-16": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
-		},
-		"Step-17": {
-			"Description": "Gets Email ID configuired for the UIN",
-			"Input Parameters": "UIN",
-			"Return Value": "Email ID",
-			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
-		},
-		"Step-18": {
-			"Description": "Gets the credentials request ID",
-			"Input Parameters": "UIN and Email ID",
-			"Return Value": "Request ID",
-			"Action": "$$requestId=e2e_credentialRequest($$uin2,$$email)"
-		},
-		"Step-19": {
-			"Description": "Check credentials status",
-			"Input Parameters": "Request ID",
-			"Return Value": "NA",
-			"Action": "e2e_checkCredentialStatus($$requestId)"
-		},
-		"Step-20": {
-			"Description": "Downloads the card",
-			"Input Parameters": "Credential request ID",
-			"Return Value": "NA",
-			"Action": "e2e_downloadCard($$requestId)"
-		},
-		"Step-21": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
-		},
-		"Step-22": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
-		}
+	"Scenario": "4",
+	"Tag": "Positive_Test",
+	"Persona": "ResidentMaleAdult",
+	"Group": "Adult_Update",
+	"Description": "A resident walks into the registration center, completes the process, and receives a UIN card. Later, the resident updates biometrics and downloads the UIN card.",
+	"Step-0": {
+		"Description": "Performs a health check on the specified component.",
+		"Input Parameters": "Keyword to check; only 'packetcreator' is supported.",
+		"Return Value": "NA",
+		"Action": "e2e_getPingHealth(packetcreator)"
+	},
+	"Step-1": {
+		"Description": "Reads the prerequisite data at the specified index.",
+		"Input Parameters": "Refer to in-line comments for parameter details.",
+		"Return Value": "Prerequisite details",
+		"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+	},
+	"Step-2": {
+		"Description": "Sets the context for scenario execution.",
+		"Input Parameters": "Environment and user details. Additional details are available in the in-line comments.",
+		"Return Value": "NA",
+		"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
+	},
+	"Step-3": {
+		"Description": "Performs a health check on the required server components for end-to-end scenario execution.",
+		"Input Parameters": "NA",
+		"Return Value": "NA",
+		"Action": "e2e_getPingHealth(targetenv)"
+	},
+	"Step-4": {
+		"Description": "Generates resident persona data.",
+		"Input Parameters": "Details are provided in the in-line parameter comments.",
+		"Return Value": "Path to the persona file",
+		"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
+	},
+	"Step-5": {
+		"Description": "Generates a packet template using the resident's persona data.",
+		"Input Parameters": "Process type and persona file path",
+		"Return Value": "Path to the generated template file",
+		"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
+	},
+	"Step-6": {
+		"Description": "Generates and uploads a packet using the given persona and template files, skipping the pre-registration step.",
+		"Input Parameters": "Persona file path and template file path",
+		"Return Value": "RID",
+		"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
+	},
+	"Step-7": {
+		"Description": "Validates that the RID status matches the expected processing status.",
+		"Input Parameters": "Expected packet processing status and RID",
+		"Return Value": "NA",
+		"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
+	},
+	"Step-8": {
+		"Description": "Retrieves the UIN associated with the given RID.",
+		"Input Parameters": "RID",
+		"Return Value": "UIN",
+		"Action": "$$uin=e2e_getUINByRid($$rid)"
+	},
+	"Step-9": {
+		"Description": "Waits for a specified period (in seconds).",
+		"Input Parameters": "Time period in seconds to wait",
+		"Return Value": "NA",
+		"Action": "e2e_wait(90)"
+	},
+	"Step-10": {
+		"Description": "Updates demographic details and biometrics in the persona file.",
+		"Input Parameters": "Data to update and persona file path. Additional details provided in in-line comments.",
+		"Return Value": "NA",
+		"Action": "e2e_updateDemoOrBioDetails(finger,0/*MISS_FIELDS*/,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath)"
+	},
+	"Step-11": {
+		"Description": "Adds the UIN to the resident's persona data.",
+		"Input Parameters": "Persona file path and UIN",
+		"Return Value": "NA",
+		"Action": "e2e_updateResidentWithUIN($$personaFilePath,$$uin)"
+	},
+	"Step-12": {
+		"Description": "Generates an update packet template using the resident's updated data.",
+		"Input Parameters": "Process type and persona file path",
+		"Return Value": "Path to the generated template file",
+		"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$personaFilePath)"
+	},
+	"Step-13": {
+		"Description": "Generates and uploads an update packet, skipping the pre-registration step.",
+		"Input Parameters": "Persona file path and template file path",
+		"Return Value": "RID",
+		"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$updateTemplate)"
+	},
+	"Step-14": {
+		"Description": "Validates the status of the updated RID against the expected processing status.",
+		"Input Parameters": "Expected packet processing status and updated RID",
+		"Return Value": "NA",
+		"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
+	},
+	"Step-15": {
+		"Description": "Retrieves the UIN associated with the updated RID.",
+		"Input Parameters": "Updated RID",
+		"Return Value": "UIN",
+		"Action": "$$uin2=e2e_getUINByRid($$rid2)"
+	},
+	"Step-16": {
+		"Description": "Waits for a specified duration (in seconds).",
+		"Input Parameters": "Time period in seconds to wait",
+		"Return Value": "NA",
+		"Action": "e2e_wait(90)"
+	},
+	"Step-17": {
+		"Description": "Retrieves the email ID configured for the given UIN.",
+		"Input Parameters": "UIN",
+		"Return Value": "Email ID",
+		"Action": "$$email=e2e_getEmailByUIN($$uin2)"
+	},
+	"Step-18": {
+		"Description": "Generates a credential request using the UIN and email ID.",
+		"Input Parameters": "UIN and Email ID",
+		"Return Value": "Credential request ID",
+		"Action": "$$requestId=e2e_credentialRequest($$uin2,$$email)"
+	},
+	"Step-19": {
+		"Description": "Checks the status of the credential request.",
+		"Input Parameters": "Credential request ID",
+		"Return Value": "NA",
+		"Action": "e2e_checkCredentialStatus($$requestId)"
+	},
+	"Step-20": {
+		"Description": "Downloads the UIN card using the credential request ID.",
+		"Input Parameters": "Credential request ID",
+		"Return Value": "NA",
+		"Action": "e2e_downloadCard($$requestId)"
+	},
+	"Step-21": {
+		"Description": "Checks the print service stage and status for the original RID.",
+		"Input Parameters": "RID, stage, and stage status",
+		"Return Value": "NA",
+		"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+	},
+	"Step-22": {
+		"Description": "Checks the print service stage and status for the updated RID.",
+		"Input Parameters": "RID, stage, and stage status",
+		"Return Value": "NA",
+		"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+	}
 	},
 	{
 		"Scenario": "5",
@@ -661,7 +661,7 @@
 	{
 		"Scenario": "6",
 		"Tag": "Postive_Test",
-		"Persona": "ResidentMaleAdult",
+		"Persona": "ResidentMaleMinor",
 		"Group": "Minor_New",
 		"Description": "Resident Minor Child walk-ins to registration center gets UIN with Guardian RID details",
 		"Step-0": {
@@ -4386,7 +4386,7 @@
 			"Action": "$$user4=e2e_User(ADD_User,4/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-10": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center4=e2e_Center(CREATE,$$user4,4/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -4417,7 +4417,7 @@
 		},
 		"Step-15": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details4)"
 		},
@@ -4429,7 +4429,7 @@
 		},
 		"Step-17": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details4,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -5489,7 +5489,7 @@
 			"Action": "$$user75=e2e_User(ADD_User,75/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-3": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center75=e2e_Center(CREATE,$$user75/*USER_DETAILS*/,75/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -5520,19 +5520,19 @@
 		},
 		"Step-8": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details75)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details75)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details75,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -5670,7 +5670,7 @@
 		},
 		"Step-33": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details75)"
 		},
@@ -5682,7 +5682,7 @@
 		},
 		"Step-35": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details75,75/*CENTER_INDEX*/)"
 		}
@@ -7780,7 +7780,7 @@
 			"Action": "$$user76=e2e_User(ADD_User,76/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-3": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center76=e2e_Center(CREATE,$$user76,76/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -7811,19 +7811,19 @@
 		},
 		"Step-8": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details76)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details76)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details76,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -7961,7 +7961,7 @@
 		},
 		"Step-33": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details76)"
 		},
@@ -7973,7 +7973,7 @@
 		},
 		"Step-35": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details76,76/*CENTER_INDEX*/)"
 		}
@@ -8342,7 +8342,7 @@
 			"Action": "$$user52=e2e_User(ADD_User,52/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-2": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center52=e2e_Center(CREATE,$$user52,52/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -8373,19 +8373,19 @@
 		},
 		"Step-7": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details52)"
 		},
 		"Step-8": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details52)"
 		},
 		"Step-9": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details52,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -8451,7 +8451,7 @@
 		},
 		"Step-20": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details52)"
 		},
@@ -8463,7 +8463,7 @@
 		},
 		"Step-22": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details52,52/*CENTER_INDEX*/)"
 		}
@@ -8493,7 +8493,7 @@
 			"Action": "$$user53=e2e_User(ADD_User,53/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-3": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center53=e2e_Center(CREATE,$$user53,53/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -8524,19 +8524,19 @@
 		},
 		"Step-8": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details53)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details53)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details53,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -8565,7 +8565,7 @@
 			"Action": "$$user531=e2e_User(ADD_User,531/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-15": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center531=e2e_Center(CREATE,$$user531,531/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -8596,19 +8596,19 @@
 		},
 		"Step-20": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details531)"
 		},
 		"Step-21": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details531)"
 		},
 		"Step-22": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details531,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -8680,7 +8680,7 @@
 		},
 		"Step-34": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details531/*USER_DETAILS*/)"
 		},
@@ -8692,7 +8692,7 @@
 		},
 		"Step-36": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details531,531/*CENTER_INDEX*/)"
 		}
@@ -8722,7 +8722,7 @@
 			"Action": "$$user54=e2e_User(ADD_User,54/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-3": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center54=e2e_Center(CREATE,$$user54,54/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -8753,19 +8753,19 @@
 		},
 		"Step-8": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details54)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details54)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details54,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -8837,7 +8837,7 @@
 		},
 		"Step-22": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details54)"
 		},
@@ -8849,7 +8849,7 @@
 		},
 		"Step-24": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details54,54/*CENTER_INDEX*/)"
 		}
@@ -8879,7 +8879,7 @@
 			"Action": "$$user55=e2e_User(ADD_User,55/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-3": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center55=e2e_Center(CREATE,$$user55,55/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -8910,19 +8910,19 @@
 		},
 		"Step-8": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details55)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details55)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details55,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -8952,7 +8952,7 @@
 		},
 		"Step-15": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details55)"
 		},
@@ -8976,7 +8976,7 @@
 		},
 		"Step-19": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details55,55/*CENTER_INDEX*/)"
 		}
@@ -9006,7 +9006,7 @@
 			"Action": "$$user56=e2e_User(ADD_User,56/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-3": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center56=e2e_Center(CREATE,$$user56,56/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -9037,19 +9037,19 @@
 		},
 		"Step-8": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details56)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details56)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details56,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -9091,7 +9091,7 @@
 		},
 		"Step-17": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details56,56/*CENTER_INDEX*/)"
 		},
@@ -9121,7 +9121,7 @@
 		},
 		"Step-22": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details56)"
 		}
@@ -9151,7 +9151,7 @@
 			"Action": "$$user57=e2e_User(ADD_User,57/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-3": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center57=e2e_Center(CREATE,$$user57,57/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -9182,19 +9182,19 @@
 		},
 		"Step-8": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details57)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details57)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details57,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -9266,13 +9266,13 @@
 		},
 		"Step-22": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details57)"
 		},
 		"Step-23": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details57,57/*CENTER_INDEX*/)"
 		}
@@ -9641,7 +9641,7 @@
 			"Action": "$$user77=e2e_User(ADD_User,77/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-3": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center77=e2e_Center(CREATE,$$user77,77/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -9672,19 +9672,19 @@
 		},
 		"Step-8": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details77)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details77)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details77,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -9822,7 +9822,7 @@
 		},
 		"Step-33": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details77)"
 		},
@@ -9834,7 +9834,7 @@
 		},
 		"Step-35": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details77,77/*CENTER_INDEX*/)"
 		}
@@ -16494,7 +16494,7 @@
 			"Action": "$$user6=e2e_User(ADD_User,6/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-1": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center6=e2e_Center(CREATE,$$user6,6/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -16525,19 +16525,19 @@
 		},
 		"Step-6": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details6)"
 		},
 		"Step-7": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details6)"
 		},
 		"Step-8": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details6,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -16633,7 +16633,7 @@
 			"Action": "$$user6=e2e_User(ADD_User,6/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-1": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center6=e2e_Center(CREATE,$$user6,6/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -16664,19 +16664,19 @@
 		},
 		"Step-6": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details6)"
 		},
 		"Step-7": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details6)"
 		},
 		"Step-8": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details6,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -17598,7 +17598,7 @@
 			"Action": "$$user156=e2e_User(ADD_User,156/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-1": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center156=e2e_Center(CREATE,$$user156,156/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -17629,19 +17629,19 @@
 		},
 		"Step-6": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details156)"
 		},
 		"Step-7": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details156)"
 		},
 		"Step-8": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details156,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -17731,13 +17731,13 @@
 		},
 		"Step-23": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details156)"
 		},
 		"Step-24": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details156,156/*CENTER_INDEX*/)"
 		}
@@ -17828,7 +17828,7 @@
 			"Action": "$$user8=e2e_User(ADD_User,8/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-1": {
-			"Description": "Creates center and maps to user to that",
+			"Description": "Creates a center and maps the user to it",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center8=e2e_Center(CREATE,$$user8,8/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
@@ -17859,19 +17859,19 @@
 		},
 		"Step-6": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details8)"
 		},
 		"Step-7": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details8)"
 		},
 		"Step-8": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details8,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -17949,7 +17949,7 @@
 		},
 		"Step-21": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details8)"
 		},
@@ -17961,7 +17961,7 @@
 		},
 		"Step-23": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details8,8/*CENTER_INDEX*/)"
 		}
@@ -22319,7 +22319,7 @@
 		},
 		"Step-6": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details1)"
 		},
@@ -22331,7 +22331,7 @@
 		},
 		"Step-8": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details1,1/*CENTER_INDEX*/)"
 		},
@@ -22343,7 +22343,7 @@
 		},
 		"Step-10": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details2)"
 		},
@@ -22355,7 +22355,7 @@
 		},
 		"Step-12": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details2,2/*CENTER_INDEX*/)"
 		},
@@ -22367,7 +22367,7 @@
 		},
 		"Step-14": {
 			"Description": "Decomissions the machine",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details3)"
 		},
@@ -22379,7 +22379,7 @@
 		},
 		"Step-16": {
 			"Description": "Decomissions the center",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details3,3/*CENTER_INDEX*/)"
 		},
