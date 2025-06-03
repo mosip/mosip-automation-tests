@@ -299,7 +299,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	    return templateResponse.getBody().asString();
 	}
 
-	public void requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone, Scenario.Step step)
+	public String requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone, Scenario.Step step)
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("sendOtpUrl") + emailOrPhone;
 		JSONObject jsonReq = new JSONObject();
@@ -311,6 +311,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 			this.hasError = true;
 			throw new RigInternalError("Unable to Send OTP");
 		}
+
+		JSONObject json = new JSONObject(response.getBody().asString());
+		return json.getString("emailId");
 
 	}
 
