@@ -1,13 +1,20 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.hibernate.mapping.Set;
 
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 
 public class dslConfigManager extends ConfigManager {
@@ -56,18 +63,80 @@ public class dslConfigManager extends ConfigManager {
 		return Integer.parseInt(getproperty("langselect")); 
 	}
 
+//	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
+//		String toSkippedList = ConfigManager.getproperty("scenariosToSkip");
+//		List<String> toBeSkippedLsit = Arrays.asList(toSkippedList.split(","));
+//		if (IsDebugEnabled())
+//			LOGGER.info("toSkippedList:  " + toSkippedList + ", toBeSkippedLsit : " + toBeSkippedLsit
+//					+ ", stringToFind : " + stringToFind);
+//		for (String string : toBeSkippedLsit) {
+//			if (string.equalsIgnoreCase(stringToFind))
+//				return true;
+//		}
+//		return false;
+//	}
+	
 	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
-		String toSkippedList = ConfigManager.getproperty("servicesNotDeployed");
-		List<String> toBeSkippedLsit = Arrays.asList(toSkippedList.split(","));
-		if (IsDebugEnabled())
-			LOGGER.info("toSkippedList:  " + toSkippedList + ", toBeSkippedLsit : " + toBeSkippedLsit
-					+ ", stringToFind : " + stringToFind);
-		for (String string : toBeSkippedLsit) {
-			if (string.equalsIgnoreCase(stringToFind))
-				return true;
-		}
-		return false;
+	    String toSkippedList = ConfigManager.getproperty("scenariosToSkip");
+	    List<String> mergedSkipList = new ArrayList<>();
+
+	    // 1. Add from scenariosToSkip (property)
+	    if (toSkippedList != null && !toSkippedList.trim().isEmpty()) {
+	        String[] scenarios = toSkippedList.split(",");
+	        for (String scenario : scenarios) {
+	            String trimmed = scenario.trim();
+	            if (!trimmed.isEmpty() && !mergedSkipList.contains(trimmed)) {
+	                mergedSkipList.add(trimmed);
+	            }
+	        }
+	    }
+
+	    // 2. Add from file
+	    List<String> fileSkipList = loadTestcaseToBeSkippedList();
+	    for (String scenario : fileSkipList) {
+	        if (!mergedSkipList.contains(scenario)) {
+	            mergedSkipList.add(scenario);
+	        }
+	    }
+
+	    if (IsDebugEnabled())
+	        LOGGER.info("Final skip list: " + mergedSkipList + ", stringToFind: " + stringToFind);
+
+	    // 3. Check if the target scenario is in merged list
+	    for (String scenario : mergedSkipList) {
+	        if (scenario.equalsIgnoreCase(stringToFind)) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
+
+	
+	 public static List<String> loadTestcaseToBeSkippedList() {
+	        List<String> testcaseToBeSkippedList = new ArrayList<>();
+	        try (BufferedReader br = new BufferedReader(
+	                new FileReader(BaseTestCase.getGlobalResourcePath() + "/" + "config/TestCaseSkip.txt"))) {
+	            String line;
+	            while ((line = br.readLine()) != null) {
+	                // Ignore lines starting with # as they are comments
+	                if (line.startsWith("#")) {
+	                    continue;
+	                }
+
+	                // Split the line by "==" and store the second part
+	                if (line.contains("==")) {
+	                    String[] parts = line.split("==");
+	                    if (parts.length > 1) {
+	                        testcaseToBeSkippedList.add(parts[1].trim());
+	                    }
+	                }
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	        return testcaseToBeSkippedList;
+	    }
+
 
 	public static synchronized boolean isInTobeExecuteList(String stringToFind) {
 		// If there are no specific execution list is provided , execute all scenarios
