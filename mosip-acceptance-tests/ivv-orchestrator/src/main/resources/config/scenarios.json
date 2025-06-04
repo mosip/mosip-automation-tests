@@ -23138,52 +23138,52 @@
 			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$details5,T/*USER_CENTER_MAPPING_FLAG*/)"
 		},
 		"Step-12": {
-			"Description": "Writes prerequisite details",
-			"Input Parameters": "Details . Other parameter details can be found in parameter in-line comments",
-			"Return Value": "NA",
-			"Action": "e2e_WritePreReq($$details5,5/*PRE_REQUISITE_DATA_INDEX*/)"
-		},
-		"Step-13": {
-			"Description": "Reads the pre-requisite data at the given index",
-			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
-			"Return Value": "Pre-requiste details",
-			"Action": "$$details5=e2e_ReadPreReq(5/*PRE_REQUISITE_DATA_INDEX*/)"
-		},
-		"Step-14": {
-			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
-			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details5,true/*GENERATE_PRIVATE_KEY*/)"
-		},
-		"Step-15": {
-			"Description": "Performs health check of required server components to run end-to-end scenarios",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
-			"Action": "e2e_getPingHealth(targetenv)"
-		},
-		"Step-16": {
-			"Description": "Generates persona data",
-			"Input Parameters": "Details are in parameter in-line comments",
-			"Return Value": "Persona file path",
-			"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false,Female)"
-		},
-		"Step-17": {
-			"Description": "Generates packet template based on the persona data",
-			"Input Parameters": "Process and persona file path",
-			"Return Value": "Generated Template file path",
-			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
-		},
-		"Step-18": {
 			"Description": "Deletes machine and center mapping",
 			"Input Parameters": "Action and center machine user details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center Machine User details",
 			"Action": "$$details5=e2e_User(DELETE_CENTERMAPPING,5/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details5)"
 		},
-		"Step-19": {
+		"Step-13": {
 			"Description": "Deletes the zone mapping ",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details5)"
+		},
+		"Step-14": {
+			"Description": "Writes prerequisite details",
+			"Input Parameters": "Details . Other parameter details can be found in parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_WritePreReq($$details5,5/*PRE_REQUISITE_DATA_INDEX*/)"
+		},
+		"Step-15": {
+			"Description": "Reads the pre-requisite data at the given index",
+			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
+			"Return Value": "Pre-requiste details",
+			"Action": "$$details5=e2e_ReadPreReq(5/*PRE_REQUISITE_DATA_INDEX*/)"
+		},
+		"Step-16": {
+			"Description": "Sets the context for scenario execution",
+			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_setContext(env_context,$$details5,true/*GENERATE_PRIVATE_KEY*/)"
+		},
+		"Step-17": {
+			"Description": "Performs health check of required server components to run end-to-end scenarios",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(targetenv)"
+		},
+		"Step-18": {
+			"Description": "Generates persona data",
+			"Input Parameters": "Details are in parameter in-line comments",
+			"Return Value": "Persona file path",
+			"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false,Female)"
+		},
+		"Step-19": {
+			"Description": "Generates packet template based on the persona data",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
+			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
 		},
 		"Step-20": {
 			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
