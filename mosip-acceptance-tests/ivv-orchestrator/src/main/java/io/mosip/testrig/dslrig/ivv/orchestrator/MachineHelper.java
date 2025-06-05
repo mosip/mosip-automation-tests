@@ -1,9 +1,12 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.masterdata.testscripts.PatchWithPathParam;
@@ -12,6 +15,9 @@ import io.mosip.testrig.apirig.masterdata.testscripts.PutWithPathParam;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePut;
 import io.mosip.testrig.apirig.resident.testscripts.SimplePatch;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.idrepo.testscripts.PatchWithPathParamsAndBody;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
@@ -31,6 +37,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 	private final String UpdateMachineSpecificationStatus = "ivv_masterdata/UpdateMachineSpecificationStatus/UpdateMachineSpecificationStatus.yml";
 	private final String UpdateMachine="ivv_masterdata/Machine/UpdateMachine.yml";
 	private final String DcomMachine="ivv_masterdata/DecommisionMachine/DecommisionMachine.yml";
+	private final String CreatePublicKey="ivv_masterdata/CreatePublicKey/CreatePublicKey.yml";
 	SimplePost sp = new SimplePost();
 	SimplePostForAutoGenId simplepost = new SimplePostForAutoGenId();
 	PatchWithPathParam patchwithpathparam = new PatchWithPathParam();
@@ -91,6 +98,53 @@ public class MachineHelper extends BaseTestCaseUtil {
 		}
 
 	}
+	
+	public String createPublicKey() throws RigInternalError {
+	    try {
+	        Object[] testObjPost = sp.getYmlTestData(CreatePublicKey);
+	        TestCaseDTO testPost = (TestCaseDTO) testObjPost[0];
+	        sp.test(testPost);
+	        Response response = sp.response;
+
+	        if (response != null) {
+	            JSONObject jsonResponse = new JSONObject(response.getBody().asString());
+	            JSONObject responseObject = jsonResponse.getJSONObject("response");
+	            return responseObject.getString("publicKey");
+	        } else {
+	            this.hasError = true;
+	            throw new RigInternalError("Response is null.");
+	        }
+	    } catch (Exception e) {
+	        this.hasError = true;
+	        throw new RigInternalError(e.getMessage());
+	    }
+	}
+	
+	public Map<String, String> getIdAndRegCenterIdByPublicKey(String targetPublicKey) throws JSONException {
+		KernelAuthentication kernelAuthLib = new KernelAuthentication();
+		String token = kernelAuthLib.getTokenByRole(GlobalConstants.ADMIN);
+		Response response = AdminTestUtil.getWithoutParams("/v1/masterdata/machines", token);
+		JSONObject jsonResponse = new JSONObject(response.getBody().asString());
+		JSONObject responseObject = jsonResponse.getJSONObject("response");
+		JSONArray machines = responseObject.getJSONArray("machines");
+
+		for (int i = 0; i < machines.length(); i++) {
+			JSONObject machine = machines.getJSONObject(i);
+			String publicKey = machine.optString("publicKey", "");
+			if (publicKey.equals(targetPublicKey)) {
+				String id = machine.optString("id", null);
+				String regCenterId = machine.optString("regCenterId", null);
+				String zoneCode = machine.optString("zoneCode", null); 
+				Map<String, String> result = new HashMap<>();
+				result.put("id", id);
+				result.put("regCenterId", regCenterId);
+				result.put("zoneCode", zoneCode);
+				return result;
+			}
+		}
+		return null; // or throw an exception if not found
+	}
+
 
 	public String activateMachineType(String codeType, String activecheck) throws RigInternalError {
 		try {

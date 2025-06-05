@@ -35,12 +35,14 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 		String consent = "";
 		boolean changeSupervisorNameToDiffCase = Boolean.FALSE;
 		String invalidEncryptedHashFlag = "";
+		String signature = "valid";
 		String invalidCheckSum = "";
 		String invalidIdSchemaFlag = "";
 		String skipBiometricClassificationFlag = "";
 		String skipApplicantDocumentsFlag = "";
 		String invalidDateFlag = "";
 		String invalidOfficerIDFlag = "";
+		String flow = "";
 
 		HashMap<String, String> map = new HashMap<String, String>();
 		HashMap<String, String> dummyholder = new HashMap<String, String>();
@@ -76,32 +78,27 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidIdSchema")) // invalidIdSchema
 				invalidIdSchemaFlag = step.getParameters().get(3);
 
-			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("skipBiometricClassification")) // Skip
-																															// individualBiometric
-																															// parameter
-																															// in
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("skipBiometricClassification")) // Skip																											// in
 																															// id.json
 				skipBiometricClassificationFlag = step.getParameters().get(3);
 
 			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("skipApplicantDocuments")) // Skip
-																													// applicant
-																													// documents
-																													// in
-																													// the
-																													// packet
+																									// packet
 				skipApplicantDocumentsFlag = step.getParameters().get(3);
 
 			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidCreationDate")) // Invalid
-																													// packet
-																													// creation
-																													// date
+																										// date
 				invalidDateFlag = step.getParameters().get(3);
 
-			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidOfficerID")) // Invalid
-																												// Officer
-																												// ID
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidOfficerID")) // Invalid																												// ID
 				invalidOfficerIDFlag = step.getParameters().get(3);
+			
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("EXTERNAL")) 
+				flow = step.getParameters().get(3);
 
+			if (step.getParameters().size() > 4 && (step.getParameters().get(4).contains("emptySignature") || step.getParameters().get(4).contains("invalidSignature")))
+				signature = step.getParameters().get(4);
+			
 			// consent value either "yes" or "no"
 			if (step.getParameters().size() == 5
 					&& (step.getParameters().get(4).contains("yes") || step.getParameters().get(4).contains("no")))
@@ -127,7 +124,7 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 			packetUtility.createContexts(negative, contextKeyValue, map, generatePrivateKey, status,
 					BaseTestCase.ApplnURI + "/", step, invalidCertFlag, consent, changeSupervisorNameToDiffCase,
 					invalidEncryptedHashFlag, invalidCheckSum, invalidIdSchemaFlag, skipBiometricClassificationFlag,
-					skipApplicantDocumentsFlag, invalidDateFlag, invalidOfficerIDFlag);
+					skipApplicantDocumentsFlag, invalidDateFlag, invalidOfficerIDFlag,flow,signature);
 
 	}
 }

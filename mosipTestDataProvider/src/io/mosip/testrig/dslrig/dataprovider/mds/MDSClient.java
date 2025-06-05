@@ -122,7 +122,7 @@ public class MDSClient implements MDSClientInterface {
 
 		/////////
 		//reach cached finger prints from folder
-		String dirPath = VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
+		String dirPath = System.getProperty("java.io.tmpdir")+VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
 		logger.info("createProfile dirPath {}", dirPath);
 		
 		

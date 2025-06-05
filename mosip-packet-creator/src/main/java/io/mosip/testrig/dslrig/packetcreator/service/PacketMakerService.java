@@ -17,7 +17,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -54,6 +53,7 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
@@ -309,7 +309,7 @@ public class PacketMakerService {
 	/*
 	 * Create packet with our without Encryption
 	 */
-	public String createContainer(String dataFile, String templatePacketLocation, String source, String processArg,
+	public synchronized String createContainer(String dataFile, String templatePacketLocation, String source, String processArg,
 			String preregId, String contextKey, boolean bZip, String additionalInfoReqId) throws Exception {
 
 		String packetPath = "";
@@ -708,12 +708,19 @@ public class PacketMakerService {
 		if (encryptedHashFlag.equalsIgnoreCase("invalidEncryptedHash") && type.equals("id"))
 			encryptedHash = "INVALID_ENCRYPTED_HASH";
 		else
-			encryptedHash = org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(
-					messageDigest.digest(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
+			encryptedHash = CryptoUtil.encodeToURLSafeBase64(HMACUtils2.generateHash(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
+		
+		String signaturevalue = VariableManager.getVariableValue(contextKey, "signature").toString();
+		String signature="";
+		if(signaturevalue.equalsIgnoreCase("invalidSignature")){
+			String newKey = contextKey.replaceAll("(?<=_S)\\d+(?=_context)", "0");
+			signature = Base64.getUrlEncoder().withoutPadding().encodeToString(
+					cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP)), newKey));
+		} else if (!signaturevalue.equalsIgnoreCase("emptySignature")) {
+			byte[] data = Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP));
+			signature = Base64.getUrlEncoder().withoutPadding().encodeToString(cryptoUtil.sign(data, contextKey));
 
-		String signature = Base64.getEncoder().encodeToString(
-				cryptoUtil.sign(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + UNENCZIP)), contextKey));
-
+		}
 		Path src = Path.of(containerRootFolder + UNENCZIP);
 		Path destination = Path.of(
 				VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()

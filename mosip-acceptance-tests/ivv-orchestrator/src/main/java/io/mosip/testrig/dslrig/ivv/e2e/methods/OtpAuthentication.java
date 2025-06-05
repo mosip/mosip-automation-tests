@@ -12,6 +12,7 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
@@ -130,6 +131,8 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 						logger.error(e.getMessage());
 					} catch (AdminTestException e) {
 						logger.error(e.getMessage());
+					} catch (SecurityXSSException e) {
+						logger.error(e.getMessage());
 					}
 				}
 			}
@@ -164,6 +167,8 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 						this.hasError = true;
 						logger.error(e.getMessage());
 						throw new RigInternalError("Otp Auth failed ");
+					}catch (SecurityXSSException e) {
+						logger.error(e.getMessage());
 					}
 				}
 			}

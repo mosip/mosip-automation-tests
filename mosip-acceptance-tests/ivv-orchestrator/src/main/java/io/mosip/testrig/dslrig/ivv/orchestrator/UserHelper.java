@@ -361,20 +361,18 @@ public class UserHelper extends BaseTestCaseUtil {
 			logger.info(response.getBody().asString());
 			JSONObject jsonObject = new JSONObject(response.getBody().asString());
 			
-			if(jsonObject.getJSONArray("errors").toString().isEmpty())
-			{
-				JSONObject res = jsonObject.getJSONObject("response");
+			if (jsonObject.getJSONArray("errors").length() == 0) {
+			    JSONObject res = jsonObject.optJSONObject("response");
 
-				if(res!=null) {
-					zoneCode = res.getString("zoneCode");
-
-					logger.info("zoneCode: " + zoneCode);
-					return zoneCode;
-				} else {
-
-					logger.error("No zoneCode found in the response.");
-				}
+			    if (res != null && res.has("zoneCode")) {
+			        zoneCode = res.getString("zoneCode");
+			        logger.info("zoneCode: " + zoneCode);
+			        return zoneCode;
+			    } else {
+			        logger.error("No zoneCode found in the response.");
+			    }
 			}
+
 
 		}
 		return zoneCode;

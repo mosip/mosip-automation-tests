@@ -1,7 +1,7 @@
 UpdateUserCenterMappingStatus:
    MasterData_UpdateUserCenterMappingStatus_All_Valid_Smoke:  
       endPoint: /v1/masterdata/usercentermapping?isActive={isActive}&id={id}
-      role: admin
+      role: globalAdmin
       restMethod: patch
       inputTemplate: ivv_masterdata/UpdateUserCenterMappingStatus/updateUserCenterMappingStatus
       outputTemplate: ivv_masterdata/UpdateUserCenterMappingStatus/updateUserCenterMappingStatusResult

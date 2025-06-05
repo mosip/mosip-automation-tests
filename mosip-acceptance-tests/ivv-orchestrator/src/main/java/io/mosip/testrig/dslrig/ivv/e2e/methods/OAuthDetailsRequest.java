@@ -15,6 +15,7 @@ import io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -70,7 +71,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 		try {
 			try {
 				oAuthDetails.test(test);
-			} catch (NoSuchAlgorithmException e) {
+			} catch (NoSuchAlgorithmException | SecurityXSSException e) {
 				logger.error(e.getMessage());
 			}
 

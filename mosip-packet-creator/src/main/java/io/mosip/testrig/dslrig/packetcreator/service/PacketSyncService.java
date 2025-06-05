@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -35,6 +36,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
+import io.mosip.testrig.dslrig.dataprovider.NameProvider;
 import io.mosip.testrig.dslrig.dataprovider.PacketTemplateProvider;
 import io.mosip.testrig.dslrig.dataprovider.PhotoProvider;
 import io.mosip.testrig.dslrig.dataprovider.ResidentDataProvider;
@@ -42,11 +44,13 @@ import io.mosip.testrig.dslrig.dataprovider.models.AppointmentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.AppointmentTimeSlotModel;
 import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.CenterDetailsModel;
+import io.mosip.testrig.dslrig.dataprovider.models.ContextSchemaDetail;
 import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldValueModel;
 import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipDocTypeModel;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipDocument;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipIndividualTypeModel;
+import io.mosip.testrig.dslrig.dataprovider.models.Name;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSDeviceCaptureModel;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
@@ -60,6 +64,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.ResidentAttribute;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+import io.mosip.testrig.dslrig.dataprovider.util.Translator;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.AppointmentDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.BioExceptionDto;
@@ -560,7 +565,6 @@ public class PacketSyncService {
 
 		RestClient.logInfo(contextKey, baseUrl + uploadapi + ",path=" + path);
 		JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl + uploadapi, path, contextKey);
-		if (!RestClient.isDebugEnabled(contextKey)) {
 			if (VariableManager.getVariableValue(contextKey, "mosip.test.temp") != null
 					&& VariableManager.getVariableValue(contextKey, "mountPath") != null) {
 
@@ -568,7 +572,6 @@ public class PacketSyncService {
 						+ VariableManager.getVariableValue(contextKey, "mosip.test.temp").toString()
 						+ contextKey.substring(0, contextKey.lastIndexOf("_context")), contextKey);
 			}
-		}
 		return response.toString();
 	}
 
@@ -670,7 +673,7 @@ public class PacketSyncService {
 		for (String path : personaFilePath) {
 			ResidentModel resident = ResidentModel.readPersona(path);
 			ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
-			builder.append(preReg.sendOtpTo(to, contextKey));
+			builder.append(preReg.sendOtpTo(resident,to, contextKey));
 
 		}
 		return builder.toString();
@@ -901,6 +904,44 @@ public class PacketSyncService {
 		return response.toString();
 
 	}
+	
+	public String createPacketUpload(List<String> personaFilePaths, String source, String process, String uin, String regId,	
+			boolean validateToken, String contextKey) throws IOException {
+		String machineId;
+		String centerId;
+		logger.info("Template generation started at time: " + System.currentTimeMillis());
+		VariableManager.setVariableValue(contextKey, "process", process).toString();
+		VariableManager.setVariableValue(contextKey, "source", source).toString();
+		VariableManager.setVariableValue(contextKey, "personaFilePath", personaFilePaths.get(0)).toString();
+		baseUrl = VariableManager.getVariableValue(contextKey, "urlBase").toString();
+		String url = baseUrl + "commons/v1/packetmanager/createPacket";
+		JSONObject response;
+		PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
+		JSONObject requestNode = new JSONObject();
+		try {
+			Properties props = contextUtils.loadServerContext(contextKey);
+			ResidentModel resident = ResidentModel.readPersona(personaFilePaths.get(0));
+			machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
+
+			centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
+
+			JSONObject returnMsg = packetTemplateProvider.generateCRVSField(source, resident, process, machineId,
+					centerId, contextKey, props, regId ,validateToken , uin);
+			logger.info(returnMsg.toString());
+			requestNode.put("id", regId);
+			requestNode.put("version", "String");
+			requestNode.put("requesttime", CommonUtil.getUTCDateTime(null));
+			requestNode.put("request", returnMsg);
+			logger.info(requestNode.toString());
+
+			response = RestClient.put(url, requestNode, "crvs", contextKey);
+
+		} catch (Exception e) {
+			logger.error("createPacketTemplates", e);
+			return "{\"" + e.getMessage() + "\"}";
+		}
+		return response.toString();
+	}
 
 	public String preRegToRegister(String templatePath, String preRegId, String personaPath, String contextKey,
 			String additionalInfoReqId, boolean getRidFromSync, boolean genarateValidCbeff) throws Exception {
@@ -941,7 +982,7 @@ public class PacketSyncService {
 						break;
 				}
 				if (indx >= 0 && indx < doc.getType().size()) {
-					String docFilePath = jsonDoc.has("docPath") ? VariableManager.getVariableValue(contextKey,"mountPath").toString()+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.largedocumentpath").toString()+ "largeDocument.pdf" : null;
+					String docFilePath = jsonDoc.has("docPath") ? System.getProperty("java.io.tmpdir")+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.largedocumentpath").toString()+ "largeDocument.pdf" : null;
 					if (docFilePath != null)
 						doc.getDocs().set(indx, docFilePath);
 				}
@@ -1001,8 +1042,20 @@ public class PacketSyncService {
 
 			case "dob":
 			case "dateofbirth":
-				persona.setDob(value);
-				break;
+				if ("minor".equalsIgnoreCase(value)) {
+					int randomAge = 5 + (int) (Math.random() * (18 - 5 + 1)); // Random age between 5 and 18
+					LocalDate dob = LocalDate.now().minusYears(randomAge); // Subtract age from current date
+					String formattedDob = dob.format(DateTimeFormatter.ofPattern("yyyy/MM/dd")); // Format date
+
+					persona.setDob(formattedDob);
+				} else if ("adult".equalsIgnoreCase(value)) {
+					int randomAge = 18 + (int) (Math.random() * (80 - 18 + 1)); // Random age between 18 and 80
+					LocalDate dob = LocalDate.now().minusYears(randomAge); // Subtract age from current date
+					String formattedDob = dob.format(DateTimeFormatter.ofPattern("yyyy/MM/dd")); // Format date
+					persona.setDob(formattedDob);
+				}else {
+					persona.setDob(value); // Use provided value if not "minor"
+				}
 			case "bloodgroup":
 			case "bg":
 
@@ -1014,6 +1067,31 @@ public class PacketSyncService {
 				DynamicFieldValueModel ms = persona.getMaritalStatus();
 				ms.setCode(value);
 				break;
+				
+			case "name":
+				persona.getAddress();
+				int count = 1;
+				String primarylang = persona.getPrimaryLanguage();
+				String secLang = persona.getSecondaryLanguage();
+				List<Name> eng_names = null;
+				List<Name> names_primary;
+				List<Name> names_sec;
+				if (primarylang != null) {
+					if (primarylang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
+						names_primary = NameProvider.generateNames(persona.getGender(), primarylang, count, eng_names,
+								contextKey);
+						persona.setName(names_primary.get(0));
+					}
+				}
+				if (secLang != null) {
+					if (!secLang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
+						names_sec = NameProvider.generateNames(persona.getGender(), secLang, count, eng_names, contextKey);
+						persona.setName_seclang(names_sec.get(0));
+
+					}
+				}
+				break;
+			
 			case "residencestatus":
 			case "rs":
 				if (value != null && !value.equals("")) {
@@ -1537,5 +1615,38 @@ public class PacketSyncService {
 	    
 	    return response.toString();
 	}
+	
+	public String syncAndUpload(String rid, String contextKey)
+			throws Exception {
+		String url = baseUrl + "registrationprocessor/v1/workflowmanager/workflowinstance";
+		ResidentModel resident = ResidentModel.readPersona(VariableManager.getVariableValue(contextKey, "personaFilePath").toString());
+		// Outer JSON
+		JSONObject outerRequest = new JSONObject();
+		outerRequest.put("id", "mosip.registration.processor.workflow.instance");
+		outerRequest.put("requesttime", CommonUtil.getUTCDateTime(null));
+		outerRequest.put("version", "v1");
+
+		// Inner "request" JSON
+		JSONObject innerRequest = new JSONObject();
+		innerRequest.put("registrationId", rid);
+		innerRequest.put("process", VariableManager.getVariableValue(contextKey, "process").toString());
+		innerRequest.put("source", VariableManager.getVariableValue(contextKey, "source").toString());
+		innerRequest.put("additionalInfoReqId", ""); // can be updated if needed
+
+		// Notification info
+		JSONObject notificationInfo = new JSONObject();
+		notificationInfo.put("name", (resident.getName().getFirstName() + " " + resident.getName().getMidName() + " " + resident.getName().getSurName()));// Assuming ResidentModel has getName()
+		notificationInfo.put("phone", resident.getContact().getMobileNumber()); // Assuming ResidentModel has getPhone()
+		notificationInfo.put("email", resident.getContact().getEmailId()); // Assuming ResidentModel has getEmail()
+
+		innerRequest.put("notificationInfo", notificationInfo);
+		outerRequest.put("request", innerRequest);
+
+		// Call the API
+		JSONObject response = RestClient.post(url, outerRequest, "crvs", contextKey);
+
+		return response.toString();
+	}
+
 
 }

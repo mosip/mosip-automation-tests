@@ -1,0 +1,14 @@
+CreatePublicKey:
+   Masterdata_CreateMachine_All_Valid_Smoke_sid:
+      endPoint: /v1/keymanager/tpmsigning/publickey
+      role: admin
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: ivv_masterdata/CreatePublicKey/CreatePublicKey
+      input: '{
+    "request" : {
+    "serverProfile" : "Prod"
+	}
+  }'
+      output: '{
+}'

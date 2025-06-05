@@ -318,4 +318,22 @@ public class CommonUtil {
 		boolean b = m.matches();
 
 	}
+	
+	 public static void deleteOldTempDir(String folderPath) throws IOException {
+	        Path tempPath = Paths.get(folderPath);
+	        if (Files.exists(tempPath)) {
+	            Files.walk(tempPath)
+	                .sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
+	                .forEach(path -> {
+	                    try {
+	                        Files.delete(path);
+	                        logger.debug("Deleted: {}", path);
+	                    } catch (IOException e) {
+	                        logger.error("❌ Failed to delete {}", path, e);
+	                        throw new RuntimeException(e);
+	                    }
+	                });
+	            logger.info("🗑️ Deleted old temp directory: {}", folderPath);
+	        }
+	    }
 }
