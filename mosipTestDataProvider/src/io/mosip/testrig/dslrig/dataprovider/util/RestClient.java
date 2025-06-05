@@ -52,6 +52,7 @@ public class RestClient {
 	private static final String URLBASE = "urlBase";
 	private static final String ADMIN = "admin";
 	private static final String REGPROC = "regproc";
+	private static final String CRVS = "crvs";
 	private static final String AUTHORIZATION = "Authorization";
 	private static final String SYSTEM = "system";
 	private static final String PREREG = "prereg";
@@ -323,6 +324,14 @@ public class RestClient {
 			logger.error(e.getMessage());
 		}
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+	}
+	
+	public static Response getWithoutParams(String url, String cookie) {
+
+		Cookie.Builder builder = new Cookie.Builder("Authorization", cookie);
+		Response getResponse;
+			getResponse = given().cookie(builder.build()).relaxedHTTPSValidation().log().all().when().get(url);
+		return getResponse;
 	}
 
 	// method used with system role
@@ -779,7 +788,9 @@ public class RestClient {
 				initToken_admin(contextKey);
 			} else if (role.equalsIgnoreCase(REGPROC)) {
 				initToken_Regproc(contextKey);
-			} else {
+			} else if (role.equalsIgnoreCase(CRVS)) {
+				initToken_crvs1(contextKey);
+			}else {
 				initToken(contextKey);
 			}
 		}
@@ -834,10 +845,19 @@ public class RestClient {
 		}
 	}
 
-	public static JSONObject put(String url, JSONObject jsonRequest, String contextKey) throws Exception {
-		String role = SYSTEM;
+	public static JSONObject put(String url, JSONObject jsonRequest,String role, String contextKey) throws Exception {
 		if (!isValidToken(role, contextKey)) {
-			initToken(contextKey);
+			if (role.equalsIgnoreCase(RESIDENT)) {
+				initToken_Resident(contextKey);
+			} else if (role.equalsIgnoreCase(ADMIN)) {
+				initToken_admin(contextKey);
+			} else if (role.equalsIgnoreCase(REGPROC)) {
+				initToken_Regproc(contextKey);
+			} else if (role.equalsIgnoreCase(CRVS)) {
+				initToken_crvs1(contextKey);
+			}else {
+				initToken(contextKey);
+			}
 		}
 		boolean bDone = false;
 		int nLoop = 0;
@@ -874,12 +894,45 @@ public class RestClient {
 		}
 
 		if (response.getBody().asString().startsWith("{")) {
-			logInfo(contextKey, "Response:" + response.getBody().asString());
-			checkErrorResponse(response.getBody().asString());
-			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+		    logInfo(contextKey, "Response: " + response.getBody().asString());
+		    checkErrorResponse(response.getBody().asString());
+		    JSONObject jsonBody = new JSONObject(response.getBody().asString());
+
+		    Object data = jsonBody.opt("response"); // corrected key
+
+		    if (data instanceof JSONObject) {
+		        return (JSONObject) data;
+		    } else if (data instanceof JSONArray) {
+		        // Wrap JSONArray in a JSONObject
+		        JSONObject wrapper = new JSONObject();
+		        wrapper.put("response", data);
+		        return wrapper;
+		    } else {
+		        throw new RuntimeException("Unexpected data type for key: response");
+		    }
 		} else {
-			return new JSONObject("{\"status\":\"" + response.getBody().asString() + "\"}");
+		    return new JSONObject("{\"status\":\"" + response.getBody().asString() + "\"}");
 		}
+
+	}
+	
+	public static String getToken(String role, String contextKey) throws Exception {
+		if (!isValidToken(role, contextKey)) {
+			if (role.equalsIgnoreCase(RESIDENT)) {
+				initToken_Resident(contextKey);
+			} else if (role.equalsIgnoreCase(ADMIN)) {
+				initToken_admin(contextKey);
+			} else if (role.equalsIgnoreCase(REGPROC)) {
+				initToken_Regproc(contextKey);
+			} else if (role.equalsIgnoreCase(CRVS)) {
+				initToken_crvs1(contextKey);
+			} else {
+				initToken(contextKey);
+			}
+		}
+		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		return token;
+
 	}
 
 	public static JSONObject putAdminPrereg(String url, JSONObject jsonRequest, String contextKey) throws Exception {
@@ -1264,6 +1317,59 @@ public class RestClient {
 			}
 			String token = response.getCookie(AUTHORIZATION);
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + REGPROC, token);
+
+			return true;
+		} catch (Exception ex) {
+
+		}
+		return false;
+
+	}
+	
+	public static boolean initToken_crvs1(String contextKey) {
+		try {
+			JSONObject requestBody = new JSONObject();
+			JSONObject nestedRequest = new JSONObject();
+			nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
+			nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
+			nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_crvs1_app_id"));
+			nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_id"));
+			nestedRequest.put("secretKey",
+					VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_secret"));
+			requestBody.put(METADATA, new JSONObject());
+			requestBody.put(VERSION, "string");
+			requestBody.put("id", "string");
+			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
+			requestBody.put(REQUEST, nestedRequest);
+
+			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
+					+ "v1/authmanager/authenticate/clientidsecretkey";
+
+			String jsonBody = requestBody.toString();
+			logInfo(contextKey, contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
+
+			Response response = null;
+			try {
+				if (isDebugEnabled(contextKey))
+					response = given().log().all().contentType("application/json").body(jsonBody).post(authUrl).then()
+							.log().all().extract().response();
+				else
+					response = given().contentType("application/json").body(jsonBody).post(authUrl);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+
+			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {
+				boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
+						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
+				if (bSlackit)
+					SlackIt.postMessage(null, authUrl + " Failed to authenticate, Is "
+							+ VariableManager.getVariableValue(contextKey, URLBASE).toString() + " down ?");
+
+				return false;
+			}
+			String token = response.getCookie(AUTHORIZATION);
+			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + CRVS, token);
 
 			return true;
 		} catch (Exception ex) {

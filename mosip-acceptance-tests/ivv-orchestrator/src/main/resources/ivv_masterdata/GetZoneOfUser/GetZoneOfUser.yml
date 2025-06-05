@@ -1,9 +1,9 @@
 GetZoneOfUser:
    Admin_GetZoneOfUser_allValid_smoke:
       endPoint: /v1/masterdata/zones/zonename?userID=enteruserID&langCode=enterlangCode
-      role: globalAdmin
+      role: user
       checkErrorsOnlyInResponse: true
-      allowedErrorCodes: KER-MSD-999
+      allowedErrorCodes: KER-MSD-999,KER-MSD-391
       restMethod: get
       inputTemplate: ivv_masterdata/GetZoneOfUser/getZoneOfUser
       outputTemplate: ivv_masterdata/GetZoneOfUser/getZoneOfUserResult

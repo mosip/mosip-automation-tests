@@ -16,6 +16,7 @@ import org.testng.TestNG;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.KeyCloakUserAndAPIKeyGeneration;
+import io.mosip.testrig.apirig.utils.KeycloakUserManager;
 import io.mosip.testrig.apirig.utils.MispPartnerAndLicenseKeyGeneration;
 import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
@@ -40,6 +41,10 @@ public class TestRunner {
 //		ConfigManager.init();
 		dslConfigManager.init();
 		AdminTestUtil.init();
+		BaseTestCase.currentModule = GlobalConstants.DSL;
+		KeycloakUserManager.removeUser();
+		KeycloakUserManager.createUsers();
+		KeycloakUserManager.closeKeycloakInstance();
 		
 		if (dslConfigManager.IsDebugEnabled())
 			LOGGER.setLevel(Level.ALL);
@@ -230,6 +235,7 @@ public class TestRunner {
 		TestResources.copyTestResource("/config");
 		TestResources.copyTestResource("/kernel");
 		TestResources.copyTestResource("/idaData");
+		TestResources.copyTestResource("/idRepo");
 		TestResources.copyTestResource("/ivv_masterdata");
 		TestResources.copyTestResource("/syncdata");
 		TestResources.copyTestResource("/regproc");

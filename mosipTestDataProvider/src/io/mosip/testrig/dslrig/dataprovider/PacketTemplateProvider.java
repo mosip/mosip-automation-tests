@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -20,12 +22,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 import org.javatuples.Pair;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import io.mosip.mock.sbi.exception.SBIException;
@@ -62,14 +69,12 @@ public class PacketTemplateProvider {
 	public static String RID_FOLDER = "rid_id";
 	public static String RID_EVIDENCE = "rid_evidence";
 	public static String RID_OPTIONAL = "rid_optional";
-
-	private static final String DOMAIN_NAME = ".mosip.net";
-
 	// String constants
 	private static final String ID_JSON = "/ID.json";
 	private static final String PACKET_META_INFO_JSON = "/packet_meta_info.json";
 	private static final String EVIDENCE = "evidence";
 	private static final String IDENTITY = "identity";
+	private static final String FIELDS = "fields";
 	private static final String BIOMETRICSTYPE = "biometricsType";
 	private static final String DOCUMENTTYPE = "documentType";
 	private static final String FORMAT = "format";
@@ -117,7 +122,7 @@ public class PacketTemplateProvider {
 	public String generate(String source, String process, ResidentModel resident, String packetFilePath,
 			String preregId, String machineId, String centerId, String contextKey, Properties props,
 			JSONObject preregResponse, String purpose, String qualityScore, boolean genarateValidCbeff)
-			throws IOException {
+					throws IOException {
 		final HashMap<String, String[]> fileInfo = new HashMap<String, String[]>();
 		String rootFolder = packetFilePath;
 		String ridFolder = "";
@@ -177,7 +182,7 @@ public class PacketTemplateProvider {
 		}
 		JSONObject processMVEL = processMVEL(resident, idJson, process, contextSchemaDetail, contextKey);
 		idJson = processMVEL.toString();
-		
+
 		CommonUtil.write(Paths.get(ridFolder + ID_JSON), idJson.getBytes());
 		String metadataJson = generateMetaDataJson(resident, preregId, machineId, centerId, fileInfo, contextKey,
 				contextSchemaDetail);
@@ -202,6 +207,38 @@ public class PacketTemplateProvider {
 		CommonUtil.write(Paths.get(processFolder + File.separator + "/rid_optional.json"), idJson.getBytes());
 
 		return "Success";
+
+	}
+
+	public JSONObject generateCRVSField(String source, ResidentModel resident,String process, String machineId, String centerId, String contextKey, Properties props,
+			String RID ,boolean validateToken , String uin)
+					throws JSONException, Exception {
+		ContextSchemaDetail contextSchemaDetail = getSchema(contextKey);
+		JSONObject requestNode = new JSONObject();
+		requestNode.put("id", RID);
+		requestNode.put("refId", centerId+"_"+machineId);
+		requestNode.put("offlineMode", false);
+		requestNode.put("process", process);
+		requestNode.put("source", source);
+		requestNode.put("schemaVersion", contextSchemaDetail.getSchemaVersion());
+
+		// Parsing String output of generateFieldsNode() into a JSONObject
+		JSONObject fieldsString = generateCRVSIDJson(resident, contextKey, props, contextSchemaDetail ,validateToken ,uin);
+		requestNode.put("fields", fieldsString);
+
+		// Assuming generateMetaInfoNode() returns a JSONObject
+		requestNode.put("metaInfo",  generateMetaInfoJson(resident, process, RID, machineId, centerId, contextKey,
+				contextSchemaDetail));
+
+		// Creating audits array
+		JSONArray auditsArray = new JSONArray();
+		auditsArray.put(generateAuditNode(RID)); 
+		requestNode.put("audits", auditsArray);
+
+		requestNode.put("schemaJson", MosipMasterData.getIDSchemaALL(contextKey));
+
+		return requestNode;
+
 
 	}
 
@@ -318,11 +355,11 @@ public class PacketTemplateProvider {
 			RestClient.logInfo(contextKey, s.toJSONString());
 			String primVal = "";
 			String secVal = "";
-			
+
 			if (s.getFieldCategory() != null && (
-				    (s.getInputRequired() != null && s.getInputRequired()) ||
-				    (s.getRequired() != null && s.getRequired())
-				) && s.getFieldCategory().equals(EVIDENCE))  {
+					(s.getInputRequired() != null && s.getInputRequired()) ||
+					(s.getRequired() != null && s.getRequired())
+					) && s.getFieldCategory().equals(EVIDENCE))  {
 
 				if (s.getRequired() && s.getRequiredOn() != null && !s.getRequiredOn().isEmpty()) {
 
@@ -351,12 +388,12 @@ public class PacketTemplateProvider {
 
 							String outFile = fileInfo.get(RID_EVIDENCE)[0] + "/" + fileInfo.get(RID_EVIDENCE)[1];
 							try {
-//								Files.copy(Paths.get(docFile), Paths.get(outFile));
+								//								Files.copy(Paths.get(docFile), Paths.get(outFile));
 								CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
 								RestClient.logInfo(contextKey,
 										"contextkey" + contextKey + "Index= " + index + " File info= " + fileInfo
-												+ " From-docFIle=" + docFile + " To-docFIle=" + outFile + DTYPE
-												+ s.getSubType() + "Proof of cat=" + s.getId());
+										+ " From-docFIle=" + docFile + " To-docFIle=" + outFile + DTYPE
+										+ s.getSubType() + "Proof of cat=" + s.getId());
 
 							} catch (Exception e) {
 								logger.error(e.getMessage());
@@ -605,9 +642,55 @@ public class PacketTemplateProvider {
 		return identity;
 	}
 
+	JSONObject updateSimpleTypeString(String id, JSONObject identity, String primValue, String secValue, String primLang,
+			String secLang, String thirdLang, String contextKey) {
+
+		if (primValue == null)
+			primValue = "Some Text Value";
+
+		if ((secValue == null || secValue.equals("")) && secLang != null && !secLang.equals(""))
+			secValue = Translator.translate(secLang, primValue, contextKey);
+
+		String thirdValue = "";
+		if (thirdLang != null && !thirdLang.equals(""))
+			thirdValue = Translator.translate(thirdLang, primValue, contextKey);
+
+		// array
+		JSONArray ar = new JSONArray();
+		JSONObject o = new JSONObject();
+		o.put(LANGUAGE, primLang);
+		if (primValue != null && primValue.equals(""))
+			o.put(VALUE, Json.NULL);
+		else
+			o.put(VALUE, primValue);
+		ar.put(o);
+
+		if (secLang != null) {
+			o = new JSONObject();
+			o.put(LANGUAGE, secLang);
+			if (secValue != null && secValue.equals(""))
+				o.put(VALUE, Json.NULL);
+			else
+				o.put(VALUE, secValue);
+			ar.put(o);
+		}
+		if (thirdLang != null) {
+			o = new JSONObject();
+			o.put(LANGUAGE, thirdLang);
+			if (thirdValue.equals(""))
+				o.put(VALUE, Json.NULL);
+			else
+				o.put(VALUE, thirdValue);
+			ar.put(o);
+		}
+
+		identity.put(id, ar.toString());
+		return identity;
+	}
+
 	Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile, String contextKey,
 			String purpose, String qualityScore, List<String> missAttribs, boolean genarateValidCbeff)
-			throws Exception {
+					throws Exception {
 
 		String strVal = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "usemds").toString();
 		boolean bMDS = Boolean.valueOf(strVal);
@@ -635,7 +718,7 @@ public class PacketTemplateProvider {
 			} else {
 				FileOutputStream fos = new FileOutputStream(outFile);
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
-//				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+				//				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
 				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
 				writer.print(cbeff);
 				writer.close();
@@ -654,7 +737,7 @@ public class PacketTemplateProvider {
 			} else {
 				FileOutputStream fos = new FileOutputStream(outFile);
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
-//				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+				//				PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
 				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
 				writer.print(cbeff);
 				writer.close();
@@ -856,6 +939,7 @@ public class PacketTemplateProvider {
 		Hashtable<String, List<DynamicFieldModel>> dynaFields = resident.getDynaFields();
 		Hashtable<String, List<MosipGenderModel>> genderTypes = resident.getGenderTypes();
 		boolean found = false;
+		String flow = VariableManager.getVariableValue(contextKey, "process").toString();
 
 		if (s.getFieldType().equals("dynamic")) {
 
@@ -872,7 +956,7 @@ public class PacketTemplateProvider {
 					if (dfm.getIsActive() && dfm.getName().equals(s.getId())) {
 						primaryValue = dfm.getFieldVal().get(0).getCode();
 						if (s.getId().contains("residenceStatus"))
-						VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", primaryValue);
+							VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", primaryValue);
 						dfmPrim = dfm;
 						break;
 					}
@@ -884,16 +968,18 @@ public class PacketTemplateProvider {
 						if (dfm1.getIsActive() && dfm1.getName().equals(s.getId())) {
 							secValue = dfm1.getFieldVal().get(0).getCode();
 							if (s.getId().contains("residenceStatus"))
-							VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", secValue);
+								VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", secValue);
 							break;
 						}
 					}
+				if(flow.equals("CRVS_NEW")) {
 
-				CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(),
-						resident.getSecondaryLanguage(), primaryValue, secValue,
-						s.getType().equals(SIMPLETYPE) ? true : false);
-				found = true;
-
+				}else {
+					CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(),
+							resident.getSecondaryLanguage(), primaryValue, secValue,
+							s.getType().equals(SIMPLETYPE) ? true : false);
+					found = true;
+				}
 			}
 
 		}
@@ -946,7 +1032,7 @@ public class PacketTemplateProvider {
 			if (!s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
 				continue;
 			}
-			
+
 			if (VariableManager.getVariableValue(contextKey, "invalidIdSchemaFlag").toString().equals("invalidIdSchema")
 					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion"))) {
 				identity.put(s.getId(), Double.valueOf(INVALID_SCHEMA));
@@ -958,8 +1044,8 @@ public class PacketTemplateProvider {
 				identity.put(s.getId(), contextSchemaDetail.getSchemaVersion());
 				continue;
 			}
-			
-		    if (s.getId().contains("residenceStatus")) {
+
+			if (s.getId().contains("residenceStatus")) {
 				VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", resident.getResidentStatus().getCode());
 			}
 
@@ -1025,14 +1111,14 @@ public class PacketTemplateProvider {
 						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "individualBiometrics"))) {
 					if(!VariableManager.getVariableValue(contextKey, "skipBiometricClassificationFlag").toString().contentEquals("skipBiometricClassification"))
 					{
-					JSONObject o = new JSONObject();
-					o.put(FORMAT, CBEFF);
-					o.put(VERSION, 1.0f);
-					String[] v = fileInfo.get(RID_FOLDER);
-					v[1] = s.getId() + BIO_CBEFF_XML;
-					fileInfo.put(RID_FOLDER, v);
-					o.put(VALUE, s.getId() + BIO_CBEFF);
-					identity.put(s.getId(), o);
+						JSONObject o = new JSONObject();
+						o.put(FORMAT, CBEFF);
+						o.put(VERSION, 1.0f);
+						String[] v = fileInfo.get(RID_FOLDER);
+						v[1] = s.getId() + BIO_CBEFF_XML;
+						fileInfo.put(RID_FOLDER, v);
+						o.put(VALUE, s.getId() + BIO_CBEFF);
+						identity.put(s.getId(), o);
 					}
 					String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
 					try {
@@ -1073,7 +1159,7 @@ public class PacketTemplateProvider {
 							bret = generateCBEFF(resident, bioAttrib,
 									fileInfo.get(RID_FOLDER)[0] + "/"
 											+ prop.get("mosip.test.regclient.officerBiometricFileName") + ".xml",
-									contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
+											contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
 							if (bret == false)
 								return "";
 						}
@@ -1081,7 +1167,7 @@ public class PacketTemplateProvider {
 							bret = generateCBEFF(resident, bioAttrib,
 									fileInfo.get(RID_FOLDER)[0] + "/"
 											+ prop.get("mosip.test.regclient.supervisorBiometricFileName") + ".xml",
-									contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
+											contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
 
 							if (bret == false)
 								return "";
@@ -1164,9 +1250,9 @@ public class PacketTemplateProvider {
 							identity.put(s.getId(), o);
 							String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
 							try {
-//								Files.copy(Paths.get(docFile), Paths.get(outFile));
-						   if(!VariableManager.getVariableValue(contextKey, "skipApplicantDocumentsFlag").toString().contentEquals("skipApplicantDocuments"))  // Applican documents missing in packet
-								CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
+								//								Files.copy(Paths.get(docFile), Paths.get(outFile));
+								if(!VariableManager.getVariableValue(contextKey, "skipApplicantDocumentsFlag").toString().contentEquals("skipApplicantDocuments"))  // Applican documents missing in packet
+									CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
 							} catch (Exception e) {
 								logger.error(GENERATEIDJSONV2, e);
 							}
@@ -1234,44 +1320,175 @@ public class PacketTemplateProvider {
 		return idjson;
 	}
 
-	private void loadMapperProp(String contextKey, Properties prop) {
-		String hostName = null;
-		if (contextKey != null && !contextKey.equals(""))
-			hostName = contextKey.split("_")[0];
-		else
-			throw new RuntimeException("ContextKey not found !!");
-		Boolean contextMapperFound = false;
-		String propPath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.test.env.mapperpath")
-				.toString();
-		RestClient.logInfo(contextKey, propPath);
-		File folder = new File(String.valueOf(propPath) + File.separator);
-		File[] listOfFiles = folder.listFiles();
-		for (File file : listOfFiles) {
-			if (file.isFile()) {
-				if (file.getName().contains(hostName + DOMAIN_NAME)) {
-					propPath = file.getAbsolutePath();
-					contextMapperFound = true;
-					break;
+
+	JSONObject generateCRVSIDJson(ResidentModel resident, String contextKey,
+			Properties prop, ContextSchemaDetail contextSchemaDetail, boolean validateToken, String uin) throws JSONException, Exception {
+
+		JSONObject identity = new JSONObject();
+
+		String primaryLanguage = resident.getPrimaryLanguage();
+		String secLanguage = resident.getSecondaryLanguage();
+		Hashtable<String, MosipLocationModel> locations = resident.getLocation();
+		Hashtable<String, MosipLocationModel> locations_seclang = resident.getLocation_seclang();
+
+		Set<String> locationSet = locations.keySet();
+
+		Set<String> locationSet_sec = null;
+		if (locations_seclang != null)
+			locationSet_sec = locations_seclang.keySet();
+
+		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
+			RestClient.logInfo(contextKey, s.toJSONString());
+			// if not reqd field , skip it
+			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
+				continue;
+
+			if (!s.getRequired() && !s.getInputRequired()) {
+				continue;
+			}
+
+			if (!s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
+				continue;
+			}
+
+			if (VariableManager.getVariableValue(contextKey, "invalidIdSchemaFlag").toString().equals("invalidIdSchema")
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion"))) {
+				identity.put(s.getId(), Double.valueOf(INVALID_SCHEMA));
+				continue;
+			}
+
+			if (VariableManager.getVariableValue(contextKey, "IDSchemaVersion") != null
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion"))) {
+				identity.put(s.getId(), contextSchemaDetail.getSchemaVersion());
+				continue;
+			}
+
+			if (s.getId().contains("residenceStatus")) {
+				VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", resident.getResidentStatus().getCode());
+			}
+
+			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
+				continue;
+			}
+			if (processDynamicFields(s, identity, resident, contextKey)) {	
+				if (s.getId().contains("gender")) {
+				Object rawValue = identity.get("gender");
+				if (rawValue instanceof JSONArray) {
+				    identity.put("gender", rawValue.toString());
+				}
+				}
+				continue;
+			}
+			
+			if (s.getFieldCategory().equals("evidence") && s.getId().equals("nrcId") ) {
+				identity.put(s.getId(),resident.getNrcId().getNrcId());
+				continue;
+			}
+			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
+				String primaryValue = "";
+				String secValue = "";
+				if (VariableManager.getVariableValue(contextKey, "name") != null
+						&& VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
+					primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
+							+ resident.getName().getSurName();
+					if (secLanguage != null)
+						secValue = resident.getName_seclang().getFirstName() + " "
+								+ resident.getName_seclang().getMidName() + " "
+								+ resident.getName_seclang().getSurName();
+				} else if (prop.getProperty(FIRSTNAME) != null && s.getId().equals(prop.getProperty(FIRSTNAME))) {
+					primaryValue = resident.getName().getFirstName();
+					if (secLanguage != null)
+						secValue = resident.getName_seclang().getFirstName();
+				} else if (prop.getProperty(LASTNAME) != null && s.getId().equals(prop.getProperty(LASTNAME))) {
+					primaryValue = resident.getName().getSurName();
+					if (secLanguage != null)
+						secValue = resident.getName_seclang().getSurName();
+				} else if (prop.getProperty(MIDDLENAME) != null && s.getId().equals(prop.getProperty(MIDDLENAME))) {
+					primaryValue = resident.getName().getMidName();
+					if (secLanguage != null)
+						secValue = resident.getName_seclang().getMidName();
+				} else if (VariableManager.getVariableValue(contextKey, "dob") != null
+						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "dob"))) {
+					primaryValue = resident.getDob();
+					secValue = primaryValue;
+				} else if (prop.getProperty("addressgroup") != null
+						&& s.getId().equals(prop.getProperty("addressgroup"))) {
+					if (s.getControlType().equals(CHECKBOX)) {
+						primaryValue = "Y";
+						if (secLanguage != null)
+							secValue = "Y";
+					} else {
+						Pair<String, String> addrLines = processAddresslines(s, resident, identity, contextKey);
+						primaryValue = addrLines.getValue0();
+						secValue = addrLines.getValue1();
+					}
+				} else if (s.getId().contains("residenceStatus")) {
+					primaryValue = resident.getResidentStatus().getCode();
+					secValue = primaryValue;
+				} else if (VariableManager.getVariableValue(contextKey, "emailId") != null
+						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
+					primaryValue = resident.getContact().getEmailId();
+				}
+				for (String locKey : locationSet) {
+					MosipLocationModel locModel = locations.get(locKey);
+
+					if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())
+							|| s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
+						primaryValue = locModel.getName();
+
+						break;
+					}
+				}
+				if (locations_seclang != null)
+					for (String locKey : locationSet_sec) {
+						MosipLocationModel locModel = locations_seclang.get(locKey);
+
+						if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
+							secValue = locModel.getName();
+							break;
+						}
+					}
+
+				if (primaryValue == null || primaryValue.equals("")) {
+					primaryValue = generateDefaultAttributes(s, resident, identity, contextKey);
+					if (secLanguage != null) {
+						secValue = Translator.translate(secLanguage, primaryValue, contextKey);
+					}
+				}
+               
+				if (s.getType().equals(SIMPLETYPE)) {
+
+					updateSimpleTypeString(s.getId(), identity, primaryValue, secValue, primaryLanguage, secLanguage,
+							resident.getThirdLanguage(), contextKey);
+
+				} else {
+					if (primaryValue.equals(""))
+						identity.put(s.getId(), JSONObject.NULL);
+					else
+						identity.put(s.getId(), primaryValue);
 				}
 			}
-		}
-		String filePath = propPath + "/default.properties";
-		if (contextMapperFound) {
-			filePath = propPath;
 
 		}
+		 if(validateToken==true && VariableManager.getVariableValue(contextKey, "process").toString().contains("NEW")) {
+         	identity.put("introducerInfoToken", RestClient.getToken("crvs", contextKey));
+         }else if(validateToken==true && VariableManager.getVariableValue(contextKey, "process").toString().contains("DEATH")) {
+          	identity.put("deceasedInformer", RestClient.getToken("crvs", contextKey));
+          	identity.put("declaredAsDeceased", "Y");
+          	identity.put("UIN", uin);
+          	LocalDate today = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+            String formattedDate = today.format(formatter);
+          	identity.put("deceasedDeclarationDate",formattedDate );
 
-		try (FileInputStream fis = new FileInputStream(filePath)) {
-			prop.load(fis);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
+          }
+		return identity;
 	}
 
 	String generateMetaDataJson(ResidentModel resident, String preRegistrationId, String machineId, String centerId,
 			HashMap<String, String[]> fileInfo, String contextKey, ContextSchemaDetail contextSchemaDetail) {
 
-		String templateMetaJsonPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+		String templateMetaJsonPath =System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "templateIDMeta").toString().trim();
 
 		String templateIdentityStr = CommonUtil.readFromJSONFile(templateMetaJsonPath);
@@ -1346,6 +1563,81 @@ public class PacketTemplateProvider {
 		return retObject.toString();
 	}
 
+	JSONObject generateMetaInfoJson(ResidentModel resident, String process, String RegistrationId, String machineId, String centerId, String contextKey, ContextSchemaDetail contextSchemaDetail) {
+		JSONObject metaInfo = new JSONObject();
+		JSONArray metaDataArray = new JSONArray();
+		String templateMetaJsonPath =System.getProperty("java.io.tmpdir")
+				+ VariableManager.getVariableValue(contextKey, "templateIDMeta").toString().trim();
+
+		String templateIdentityStr = CommonUtil.readFromJSONFile(templateMetaJsonPath);
+		JSONObject templateIdentity = new JSONObject(templateIdentityStr).getJSONObject(IDENTITY);
+
+		JSONObject obj = new JSONObject();
+		obj.put("label", "registrationType");
+		obj.put("value", process);
+		metaDataArray.put(obj);
+
+		if (machineId != null && !machineId.isEmpty()) {
+			obj = new JSONObject();
+			obj.put("label", "machineId");
+			obj.put("value", machineId);
+			metaDataArray.put(obj);
+		}
+
+		if (centerId != null && !centerId.isEmpty()) {
+			obj = new JSONObject();
+			obj.put("label", "centerId");
+			obj.put("value", centerId);
+			metaDataArray.put(obj);
+		}
+		JSONArray operationsData = templateIdentity.getJSONArray("operationsData");
+		 if (process != null && process.contains("CRVS")) {
+	            for (int i = 0; i < operationsData.length(); i++) {
+	                JSONObject object = operationsData.getJSONObject(i);
+	                if ("officerId".equals(object.getString("label"))) {
+	                	object.put("value", VariableManager.getVariableValue(contextKey, "mosip.test.regclient.userid"));
+	                    break;
+	                }
+	            }
+	        }
+		 
+		// ✅ Convert array to string before putting into metaInfo
+		metaInfo.put("metaData", metaDataArray.toString());
+
+		metaInfo.put("registrationId", RegistrationId != null ? RegistrationId : JSONObject.NULL);
+		metaInfo.put("operationsData", operationsData.toString());
+		metaInfo.put("capturedRegisteredDevices", templateIdentity.getJSONArray("capturedRegisteredDevices").toString());
+		metaInfo.put("creationDate", CommonUtil.getUTCDateTime(null));
+
+		return metaInfo;
+	}
+
+
+	private static JSONObject generateAuditNode(String RID) {
+		JSONObject auditNode = new JSONObject();
+		auditNode.put("uuid", UUID.randomUUID().toString());
+		auditNode.put("createdAt", CommonUtil.getUTCDateTime(null)); // Dynamically fetch the current timestamp
+		auditNode.put("eventId", "REG-EVT-066");
+		auditNode.put("eventName", "PACKET_CREATION_SUCCESS");
+		auditNode.put("eventType", "USER");
+		auditNode.put("hostName", "DESKTOP-JL4BAEV");
+		auditNode.put("hostIp", "localhost");
+		auditNode.put("applicationId", "REG");
+		auditNode.put("applicationName", "REGISTRATION");
+		auditNode.put("sessionUserId", "crvs");
+		auditNode.put("sessionUserName", "crvs");
+		auditNode.put("id", RID);
+		auditNode.put("idType", "REGISTRATION_ID");
+		auditNode.put("createdBy", "crvs");
+		auditNode.put("moduleName", "Packet Handler");
+		auditNode.put("moduleId", "REG-MOD-117");
+		auditNode.put("description", "Packet Successfully Created");
+		auditNode.put("actionTimeStamp", CommonUtil.getUTCDateTime(null));
+
+		return auditNode;
+	}
+
+
 	String genRID_PacketTypeJson(String src, String process, String packetType,
 			ContextSchemaDetail contextSchemaDetail) {
 
@@ -1359,15 +1651,16 @@ public class PacketTemplateProvider {
 		retObject.put("signature", "");
 		retObject.put("id", "");
 		retObject.put("packetname", "id_" + packetType);
-		retObject.put("signature", "");
 		retObject.put("providername", "PacketWriterImpl");
 
 		return retObject.toString();
 
 	}
 
-	public static void main(String[] args) {
 
+
+
+	public static void main(String[] args) {
 		ResidentDataProvider provider = new ResidentDataProvider();
 		List<ResidentModel> residents = provider.generate("contextKey");
 		try {

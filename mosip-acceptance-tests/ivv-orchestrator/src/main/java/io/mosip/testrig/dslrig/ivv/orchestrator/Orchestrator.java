@@ -46,6 +46,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.management.OperatingSystemMXBean;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
 import io.mosip.testrig.dslrig.ivv.core.dtos.RegistrationUser;
@@ -138,6 +139,13 @@ public class Orchestrator {
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
 	public static Object[][] dataProvider() throws RigInternalError {
+		int threadCount = Integer.parseInt(dslConfigManager.getThreadCount()); 
+
+	    System.out.println("Executing with thread count: " + threadCount);
+	    logger.info("Executing DataProvider with thread count: " + threadCount);
+
+	    System.setProperty("dataproviderthreadcount", String.valueOf(threadCount));
+		
 		String scenarioSheet = null;
 
 		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
@@ -187,13 +195,22 @@ public class Orchestrator {
 		ArrayList<RegistrationUser> rcUsers = parser.getRCUsers();
 		totalScenario = scenarios.size();
 		ArrayList<Scenario> filteredScenarios = new ArrayList<>();
-		for (Scenario scenario : scenarios) {
-			if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
-					|| dslConfigManager.isInTobeExecuteList(scenario.getId())) {
-				filteredScenarios.add(scenario);
+		if(ConfigManager.getproperty("scenariosToExecute").isEmpty() && BaseTestCase.testLevel.equalsIgnoreCase("sanity")) {
+			for (Scenario scenario : scenarios) {
+				if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
+						|| scenario.getId().equalsIgnoreCase("2")) {
+					filteredScenarios.add(scenario);
+				}
+			}
+		} else {
+			for (Scenario scenario : scenarios) {
+				if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
+						|| (dslConfigManager.isInTobeExecuteList(scenario.getId())
+								&& dslConfigManager.isInTobeGroupExecuteList(scenario.getGroupName()))) {
+					filteredScenarios.add(scenario);
+				}
 			}
 		}
-
 		totalScenario = filteredScenarios.size();
 		Object[][] dataArray = new Object[filteredScenarios.size()][5];
 		for (int i = 0; i < filteredScenarios.size(); i++) {
@@ -203,6 +220,8 @@ public class Orchestrator {
 			dataArray[i][3] = globals;
 			dataArray[i][4] = properties;
 		}
+		
+		System.setProperty("testng.threadcount", String.valueOf(dslConfigManager.getThreadCount()));
 		return dataArray;
 	}
 
@@ -238,6 +257,7 @@ public class Orchestrator {
 		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
 
 	}
+	
 
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
@@ -317,7 +337,7 @@ public class Orchestrator {
 				+ scenario.getId());
 
 		extent.flush();
-		String testLevel = System.getProperty("env.testLevel");
+		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
 		if (testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression")) {
@@ -458,19 +478,19 @@ public class Orchestrator {
 				Reporter.log(e.getMessage());
 				throw new SkipException(e.getMessage());
 			} catch (ClassNotFoundException e) {
-				extentTest.error(identifier + " - ClassNotFoundException --> " + e.getMessage());
+				extentTest.fail(identifier + " - ClassNotFoundException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (IllegalAccessException e) {
-				extentTest.error(identifier + " - IllegalAccessException --> " + e.getMessage());
+				extentTest.fail(identifier + " - IllegalAccessException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (InstantiationException e) {
-				extentTest.error(identifier + " - InstantiationException --> " + e.getMessage());
+				extentTest.fail(identifier + " - InstantiationException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
@@ -479,14 +499,14 @@ public class Orchestrator {
 				if (scenario.getId().equals("0")) {
 					beforeSuiteFailed = true;
 				}
-				extentTest.error(identifier + " - RigInternalError --> " + e.getMessage());
+				extentTest.fail(identifier + " - RigInternalError --> " + e.getMessage());
 				logger.error(e.getMessage());
 				Reporter.log(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);
 				return;
 			} catch (RuntimeException e) {
-				extentTest.error(identifier + " - RuntimeException --> " + e.getMessage());
+				extentTest.fail(identifier + " - RuntimeException --> " + e.getMessage());
 				logger.error(e.getMessage());
 				updateRunStatistics(scenario);
 				Assert.assertTrue(false);

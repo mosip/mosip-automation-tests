@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -54,7 +56,9 @@ import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.masterdata.utils.MasterDataUtil;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.BioAuth;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
@@ -253,8 +257,49 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} while (count < maxRetryCount);
 		return resp;
 	}
+	
+	public String createUploadPacket(Set<String> resPath, String source, String process, boolean genrateValidateToken, String uin, HashMap<String, String> contextKey,
+			Scenario.Step step ,String valid) throws RigInternalError {
+		JSONObject jsonReq = new JSONObject();
+		JSONArray arr = new JSONArray();
+		for (String residentPath : resPath) {
+			arr.put(residentPath);
+		}
+		DateFormat dateFormatter = new SimpleDateFormat("yyyyMMddHHmmss");
+		Calendar cal = Calendar.getInstance();
+		String timestampValue = dateFormatter.format(cal.getTime());
+		String genRid = "27847" + BaseTestCase.generateRandomNumberString(10) + timestampValue;
+		jsonReq.put(PERSONAFILEPATH, arr);
+		jsonReq.put("source", source);
+		if (uin != null) {
+		    jsonReq.put("uin", uin);
+		}
+		String url = baseUrl + props.getProperty("getCreatePacketUrl") + process + "/" + genRid +"/"+ genrateValidateToken;
 
-	public void requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone, Scenario.Step step)
+		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
+		if(valid.equalsIgnoreCase("invalid")) {
+			return templateResponse.getBody().asString();
+		}else {
+		JSONObject jsonObject = new JSONObject(templateResponse.getBody().asString());
+		JSONArray responseArray = jsonObject.getJSONArray("response");
+		String id = null;
+		if (responseArray.length() > 0) {
+			id = responseArray.getJSONObject(0).getString("id");
+			System.out.println("ID: " + id);
+		}
+		return id;
+		}
+	}
+	
+	public String syncAndTriggerPacket( String rid, HashMap<String, String> contextKey, Scenario.Step step) throws RigInternalError {
+	    JSONObject jsonReq = new JSONObject();
+	 
+	    String url = baseUrl + props.getProperty("getSyncExternalPacketUrl") + rid;
+	    Response templateResponse = postRequest(url, jsonReq.toString(), "SYNC-PACKET", step);
+	    return templateResponse.getBody().asString();
+	}
+
+	public String requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone, Scenario.Step step)
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("sendOtpUrl") + emailOrPhone;
 		JSONObject jsonReq = new JSONObject();
@@ -266,6 +311,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 			this.hasError = true;
 			throw new RigInternalError("Unable to Send OTP");
 		}
+
+		JSONObject json = new JSONObject(response.getBody().asString());
+		return json.getString("emailId");
 
 	}
 
@@ -771,7 +819,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,
 			String consent, boolean changeSupervisorNameToDiffCase, String invalidEncryptedHashFlag,
-			String invalidCheckSum , String invalidIdSchemaFlag ,String skipBiometricClassification,String skipApplicantDocuments, String invalidDateFlag, String invalidOfficerIDFlag) throws RigInternalError {
+			String invalidCheckSum , String invalidIdSchemaFlag ,String skipBiometricClassification,String skipApplicantDocuments, String invalidDateFlag, String invalidOfficerIDFlag, String flow, String Signature) throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
 
@@ -814,6 +862,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("invalidDateFlag", invalidDateFlag);
 		jsonReq.put("invalidOfficerIDFlag", invalidOfficerIDFlag);
 		jsonReq.put("invalidEncryptedHashFlag", invalidEncryptedHashFlag);
+		jsonReq.put("signature", Signature);
 		jsonReq.put("changeSupervisorNameToDiffCase", changeSupervisorNameToDiffCase);
 		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
@@ -916,7 +965,21 @@ public class PacketUtility extends BaseTestCaseUtil {
 					jsonReq.put("mosip.test.regclient.supervisorBiometricFileName", supervOpertoDetails[5]);
 			}
 		}
-
+		if(flow.equalsIgnoreCase("EXTERNAL")) {
+		    MachineHelper machineHelper = new MachineHelper();
+		    try {
+		        String publicKey = machineHelper.createPublicKey();
+		        Map<String, String> result = machineHelper.getIdAndRegCenterIdByPublicKey(publicKey);
+		        if (result != null) {
+		            jsonReq.put("mosip.test.regclient.machineid", result.get("id"));
+		            jsonReq.put("mosip.test.regclient.centerid", result.get("regCenterId"));
+		        } else {
+		            System.out.println("No matching machine found for public key: " + publicKey);
+		        }
+		    } catch (RigInternalError e) {
+		        e.printStackTrace();
+		    }
+		}
 		JSONObject JO = new JSONObject(map);
 
 		Response response = postRequest(url, mergeJSONObjects(JO, jsonReq, step).toString(), SETCONTEXT, step);
@@ -1142,7 +1205,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		try {
 			bioAuth.test(test);
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
@@ -1190,7 +1253,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		try {
 			esignetBioAuth.test(test);
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
@@ -1727,7 +1790,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		try {
 			bioAuth.test(test);
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		} finally {

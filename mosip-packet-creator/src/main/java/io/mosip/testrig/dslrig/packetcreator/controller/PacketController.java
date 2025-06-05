@@ -1,8 +1,6 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -16,11 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
-import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
-import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+import io.mosip.testrig.dslrig.packetcreator.dto.ExternalPacketRequestDTO;
 import io.mosip.testrig.dslrig.packetcreator.dto.PacketCreateDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.PacketReprocessDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.PreRegisterRequestDto;
@@ -276,12 +272,54 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) throws Exception {
 		try {
 			return packetSyncService.reprocessPacket(requestDto.getRID() ,requestDto.getWorkflowInstanceId(), contextKey);
+
 		}catch (Exception ex) {
 			logger.error("get tags", ex);
 		}
 		return "{\"Failed\"}";
 	}
+	
+	@Operation(summary = "Create the external packet and upload")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "External packet and upload successfully") })
+	@PostMapping(value = "/packetmanager/createPacket/{process}/{rid}/{introducerInfoToken}/{contextKey}")
+	public @ResponseBody String createCRVSPacket(@RequestBody ExternalPacketRequestDTO requestDto,
+			@PathVariable("process") String process,
+			@PathVariable("rid") String rid,
+			@PathVariable("introducerInfoToken") boolean validateToken,
+			@PathVariable("contextKey") String contextKey) {
 
+		try {
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+
+			return packetSyncService.createPacketUpload(requestDto.getPersonaFilePath(),requestDto.getSource(), process, requestDto.getUin(), rid,
+					validateToken,contextKey);
+
+		} catch (Exception ex) {
+			logger.error("createExternalPacket", ex);
+			return "{\"" + ex.getMessage() + "\"}";
+		}
+	}
+
+	@Operation(summary = "sync the external packet")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "sync the external packet successfully") })
+	@PostMapping(value = "/sync/externalPacket/{rid}/{contextKey}")
+	public @ResponseBody String syncCRVSPacket(@PathVariable("rid") String rid,
+			@PathVariable("contextKey") String contextKey) {
+
+		try {
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+
+			return packetSyncService.syncAndUpload(rid, contextKey);
+
+		} catch (Exception ex) {
+			logger.error("createCRVSPacket", ex);
+			return "{\"" + ex.getMessage() + "\"}";
+		}
+	}
 	/*
 	 * @Operation(summary = "Validate Identity Object as per ID Schema")
 	 * 

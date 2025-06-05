@@ -9,12 +9,14 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class PhotoProvider {
@@ -27,7 +29,7 @@ public class PhotoProvider {
 		byte[] bData = null;
 		try {
 
-			String dirPath = VariableManager.getVariableValue(contextKey, "mountPath").toString()
+			String dirPath = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString();
 
 			File dir = new File(dirPath);
@@ -53,10 +55,15 @@ public class PhotoProvider {
 
 			// otherwise pick the impression of same of scenario number
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
-
+			
+			dirPath = FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
+			
 			logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders=" + numberOfSubfolders
 					+ " impressionToPick=" + impressionToPick);
-			File file = new File(dirPath + String.format(Photo_File_Format, impressionToPick));
+			
+			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face_data/");
+			
+			List<File> filteredFiles = firstSet.stream().filter(file -> file.getName().contains("00"+impressionToPick)).toList();
 
 			Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "enableExternalBiometricSource");
 			boolean bExternalSrc = false;
@@ -75,10 +82,10 @@ public class PhotoProvider {
 				}
 			} else {
 
-				try (FileInputStream fos = new FileInputStream(file);
+				try (FileInputStream fos = new FileInputStream(filteredFiles.get(0));
 						BufferedInputStream bis = new BufferedInputStream(fos)) {
 					img = ImageIO.read(bis);
-					logger.info("Image picked from this path=" + file);
+					logger.info("Image picked from this path=" + filteredFiles.get(0));
 				}
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -89,6 +96,8 @@ public class PhotoProvider {
 			bencoded = encodeFaceImageData(bData);
 
 			baos.close();
+			CommonUtil.deleteOldTempDir(dirPath);
+
 
 		} catch (Exception e) {
 
@@ -101,14 +110,14 @@ public class PhotoProvider {
 		/// 125 x129
 		try {
 			final BufferedImage source = ImageIO
-					.read(new File(VariableManager.getVariableValue(contextKey, "mountPath").toString()
+					.read(new File(System.getProperty("java.io.tmpdir")
 							+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString()
 							+ "/female/celebrities.jpg"));
 			int idx = 0;
 			for (int y = 0; y < source.getHeight() - 129; y += 129) {
 				for (int x = 0; x < source.getWidth() - 125; x += 125) {
 					ImageIO.write(source.getSubimage(x, y, 125, 129), "jpg",
-							new File(VariableManager.getVariableValue(contextKey, "mountPath").toString()
+							new File(System.getProperty("java.io.tmpdir")
 									+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath")
 											.toString()
 									+ "/female/photo_" + idx++ + ".jpg"));

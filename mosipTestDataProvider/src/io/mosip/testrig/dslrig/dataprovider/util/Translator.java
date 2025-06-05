@@ -25,7 +25,7 @@ public class Translator {
 	static String getLanguageID(String langIsoCode,String contextKey) {
 	
 		String v ="Any-Any";
-		IDlookupFile =VariableManager.getVariableValue(contextKey,"mountPath").toString()+VariableManager.getVariableValue(contextKey,"mosip.test.persona.datapath").toString()+"Address/lang-isocode-transid.csv";
+		IDlookupFile =System.getProperty("java.io.tmpdir")+VariableManager.getVariableValue(contextKey,"mosip.test.persona.datapath").toString()+"Address/lang-isocode-transid.csv";
 		
 		try {
 			CSVHelper csv = new CSVHelper(IDlookupFile);
