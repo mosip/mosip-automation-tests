@@ -58,6 +58,7 @@ public class EmailableReport implements IReporter {
 
 	int totalPassedTests = 0;
 	int totalSkippedTests = 0;
+	int totalKnownIssuesTests = 0;
 	int totalFailedTests = 0;
 
 	static {
@@ -92,9 +93,9 @@ public class EmailableReport implements IReporter {
 		writeDocumentEnd();
 		writer.close();
 
-		int totalTestCases = totalPassedTests + totalSkippedTests + totalFailedTests;
+		int totalTestCases = totalPassedTests + totalSkippedTests + totalKnownIssuesTests  + totalFailedTests;
 		String oldString = System.getProperty("emailable.report2.name");
-		String temp = "-report_T-" + totalTestCases + "_P-" + totalPassedTests + "_S-" + totalSkippedTests + "_F-"
+		String temp = "-report_T-" + totalTestCases + "_P-" + totalPassedTests + "_S-" + (totalSkippedTests+totalKnownIssuesTests) + "_F-"
 				+ totalFailedTests;
 		String newString = oldString.replace("-report", temp);
 
@@ -185,64 +186,75 @@ public class EmailableReport implements IReporter {
 
 	protected void writeStylesheet() {
 	    writer.print("<style type=\"text/css\">");
-	    
+
 	    // General table styling
 	    writer.print("table {margin-bottom:10px;border-collapse:collapse;empty-cells:show;width:100%;}");
-	    
+
 	    // Uniform cell styling for all tables with reduced padding
 	    writer.print("th, td {border:1px solid #009;padding:.25em .5em;background-color:#FFF;vertical-align:middle;}");
-	    
+
 	    // Header specific styling
-	    writer.print("th {background-color:#f2f2f2; text-align:center;}"); // Central alignment for headers
-	    
+	    writer.print("th {background-color:#f2f2f2; text-align:center; border:1px solid #ccc;}");
+
 	    // Links inside table cells
 	    writer.print("table a {font-weight:bold}");
-	    
+
 	    // Striped rows for all tables
 	    writer.print(".stripe tr:nth-child(odd) td {background-color: #E6EBF9}");
 	    writer.print(".stripe tr:nth-child(even) td {background-color: #FFF}");
-	    
+
 	    // Passed rows styling
-	    writer.print(".passedodd td, .passedeven td {background-color: #0A0; color: #FFF; text-align:center;}"); // Central alignment for passed rows
-	    
+	    writer.print(".passedodd td, .passedeven td {background-color: #0A0; color: #FFF; text-align:center;}");
+
 	    // Skipped rows styling
-	    writer.print(".skippedodd td, .skippedeven td {background-color: #FFA500; color: #FFF; text-align:center;}"); // Central alignment for skipped rows
-	    
+	    writer.print(".skippedodd td, .skippedeven td {background-color: #FFA500; color: #FFF; text-align:center;}");
+
 	    // Failed rows styling
-	    writer.print(".failedodd td, .failedeven td {background-color: #F33; color: #FFF; text-align:center;}"); // Central alignment for failed rows
-	    
+	    writer.print(".failedodd td, .failedeven td {background-color: #F33; color: #FFF; text-align:center;}");
+
+	    // Known issues rows styling
+	    writer.print(".knownissueodd td, .knownissueeven td {background-color: #FFFF00; color: #000; text-align:center;}");
+
 	    // Specific styling for stacktrace
 	    writer.print(".stacktrace {white-space:pre;font-family:monospace}");
-	    
+
 	    // To top link
 	    writer.print(".totop {font-size:85%;text-align:center;border-bottom:2px solid #000}");
-	    
+
 	    // Base class for all boxes
 	    writer.print(".box {padding: 10px; border-radius: 5px; color: #FFF; word-wrap: break-word; max-width: 100%;}");
-	    
+
 	    // Background color utility classes
 	    writer.print(".orange-bg {background-color: #FFA500;}");
 	    writer.print(".green-bg {background-color: #0A0;}");
 	    writer.print(".black-bg {background-color: black;}");
 	    writer.print(".darkgray-bg {background-color: darkgray;}");
-	    
+
 	    // Uniform width for specific columns and center alignment for specific cells
 	    writer.print(".num-center {text-align:center;}");
-	    
+
 	    // Left alignment for scenario steps
 	    writer.print(".scenario-step {text-align:left;}");
-	    
+
 	    // New class for log box
 	    writer.print(".log-box {background-color: black;}");
-	    
+
 	    // Class for textarea styling
 	    writer.print(".textarea-box {border:solid 1px gray; background-color: darkgray; padding: 10px; border-radius: 5px; width: 100%; resize: none;}");
-	    
+
 	    // Class for left-aligned boxes
 	    writer.print(".left-aligned {text-align:left;}");
-	    
+
+	    // Class for attention background (used in summary box when failed > 0)
+	    writer.print(".attn { background-color: #F33 !important; }");
+
+	    // Class for red-text (white text on red background)
+	    writer.print(".red-text { color: #000 !important; font-weight: normal; }");
+
 	    writer.print("</style>");
 	}
+
+
 
 	protected void writeBody() {
 		writer.print("<body>");
@@ -290,7 +302,7 @@ public class EmailableReport implements IReporter {
 	    String formattedDate = null;
 	    String branch = null;
 
-	    // Format the current date as per your requirement
+	    // Format the current date and retrieve the current Git branch
 	    try {
 	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	        formattedDate = currentDate.format(formatter);
@@ -298,61 +310,59 @@ public class EmailableReport implements IReporter {
 	        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 	        branch = reader.readLine();
 	    } catch (Exception e) {
-	        // TODO: handle exception
+	        // Optional: log error if needed
 	    }
 
 	    totalPassedTests = 0;
 	    totalSkippedTests = 0;
+	    totalKnownIssuesTests = 0;
 	    totalFailedTests = 0;
-	    long totalDuration = 0;
+
 	    writer.print("<table>");
 	    int testIndex = 0;
-	    for (SuiteResult suiteResult : suiteResults) {
 
+	    for (SuiteResult suiteResult : suiteResults) {
 	        writer.print("<tr><th colspan=\"7\">");
 	        writer.print(Utils.escapeHtml(
 	            suiteResult.getSuiteName() + " ---- " +
 	            "Report Date: " + formattedDate + " ---- " +
-	            "Tested Environment: " + System.getProperty("env.endpoint").replaceAll(".*?\\.([^\\.]+)\\..*", "$1") + " ---- " +
-	            "Testrig details: Branch Name - " + branch + ", Commit ID - " + getCommitId()));
-	        
+	            "Tested Environment: " +
+	            System.getProperty("env.endpoint").replaceAll(".*?\\.([^\\.]+)\\..*", "$1") + " ---- " +
+	            "Testrig details: Branch Name - " + branch + ", Commit ID - " + getCommitId()
+	        ));
 	        writer.print("</th></tr>");
-	        
-	        writer.print("<tr>");
 
-	        // Left column: "Server Component Details" with central alignment
+	        writer.print("<tr>");
 	        writer.print("<th style=\"text-align: center; vertical-align: middle;\" colspan=\"2\"><span class=\"not-bold\"><pre>");
 	        writer.print(Utils.escapeHtml("Tested Component Details"));
 	        writer.print("</span></th>");
-
-	        // Right column: Details from AdminTestUtil.getServerComponentsDetails() without bold formatting
 	        writer.print("<td colspan=\"5\"><pre>");
 	        writer.print(Utils.escapeHtml(AdminTestUtil.getServerComponentsDetails()));
 	        writer.print("</pre></td>");
-
 	        writer.print("</tr>");
 	        writer.print(GlobalConstants.TRTR);
 
+	        // Summary Title Row
 	        writer.print("<tr>");
-	        writer.print("<th colspan=\"5\"><strong>Summary of Test Results</strong></th>");
+	        writer.print("<th colspan=\"6\"><strong>Summary of Test Results</strong></th>");
 	        writer.print("</tr>");
-	        
+
+	        // Column Headers
 	        writer.print("<tr>");
 	        writer.print("<th># Total</th>");
 	        writer.print("<th># Passed</th>");
 	        writer.print("<th># Skipped</th>");
 	        writer.print("<th># Failed</th>");
+	        writer.print("<th># Known Issues</th>");
 	        writer.print("<th>Time (HH:MM:SS)</th>");
 	        writer.print("</tr>");
-	        totalDuration = 0;
+
 	        for (TestResult testResult : suiteResult.getTestResults()) {
-				/*
-				 * long duration = testResult.getDuration(); totalDuration += duration;
-				 */
 	            int passedTests = testResult.getPassedTestCount();
 	            int skippedTests = testResult.getSkippedTestCount();
+	            int knownIssuesTests = testResult.getKnownIssuesTestCount();
 	            int failedTests = testResult.getFailedTestCount();
-	            int totalTests = passedTests + skippedTests + failedTests;
+	            int totalTests = passedTests + skippedTests + knownIssuesTests + failedTests;
 
 	            writer.print("<tr");
 	            if ((testIndex % 2) == 1) {
@@ -361,38 +371,39 @@ public class EmailableReport implements IReporter {
 	            writer.print(">");
 
 	            buffer.setLength(0);
-	            writeTableData(decimalFormat.format(totalTests), "num num-center"); // Center alignment for total
-	            writeTableData(integerFormat.format(passedTests), (passedTests > 0 ? "num green-bg num-center" : "num num-center")); // Center alignment for passed
-	            writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num orange-bg num-center" : "num num-center")); // Center alignment for skipped
-				writeTableData(integerFormat.format(failedTests),  (failedTests > 0 ? "num attn num-center red-text" : "num num-center"));
-	            writeTableData(getExecutionTime(), "num num-center"); // Center alignment for time
+	            writeTableData(decimalFormat.format(totalTests), "num num-center");
+	            writeTableData(integerFormat.format(passedTests), (passedTests > 0 ? "num green-bg num-center" : "num num-center"));
+	            writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num orange-bg num-center" : "num num-center"));
+	            writeTableData(integerFormat.format(failedTests), (failedTests > 0 ? "num attn num-center red-text" : "num num-center"));
+	            writeTableData(integerFormat.format(knownIssuesTests), (knownIssuesTests > 0 ? "num orange-bg num-center" : "num num-center"));
+	            writeTableData(getExecutionTime(), "num num-center");
 
 	            writer.print("</tr>");
 
 	            totalPassedTests += passedTests;
 	            totalSkippedTests += skippedTests;
+	            totalKnownIssuesTests += knownIssuesTests;
 	            totalFailedTests += failedTests;
-//	            totalDuration += duration;
-
 	            testIndex++;
 	        }
 	    }
 
-	    // Print totals if there was more than one test
-	 // Printing the total row
+	    // Print final total summary if more than one test suite
 	    if (testIndex > 1) {
 	        writer.print("<tr>");
 	        writer.print("<th>Total</th>");
 	        writeTableHeader(integerFormat.format(totalPassedTests), "num num-center");
 	        writeTableHeader(integerFormat.format(totalSkippedTests), "num num-center");
 	        writeTableHeader(integerFormat.format(totalFailedTests), "num num-center");
-	        writeTableHeader(getExecutionTime(), "num num-center");  // Correct total duration format
+	        writeTableHeader(integerFormat.format(totalKnownIssuesTests), "num num-center");
+	        writeTableHeader(getExecutionTime(), "num num-center");
 	        writer.print("<th colspan=\"2\"></th>");
 	        writer.print("</tr>");
 	    }
 
 	    writer.print("</table>");
 	}
+
 
 	/**
 	 * Writes a summary of all the test scenarios.
@@ -423,13 +434,10 @@ public class EmailableReport implements IReporter {
 				writer.print("\">");
 
 				String testName = Utils.escapeHtml("Scenarios");
-
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; Failed (configuration methods)",
-						testResult.getFailedConfigurationResults(), "failed", scenarioIndex);
 				scenarioIndex += writeScenarioSummary(testName + " &#8212; Failed", testResult.getFailedTestResults(),
 						"failed", scenarioIndex);
-				scenarioIndex += writeScenarioSummary(testName + " &#8212; Skipped (configuration methods)",
-						testResult.getSkippedConfigurationResults(), "skipped", scenarioIndex);
+				scenarioIndex += writeScenarioSummary(testName + " &#8212; Known Issues",
+						testResult.getknownIssuesTestResults(), "skipped", scenarioIndex);
 				scenarioIndex += writeScenarioSummary(testName + " &#8212; Skipped", testResult.getSkippedTestResults(),
 						"skipped", scenarioIndex);
 				scenarioIndex += writeScenarioSummary(testName + " &#8212; Passed", testResult.getPassedTestResults(),
@@ -555,6 +563,7 @@ public class EmailableReport implements IReporter {
 
 				scenarioIndex += writeScenarioDetails(testResult.getFailedConfigurationResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getFailedTestResults(), scenarioIndex);
+				scenarioIndex += writeScenarioDetails(testResult.getknownIssuesTestResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getSkippedConfigurationResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getSkippedTestResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getPassedTestResults(), scenarioIndex);
@@ -767,10 +776,13 @@ public class EmailableReport implements IReporter {
 		private final List<ClassResult> failedConfigurationResults;
 		private final List<ClassResult> failedTestResults;
 		private final List<ClassResult> skippedConfigurationResults;
+//		private final List<ClassResult> knownIssuesConfigurationResults;
 		private final List<ClassResult> skippedTestResults;
+		private final List<ClassResult> knownIssuesTestResults;
 		private final List<ClassResult> passedTestResults;
 		private final int failedTestCount;
 		private final int skippedTestCount;
+		private final int KnownIssuesTestsCount;
 		private final int passedTestCount;
 		private final long duration;
 		private final String includedGroups;
@@ -782,24 +794,82 @@ public class EmailableReport implements IReporter {
 			Set<ITestResult> failedConfigurations = context.getFailedConfigurations().getAllResults();
 			Set<ITestResult> failedTests = context.getFailedTests().getAllResults();
 			Set<ITestResult> skippedConfigurations = context.getSkippedConfigurations().getAllResults();
-			Set<ITestResult> skippedTests = context.getSkippedTests().getAllResults();
+//			Set<ITestResult> skippedTests = context.getSkippedTests().getAllResults();
+			Set<ITestResult> knownIssueTests =  getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.KNOWN_ISSUE_SUBSET_STRING);
+			Set<ITestResult> skippedTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.IGNORED_SUBSET_STRING);
+
 			Set<ITestResult> passedTests = context.getPassedTests().getAllResults();
 
 			failedConfigurationResults = groupResults(failedConfigurations);
 			failedTestResults = groupResults(failedTests);
 			skippedConfigurationResults = groupResults(skippedConfigurations);
+//			knownIssuesConfigurationResults= groupResults(skippedConfigurations);
 			skippedTestResults = groupResults(skippedTests);
+			knownIssuesTestResults = groupResults(knownIssueTests);
 			passedTestResults = groupResults(passedTests);
 
 			failedTestCount = failedTests.size();
 			skippedTestCount = skippedTests.size();
 			passedTestCount = passedTests.size();
+			KnownIssuesTestsCount =knownIssueTests.size();
 
 			duration = context.getEndDate().getTime() - context.getStartDate().getTime();
 
 			includedGroups = formatGroups(context.getIncludedGroups());
 			excludedGroups = formatGroups(context.getExcludedGroups());
 		}
+		
+		protected static Set<ITestResult> getResultsSubSet(Set<ITestResult> resultsSet, String subSetString) {
+			List<ITestResult> testResultsSubList = Lists.newArrayList();
+			if (!resultsSet.isEmpty()) {
+				List<ITestResult> resultsList = Lists.newArrayList(resultsSet);
+				Iterator<ITestResult> resultsIterator = resultsList.iterator();
+				while (resultsIterator.hasNext()) {
+					ITestResult result = resultsIterator.next();
+					Throwable throwable = result.getThrowable();
+					if (throwable != null) {
+					  if (subSetString.contains(GlobalConstants.KNOWN_ISSUES_STRING)) {
+							if (containsAny(throwable.getMessage(), subSetString)) {
+								// Add only results which are skipped due to feature not supported
+								testResultsSubList.add(result);
+							} else {
+								// Skip the test result
+							}
+						} if (subSetString.contains(GlobalConstants.IGNORED_SUBSET_STRING)) {
+							if (containsAny(throwable.getMessage(), subSetString)) {
+								// Add only results which are skipped due to feature not supported
+								testResultsSubList.add(result);
+							} else {
+								// Skip the test result
+							}
+						} else { // Service not deployed. Hence skipping the testcase // skipped
+							if (!throwable.getMessage().contains(GlobalConstants.FEATURE_NOT_SUPPORTED)
+									&& !throwable.getMessage().contains(GlobalConstants.SERVICE_NOT_DEPLOYED)
+									&& !throwable.getMessage().contains(GlobalConstants.KNOWN_ISSUES)) {
+								// Add only results which are not skipped due to feature not supported
+								testResultsSubList.add(result);
+							} else {
+								// Skip the test result
+							}
+						}
+					}
+				}
+			}
+			Set<ITestResult> testResultsSubSet = Set.copyOf(testResultsSubList);
+			return testResultsSubSet;
+		}
+		
+		public static boolean containsAny(String stringToCheckIn, String delimitedString) {
+		    // Split the input string into an array based on semicolons
+	        String[] stringsToCheckFor = delimitedString.split(";");
+			
+	        for (String str : stringsToCheckFor) {
+	            if (stringToCheckIn.contains(str)) {
+	                return true; // If any string is found, return true
+	            }
+	        }
+	        return false; // If none of the strings are found, return false
+	    }
 
 		/**
 		 * Groups test results by method and then by class.
@@ -881,6 +951,10 @@ public class EmailableReport implements IReporter {
 		public List<ClassResult> getSkippedConfigurationResults() {
 			return skippedConfigurationResults;
 		}
+		
+		public List<ClassResult> getknownIssuesTestResults() {
+			return knownIssuesTestResults;
+		}
 
 		/**
 		 * @return the results for skipped tests (possibly empty)
@@ -902,6 +976,10 @@ public class EmailableReport implements IReporter {
 
 		public int getSkippedTestCount() {
 			return skippedTestCount;
+		}
+		
+		public int getKnownIssuesTestCount() {
+			return KnownIssuesTestsCount;
 		}
 
 		public int getPassedTestCount() {
