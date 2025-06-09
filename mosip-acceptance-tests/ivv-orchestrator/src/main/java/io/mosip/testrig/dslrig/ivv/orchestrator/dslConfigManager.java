@@ -63,52 +63,38 @@ public class dslConfigManager extends ConfigManager {
 		return Integer.parseInt(getproperty("langselect")); 
 	}
 
-//	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
-//		String toSkippedList = ConfigManager.getproperty("scenariosToSkip");
-//		List<String> toBeSkippedLsit = Arrays.asList(toSkippedList.split(","));
-//		if (IsDebugEnabled())
-//			LOGGER.info("toSkippedList:  " + toSkippedList + ", toBeSkippedLsit : " + toBeSkippedLsit
-//					+ ", stringToFind : " + stringToFind);
-//		for (String string : toBeSkippedLsit) {
-//			if (string.equalsIgnoreCase(stringToFind))
-//				return true;
-//		}
-//		return false;
-//	}
-	
 	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
-	    String toSkippedList = ConfigManager.getproperty("scenariosToSkip");
-	    List<String> mergedSkipList = new ArrayList<>();
+		String toSkippedList = ConfigManager.getproperty("scenariosToSkip");
+		List<String> toBeSkippedLsit = Arrays.asList(toSkippedList.split(","));
+		if (IsDebugEnabled())
+			LOGGER.info("toSkippedList:  " + toSkippedList + ", toBeSkippedLsit : " + toBeSkippedLsit
+					+ ", stringToFind : " + stringToFind);
+		for (String string : toBeSkippedLsit) {
+			if (string.equalsIgnoreCase(stringToFind))
+				return true;
+		}
+		return false;
+	}
+	
+	public static synchronized boolean isInTobeBugList(String stringToFind) {
+		List<String> mergedSkipList = new ArrayList<>();
+//	     Add from file
+		List<String> fileSkipList = loadTestcaseToBeSkippedList();
+		for (String scenario : fileSkipList) {
+			if (!mergedSkipList.contains(scenario)) {
+				mergedSkipList.add(scenario);
+			}
+		}
 
-	    // 1. Add from scenariosToSkip (property)
-	    if (toSkippedList != null && !toSkippedList.trim().isEmpty()) {
-	        String[] scenarios = toSkippedList.split(",");
-	        for (String scenario : scenarios) {
-	            String trimmed = scenario.trim();
-	            if (!trimmed.isEmpty() && !mergedSkipList.contains(trimmed)) {
-	                mergedSkipList.add(trimmed);
-	            }
-	        }
-	    }
+		if (IsDebugEnabled())
+			LOGGER.info("Final skip list: " + mergedSkipList + ", stringToFind: " + stringToFind);
 
-	    // 2. Add from file
-	    List<String> fileSkipList = loadTestcaseToBeSkippedList();
-	    for (String scenario : fileSkipList) {
-	        if (!mergedSkipList.contains(scenario)) {
-	            mergedSkipList.add(scenario);
-	        }
-	    }
-
-	    if (IsDebugEnabled())
-	        LOGGER.info("Final skip list: " + mergedSkipList + ", stringToFind: " + stringToFind);
-
-	    // 3. Check if the target scenario is in merged list
-	    for (String scenario : mergedSkipList) {
-	        if (scenario.equalsIgnoreCase(stringToFind)) {
-	            return true;
-	        }
-	    }
-	    return false;
+		for (String scenario : mergedSkipList) {
+			if (scenario.equalsIgnoreCase(stringToFind)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	
