@@ -95,7 +95,7 @@ public class EmailableReport implements IReporter {
 
 		int totalTestCases = totalPassedTests + totalSkippedTests + totalKnownIssuesTests  + totalFailedTests;
 		String oldString = System.getProperty("emailable.report2.name");
-		String temp = "-report_T-" + totalTestCases + "_P-" + totalPassedTests + "_S-" + (totalSkippedTests+totalKnownIssuesTests) + "_F-"
+		String temp = "-report_T-" + totalTestCases + "_P-" + totalPassedTests +"_KI-"+totalKnownIssuesTests+ "_S-" + totalSkippedTests + "_F-"
 				+ totalFailedTests;
 		String newString = oldString.replace("-report", temp);
 
@@ -210,10 +210,10 @@ public class EmailableReport implements IReporter {
 	    writer.print(".skippedodd td, .skippedeven td {background-color: #FFA500; color: #FFF; text-align:center;}");
 
 	    // Failed rows styling
-	    writer.print(".failedodd td, .failedeven td {background-color: #F33; color: #FFF; text-align:center;}");
+	    writer.print(".failedodd td, .failedeven td {background-color: #eb5050; color: #FFF; text-align:center;}");
 
 	    // Known issues rows styling
-	    writer.print(".knownissueodd td, .knownissueeven td {background-color: #FFFF00; color: #000; text-align:center;}");
+	    writer.print(".knownissueodd td, .knownissueeven td {background-color: #e6fa73; color: #000; text-align:center;}");
 
 	    // Specific styling for stacktrace
 	    writer.print(".stacktrace {white-space:pre;font-family:monospace}");
@@ -228,6 +228,7 @@ public class EmailableReport implements IReporter {
 	    writer.print(".orange-bg {background-color: #FFA500;}");
 	    writer.print(".green-bg {background-color: #0A0;}");
 	    writer.print(".black-bg {background-color: black;}");
+	    writer.print(".yellow-bg {background-color: #e6fa73; color: #000;}");
 	    writer.print(".darkgray-bg {background-color: darkgray;}");
 
 	    // Uniform width for specific columns and center alignment for specific cells
@@ -246,7 +247,7 @@ public class EmailableReport implements IReporter {
 	    writer.print(".left-aligned {text-align:left;}");
 
 	    // Class for attention background (used in summary box when failed > 0)
-	    writer.print(".attn { background-color: #F33 !important; }");
+	    writer.print(".attn { background-color: #eb5050 !important; }");
 
 	    // Class for red-text (white text on red background)
 	    writer.print(".red-text { color: #000 !important; font-weight: normal; }");
@@ -375,7 +376,7 @@ public class EmailableReport implements IReporter {
 	            writeTableData(integerFormat.format(passedTests), (passedTests > 0 ? "num green-bg num-center" : "num num-center"));
 	            writeTableData(integerFormat.format(skippedTests), (skippedTests > 0 ? "num orange-bg num-center" : "num num-center"));
 	            writeTableData(integerFormat.format(failedTests), (failedTests > 0 ? "num attn num-center red-text" : "num num-center"));
-	            writeTableData(integerFormat.format(knownIssuesTests), (knownIssuesTests > 0 ? "num orange-bg num-center" : "num num-center"));
+	            writeTableData(integerFormat.format(knownIssuesTests), (knownIssuesTests > 0 ? "num yellow-bg num-center" : "num num-center"));
 	            writeTableData(getExecutionTime(), "num num-center");
 
 	            writer.print("</tr>");
@@ -437,7 +438,7 @@ public class EmailableReport implements IReporter {
 				scenarioIndex += writeScenarioSummary(testName + " &#8212; Failed", testResult.getFailedTestResults(),
 						"failed", scenarioIndex);
 				scenarioIndex += writeScenarioSummary(testName + " &#8212; Known Issues",
-						testResult.getknownIssuesTestResults(), "skipped", scenarioIndex);
+						testResult.getknownIssuesTestResults(), "knownissue", scenarioIndex);
 				scenarioIndex += writeScenarioSummary(testName + " &#8212; Skipped", testResult.getSkippedTestResults(),
 						"skipped", scenarioIndex);
 				scenarioIndex += writeScenarioSummary(testName + " &#8212; Passed", testResult.getPassedTestResults(),
