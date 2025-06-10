@@ -221,6 +221,7 @@ public class BiometricDataProvider {
 
 	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey, String purpose,
 			String qualityScore) throws Exception {
+		CentralizedMockSBI.stopSBI(contextKey);
 		BiometricDataModel biodata = null;
 		MDSRCaptureModel capture = null;
 
