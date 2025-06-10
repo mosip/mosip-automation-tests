@@ -60,6 +60,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		Object[] casesListUIN = null;
 		List<String> idType = BaseTestCase.getSupportedIdTypesValueFromActuator();
 		Object[] casesListVID = null;
+		Object[] casesListHandles = null;
 		String updateAgeFlag = null;
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
@@ -695,15 +696,13 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				}
 			}
 
-			// inputJson.put("identityRequest", identityReqJson.toString());
-
 			if (idType.stream()
 				    .anyMatch(s -> s != null && s.toLowerCase().contains("handle"))) {
-				casesListUIN = demoAuth.getYmlTestData(DEMOPATH);
+				casesListHandles = demoAuth.getYmlTestData(DEMOPATH);
 			}
 
-			if (casesListUIN != null) {
-				for (Object object : casesListUIN) {
+			if (casesListHandles != null) {
+				for (Object object : casesListHandles) {
 					test = (TestCaseDTO) object;
 					test.setInput(inputJson.toString());
 					try {
