@@ -22,6 +22,9 @@ spec:
   {{- if eq $type.name "sanity" }}
   suspend: true
   {{- end }}
+  {{- if eq $type.name "smoke" }}
+  suspend: true
+  {{- end }}
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1  # remove jobs which are successfully executed
   failedJobsHistoryLimit: 1      # except 1 recent failed job, remove jobs which are not successfully executed
@@ -122,6 +125,10 @@ spec:
               {{- if eq $type.name "sanity" }}
                 - name: TESTLEVEL
                   value: "sanity"
+              {{- end }}
+              {{- if eq $type.name "smoke" }}
+                - name: TESTLEVEL
+                  value: "smoke"
               {{- end }}
             envFrom:
               {{- if $.Values.extraEnvVarsCM }}
