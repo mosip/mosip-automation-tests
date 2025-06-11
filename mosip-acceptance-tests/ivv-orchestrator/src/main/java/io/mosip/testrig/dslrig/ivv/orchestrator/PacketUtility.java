@@ -867,6 +867,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
 		jsonReq.put("enableDebug", dslConfigManager.getEnableDebug());
+		jsonReq.put("eSignetbaseurl", ConfigManager.getEsignetBaseUrl());
 		logger.info("Running suite with enableDebug : " + dslConfigManager.getEnableDebug());
 		jsonReq.put(URLBASE, envbaseUrl);
 		jsonReq.put(MOSIP_TEST_BASEURL, envbaseUrl);
