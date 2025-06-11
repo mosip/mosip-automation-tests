@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.masterdata.testscripts.GetWithParam;
+import io.mosip.testrig.apirig.testscripts.GetWithParam;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;

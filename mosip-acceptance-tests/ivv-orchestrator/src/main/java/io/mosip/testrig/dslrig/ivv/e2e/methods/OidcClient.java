@@ -8,7 +8,7 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.idrepo.testscripts.PostWithOnlyPathParam;
 import io.mosip.testrig.apirig.auth.testscripts.SimplePost;
 import io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId;
-import io.mosip.testrig.apirig.masterdata.testscripts.SimplePut;
+import io.mosip.testrig.apirig.testscripts.SimplePut;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
@@ -145,7 +145,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 
 			}
 
-		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+		} catch (AuthenticationTestException | AdminTestException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
@@ -199,7 +199,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			}
 
-		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+		} catch (AuthenticationTestException | AdminTestException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
@@ -221,7 +221,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			}
 
-		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+		} catch (AuthenticationTestException | AdminTestException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
@@ -248,7 +248,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			}
 
-		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+		} catch (AuthenticationTestException | AdminTestException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
@@ -304,7 +304,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			}
 
-		} catch (AdminTestException | SecurityXSSException e) {
+		} catch (AdminTestException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());

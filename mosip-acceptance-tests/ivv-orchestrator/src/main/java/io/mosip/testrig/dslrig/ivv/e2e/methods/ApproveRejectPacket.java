@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.masterdata.testscripts.SimplePostForAutoGenId;
+import io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;

@@ -132,10 +132,6 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 						this.hasError = true;
 						logger.error(e.getMessage());
 						throw new RigInternalError("EkycOtp Auth failed");
-					} catch (SecurityXSSException e) {
-						this.hasError = true;
-						logger.error(e.getMessage());
-						throw new RigInternalError("EkycOtp Auth failed");
 					}
 				}
 			}

@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 import org.testng.Reporter;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.masterdata.testscripts.GetWithParam;
+import io.mosip.testrig.apirig.testscripts.GetWithParam;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;

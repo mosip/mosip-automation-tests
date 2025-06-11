@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
+import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
@@ -65,8 +65,6 @@ public class CheckTags extends BaseTestCaseUtil implements StepInterface {
 			} catch (AuthenticationTestException e) {
 				logger.error(e.getMessage());
 			} catch (AdminTestException e) {
-				logger.error(e.getMessage());
-			} catch (SecurityXSSException e) {
 				logger.error(e.getMessage());
 			}
 
