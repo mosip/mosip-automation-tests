@@ -69,6 +69,7 @@ public class CommandsService {
 
 		Properties props = contextUtils.loadServerContext(contextKey);
 		baseUrl = props.getProperty("urlBase");
+		String eSignetbaseurl = props.getProperty("eSignetbaseurl");
 		// v1/keymanager/decrypt
 		/// v1/keymanager/encrypt
 
@@ -111,7 +112,11 @@ public class CommandsService {
 				}
 				if (bcheck) {
 					RestClient.logInfo(contextKey, controllerPath);
-					Boolean bRet1 = RestClient.checkActuatorNoAuth(baseUrl + controllerPath.trim(), contextKey);
+					Boolean bRet1;
+					if (parts[1].contains("esignet"))
+						bRet1 = RestClient.checkActuatorNoAuth(eSignetbaseurl+"/" + controllerPath.trim(), contextKey);
+					else
+						bRet1 = RestClient.checkActuatorNoAuth(baseUrl + controllerPath.trim(), contextKey);
 					if (bRet1 == false) {
 						failedAPIs.add(line);
 					}
