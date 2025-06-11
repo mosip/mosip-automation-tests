@@ -23324,7 +23324,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walks-in to registration center completes the process and gets UIN card with handle. Later updates his name and handle and perform demographic authentiction both using UIN and handle",
+		"Description": "Resident walks-in to registration center completes the process and gets UIN card with handle. Later updates his handle and perform demographic authentiction both using UIN and handle",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -23398,22 +23398,58 @@
 			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
 		},
 		"Step-12": {
-			"Description": "Updating the identity and handle values using the UIN",
-			"Input Parameters": "UIN",
-			"Return Value": "NA",
-			"Action": "e2e_UpdateIdentityWithArrayHandles($$uin)"
+			"Description": "Gets the handle details from the schema",
+			"Input Parameters": "NA",
+			"Return Value": "Selected handles",
+			"Action": "$$selectedHandles=e2e_GetHandleDetailsFromSchema()"
 		},
 		"Step-13": {
+			"Description": "Updates handle values in the persona file",
+			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,$$selectedHandles,$$personaFilePath)"
+		},
+		"Step-14": {
+			"Description": "Updates persona with UIN",
+			"Input Parameters": "Persona file path and UIN",
+			"Return Value": "NA",
+			"Action": "e2e_updateResidentWithUIN($$personaFilePath,$$uin)"
+		},
+		"Step-15": {
+			"Description": "Generates packet template based on the persona data",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
+			"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$personaFilePath)"
+		},
+		"Step-16": {
+			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$Rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$updateTemplate)"
+		},
+		"Step-17": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$Rid2)"
+		},
+		"Step-18": {
+			"Description": "Gets the UIN for the given RID",
+			"Input Parameters": "RID",
+			"Return Value": "UIN",
+			"Action": "$$uin2=e2e_getUINByRid($$Rid2)"
+		},
+		"Step-19": {
 			"Description": "Get the Handles configuired for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Handles",
-			"Action": "$$handles=e2e_getHandlesByUIN($$uin)"
+			"Action": "$$handles=e2e_getHandlesByUIN($$uin2,$$selectedHandles)"
 		},
-		"Step-14": {
+		"Step-20": {
 			"Description": "Peforms demographic authentication",
-			"Input Parameters": "Demo graphic details, persona, UIN and VID",
+			"Input Parameters": "Demo graphic details, persona, UIN, VID and HANDLES",
 			"Return Value": "NA",
-			"Action": "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid,0,$$handles)"
+			"Action": "e2e_demoAuthentication(name,$$uin2,$$personaFilePath,$$vid,0,$$handles)"
 		}
 	},
 	{
