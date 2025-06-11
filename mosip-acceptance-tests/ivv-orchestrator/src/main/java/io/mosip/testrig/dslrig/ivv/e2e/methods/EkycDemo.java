@@ -269,7 +269,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 					test.setInput(inputJson.toString());
 					try {
 						demoAuth.test(test);
-					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+					} catch (AuthenticationTestException | AdminTestException e) {
 						logger.error(e.getMessage());
 						this.hasError = true;
 						throw new RigInternalError(e.getMessage());

@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Reporter;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
+import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;

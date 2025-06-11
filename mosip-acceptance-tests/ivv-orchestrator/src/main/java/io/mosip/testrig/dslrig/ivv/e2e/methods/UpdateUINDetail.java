@@ -58,7 +58,7 @@ public class UpdateUINDetail extends BaseTestCaseUtil implements StepInterface {
 						step.getScenario().getPridsAndRids().put(prid, responseJson.get("registrationId").toString());
 					}
 
-				} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+				} catch (AuthenticationTestException | AdminTestException e) {
 					logger.error("Failed at downloading card: " + e.getMessage());
 					this.hasError = true;
 					// assertFalse(true, "Failed at downloading card");
