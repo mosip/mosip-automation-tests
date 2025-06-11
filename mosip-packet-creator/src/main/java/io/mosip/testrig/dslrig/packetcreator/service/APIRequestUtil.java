@@ -562,6 +562,7 @@ public class APIRequestUtil {
 	}
 
 	private void checkErrorResponse(String response) throws Exception {
+		 logger.info("Check Error Responce : " +response);
         //TODO: Handle 401 or token expiry
         JSONObject jsonObject =  new JSONObject(response);
         if(jsonObject.get(errorKey) != JSONObject.NULL) {

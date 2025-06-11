@@ -673,7 +673,7 @@ public class PacketSyncService {
 		for (String path : personaFilePath) {
 			ResidentModel resident = ResidentModel.readPersona(path);
 			ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
-			builder.append(preReg.sendOtpTo(to, contextKey));
+			builder.append(preReg.sendOtpTo(resident,to, contextKey));
 
 		}
 		return builder.toString();
