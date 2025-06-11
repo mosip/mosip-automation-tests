@@ -130,7 +130,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 				}
 
-			} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException | SecurityXSSException e) {
+			} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException e) {
 				this.hasError = true;
 				throw new RigInternalError(e.getMessage());
 
@@ -158,7 +158,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 				}
 
-			} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException | SecurityXSSException e) {
+			} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException e) {
 				this.hasError = true;
 				throw new RigInternalError(e.getMessage());
 
@@ -192,7 +192,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 		try {
 			generateToken.test(testGenerateToken);
-		} catch (NoSuchAlgorithmException | AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+		} catch (NoSuchAlgorithmException | AuthenticationTestException | AdminTestException e) {
 			logger.error(e.getMessage());
 		}
 
@@ -218,7 +218,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			Response response2 = getUserInfo.response;
 			logger.info(response2.toString());
 
-		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+		} catch (AuthenticationTestException | AdminTestException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 

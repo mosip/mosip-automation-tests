@@ -11,7 +11,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
+import io.mosip.testrig.apirig.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
@@ -98,7 +98,7 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 						packetProcessed = true;
 						if (tempPridAndRid.size() > 1)
 							status_Message = "processed";
-					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+					} catch (AuthenticationTestException | AdminTestException e) {
 						logger.error("Failed at checking Packet status with error: " + e.getMessage());
 						status = postScript.response.getBody().asString().toLowerCase();
 						ridStatusMap.put(rid, JsonPrecondtion.getValueFromJson(postScript.response.getBody().asString(),

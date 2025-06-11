@@ -321,7 +321,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					test.setInput(inputJson.toString());
 					try {
 						demoAuth.test(test);
-					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+					} catch (AuthenticationTestException | AdminTestException e) {
 						logger.error(e.getMessage());
 						this.hasError = true;
 						throw new RigInternalError(e.getMessage());
@@ -523,7 +523,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 					try {
 						demoAuth.test(test);
-					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+					} catch (AuthenticationTestException | AdminTestException e) {
 						logger.error(e.getMessage());
 						this.hasError = true;
 						throw new RigInternalError(e.getMessage());
@@ -707,7 +707,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					test.setInput(inputJson.toString());
 					try {
 						demoAuth.test(test);
-					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+					} catch (AuthenticationTestException | AdminTestException e) {
 						logger.error(e.getMessage());
 						this.hasError = true;
 						throw new RigInternalError(e.getMessage());
