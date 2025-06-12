@@ -6,8 +6,8 @@ import java.time.format.DateTimeFormatter;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.testscripts.PatchWithPathParam;
-import io.mosip.testrig.apirig.testscripts.SimplePost;
+import io.mosip.testrig.apirig.masterdata.testscripts.PatchWithPathParam;
+import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
@@ -59,7 +59,7 @@ public class HolidayDeclaration extends BaseTestCaseUtil implements StepInterfac
 				holidayId = jsonResp.getJSONObject("response").get("holidayId").toString();
 			}
 
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		}

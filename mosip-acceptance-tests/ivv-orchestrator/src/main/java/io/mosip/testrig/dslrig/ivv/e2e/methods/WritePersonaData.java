@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.testscripts.GetWithParam;
+import io.mosip.testrig.apirig.masterdata.testscripts.GetWithParam;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;

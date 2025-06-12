@@ -8,7 +8,7 @@ import org.testng.Reporter;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.auth.testscripts.PostWithBodyWithOtpGenerate;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.testscripts.SimplePost;
+import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -91,7 +91,7 @@ public class CredentialRequest extends BaseTestCaseUtil implements StepInterface
 						}
 					}
 				}
-			} catch (AuthenticationTestException | AdminTestException e) {
+			} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 				logger.error(e.getMessage());
 				this.hasError = true;
 				throw new RigInternalError("Failed at credential issuance Response validation");
