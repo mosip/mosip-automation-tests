@@ -8,7 +8,7 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.idrepo.testscripts.PostWithOnlyPathParam;
 import io.mosip.testrig.apirig.auth.testscripts.SimplePost;
 import io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId;
-import io.mosip.testrig.apirig.testscripts.SimplePut;
+import io.mosip.testrig.apirig.masterdata.testscripts.SimplePut;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
@@ -304,7 +304,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			}
 
-		} catch (AdminTestException e) {
+		} catch (AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
