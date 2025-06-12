@@ -53,7 +53,7 @@ import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.testscripts.EsignetBioAuth;
 import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
-import io.mosip.testrig.apirig.utils.MasterDataUtil;
+import io.mosip.testrig.apirig.masterdata.utils.MasterDataUtil;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.ConfigManager;
@@ -842,7 +842,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		
 		//Add age category from actuator
-		jsonReq.put("ageCategory", MasterDataUtil.getValueFromActuator("/mosip/mosip-config/registration-processor-default.properties", "mosip.regproc.packet.classifier.tagging.agegroup.ranges"));
+		jsonReq.put("ageCategory", MasterDataUtil.getValueFromRegprocActuator("/mosip/mosip-config/registration-processor-default.properties", "mosip.regproc.packet.classifier.tagging.agegroup.ranges"));
 		// id json mapping
 		jsonReq.put("IDSchemaVersion", getValueFromIdJson("IDSchemaVersion"));
 		jsonReq.put("uin", getValueFromIdJson("uin"));
