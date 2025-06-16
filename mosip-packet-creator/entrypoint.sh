@@ -29,5 +29,4 @@ done
 IFS=$' \t\n'
 
 java --version
-java -Dfile.encoding=UTF-8  -XX:-UseG1GC -XX:+ExplicitGCInvokesConcurrent -XX:-UseParallelGC -XX:+UseZGC -XX:+ZGenerational -XX:-UseShenandoahGC -XX:MaxGCPauseMillis=200  -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:+UseCompressedOops \
--jar dslrig-packetcreator-*.jar --spring.config.location=./config/application.properties
+java -Dfile.encoding=UTF-8  -jar dslrig-packetcreator-*.jar --spring.config.location=./config/application.properties
