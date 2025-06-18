@@ -34,7 +34,6 @@ import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
 
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
-import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.S3Adapter;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
@@ -797,7 +796,7 @@ public class EmailableReport implements IReporter {
 			Set<ITestResult> skippedConfigurations = context.getSkippedConfigurations().getAllResults();
 //			Set<ITestResult> skippedTests = context.getSkippedTests().getAllResults();
 			Set<ITestResult> knownIssueTests =  getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.KNOWN_ISSUE_SUBSET_STRING);
-			Set<ITestResult> skippedTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.IGNORED_SUBSET_STRING);
+			Set<ITestResult> skippedTests = getResultsSubSet(context.getSkippedTests().getAllResults(), "marked to be ignored");
 
 			Set<ITestResult> passedTests = context.getPassedTests().getAllResults();
 
@@ -836,23 +835,14 @@ public class EmailableReport implements IReporter {
 							} else {
 								// Skip the test result
 							}
-						} if (subSetString.contains(GlobalConstants.IGNORED_SUBSET_STRING)) {
+						} if (subSetString.contains(GlobalConstants.IGNORED_SUBSET_STRING) || subSetString.contains(GlobalConstants.IGNORED_STRING)) {
 							if (containsAny(throwable.getMessage(), subSetString)) {
 								// Add only results which are skipped due to feature not supported
 								testResultsSubList.add(result);
 							} else {
 								// Skip the test result
 							}
-						} else { // Service not deployed. Hence skipping the testcase // skipped
-							if (!throwable.getMessage().contains(GlobalConstants.FEATURE_NOT_SUPPORTED)
-									&& !throwable.getMessage().contains(GlobalConstants.SERVICE_NOT_DEPLOYED)
-									&& !throwable.getMessage().contains(GlobalConstants.KNOWN_ISSUES)) {
-								// Add only results which are not skipped due to feature not supported
-								testResultsSubList.add(result);
-							} else {
-								// Skip the test result
-							}
-						}
+						} 
 					}
 				}
 			}
