@@ -28,17 +28,7 @@
 			<organizationUrl>https://github.com/mosip/mosip-ref-impl</organizationUrl>
 		</developer>
 	</developers>
-	<repositories>
-		<repository>
-			<id>ossrh-central</id>
-			<name>MavenCentralRepository</name>
-			<url>https://central.sonatype.com/repository/maven-snapshots/</url>
-			<layout>default</layout>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+
 	<modules>
 		<module>ivv-core</module>
 		<module>ivv-parser</module>
