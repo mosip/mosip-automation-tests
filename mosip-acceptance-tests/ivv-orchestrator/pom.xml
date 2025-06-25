@@ -95,12 +95,12 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
-		
+
 		<dependency>
-    <groupId>commons-io</groupId>
-    <artifactId>commons-io</artifactId>
-    <version>2.13.0</version> <!-- Latest as of now -->
-</dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.13.0</version> <!-- Latest as of now -->
+		</dependency>
 
 
 		<dependency>
@@ -122,11 +122,11 @@
 			<scope>compile</scope>
 		</dependency>
 
-<dependency>
-  <groupId>org.jsoup</groupId>
-  <artifactId>jsoup</artifactId>
-  <version>1.15.4</version> <!-- or latest -->
-</dependency>
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.15.4</version> <!-- or latest -->
+		</dependency>
 
 		<dependency>
 			<groupId>io.mosip.testrig.apitest.commons</groupId>
@@ -201,24 +201,24 @@
 			<groupId>javax.cache</groupId>
 			<artifactId>cache-api</artifactId>
 		</dependency>
-		
+
 		<dependency>
-    <groupId>org.apache.poi</groupId>
-    <artifactId>poi</artifactId>
-    <version>5.2.5</version>
-</dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>5.2.5</version>
+		</dependency>
 
-<dependency>
-    <groupId>org.apache.poi</groupId>
-    <artifactId>poi-ooxml</artifactId>
-    <version>5.2.5</version>
-</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.5</version>
+		</dependency>
 
-<dependency>
-    <groupId>org.apache.poi</groupId>
-    <artifactId>poi-ooxml-full</artifactId>
-    <version>5.2.5</version>
-</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml-full</artifactId>
+			<version>5.2.5</version>
+		</dependency>
 
 
 		<dependency>
