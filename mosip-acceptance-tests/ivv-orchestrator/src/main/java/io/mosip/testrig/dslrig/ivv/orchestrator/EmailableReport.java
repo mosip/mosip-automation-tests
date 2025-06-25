@@ -102,7 +102,7 @@ public class EmailableReport implements IReporter {
 				+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report2.name"));
 		logger.info("reportFile is::" + System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
 				+ "/" + System.getProperty("emailable.report2.name"));
-
+		String excelFilePath =null;
 		File newReportFile = new File(
 				System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/" + newString);
 		logger.info("New reportFile is::" + System.getProperty("user.dir") + "/"
@@ -112,11 +112,18 @@ public class EmailableReport implements IReporter {
 			if (orignialReportFile.renameTo(newReportFile)) {
 				orignialReportFile.delete();
 				logger.info("Report File re-named successfully!");
-
+				try {
+					 excelFilePath = HtmlToExcelReport.CreateExcelReport(
+							System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/", newString);
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+				}
 				if (dslConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 					S3Adapter s3Adapter = new S3Adapter();
 					boolean isStoreSuccess = false;
 					boolean isStoreSuccess2 = false;
+					boolean isStoreSuccess3 = false;
+					
 					try {
 						isStoreSuccess = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null,
 								null, newString, newReportFile);
@@ -129,6 +136,10 @@ public class EmailableReport implements IReporter {
 						isStoreSuccess2 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
 
 								null, null, "ExtentReport-" + newString, extentReport);
+						
+						isStoreSuccess3 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null,
+								null, "comparison_vs_BASE_LINE.xlsx", new File(excelFilePath));
+						logger.info("isStoreSuccess:: " + isStoreSuccess);
 
 					} catch (Exception e) {
 						logger.error("error occured while pushing the object" + e.getMessage());

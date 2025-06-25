@@ -103,8 +103,8 @@ public class TestRunner {
 		
 		OTPListener mockSMTPListener = new OTPListener();
 		mockSMTPListener.bTerminate = true;
-
 		System.exit(0);
+		
 	}
 
 	public static String checkRunType() {
