@@ -14,6 +14,18 @@
 	<name>mosip-dsl-test</name>
 	<version>1.3.0-SNAPSHOT</version>
 
+	<repositories>
+		<repository>
+			<id>ossrh-central</id>
+			<name>MavenCentralRepository</name>
+			<url>https://central.sonatype.com/repository/maven-snapshots/</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<properties>
 		<suiteXmlFile>testng.xml</suiteXmlFile>
 		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
@@ -97,6 +109,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.13.0</version> <!-- Latest as of now -->
+		</dependency>
+
+
+		<dependency>
 			<groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
 			<artifactId>dslrig-ivv-core</artifactId>
 			<version>1.3.0-SNAPSHOT</version>
@@ -116,9 +135,15 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.15.4</version> <!-- or latest -->
+		</dependency>
+
+		<dependency>
 			<groupId>io.mosip.testrig.apitest.commons</groupId>
 			<artifactId>apitest-commons</artifactId>
-			<version>1.3.3-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.sun.jersey</groupId>
@@ -188,6 +213,25 @@
 			<groupId>javax.cache</groupId>
 			<artifactId>cache-api</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml-full</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>org.ehcache</groupId>
