@@ -345,7 +345,7 @@ public class Orchestrator {
 		} else if (matchTags("Negative_Test", scenario.getTags()) && testLevel.equalsIgnoreCase("smoke")) {
 		    extentTest.skip("S-" + scenario.getId() + ": Skipping scenario as it is marked as a Negative Test case");
 		    updateRunStatistics(scenario);
-		    throw new SkipException("S-" + scenario.getId() + ": Skipping scenario as it is marked as a Negative Test case");
+		    throw new SkipException("S-" + scenario.getId() + ": Skipping scenario as it is marked to be ignored as a Negative Test case");
 		}
 
 

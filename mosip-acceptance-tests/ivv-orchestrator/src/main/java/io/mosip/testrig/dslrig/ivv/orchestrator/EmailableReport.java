@@ -34,7 +34,6 @@ import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
 
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
-import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.S3Adapter;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
@@ -103,7 +102,7 @@ public class EmailableReport implements IReporter {
 				+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report2.name"));
 		logger.info("reportFile is::" + System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
 				+ "/" + System.getProperty("emailable.report2.name"));
-
+		String excelFilePath =null;
 		File newReportFile = new File(
 				System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/" + newString);
 		logger.info("New reportFile is::" + System.getProperty("user.dir") + "/"
@@ -113,11 +112,18 @@ public class EmailableReport implements IReporter {
 			if (orignialReportFile.renameTo(newReportFile)) {
 				orignialReportFile.delete();
 				logger.info("Report File re-named successfully!");
-
+				try {
+					 excelFilePath = HtmlToExcelReport.CreateExcelReport(
+							System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/", newString);
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+				}
 				if (dslConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 					S3Adapter s3Adapter = new S3Adapter();
 					boolean isStoreSuccess = false;
 					boolean isStoreSuccess2 = false;
+					boolean isStoreSuccess3 = false;
+					
 					try {
 						isStoreSuccess = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null,
 								null, newString, newReportFile);
@@ -130,6 +136,10 @@ public class EmailableReport implements IReporter {
 						isStoreSuccess2 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
 
 								null, null, "ExtentReport-" + newString, extentReport);
+						
+						isStoreSuccess3 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null,
+								null, "comparison_vs_BASE_LINE.xlsx", new File(excelFilePath));
+						logger.info("isStoreSuccess:: " + isStoreSuccess);
 
 					} catch (Exception e) {
 						logger.error("error occured while pushing the object" + e.getMessage());
@@ -797,7 +807,7 @@ public class EmailableReport implements IReporter {
 			Set<ITestResult> skippedConfigurations = context.getSkippedConfigurations().getAllResults();
 //			Set<ITestResult> skippedTests = context.getSkippedTests().getAllResults();
 			Set<ITestResult> knownIssueTests =  getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.KNOWN_ISSUE_SUBSET_STRING);
-			Set<ITestResult> skippedTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.IGNORED_SUBSET_STRING);
+			Set<ITestResult> skippedTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.IGNORED_STRING);
 
 			Set<ITestResult> passedTests = context.getPassedTests().getAllResults();
 
@@ -836,23 +846,14 @@ public class EmailableReport implements IReporter {
 							} else {
 								// Skip the test result
 							}
-						} if (subSetString.contains(GlobalConstants.IGNORED_SUBSET_STRING)) {
+						} if (subSetString.contains(GlobalConstants.IGNORED_SUBSET_STRING) || subSetString.contains(GlobalConstants.IGNORED_STRING)) {
 							if (containsAny(throwable.getMessage(), subSetString)) {
 								// Add only results which are skipped due to feature not supported
 								testResultsSubList.add(result);
 							} else {
 								// Skip the test result
 							}
-						} else { // Service not deployed. Hence skipping the testcase // skipped
-							if (!throwable.getMessage().contains(GlobalConstants.FEATURE_NOT_SUPPORTED)
-									&& !throwable.getMessage().contains(GlobalConstants.SERVICE_NOT_DEPLOYED)
-									&& !throwable.getMessage().contains(GlobalConstants.KNOWN_ISSUES)) {
-								// Add only results which are not skipped due to feature not supported
-								testResultsSubList.add(result);
-							} else {
-								// Skip the test result
-							}
-						}
+						} 
 					}
 				}
 			}
