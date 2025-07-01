@@ -23966,7 +23966,64 @@
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin2,$$vid,$$personaFilePath)"
 		}
-	},			
+	},
+	
+	{
+		"Scenario": "213",
+		"Tag": "Positive_Test",
+		"Persona": "ResidentFemaleAdult",
+		"Group": "Adult_New",
+		"Description": "Resident walks into reg-center and uploads a packet and tries to update the name using mixed cases.",
+		"Step-0": {
+			"Description": "Performs a health check on the specified component.",
+			"Input Parameters": "Keyword to check; only 'packetcreator' is supported.",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(packetcreator)"
+		},
+		"Step-1": {
+			"Description": "Reads the prerequisite data at the specified index.",
+			"Input Parameters": "Refer to in-line comments for parameter details.",
+			"Return Value": "Prerequisite details",
+			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+		},
+		"Step-2": {
+			"Description": "Sets the context for executing the scenario.",
+			"Input Parameters": "Environment and user details. Additional parameter details are available in in-line comments.",
+			"Return Value": "NA",
+			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
+		},
+		"Step-3": {
+			"Description": "Performs a health check of the required server components for end-to-end scenario execution.",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(targetenv)"
+		},
+		"Step-4": {
+			"Description": "Generates persona data for the resident.",
+			"Input Parameters": "Details are provided in the in-line parameter comments.",
+			"Return Value": "Path to the generated persona file",
+			"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false,Female)"
+		},
+		"Step-5": {
+			"Description": "Updates Demo graphic details and biometric in the persona file",
+			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_updateDemoOrBioDetails(0,0,name=Asa2DFG@,$$personaFilePath)"
+			},
+		"Step-6": {
+			"Description": "Generates a packet template using the persona data.",
+			"Input Parameters": "Process type and persona file path",
+			"Return Value": "Path to the generated template file",
+			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
+		},	
+		"Step-7": {
+			"Description": "Verifies that the RID status matches the expected packet processing status.",
+			"Input Parameters": "Expected packet status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid)"
+			}
+		},
+			
 	{
 		"Scenario": "AFTER_SUITE",
 		"Tag": "Postive_Test",
