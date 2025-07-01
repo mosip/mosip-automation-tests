@@ -23966,6 +23966,7 @@
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin2,$$vid,$$personaFilePath)"
 		}
+<<<<<<< HEAD
 	},
 	
 	{
@@ -24024,6 +24025,9 @@
 			}
 		},
 			
+=======
+	},			
+>>>>>>> upstream/develop
 	{
 		"Scenario": "AFTER_SUITE",
 		"Tag": "Postive_Test",
