@@ -23966,9 +23966,7 @@
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin2,$$vid,$$personaFilePath)"
 		}
-<<<<<<< HEAD
-	},
-	
+	},	
 	{
 		"Scenario": "213",
 		"Tag": "Positive_Test",
@@ -24022,12 +24020,8 @@
 			"Input Parameters": "Expected packet status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid)"
-			}
-		},
-			
-=======
-	},			
->>>>>>> upstream/develop
+		}
+	},
 	{
 		"Scenario": "AFTER_SUITE",
 		"Tag": "Postive_Test",
