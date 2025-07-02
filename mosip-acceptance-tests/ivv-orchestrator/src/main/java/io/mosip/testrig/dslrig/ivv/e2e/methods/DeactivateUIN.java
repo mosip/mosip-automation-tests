@@ -102,6 +102,10 @@ public class DeactivateUIN extends BaseTestCaseUtil implements StepInterface {
 						this.hasError = true;
 						logger.error(e.getMessage());
 						throw new RigInternalError("DEACTIVATEUIN failed");
+					} catch (SecurityXSSException e) {
+						this.hasError = true;
+						logger.error(e.getMessage());
+						throw new RigInternalError("DEACTIVATEUIN failed");
 					}
 				}
 			}

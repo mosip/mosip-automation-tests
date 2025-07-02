@@ -192,7 +192,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 		try {
 			generateToken.test(testGenerateToken);
-		} catch (NoSuchAlgorithmException | AuthenticationTestException | AdminTestException e) {
+		} catch (NoSuchAlgorithmException | AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 		}
 

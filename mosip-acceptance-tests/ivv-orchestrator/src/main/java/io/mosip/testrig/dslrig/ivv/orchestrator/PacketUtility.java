@@ -1206,7 +1206,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		try {
 			bioAuth.test(test);
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
@@ -1791,7 +1791,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		try {
 			bioAuth.test(test);
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
