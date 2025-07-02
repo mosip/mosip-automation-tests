@@ -54,8 +54,7 @@ public class UpdateIdentityWithArrayHandles extends BaseTestCaseUtil implements 
 
 		try {
 			updateIdentity.test(test);
-
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());

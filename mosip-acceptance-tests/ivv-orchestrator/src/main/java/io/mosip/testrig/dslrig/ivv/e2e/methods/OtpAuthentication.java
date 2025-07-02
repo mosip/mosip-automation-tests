@@ -131,6 +131,8 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 						logger.error(e.getMessage());
 					} catch (AdminTestException e) {
 						logger.error(e.getMessage());
+					} catch (SecurityXSSException e) {
+						logger.error(e.getMessage());
 					}
 				}
 			}
@@ -161,7 +163,7 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 					test.setInput(input);
 					try {
 						otpauth.test(test);
-					} catch (AuthenticationTestException | AdminTestException e) {
+					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 						this.hasError = true;
 						logger.error(e.getMessage());
 						throw new RigInternalError("Otp Auth failed ");
