@@ -867,6 +867,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
 		jsonReq.put("enableDebug", dslConfigManager.getEnableDebug());
+		jsonReq.put("eSignetbaseurl", ConfigManager.getEsignetBaseUrl());
 		logger.info("Running suite with enableDebug : " + dslConfigManager.getEnableDebug());
 		jsonReq.put(URLBASE, envbaseUrl);
 		jsonReq.put(MOSIP_TEST_BASEURL, envbaseUrl);
@@ -1253,7 +1254,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		try {
 			esignetBioAuth.test(test);
-		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+		} catch (AuthenticationTestException | AdminTestException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
