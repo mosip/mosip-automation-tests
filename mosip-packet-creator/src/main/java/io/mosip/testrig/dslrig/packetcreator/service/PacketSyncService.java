@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -741,58 +743,61 @@ public class PacketSyncService {
 		}
 		return retVal;
 	}
+	
+	 private static final Queue<SlotEntry> slotQueue = new ConcurrentLinkedQueue<>();
 
-	/*
-	 * Book appointment on any specified slot nThSlot -> min 1
-	 */
-	public String bookAppointmentSlot(String preRegID, int nthSlot, boolean bHoliday, String contextKey) {
+	    public static class SlotEntry {
+	        public final String date;
+	        public final String regCenterId;
+	        public final AppointmentTimeSlotModel slot;
 
-		String retVal = "{\"Failed\"}";
-		Boolean bBooked = false;
+	        public SlotEntry(String date, String regCenterId, AppointmentTimeSlotModel slot) {
+	            this.date = date;
+	            this.regCenterId = regCenterId;
+	            this.slot = slot;
+	        }
+	    }
 
-		loadServerContextProperties(contextKey);
+	    public static void initializeSlots(String contextKey, boolean bHoliday) {
+	        AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
+	        for (CenterDetailsModel center : res.getAvailableDates()) {
+	            if ((bHoliday && center.getHoliday()) || (!bHoliday && !center.getHoliday())) {
+	                for (AppointmentTimeSlotModel ts : center.getTimeslots()) {
+	                    slotQueue.add(new SlotEntry(center.getDate(), res.getRegCenterId(), ts));
+	                }
+	            }
+	        }
+	    }
 
-		AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
+	    public String bookAppointmentSlot(String preRegID, int nthSlot, boolean bHoliday, String contextKey) {
+	        loadServerContextProperties(contextKey);
 
-		for (CenterDetailsModel a : res.getAvailableDates()) {
-			// if specified book on a holiday
-			if (bHoliday) {
-				if (a.getHoliday()) {
-					for (AppointmentTimeSlotModel ts : a.getTimeslots()) {
+	        // Ensure slots are initialized only once
+	        if (slotQueue.isEmpty()) {
+	            initializeSlots(contextKey, bHoliday);
+	        }
 
-						nthSlot--;
-						if (nthSlot == 0) {
-							retVal = PreRegistrationSteps.bookAppointment(preRegID, a.getDate(), res.getRegCenterId(),
-									ts, contextKey);
-							bBooked = true;
-							break;
-						}
-					}
-					if (bBooked)
-						break;
-					else
-						continue;
-				}
-			}
+	        SlotEntry entry = null;
+	        for (int i = 0; i < nthSlot; i++) {
+	            entry = slotQueue.poll();
+	            if (entry == null) {
+	                return "{\"Failed: No available slots\"}";
+	            }
+	        }
 
-			if (!a.getHoliday()) {
-				for (AppointmentTimeSlotModel ts : a.getTimeslots()) {
+	        return PreRegistrationSteps.bookAppointment(
+	            preRegID,
+	            entry.date,
+	            entry.regCenterId,
+	            entry.slot,
+	            contextKey
+	        );
+	    }
 
-					nthSlot--;
-					if (nthSlot == 0) {
-						retVal = PreRegistrationSteps.bookAppointment(preRegID, a.getDate(), res.getRegCenterId(), ts,
-								contextKey);
-						bBooked = true;
-						break;
-
-					}
-				}
-			}
-			if (bBooked)
-				break;
-		}
-		return retVal;
-	}
+	    public void runBookingTask(String preRegID, String contextKey) {
+	        String result = bookAppointmentSlot(preRegID, 1, false, contextKey);
+	        System.out.println(Thread.currentThread().getName() + ": " + result);
+	    }
 
 	public String cancelAppointment(String preregId, AppointmentDto appointmentDto, String contextKey) {
 		loadServerContextProperties(contextKey);
