@@ -113,7 +113,7 @@ public class CommandsService {
 				if (bcheck) {
 					RestClient.logInfo(contextKey, controllerPath);
 					Boolean bRet1;
-					if (parts[1].contains("esignet"))
+					if (parts[1].contains("esignet") && !eSignetDeployed.equalsIgnoreCase("true"))
 						bRet1 = RestClient.checkActuatorNoAuth(eSignetbaseurl+"/" + controllerPath.trim(), contextKey);
 					else
 						bRet1 = RestClient.checkActuatorNoAuth(baseUrl + controllerPath.trim(), contextKey);
