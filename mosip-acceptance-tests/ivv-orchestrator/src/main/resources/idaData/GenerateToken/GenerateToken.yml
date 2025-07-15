@@ -1,18 +1,21 @@
 GenerateToken:
-   ESignet_GenerateToken_Valid_Smoke:
-      endPoint: /v1/esignet/oauth/token
+   ESignet_GenerateToken_uin_Valid_Smoke_sid:
+      endPoint: /v1/esignet/oauth/v2/token
+      uniqueIdentifier: TC_ESignet_GenerateToken_01
+      description: Generate token with all valid details UIN
       role: resident
       restMethod: post
+      validityCheckRequired: true
       inputTemplate: idaData/GenerateToken/GenerateToken
       outputTemplate: idaData/GenerateToken/GenerateTokenResult
       input: '{
-          "grant_type": "authorization_code",
-          "code": "code",
-          "client_id": "client_id",
-          "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-          "client_assertion": "client_assertion",
-          "redirect_uri": "https://health-services.com/userprofile"
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_uin_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-        "token_type": "Bearer" 
+   		"token_type": "Bearer" 
 }'
