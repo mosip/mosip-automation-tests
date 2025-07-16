@@ -2240,16 +2240,28 @@
 			"Action": "$$childRid=e2e_ridsync(NEW/*PACKET_TYPE*/,$$childZipPacketPath)"
 		},
 		"Step-14": {
-			"Description": "Uploads multiple packets together",
-			"Input Parameters": "Packet paths",
+			"Description": "<<<Step detailed description>>>",
+			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
-			"Action": "e2e_bulkUploadPacket($$childZipPacketPath,$$parentZipPacketPath)"
+			"Action": "e2e_packetsync($$parentZipPacketPath)"
 		},
 		"Step-15": {
+			"Description": "<<<Step detailed description>>>",
+			"Input Parameters": "<<<Step inputs values details>>>",
+			"Return Value": "NA",
+			"Action": "e2e_packetsync($$childZipPacketPath)"
+		},
+		"Step-16": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$parentRid,$$childRid,all/*EXPECTED_RIDs_TO_BE_PROCESSED*/)"
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$parentRid)"
+		},
+		"Step-16": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$childRid)"
 		}
 	},
 	{
@@ -6464,28 +6476,34 @@
 		"Step-14": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_bulkUploadPacket($$childZipPacketPath,$$parentZipPacketPath)"
+			"Return Value": "NA",
+			"Action": "e2e_packetsync($$parentZipPacketPath)"
 		},
 		"Step-15": {
-			"Description": "Checks the RID status against given packet processing status",
-			"Input Parameters": "Packet processing status and RID",
+			"Description": "<<<Step detailed description>>>",
+			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$childRid)"
+			"Action": "e2e_packetsync($$childZipPacketPath)"
 		},
 		"Step-16": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$parentRid)"
+			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$childRid)"
 		},
 		"Step-17": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$parentRid)"
+		},
+		"Step-18": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,ERROR)"
 		},
-		"Step-18": {
+		"Step-19": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
