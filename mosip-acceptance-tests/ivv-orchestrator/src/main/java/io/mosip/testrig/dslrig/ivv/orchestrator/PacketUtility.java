@@ -848,6 +848,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("uin", getValueFromIdJson("uin"));
 		jsonReq.put("name", getValueFromIdJson("name"));
 		jsonReq.put("dob", getValueFromIdJson("dob"));
+		jsonReq.put("packetPath", "../mountvolume/packets");
 		jsonReq.put("gender", getValueFromIdJson("gender"));
 		jsonReq.put("emailId", getValueFromIdJson("emailId"));
 		jsonReq.put("individualBiometrics", getValueFromIdJson("individualBiometrics"));

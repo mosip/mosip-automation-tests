@@ -33,25 +33,38 @@ public class ContactProvider {
 		return contacts;
 	}
 	
-	static String generateMobileNumber(Random rand) {
-		
-		StringBuilder mobNumber = new StringBuilder();
-		//Random rand = new Random();
-		int idx = rand.nextInt(4);
-		
-		long val = (long) DataProviderConstants.mobNumber_prefix[idx] * 1000;
-		val += rand.nextInt(999);
-		mobNumber.append( String.format("%d",val));
-		
-		int nextpart = rand.nextInt(9999 - 1000) + 1000;
-		String nextPart = String.format("%d", nextpart);
-		mobNumber.append(nextPart);
-		nextpart = rand.nextInt(9999 - 1000) + 1000;
-		nextPart = String.format("%d", nextpart);
-		mobNumber.append(nextPart);
-		mobNumber.setLength(DataProviderConstants.mobNumber_maxlen);
-		return mobNumber.toString();
-		
-		
-	}
+//	static String generateMobileNumber(Random rand) {
+//		
+//		StringBuilder mobNumber = new StringBuilder();
+//		//Random rand = new Random();
+//		int idx = rand.nextInt(4);
+//		
+//		long val = (long) DataProviderConstants.mobNumber_prefix[idx] * 1000;
+//		val += rand.nextInt(999);
+//		mobNumber.append( String.format("%d",val));
+//		
+//		int nextpart = rand.nextInt(9999 - 1000) + 1000;
+//		String nextPart = String.format("%d", nextpart);
+//		mobNumber.append(nextPart);
+//		nextpart = rand.nextInt(9999 - 1000) + 1000;
+//		nextPart = String.format("%d", nextpart);
+//		mobNumber.append(nextPart);
+//		mobNumber.setLength(DataProviderConstants.mobNumber_maxlen);
+//		return mobNumber.toString();
+//		
+//		
+//	}
+	
+	 public static String generateMobileNumber(Random rand) {
+	        StringBuilder mobNumber = new StringBuilder();
+
+	        int idx = rand.nextInt(DataProviderConstants.mobNumber_prefix.length);
+	        mobNumber.append(DataProviderConstants.mobNumber_prefix[idx]);
+
+	        for (int i = 1; i < DataProviderConstants.mobNumber_maxlen; i++) {
+	            mobNumber.append(rand.nextInt(10));
+	        }
+
+	        return mobNumber.toString();
+	    }
 }
