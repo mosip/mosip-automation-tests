@@ -281,14 +281,17 @@ public class CreatePersona {
 						);
 						continue;
 			}
-			else if (schemaItem.getId().toLowerCase().contains("phone")
-					|| schemaItem.getId().toLowerCase().contains("mobile")) {
-				String mobileNo = resident.getContact().getMobileNumber();
-				constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
-						resident.getSecondaryLanguage(), mobileNo, mobileNo,
-						schemaItem.getType().equals("simpleType") ? true : false);
-
-			}
+		/*	else
+			if(schemaItem.getId().toLowerCase().contains("phone") || schemaItem.getId().toLowerCase().contains("mobile") ) {
+					String mobileNo =   resident.getContact().getMobileNumber();
+					constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
+							resident.getSecondaryLanguage(),
+							mobileNo,
+							mobileNo,
+							schemaItem.getType().equals("simpleType") ? true: false
+					);
+					
+			}*/
 			else
 			if(schemaItem.getId().toLowerCase().contains("email") || schemaItem.getId().toLowerCase().contains("mail") ) {
 						
