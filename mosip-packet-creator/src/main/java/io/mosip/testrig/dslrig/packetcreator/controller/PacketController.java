@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import io.mosip.testrig.dslrig.packetcreator.dto.PreRegisterRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncReqRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncReqResponseDTO;
 import io.mosip.testrig.dslrig.packetcreator.dto.SyncRidDto;
+import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketMakerService;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -320,30 +322,16 @@ public class PacketController {
 			return "{\"" + ex.getMessage() + "\"}";
 		}
 	}
-	/*
-	 * @Operation(summary = "Validate Identity Object as per ID Schema")
-	 * 
-	 * @ApiResponses(value = { @ApiResponse(responseCode = "200", description =
-	 * "Validation successful") })
-	 * 
-	 * @PostMapping(value = "/packet/validate/{process}/{contextKey}")
-	 * public @ResponseBody String validatePacket(@RequestBody PreRegisterRequestDto
-	 * requestDto,
-	 * 
-	 * @PathVariable("process") String process, @PathVariable("contextKey") String
-	 * contextKey) {
-	 * 
-	 * try { if (personaConfigPath != null && !personaConfigPath.equals("")) {
-	 * DataProviderConstants.RESOURCE = personaConfigPath; }
-	 * 
-	 * return
-	 * packetSyncService.validatePacket(requestDto.getPersonaFilePath().get(0),
-	 * process, contextKey);
-	 * 
-	 * } catch (Exception ex) { logger.error("validatePacket", ex); } return
-	 * "{\"Failed\"}";
-	 * 
-	 * }
-	 */
+	
+	@Operation(summary = "delete the packet template and resident data")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully synced the packet") })
+	@DeleteMapping(value = "/delete/packetdata/{contextKey}")
+	public @ResponseBody String deletePacketData(@PathVariable("contextKey") String contextKey) throws Exception {
+		try {
+			return ContextUtils.clearPacketGenFolders(contextKey);
+		} catch (Exception e) {
+			return e.getMessage();
+		}
+	}
 
 }

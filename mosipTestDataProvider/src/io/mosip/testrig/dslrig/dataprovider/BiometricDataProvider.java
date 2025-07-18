@@ -508,7 +508,9 @@ public class BiometricDataProvider {
 			return null;
 		}
 
-		mds.removeProfile(mdsprofilePath, profileName, port, contextKey);
+//		mds.removeProfile(mdsprofilePath, profileName, port, contextKey);
+		mds.setProfile("Default",port,contextKey);
+		CommonUtil.deleteOldTempDir(mdsprofilePath+"/"+ profileName);
 		CentralizedMockSBI.stopSBI(contextKey);
 		return capture;
 	}
@@ -1043,7 +1045,7 @@ public class BiometricDataProvider {
 				data.setFingerPrint(fingerPrints);
 				data.setFingerHash(fingerPrintHash);
 				data.setFingerRaw(fingerPrintRaw);
-				CommonUtil.deleteOldTempDir(dirPath);
+//				CommonUtil.deleteOldTempDir(dirPath);
 			}
 
 		}
@@ -1119,7 +1121,7 @@ public class BiometricDataProvider {
 		data.setFingerPrint(fingerPrints);
 		data.setFingerHash(fingerPrintHash);
 		data.setFingerRaw(fingerPrintRaw);
-		CommonUtil.deleteOldTempDir(dirPath);
+//		CommonUtil.deleteOldTempDir(dirPath);
 
 		return data;
 	}
@@ -1317,7 +1319,7 @@ public class BiometricDataProvider {
 			m.setRawLeft(fldata);
 			m.setRawRight(frdata);
 			retVal.add(m);
-			CommonUtil.deleteOldTempDir(srcPath);
+//			CommonUtil.deleteOldTempDir(srcPath);
 		}
 
 		return retVal;
@@ -1402,7 +1404,7 @@ public class BiometricDataProvider {
 		m.setRawLeft(fldata);
 		m.setRawRight(frdata);
 		retVal.add(m);
-		CommonUtil.deleteOldTempDir(srcPath);
+//		CommonUtil.deleteOldTempDir(srcPath);
 		return retVal;
 	}
 
@@ -1456,7 +1458,7 @@ public class BiometricDataProvider {
 			bencoded = PhotoProvider.encodeFaceImageData(bData);
 
 			baos.close();
-			CommonUtil.deleteOldTempDir(dirPath);
+//			CommonUtil.deleteOldTempDir(dirPath);
 		} catch (Exception e) {
 
 			logger.error(e.getMessage());

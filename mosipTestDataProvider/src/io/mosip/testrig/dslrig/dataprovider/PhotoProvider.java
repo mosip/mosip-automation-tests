@@ -96,7 +96,7 @@ public class PhotoProvider {
 			bencoded = encodeFaceImageData(bData);
 
 			baos.close();
-			CommonUtil.deleteOldTempDir(dirPath);
+//			CommonUtil.deleteOldTempDir(dirPath);
 
 
 		} catch (Exception e) {
