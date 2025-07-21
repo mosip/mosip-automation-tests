@@ -345,7 +345,7 @@ public class Orchestrator {
 		} else if (matchTags("Negative_Test", scenario.getTags()) && testLevel.equalsIgnoreCase("smoke")) {
 		    extentTest.skip("S-" + scenario.getId() + ": Skipping scenario as it is marked as a Negative Test case");
 		    updateRunStatistics(scenario);
-		    throw new SkipException("S-" + scenario.getId() + ": Skipping scenario as it is marked as a Negative Test case");
+		    throw new SkipException("S-" + scenario.getId() + ": Skipping scenario as it is marked to be ignored as a Negative Test case");
 		}
 
 
@@ -354,10 +354,10 @@ public class Orchestrator {
 		
 
 		// Check whether the scenario is in the defined skipped list
-		if (dslConfigManager.isInTobeSkippedList("S-" + scenario.getId())) {
-			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario as it is marked to be ignored in the current environment due feature not supported;Service not deployed");
+		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId())) {
+			extentTest.skip("I-" + scenario.getId() + ": Skipping scenario as it is marked to be ignored in the current environment due feature not supported;Service not deployed");
 			updateRunStatistics(scenario);
-			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario as it is marked to be ignored in the current environment due feature not supported;Service not deployed");
+			throw new SkipException("I-" + scenario.getId() + ": Skipping scenario as it is marked to be ignored in the current environment due feature not supported;Service not deployed");
 		}
 		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId())) {
 			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
@@ -367,7 +367,7 @@ public class Orchestrator {
 		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
 			extentTest.skip("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
 			updateRunStatistics(scenario);
-			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario due to known Automation issue");
+			throw new SkipException("A-" + scenario.getId() + ": Skipping scenario marked to be ignored due to known Automation issue");
 		}
 
 		Store store = new Store();
