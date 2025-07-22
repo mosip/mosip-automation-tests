@@ -215,10 +215,8 @@ public class GlobalConstants {
 	public static final String SKIPPED = "Skipped";
 	public static final String TARGET_ENV_HEALTH_CHECK_FAILED = "Target env health check failed ";
 	public static final String HOTLIST = "hotlist";
-	public static final String IGNORED_STRING = "marked to be ignored";
 	public static final String KNOWN_ISSUES_STRING = "known issue";
-	public static final String KNOWN_ISSUES = "known issue. Hence skipping the testcase";
-	public static final String IGNORED_SUBSET_STRING = "feature not supported;Service not deployed";
+	public static final String IGNORED_SUBSET_STRING = "Ignoring";
 	public static final String SKIPPED_SUBSET_STRING = "Skipping scenarios execution";
 
 }
