@@ -797,8 +797,8 @@ public class EmailableReport implements IReporter {
 			Set<ITestResult> SkippedConfigurations = context.getSkippedConfigurations().getAllResults();
 //			Set<ITestResult> skippedTests = context.getSkippedTests().getAllResults();
 			Set<ITestResult> knownIssueTests =  getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.KNOWN_ISSUES_STRING);
-			Set<ITestResult> ignoredTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.IGNORED_STRING);
-			Set<ITestResult> skippedTests = getResultsSubSet(context.getSkippedTests().getAllResults(), "");
+			Set<ITestResult> ignoredTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.IGNORED_SUBSET_STRING);
+			Set<ITestResult> skippedTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.SKIPPED_SUBSET_STRING);
 
 			Set<ITestResult> passedTests = context.getPassedTests().getAllResults();
 
@@ -837,7 +837,7 @@ public class EmailableReport implements IReporter {
 								testResultsSubList.add(result);
 							}
 						} 
-					   if (subSetString.contains(GlobalConstants.IGNORED_SUBSET_STRING) || subSetString.contains(GlobalConstants.IGNORED_STRING)) {
+					   if (subSetString.contains(GlobalConstants.IGNORED_SUBSET_STRING)) {
 							if (containsAny(throwable.getMessage(), subSetString)) {
 								testResultsSubList.add(result);
 							}
