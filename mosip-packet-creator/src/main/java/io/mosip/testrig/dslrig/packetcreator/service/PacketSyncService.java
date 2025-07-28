@@ -51,6 +51,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldValueModel;
 import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipDocTypeModel;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipDocument;
+import io.mosip.testrig.dslrig.dataprovider.models.MosipIDSchema;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipIndividualTypeModel;
 import io.mosip.testrig.dslrig.dataprovider.models.Name;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
@@ -92,6 +93,8 @@ public class PacketSyncService {
 	private static final String MOSIP_TEST_REGCLIENT_MACHINEID = "mosip.test.regclient.machineid";
 	private static final String STATUS_SUCCESS = "{\"status\":\"Success\"}";
 	private static final String MODALITY = "Modality : ";
+	private List<MosipIDSchema> cachedDocumentSchema = null;
+
 
 	@Autowired
 	private APIRequestUtil apiRequestUtil;
@@ -286,12 +289,14 @@ public class PacketSyncService {
 		logger.info("Entered makePacketAndSync at time: " + System.currentTimeMillis());
 		Path idJsonPath = null;
 		Path docPath = null;
+		String location = null;
+		File targetDirectory = null;
 		preregId = preregId.trim();
 		if (!preregId.equals("0") && !preregId.equals("01")) {
-			String location = preregSyncService.downloadPreregPacket(preregId, contextKey);
+			 location = preregSyncService.downloadPreregPacket(preregId, contextKey);
 			if (RestClient.isDebugEnabled(contextKey))
 				logger.info("Downloaded the prereg packet in {} ", location);
-			File targetDirectory = Path.of(preregSyncService.getWorkDirectory(), preregId).toFile();
+			 targetDirectory = Path.of(preregSyncService.getWorkDirectory(), preregId).toFile();
 			if (!targetDirectory.exists() && !targetDirectory.mkdir())
 				throw new Exception("Failed to create target directory ! PRID : " + preregId);
 
@@ -316,7 +321,7 @@ public class PacketSyncService {
 			process = ContextUtils.ProcessFromTemplate(src, templateLocation);
 		}
 		String packetPath = packetMakerService.createContainer(idJsonPath.toString(), templateLocation, src, process,
-				preregId, contextKey, true, additionalInfoReqId);
+				preregId, contextKey, true, additionalInfoReqId , targetDirectory);
 
 		String response = null;
 		if (RestClient.isDebugEnabled(contextKey))
@@ -819,22 +824,56 @@ public class PacketSyncService {
 	}
 
 	public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
+	    String response = "";
 
-		String response = "";
+	    loadServerContextProperties(contextKey);
+	    ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 
-		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+	    if (cachedDocumentSchema == null) {
+	        PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
+	        cachedDocumentSchema = packetTemplateProvider.getSchema(contextKey).getSchema();
+	    }
 
-		for (MosipDocument a : resident.getDocuments()) {
-			JSONObject respObject = PreRegistrationSteps.UploadDocument(a.getDocCategoryCode(),
-					a.getType().get(0).getDocTypeCode(), a.getDocCategoryLang(), a.getDocs().get(0), preregId,
-					contextKey);
-			if (respObject != null)
-				response = response + respObject.toString();
-		}
+	    for (MosipIDSchema s : cachedDocumentSchema) {
+	        if (s.getType().equals("documentType")) {
+	            for (MosipDocument a : resident.getDocuments()) {
+	                if (!s.getSubType().equals(a.getDocCategoryCode())) continue;
 
-		return response;
+	                String originalDocPath = a.getDocs().get(0);
+	                String tempDir = System.getProperty("java.io.tmpdir");
+	                String fileName = s.getId() + ".pdf";
+	                String copiedDocPath = tempDir + File.separator + fileName;
+
+	                try {
+	                    if (!"skipApplicantDocuments".equalsIgnoreCase(
+	                            VariableManager.getVariableValue(contextKey, "skipApplicantDocumentsFlag").toString())) {
+	                        CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), Paths.get(copiedDocPath));
+	                    }
+	                } catch (Exception e) {
+	                    logger.error("Error while copying file for upload: " + originalDocPath, e);
+	                    continue;
+	                }
+
+	                JSONObject respObject = PreRegistrationSteps.UploadDocument(
+	                        a.getDocCategoryCode(),
+	                        a.getType().get(0).getDocTypeCode(),
+	                        a.getDocCategoryLang(),
+	                        copiedDocPath,
+	                        preregId,
+	                        contextKey
+	                );
+
+	                if (respObject != null)
+	                    response += respObject.toString();
+	            }
+	        }
+	    }
+
+	    return response;
 	}
+
+
+
 
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
