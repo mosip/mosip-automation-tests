@@ -117,21 +117,21 @@ By following these steps, you can seamlessly set up and work with the project in
 ## Docker setup build
 1. Deploy Packet creator
 	-Use these branches of code.
-	`https://github.com/mosip/mosip-automation-tests/tree/release-1.2.0.1`
-	`https://github.com/mosip/mosip-helm/tree/1.2.0.1/charts/packetcreator`
+	`https://github.com/mosip/mosip-automation-tests/tree/release-1.3.x`
+	`https://github.com/mosip/mosip-helm/tree/1.3.x/charts/packetcreator`
 1. Deploy Dsl testrig
 	-Use these branches of code.
-	`https://github.com/mosip/mosip-automation-tests/tree/release-1.2.0.1`
-	`https://github.com/mosip/mosip-helm/tree/1.2.0.1/charts/dslorchestrator`
+	`https://github.com/mosip/mosip-automation-tests/tree/release-1.3.x`
+	`https://github.com/mosip/mosip-helm/tree/1.3.x/charts/dslorchestrator`
 1. Orchestrator Config maps setup
 ![](docs/configmaps1.png)
 ![](docs/configmaps2.png)
 ![](docs/configmaps3.png)
 1. To run particular scenario `scenariosToExecute=2` update scenario number for execution and keep this empty to run entire full suite
-1.Scenario sheet gets picked internally placed at this path `https://github.com/mosip/mosip-automation-tests/blob/release-1.2.0.1/mosip-acceptance-tests/ivv-orchestrator/src/main/resources/config/scenarios.json`
-1. Report gets generated on minio in the mentioned S2 bucket folder in configmaps. For example pick similar to below two reports one is testng report other is extent report.
-  -DSL-api-internal.qa-release.mosip.net-full-run-1707833456032-report_T-161_P-1_S-63_F-97
-  -ExtentReport-DSL-api-internal.qa-release.mosip.net-full-run-1707833456032-report_T-161_P-1_S-63_F-97
+1.Scenario sheet gets picked internally placed at this path `https://github.com/mosip/mosip-automation-tests/blob/release-1.3.x/mosip-acceptance-tests/ivv-orchestrator/src/main/resources/config/scenarios.json`
+1. Report gets generated on minio in the mentioned S3 bucket folder in configmaps. For example pick similar to below two reports one is testng report other is extent report.
+  -DSL-api-internal.qa-java21-full-run-1749355331697-report_T-205_P-167_S-29_F-9
+  -ExtentReport-DSL-api-internal.dev3-full-run-1749647484903-report_T-205_P-167_S-29_F-9
 
 ## License
 This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
