@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.codec.binary.Base64;
@@ -823,57 +824,50 @@ public class PacketSyncService {
 		return PreRegistrationSteps.discardBooking(map, contextKey);
 	}
 
+	private static final Map<String, List<MosipIDSchema>> schemaCache = new ConcurrentHashMap<>();
+
 	public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
-	    String response = "";
+		StringBuilder responseBuilder = new StringBuilder();
 
-	    loadServerContextProperties(contextKey);
-	    ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+		loadServerContextProperties(contextKey);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 
-	    if (cachedDocumentSchema == null) {
-	        PacketTemplateProvider packetTemplateProvider = new PacketTemplateProvider();
-	        cachedDocumentSchema = packetTemplateProvider.getSchema(contextKey).getSchema();
-	    }
+		// Thread-safe caching of schema per context
+		List<MosipIDSchema> documentSchemas = schemaCache.computeIfAbsent(contextKey, key -> {
+			PacketTemplateProvider provider = new PacketTemplateProvider();
+			return provider.getSchema(key).getSchema();
+		});
 
-	    for (MosipIDSchema s : cachedDocumentSchema) {
-	        if (s.getType().equals("documentType")) {
-	            for (MosipDocument a : resident.getDocuments()) {
-	                if (!s.getSubType().equals(a.getDocCategoryCode())) continue;
+		// Create a unique temp directory for each preregId to avoid file conflicts
+		String tempDir = System.getProperty("java.io.tmpdir") + File.separator + "docs_" + preregId;
+		new File(tempDir).mkdirs();
 
-	                String originalDocPath = a.getDocs().get(0);
-	                String tempDir = System.getProperty("java.io.tmpdir");
-	                String fileName = s.getId() + ".pdf";
-	                String copiedDocPath = tempDir + File.separator + fileName;
+		for (MosipIDSchema schema : documentSchemas) {
+			if (!"documentType".equalsIgnoreCase(schema.getType()))
+				continue;
 
-	                try {
-	                    if (!"skipApplicantDocuments".equalsIgnoreCase(
-	                            VariableManager.getVariableValue(contextKey, "skipApplicantDocumentsFlag").toString())) {
-	                        CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), Paths.get(copiedDocPath));
-	                    }
-	                } catch (Exception e) {
-	                    logger.error("Error while copying file for upload: " + originalDocPath, e);
-	                    continue;
-	                }
+			for (MosipDocument doc : resident.getDocuments()) {
+				if (!schema.getSubType().equals(doc.getDocCategoryCode()))
+					continue;
 
-	                JSONObject respObject = PreRegistrationSteps.UploadDocument(
-	                        a.getDocCategoryCode(),
-	                        a.getType().get(0).getDocTypeCode(),
-	                        a.getDocCategoryLang(),
-	                        copiedDocPath,
-	                        preregId,
-	                        contextKey
-	                );
+				String originalDocPath = doc.getDocs().get(0);
+				String copiedFileName = schema.getId() + ".pdf";
+				String copiedDocPath = tempDir + File.separator + copiedFileName;
 
-	                if (respObject != null)
-	                    response += respObject.toString();
-	            }
-	        }
-	    }
+				CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), Paths.get(copiedDocPath));
 
-	    return response;
+				JSONObject respObject = PreRegistrationSteps.UploadDocument(doc.getDocCategoryCode(),
+						doc.getType().get(0).getDocTypeCode(), doc.getDocCategoryLang(), copiedDocPath, preregId,
+						contextKey);
+
+				if (respObject != null) {
+					responseBuilder.append(respObject.toString());
+				}
+			}
+		}
+
+		return responseBuilder.toString();
 	}
-
-
-
 
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
