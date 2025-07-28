@@ -17,6 +17,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -295,7 +296,7 @@ public class PacketMakerService {
 			idJsonPath = packetSyncService.createIDJsonFromPersona(personaPath, contextKey);
 
 		String packetPath = createContainer((idJsonPath == null ? null : idJsonPath.toString()), templatePath, src,
-				process, null, contextKey, false, additionalInfoReqId);
+				process, null, contextKey, false, additionalInfoReqId ,null);
 		if (RestClient.isDebugEnabled(contextKey))
 			logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
 		// newRegId
@@ -310,7 +311,7 @@ public class PacketMakerService {
 	 * Create packet with our without Encryption
 	 */
 	public synchronized String createContainer(String dataFile, String templatePacketLocation, String source, String processArg,
-			String preregId, String contextKey, boolean bZip, String additionalInfoReqId) throws Exception {
+			String preregId, String contextKey, boolean bZip, String additionalInfoReqId , File preRegPacketLocation) throws Exception {
 
 		String packetPath = "";
 		if (contextKey != null && !contextKey.equals("")) {
@@ -359,9 +360,32 @@ public class PacketMakerService {
 			if (tprocess != null)
 				process = tprocess;
 		}
-		RestClient.logInfo(contextKey, "src=" + src + ",process=" + process);
-		String tempPacketRootFolder = createTempTemplate(templateLocation, appId);
+		if (preRegPacketLocation != null) {
+		    List<String> files = getDemographicDocFiles(preRegPacketLocation.getAbsolutePath());
 
+		    for (String filePath : files) {
+		        Path sourceprereg = Paths.get(filePath);
+		        String originalFileName = sourceprereg.getFileName().toString();
+		        String cleanFileName = originalFileName;
+
+		        // Only modify PDF filenames
+		        if (originalFileName.toLowerCase().endsWith(".pdf")) {
+		            cleanFileName = originalFileName.replaceFirst("^[^_]*_", "");
+		        }
+
+		        Path target = Paths.get(templateLocation + File.separator + source + File.separator +
+		            processArg + File.separator + "rid_id", cleanFileName);
+
+		        try {
+		            Files.copy(sourceprereg, target, StandardCopyOption.REPLACE_EXISTING);
+		        } catch (IOException e) {
+		            e.printStackTrace(); // or log the error appropriately
+		        }
+		    }
+		}
+
+		String tempPacketRootFolder = createTempTemplate(templateLocation, appId);
+		
 		// update document file here
 		createPacket(tempPacketRootFolder, regId, dataFile, "id", preregId, contextKey);
 		if (bZip)
