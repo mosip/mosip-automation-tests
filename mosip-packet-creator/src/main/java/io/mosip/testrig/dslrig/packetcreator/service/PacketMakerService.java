@@ -366,15 +366,14 @@ public class PacketMakerService {
 		    for (String filePath : files) {
 		        Path sourceprereg = Paths.get(filePath);
 		        String originalFileName = sourceprereg.getFileName().toString();
-		        String cleanFileName = originalFileName;
-
-		        // Only modify PDF filenames
-		        if (originalFileName.toLowerCase().endsWith(".pdf")) {
-		            cleanFileName = originalFileName.replaceFirst("^[^_]*_", "");
+		        if (!originalFileName.toLowerCase().endsWith(".pdf")) {
+		            continue;
+		        }else {
+		        	originalFileName = originalFileName.replaceFirst("^[^_]*_", "");
 		        }
 
 		        Path target = Paths.get(templateLocation + File.separator + source + File.separator +
-		            processArg + File.separator + "rid_id", cleanFileName);
+		            processArg + File.separator + "rid_id", originalFileName);
 
 		        try {
 		            Files.copy(sourceprereg, target, StandardCopyOption.REPLACE_EXISTING);
