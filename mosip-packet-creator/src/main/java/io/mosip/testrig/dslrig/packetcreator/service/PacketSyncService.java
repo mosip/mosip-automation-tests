@@ -412,18 +412,19 @@ public class PacketSyncService {
 		RestClient.logInfo(contextKey, jsonWrapper.toString());
 		String tmpDir = Files.createTempDirectory("preregIds_").toFile().getAbsolutePath();
 
-		String existingValue = VariableManager.getVariableValue(contextKey, "residents_") != null
-				? VariableManager.getVariableValue(contextKey, "residents_").toString()
-				: "";
+		String newPreregPath = tmpDir;
+		String existingPreregValue = VariableManager.getVariableValue(contextKey, "preregIds_") != null
+		    ? VariableManager.getVariableValue(contextKey, "preregIds_").toString()
+		    : "";
 
-		String updatedValue;
-		if (!existingValue.isEmpty()) {
-			updatedValue = existingValue + "," + tmpDir;
+		String updatedPreregValue;
+		if (!existingPreregValue.isEmpty()) {
+			updatedPreregValue = existingPreregValue + "," + newPreregPath;
 		} else {
-			updatedValue = tmpDir;
+			 updatedPreregValue = newPreregPath;
 		}
 
-		VariableManager.setVariableValue(contextKey, "residents_", updatedValue);
+		VariableManager.setVariableValue(contextKey, "preregIds_", updatedPreregValue);
 
 		Path tempPath = Path.of(tmpDir, resident.getId() + "_ID.json");
 		CommonUtil.write(tempPath, jsonWrapper.toString().getBytes());
