@@ -1,12 +1,10 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -100,7 +98,6 @@ public class EmailableReport implements IReporter {
 				+ System.getProperty("testng.outpur.dir") + "/" + System.getProperty("emailable.report2.name"));
 		logger.info("reportFile is::" + System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir")
 				+ "/" + System.getProperty("emailable.report2.name"));
-		String excelFilePath =null;
 		File newReportFile = new File(
 				System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/" + newString);
 		logger.info("New reportFile is::" + System.getProperty("user.dir") + "/"
@@ -110,17 +107,10 @@ public class EmailableReport implements IReporter {
 			if (orignialReportFile.renameTo(newReportFile)) {
 				orignialReportFile.delete();
 				logger.info("Report File re-named successfully!");
-				try {
-					 excelFilePath = HtmlToExcelReport.CreateExcelReport(
-							System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/", newString);
-				} catch (Exception e) {
-					logger.error(e.getMessage());
-				}
 				if (dslConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 					S3Adapter s3Adapter = new S3Adapter();
 					boolean isStoreSuccess = false;
 					boolean isStoreSuccess2 = false;
-					boolean isStoreSuccess3 = false;
 					
 					try {
 						isStoreSuccess = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null,
@@ -134,18 +124,11 @@ public class EmailableReport implements IReporter {
 						isStoreSuccess2 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
 
 								null, null, "ExtentReport-" + newString, extentReport);
-						
-						isStoreSuccess3 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null,
-								null, "comparison_vs_BASE_LINE.xlsx", new File(excelFilePath));
+
 						logger.info("isStoreSuccess:: " + isStoreSuccess);
 
 					} catch (Exception e) {
 						logger.error("error occured while pushing the object" + e.getMessage());
-					}
-					if (isStoreSuccess && isStoreSuccess2) {
-						logger.info("Pushed report to S3");
-					} else {
-						logger.error("Failed while pushing file to S3");
 					}
 				}
 			} else {
@@ -161,10 +144,11 @@ public class EmailableReport implements IReporter {
 		try (InputStream is = EmailableReport.class.getClassLoader().getResourceAsStream("git.properties")) {
 			properties.load(is);
 
-			return properties.getProperty("git.commit.id.abbrev");
+			return "Commit Id is: " + properties.getProperty("git.commit.id.abbrev") + " & Branch Name is:"
+					+ properties.getProperty("git.branch");
 
-		} catch (IOException io) {
-			logger.error(io.getMessage());
+		} catch (IOException e) {
+			logger.error("Error getting git branch information: " + e.getMessage());
 			return "";
 		}
 
@@ -312,15 +296,15 @@ public class EmailableReport implements IReporter {
 		NumberFormat decimalFormat = NumberFormat.getNumberInstance();
 		LocalDate currentDate = LocalDate.now();
 		String formattedDate = null;
-		String branch = null;
+//		String branch = null;
 
 		// Format date and get Git branch
 		try {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			formattedDate = currentDate.format(formatter);
-			Process process = Runtime.getRuntime().exec("git rev-parse --abbrev-ref HEAD");
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			branch = reader.readLine();
+//			Process process = Runtime.getRuntime().exec("git rev-parse --abbrev-ref HEAD");
+//			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//			branch = reader.readLine();
 		} catch (Exception e) {
 			logger.info(e);
 		}
@@ -340,8 +324,8 @@ public class EmailableReport implements IReporter {
 				suiteResult.getSuiteName() + " ---- " +
 				"Report Date: " + formattedDate + " ---- " +
 				"Tested Environment: " +
-				System.getProperty("env.endpoint").replaceAll(".*?\\.([^\\.]+)\\..*", "$1") + " ---- " +
-				"Testrig details: Branch Name - " + branch + ", Commit ID - " + getCommitId()
+				System.getProperty("env.endpoint").replaceAll("https?://", "") + " ---- " 
+				+ getCommitId()
 			));
 			writer.print("</th></tr>");
 
@@ -491,7 +475,6 @@ public class EmailableReport implements IReporter {
 					List<ITestResult> results = methodResult.getResults();
 					int resultsCount = results.size();
 					assert resultsCount > 0;
-					ITestResult firstResult = results.iterator().next();
 
 					// Write the remaining scenarios for the method
 
@@ -813,6 +796,7 @@ public class EmailableReport implements IReporter {
 			Set<ITestResult> knownIssueTests =  getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.KNOWN_ISSUES_STRING);
 			Set<ITestResult> ignoredTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.IGNORED_SUBSET_STRING);
 			Set<ITestResult> skippedTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.SKIPPED_SUBSET_STRING);
+
 			Set<ITestResult> passedTests = context.getPassedTests().getAllResults();
 
 			failedConfigurationResults = groupResults(failedConfigurations);
