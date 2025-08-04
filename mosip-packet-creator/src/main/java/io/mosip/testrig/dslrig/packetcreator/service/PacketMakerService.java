@@ -83,6 +83,7 @@ public class PacketMakerService {
 	private static final String CONTEXT = "_context";
 	private static final String MOSIP_TEST_TEMP = "mosip.test.temp";
 	private static final String MOUNTPATH = "mountPath";
+	private static final String PACKETPATH = "packetPath";
 	private static final String METADATA = "metaData";
 	private static final String OPERATIONSDATA = "operationsData";
 	private static final String FALSE = "false";
@@ -383,7 +384,7 @@ public class PacketMakerService {
 		    }
 		}
 
-		String tempPacketRootFolder = createTempTemplate(templateLocation, appId);
+		String tempPacketRootFolder = createTempTemplate(templateLocation, appId ,contextKey);
 		
 		// update document file here
 		createPacket(tempPacketRootFolder, regId, dataFile, "id", preregId, contextKey);
@@ -711,7 +712,10 @@ public class PacketMakerService {
 		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId",
 				officerId != null ? officerId : "");
 		VariableManager.setVariableValue(contextKey, "META_INFO-META_DATA-centerId", centerId != null ? centerId : "");
-
+		CommonUtil.deleteOldTempDir(
+				VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
+				+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString()+"/"+
+		contextKey.replace(CONTEXT, "")+"/"+ regId + "_schema.json");
 		return true;
 	}
 
@@ -868,10 +872,15 @@ public class PacketMakerService {
 		return Path.of(processRootFolder, rid + UNDERSCORE + type.toLowerCase() + JSON).toString();
 	}
 
-	private String createTempTemplate(String templatePacket, String rid) throws IOException, SecurityException {
+	private String createTempTemplate(String templatePacket, String rid, String contextKey) throws IOException, SecurityException {
 		Path sourceDirectory = Paths.get(templatePacket);
-		String tempDir = workDirectory + File.separator + rid + "-" + centerId + "_" + machineId + "-"
-				+ getcurrentTimeStamp();
+		String tempDir = null;
+		if (VariableManager.getVariableValue(contextKey, PACKETPATH).toString().equals(""))
+			tempDir = workDirectory + File.separator + rid + "-" + centerId + "_" + machineId + "-"
+					+ getcurrentTimeStamp();
+		else
+			tempDir = VariableManager.getVariableValue(contextKey, PACKETPATH).toString() + File.separator + rid + "-"
+					+ centerId + "_" + machineId + "-" + getcurrentTimeStamp();
 		Path targetDirectory = Paths.get(tempDir);
 		FileSystemUtils.copyRecursively(sourceDirectory, targetDirectory);
 		setupTemplateName(tempDir, rid);
