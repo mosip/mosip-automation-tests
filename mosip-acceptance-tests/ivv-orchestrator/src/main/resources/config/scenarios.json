@@ -15143,7 +15143,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(200)"
+			"Action": "e2e_wait(90)"
 		},
 		"Step-21": {
 			"Description": "Peforms demographic authentication",
@@ -15155,7 +15155,7 @@
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_bioAuthentication(leftLittleDevice,$$uin,$$vid,$$personaFilePath)"
+			"Action": "e2e_bioAuthentication(rightThumbDevice,$$uin,$$vid,$$personaFilePath)"
 		}
 	},
 	{
