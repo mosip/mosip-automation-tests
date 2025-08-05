@@ -12164,42 +12164,30 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-23": {
-			"Description": "Gets the credentials request ID",
-			"Input Parameters": "UIN and Email ID",
-			"Return Value": "Request ID",
-			"Action": "$$requestId=e2e_credentialRequest($$uin2,$$email)"
-		},
-		"Step-24": {
-			"Description": "Check credentials status",
-			"Input Parameters": "Request ID",
-			"Return Value": "NA",
-			"Action": "e2e_checkCredentialStatus($$requestId)"
-		},
-		"Step-25": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin,$$childPersona,$$vidwithoutotp)"
 		},
-		"Step-26": {
+		"Step-24": {
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$childUin,$$vidwithoutotp,$$childPersona)"
 		},
-		"Step-27": {
+		"Step-25": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "e2e_bioAuthentication(LeftIris,$$childUin,$$vidwithoutotp,$$childPersona)"
 		},
-		"Step-28": {
+		"Step-26": {
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(leftRingDevice,$$childUin,$$vidwithoutotp,$$childPersona)"
 		},
-		"Step-29": {
+		"Step-27": {
 			"Description": "Perfoms OTP based authentication",
 			"Input Parameters": "UIN, VID, E mail ID ",
 			"Return Value": "NA",
