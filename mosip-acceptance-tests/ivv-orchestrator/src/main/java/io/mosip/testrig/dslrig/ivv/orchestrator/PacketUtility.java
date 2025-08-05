@@ -1830,7 +1830,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public static String signJWKKey(String clientId, RSAKey jwkKey) {
-		String tempUrl = BaseTestCase.ApplnURI.replace("api-internal", "esignet") + "/v1/esignet/oauth/token";
+		String tempUrl = EsignetUtil.getValueFromEsignetWellKnownEndPoint("token_endpoint", ConfigManager.getEsignetBaseUrl());;
 		String clientAssertionToken = "";
 		// Create RSA-signer with the private key
 		JWSSigner signer;
