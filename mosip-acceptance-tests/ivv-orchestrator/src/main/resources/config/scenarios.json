@@ -280,7 +280,7 @@
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_UploadDeviceCertificate()"
-		},	
+		},
 		"Step-46": {
 			"Description": "Resets the context data",
 			"Input Parameters": "NA",
@@ -4059,16 +4059,16 @@
 			"Action": "$$email=e2e_getEmailByUIN($$childUin2)"
 		},
 		"Step-24": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Description": "Gets the credentials request ID",
+			"Input Parameters": "UIN and Email ID",
+			"Return Value": "Request ID",
+			"Action": "$$requestId=e2e_credentialRequest($$childUin2,$$email)"
 		},
 		"Step-25": {
-			"Description": "Generated VID for the given UIN",
-			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
-			"Return Value": "VID",
-			"Action": "$$vid=e2e_generateVID(Perpetual,$$childUin2,$$email)"
+			"Description": "Check credentials status",
+			"Input Parameters": "Request ID",
+			"Return Value": "NA",
+			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-26": {
 			"Description": "Waits for given period in seconds",
@@ -4077,6 +4077,18 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-27": {
+			"Description": "Generated VID for the given UIN",
+			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
+			"Return Value": "VID",
+			"Action": "$$vid=e2e_generateVID(Perpetual,$$childUin2,$$email)"
+		},
+		"Step-28": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(90)"
+		},
+		"Step-29": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
@@ -12122,16 +12134,16 @@
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
 		},
 		"Step-18": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Description": "Gets the credentials request ID",
+			"Input Parameters": "UIN and Email ID",
+			"Return Value": "Request ID",
+			"Action": "$$requestId=e2e_credentialRequest($$childUin,$$email)"
 		},
 		"Step-19": {
-			"Description": "Generates VID without OTP",
-			"Input Parameters": "VID tyoe and UIN",
-			"Return Value": "VID",
-			"Action": "$$vidwithoutotp=e2e_GenerateVIDWithoutOTP(Perpetual,$$childUin)"
+			"Description": "Check credentials status",
+			"Input Parameters": "Request ID",
+			"Return Value": "NA",
+			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-20": {
 			"Description": "Waits for given period in seconds",
@@ -12140,30 +12152,54 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-21": {
+			"Description": "Generates VID without OTP",
+			"Input Parameters": "VID tyoe and UIN",
+			"Return Value": "VID",
+			"Action": "$$vidwithoutotp=e2e_GenerateVIDWithoutOTP(Perpetual,$$childUin)"
+		},
+		"Step-22": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(90)"
+		},
+		"Step-23": {
+			"Description": "Gets the credentials request ID",
+			"Input Parameters": "UIN and Email ID",
+			"Return Value": "Request ID",
+			"Action": "$$requestId=e2e_credentialRequest($$uin2,$$email)"
+		},
+		"Step-24": {
+			"Description": "Check credentials status",
+			"Input Parameters": "Request ID",
+			"Return Value": "NA",
+			"Action": "e2e_checkCredentialStatus($$requestId)"
+		},
+		"Step-25": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin,$$childPersona,$$vidwithoutotp)"
 		},
-		"Step-22": {
+		"Step-26": {
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$childUin,$$vidwithoutotp,$$childPersona)"
 		},
-		"Step-23": {
+		"Step-27": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "e2e_bioAuthentication(LeftIris,$$childUin,$$vidwithoutotp,$$childPersona)"
 		},
-		"Step-24": {
+		"Step-28": {
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(leftRingDevice,$$childUin,$$vidwithoutotp,$$childPersona)"
 		},
-		"Step-25": {
+		"Step-29": {
 			"Description": "Perfoms OTP based authentication",
 			"Input Parameters": "UIN, VID, E mail ID ",
 			"Return Value": "NA",
@@ -12285,16 +12321,16 @@
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
 		},
 		"Step-18": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Description": "Gets the credentials request ID",
+			"Input Parameters": "UIN and Email ID",
+			"Return Value": "Request ID",
+			"Action": "$$requestId=e2e_credentialRequest($$childUin,$$email)"
 		},
 		"Step-19": {
-			"Description": "Generates VID without OTP",
-			"Input Parameters": "VID tyoe and UIN",
-			"Return Value": "VID",
-			"Action": "$$vidwithoutotp=e2e_GenerateVIDWithoutOTP(Perpetual,$$childUin)"
+			"Description": "Check credentials status",
+			"Input Parameters": "Request ID",
+			"Return Value": "NA",
+			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-20": {
 			"Description": "Waits for given period in seconds",
@@ -12303,6 +12339,18 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-21": {
+			"Description": "Generates VID without OTP",
+			"Input Parameters": "VID tyoe and UIN",
+			"Return Value": "VID",
+			"Action": "$$vidwithoutotp=e2e_GenerateVIDWithoutOTP(Perpetual,$$childUin)"
+		},
+		"Step-22": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(90)"
+		},
+		"Step-23": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
@@ -12830,16 +12878,16 @@
 			"Action": "$$email=e2e_getEmailByUIN($$uin)"
 		},
 		"Step-10": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Description": "Gets the credentials request ID",
+			"Input Parameters": "UIN and Email ID",
+			"Return Value": "Request ID",
+			"Action": "$$requestId=e2e_credentialRequest($$uin,$$email)"
 		},
 		"Step-11": {
-			"Description": "Generated VID for the given UIN",
-			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
-			"Return Value": "VID",
-			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
+			"Description": "Check credentials status",
+			"Input Parameters": "Request ID",
+			"Return Value": "NA",
+			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-12": {
 			"Description": "Waits for given period in seconds",
@@ -12848,6 +12896,18 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-13": {
+			"Description": "Generated VID for the given UIN",
+			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
+			"Return Value": "VID",
+			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
+		},
+		"Step-14": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(90)"
+		},
+		"Step-15": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
@@ -13307,6 +13367,24 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-27": {
+			"Description": "Gets Email ID configuired for the UIN",
+			"Input Parameters": "UIN",
+			"Return Value": "Email ID",
+			"Action": "$$email=e2e_getEmailByUIN($$lostUin)"
+		},
+		"Step-28": {
+			"Description": "Gets the credentials request ID",
+			"Input Parameters": "UIN and Email ID",
+			"Return Value": "Request ID",
+			"Action": "$$requestId=e2e_credentialRequest($$lostUin,$$email)"
+		},
+		"Step-29": {
+			"Description": "Check credentials status",
+			"Input Parameters": "Request ID",
+			"Return Value": "NA",
+			"Action": "e2e_checkCredentialStatus($$requestId)"
+		},
+		"Step-30": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
@@ -13639,24 +13717,36 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-24": {
+			"Description": "Gets the credentials request ID",
+			"Input Parameters": "UIN and Email ID",
+			"Return Value": "Request ID",
+			"Action": "$$requestId=e2e_credentialRequest($$childUin,$$email)"
+		},
+		"Step-25": {
+			"Description": "Check credentials status",
+			"Input Parameters": "Request ID",
+			"Return Value": "NA",
+			"Action": "e2e_checkCredentialStatus($$requestId)"
+		},
+		"Step-26": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin,$$childPersona,$$vidwithoutotp)"
 		},
-		"Step-25": {
+		"Step-27": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$parentRid,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-26": {
+		"Step-28": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-27": {
+		"Step-29": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
@@ -15065,7 +15155,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(200)"
 		},
 		"Step-21": {
 			"Description": "Peforms demographic authentication",
@@ -15077,7 +15167,7 @@
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_bioAuthentication(rightThumbDevice,$$uin,$$vid,$$personaFilePath)"
+			"Action": "e2e_bioAuthentication(leftLittleDevice,$$uin,$$vid,$$personaFilePath)"
 		}
 	},
 	{
@@ -15195,16 +15285,16 @@
 			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
 		},
 		"Step-18": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Description": "Gets the credentials request ID",
+			"Input Parameters": "UIN and Email ID",
+			"Return Value": "Request ID",
+			"Action": "$$requestId=e2e_credentialRequest($$uin2,$$email)"
 		},
 		"Step-19": {
-			"Description": "Generated VID for the given UIN",
-			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
-			"Return Value": "VID",
-			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin2,$$email)"
+			"Description": "Check credentials status",
+			"Input Parameters": "Request ID",
+			"Return Value": "NA",
+			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
 		"Step-20": {
 			"Description": "Waits for given period in seconds",
@@ -15213,12 +15303,24 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-21": {
+			"Description": "Generated VID for the given UIN",
+			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
+			"Return Value": "VID",
+			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin2,$$email)"
+		},
+		"Step-22": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(90)"
+		},
+		"Step-23": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
 		},
-		"Step-22": {
+		"Step-24": {
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
@@ -20217,7 +20319,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
- 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
 		},
 		"Step-12": {
 			"Description": "Updates persona with UIN",
@@ -20265,7 +20367,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
- 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
 		},
 		"Step-20": {
 			"Description": "Updates persona with UIN",
@@ -20310,7 +20412,7 @@
 			"Action": "e2e_CheckUpdatedUIN($$uin1,$$uin3)"
 		}
 	},
-		{
+	{
 		"Scenario": "181",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
@@ -20386,7 +20488,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
- 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
 		},
 		"Step-12": {
 			"Description": "Updates persona with UIN",
@@ -20434,7 +20536,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
- 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
 		},
 		"Step-20": {
 			"Description": "Updates persona with UIN",
@@ -20512,7 +20614,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
- 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
 		},
 		"Step-33": {
 			"Description": "Updates persona with UIN",
@@ -20711,7 +20813,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
- 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
 		},
 		"Step-28": {
 			"Description": "Updates persona with UIN",
@@ -20868,7 +20970,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
- 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
 		},
 		"Step-18": {
 			"Description": "Updates persona with UIN",
@@ -20913,7 +21015,7 @@
 			"Action": "e2e_CheckUpdatedUIN($$uin1,$$uin3)"
 		}
 	},
-		{
+	{
 		"Scenario": "184",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
@@ -21450,7 +21552,7 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$personaFilePath)"
-		}, 
+		},
 		"Step-17": {
 			"Description": "Performs biometric authentication",
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
@@ -22218,7 +22320,6 @@
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$childPersona)"
 		}
-		
 	},
 	{
 		"Scenario": "194",
