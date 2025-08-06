@@ -849,7 +849,7 @@ public class PacketSyncService {
 
 	private static final Map<String, List<MosipIDSchema>> schemaCache = new ConcurrentHashMap<>();
 
-	public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
+	public synchronized String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
 		StringBuilder responseBuilder = new StringBuilder();
 
 		loadServerContextProperties(contextKey);
