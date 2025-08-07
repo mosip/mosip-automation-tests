@@ -1539,7 +1539,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0,0,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0,0,name,$$personaFilePath)"
 		},
 		"Step-12": {
 			"Description": "Updates persona with UIN",
@@ -4032,7 +4032,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$childPersona)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$childPersona)"
 		},
 		"Step-18": {
 			"Description": "Updates persona with UIN",
@@ -6829,7 +6829,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$personaFilePath)"
 		},
 		"Step-10": {
 			"Description": "Generates packet template based on the persona data",
@@ -6926,7 +6926,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0,0,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0,0,name,$$personaFilePath)"
 		},
 		"Step-10": {
 			"Description": "Generates the hash for the given modalities",
@@ -7156,7 +7156,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$personaFilePath)"
 		},
 		"Step-12": {
 			"Description": "Updates persona with UIN",
@@ -10968,7 +10968,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$personaFilePath)"
 		},
 		"Step-6": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
@@ -11059,7 +11059,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$personaFilePath)"
 		},
 		"Step-6": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
@@ -11277,7 +11277,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0,0,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0,0,name,$$personaFilePath)"
 		},
 		"Step-7": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
@@ -11343,7 +11343,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$personaFilePath)"
 		},
 		"Step-18": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
@@ -13322,7 +13322,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$personaFilePath)"
 		},
 		"Step-20": {
 			"Description": "Updates persona with UIN",
@@ -14817,7 +14817,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$childPersona)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$childPersona)"
 		},
 		"Step-17": {
 			"Description": "Updates persona with Biometric exception",
@@ -14974,7 +14974,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$childPersona)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$childPersona)"
 		},
 		"Step-17": {
 			"Description": "Updates persona with Biometric exception",
@@ -15089,7 +15089,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$personaFilePath)"
 		},
 		"Step-10": {
 			"Description": "Updates persona with Biometric exception",
@@ -15234,7 +15234,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=AutomationName,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name,$$personaFilePath)"
 		},
 		"Step-10": {
 			"Description": "Updates persona with Biometric exception",
