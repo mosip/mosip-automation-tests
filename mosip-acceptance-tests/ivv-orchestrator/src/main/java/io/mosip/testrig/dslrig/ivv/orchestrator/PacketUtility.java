@@ -64,6 +64,7 @@ import io.mosip.testrig.apirig.auth.testscripts.BioAuth;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
+import io.restassured.path.json.JsonPath;
 //import io.mosip.testrig.apirig.testscripts.BioAuthOld;
 import io.restassured.response.Response;
 
@@ -1091,10 +1092,37 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
 		Response response = putRequestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail", step);
-		if (!response.getBody().asString().toLowerCase().contains("sucess")) {
+		String body = response.getBody().asString().toLowerCase();
 
-			this.hasError = true;
-			throw new RigInternalError("Unable to update DemoOrBioDetail " + attributeList + " from packet utility");
+		try {
+		    JsonPath jsonPath = response.jsonPath();
+
+		    // Case: Full JSON with result list
+		    if (jsonPath.get("result") != null) {
+		        List<Map<String, Object>> results = jsonPath.getList("result");
+
+		        boolean allSuccess = results.stream().allMatch(r ->
+		            r.get("status") != null &&
+		            r.get("status").toString().equalsIgnoreCase("success")
+		        );
+
+		        if (!allSuccess) {
+		            this.hasError = true;
+		            throw new RigInternalError("One or more result entries failed for attributes: " + attributeList);
+		        }
+		    }
+		    // Case: Only a basic success string/object
+		    else if (!body.contains("sucess")) {
+		        this.hasError = true;
+		        throw new RigInternalError("Response does not contain success status for attributes: " + attributeList);
+		    }
+
+		} catch (Exception e) {
+		    // Fallback: last chance check if response body contains word "success"
+		    if (!body.contains("sucess")) {
+		        this.hasError = true;
+		        throw new RigInternalError("Failed to parse success from response for attributes: " + attributeList);
+		    }
 		}
 		return response.getBody().asString();
 
