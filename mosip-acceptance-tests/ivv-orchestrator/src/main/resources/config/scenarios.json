@@ -180,108 +180,120 @@
 			"Action": "e2e_WritePreReq($$details2,2/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-29": {
+			"Description": "Sets the context for scenario execution",
+			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Return Value": "NA",
+			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/)"
+		},
+		"Step-30": {
 			"Description": "Creates user with given user name and password",
 			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
 			"Action": "$$user3=e2e_User(ADD_User,3/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
-		"Step-30": {
+		"Step-31": {
 			"Description": "Creates center and maps to user to that",
 			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center3=e2e_Center(CREATE,$$user3,3/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
 		},
-		"Step-31": {
+		"Step-32": {
 			"Description": "Creates machine and maps to the given center",
 			"Input Parameters": "Action, Center details.  Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Machine details",
 			"Action": "$$details3=e2e_Machine(CREATE,$$center3,3/*CENTER_INDEX*/)"
 		},
-		"Step-32": {
+		"Step-33": {
 			"Description": "Deletes center mapping",
 			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Updated center details",
 			"Action": "$$details1=e2e_User(DELETE_CENTERMAPPING,3/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details3)"
 		},
-		"Step-33": {
+		"Step-34": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "$$details3=e2e_User(CREATE_ZONESEARCH,$$details3)"
 		},
-		"Step-34": {
+		"Step-35": {
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
 			"Action": "e2e_wait(10)"
 		},
-		"Step-35": {
+		"Step-36": {
 			"Description": "Deletes the zone mapping ",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details3)"
 		},
-		"Step-36": {
+		"Step-37": {
 			"Description": "Maps the zone",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details3)"
 		},
-		"Step-37": {
+		"Step-38": {
 			"Description": "Activates Zone mapping",
 			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details3,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
-		"Step-38": {
+		"Step-39": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details3,3/*CENTER_INDEX*/)"
 		},
-		"Step-39": {
+		"Step-40": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "Action. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$details3,T/*USER_CENTER_MAPPING_FLAG*/)"
 		},
-		"Step-40": {
+		"Step-41": {
 			"Description": "Writes prerequisite details",
 			"Input Parameters": "Details . Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_WritePreReq($$details3,3/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
-		"Step-41": {
+		"Step-42": {
+			"Description": "Sets the context for scenario execution",
+			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Return Value": "NA",
+			"Action": "e2e_setContext(env_context,$$details3,true/*GENERATE_PRIVATE_KEY*/)"
+		},
+		"Step-43": {
 			"Description": "Creates user with given user name and password",
 			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
 			"Action": "$$details4=e2e_User(ADD_User_External_Packet,4/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
-		"Step-42": {
+		"Step-44": {
 			"Description": "Writes prerequisite details",
 			"Input Parameters": "Details . Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_WritePreReq($$details4,4/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
-		"Step-43": {
+		"Step-45": {
 			"Description": "Clear the previous device certificate",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_ClearDeviceCertCache()"
 		},
-		"Step-44": {
+		"Step-46": {
 			"Description": "Creates And Onboards Authentication Partner and Device Partner and checks if the device certificate is synced or not",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_GenerateAuthCertifcates()"
 		},
-		"Step-45": {
+		"Step-47": {
 			"Description": "Creates And Onboards Authentication Partner",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_UploadDeviceCertificate()"
 		},
-		"Step-46": {
+		"Step-48": {
 			"Description": "Resets the context data",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -4534,7 +4546,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details2,false/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -4618,7 +4630,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details2,false/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-17": {
 			"Description": "Generates packet template based on the persona data",
@@ -5636,7 +5648,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details75,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*ADD_SUPERVISOR_ID*/@@null/*SUPERVISOR_PASSWORD*/@@valid/*ADD_REGCLIENT_USER_ID*/@@null/*REGCLIENT_PASSWORD*/@@operatorBiometrics_bio_CBEFF@@supervisorBiometrics_bio_CBEFF)"
+			"Action": "e2e_setContext(env_context,$$details75,false/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*ADD_SUPERVISOR_ID*/@@null/*SUPERVISOR_PASSWORD*/@@valid/*ADD_REGCLIENT_USER_ID*/@@null/*REGCLIENT_PASSWORD*/@@operatorBiometrics_bio_CBEFF@@supervisorBiometrics_bio_CBEFF)"
 		},
 		"Step-24": {
 			"Description": "Generates the persona data",
@@ -5672,7 +5684,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details75,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details75,false/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-30": {
 			"Description": "Checks the RID status against given packet processing status",
@@ -7205,7 +7217,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/,null,/*SUPERVISORID_ID*/null@@null/*SUPERVISORID_PASSWORD*/@@valid/*REGCLIENT_USER_ID*/@@valid/*REGCLIENT_PASSWORD*/)"
+			"Action": "e2e_setContext(env_context,$$details2,false/*GENERATE_PRIVATE_KEY*/,null,/*SUPERVISORID_ID*/null@@null/*SUPERVISORID_PASSWORD*/@@valid/*REGCLIENT_USER_ID*/@@valid/*REGCLIENT_PASSWORD*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7266,7 +7278,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true,null,invalid@@valid@@valid@@valid)"
+			"Action": "e2e_setContext(env_context,$$details2,false,null,invalid@@valid@@valid@@valid)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7327,7 +7339,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details3,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*SUPERVISOR_ID*/@@invalid/*SUPERVISOR_PASSWORD*/@@valid/*REGCLIENT_USER_ID*/@@valid/*REGCLIENT_PASSWORD*/)"
+			"Action": "e2e_setContext(env_context,$$details3,false/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*SUPERVISOR_ID*/@@invalid/*SUPERVISOR_PASSWORD*/@@valid/*REGCLIENT_USER_ID*/@@valid/*REGCLIENT_PASSWORD*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7388,7 +7400,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*SUPERVISOR_ID*/@@valid/*SUPERVISOR_PASSWORD*/@@null/*REGCLIENT_USER_ID*/@@null/*REGCLIENT_PASSWORD*/)"
+			"Action": "e2e_setContext(env_context,$$details2,false/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*SUPERVISOR_ID*/@@valid/*SUPERVISOR_PASSWORD*/@@null/*REGCLIENT_USER_ID*/@@null/*REGCLIENT_PASSWORD*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7449,7 +7461,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details3,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*SUPERVISOR_ID*/@@valid/*SUPERVISOR_PASSWORD*/@@invalid/*REGCLIENT_USER_ID*/@@valid/*REGCLIENT_PASSWORD*/)"
+			"Action": "e2e_setContext(env_context,$$details3,false/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,valid/*SUPERVISOR_ID*/@@valid/*SUPERVISOR_PASSWORD*/@@invalid/*REGCLIENT_USER_ID*/@@valid/*REGCLIENT_PASSWORD*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7510,7 +7522,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true,null,valid@@valid@@valid@@invalid)"
+			"Action": "e2e_setContext(env_context,$$details2,false,null,valid@@valid@@valid@@invalid)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7571,7 +7583,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details2,false/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7619,7 +7631,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,null/*SUPERVISOR_ID*/@@null/*SUPERVISOR_PASSWORD*/@@null/*REGCLIENT_ID*/@@null/*REGCLIENT_PASSWORD*/@@OperatorBiometrics_bio_CBEFF@@SupervisorBiometrics_bio_CBEFF)"
+			"Action": "e2e_setContext(env_context,$$details2,false/*GENERATE_PRIVATE_KEY*/,null/*PUT_SCENARIO_DETAILS_IN_CONTEXT*/,null/*SUPERVISOR_ID*/@@null/*SUPERVISOR_PASSWORD*/@@null/*REGCLIENT_ID*/@@null/*REGCLIENT_PASSWORD*/@@OperatorBiometrics_bio_CBEFF@@SupervisorBiometrics_bio_CBEFF)"
 		},
 		"Step-11": {
 			"Description": "Generates persona data",
@@ -7686,7 +7698,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details2,false/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -7734,7 +7746,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details3,true,null,null@@null@@null@@null@@null@@null)"
+			"Action": "e2e_setContext(env_context,$$details3,false,null,null@@null@@null@@null@@null@@null)"
 		},
 		"Step-11": {
 			"Description": "Generates persona data",
@@ -9788,7 +9800,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details77,true,null,null@@null@@valid@@null@@operatorBiometrics_bio_CBEFF@@null)"
+			"Action": "e2e_setContext(env_context,$$details77,false,null,null@@null@@valid@@null@@operatorBiometrics_bio_CBEFF@@null)"
 		},
 		"Step-24": {
 			"Description": "<<<Step detailed description>>>",
@@ -9824,7 +9836,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details77,true/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details77,false/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-30": {
 			"Description": "Checks the RID status against given packet processing status",
