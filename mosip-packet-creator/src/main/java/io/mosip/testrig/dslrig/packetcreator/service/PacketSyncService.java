@@ -1023,176 +1023,206 @@ public class PacketSyncService {
 
 	}
 
-	void updatePersona(Properties updateAttrs, ResidentModel persona ,String contextKey) {
-		Iterator<Object> it = updateAttrs.keys().asIterator();
-		BiometricDataModel bioData = null;
+	public JSONObject updatePersona(Properties updateAttrs, ResidentModel persona, String contextKey) {
+	    JSONObject responseJson = new JSONObject();
+	    JSONObject oldValues = new JSONObject();
+	    JSONObject newValues = new JSONObject();
 
-		while (it.hasNext()) {
-			String key = it.next().toString();
-			String value = updateAttrs.getProperty(key);
-			key = key.toLowerCase().trim();
+	    synchronized (persona) {
+	        Iterator<Object> it = updateAttrs.keys().asIterator();
+	        BiometricDataModel bioData = null;
 
-			// first check whether it is document being updated?
+	        while (it.hasNext()) {
+	            String key = it.next().toString();
+	            String value = updateAttrs.getProperty(key);
+	            key = key.toLowerCase().trim();
 
-			MosipDocument doc = null;
-			for (MosipDocument md : persona.getDocuments()) {
-				if (md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
-					doc = md;
-					break;
-				}
+	            // Check for document updates
+	            MosipDocument doc = null;
+	            for (MosipDocument md : persona.getDocuments()) {
+	                if (md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
+	                    doc = md;
+	                    break;
+	                }
+	            }
 
-			}
-			if (doc != null) {
-				JSONObject jsonDoc = new JSONObject(value);
-				String typeName = jsonDoc.has("typeName") ? jsonDoc.get("typeName").toString() : "";
-				String typeCode = jsonDoc.has("typeCode") ? jsonDoc.get("typeCode").toString() : "";
-				int indx = -1;
-				for (MosipDocTypeModel tm : doc.getType()) {
-					indx++;
-					if ((tm.getDocTypeCode() != null && tm.getDocTypeCode().equals(typeCode))
-							|| (tm.getDocTypeName() != null && tm.getDocTypeName().equals(typeName)))
-						break;
-				}
-				if (indx >= 0 && indx < doc.getType().size()) {
-					String docFilePath = jsonDoc.has("docPath") ? System.getProperty("java.io.tmpdir")+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.largedocumentpath").toString()+ "largeDocument.pdf" : null;
-					if (docFilePath != null)
-						doc.getDocs().set(indx, docFilePath);
-				}
-				continue;
+	            if (doc != null) {
+	                JSONObject jsonDoc = new JSONObject(value);
+	                String typeName = jsonDoc.has("typeName") ? jsonDoc.get("typeName").toString() : "";
+	                String typeCode = jsonDoc.has("typeCode") ? jsonDoc.get("typeCode").toString() : "";
+	                int indx = -1;
+	                for (MosipDocTypeModel tm : doc.getType()) {
+	                    indx++;
+	                    if ((tm.getDocTypeCode() != null && tm.getDocTypeCode().equals(typeCode))
+	                            || (tm.getDocTypeName() != null && tm.getDocTypeName().equals(typeName)))
+	                        break;
+	                }
+	                if (indx >= 0 && indx < doc.getType().size()) {
+	                    String docFilePath = jsonDoc.has("docPath")
+	                            ? System.getProperty("java.io.tmpdir")
+	                                + VariableManager.getVariableValue(contextKey, "mosip.test.persona.largedocumentpath")
+	                                + "largeDocument.pdf"
+	                            : null;
+	                    if (docFilePath != null) {
+	                        oldValues.put(key, doc.getDocs().get(indx));
+	                        doc.getDocs().set(indx, docFilePath);
+	                        newValues.put(key, docFilePath);
+	                    }
+	                }
+	                continue;
+	            }
 
-			}
-			switch (key) {
-			case "face":
-			case "photo":
-				bioData = persona.getBiometric();
-				byte[][] faceData = PhotoProvider.loadPhoto(value);
-				bioData.setEncodedPhoto(Base64.encodeBase64URLSafeString(faceData[0]));
-				bioData.setRawFaceData(faceData[1]);
+	            switch (key) {
+	                case "face":
+	                case "photo":
+	                    bioData = persona.getBiometric();
+	                    byte[][] faceData = PhotoProvider.loadPhoto(value);
 
-				try {
-					bioData.setFaceHash(CommonUtil.getHexEncodedHash(faceData[1]));
-				} catch (Exception e1) {
-				}
+	                    oldValues.put("encodedPhoto", bioData.getEncodedPhoto());
+	                    oldValues.put("faceHash", bioData.getFaceHash());
 
-				break;
-			case "left_iris":
-				bioData = persona.getBiometric();
-				IrisDataModel im = bioData.getIris();
-				IrisDataModel imUpdated = null;
-				try {
-					imUpdated = BiometricDataProvider.loadIris(value, "left", im);
-					if (imUpdated != null)
-						persona.getBiometric().setIris(imUpdated);
+	                    bioData.setEncodedPhoto(Base64.encodeBase64URLSafeString(faceData[0]));
+	                    bioData.setRawFaceData(faceData[1]);
+	                    try {
+	                        bioData.setFaceHash(CommonUtil.getHexEncodedHash(faceData[1]));
+	                    } catch (Exception e1) {
+	                        logger.error(e1.getMessage());
+	                    }
 
-				} catch (Exception e) {
-					logger.error(e.getMessage());
-				}
+	                    newValues.put("encodedPhoto", bioData.getEncodedPhoto());
+	                    newValues.put("faceHash", bioData.getFaceHash());
+	                    break;
 
-				break;
-			case "right_iris":
-				bioData = persona.getBiometric();
-				IrisDataModel im1 = bioData.getIris();
-				IrisDataModel imUpdated1 = null;
-				try {
-					imUpdated1 = BiometricDataProvider.loadIris(value, "right", im1);
-					if (imUpdated1 != null)
-						persona.getBiometric().setIris(imUpdated1);
+	                case "left_iris":
+	                    bioData = persona.getBiometric();
+	                    IrisDataModel im = bioData.getIris();
+	                    oldValues.put("left_iris", im);  // Optional: convert to JSON string
+	                    try {
+	                        IrisDataModel imUpdated = BiometricDataProvider.loadIris(value, "left", im);
+	                        if (imUpdated != null)
+	                            bioData.setIris(imUpdated);
+	                        newValues.put("left_iris", imUpdated);
+	                    } catch (Exception e) {
+	                        logger.error(e.getMessage());
+	                    }
+	                    break;
 
-				} catch (Exception e) {
-					logger.error(e.getMessage());
-				}
+	                case "right_iris":
+	                    bioData = persona.getBiometric();
+	                    IrisDataModel im1 = bioData.getIris();
+	                    oldValues.put("right_iris", im1);
+	                    try {
+	                        IrisDataModel imUpdated1 = BiometricDataProvider.loadIris(value, "right", im1);
+	                        if (imUpdated1 != null)
+	                            bioData.setIris(imUpdated1);
+	                        newValues.put("right_iris", imUpdated1);
+	                    } catch (Exception e) {
+	                        logger.error(e.getMessage());
+	                    }
+	                    break;
 
-				break;
-			case "gender":
-				persona.setGender(Gender.valueOf(value));
-				break;
-			case "email":
-			case "emailid":
-				persona.getContact().setEmailId(value);
+	                case "gender":
+	                    oldValues.put("gender", persona.getGender().toString());
+	                    persona.setGender(Gender.valueOf(value));
+	                    newValues.put("gender", value);
+	                    break;
 
-				break;
+	                case "email":
+	                case "emailid":
+	                    oldValues.put("email", persona.getContact().getEmailId());
+	                    persona.getContact().setEmailId(value);
+	                    newValues.put("email", value);
+	                    break;
 
-			case "dob":
-			case "dateofbirth":
-				if ("minor".equalsIgnoreCase(value)) {
-					int randomAge = 5 + (int) (Math.random() * (18 - 5 + 1)); // Random age between 5 and 18
-					LocalDate dob = LocalDate.now().minusYears(randomAge); // Subtract age from current date
-					String formattedDob = dob.format(DateTimeFormatter.ofPattern("yyyy/MM/dd")); // Format date
+	                case "dob":
+	                case "dateofbirth":
+	                    oldValues.put("dob", persona.getDob());
+	                    if ("minor".equalsIgnoreCase(value)) {
+	                        int randomAge = 5 + (int) (Math.random() * (18 - 5 + 1));
+	                        value = LocalDate.now().minusYears(randomAge).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+	                    } else if ("adult".equalsIgnoreCase(value)) {
+	                        int randomAge = 18 + (int) (Math.random() * (80 - 18 + 1));
+	                        value = LocalDate.now().minusYears(randomAge).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+	                    }
+	                    persona.setDob(value);
+	                    newValues.put("dob", value);
+	                    break;
 
-					persona.setDob(formattedDob);
-				} else if ("adult".equalsIgnoreCase(value)) {
-					int randomAge = 18 + (int) (Math.random() * (80 - 18 + 1)); // Random age between 18 and 80
-					LocalDate dob = LocalDate.now().minusYears(randomAge); // Subtract age from current date
-					String formattedDob = dob.format(DateTimeFormatter.ofPattern("yyyy/MM/dd")); // Format date
-					persona.setDob(formattedDob);
-				}else {
-					persona.setDob(value); // Use provided value if not "minor"
-				}
-			case "bloodgroup":
-			case "bg":
+	                case "bloodgroup":
+	                case "bg":
+	                    DynamicFieldValueModel bg = persona.getBloodgroup();
+	                    oldValues.put("bloodgroup", bg.getCode());
+	                    bg.setCode(value);
+	                    newValues.put("bloodgroup", value);
+	                    break;
 
-				DynamicFieldValueModel bg = persona.getBloodgroup();
-				bg.setCode(value);
-				break;
-			case "maritalstatus":
-			case "ms":
-				DynamicFieldValueModel ms = persona.getMaritalStatus();
-				ms.setCode(value);
-				break;
-				
-			case "name":
-				persona.getAddress();
-				int count = 1;
-				String primarylang = persona.getPrimaryLanguage();
-				String secLang = persona.getSecondaryLanguage();
-				List<Name> eng_names = null;
-				List<Name> names_primary;
-				List<Name> names_sec;
-				if (primarylang != null) {
-					if (primarylang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
-						names_primary = NameProvider.generateNames(persona.getGender(), primarylang, count, eng_names,
-								contextKey);
-						persona.setName(names_primary.get(0));
-					}
-				}
-				if (secLang != null) {
-					if (!secLang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
-						names_sec = NameProvider.generateNames(persona.getGender(), secLang, count, eng_names, contextKey);
-						persona.setName_seclang(names_sec.get(0));
+	                case "maritalstatus":
+	                case "ms":
+	                    DynamicFieldValueModel ms = persona.getMaritalStatus();
+	                    oldValues.put("maritalstatus", ms.getCode());
+	                    ms.setCode(value);
+	                    newValues.put("maritalstatus", value);
+	                    break;
 
-					}
-				}
-				break;
-			
-			case "residencestatus":
-			case "rs":
-				if (value != null && !value.equals("")) {
-					String lang = persona.getPrimaryLanguage();
-					String[] parts = value.split("=");
-					String msCode = null;
-					if (parts.length > 1) {
-						lang = parts[0].trim();
-						msCode = parts[1].trim();
-					} else
-						msCode = parts[0].trim();
+	                case "name":
+	                    int count = 1;
+	                    String primarylang = persona.getPrimaryLanguage();
+	                    String secLang = persona.getSecondaryLanguage();
+	                    List<Name> eng_names = null;
+	                    List<Name> names_primary;
+	                    List<Name> names_sec;
 
-					if (lang.equals(persona.getPrimaryLanguage())) {
+	                    if (primarylang != null && primarylang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
+	                        names_primary = NameProvider.generateNames(persona.getGender(), primarylang, count, eng_names, contextKey);
+	                        oldValues.put("name", persona.getName().getFirstName()+" "+ persona.getName().getMidName()+" "+ persona.getName().getSurName());
+	                        persona.setName(names_primary.get(0));
+	                        newValues.put("name", persona.getName().getFirstName()+" "+ persona.getName().getMidName()+" "+ persona.getName().getSurName());
+	                    }
 
-						MosipIndividualTypeModel rs = persona.getResidentStatus();
-						rs.setCode(msCode);
-					} else {
-						MosipIndividualTypeModel rs = persona.getResidentStatus_seclang();
-						rs.setCode(msCode);
-					}
-				}
-				break;
-			default:// Added by VS to passthrough attributes
-				persona.getAddtionalAttributes().put(key, value);
-				break;
+	                    if (secLang != null && !secLang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
+	                        names_sec = NameProvider.generateNames(persona.getGender(), secLang, count, eng_names, contextKey);
+	                        oldValues.put("name_seclang", persona.getName_seclang() != null ? persona.getName_seclang().getFirstName() : null);
+	                        persona.setName_seclang(names_sec.get(0));
+	                        newValues.put("name_seclang", persona.getName_seclang().getFirstName());
+	                    }
+	                    break;
 
-			}
-		}
+	                case "residencestatus":
+	                case "rs":
+	                    if (value != null && !value.equals("")) {
+	                        String lang = persona.getPrimaryLanguage();
+	                        String[] parts = value.split("=");
+	                        String rsCode = parts.length > 1 ? parts[1].trim() : parts[0].trim();
+	                        lang = parts.length > 1 ? parts[0].trim() : lang;
+
+	                        if (lang.equals(persona.getPrimaryLanguage())) {
+	                            MosipIndividualTypeModel rs = persona.getResidentStatus();
+	                            oldValues.put("residencestatus", rs.getCode());
+	                            rs.setCode(rsCode);
+	                            newValues.put("residencestatus", rsCode);
+	                        } else {
+	                            MosipIndividualTypeModel rs = persona.getResidentStatus_seclang();
+	                            oldValues.put("residencestatus_seclang", rs.getCode());
+	                            rs.setCode(rsCode);
+	                            newValues.put("residencestatus_seclang", rsCode);
+	                        }
+	                    }
+	                    break;
+
+	                default:
+	                    oldValues.put(key, persona.getAddtionalAttributes().get(key));
+	                    persona.getAddtionalAttributes().put(key, value);
+	                    newValues.put(key, value);
+	                    break;
+	            }
+	        }
+	    }
+
+	    responseJson.put("oldValues", oldValues);
+	    responseJson.put("newValues", newValues);
+	    return responseJson;
 	}
+
 
 	public String getPersonaData(List<UpdatePersonaDto> getPersonaRequest, String contextKey) throws Exception {
 
@@ -1354,39 +1384,52 @@ public class PacketSyncService {
 	}
 
 	public String updatePersonaData(List<UpdatePersonaDto> updatePersonaRequest, String contextKey) throws Exception {
-		String ret = "{Sucess}";
-		for (UpdatePersonaDto req : updatePersonaRequest) {
-			try {
-				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
-				List<String> regenAttrs = req.getRegenAttributeList();
-				if (regenAttrs != null) {
-					for (String attr : regenAttrs) {
-						if (req.getTestPersonaPath() != null) {
-							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath());
-							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
-						} else {
-							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
-						}
-					}
-				}
-				Properties updateAttrs = req.getUpdateAttributeList();
-				if (updateAttrs != null) {
-					updatePersona(updateAttrs, persona ,contextKey);
-				}
-				List<String> missList = req.getMissAttributeList();
-				if (missList != null && !missList.isEmpty())
-					persona.setMissAttributes(missList);
-//				persona.save();
+	    JSONArray responseList = new JSONArray();
 
-				persona.writePersona(req.getPersonaFilePath());
+	    for (UpdatePersonaDto req : updatePersonaRequest) {
+	        JSONObject individualResponse = new JSONObject();
+	        try {
+	            ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
+	            List<String> regenAttrs = req.getRegenAttributeList();
+	            if (regenAttrs != null) {
+	                for (String attr : regenAttrs) {
+	                    if (req.getTestPersonaPath() != null) {
+	                        ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath());
+	                        ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
+	                    } else {
+	                        ResidentDataProvider.updateBiometric(persona, attr, contextKey);
+	                    }
+	                }
+	            }
 
-			} catch (IOException e) {
-				logger.error("updatePersonaData:" + e.getMessage());
-			}
+	            Properties updateAttrs = req.getUpdateAttributeList();
+	            if (updateAttrs != null) {
+	                // 👇 This is the key change: call updatePersona and store returned old/new values
+	                JSONObject updateResult = updatePersona(updateAttrs, persona, contextKey);
+	                individualResponse.put("file", req.getPersonaFilePath());
+	                individualResponse.put("updatedAttributes", updateResult);
+	            }
 
-		}
-		return ret;
+	            List<String> missList = req.getMissAttributeList();
+	            if (missList != null && !missList.isEmpty())
+	                persona.setMissAttributes(missList);
+
+	            persona.writePersona(req.getPersonaFilePath());
+	            individualResponse.put("status", "Success");
+
+	        } catch (IOException e) {
+	            individualResponse.put("status", "Failed");
+	            individualResponse.put("error", e.getMessage());
+	            logger.error("updatePersonaData:" + e.getMessage());
+	        }
+	        responseList.put(individualResponse);
+	    }
+
+	    JSONObject finalResponse = new JSONObject();
+	    finalResponse.put("result", responseList);
+	    return finalResponse.toString(2); // Pretty print with indentation
 	}
+
 
 	public String updateResidentData(Hashtable<PersonaRequestType, Properties> hashtable, String uin, String rid, String contextKey)
 			throws IOException {

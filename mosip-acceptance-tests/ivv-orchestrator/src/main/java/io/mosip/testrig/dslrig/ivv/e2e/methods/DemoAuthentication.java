@@ -16,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -173,7 +174,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 						demoValue = String.valueOf(ChronoUnit.YEARS.between(birthDate, currentDate));
 					}
-
+					Reporter.log("<span style='color:green;'>Age : " + demoValue + "</span>");
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
@@ -192,6 +193,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
+					Reporter.log("<span style='color:green;'>Email : " + demoValue + "</span>");
 					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
 					break;
 
@@ -204,6 +206,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
+					Reporter.log("<span style='color:green;'>Phone : " + demoValue + "</span>");
 					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
 					break;
 
@@ -245,6 +248,9 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					addressLine3Obj.put("language", BaseTestCase.getLanguageList().get(0));
 					addressLine3Obj.put("value", addLine3);
 					addressLine3Array.put(addressLine3Obj);
+					Reporter.log("<span style='color:green;'>Address Line 1 : " + addLine1 + "</span>");
+					Reporter.log("<span style='color:green;'>Address Line 2 : " + addLine2 + "</span>");
+					Reporter.log("<span style='color:green;'>Address Line 3 : " + addLine3 + "</span>");
 					inputJson.getJSONObject("identityRequest").put(E2EConstants.DEMOADDRESSLINE3, addressLine3Array);
 					break;
 				case E2EConstants.DEMONAME:
@@ -262,6 +268,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
 					fullname = firstNm + " " + midNm + " " + lastNm;
+					Reporter.log("<span style='color:green;'>Name : " + fullname + "</span>");
 					JSONArray nameArray = new JSONArray();
 					JSONObject nameObj = new JSONObject();
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -284,6 +291,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
+					Reporter.log("<span style='color:green;'>Gender : " + demoValue + "</span>");
 					inputJson.getJSONObject("identityRequest").put(demoField, genArray);
 					break;
 
