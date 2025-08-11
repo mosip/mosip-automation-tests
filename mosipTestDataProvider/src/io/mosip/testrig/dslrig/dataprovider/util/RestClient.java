@@ -325,12 +325,12 @@ public class RestClient {
 		}
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
-	
+
 	public static Response getWithoutParams(String url, String cookie) {
 
 		Cookie.Builder builder = new Cookie.Builder("Authorization", cookie);
 		Response getResponse;
-			getResponse = given().cookie(builder.build()).relaxedHTTPSValidation().log().all().when().get(url);
+		getResponse = given().cookie(builder.build()).relaxedHTTPSValidation().log().all().when().get(url);
 		return getResponse;
 	}
 
@@ -421,13 +421,7 @@ public class RestClient {
 		String role = PREREG;
 
 		if (!isValidToken(role, contextKey)) {
-			if (role.equalsIgnoreCase(ADMIN)) {
-				initToken_admin(contextKey);
-			} else if (role.equalsIgnoreCase(PREREG)) {
-			} else {
-				initToken(contextKey);
-			}
-
+			initToken(contextKey);
 		}
 
 		Response response = null;
@@ -464,6 +458,8 @@ public class RestClient {
 			if (role.equalsIgnoreCase(ADMIN)) {
 				initToken_admin(contextKey);
 			} else if (role.equalsIgnoreCase(PREREG)) {
+				initPreregToken(url, new JSONObject(), contextKey);
+
 			} else {
 				initToken(contextKey);
 			}
@@ -541,10 +537,16 @@ public class RestClient {
 		}
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
-			token = token.split(";")[0];
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+		    token = cookie.split("=")[1];
+		    token = token.split(";")[0];
+
+		    String key = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role;
+
+		    if (!tokens.containsKey(key)) {
+		        tokens.put(key, token);
+		    }
 		}
+
 		logInfo(contextKey, token);
 		checkErrorResponse(response.getBody().asString());
 
@@ -790,7 +792,7 @@ public class RestClient {
 				initToken_Regproc(contextKey);
 			} else if (role.equalsIgnoreCase(CRVS)) {
 				initToken_crvs1(contextKey);
-			}else {
+			} else {
 				initToken(contextKey);
 			}
 		}
@@ -845,7 +847,7 @@ public class RestClient {
 		}
 	}
 
-	public static JSONObject put(String url, JSONObject jsonRequest,String role, String contextKey) throws Exception {
+	public static JSONObject put(String url, JSONObject jsonRequest, String role, String contextKey) throws Exception {
 		if (!isValidToken(role, contextKey)) {
 			if (role.equalsIgnoreCase(RESIDENT)) {
 				initToken_Resident(contextKey);
@@ -855,7 +857,7 @@ public class RestClient {
 				initToken_Regproc(contextKey);
 			} else if (role.equalsIgnoreCase(CRVS)) {
 				initToken_crvs1(contextKey);
-			}else {
+			} else {
 				initToken(contextKey);
 			}
 		}
@@ -894,28 +896,28 @@ public class RestClient {
 		}
 
 		if (response.getBody().asString().startsWith("{")) {
-		    logInfo(contextKey, "Response: " + response.getBody().asString());
-		    checkErrorResponse(response.getBody().asString());
-		    JSONObject jsonBody = new JSONObject(response.getBody().asString());
+			logInfo(contextKey, "Response: " + response.getBody().asString());
+			checkErrorResponse(response.getBody().asString());
+			JSONObject jsonBody = new JSONObject(response.getBody().asString());
 
-		    Object data = jsonBody.opt("response"); // corrected key
+			Object data = jsonBody.opt("response"); // corrected key
 
-		    if (data instanceof JSONObject) {
-		        return (JSONObject) data;
-		    } else if (data instanceof JSONArray) {
-		        // Wrap JSONArray in a JSONObject
-		        JSONObject wrapper = new JSONObject();
-		        wrapper.put("response", data);
-		        return wrapper;
-		    } else {
-		        throw new RuntimeException("Unexpected data type for key: response");
-		    }
+			if (data instanceof JSONObject) {
+				return (JSONObject) data;
+			} else if (data instanceof JSONArray) {
+				// Wrap JSONArray in a JSONObject
+				JSONObject wrapper = new JSONObject();
+				wrapper.put("response", data);
+				return wrapper;
+			} else {
+				throw new RuntimeException("Unexpected data type for key: response");
+			}
 		} else {
-		    return new JSONObject("{\"status\":\"" + response.getBody().asString() + "\"}");
+			return new JSONObject("{\"status\":\"" + response.getBody().asString() + "\"}");
 		}
 
 	}
-	
+
 	public static String getToken(String role, String contextKey) throws Exception {
 		if (!isValidToken(role, contextKey)) {
 			if (role.equalsIgnoreCase(RESIDENT)) {
@@ -1272,7 +1274,7 @@ public class RestClient {
 		return false;
 
 	}
-	
+
 	public static boolean initToken_Regproc(String contextKey) {
 		try {
 			JSONObject requestBody = new JSONObject();
@@ -1281,8 +1283,7 @@ public class RestClient {
 			nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
 			nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_regprocclient_app_id"));
 			nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_regproc_client_id"));
-			nestedRequest.put("secretKey",
-					VariableManager.getVariableValue(contextKey, "mosip_regproc_client_secret"));
+			nestedRequest.put("secretKey", VariableManager.getVariableValue(contextKey, "mosip_regproc_client_secret"));
 			requestBody.put(METADATA, new JSONObject());
 			requestBody.put(VERSION, "string");
 			requestBody.put("id", "string");
@@ -1325,7 +1326,7 @@ public class RestClient {
 		return false;
 
 	}
-	
+
 	public static boolean initToken_crvs1(String contextKey) {
 		try {
 			JSONObject requestBody = new JSONObject();
@@ -1334,8 +1335,7 @@ public class RestClient {
 			nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
 			nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_crvs1_app_id"));
 			nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_id"));
-			nestedRequest.put("secretKey",
-					VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_secret"));
+			nestedRequest.put("secretKey", VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_secret"));
 			requestBody.put(METADATA, new JSONObject());
 			requestBody.put(VERSION, "string");
 			requestBody.put("id", "string");
@@ -1414,17 +1414,16 @@ public class RestClient {
 
 		if (http_status == 200) {
 
-		try(BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));){	
+			try (BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));) {
 
-			String output;
+				String output;
 
-			while ((output = br.readLine()) != null) {
-				builder.append(output);
+				while ((output = br.readLine()) != null) {
+					builder.append(output);
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
 			}
-		}
-		catch (Exception e) {
-			// TODO: handle exception
-		}
 		}
 		return builder.toString();
 	}
