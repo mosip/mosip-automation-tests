@@ -310,7 +310,7 @@ public class PreRegistrationSteps {
 			response = RestClient.uploadFile(url + preRegID,docFilePath,obj,contextKey);
 			
 		} catch (Exception e) {
-		//	logger.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		
 		
