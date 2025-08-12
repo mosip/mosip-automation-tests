@@ -5,10 +5,10 @@
 	<parent>
 		<groupId>io.mosip.testrig.dslrig.ivv</groupId>
 		<artifactId>dslrig-ivv-parent</artifactId>
-		<version>1.2.1-SNAPSHOT</version>
+		<version>1.2.1.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.2.1.0-SNAPSHOT</version>
 	<groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
 	<artifactId>dslrig-ivv-dg</artifactId>
 	
@@ -20,12 +20,12 @@
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
 			<artifactId>dslrig-ivv-core</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
+			<version>1.2.1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.ivv.parser</groupId>
 			<artifactId>dslrig-ivv-parser</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
+			<version>1.2.1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
