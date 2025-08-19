@@ -38,12 +38,12 @@ Below are repository details of various modules used for the automation
 ### To build end to end automation 
 * apitest-commons `mvn clean install -Dgpg.skip`
 * Acceptance Tests(location: mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator) `mvn clean install -Dgpg.skip`
-    - After Successful build will get the jar (dslrig-ivv-orchestrator-version-SNAPSHOT-jar-with-dependencies.jar)
+    - After Successful build will get the jar (dslrig-ivv-orchestrator-version-jar-with-dependencies.jar)
 
 ### To build Packet Utility
 * Mosip Test Data Provider `mvn clean install -Dgpg.skip`
 * Mosip-Packet-Creator `mvn clean install -Dgpg.skip`
-    - After successful build will get the jar (dslrig-packetcreator-version-SNAPSHOT.jar)
+    - After successful build will get the jar (dslrig-packetcreator-version.jar)
     - Packet Utility is used to create and uploads the packet which is used by the e2e automation
 
 ## Configuration - Packet Utility
@@ -56,7 +56,7 @@ Below are repository details of various modules used for the automation
 1. mapper=demographic mappings environment specific or default setup.
 1. privatekeys=machine specific details for encrypting and signing the packet.					
 1.	Update ..\run.bat as mentioned below
-1.	Keep mosip-packet-creator-1.2.0.1-SNAPSHOT.jar and execute run.bat
+1.	Keep mosip-packet-creator-1.2.0.1.jar and execute run.bat
 1.	Verify if the Packet utility is running by hitting `http://localhost:8080/v1/packetcreator/swagger-ui.html#/`
 1.	For any failure in the packet utility verify the logs location: mosip-packet-creator\PacketUtilityRunlog.txt
 
@@ -66,8 +66,8 @@ Below are repository details of various modules used for the automation
 2. Take the config folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\config`
 3. Update kernel properties secret keys based on the env details inside `mosip-functional-tests\apitest-commons\src\main\resources\config\Kernel.properties`
 1. Update dsl file property `scenariosToExecute=2` update scenario number for execution and keep this empty to run entire full suite
-1. Command to execute the e2e automation (dslrig-ivv-orchestrator-version-SNAPSHOT-jar-with-dependencies.jar) utility with below vm arguments
-     * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl -jar dslrig-ivv-orchestrator-version-SNAPSHOT-jar-with-dependencies.jar
+1. Command to execute the e2e automation (dslrig-ivv-orchestrator-version-jar-with-dependencies.jar) utility with below vm arguments
+     * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl -jar dslrig-ivv-orchestrator-version-jar-with-dependencies.jar
      * `env.user`  =  environment name example qa, qa2, dev
      * `env.endpoint` = base environment
 1. After the execution completes, the test report can be found in the path `..\testng-report\emailable-report.html`
