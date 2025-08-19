@@ -118,11 +118,11 @@ By following these steps, you can seamlessly set up and work with the project in
 1. Deploy Packet creator
 	-Use these branches of code.
 	`https://github.com/mosip/mosip-automation-tests/tree/release-1.2.0.x`
-	`https://github.com/mosip/mosip-helm/tree/1.2.0.x`/charts/packetcreator`
+	`https://github.com/mosip/mosip-helm/tree/1.2.0.x/charts/packetcreator`
 1. Deploy Dsl testrig
 	-Use these branches of code.
 	`https://github.com/mosip/mosip-automation-tests/tree/release-1.2.0.x`
-	`https://github.com/mosip/mosip-helm/tree/1.2.0.x`/charts/dslorchestrator`
+	`https://github.com/mosip/mosip-helm/tree/1.2.0.x/charts/dslorchestrator`
 1. Orchestrator Config maps setup
 ![](docs/configmaps1.png)
 ![](docs/configmaps2.png)
