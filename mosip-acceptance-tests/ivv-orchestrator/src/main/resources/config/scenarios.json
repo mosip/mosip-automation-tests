@@ -389,6 +389,12 @@
 			"Input Parameters": "RID, stage, and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -613,6 +619,12 @@
 			"Input Parameters": "RID, stage, and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-23": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -674,6 +686,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,INTRODUCER_VALIDATION,ERROR)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -789,6 +807,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -862,6 +886,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1001,6 +1031,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-22": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1098,6 +1134,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,ERROR)"
+		},
+		"Step-15": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1201,6 +1243,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$ridLost,MANUAL_ADJUDICATION,FAILED)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1310,6 +1358,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,MANUAL_ADJUDICATION,FAILED)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1455,6 +1509,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,MANUAL_ADJUDICATION,FAILED)"
+		},
+		"Step-23": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1564,6 +1624,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,MANUAL_ADJUDICATION,SUCCESS)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1637,6 +1703,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1776,6 +1848,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-22": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1849,6 +1927,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,BIOGRAPHIC_VERIFICATION,FAILED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1910,6 +1994,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -1971,6 +2061,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -2080,6 +2176,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$lostRid,BIOGRAPHIC_VERIFICATION,FAILED)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -2153,6 +2255,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -2263,11 +2371,17 @@
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$parentRid)"
 		},
-		"Step-16": {
+		"Step-17": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$childRid)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -2425,6 +2539,12 @@
 			"Input Parameters": "Transaction ID and OIDC client ID",
 			"Return Value": "NA",
 			"Action": "e2e_UserInfo($$transactionId,$$clientId)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -2552,6 +2672,12 @@
 			"Input Parameters": "Transaction ID and OIDC client ID",
 			"Return Value": "NA",
 			"Action": "e2e_UserInfo($$transactionId,$$clientId)"
+		},
+		"Step-20": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -2673,6 +2799,12 @@
 			"Input Parameters": "Transaction ID and OIDC client ID",
 			"Return Value": "NA",
 			"Action": "e2e_UserInfo($$transactionId,$$clientId)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -2830,6 +2962,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin2,$$vid,$$personaFilePath)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -2987,6 +3125,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin2,$$vid,$$personaFilePath)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -3144,6 +3288,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin2,$$vid,$$personaFilePath)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -3283,6 +3433,12 @@
 			"Input Parameters": "",
 			"Return Value": "NA",
 			"Action": "e2e_validateKycData(photo,ekycData)"
+		},
+		"Step-22": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -3446,6 +3602,12 @@
 			"Input Parameters": "Transaction ID and OIDC client ID",
 			"Return Value": "NA",
 			"Action": "e2e_UserInfo($$transactionId1,$$clientId)"
+		},
+		"Step-26": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -3537,6 +3699,12 @@
 			"Input Parameters": "Modality, demo graphic data, VID and UIN",
 			"Return Value": "NA",
 			"Action": "e2e_multiFactorAuthentication(faceDevice,dob,UIN,$$uin,$$personaFilePath,$$vid,$$email)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -3628,6 +3796,12 @@
 			"Input Parameters": "Modality, demo graphic data, VID and UIN",
 			"Return Value": "NA",
 			"Action": "e2e_multiFactorAuthentication(faceDevice,dob,UIN,$$uin,$$personaFilePath,$$vid,$$email)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -3761,6 +3935,12 @@
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
+		},
+		"Step-21": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -3924,6 +4104,12 @@
 			"Input Parameters": "Transaction ID and OIDC client ID",
 			"Return Value": "NA",
 			"Action": "e2e_UserInfo($$transactionId1,$$clientId)"
+		},
+		"Step-26": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -4099,6 +4285,12 @@
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin2,$$childPersona,$$vid)"
+		},
+		"Step-28": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -4256,6 +4448,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin2,$$vid,$$personaFilePath)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -4347,6 +4545,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -4516,6 +4720,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin=e2e_getUINByRid($$rid2)"
+		},
+		"Step-27": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -4673,6 +4883,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REJECTED/*PACKET_STATUS*/,$$rid2)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -4758,6 +4974,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin=e2e_getUINByRid($$rid2)"
+		},
+		"Step-13": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -4849,6 +5071,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -4940,6 +5168,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(rightRingDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -5031,6 +5265,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(RightIris,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -5128,6 +5368,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -5219,6 +5465,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -5310,6 +5562,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(leftRingDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -5401,6 +5659,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(LeftIris,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -5492,6 +5756,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -5715,6 +5985,12 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details75,75/*CENTER_INDEX*/)"
+		},
+		"Step-36": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -5800,6 +6076,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,UPLOAD_PACKET,ERROR)"
+		},
+		"Step-13": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -5951,6 +6233,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-24": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -6066,6 +6354,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -6187,6 +6481,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$ridLost,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -6320,6 +6620,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-21": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -6387,6 +6693,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-10": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -6514,6 +6826,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$parentRid,VALIDATE_PACKET,REJECTED)"
+		},
+		"Step-20": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -6581,6 +6899,12 @@
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
 			"Action": "e2e_updatePreRegStatus(0/*STATUS_CODE*/,$$prid,invalid/*SCENARIO_WITH_PENDING_APPOINTMENT*/)"
+		},
+		"Step-10": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -6654,6 +6978,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REJECTED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -6763,6 +7093,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REJECTED/*PACKET_STATUS*/,$$rid2)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -6860,6 +7196,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,MANUAL_ADJUDICATION,FAILED)"
+		},
+		"Step-15": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -6975,6 +7317,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$ridNew,MANUAL_ADJUDICATION,FAILED)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7078,6 +7426,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,DEMOGRAPHIC_VERIFICATION,IN_PROGRESS)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7193,6 +7547,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$ridNew,MANUAL_ADJUDICATION,FAILED)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7254,6 +7614,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7315,6 +7681,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,SUPERVISOR_VALIDATION,ERROR)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7376,6 +7748,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,SUPERVISOR_VALIDATION,FAILED)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7437,6 +7815,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7498,6 +7882,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,OPERATOR_VALIDATION,ERROR)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7559,6 +7949,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,OPERATOR_VALIDATION,FAILED)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7674,6 +8070,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid1,INTERNAL_WORKFLOW_ACTION,SUCCESS)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7789,6 +8191,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,INTERNAL_WORKFLOW_ACTION,SUCCESS)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -7796,7 +8204,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walks-in to registration center completes the process and gets UIN card. When the packet is created and uploaded with supervisor biometric and without operator biometrics",
+		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. When the packet is created and uploaded with supervisor biometric and without operator biometrics",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -8012,6 +8420,12 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details76,76/*CENTER_INDEX*/)"
+		},
+		"Step-36": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -8127,6 +8541,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -8236,6 +8656,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -8357,6 +8783,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,DEMOGRAPHIC_VERIFICATION,FAILED)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -8502,6 +8934,12 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details52,52/*CENTER_INDEX*/)"
+		},
+		"Step-23": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -8731,6 +9169,12 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details531,531/*CENTER_INDEX*/)"
+		},
+		"Step-37": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -8888,6 +9332,12 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details54,54/*CENTER_INDEX*/)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -9015,6 +9465,12 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details55,55/*CENTER_INDEX*/)"
+		},
+		"Step-20": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -9160,6 +9616,12 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details56)"
+		},
+		"Step-23": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -9311,6 +9773,12 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details57,57/*CENTER_INDEX*/)"
+		},
+		"Step-24": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -9396,6 +9864,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-13": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -9481,6 +9955,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-13": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -9650,6 +10130,12 @@
 			"Input Parameters": "Transaction ID and OIDC client ID",
 			"Return Value": "NA",
 			"Action": "e2e_UserInfo($$transactionId,$$clientId)"
+		},
+		"Step-27": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -9873,6 +10359,12 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details77,77/*CENTER_INDEX*/)"
+		},
+		"Step-36": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -9928,6 +10420,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(reregister/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-8": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -10025,6 +10523,12 @@
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
 			"Action": "e2e_packetsync($$zipPacketPath2,false/*EXPECTED_TO_PASS_FLAG*/)"
+		},
+		"Step-15": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -10140,6 +10644,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid1)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -10297,10 +10807,16 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid3,SECUREZONE_NOTIFICATION,REJECTED)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
-		"Scenario": "#88",
+		"Scenario": "88",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
@@ -10376,6 +10892,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-12": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -10539,6 +11061,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REJECTED/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-26": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -10666,6 +11194,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin=e2e_getUINByRid($$rid2)"
+		},
+		"Step-20": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -10793,6 +11327,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin=e2e_getUINByRid($$rid2)"
+		},
+		"Step-20": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -10926,6 +11466,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REJECTED/*PACKET_STATUS*/,$$childRid2)"
+		},
+		"Step-21": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -11017,6 +11563,12 @@
 			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
 			"Return Value": "VID",
 			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -11108,6 +11660,12 @@
 			"Input Parameters": "UIN and other can be found in parameters in-line commnets",
 			"Return Value": "VID",
 			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -11229,6 +11787,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -11386,6 +11950,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -11447,6 +12017,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VERIFICATION,SUCCESS)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -11502,6 +12078,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-8": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -11611,6 +12193,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -11714,6 +12302,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -11817,6 +12411,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -11932,6 +12532,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -12029,6 +12635,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-15": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -12192,6 +12804,12 @@
 			"Input Parameters": "UIN, VID, E mail ID ",
 			"Return Value": "NA",
 			"Action": "e2e_otpAuthentication(uin,$$childUin,vid,$$vidwithoutotp,$$email)"
+		},
+		"Step-26": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -12331,6 +12949,12 @@
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin,$$childPersona,$$vidwithoutotp)"
+		},
+		"Step-22": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -12488,6 +13112,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$ridLost,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -12597,6 +13227,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REJECTED/*PACKET_STATUS*/,$$ridLost)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -12724,6 +13360,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REJECTED/*PACKET_STATUS*/,$$childRid)"
+		},
+		"Step-20": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -12785,6 +13427,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,INTRODUCER_VALIDATION,ERROR)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -12876,6 +13524,12 @@
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -13009,6 +13663,12 @@
 			"Input Parameters": "",
 			"Return Value": "NA",
 			"Action": "e2e_validateKycData(photo,ekycData)"
+		},
+		"Step-21": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -13160,6 +13820,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
+		},
+		"Step-24": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -13335,6 +14001,12 @@
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$lostUin,$$personaFilePath,$$vidwithoutotp)"
+		},
+		"Step-28": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -13510,6 +14182,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$lostUin,$$vidwithoutotp,$$personaFilePath)"
+		},
+		"Step-28": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -13685,6 +14363,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
+		},
+		"Step-28": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -13746,6 +14430,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -13813,6 +14503,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,ERROR)"
+		},
+		"Step-10": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -13886,6 +14582,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -14007,6 +14709,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -14122,6 +14830,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -14195,6 +14909,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -14310,6 +15030,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -14431,6 +15157,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -14540,6 +15272,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -14643,6 +15381,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -14800,6 +15544,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -14957,6 +15707,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -15102,6 +15858,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(rightThumbDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-23": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -15247,6 +16009,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-23": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -15380,6 +16148,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$ridLost,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-21": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -15453,6 +16227,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -15526,6 +16306,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -15641,6 +16427,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -15762,6 +16554,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -15835,6 +16633,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -15902,6 +16706,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-10": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16011,6 +16821,12 @@
 			"Input Parameters": "UIN and modalities",
 			"Return Value": "NA",
 			"Action": "e2e_CheckForBDBAbsence($$uin2,FINGER_Left IndexFinger)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16114,6 +16930,12 @@
 			"Input Parameters": "UNI and modalities",
 			"Return Value": "NA",
 			"Action": "e2e_CheckForBDBPresence($$uin2,FINGER_Left RingFinger@@FINGER_Right LittleFinger@@FACE@@FINGER_Left LittleFinger@@IRIS_Right@@FINGER_Left MiddleFinger@@FINGER_Left IndexFinger@@FINGER_Right IndexFinger@@IRIS_Left@@FINGER_Right RingFinger@@FINGER_Right MiddleFinger@@FINGER_Right Thumb,true)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16223,6 +17045,12 @@
 			"Input Parameters": "UIN and modalities",
 			"Return Value": "NA",
 			"Action": "e2e_CheckForBDBAbsence($$uin2,IRIS_Left@@IRIS_Right)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16296,6 +17124,12 @@
 			"Input Parameters": "UNI and modalities",
 			"Return Value": "NA",
 			"Action": "e2e_CheckForBDBPresence($$rid,FINGER_Left RingFinger@@FINGER_Right LittleFinger@@FACE@@FINGER_Left LittleFinger@@IRIS_Right@@FINGER_Left MiddleFinger@@FINGER_Left IndexFinger@@FINGER_Right IndexFinger@@IRIS_Left@@FINGER_Right RingFinger@@FINGER_Left Thumb@@FINGER_Right MiddleFinger@@FINGER_Right Thumb,false/EXCEPTION_FLAG/)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16363,6 +17197,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-10": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16418,6 +17258,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-8": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16515,6 +17361,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid2)"
+		},
+		"Step-15": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16654,6 +17506,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,CMD_VALIDATION,FAILED)"
+		},
+		"Step-22": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16793,6 +17651,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-22": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16866,6 +17730,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -16933,6 +17803,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-10": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -17000,6 +17876,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-10": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -17067,6 +17949,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-10": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -17206,6 +18094,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid2,VERIFICATION,SUCCESS)"
+		},
+		"Step-22": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -17261,6 +18155,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS,RPR-PKV-FAILED-014)"
+		},
+		"Step-8": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -17322,6 +18222,12 @@
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
 			"Action": "e2e_packetsync($$zipPacketPath,false/*EXPECTED_TO_PASS_FLAG*/)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -17425,6 +18331,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid1,VERIFICATION,SUCCESS)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -17528,6 +18440,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid1,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -17619,6 +18537,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid1,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -17776,10 +18700,16 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details156,156/*CENTER_INDEX*/)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
-		"Scenario": "#157",
+		"Scenario": "157",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
@@ -17849,6 +18779,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,CMD_VALIDATION,FAILED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18000,6 +18936,12 @@
 			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Center(DCOM,$$details8,8/*CENTER_INDEX*/)"
+		},
+		"Step-24": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18055,6 +18997,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS)"
+		},
+		"Step-8": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18146,6 +19094,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18267,6 +19221,12 @@
 			"Input Parameters": "Transaction ID and OIDC client ID",
 			"Return Value": "NA",
 			"Action": "e2e_UserInfo($$transactionId,$$clientId)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18322,6 +19282,12 @@
 			"Input Parameters": "Persona file path ,template file path and invalid machine flag",
 			"Return Value": "RID",
 			"Action": "e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath,invalidMachine)"
+		},
+		"Step-8": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18413,6 +19379,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18480,6 +19452,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VERIFICATION,SUCCESS)"
+		},
+		"Step-10": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18541,6 +19519,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18638,6 +19622,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-15": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18729,6 +19719,12 @@
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(age,$$uin,$$personaFilePath,$$vid,ageDecrease/*AGE_DECREMENT_FLAG*/)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18820,6 +19816,12 @@
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(age,$$uin,$$personaFilePath,$$vid)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -18881,6 +19883,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,CMD_VALIDATION,ERROR)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -19026,6 +20034,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin3=e2e_getUINByRid($$rid3)"
+		},
+		"Step-23": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -19171,6 +20185,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin3=e2e_getUINByRid($$rid3)"
+		},
+		"Step-23": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -19364,6 +20384,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin1=e2e_getUINByRid($$rid1)"
+		},
+		"Step-31": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -19563,6 +20589,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin1=e2e_getUINByRid($$rid1)"
+		},
+		"Step-32": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -19630,6 +20662,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-10": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -19691,6 +20729,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -19800,6 +20844,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin2=e2e_getUINByRid($$rid2)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -19909,6 +20959,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin2=e2e_getUINByRid($$rid2)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -20012,6 +21068,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid2)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -20163,6 +21225,12 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin3=e2e_getUINByRid($$rid3)"
+		},
+		"Step-24": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -20332,6 +21400,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckUpdatedUIN($$uin1,$$uin3)"
+		},
+		"Step-27": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -20573,6 +21647,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid5,MANUAL_ADJUDICATION,SUCCESS)"
+		},
+		"Step-39": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -20778,6 +21858,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckUpdatedUIN($$uin1,$$uin4)"
+		},
+		"Step-35": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -20935,6 +22021,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckUpdatedUIN($$uin1,$$uin3)"
+		},
+		"Step-25": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -21044,6 +22136,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(LeftIris,$$uin,$$vid,$$personaFilePath,ERROR)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -21153,6 +22251,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(rightThumbDevice,$$uin,$$vid,$$personaFilePath,ERROR)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -21262,6 +22366,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -21365,6 +22475,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -21480,6 +22596,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(leftLittleDevice,$$uin,$$vid,$$personaFilePath)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -21607,6 +22729,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,VALIDATE_PACKET,REJECTED)"
+		},
+		"Step-20": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -21710,6 +22838,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,UIN_GENERATOR,REJECTED)"
+		},
+		"Step-16": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -21885,6 +23019,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$minorUin,$$vid,$$childPersona)"
+		},
+		"Step-28": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22060,6 +23200,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$childPersona)"
+		},
+		"Step-28": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22241,6 +23387,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$childPersona)"
+		},
+		"Step-29": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22308,6 +23460,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22429,6 +23587,12 @@
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$Uin2,$$personaFilePath,$$vid)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22490,6 +23654,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22623,6 +23793,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+		},
+		"Step-21": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22690,6 +23866,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-11": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22805,6 +23987,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22860,6 +24048,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-8": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22915,6 +24109,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-8": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -22958,6 +24158,12 @@
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
 			"Action": "$$rid=e2e_createAndUploadExternalPacket(CRVS11@invalid/*source*/,CRVS_NEW1/*PACKET_TYPE*/,$$personaFilePath)"
+		},
+		"Step-6": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -23019,6 +24225,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -23080,6 +24292,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -23219,6 +24437,12 @@
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-22": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -23340,6 +24564,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$parentRid,VALIDATE_PACKET,REJECTED)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -23437,6 +24667,12 @@
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid,0,$$handles)"
+		},
+		"Step-15": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -23552,6 +24788,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -23643,6 +24885,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-18": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -23776,6 +25024,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-21": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -23867,6 +25121,12 @@
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
 			"Action": "$$rid2=e2e_createAndUploadExternalPacket(CRVS11@invalid/*source*/,CRVS_DEATH1/*PACKET_TYPE*/,$$personaFilePath,true/*InfoToken*/,$$uin)"
+		},
+		"Step-14": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -23988,6 +25248,12 @@
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_ekycBio(faceDevice,$$uin2,$$vid,$$personaFilePath)"
+		},
+		"Step-19": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -24043,6 +25309,12 @@
 			"Input Parameters": "Expected packet status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-8": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -24176,8 +25448,15 @@
 			"Input Parameters": "Expected packet status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PASS/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-21": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
+	
 	{
 		"Scenario": "215",
 		"Tag": "Negative_Test",
@@ -24237,6 +25516,12 @@
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,SUPERVISOR_VALIDATION,FAILED)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
@@ -24412,6 +25697,12 @@
 			"Input Parameters": "Modalitiy UIN VID and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_bioAuthentication(faceDevice,$$adultUin,$$vid,$$childPersona)"
+		},
+		"Step-9": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
 		}
 	},
 	{
