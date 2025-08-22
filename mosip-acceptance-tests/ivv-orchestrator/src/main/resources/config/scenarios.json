@@ -12321,6 +12321,18 @@
 			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-19": {
+			"Description": "Gets the credentials request ID",
+			"Input Parameters": "UIN and Email ID",
+			"Return Value": "Request ID",
+			"Action": "$$requestId=e2e_credentialRequest($$childUin,$$email)"
+		},
+		"Step-20": {
+			"Description": "Check credentials status",
+			"Input Parameters": "Request ID",
+			"Return Value": "NA",
+			"Action": "e2e_checkCredentialStatus($$requestId)"
+		},
+		"Step-21": {
 			"Description": "Generates VID without OTP",
 			"Input Parameters": "VID tyoe and UIN",
 			"Return Value": "VID",
