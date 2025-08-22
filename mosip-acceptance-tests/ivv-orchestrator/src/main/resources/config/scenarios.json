@@ -12327,12 +12327,6 @@
 			"Action": "$$vidwithoutotp=e2e_GenerateVIDWithoutOTP(Perpetual,$$childUin)"
 		},
 		"Step-20": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
-		},
-		"Step-21": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
