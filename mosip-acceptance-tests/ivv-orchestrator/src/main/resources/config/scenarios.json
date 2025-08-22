@@ -582,7 +582,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-17": {
 			"Description": "Gets Email ID configuired for the UIN",
@@ -976,7 +976,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-17": {
 			"Description": "Gets Email ID configuired for the UIN",
@@ -1382,7 +1382,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-10": {
 			"Description": "Gets Email ID configuired for the UIN",
@@ -1397,66 +1397,60 @@
 			"Action": "$$requestId=e2e_credentialRequest($$uin1,$$email)"
 		},
 		"Step-12": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
-		},
-		"Step-13": {
 			"Description": "Check credentials status",
 			"Input Parameters": "Request ID",
 			"Return Value": "NA",
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
-		"Step-14": {
+		"Step-13": {
 			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
 		},
-		"Step-15": {
+		"Step-14": {
 			"Description": "Generates the hash for the given modalities",
 			"Input Parameters": "Modalitie and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "Hash value",
 			"Action": "$$modalityHashValue=e2e_getBioModalityHash(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger@@Left LittleFinger,$$personaFilePath)"
 		},
-		"Step-16": {
+		"Step-15": {
 			"Description": "Sets expectatation on mock ABIS",
 			"Input Parameters": "Modalities hash value. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_configureMockAbis(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger,true/*DUPLICATE_FLAG*/,Right IndexFinger,$$personaFilePath,$$modalityHashValue,-1,@@Duplicate)"
 		},
-		"Step-17": {
+		"Step-16": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
 		},
-		"Step-18": {
+		"Step-17": {
 			"Description": "Generates packet template based on the persona data",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
 			"Action": "$$newTemplate=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
 			"Input Parameters": "Persona file path and template file path",
 			"Return Value": "RID",
 			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$newTemplate)"
 		},
-		"Step-20": {
+		"Step-19": {
 			"Description": "Sets manual verification status",
 			"Input Parameters": "RID and status",
 			"Return Value": "NA",
 			"Action": "e2e_postMockMv($$rid2,REJECTED)"
 		},
-		"Step-21": {
+		"Step-20": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REJECTED/*PACKET_STATUS*/,$$rid2)"
 		},
-		"Step-22": {
+		"Step-21": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
@@ -1751,7 +1745,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-17": {
 			"Description": "Gets Email ID configuired for the UIN",
@@ -2370,7 +2364,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-17": {
 			"Description": "Generated VID for the given UIN",
@@ -2497,7 +2491,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-12": {
 			"Description": "Generated VID for the given UIN",
@@ -2618,7 +2612,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -2733,7 +2727,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-10": {
 			"Description": "Gets Email ID configuired for the UIN",
@@ -2805,7 +2799,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-22": {
 			"Description": "Generated VID for the given UIN",
@@ -2890,7 +2884,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-10": {
 			"Description": "Gets Email ID configuired for the UIN",
@@ -2962,7 +2956,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-22": {
 			"Description": "Generated VID for the given UIN",
@@ -3047,7 +3041,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-10": {
 			"Description": "Gets Email ID configuired for the UIN",
@@ -3119,7 +3113,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-22": {
 			"Description": "Generated VID for the given UIN",
@@ -3252,7 +3246,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-18": {
 			"Description": "Generated VID for the given UIN",
@@ -3391,7 +3385,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-18": {
 			"Description": "Generated VID for the given UIN",
@@ -3512,7 +3506,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -3603,7 +3597,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -3730,7 +3724,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-17": {
 			"Description": "Gets Email ID configuired for the UIN",
@@ -3869,7 +3863,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-18": {
 			"Description": "Generated VID for the given UIN",
@@ -4026,7 +4020,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-17": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
@@ -4071,22 +4065,22 @@
 			"Action": "$$email=e2e_getEmailByUIN($$childUin2)"
 		},
 		"Step-24": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
+		},
+		"Step-25": {
 			"Description": "Gets the credentials request ID",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "Request ID",
 			"Action": "$$requestId=e2e_credentialRequest($$childUin2,$$email)"
 		},
-		"Step-25": {
+		"Step-26": {
 			"Description": "Check credentials status",
 			"Input Parameters": "Request ID",
 			"Return Value": "NA",
 			"Action": "e2e_checkCredentialStatus($$requestId)"
-		},
-		"Step-26": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
 		},
 		"Step-27": {
 			"Description": "Generated VID for the given UIN",
@@ -4171,7 +4165,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-10": {
 			"Description": "Gets Email ID configuired for the UIN",
@@ -4243,7 +4237,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-22": {
 			"Description": "Generated VID for the given UIN",
@@ -4334,7 +4328,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -4836,7 +4830,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -4927,7 +4921,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -5018,7 +5012,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -5115,7 +5109,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-12": {
 			"Description": "Generated VID for the given UIN",
@@ -5206,7 +5200,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -5297,7 +5291,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -5388,7 +5382,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -5479,7 +5473,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -9601,7 +9595,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-19": {
 			"Description": "Generated VID for the given UIN",
@@ -11010,7 +11004,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-13": {
 			"Description": "Generated VID for the given UIN",
@@ -11101,7 +11095,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-13": {
 			"Description": "Generated VID for the given UIN",
@@ -12146,22 +12140,22 @@
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
 		},
 		"Step-18": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
+		},
+		"Step-19": {
 			"Description": "Gets the credentials request ID",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "Request ID",
 			"Action": "$$requestId=e2e_credentialRequest($$childUin,$$email)"
 		},
-		"Step-19": {
+		"Step-20": {
 			"Description": "Check credentials status",
 			"Input Parameters": "Request ID",
 			"Return Value": "NA",
 			"Action": "e2e_checkCredentialStatus($$requestId)"
-		},
-		"Step-20": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
 		},
 		"Step-21": {
 			"Description": "Generates VID without OTP",
@@ -12321,22 +12315,22 @@
 			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,SUCCESS)"
 		},
 		"Step-18": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
+		},
+		"Step-19": {
 			"Description": "Gets the credentials request ID",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "Request ID",
 			"Action": "$$requestId=e2e_credentialRequest($$childUin,$$email)"
 		},
-		"Step-19": {
+		"Step-20": {
 			"Description": "Check credentials status",
 			"Input Parameters": "Request ID",
 			"Return Value": "NA",
 			"Action": "e2e_checkCredentialStatus($$requestId)"
-		},
-		"Step-20": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
 		},
 		"Step-21": {
 			"Description": "Generates VID without OTP",
@@ -12878,22 +12872,22 @@
 			"Action": "$$email=e2e_getEmailByUIN($$uin)"
 		},
 		"Step-10": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
+		},
+		"Step-11": {
 			"Description": "Gets the credentials request ID",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "Request ID",
 			"Action": "$$requestId=e2e_credentialRequest($$uin,$$email)"
 		},
-		"Step-11": {
+		"Step-12": {
 			"Description": "Check credentials status",
 			"Input Parameters": "Request ID",
 			"Return Value": "NA",
 			"Action": "e2e_checkCredentialStatus($$requestId)"
-		},
-		"Step-12": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
 		},
 		"Step-13": {
 			"Description": "Generated VID for the given UIN",
@@ -13364,7 +13358,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-27": {
 			"Description": "Gets Email ID configuired for the UIN",
@@ -13714,7 +13708,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-24": {
 			"Description": "Gets the credentials request ID",
@@ -15143,7 +15137,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-19": {
 			"Description": "Generated VID for the given UIN",
@@ -15285,22 +15279,22 @@
 			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
 		},
 		"Step-18": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
+		},
+		"Step-19": {
 			"Description": "Gets the credentials request ID",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "Request ID",
 			"Action": "$$requestId=e2e_credentialRequest($$uin2,$$email)"
 		},
-		"Step-19": {
+		"Step-20": {
 			"Description": "Check credentials status",
 			"Input Parameters": "Request ID",
 			"Return Value": "NA",
 			"Action": "e2e_checkCredentialStatus($$requestId)"
-		},
-		"Step-20": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
 		},
 		"Step-21": {
 			"Description": "Generated VID for the given UIN",
@@ -18205,7 +18199,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN based on phone number",
@@ -18296,7 +18290,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN based on phone number",
@@ -18481,12 +18475,18 @@
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
 		},
 		"Step-12": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(PACKET_UPLOAD_WAIT_TIME)"
+		},
+		"Step-13": {
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "NA",
 			"Action": "e2e_packetsync($$zipPacketPath)"
 		},
-		"Step-13": {
+		"Step-14": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
@@ -18788,7 +18788,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -18879,7 +18879,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -21091,7 +21091,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-12": {
 			"Description": "Generated VID for the given UIN",
@@ -21200,7 +21200,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-12": {
 			"Description": "Generated VID for the given UIN",
@@ -21309,7 +21309,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-12": {
 			"Description": "Generated VID for the given UIN",
@@ -21412,7 +21412,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-11": {
 			"Description": "Generated VID for the given UIN",
@@ -21521,7 +21521,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-12": {
 			"Description": "Generated VID for the given UIN",
@@ -22452,7 +22452,7 @@
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-10": {
 			"Description": "Gets Email ID configuired for the UIN",
