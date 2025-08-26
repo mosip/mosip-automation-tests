@@ -1869,7 +1869,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(clientId)//
 					.audience(tempUrl)//
 					.issuer(clientId)//
-					.issueTime(new Date()).expirationTime(new Date(new Date().getTime() + 180 * 1000)).build();
+					.issueTime(new Date()).expirationTime(new Date(new Date().getTime() + 180 * 1000)).jwtID(clientId).build();
 
 			SignedJWT signedJWT = new SignedJWT(
 					new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(jwkKey.getKeyID()).build(), claimsSet);
