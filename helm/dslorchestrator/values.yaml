@@ -413,7 +413,7 @@ types:
     enabled: true
   - name: smoke
     enabled: true
-crontime: "0 3 * * *" ## run cronjob every day at 3 AM (time hr: 0-23 )
+crontime: "0 3 * * *"  ## run cronjob every day at 3 AM (time hr: 0-23 )
 dslorchestrator:
   configmaps:
     s3:
