@@ -1283,7 +1283,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		try {
 			esignetBioAuth.test(test);
-		} catch (AuthenticationTestException | AdminTestException e) {
+		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		} finally {
