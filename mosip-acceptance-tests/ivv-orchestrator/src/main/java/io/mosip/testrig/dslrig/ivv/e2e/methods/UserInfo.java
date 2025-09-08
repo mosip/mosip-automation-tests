@@ -10,11 +10,10 @@ import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.testscripts.GetWithParam;
 import io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId;
-import io.mosip.testrig.apirig.resident.testscripts.SimplePostForAutoGenIdForUrlEncoded;
+import io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
@@ -130,7 +129,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 				}
 
-			} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException | SecurityXSSException e) {
+			} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException e) {
 				this.hasError = true;
 				throw new RigInternalError(e.getMessage());
 
@@ -158,7 +157,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 				}
 
-			} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException | SecurityXSSException e) {
+			} catch (AuthenticationTestException | AdminTestException | NoSuchAlgorithmException e) {
 				this.hasError = true;
 				throw new RigInternalError(e.getMessage());
 
@@ -192,7 +191,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 		try {
 			generateToken.test(testGenerateToken);
-		} catch (NoSuchAlgorithmException | AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+		} catch (NoSuchAlgorithmException | AuthenticationTestException | AdminTestException e) {
 			logger.error(e.getMessage());
 		}
 
@@ -218,7 +217,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			Response response2 = getUserInfo.response;
 			logger.info(response2.toString());
 
-		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+		} catch (AuthenticationTestException | AdminTestException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 

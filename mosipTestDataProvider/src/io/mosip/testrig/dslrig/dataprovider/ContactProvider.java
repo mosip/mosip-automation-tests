@@ -17,21 +17,48 @@ public class ContactProvider {
 	
 	static int MAX_NUM = 9999;
 	
-	public static List<Contact> generate(List<Name> names,int count) {
-		
-		List<Contact> contacts = new ArrayList<Contact>();
-		for(int i=0; i < count; i++) {
-			
-			Contact contact = new Contact();
-			String emailId =  String.format(DataProviderConstants.email_format, names.get(i).getFirstName().substring(0, 2),
-					 names.get(i).getSurName().substring(0, 2),rand.nextInt(MAX_NUM));
-			
-			contact.setEmailId(emailId);
-			contact.setMobileNumber( generateMobileNumber(rand));
-			contacts.add(contact);
-		}
-		return contacts;
+	public static List<Contact> generate(List<Name> names, int count) {
+	    List<Contact> contacts = new ArrayList<>();
+
+	    if (names == null) {
+	        names = new ArrayList<>();
+	    }
+
+
+	    for (int i = 0; i < count; i++) {
+	        Name name;
+	        if (i < names.size()) {
+	            name = names.get(i);
+	        } else {
+	            // Add default name if list is too small
+	            name = new Name();
+	            name.setFirstName("John");
+	            name.setSurName("Doe");
+	            names.add(name);
+	        }
+
+	        // Ensure safe substring
+	        String first = name.getFirstName().length() >= 2 ? 
+	            name.getFirstName().substring(0, 2) : name.getFirstName();
+	        String last = name.getSurName().length() >= 2 ? 
+	            name.getSurName().substring(0, 2) : name.getSurName();
+
+	        String emailId = String.format(
+	            DataProviderConstants.email_format,
+	            first,
+	            last,
+	            rand.nextInt(MAX_NUM)
+	        );
+
+	        Contact contact = new Contact();
+	        contact.setEmailId(emailId);
+	        contact.setMobileNumber(generateMobileNumber(rand));
+	        contacts.add(contact);
+	    }
+
+	    return contacts;
 	}
+
 	
 	static String generateMobileNumber(Random rand) {
 		
