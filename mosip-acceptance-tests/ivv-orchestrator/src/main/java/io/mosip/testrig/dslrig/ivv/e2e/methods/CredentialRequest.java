@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.auth.testscripts.PostWithAutogenIdWithOtpGenerate;
 import io.mosip.testrig.apirig.auth.testscripts.PostWithBodyWithOtpGenerate;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
@@ -99,7 +100,7 @@ public class CredentialRequest extends BaseTestCaseUtil implements StepInterface
 		} else {
 
 			fileName = CredentialIssue_YML;
-			PostWithBodyWithOtpGenerate postWithOtp = new PostWithBodyWithOtpGenerate();
+			PostWithAutogenIdWithOtpGenerate postWithOtp = new PostWithAutogenIdWithOtpGenerate();
 			Object[] casesList = postWithOtp.getYmlTestData(fileName);
 			Object[] testCaseList = filterTestCases(casesList);
 			logger.info("No. of TestCases in Yml file : " + testCaseList.length);
@@ -130,7 +131,7 @@ public class CredentialRequest extends BaseTestCaseUtil implements StepInterface
 						}
 					}
 				}
-			} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+			} catch (AuthenticationTestException | AdminTestException | SecurityXSSException | NumberFormatException | InterruptedException e) {
 				logger.error(e.getMessage());
 				this.hasError = true;
 				throw new RigInternalError("Failed at credential issuance Response validation");

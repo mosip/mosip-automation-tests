@@ -10,7 +10,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.testscripts.GetWithParam;
 import io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId;
-import io.mosip.testrig.apirig.resident.testscripts.SimplePostForAutoGenIdForUrlEncoded;
+import io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
