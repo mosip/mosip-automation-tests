@@ -46,6 +46,14 @@ public class dslConfigManager extends ConfigManager {
 	public static String getThreadCount() {
 		return ConfigManager.getproperty("threadCount");
 	}
+	
+	public static String getUinWaitTime() {
+		return ConfigManager.getproperty("uinWaitTime");
+	}
+	
+	public static String getNextPacketUploadWaitTime() {
+		return ConfigManager.getproperty("nextPacketUploadWaitTime");
+	}
 
 	public static Boolean useExternalScenarioSheet() {
 		return ConfigManager.getproperty("useExternalScenarioSheet").equalsIgnoreCase("yes");

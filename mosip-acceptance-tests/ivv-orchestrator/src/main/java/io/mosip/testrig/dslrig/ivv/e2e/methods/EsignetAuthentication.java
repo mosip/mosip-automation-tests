@@ -172,7 +172,7 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 						} catch (AdminTestException e) {
 							logger.error(e.getMessage());
 						} catch (SecurityXSSException e) {
-							logger.error(e.getMessage());
+							e.printStackTrace();
 						}
 					}
 				}
@@ -225,8 +225,8 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 						logger.error(e.getMessage());
 					} catch (AdminTestException e) {
 						logger.error(e.getMessage());
-					}catch (SecurityXSSException e) {
-						logger.error(e.getMessage());
+					} catch (SecurityXSSException e) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -257,8 +257,8 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 						logger.error(e.getMessage());
 					} catch (AdminTestException e) {
 						logger.error(e.getMessage());
-					}catch (SecurityXSSException e) {
-						logger.error(e.getMessage());
+					} catch (SecurityXSSException e) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -310,8 +310,8 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 						logger.error(e.getMessage());
 					} catch (AdminTestException e) {
 						logger.error(e.getMessage());
-					}catch (SecurityXSSException e) {
-						logger.error(e.getMessage());
+					} catch (SecurityXSSException e) {
+						e.printStackTrace();
 					}
 				}
 			}
