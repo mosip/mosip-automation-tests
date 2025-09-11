@@ -823,48 +823,59 @@ public  class MosipMasterData {
 		return getIndividualTypes_legacy(contextKey);
 	}
 	public static Hashtable<String, List<MosipIndividualTypeModel>> getIndividualTypes_legacy(String contextKey) {
-		
-		Hashtable<String, List<MosipIndividualTypeModel>> tbl = new Hashtable<String, List<MosipIndividualTypeModel>>();
-		
-		List<MosipIndividualTypeModel> indTypeList = null;
-		
-		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-		VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"individualtypes").toString();
-		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
-		Object o = MosipDataSetup.getCache(url,run_context);
-		if(o != null)
-			return( (Hashtable<String, List<MosipIndividualTypeModel>>) o);
 
-		try {
-			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
-			JSONArray docCatArray = resp.getJSONArray("data");
-			
-			if(docCatArray != null) {
-				ObjectMapper objectMapper = new ObjectMapper();
-				indTypeList = objectMapper.readValue(docCatArray.toString(), 
-					objectMapper.getTypeFactory().constructCollectionType(List.class, MosipIndividualTypeModel.class));
-	
-				List<MosipIndividualTypeModel> newList = null;
-				for(MosipIndividualTypeModel m: indTypeList) {
-					
-					if(m.getIsActive() ) {
-						newList = tbl.get( m.getLangCode());
-						if(newList == null) {
-							newList = new ArrayList<MosipIndividualTypeModel>();
-							tbl.put(m.getLangCode(), newList);
-						}
-						newList.add(m);
-					}
-				}
-				MosipDataSetup.setCache(url, tbl,run_context);
-				//return tbl;
-						
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-		return tbl;
+	    Hashtable<String, List<MosipIndividualTypeModel>> tbl = new Hashtable<>();
 
+	    String url = VariableManager.getVariableValue(contextKey, "urlBase").toString()
+	            + VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "individualtypes").toString();
+	    String run_context = VariableManager.getVariableValue(contextKey, "urlBase").toString() + RUN_CONTEXT;
+
+	    Object o = MosipDataSetup.getCache(url, run_context);
+	    if (o != null)
+	        return (Hashtable<String, List<MosipIndividualTypeModel>>) o;
+
+	    try {
+	        JSONObject resp = RestClient.get(url, new JSONObject(), new JSONObject(), contextKey);
+
+	        // response is now a JSON array
+	        JSONArray responseArray = resp.getJSONArray("response");
+
+	        if (responseArray != null) {
+	            for (int i = 0; i < responseArray.length(); i++) {
+	                JSONObject langObj = responseArray.getJSONObject(i);
+
+	                boolean isActive = langObj.optBoolean("isActive", false);
+	                if (!isActive) {
+	                    continue;
+	                }
+
+	                String langCode = langObj.getString("langCode");
+	                JSONArray fieldVals = langObj.getJSONArray("fieldVal");
+
+	                List<MosipIndividualTypeModel> newList = tbl.get(langCode);
+	                if (newList == null) {
+	                    newList = new ArrayList<>();
+	                    tbl.put(langCode, newList);
+	                }
+
+	                for (int j = 0; j < fieldVals.length(); j++) {
+	                    JSONObject fieldObj = fieldVals.getJSONObject(j);
+
+	                    MosipIndividualTypeModel model = new MosipIndividualTypeModel();
+	                    model.setCode(fieldObj.getString("code"));
+	                    model.setName(fieldObj.getString("value"));
+	                    model.setLangCode(langCode);
+	                    model.setIsActive(isActive);
+
+	                    newList.add(model);
+	                }
+	            }
+	            MosipDataSetup.setCache(url, tbl, run_context);
+	        }
+	    } catch (Exception e) {
+	        logger.error(e.getMessage());
+	    }
+	    return tbl;
 	}
 	public static List<MosipGenderModel> getGenderTypes(String lang,String contextKey) {
 		List<MosipGenderModel> genderTypeList = Collections.emptyList();
