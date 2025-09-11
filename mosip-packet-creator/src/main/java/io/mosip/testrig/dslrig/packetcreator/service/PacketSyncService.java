@@ -253,18 +253,7 @@ public class PacketSyncService {
 
 			tmpDir = Files.createTempDirectory("residents_").toFile().getAbsolutePath();
 
-			String existingValue = VariableManager.getVariableValue(contextKey, "residents_") != null
-					? VariableManager.getVariableValue(contextKey, "residents_").toString()
-					: "";
-
-			String updatedValue;
-			if (!existingValue.isEmpty()) {
-				updatedValue = existingValue + "," + tmpDir;
-			} else {
-				updatedValue = tmpDir;
-			}
-
-			VariableManager.setVariableValue(contextKey, "residents_", updatedValue);
+		    VariableManager.setVariableValue(contextKey, "residents_", tmpDir);
 
 			for (ResidentModel r : lst) {
 				Path tempPath = Path.of(tmpDir, r.getId() + ".json");
