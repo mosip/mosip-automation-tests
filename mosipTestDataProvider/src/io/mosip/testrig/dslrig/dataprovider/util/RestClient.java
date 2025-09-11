@@ -323,7 +323,19 @@ public class RestClient {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+		JSONObject fullResp = new JSONObject(response.getBody().asString());
+
+		if (fullResp.has(dataKey)) {
+			Object respObj = fullResp.get(dataKey);
+
+			if (respObj instanceof JSONObject) {
+				return (JSONObject) respObj;
+			} else if (respObj instanceof JSONArray) {
+				return fullResp;
+			}
+		}
+
+		return fullResp;
 	}
 
 	public static Response getWithoutParams(String url, String cookie) {
