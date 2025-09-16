@@ -300,6 +300,7 @@ public class PacketSyncService {
 			logger.info("makePacketAndSync for PRID : {}", preregId);
 		logger.info("Entered makePacketAndSync at time: " + System.currentTimeMillis());
 		Path idJsonPath = null;
+		String  process = null;
 		Path docPath = null;
 		String location = null;
 		File targetDirectory = null;
@@ -331,6 +332,8 @@ public class PacketSyncService {
 		}
 		if (templateLocation != null) {
 			process = ContextUtils.ProcessFromTemplate(src, templateLocation);
+		}else {
+			process=this.process;
 		}
 		String packetPath = packetMakerService.createContainer(idJsonPath.toString(), templateLocation, src, process,
 				preregId, contextKey, true, additionalInfoReqId , targetDirectory);
@@ -341,7 +344,7 @@ public class PacketSyncService {
 
 		if (getRidFromSync) {
 			logger.info("About to sync packet at time: " + System.currentTimeMillis());
-			response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", null, contextKey,
+			response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", process, contextKey,
 					additionalInfoReqId);
 			logger.info("packet sync done  at time: " + System.currentTimeMillis());
 			if (RestClient.isDebugEnabled(contextKey))
@@ -498,11 +501,9 @@ public class PacketSyncService {
 		} else {
 			rid = container.getName(container.getNameCount() - 1).toString().replace(".zip", "");
 		}
-		if (proc != null && !proc.equals(""))
-			process = proc;
 		if (RestClient.isDebugEnabled(contextKey)) {
 			logger.info("Syncing data for RID : {}", rid);
-			logger.info("Syncing data: process:", process);
+			logger.info("Syncing data: process:", proc);
 		}
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put(REGISTRATIONID, rid);
@@ -510,7 +511,7 @@ public class PacketSyncService {
 		jsonObject.put("name", name);
 		jsonObject.put("email", "");
 		jsonObject.put("phone", "");
-		jsonObject.put("registrationType", process);
+		jsonObject.put("registrationType", proc);
 
 		byte[] fileBytes = CommonUtil.read(containerFile);
 
@@ -1164,28 +1165,54 @@ public class PacketSyncService {
 	                    newValues.put("maritalstatus", value);
 	                    break;
 
-	                case "name":
-	                    int count = 1;
-	                    String primarylang = persona.getPrimaryLanguage();
-	                    String secLang = persona.getSecondaryLanguage();
-	                    List<Name> eng_names = null;
-	                    List<Name> names_primary;
-	                    List<Name> names_sec;
+					case "name":
+						int count = 1;
+						String primarylang = persona.getPrimaryLanguage();
+						String secLang = persona.getSecondaryLanguage();
+						List<Name> eng_names = null;
+						List<Name> names_primary;
+						List<Name> names_sec;
 
-	                    if (primarylang != null && primarylang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
-	                        names_primary = NameProvider.generateNames(persona.getGender(), primarylang, count, eng_names, contextKey);
-	                        oldValues.put("name", persona.getName().getFirstName()+" "+ persona.getName().getMidName()+" "+ persona.getName().getSurName());
-	                        persona.setName(names_primary.get(0));
-	                        newValues.put("name", persona.getName().getFirstName()+" "+ persona.getName().getMidName()+" "+ persona.getName().getSurName());
-	                    }
+						if (primarylang != null && primarylang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
+							oldValues.put("name", persona.getName().getFirstName() + " "
+									+ persona.getName().getMidName() + " " + persona.getName().getSurName());
 
-	                    if (secLang != null && !secLang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
-	                        names_sec = NameProvider.generateNames(persona.getGender(), secLang, count, eng_names, contextKey);
-	                        oldValues.put("name_seclang", persona.getName_seclang() != null ? persona.getName_seclang().getFirstName() : null);
-	                        persona.setName_seclang(names_sec.get(0));
-	                        newValues.put("name_seclang", persona.getName_seclang().getFirstName());
-	                    }
-	                    break;
+							if (value == null || value.trim().isEmpty()) {
+								// keep old logic - generate a random name
+								names_primary = NameProvider.generateNames(persona.getGender(), primarylang, count,
+										eng_names, contextKey);
+								persona.setName(names_primary.get(0));
+							} else {
+								// set name equal to given value
+								Name newName = new Name();
+								newName.setFirstName(value);
+								persona.setName(newName);
+							}
+
+							newValues.put("name", persona.getName().getFirstName() + " "
+									+ persona.getName().getMidName() + " " + persona.getName().getSurName());
+						}
+
+						if (secLang != null && !secLang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
+							oldValues.put("name_seclang",
+									persona.getName_seclang() != null ? persona.getName_seclang().getFirstName()
+											: null);
+
+							if (value == null || value.trim().isEmpty()) {
+								// keep old logic - generate secondary language name
+								names_sec = NameProvider.generateNames(persona.getGender(), secLang, count, eng_names,
+										contextKey);
+								persona.setName_seclang(names_sec.get(0));
+							} else {
+								// set secondary language name equal to value
+								Name newNameSec = new Name();
+								newNameSec.setFirstName(value);
+								persona.setName_seclang(newNameSec);
+							}
+
+							newValues.put("name_seclang", persona.getName_seclang().getFirstName());
+						}
+						break;
 
 	                case "residencestatus":
 	                case "rs":
