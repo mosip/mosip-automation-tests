@@ -118,17 +118,8 @@ public class PacketSyncService {
 	@Value("${mosip.test.primary.langcode}")
 	private String primaryLangCode;
 
-	@Value("${mosip.test.packet.template.process:NEW}")
-	private String process;
-
 	@Value("${mosip.test.packet.template.source:REGISTRATION_CLIENT}")
 	private String src;
-
-	@Value("${mosip.test.regclient.centerid}")
-	private String centerId;
-
-	@Value("${mosip.test.regclient.machineid}")
-	private String machineId;
 
 	@Value("${mosip.test.packet.syncapi}")
 	private String syncapi;
@@ -138,9 +129,6 @@ public class PacketSyncService {
 
 	@Value("${mosip.test.prereg.mapfile:Preregistration.properties}")
 	private String preRegMapFile;
-
-	@Value("${mosip.test.persona.configpath}")
-	private String personaConfigPath;
 
 	@Value("${mosip.test.baseurl}")
 	private String baseUrl;
@@ -332,8 +320,6 @@ public class PacketSyncService {
 		}
 		if (templateLocation != null) {
 			process = ContextUtils.ProcessFromTemplate(src, templateLocation);
-		}else {
-			process=this.process;
 		}
 		String packetPath = packetMakerService.createContainer(idJsonPath.toString(), templateLocation, src, process,
 				preregId, contextKey, true, additionalInfoReqId , targetDirectory);
@@ -474,18 +460,15 @@ public class PacketSyncService {
 	private RidSyncRequestData prepareRidSyncRequest(String containerFile, String name, String supervisorStatus,
 			String supervisorComment, String proc, String contextKey, String additionalInfoReqId)
 			throws Exception, Exception {
+		String centerId= VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+		String machineId=VariableManager.getVariableValue(contextKey, "machineid").toString();
 		if (contextKey != null && !contextKey.equals("")) {
-
 			Properties props = contextUtils.loadServerContext(contextKey);
 			props.forEach((k, v) -> {
 				if (k.toString().equals("mosip.test.packet.syncapi")) {
 					syncapi = v.toString();
-				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_MACHINEID)) {
-					machineId = v.toString();
 				} else if (k.toString().equals("mosip.test.primary.langcode")) {
 					primaryLangCode = v.toString();
-				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_CENTERID)) {
-					centerId = v.toString();
 				} else if (k.toString().equals("mosip.test.baseurl")) {
 					baseUrl = v.toString();
 				} else if (k.toString().equals("mosip.version")) {
@@ -896,6 +879,8 @@ public class PacketSyncService {
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
 		logger.info("Template generation started at time: " + System.currentTimeMillis());
+		String centerId= VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+		String machineId=VariableManager.getVariableValue(contextKey, "machineid").toString();
 		boolean packetDirCreated = false;
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
@@ -948,10 +933,6 @@ public class PacketSyncService {
 				ResidentModel resident = ResidentModel.readPersona(path);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				RestClient.logInfo(contextKey, "packetPath=" + packetPath);
-				machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
-
-				centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
-
 				String returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
 						machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
 						genarateValidCbeff);
@@ -1615,7 +1596,7 @@ public class PacketSyncService {
 		String regId = getRegIdFromPacketPath(packetPath);
 		String tempPacketRootFolder = Path.of(packetPath).toString();
 		String jsonSchema = MosipMasterData.getIDSchemaSchemaLatestVersion(contextKey);
-		String processRoot = Path.of(tempPacketRootFolder, src, process).toString();
+		String processRoot = Path.of(tempPacketRootFolder, src, VariableManager.getVariableValue(contextKey, "process").toString()).toString();
 		String packetRoot = Path.of(processRoot, "rid_id").toString();
 		String identityJson = CommonUtil.readFromJSONFile(packetRoot + "/ID.json");
 		try {
