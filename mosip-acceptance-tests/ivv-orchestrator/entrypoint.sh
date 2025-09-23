@@ -15,4 +15,4 @@ fi
 
 ## Run DSL Orchestrator
 java --version
-java -XX:+ExplicitGCInvokesConcurrent  -XX:+UseZGC -XX:+ZGenerational  -XX:MaxGCPauseMillis=200  -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:+UseCompressedOops -jar -Denv.user="$USER" -Denv.endpoint="$ENDPOINT" -Denv.testLevel="$TESTLEVEL" dslrig-ivv-orchestrator-*-jar-with-dependencies.jar
+java -jar -Denv.user="$USER" -Denv.endpoint="$ENDPOINT" -Denv.testLevel="$TESTLEVEL" dslrig-ivv-orchestrator-*-jar-with-dependencies.jar
