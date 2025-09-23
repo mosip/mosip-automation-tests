@@ -22,15 +22,17 @@ public class DateOfBirthProvider {
 	public static String generateDob(int minAge, int maxAge) {
 	    Random rand = new Random();
 	    int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-	    int earliestYear = Math.max(1870, currentYear - maxAge); // Ensure DOB is after 1869
-	    int latestYear = currentYear - minAge;
-	    int offset = rand.nextInt(latestYear - earliestYear + 1) + earliestYear;
-	    Calendar calendar = Calendar.getInstance();
-	    calendar.set(Calendar.YEAR, offset);
-	    calendar.set(Calendar.DAY_OF_YEAR, 1);
-	    Date dob = calendar.getTime();
-	    SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-	    return formatter.format(dob);
+	    int earliestYear = Math.max(1870, currentYear - maxAge); // ensure not before 1870
+        int latestYear = currentYear - minAge;
+        int year = rand.nextInt(latestYear - earliestYear + 1) + earliestYear;
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+        int dayOfYear = rand.nextInt(maxDay) + 1;
+        calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
+        Date dob = calendar.getTime();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+        return formatter.format(dob);
 	}
 	 
 
