@@ -291,6 +291,7 @@ public class PacketSyncService {
 		Path idJsonPath = null;
 		Path docPath = null;
 		String location = null;
+		String  process = null;
 		File targetDirectory = null;
 		preregId = preregId.trim();
 		if (!preregId.equals("0") && !preregId.equals("01")) {
@@ -320,6 +321,8 @@ public class PacketSyncService {
 		}
 		if (templateLocation != null) {
 			process = ContextUtils.ProcessFromTemplate(src, templateLocation);
+		}else {
+			process=this.process;
 		}
 		String packetPath = packetMakerService.createContainer(idJsonPath.toString(), templateLocation, src, process,
 				preregId, contextKey, true, additionalInfoReqId , targetDirectory);
@@ -330,7 +333,7 @@ public class PacketSyncService {
 
 		if (getRidFromSync) {
 			logger.info("About to sync packet at time: " + System.currentTimeMillis());
-			response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", null, contextKey,
+			response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", process, contextKey,
 					additionalInfoReqId);
 			logger.info("packet sync done  at time: " + System.currentTimeMillis());
 			if (RestClient.isDebugEnabled(contextKey))
@@ -475,11 +478,10 @@ public class PacketSyncService {
 		} else {
 			rid = container.getName(container.getNameCount() - 1).toString().replace(".zip", "");
 		}
-		if (proc != null && !proc.equals(""))
-			process = proc;
+		
 		if (RestClient.isDebugEnabled(contextKey)) {
 			logger.info("Syncing data for RID : {}", rid);
-			logger.info("Syncing data: process:", process);
+			logger.info("Syncing data: process:", proc);
 		}
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put(REGISTRATIONID, rid);
@@ -487,7 +489,7 @@ public class PacketSyncService {
 		jsonObject.put("name", name);
 		jsonObject.put("email", "");
 		jsonObject.put("phone", "");
-		jsonObject.put("registrationType", process);
+		jsonObject.put("registrationType", proc);
 
 		byte[] fileBytes = CommonUtil.read(containerFile);
 
