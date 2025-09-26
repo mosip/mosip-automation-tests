@@ -19,6 +19,7 @@ import io.mosip.testrig.apirig.utils.KeyCloakUserAndAPIKeyGeneration;
 import io.mosip.testrig.apirig.utils.KeycloakUserManager;
 import io.mosip.testrig.apirig.utils.MispPartnerAndLicenseKeyGeneration;
 import io.mosip.testrig.apirig.utils.PartnerRegistration;
+import io.mosip.testrig.apirig.testrunner.AllNotificationListner;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.OTPListener;
 
@@ -66,7 +67,9 @@ public class TestRunner {
 		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
 		
 		OTPListener mockSMTPListener = new OTPListener();
+		AllNotificationListner allNotificationListner = new AllNotificationListner();
 		mockSMTPListener.run();
+		allNotificationListner.run();
 		startTestRunner();
 	}
 
@@ -102,7 +105,9 @@ public class TestRunner {
 		runner.run();
 		
 		OTPListener mockSMTPListener = new OTPListener();
+		AllNotificationListner allNotificationListner = new AllNotificationListner();
 		mockSMTPListener.bTerminate = true;
+		allNotificationListner.bTerminate = true;
 		System.exit(0);
 		
 	}
