@@ -31,7 +31,7 @@
 		},
 		"Step-4": {
 			"Description": "Creates machine and maps to the given center",
-			"Input Parameters": "Action, Center details.  Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Center details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Machine details",
 			"Action": "$$details1=e2e_Machine(CREATE,$$center1,1/*CENTER_INDEX*/)"
 		},
@@ -121,13 +121,13 @@
 		},
 		"Step-19": {
 			"Description": "Creates machine and maps to the given center",
-			"Input Parameters": "Action, Center details.  Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Center details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Machine details",
 			"Action": "$$details2=e2e_Machine(CREATE,$$center2,2/*CENTER_INDEX*/)"
 		},
 		"Step-20": {
 			"Description": "Deletes center mapping",
-			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Center details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Updated center details",
 			"Action": "$$details2=e2e_User(DELETE_CENTERMAPPING,2/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details2)"
 		},
@@ -145,19 +145,19 @@
 		},
 		"Step-23": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details2)"
 		},
 		"Step-24": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details2)"
 		},
 		"Step-25": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details2,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -169,43 +169,43 @@
 		},
 		"Step-27": {
 			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "Action. Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$details2,T/*USER_CENTER_MAPPING_FLAG*/)"
 		},
 		"Step-28": {
 			"Description": "Writes prerequisite details",
-			"Input Parameters": "Details . Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_WritePreReq($$details2,2/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-29": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Input Parameters": "Environment and user details.Other parameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-30": {
 			"Description": "Creates user with given user name and password",
-			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action,Username and Password.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
 			"Action": "$$user3=e2e_User(ADD_User,3/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-31": {
-			"Description": "Creates center and maps to user to that",
-			"Input Parameters": "Action, User details. Other parameter details can be found in parameter in-line comments",
+			"Description": "Creates center and maps user to that",
+			"Input Parameters": "Action,User details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center3=e2e_Center(CREATE,$$user3,3/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
 		},
 		"Step-32": {
 			"Description": "Creates machine and maps to the given center",
-			"Input Parameters": "Action, Center details.  Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action,Center details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Machine details",
 			"Action": "$$details3=e2e_Machine(CREATE,$$center3,3/*CENTER_INDEX*/)"
 		},
 		"Step-33": {
 			"Description": "Deletes center mapping",
-			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Center details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Updated center details",
 			"Action": "$$details1=e2e_User(DELETE_CENTERMAPPING,3/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details3)"
 		},
@@ -223,19 +223,19 @@
 		},
 		"Step-36": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details3)"
 		},
 		"Step-37": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details3)"
 		},
 		"Step-38": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details3,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -247,31 +247,31 @@
 		},
 		"Step-40": {
 			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "Action. Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$details3,T/*USER_CENTER_MAPPING_FLAG*/)"
 		},
 		"Step-41": {
 			"Description": "Writes prerequisite details",
-			"Input Parameters": "Details . Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_WritePreReq($$details3,3/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-42": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Input Parameters": "Environment and user details.Other parameter details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details3,true/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-43": {
 			"Description": "Creates user with given user name and password",
-			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Username and Password.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
 			"Action": "$$details4=e2e_User(ADD_User_External_Packet,4/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-44": {
 			"Description": "Writes prerequisite details",
-			"Input Parameters": "Details . Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_WritePreReq($$details4,4/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
@@ -285,7 +285,7 @@
 			"Description": "Creates And Onboards Authentication Partner and Device Partner and checks if the device certificate is synced or not",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
-			"Action": "e2e_GenerateAuthCertifcates()"
+			"Action": "e2e_GenerateAuthCertificates()"
 		},
 		"Step-47": {
 			"Description": "Creates And Onboards Authentication Partner",
@@ -305,7 +305,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Adult_New",
-		"Description": "Resident booked pre-registration with support documents. walk-ins to registration center completes the process and gets UIN card",
+		"Description": "Resident booked pre-registration with support documents.walk-ins to registration center completes the process and gets UIN card",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -320,7 +320,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Input Parameters": "Environment and user details. Other parameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -508,7 +508,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Input Parameters": "Enviornment and user details.Other parameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -597,7 +597,7 @@
 			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-17": {
-			"Description": "Gets Email ID configuired for the UIN",
+			"Description": "Gets Email ID configured for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
@@ -647,7 +647,7 @@
 		"Description": "Resident Minor Child walk-ins to registration center wants to get UIN without Guardian Details",
 		"Step-0": {
 			"Description": "Performs health check of given component",
-			"Input Parameters": "Keyword to check, only packetcreator is supported",
+			"Input Parameters": "Keyword to check,only packetcreator is supported",
 			"Return Value": "NA",
 			"Action": "e2e_getPingHealth(packetcreator)"
 		},
@@ -659,7 +659,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Enviornment and user details.Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -780,7 +780,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with Guardian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -926,7 +926,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -1015,7 +1015,7 @@
 			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-17": {
-			"Description": "Gets Email ID configuired for the UIN",
+			"Description": "Gets Email ID configured for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
@@ -1056,7 +1056,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center wants to register his child with his RID. But the child packet will goes on hold as his packet got rejected",
+		"Description": "Resident walk-ins to registration center wants to register his child with his RID. But the child packet goes on hold as his packet got rejected",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -1112,7 +1112,7 @@
 			"Action": "e2e_updateResidentWithRID($$parentPersona,$$parentRid)"
 		},
 		"Step-9": {
-			"Description": "Updates persona data with gaudian details",
+			"Description": "Updates persona data with gaurdian details",
 			"Input Parameters": "Gaurdian and child persona file pahts",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
@@ -1216,13 +1216,13 @@
 		},
 		"Step-9": {
 			"Description": "Generates the hash for the given modalities",
-			"Input Parameters": "Modalitie and persona file path. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Modality and persona file path.Other details can be found in the parameter in-line comments",
 			"Return Value": "Hash value",
 			"Action": "$$modalityHashValue=e2e_getBioModalityHash(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger@@Left LittleFinger,$$personaFilePath)"
 		},
 		"Step-10": {
-			"Description": "Sets expectatation on mock ABIS",
-			"Input Parameters": "Modalities hash value. Other details can be found in the parameter in-line comments",
+			"Description": "Sets expectation on mock ABIS",
+			"Input Parameters": "Modalities hash value.Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_configureMockAbis(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger,true/*DUPLICATE_FLAG*/,Right IndexFinger,$$personaFilePath,$$modalityHashValue,-1/*DEFAULT_MOCK_DELAY*/,@@Duplicate/*STATUS_CODE*/)"
 		},
@@ -1268,7 +1268,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. Same resident tries to get another UIN again with biometric exception",
+		"Description": "Resident walk-ins to registration center completes the process and gets UIN card.Same resident tries to get another UIN again with biometric exception",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -1283,7 +1283,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Enviornment and user details.Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -1325,12 +1325,12 @@
 		},
 		"Step-9": {
 			"Description": "Generates the hash for the given modalities",
-			"Input Parameters": "Modalitie and persona file path. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Modality and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "Hash value",
 			"Action": "$$modalityHashValue=e2e_getBioModalityHash(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger@@Left LittleFinger,$$personaFilePath)"
 		},
 		"Step-10": {
-			"Description": "Sets expectatation on mock ABIS",
+			"Description": "Sets expectation on mock ABIS",
 			"Input Parameters": "Modalities hash value. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_configureMockAbis(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger,true/*DUPLICATE_FLAG*/,Right IndexFinger,$$personaFilePath,$$modalityHashValue,-1,@@Duplicate)"
@@ -1445,7 +1445,7 @@
 			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-10": {
-			"Description": "Gets Email ID configuired for the UIN",
+			"Description": "Gets Email ID configured for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$uin1)"
@@ -1470,12 +1470,12 @@
 		},
 		"Step-14": {
 			"Description": "Generates the hash for the given modalities",
-			"Input Parameters": "Modalitie and persona file path. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Modality and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "Hash value",
 			"Action": "$$modalityHashValue=e2e_getBioModalityHash(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger@@Left LittleFinger,$$personaFilePath)"
 		},
 		"Step-15": {
-			"Description": "Sets expectatation on mock ABIS",
+			"Description": "Sets expectation on mock ABIS",
 			"Input Parameters": "Modalities hash value. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_configureMockAbis(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger,true/*DUPLICATE_FLAG*/,Right IndexFinger,$$personaFilePath,$$modalityHashValue,-1,@@Duplicate)"
@@ -1585,12 +1585,12 @@
 		},
 		"Step-9": {
 			"Description": "Generates the hash for the given modalities",
-			"Input Parameters": "Modalitie and persona file path. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Modality and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "Hash value",
 			"Action": "$$modalityHashValue=e2e_getBioModalityHash(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger@@Left LittleFinger,$$personaFilePath)"
 		},
 		"Step-10": {
-			"Description": "Sets expectatation on mock ABIS",
+			"Description": "Sets expectation on mock ABIS",
 			"Input Parameters": "Modalities hash value. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_configureMockAbis(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger,true/*DUPLICATE_FLAG*/,Right IndexFinger,$$personaFilePath,$$modalityHashValue,-1/*DEFAULT_MOCK_DELAY*/,@@Duplicate/*STATUS_CODE*/)"
@@ -1722,7 +1722,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. Later updates his demo details in registration center and post successful processing downloads the EUIN using resident Portal",
+		"Description": "Resident walks-in to registration center completes the process and gets UIN card. Later updates his demo details in registration center and post successful processing downloads the EUIN using resident Portal",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -1732,12 +1732,12 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details.Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -1826,7 +1826,7 @@
 			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-17": {
-			"Description": "Gets Email ID configuired for the UIN",
+			"Description": "Gets Email ID configured for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
@@ -1877,12 +1877,12 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Enviornment and user details.Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -2028,7 +2028,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
