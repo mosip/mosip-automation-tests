@@ -867,7 +867,9 @@ public class BiometricDataProvider {
 		int randomNumber = (int) (Math.random() * (max - min)) + min;
 		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
-
+		if (afterscenario.contains("_")) {
+			afterscenario = afterscenario.replace("_", "0");
+		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 		// If the available impressions are less than scenario number, pick the random
@@ -999,7 +1001,9 @@ public class BiometricDataProvider {
 				int randomNumber = (int) (Math.random() * (max - min)) + min;
 				String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 				String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
-
+				if (afterscenario.contains("_")) {
+					afterscenario = afterscenario.replace("_", "0");
+				}
 				int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 				// If the available impressions are less than scenario number, pick the random
@@ -1083,6 +1087,9 @@ public class BiometricDataProvider {
 		int randomNumber;
 		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+		if (afterscenario.contains("_")) {
+			afterscenario = afterscenario.replace("_", "0");
+		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 		// Generate a random number that is not equal to currentScenarioNumber
@@ -1259,6 +1266,9 @@ public class BiometricDataProvider {
 			int randomNumber = (int) (Math.random() * (max - min)) + min;
 			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+			if (afterscenario.contains("_")) {
+				afterscenario = afterscenario.replace("_", "0");
+			}
 
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
@@ -1346,6 +1356,9 @@ public class BiometricDataProvider {
 		int randomNumber;
 		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+		if (afterscenario.contains("_")) {
+			afterscenario = afterscenario.replace("_", "0");
+		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 		// Generate a random number that is not equal to currentScenarioNumber
@@ -1432,6 +1445,9 @@ public class BiometricDataProvider {
 			int randomNumber;
 			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+			if (afterscenario.contains("_")) {
+				afterscenario = afterscenario.replace("_", "0");
+			}
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 			// Generate a random number that is not equal to currentScenarioNumber

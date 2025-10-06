@@ -47,7 +47,9 @@ public class PhotoProvider {
 			int randomNumber = (int) (Math.random() * (max - min)) + min;
 			String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
 			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
-
+			if (afterscenario.contains("_")) {
+				afterscenario = afterscenario.replace("_", "0");
+			}
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 			// If the available impressions are less than scenario number, pick the random

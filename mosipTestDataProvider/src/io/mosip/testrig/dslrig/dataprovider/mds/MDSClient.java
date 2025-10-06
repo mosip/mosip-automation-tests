@@ -147,7 +147,9 @@ public class MDSClient implements MDSClientInterface {
 		int randomNumber = (int) (Math.random()*(max-min)) + min;
 		String beforescenario=VariableManager.getVariableValue(contextKey,"scenario").toString();
 		String afterscenario=beforescenario.substring(0, beforescenario.indexOf(':'));
-
+		if (afterscenario.contains("_")) {
+			afterscenario = afterscenario.replace("_", "0");
+		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 
