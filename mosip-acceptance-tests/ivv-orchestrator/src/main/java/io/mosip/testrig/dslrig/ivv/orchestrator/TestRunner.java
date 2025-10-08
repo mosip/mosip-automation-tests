@@ -56,14 +56,7 @@ public class TestRunner {
 		BaseTestCase.initialize();
 		
 		BaseTestCase.languageList = BaseTestCase.getLanguageList();
-		// Selecting the language based on index for example- eng,ara,fra (To run suite
-		// in ara lang pass 1 in langselect property)
-		
-    if(dslConfigManager.getLangselect() > BaseTestCase.languageList.size()-1)
-    	BaseTestCase.languageCode = BaseTestCase.languageList.get(0);
-    else
-		BaseTestCase.languageCode = BaseTestCase.languageList.get(dslConfigManager.getLangselect());
-
+		BaseTestCase.languageCode = BaseTestCase.languageList.get(0);
 		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
 		
 		OTPListener mockSMTPListener = new OTPListener();
