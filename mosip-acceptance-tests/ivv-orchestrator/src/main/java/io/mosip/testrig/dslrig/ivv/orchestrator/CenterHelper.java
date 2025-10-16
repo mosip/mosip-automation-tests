@@ -10,6 +10,7 @@ import io.mosip.testrig.apirig.masterdata.testscripts.PatchWithPathParam;
 import io.mosip.testrig.apirig.masterdata.testscripts.PutWithPathParam;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePut;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.masterdata.testscripts.GetWithParam;
 import io.mosip.testrig.apirig.masterdata.testscripts.GetWithQueryParam;
@@ -151,9 +152,9 @@ public class CenterHelper extends BaseTestCaseUtil {
 		try {
 			String id =null;
 			Object[] testObjPost=simplepost.getYmlTestData(CreateRegistrationCenter);
-
 			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
 			String input=testPost.getInput();
+			AdminTestUtil.currentTestCaseName = testPost.getTestCaseName();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					"DSL"+BaseTestCase.generateRandomAlphaNumericString(7), "name");
 			

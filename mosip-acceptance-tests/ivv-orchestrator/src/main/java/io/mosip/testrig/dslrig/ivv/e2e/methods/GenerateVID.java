@@ -11,6 +11,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import io.mosip.testrig.apirig.auth.testscripts.PostWithAutogenIdWithOtpGenerate;
 import io.mosip.testrig.apirig.auth.testscripts.PostWithBodyWithOtpGenerate;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
@@ -30,7 +31,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 	private static final String GenerateVIDYml = "idaData/GenerateVID/createGenerateVID.yml";
 	private static final String GenerateVID = "idaData/CreateVID/CreateVid.yml";
 	Properties uinResidentDataPathFinalProps = new Properties();
-	PostWithBodyWithOtpGenerate generatevid = new PostWithBodyWithOtpGenerate();
+	PostWithAutogenIdWithOtpGenerate generatevid = new PostWithAutogenIdWithOtpGenerate();
 
 	SimplePost generatevidwithoutotp = new SimplePost();
 	static {
@@ -118,7 +119,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 						logger.info(step.getScenario().getVidPersonaProp());
 					}
 
-				} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+				} catch (AuthenticationTestException | AdminTestException | SecurityXSSException | NumberFormatException | InterruptedException e) {
 					this.hasError = true;
 					throw new RigInternalError(e.getMessage());
 
@@ -151,7 +152,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 						logger.info(step.getScenario().getVidPersonaProp());
 					}
 
-				} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+				} catch (AuthenticationTestException | AdminTestException e) {
 					this.hasError = true;
 					throw new RigInternalError(e.getMessage());
 

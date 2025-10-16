@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import io.mosip.testrig.dslrig.dataprovider.models.ExecContext;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
@@ -79,24 +80,30 @@ public class ContextUtils {
 		return "true";
 	}
 
-	private void clearPacketGenFolders(String ctxName) {
-		// TODO Auto-generated method stub
+	public static String clearPacketGenFolders(String ctxName) throws IOException {
 
-		if (VariableManager.getVariableValue(ctxName, "residents_") != null)
-			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "residents_").toString());
+	    deleteCommaSeparatedPaths(ctxName, "residents_");
+	    deleteCommaSeparatedPaths(ctxName, "packets_");
+	    deleteCommaSeparatedPaths(ctxName, "preregIds_");
+	    deleteCommaSeparatedPaths(ctxName, "Passport_");
+	    deleteCommaSeparatedPaths(ctxName, "DrivingLic_");
 
-		if (VariableManager.getVariableValue(ctxName, "packets_") != null)
-			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "packets_").toString());
-
-		if (VariableManager.getVariableValue(ctxName, "preregIds_") != null)
-			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "preregIds_").toString());
-
-		if (VariableManager.getVariableValue(ctxName, "Passport_") != null)
-			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "Passport_").toString());
-
-		if (VariableManager.getVariableValue(ctxName, "DrivingLic_") != null)
-			deleteDirectoryPath(VariableManager.getVariableValue(ctxName, "DrivingLic_").toString());
+	    return "Deleted all packet data successfully";
 	}
+
+	private static void deleteCommaSeparatedPaths(String ctxName, String key) throws IOException {
+	    Object valueObj = VariableManager.getVariableValue(ctxName, key);
+	    if (valueObj != null) {
+	        String[] paths = valueObj.toString().split(",");
+	        for (String path : paths) {
+	            String trimmedPath = path.trim();
+	            if (!trimmedPath.isEmpty()) {
+	                CommonUtil.deleteOldTempDir(trimmedPath);
+	            }
+	        }
+	    }
+	}
+
 
 	public String createExecutionContext(String serverContextKey) {
 
