@@ -146,9 +146,8 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	protected static String addContextToUrl(String url, Scenario.Step step) {
 
-		String scenario = step.getScenario().getId() + ":" + step.getScenario().getDescription();
-		String context = System.getProperty("env.user") + "_S" + scenario.substring(0, scenario.indexOf(':'))
-				+ "_context";
+		String scenarioId = step.getScenario().getId();
+		String context = System.getProperty("env.user") + "_S" + scenarioId + "_context";
 
 		if (url.contains("?")) {
 			String urlArr[] = url.split("\\?");
