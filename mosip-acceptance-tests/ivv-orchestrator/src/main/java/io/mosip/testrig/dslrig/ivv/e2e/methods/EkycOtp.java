@@ -12,7 +12,6 @@ import org.json.JSONObject;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.KeyMgrUtil;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
@@ -115,7 +114,6 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "sendOtp.individualId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otpChannel");
-			input = input.replace("$TRANSACTIONID$", AdminTestUtil.generateRandomNumberString(10));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 			test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
@@ -158,7 +156,6 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "individualIdType");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "sendOtp.individualIdType");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otpChannel");
-			input = input.replace("$TRANSACTIONID$", AdminTestUtil.generateRandomNumberString(10));
 
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
