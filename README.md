@@ -56,7 +56,7 @@ Below are repository details of various modules used for the automation
 1. mapper=demographic mappings environment specific or default setup.
 1. privatekeys=machine specific details for encrypting and signing the packet.					
 1.	Update ..\run.bat as mentioned below
-1.	Keep mosip-packet-creator-1.2.1.0.jar and execute run.bat
+1.	Keep mosip-packet-creator-1.3.0.jar and execute run.bat
 1.	Verify if the Packet utility is running by hitting `http://localhost:8080/v1/packetcreator/swagger-ui.html#/`
 1.	For any failure in the packet utility verify the logs location: mosip-packet-creator\PacketUtilityRunlog.txt
 
@@ -117,18 +117,18 @@ By following these steps, you can seamlessly set up and work with the project in
 ## Docker setup build
 1. Deploy Packet creator
 	-Use these branches of code.
-	`https://github.com/mosip/mosip-automation-tests/tree/release-1.2.1.0`
-	`https://github.com/mosip/mosip-helm/tree/1.2.1.0/charts/packetcreator`
+	`https://github.com/mosip/mosip-automation-tests/tree/release-1.3.0`
+	`https://github.com/mosip/mosip-helm/tree/1.3.0/charts/packetcreator`
 1. Deploy Dsl testrig
 	-Use these branches of code.
-	`https://github.com/mosip/mosip-automation-tests/tree/release-1.2.1.0`
-	`https://github.com/mosip/mosip-helm/tree/1.2.1.0/charts/dslorchestrator`
+	`https://github.com/mosip/mosip-automation-tests/tree/release-1.3.0`
+	`https://github.com/mosip/mosip-helm/tree/1.3.0/charts/dslorchestrator`
 1. Orchestrator Config maps setup
 ![](docs/configmaps1.png)
 ![](docs/configmaps2.png)
 ![](docs/configmaps3.png)
 1. To run particular scenario `scenariosToExecute=2` update scenario number for execution and keep this empty to run entire full suite
-1.Scenario sheet gets picked internally placed at this path `https://github.com/mosip/mosip-automation-tests/blob/release-1.2.1.0/mosip-acceptance-tests/ivv-orchestrator/src/main/resources/config/scenarios.json`
+1.Scenario sheet gets picked internally placed at this path `https://github.com/mosip/mosip-automation-tests/blob/release-1.3.0/mosip-acceptance-tests/ivv-orchestrator/src/main/resources/config/scenarios.json`
 1. Report gets generated on minio in the mentioned S3 bucket folder in configmaps. For example pick similar to below two reports one is testng report other is extent report.
   -DSL-api-internal.released-full-run-1755444787997-report_T-204_P-168_KI-26_I-9_S-0_F-1
   -ExtentReport-DSL-api-internal.released-full-run-1749647484903-report_T-204_P-168_KI-26_I-9_S-0_F-1
