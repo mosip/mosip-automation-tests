@@ -163,7 +163,7 @@
 		},
 		"Step-26": {
 			"Description": "Create a center Mapping",
-			"Input Parameters": "<<<Step inputs values details>>>",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details2,2/*CENTER_INDEX*/)"
 		},
