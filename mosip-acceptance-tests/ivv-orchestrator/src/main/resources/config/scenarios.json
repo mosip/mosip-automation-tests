@@ -211,8 +211,8 @@
 		},
 		"Step-34": {
 			"Description": "Create Zone search",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Action, Center details.Other parameter details can be found in parameter in-line comments",
+			"Return Value": "Updated Zone details",
 			"Action": "$$details3=e2e_User(CREATE_ZONESEARCH,$$details3)"
 		},
 		"Step-35": {
@@ -241,12 +241,12 @@
 		},
 		"Step-39": {
 			"Description": "Create Center Mapping",
-			"Input Parameters": "<<<Step inputs values details>>>",
+			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details3,3/*CENTER_INDEX*/)"
 		},
 		"Step-40": {
-			"Description": "<<<Step detailed description>>>",
+			"Description": "Activate Center Mapping",
 			"Input Parameters": "Action.Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$details3,T/*USER_CENTER_MAPPING_FLAG*/)"
@@ -973,7 +973,7 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-10": {
-			"Description": "Updates Demo graphic details and biometric in the persona file",
+			"Description": "Updates Demographic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_updateDemoOrBioDetails(iris,0,0,$$personaFilePath)"
@@ -1159,7 +1159,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. Same resident tries to get another UIN again",
+		"Description": "Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN again",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -1481,7 +1481,7 @@
 			"Action": "e2e_configureMockAbis(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger,true/*DUPLICATE_FLAG*/,Right IndexFinger,$$personaFilePath,$$modalityHashValue,-1,@@Duplicate)"
 		},
 		"Step-16": {
-			"Description": "Updates Demo graphic details and biometric in the persona file",
+			"Description": "Updates Demographic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
@@ -1528,7 +1528,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walks in to registration center and tries to register again by providing different demo details but same biometrics",
+		"Description": "Resident walks into registration center and tries to register again by providing different demo details but same biometrics",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -1543,7 +1543,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -1682,19 +1682,19 @@
 		},
 		"Step-6": {
 			"Description": "Create a Lost packet",
-			"Input Parameters": "<<<Step inputs values details>>>",
+			"Input Parameters": "Details are in parameters in-line comments",
 			"Return Value": "NA",
 			"Action": "$$zipPacketPath=e2e_packetcreator(LOST/*PACKET_TYPE*/,$$lostTemplate)"
 		},
 		"Step-7": {
 			"Description": "Sync RID for the lost packet",
-			"Input Parameters": "<<<Step inputs values details>>>",
+			"Input Parameters": "Details are in parameters in-line comments",
 			"Return Value": "NA",
 			"Action": "$$rid=e2e_ridsync(LOST/*PACKET_TYPE*/,$$zipPacketPath)"
 		},
 		"Step-8": {
 			"Description": "Sync the packet",
-			"Input Parameters": "<<<Step inputs values details>>>",
+			"Input Parameters": "Details are in parameters in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_packetsync($$zipPacketPath)"
 		},
@@ -1722,7 +1722,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walks-in to registration center completes the process and gets UIN card. Later updates his demo details in registration center and post successful processing downloads the EUIN using resident Portal",
+		"Description": "Resident walks into registration center completes the process and gets UIN card. Later updates his demo details in registration center and post successful processing downloads the EUIN using resident Portal",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -1784,7 +1784,7 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-10": {
-			"Description": "Updates Demo graphic details and biometric in the persona file",
+			"Description": "Updates Demographic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,gender=Male,$$personaFilePath)"
@@ -1906,19 +1906,19 @@
 		},
 		"Step-6": {
 			"Description": "Create a Lost Packet",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
 			"Action": "$$zipPacketPath=e2e_packetcreator(LOST/*PACKET_TYPE*/,$$lostTemplate)"
 		},
 		"Step-7": {
 			"Description": "Sync the RID",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
 			"Action": "$$rid=e2e_ridsync(LOST/*PACKET_TYPE*/,$$zipPacketPath)"
 		},
 		"Step-8": {
 			"Description": "Sync the packet",
-			"Input Parameters": "<<<Step inputs values details>>>",
+			"Input Parameters": "Process and persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_packetsync($$zipPacketPath)"
 		},
@@ -1946,7 +1946,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walks-in to registration center and completes the process and gets UIN card without providing documents",
+		"Description": "Resident walks-into registration center and completes the process and gets UIN card without providing documents",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -2013,7 +2013,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walk-ins to registration center tries to get UIN without providing biometric",
+		"Description": "Resident walks in to registration center tries to get UIN without providing biometric",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -2142,7 +2142,7 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-10": {
-			"Description": "Updates Demo graphic details and biometric in the persona file",
+			"Description": "Updates Demographic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,leftIris@@rigthIris,0,$$personaFilePath)"
@@ -2155,14 +2155,14 @@
 		},
 		"Step-12": {
 			"Description": "Create a Lost Packet",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
 			"Action": "$$zipPacketPath=e2e_packetcreator(LOST/*PACKET_TYPE*/,$$lostTemplate)"
 		},
 		"Step-13": {
 			"Description": "Sync the RID",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
 			"Action": "$$lostRid=e2e_ridsync(LOST/*PACKET_TYPE*/,$$zipPacketPath)"
 		},
 		"Step-14": {
@@ -2319,14 +2319,14 @@
 		},
 		"Step-7": {
 			"Description": "Create a New Packet",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
 			"Action": "$$parentZipPacketPath=e2e_packetcreator(NEW/*PACKET_TYPE*/,$$parentTemplate)"
 		},
 		"Step-8": {
 			"Description": "Sync the RID with the new packet",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
 			"Action": "$$parentRid=e2e_ridsync(NEW/*PACKET_TYPE*/,$$parentZipPacketPath)"
 		},
 		"Step-9": {
@@ -2349,14 +2349,14 @@
 		},
 		"Step-12": {
 			"Description": "Create a new packet for child",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
 			"Action": "$$childZipPacketPath=e2e_packetcreator(NEW/*PACKET_TYPE*/,$$childTemplate)"
 		},
 		"Step-13": {
 			"Description": "Sync the RID with the child Packet",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
 			"Action": "$$childRid=e2e_ridsync(NEW/*PACKET_TYPE*/,$$childZipPacketPath)"
 		},
 		"Step-14": {
@@ -2512,14 +2512,14 @@
 		},
 		"Step-21": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
 			"Action": "$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
 		},
 		"Step-22": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
 			"Action": "$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
 		},
 		"Step-23": {
@@ -2645,14 +2645,14 @@
 		},
 		"Step-16": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
 			"Action": "$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
 		},
 		"Step-17": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
 			"Action": "$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
 		},
 		"Step-18": {
@@ -2772,14 +2772,14 @@
 		},
 		"Step-15": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
 			"Action": "$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
 		},
 		"Step-16": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
 			"Action": "$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
 		},
 		"Step-17": {
@@ -3575,19 +3575,19 @@
 		},
 		"Step-22": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
 			"Action": "$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
 		},
 		"Step-23": {
 			"Description": "Gets  OAuth Details",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
 			"Action": "$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
 		},
 		"Step-24": {
 			"Description": "Perform esignet Authentication",
-			"Input Parameters": "<<<Step inputs values details>>>",
+			"Input Parameters": "NA",
 			"Return Value": "NA",
 			"Action": "e2e_esignetAuthentication($$transactionId1,$$uin,OTP,$$email,$$vid,$$transactionId2)"
 		},
