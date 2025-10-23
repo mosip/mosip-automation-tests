@@ -31,7 +31,7 @@
 		},
 		"Step-4": {
 			"Description": "Creates machine and maps to the given center",
-			"Input Parameters": "Action, Center details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Machine details",
 			"Action": "$$details1=e2e_Machine(CREATE,$$center1,1/*CENTER_INDEX*/)"
 		},
@@ -42,9 +42,9 @@
 			"Action": "$$details1=e2e_User(DELETE_CENTERMAPPING,1/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details1)"
 		},
 		"Step-6": {
-			"Description": "Create a User",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Description": "Initiates the creation of a new user by performing a zone-based search and applying the necessary user parameters",
+			"Input Parameters": "User creation input values including zone search criteria and user attributes",
+			"Return Value": "Details of the newly created user",
 			"Action": "$$details1=e2e_User(CREATE_ZONESEARCH,$$details1)"
 		},
 		"Step-7": {
@@ -54,26 +54,26 @@
 			"Action": "e2e_wait(10)"
 		},
 		"Step-8": {
-			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Description": "Deletes the zone mapping",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details1)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details1)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and ceneter machine user details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details1,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
 		"Step-11": {
 			"Description": "Create a Center Mapping",
-			"Input Parameters": "<<<Step inputs values details>>>",
+			"Input Parameters": "Center mapping input values including center index and machine details. Refer to in-line comments for specifics",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details1,1/*CENTER_INDEX*/)"
 		},
@@ -104,12 +104,12 @@
 		"Step-16": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
-			"Return Value": "Pre-requiste details",
+			"Return Value": "Pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-17": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Input Parameters": "Environment and user details. Other prarameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,true/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -121,20 +121,20 @@
 		},
 		"Step-19": {
 			"Description": "Creates machine and maps to the given center",
-			"Input Parameters": "Action, Center details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Machine details",
 			"Action": "$$details2=e2e_Machine(CREATE,$$center2,2/*CENTER_INDEX*/)"
 		},
 		"Step-20": {
 			"Description": "Deletes center mapping",
-			"Input Parameters": "Action, Center details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Updated center details",
 			"Action": "$$details2=e2e_User(DELETE_CENTERMAPPING,2/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details2)"
 		},
 		"Step-21": {
 			"Description": "Create a Zone",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": "Zone creation input values including search criteria and zone attributes. Refer to in-line comments for specifics",
+			"Return Value": "Details of the newly created zone",
 			"Action": "$$details2=e2e_User(CREATE_ZONESEARCH,$$details2)"
 		},
 		"Step-22": {
@@ -157,61 +157,61 @@
 		},
 		"Step-25": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details2,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
 		"Step-26": {
 			"Description": "Create a center Mapping",
-			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details2,2/*CENTER_INDEX*/)"
 		},
 		"Step-27": {
 			"Description": "Activate the center mapping",
-			"Input Parameters": "Action.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$details2,T/*USER_CENTER_MAPPING_FLAG*/)"
 		},
 		"Step-28": {
 			"Description": "Writes prerequisite details",
-			"Input Parameters": "Details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_WritePreReq($$details2,2/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-29": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Environment and user details.Other parameters details can be found in-line",
+			"Input Parameters": "Environment and user details. Other parameter details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details2,true/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-30": {
 			"Description": "Creates user with given user name and password",
-			"Input Parameters": "Action,Username and Password.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action,Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
 			"Action": "$$user3=e2e_User(ADD_User,3/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-31": {
 			"Description": "Creates center and maps user to that",
-			"Input Parameters": "Action,User details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action,User details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Center details",
 			"Action": "$$center3=e2e_Center(CREATE,$$user3,3/*CENTER_INDEX*/,T/*CENTER_ACTIVE_FLAG*/)"
 		},
 		"Step-32": {
 			"Description": "Creates machine and maps to the given center",
-			"Input Parameters": "Action,Center details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action,Center details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Machine details",
 			"Action": "$$details3=e2e_Machine(CREATE,$$center3,3/*CENTER_INDEX*/)"
 		},
 		"Step-33": {
 			"Description": "Deletes center mapping",
-			"Input Parameters": "Action, Center details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Updated center details",
 			"Action": "$$details1=e2e_User(DELETE_CENTERMAPPING,3/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details3)"
 		},
 		"Step-34": {
 			"Description": "Create Zone search",
-			"Input Parameters": "Action, Center details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Center details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "Updated Zone details",
 			"Action": "$$details3=e2e_User(CREATE_ZONESEARCH,$$details3)"
 		},
@@ -235,43 +235,43 @@
 		},
 		"Step-38": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details3,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
 		"Step-39": {
 			"Description": "Create Center Mapping",
-			"Input Parameters": "Action and center machine user details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_CENTERMAPPING,$$details3,3/*CENTER_INDEX*/)"
 		},
 		"Step-40": {
 			"Description": "Activate Center Mapping",
-			"Input Parameters": "Action.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_CENTERMAPPING,$$details3,T/*USER_CENTER_MAPPING_FLAG*/)"
 		},
 		"Step-41": {
 			"Description": "Writes prerequisite details",
-			"Input Parameters": "Details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_WritePreReq($$details3,3/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-42": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Environment and user details.Other parameter details can be found in-line",
+			"Input Parameters": "Environment and user details. Other parameter details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details3,true/*GENERATE_PRIVATE_KEY*/)"
 		},
 		"Step-43": {
 			"Description": "Creates user with given user name and password",
-			"Input Parameters": "Action, Username and Password.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
 			"Action": "$$details4=e2e_User(ADD_User_External_Packet,4/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-44": {
 			"Description": "Writes prerequisite details",
-			"Input Parameters": "Details.Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_WritePreReq($$details4,4/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
@@ -305,7 +305,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Adult_New",
-		"Description": "Resident booked pre-registration with support documents.walk-ins to registration center completes the process and gets UIN card",
+		"Description": "Resident booked pre-registration with support documents walks into registration center completes the process and gets UIN card",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -315,7 +315,7 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
@@ -414,7 +414,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card",
+		"Description": "Resident walks into registration center completes the process and gets UIN card",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -424,12 +424,12 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Input Parameters": "Environment and user details. Other prarameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -493,7 +493,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Adult_Update",
-		"Description": "Resident walk-ins to registration center completes the process and gets UIN card. Later updates biometrics and downloads UIN card",
+		"Description": "Resident walks into registration center completes the process and gets UIN card. Later updates biometrics and downloads UIN card",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -503,12 +503,12 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details.Other parameters details can be found in-line",
+			"Input Parameters": "Environment and user details. Other parameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -644,7 +644,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Minor_New",
-		"Description": "Resident Minor Child walk-ins to registration center wants to get UIN without Guardian Details",
+		"Description": "Resident Minor Child walks into registration center wants to get UIN without Guardian Details",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check,only packetcreator is supported",
@@ -654,12 +654,12 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details.Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -711,7 +711,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Minor_New",
-		"Description": "Resident Minor Child walk-ins to registration center gets UIN with Guardian RID details",
+		"Description": "Resident Minor Child walks into registration center gets UIN with Guardian RID details",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -721,12 +721,12 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -842,12 +842,12 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -911,7 +911,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "A differently abled resident walk-ins to registration center completes the process and gets UIN card. Later update his iris and downloads UIN card",
+		"Description": "A differently abled resident walks into registration center completes the process and gets UIN card. Later update his iris and downloads UIN card",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -921,7 +921,7 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
@@ -1066,12 +1066,12 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -1169,12 +1169,12 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -2766,32 +2766,32 @@
 		},
 		"Step-14": {
 			"Description": "Creates OIDC client",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "Client metadata such as redirect URI, client name, grant type. These may be internally configured or defaulted within the method",
+			"Return Value": "Generated OIDC client ID used for subsequent OAuth requests",
 			"Action": "$$clientId=e2e_OidcClient()"
 		},
 		"Step-15": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "Client metadata such as redirect URI, client name, grant type",
+			"Return Value": "OAuth transaction ID for tracking and authorization",
 			"Action": "$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
 		},
 		"Step-16": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "Client metadata such as redirect URI, client name, grant type",
+			"Return Value": "OAuth transaction ID for the second request",
 			"Action": "$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
 		},
 		"Step-17": {
 			"Description": "Perform eSignet based biometric authentication",
 			"Input Parameters": "Modalities, persona file path, UIN and VID",
-			"Return Value": "NA",
+			"Return Value": "OAuth transaction ID",
 			"Action": "e2e_BioEsignetAuthentication(rightThumbDevice,$$uin,$$personaFilePath,$$transactionId1,$$vid,$$transactionId2)"
 		},
 		"Step-18": {
 			"Description": "Gets user info after eSignet based authentication",
 			"Input Parameters": "Transaction ID and OIDC client ID",
-			"Return Value": "NA",
+			"Return Value": "OAuth transaction ID",
 			"Action": "e2e_UserInfo($$transactionId,$$clientId)"
 		},
 		"Step-19": {
@@ -2806,7 +2806,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walks in to registration center completes the process and gets UIN card. Later updates both finger face biometrics and does eKYC using face biometric",
+		"Description": "Resident walks into registration center completes the process and gets UIN card. Later updates both finger face biometrics and does eKYC using face biometric",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -2816,7 +2816,7 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
@@ -3142,7 +3142,7 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
@@ -3305,7 +3305,7 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
@@ -3450,7 +3450,7 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
@@ -3569,32 +3569,32 @@
 		},
 		"Step-21": {
 			"Description": "Creates OIDC client",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "Client metadata such as redirect URI, client name, grant type, and scopes",
+			"Return Value": "OIDC client ID used for OAuth transactions",
 			"Action": "$$clientId=e2e_OidcClient()"
 		},
 		"Step-22": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "OIDC client ID and transaction identifier",
+			"Return Value": "OAuth transaction ID for initiating authentication",
 			"Action": "$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
 		},
 		"Step-23": {
 			"Description": "Gets  OAuth Details",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "OIDC client ID and transaction identifier",
+			"Return Value": "OAuth transaction ID with updated request details",
 			"Action": "$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
 		},
 		"Step-24": {
 			"Description": "Perform esignet Authentication",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "Transaction IDs, UIN, OTP, email, VID",
+			"Return Value": "Authentication status and session token",
 			"Action": "e2e_esignetAuthentication($$transactionId1,$$uin,OTP,$$email,$$vid,$$transactionId2)"
 		},
 		"Step-25": {
 			"Description": "Gets user info after eSignet based authentication",
 			"Input Parameters": "Transaction ID and OIDC client ID",
-			"Return Value": "NA",
+			"Return Value": "Authenticated user profile details",
 			"Action": "e2e_UserInfo($$transactionId1,$$clientId)"
 		},
 		"Step-26": {
@@ -4304,7 +4304,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walksin to registration center completes the process and gets UIN card and generates Perpetual VID. Later updates left index biometrics and perform biometric authentication with face both using UIN and VID",
+		"Description": "Resident walks in to registration center completes the process and gets UIN card and generates Perpetual VID. Later updates left index biometrics and perform biometric authentication with face both using UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -4314,7 +4314,7 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
@@ -4749,7 +4749,7 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
-			"Return Value": "Pre-requiste details",
+			"Return Value": "Pre-requisite details",
 			"Action": "$$details2=e2e_ReadPreReq(2/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
@@ -4902,7 +4902,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walksinto registration same center where his previous application got rejected and completes the process and gets UIN card",
+		"Description": "Resident walks into registration same center where his previous application got rejected and completes the process and gets UIN card",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -4912,7 +4912,7 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
-			"Return Value": "Pre-requiste details",
+			"Return Value": "Pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
@@ -5090,7 +5090,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walksinto registration center completes the process and gets UIN card and generates Perpetual VID. Later gets eKYC done both using UIN VID and right ring finger auth",
+		"Description": "Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later gets eKYC done both using UIN VID and right ring finger auth",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -5387,7 +5387,7 @@
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walksin to registration center completes the process and gets UIN card and generates temporary VID. Later gets eKYC done both using UIN VID and face auth",
+		"Description": "Resident walks in to registration center completes the process and gets UIN card and generates temporary VID. Later gets eKYC done both using UIN VID and face auth",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -6896,8 +6896,8 @@
 		},
 		"Step-9": {
 			"Description": "Updates the pre-registration status",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
+			"Input Parameters": " PRID, and scenario flag",
+			"Return Value": "Updated status confirmation for the given PRID",
 			"Action": "e2e_updatePreRegStatus(0/*STATUS_CODE*/,$$prid,invalid/*SCENARIO_WITH_PENDING_APPOINTMENT*/)"
 		},
 		"Step-10": {
