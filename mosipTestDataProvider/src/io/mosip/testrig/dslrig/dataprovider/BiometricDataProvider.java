@@ -508,7 +508,9 @@ public class BiometricDataProvider {
 			return null;
 		}
 
-		mds.removeProfile(mdsprofilePath, profileName, port, contextKey);
+//		mds.removeProfile(mdsprofilePath, profileName, port, contextKey);
+		mds.setProfile("Default",port,contextKey);
+		CommonUtil.deleteOldTempDir(mdsprofilePath+"/"+ profileName);
 		CentralizedMockSBI.stopSBI(contextKey);
 		return capture;
 	}
@@ -865,7 +867,9 @@ public class BiometricDataProvider {
 		int randomNumber = (int) (Math.random() * (max - min)) + min;
 		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
-
+		if (afterscenario.contains("_")) {
+			afterscenario = afterscenario.replace("_", "0");
+		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 		// If the available impressions are less than scenario number, pick the random
@@ -997,7 +1001,9 @@ public class BiometricDataProvider {
 				int randomNumber = (int) (Math.random() * (max - min)) + min;
 				String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 				String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
-
+				if (afterscenario.contains("_")) {
+					afterscenario = afterscenario.replace("_", "0");
+				}
 				int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 				// If the available impressions are less than scenario number, pick the random
@@ -1043,7 +1049,7 @@ public class BiometricDataProvider {
 				data.setFingerPrint(fingerPrints);
 				data.setFingerHash(fingerPrintHash);
 				data.setFingerRaw(fingerPrintRaw);
-				CommonUtil.deleteOldTempDir(dirPath);
+//				CommonUtil.deleteOldTempDir(dirPath);
 			}
 
 		}
@@ -1081,6 +1087,9 @@ public class BiometricDataProvider {
 		int randomNumber;
 		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+		if (afterscenario.contains("_")) {
+			afterscenario = afterscenario.replace("_", "0");
+		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 		// Generate a random number that is not equal to currentScenarioNumber
@@ -1119,7 +1128,7 @@ public class BiometricDataProvider {
 		data.setFingerPrint(fingerPrints);
 		data.setFingerHash(fingerPrintHash);
 		data.setFingerRaw(fingerPrintRaw);
-		CommonUtil.deleteOldTempDir(dirPath);
+//		CommonUtil.deleteOldTempDir(dirPath);
 
 		return data;
 	}
@@ -1257,6 +1266,9 @@ public class BiometricDataProvider {
 			int randomNumber = (int) (Math.random() * (max - min)) + min;
 			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+			if (afterscenario.contains("_")) {
+				afterscenario = afterscenario.replace("_", "0");
+			}
 
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
@@ -1317,7 +1329,7 @@ public class BiometricDataProvider {
 			m.setRawLeft(fldata);
 			m.setRawRight(frdata);
 			retVal.add(m);
-			CommonUtil.deleteOldTempDir(srcPath);
+//			CommonUtil.deleteOldTempDir(srcPath);
 		}
 
 		return retVal;
@@ -1344,6 +1356,9 @@ public class BiometricDataProvider {
 		int randomNumber;
 		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+		if (afterscenario.contains("_")) {
+			afterscenario = afterscenario.replace("_", "0");
+		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 		// Generate a random number that is not equal to currentScenarioNumber
@@ -1402,7 +1417,7 @@ public class BiometricDataProvider {
 		m.setRawLeft(fldata);
 		m.setRawRight(frdata);
 		retVal.add(m);
-		CommonUtil.deleteOldTempDir(srcPath);
+//		CommonUtil.deleteOldTempDir(srcPath);
 		return retVal;
 	}
 
@@ -1430,6 +1445,9 @@ public class BiometricDataProvider {
 			int randomNumber;
 			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+			if (afterscenario.contains("_")) {
+				afterscenario = afterscenario.replace("_", "0");
+			}
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 			// Generate a random number that is not equal to currentScenarioNumber
@@ -1456,7 +1474,7 @@ public class BiometricDataProvider {
 			bencoded = PhotoProvider.encodeFaceImageData(bData);
 
 			baos.close();
-			CommonUtil.deleteOldTempDir(dirPath);
+//			CommonUtil.deleteOldTempDir(dirPath);
 		} catch (Exception e) {
 
 			logger.error(e.getMessage());

@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Level;
@@ -47,6 +49,7 @@ import com.sun.management.OperatingSystemMXBean;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
 import io.mosip.testrig.dslrig.ivv.core.dtos.RegistrationUser;
@@ -139,13 +142,13 @@ public class Orchestrator {
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
 	public static Object[][] dataProvider() throws RigInternalError {
-		int threadCount = Integer.parseInt(dslConfigManager.getThreadCount()); 
+		int threadCount = Integer.parseInt(dslConfigManager.getThreadCount());
 
-	    System.out.println("Executing with thread count: " + threadCount);
-	    logger.info("Executing DataProvider with thread count: " + threadCount);
+		System.out.println("Executing with thread count: " + threadCount);
+		logger.info("Executing DataProvider with thread count: " + threadCount);
 
-	    System.setProperty("dataproviderthreadcount", String.valueOf(threadCount));
-		
+		System.setProperty("dataproviderthreadcount", String.valueOf(threadCount));
+
 		String scenarioSheet = null;
 
 		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
@@ -195,7 +198,8 @@ public class Orchestrator {
 		ArrayList<RegistrationUser> rcUsers = parser.getRCUsers();
 		totalScenario = scenarios.size();
 		ArrayList<Scenario> filteredScenarios = new ArrayList<>();
-		if(ConfigManager.getproperty("scenariosToExecute").isEmpty() && BaseTestCase.testLevel.equalsIgnoreCase("sanity")) {
+		if (ConfigManager.getproperty("scenariosToExecute").isEmpty()
+				&& BaseTestCase.testLevel.equalsIgnoreCase("sanity")) {
 			for (Scenario scenario : scenarios) {
 				if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
 						|| scenario.getId().equalsIgnoreCase("2")) {
@@ -204,10 +208,64 @@ public class Orchestrator {
 			}
 		} else {
 			for (Scenario scenario : scenarios) {
+				String toExecuteList = ConfigManager.getproperty("scenariosToExecute");
 				if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
 						|| (dslConfigManager.isInTobeExecuteList(scenario.getId())
 								&& dslConfigManager.isInTobeGroupExecuteList(scenario.getGroupName()))) {
-					filteredScenarios.add(scenario);
+					if (toExecuteList.contains("@@") && !scenario.getId().equalsIgnoreCase("0")
+							&& !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
+
+						String[] pairs = toExecuteList.split(",");
+
+						for (String pair : pairs) {
+							String[] parts = pair.split("@@");
+							if (parts.length == 2) {
+								String scenarioId = parts[0].trim();
+								int scenarioCount = Integer.parseInt(parts[1].trim());
+								if (scenario.getId().equalsIgnoreCase(scenarioId)) {
+									for (int i = 1; i <= scenarioCount; i++) {
+										Scenario scenarioCopy = new Scenario();
+										scenarioCopy.setDescription(scenario.getDescription());
+										scenarioCopy.setTags(new ArrayList<>(scenario.getTags()));
+										scenarioCopy.setPersonaClass(scenario.getPersonaClass());
+										scenarioCopy.setGroupName(scenario.getGroupName());
+										scenarioCopy.setModules(new ArrayList<>(scenario.getModules()));
+										scenarioCopy.setVariables(new HashMap<>(scenario.getVariables()));
+										scenarioCopy.setObjectVariables(new HashMap<>(scenario.getObjectVariables()));
+										scenarioCopy.setResidentTemplatePaths(new LinkedHashMap<>(scenario.getResidentTemplatePaths()));
+										scenarioCopy.setResidentPathsPrid(new LinkedHashMap<>(scenario.getResidentPathsPrid()));
+										scenarioCopy.setTemplatePacketPath(new LinkedHashMap<>(scenario.getTemplatePacketPath()));
+										scenarioCopy.setManualVerificationRid(new LinkedHashMap<>(scenario.getManualVerificationRid()));
+										scenarioCopy.setResidentPersonaIdPro((Properties) scenario.getResidentPersonaIdPro().clone());
+										scenarioCopy.setPridsAndRids(new LinkedHashMap<>(scenario.getPridsAndRids()));
+										scenarioCopy.setUinReqIds(new LinkedHashMap<>(scenario.getUinReqIds()));
+										scenarioCopy.setGeneratedResidentData(new ArrayList<>(scenario.getGeneratedResidentData()));
+										scenarioCopy.setTemplatPath_updateResident(scenario.getTemplatPath_updateResident());
+										scenarioCopy.setRid_updateResident(scenario.getRid_updateResident());
+										scenarioCopy.setUin_updateResident(scenario.getUin_updateResident());
+										scenarioCopy.setPrid_updateResident(scenario.getPrid_updateResident());
+										scenarioCopy.setRidPersonaPath(new LinkedHashMap<>(scenario.getRidPersonaPath()));
+										scenarioCopy.setVidPersonaProp((Properties) scenario.getVidPersonaProp().clone());
+										scenarioCopy.setOidcPmsProp((Properties) scenario.getOidcPmsProp().clone());
+										scenarioCopy.setAppointmentDate((Properties) scenario.getAppointmentDate().clone());
+										scenarioCopy.setResidentPathGuardianRid(scenario.getResidentPathGuardianRid() == null ? null : new LinkedHashMap<>(scenario.getResidentPathGuardianRid()));
+										scenarioCopy.setId(scenarioId + "_" + i);
+										// Deep copy steps
+										List<Scenario.Step> copiedSteps = new ArrayList<>();
+										for (Scenario.Step step : scenario.getSteps()) {
+											copiedSteps.add(deepCopyStep(step, scenarioCopy));
+										}
+										scenarioCopy.setSteps(copiedSteps);
+										scenarioCopy.setPersona(scenario.getPersona());
+										scenarioCopy.setRegistrationUsers(scenario.getRegistrationUsers());
+										scenarioCopy.setPartners(scenario.getPartners());
+										filteredScenarios.add(scenarioCopy);
+									}
+								}
+							}
+						}
+					} else
+						filteredScenarios.add(scenario);
 				}
 			}
 		}
@@ -220,7 +278,7 @@ public class Orchestrator {
 			dataArray[i][3] = globals;
 			dataArray[i][4] = properties;
 		}
-		
+
 		System.setProperty("testng.threadcount", String.valueOf(dslConfigManager.getThreadCount()));
 		return dataArray;
 	}
@@ -257,7 +315,6 @@ public class Orchestrator {
 		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
 
 	}
-	
 
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
@@ -343,31 +400,35 @@ public class Orchestrator {
 		if (testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression")) {
 			logger.info("Running Scenario #" + scenario.getId());
 		} else if (matchTags("Negative_Test", scenario.getTags()) && testLevel.equalsIgnoreCase("smoke")) {
-		    extentTest.skip("S-" + scenario.getId() + "Ignoring scenario since it is classified as a negative test case.");
-		    updateRunStatistics(scenario);
-		    throw new SkipException("S-" + scenario.getId() + "Ignoring scenario since it is classified as a negative test case.");
+			extentTest.skip(
+					"S-" + scenario.getId() + "Ignoring scenario since it is classified as a negative test case.");
+			updateRunStatistics(scenario);
+			throw new SkipException(
+					"S-" + scenario.getId() + "Ignoring scenario since it is classified as a negative test case.");
 		}
-
 
 		message = "Scenario_" + scenario.getId() + ": " + scenario.getDescription();
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
-		
 
 		// Check whether the scenario is in the defined skipped list
 		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId())) {
-			extentTest.skip("I-" + scenario.getId() + "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
+			extentTest.skip("I-" + scenario.getId()
+					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 			updateRunStatistics(scenario);
-			throw new SkipException("I-" + scenario.getId() + "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
+			throw new SkipException("I-" + scenario.getId()
+					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 		}
 		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId())) {
 			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
-			updateRunStatistics(scenario);
+		 updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
 		}
 		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
-			extentTest.skip("A-" + scenario.getId() + ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
-			updateRunStatistics(scenario);
-			throw new SkipException("A-" + scenario.getId() + ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
+			extentTest.skip("A-" + scenario.getId()
+					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
+		 updateRunStatistics(scenario);
+			throw new SkipException("A-" + scenario.getId()
+					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
 		}
 
 		Store store = new Store();
@@ -412,6 +473,11 @@ public class Orchestrator {
 					stepAction = step.getOutVarName() + "=" + stepAction;
 
 				String stepParams[] = getStepDetails("S_" + step.getScenario().getId() + stepAction);
+				if (stepParams == null && step.getScenario().getId().contains("_")) {
+                    // Try with the base scenario ID (before the underscore)
+                    String baseScenarioId = step.getScenario().getId().split("_")[0];
+                    stepParams = getStepDetails("S_" + baseScenarioId + stepAction);
+                }
 
 				if (!step.getName().contains("loopWindow")) {
 
@@ -420,8 +486,13 @@ public class Orchestrator {
 					sb.append(
 							"<div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='3' readonly='true'>");
 					sb.append("Step Name: " + step.getName() + "\n");
-					sb.append("Step Description: " + stepParams[0] + "\n");
-					sb.append("Step Parameters: " + stepParams[1]);
+					if (stepParams != null) {
+						sb.append("Step Description: " + stepParams[0] + "\n");
+						sb.append("Step Parameters: " + stepParams[1]);
+					} else {
+						sb.append("Step Description: [ERROR: stepParams is null]\n");
+						sb.append("Step Parameters: [ERROR: stepParams is null]");
+					}
 					sb.append("</textarea></div>");
 
 					Reporter.log(sb.toString());
@@ -759,4 +830,19 @@ public class Orchestrator {
 		return stringToTrim;
 	}
 
+	private static Scenario.Step deepCopyStep(Scenario.Step original, Scenario scenarioCopy) {
+    Scenario.Step copy = new Scenario.Step();
+    copy.setName(original.getName());
+    copy.setVariant(original.getVariant());
+    copy.setModule(original.getModule());
+    copy.setAsserts(original.getAsserts() == null ? null : new ArrayList<>(original.getAsserts()));
+    copy.setErrors(original.getErrors() == null ? null : new ArrayList<>(original.getErrors()));
+    copy.setAssertionPolicy(original.getAssertionPolicy());
+    copy.setFailExpected(original.isFailExpected());
+    copy.setParameters(original.getParameters() == null ? null : new ArrayList<>(original.getParameters()));
+    copy.setIndex(original.getIndex() == null ? null : new ArrayList<>(original.getIndex()));
+    copy.setOutVarName(original.getOutVarName());
+    copy.setScenario(scenarioCopy);
+    return copy;
+}
 }

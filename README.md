@@ -38,12 +38,12 @@ Below are repository details of various modules used for the automation
 ### To build end to end automation 
 * apitest-commons `mvn clean install -Dgpg.skip`
 * Acceptance Tests(location: mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator) `mvn clean install -Dgpg.skip`
-    - After Successful build will get the jar (dslrig-ivv-orchestrator-version-SNAPSHOT-jar-with-dependencies.jar)
+    - After Successful build will get the jar (dslrig-ivv-orchestrator-version-jar-with-dependencies.jar)
 
 ### To build Packet Utility
 * Mosip Test Data Provider `mvn clean install -Dgpg.skip`
 * Mosip-Packet-Creator `mvn clean install -Dgpg.skip`
-    - After successful build will get the jar (dslrig-packetcreator-version-SNAPSHOT.jar)
+    - After successful build will get the jar (dslrig-packetcreator-version.jar)
     - Packet Utility is used to create and uploads the packet which is used by the e2e automation
 
 ## Configuration - Packet Utility
@@ -56,7 +56,7 @@ Below are repository details of various modules used for the automation
 1. mapper=demographic mappings environment specific or default setup.
 1. privatekeys=machine specific details for encrypting and signing the packet.					
 1.	Update ..\run.bat as mentioned below
-1.	Keep mosip-packet-creator-1.3.0-SNAPSHOT.jar and execute run.bat
+1.	Keep mosip-packet-creator-1.3.0.jar and execute run.bat
 1.	Verify if the Packet utility is running by hitting `http://localhost:8080/v1/packetcreator/swagger-ui.html#/`
 1.	For any failure in the packet utility verify the logs location: mosip-packet-creator\PacketUtilityRunlog.txt
 
@@ -66,8 +66,8 @@ Below are repository details of various modules used for the automation
 2. Take the config folder from the mosip-acceptance test project `mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\src\main\resources\config`
 3. Update kernel properties secret keys based on the env details inside `mosip-functional-tests\apitest-commons\src\main\resources\config\Kernel.properties`
 1. Update dsl file property `scenariosToExecute=2` update scenario number for execution and keep this empty to run entire full suite
-1. Command to execute the e2e automation (dslrig-ivv-orchestrator-version-SNAPSHOT-jar-with-dependencies.jar) utility with below vm arguments
-     * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl -jar dslrig-ivv-orchestrator-version-SNAPSHOT-jar-with-dependencies.jar
+1. Command to execute the e2e automation (dslrig-ivv-orchestrator-version-jar-with-dependencies.jar) utility with below vm arguments
+     * java `-Denv.user`=environment name `-Denv.endpoint`=baseurl -jar dslrig-ivv-orchestrator-version-jar-with-dependencies.jar
      * `env.user`  =  environment name example qa, qa2, dev
      * `env.endpoint` = base environment
 1. After the execution completes, the test report can be found in the path `..\testng-report\emailable-report.html`
@@ -117,21 +117,21 @@ By following these steps, you can seamlessly set up and work with the project in
 ## Docker setup build
 1. Deploy Packet creator
 	-Use these branches of code.
-	`https://github.com/mosip/mosip-automation-tests/tree/release-1.3.x`
-	`https://github.com/mosip/mosip-helm/tree/1.3.x/charts/packetcreator`
+	`https://github.com/mosip/mosip-automation-tests/tree/release-1.3.0`
+	`https://github.com/mosip/mosip-helm/tree/1.3.0/charts/packetcreator`
 1. Deploy Dsl testrig
 	-Use these branches of code.
-	`https://github.com/mosip/mosip-automation-tests/tree/release-1.3.x`
-	`https://github.com/mosip/mosip-helm/tree/1.3.x/charts/dslorchestrator`
+	`https://github.com/mosip/mosip-automation-tests/tree/release-1.3.0`
+	`https://github.com/mosip/mosip-helm/tree/1.3.0/charts/dslorchestrator`
 1. Orchestrator Config maps setup
 ![](docs/configmaps1.png)
 ![](docs/configmaps2.png)
 ![](docs/configmaps3.png)
 1. To run particular scenario `scenariosToExecute=2` update scenario number for execution and keep this empty to run entire full suite
-1.Scenario sheet gets picked internally placed at this path `https://github.com/mosip/mosip-automation-tests/blob/release-1.3.x/mosip-acceptance-tests/ivv-orchestrator/src/main/resources/config/scenarios.json`
+1.Scenario sheet gets picked internally placed at this path `https://github.com/mosip/mosip-automation-tests/blob/release-1.3.0/mosip-acceptance-tests/ivv-orchestrator/src/main/resources/config/scenarios.json`
 1. Report gets generated on minio in the mentioned S3 bucket folder in configmaps. For example pick similar to below two reports one is testng report other is extent report.
-  -DSL-api-internal.qa-java21-full-run-1749355331697-report_T-205_P-167_S-29_F-9
-  -ExtentReport-DSL-api-internal.dev3-full-run-1749647484903-report_T-205_P-167_S-29_F-9
+  -DSL-api-internal.released-full-run-1755444787997-report_T-204_P-168_KI-26_I-9_S-0_F-1
+  -ExtentReport-DSL-api-internal.released-full-run-1749647484903-report_T-204_P-168_KI-26_I-9_S-0_F-1
 
 ## License
 This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
