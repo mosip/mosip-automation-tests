@@ -11,14 +11,12 @@ import org.apache.log4j.Logger;
 import io.mosip.testrig.apirig.utils.GetCredentialTableStackTrace;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
-import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
-import io.restassured.response.Response;
 
-public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
-	private static final Logger logger = Logger.getLogger(CheckRIDStatus.class);
+public class CheckRIDStatusInDataBase extends BaseTestCaseUtil implements StepInterface {
+	private static final Logger logger = Logger.getLogger(CheckRIDStatusInDataBase.class);
 	public HashMap<String, String> ridStatusMap = new LinkedHashMap<>();
 
 
@@ -52,24 +50,30 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 		try {
 				int counter = 0;
 				String ridStatus = "";
-				while (!ridStatus.equalsIgnoreCase(ridStatusParam) && counter < Integer.parseInt(props.getProperty("loopCount"))) {
-					counter++;
-					logger.info("Waiting for " + Long.parseLong(waitTime) / 1000 + " sec to get UIN Stored");
-					Thread.sleep(Long.parseLong(waitTime));
-					long startTime = System.currentTimeMillis();
-					logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
-					logger.info(this.getClass().getSimpleName() + " Rid :" + Rid);
-					if (Rid == null)
-						logger.info("RID is null");
-					ridStatus=GetCredentialTableStackTrace.getStatusFromCredentialTransactionTable(Rid);
-					GlobalMethods.ReportRequestAndResponse(null, null, null, null,
-							ridStatus,true);
-					long stopTime = System.currentTimeMillis();
-					long elapsedTime = stopTime - startTime;
-					logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
-							+ " MilliSec");
-					logger.info("Response from check RID status : " + Rid + " => " + ridStatus);
+				while ((ridStatus == null || !ridStatus.equalsIgnoreCase(ridStatusParam)) 
+				        && counter < Integer.parseInt(props.getProperty("loopCount"))) {
+
+				    counter++;
+				    logger.info("Waiting for " + Long.parseLong(waitTime) / 1000 + " sec to get UIN Stored In Database");
+				    Thread.sleep(Long.parseLong(waitTime));
+
+				    long startTime = System.currentTimeMillis();
+				    logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
+				    logger.info(this.getClass().getSimpleName() + " RID: " + Rid);
+
+				    if (Rid == null) {
+				        logger.info("RID is null");
+				    }
+
+				    ridStatus = GetCredentialTableStackTrace.getStatusFromCredentialTransactionTable(Rid);
+				    GlobalMethods.ReportRequestAndResponse(null, null, null, null, ridStatus, true);
+
+				    long stopTime = System.currentTimeMillis();
+				    long elapsedTime = stopTime - startTime;
+				    logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime + " MilliSec");
+				    logger.info("Response from check RID status: " + Rid + " => " + ridStatus);
 				}
+
 				ridStatusMap.put(Rid, ridStatus);
 
 			
