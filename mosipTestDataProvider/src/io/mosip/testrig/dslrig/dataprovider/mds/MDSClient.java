@@ -147,7 +147,9 @@ public class MDSClient implements MDSClientInterface {
 		int randomNumber = (int) (Math.random()*(max-min)) + min;
 		String beforescenario=VariableManager.getVariableValue(contextKey,"scenario").toString();
 		String afterscenario=beforescenario.substring(0, beforescenario.indexOf(':'));
-
+		if (afterscenario.contains("_")) {
+			afterscenario = afterscenario.replace("_", "0");
+		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 
@@ -190,11 +192,15 @@ public class MDSClient implements MDSClientInterface {
 			if(!resident.getSkipIris()) {
 
 				IrisDataModel iris = resident.getBiometric().getIris();
+				logger.info( "IRIS_DATA : "+resident.getBiometric().getIris().toString());
+				logger.info( "IRIS_DATA_PATH : "+ profDir + "/"+ "Left_Iris.iso");
 				if(iris != null) {
-
-					//					if(iris.getRawLeft() != null)
+					logger.info( "IRIS_DATA_left: "+iris.getLeftHash().toString());
+					logger.info( "IRIS_RAW_DATA_left: "+iris.getRawLeft());
+					logger.info( "IRIS_RAW_DATA_right: "+iris.getRawRight());
+										if(iris.getRawLeft() != null)
 					convert.convertIris(iris.getRawLeft(), profDir + "/"+ "Left_Iris.iso", "Left");
-					//					if(iris.getRawRight() != null)
+										if(iris.getRawRight() != null)
 					convert.convertIris(iris.getRawRight(), profDir + "/"+ "Right_Iris.iso", "Right");
 				}
 			}
@@ -249,6 +255,7 @@ public class MDSClient implements MDSClientInterface {
 		}
 
 	}
+
 	public  void setProfile(String profile,int port,String contextKey) {
 
 		String url =  MDSURL +port + "/admin/profile";

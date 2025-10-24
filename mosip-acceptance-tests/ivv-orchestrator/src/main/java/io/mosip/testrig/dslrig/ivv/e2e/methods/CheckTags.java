@@ -66,8 +66,6 @@ public class CheckTags extends BaseTestCaseUtil implements StepInterface {
 				logger.error(e.getMessage());
 			} catch (AdminTestException e) {
 				logger.error(e.getMessage());
-			} catch (SecurityXSSException e) {
-				logger.error(e.getMessage());
 			}
 
 			response = checkPacketTags.response;

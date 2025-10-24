@@ -32,7 +32,7 @@ public class NameProvider {
 		try {
 			CSVHelper helper;
 			helper = new CSVHelper(resPath);
-			int recCount = 200; // helper.getRecordCount();
+			int recCount = helper.getRecordCount();
 			int[] recNos = CommonUtil.generateRandomNumbers(count, recCount, 0);
 
 			helper.open();
