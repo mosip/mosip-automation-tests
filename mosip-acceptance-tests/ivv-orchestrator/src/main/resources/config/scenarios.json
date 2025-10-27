@@ -2166,9 +2166,9 @@
 			"Action": "$$lostRid=e2e_ridsync(LOST/*PACKET_TYPE*/,$$zipPacketPath)"
 		},
 		"Step-14": {
-			"Description": "Sync the Packet",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "NA",
+			"Description": "Synchronizes the registration packet with the system using the provided ZIP packet path",
+			"Input Parameters": "ZIP packet path containing the registration packet data",
+			"Return Value": "Packet synchronization status or confirmation",
 			"Action": "e2e_packetsync($$zipPacketPath)"
 		},
 		"Step-15": {
@@ -2511,15 +2511,15 @@
 			"Action": "$$clientId=e2e_OidcClient()"
 		},
 		"Step-21": {
-			"Description": "Create an OAuth Request",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Description": "Creates an OAuth request using the generated OIDC client to initiate the first transaction",
+			"Input Parameters": "OIDC client ID1",
+			"Return Value": "OAuth transaction ID",
 			"Action": "$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
 		},
 		"Step-22": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "OIDC client ID2",
+			"Return Value": "OAuth transaction ID",
 			"Action": "$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
 		},
 		"Step-23": {
@@ -2639,20 +2639,20 @@
 		},
 		"Step-15": {
 			"Description": "Creates OIDC client",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "Client configuration parameters",
+			"Return Value": "Generated OIDC client ID",
 			"Action": "$$clientId=e2e_OidcClient()"
 		},
 		"Step-16": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "OIDC client ID",
+			"Return Value": "OAuth transaction ID",
 			"Action": "$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
 		},
 		"Step-17": {
 			"Description": "Create an OAuth Request",
-			"Input Parameters": "NA",
-			"Return Value": "NA",
+			"Input Parameters": "OIDC client ID",
+			"Return Value": "OAuth transaction ID",
 			"Action": "$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
 		},
 		"Step-18": {
@@ -2689,7 +2689,7 @@
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
 			"Input Parameters": "Details can be found in in-line comments on the parameters",
-			"Return Value": "pre-requiste details",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
