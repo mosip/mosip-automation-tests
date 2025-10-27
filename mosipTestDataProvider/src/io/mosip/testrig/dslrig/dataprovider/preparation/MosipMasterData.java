@@ -677,33 +677,36 @@ public  class MosipMasterData {
 		}
         return tbl;
 	}
+
 	public static List<MosipDocCategoryModel> getDocumentCategories(String contextKey) {
-	List<MosipDocCategoryModel> docCatList = null;
-		
-		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"documentCategories").toString();
-		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
-		Object o = MosipDataSetup.getCache(url,run_context);
-		if(o != null)
-			return( (List<MosipDocCategoryModel>) o);
+		List<MosipDocCategoryModel> docCatList = null;
+
+		String url = VariableManager.getVariableValue(contextKey, "urlBase").toString()
+				+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "documentCategories").toString() + "/"
+				+ VariableManager.getVariableValue(contextKey, "langCode").toString();
+
+		String run_context = VariableManager.getVariableValue(contextKey, "urlBase").toString() + RUN_CONTEXT;
+		Object o = MosipDataSetup.getCache(url, run_context);
+		if (o != null)
+			return ((List<MosipDocCategoryModel>) o);
 
 		try {
-			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
+			JSONObject resp = RestClient.get(url, new JSONObject(), new JSONObject(), contextKey);
 			JSONArray docCatArray = resp.getJSONArray("documentcategories");
-			
-			if(docCatArray != null) {
+
+			if (docCatArray != null) {
 				ObjectMapper objectMapper = new ObjectMapper();
-				docCatList = objectMapper.readValue(docCatArray.toString(), 
-					objectMapper.getTypeFactory().constructCollectionType(List.class, MosipDocCategoryModel.class));
-				
+				docCatList = objectMapper.readValue(docCatArray.toString(),
+						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipDocCategoryModel.class));
+
 				List<MosipDocCategoryModel> newDocTypeList = new ArrayList<MosipDocCategoryModel>();
-				for(MosipDocCategoryModel m: docCatList) {
-					if(m.getIsActive() )
+				for (MosipDocCategoryModel m : docCatList) {
+					if (m.getIsActive())
 						newDocTypeList.add(m);
 				}
-				MosipDataSetup.setCache(url, newDocTypeList,run_context);
+				MosipDataSetup.setCache(url, newDocTypeList, run_context);
 				return newDocTypeList;
-				
+
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
