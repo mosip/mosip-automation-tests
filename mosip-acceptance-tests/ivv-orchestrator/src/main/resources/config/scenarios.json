@@ -9606,18 +9606,12 @@
 			"Action": "e2e_SyncData(CONFIGS_KEYINDEX,$$keyIndex)"
 		},
 		"Step-21": {
-			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_SyncData(USER_DETAILS_INVALID,$$details56)"
-		},
-		"Step-22": {
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details56)"
 		},
-		"Step-23": {
+		"Step-22": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
