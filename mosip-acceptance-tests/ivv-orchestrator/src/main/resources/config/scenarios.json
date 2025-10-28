@@ -9606,18 +9606,12 @@
 			"Action": "e2e_SyncData(CONFIGS_KEYINDEX,$$keyIndex)"
 		},
 		"Step-21": {
-			"Description": "<<<Step detailed description>>>",
-			"Input Parameters": "<<<Step inputs values details>>>",
-			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_SyncData(USER_DETAILS_INVALID,$$details56)"
-		},
-		"Step-22": {
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_Machine(DCOM,$$details56)"
 		},
-		"Step-23": {
+		"Step-22": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -10816,7 +10810,7 @@
 		}
 	},
 	{
-		"Scenario": "88",
+		"Scenario": "#88",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
@@ -12945,18 +12939,6 @@
 			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-19": {
-			"Description": "Gets the credentials request ID",
-			"Input Parameters": "UIN and Email ID",
-			"Return Value": "Request ID",
-			"Action": "$$requestId=e2e_credentialRequest($$childUin,$$email)"
-		},
-		"Step-20": {
-			"Description": "Check credentials status",
-			"Input Parameters": "Request ID",
-			"Return Value": "NA",
-			"Action": "e2e_checkCredentialStatus($$requestId)"
-		},
-		"Step-21": {
 			"Description": "Generates VID without OTP",
 			"Input Parameters": "VID tyoe and UIN",
 			"Return Value": "VID",
@@ -16989,7 +16971,7 @@
 			"Description": "Checks for given modality data BDB",
 			"Input Parameters": "UNI and modalities",
 			"Return Value": "NA",
-			"Action": "e2e_CheckForBDBPresence($$uin2,FINGER_Left RingFinger@@FINGER_Right LittleFinger@@FACE@@FINGER_Left LittleFinger@@IRIS_Right@@FINGER_Left MiddleFinger@@FINGER_Left IndexFinger@@FINGER_Right IndexFinger@@IRIS_Left@@FINGER_Right RingFinger@@FINGER_Right MiddleFinger@@FINGER_Right Thumb,true)"
+			"Action": "e2e_CheckForBDBPresence($$uin2,FINGER_Left RingFinger@@FINGER_Right LittleFinger@@FACE@@FINGER_Left LittleFinger@@IRIS_Right@@FINGER_Left MiddleFinger@@FINGER_Left IndexFinger@@FINGER_Right IndexFinger@@IRIS_Left@@FINGER_Right RingFinger@@FINGER_Right MiddleFinger@@FINGER_Right Thumb,false)"
 		},
 		"Step-16": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -18769,7 +18751,7 @@
 		}
 	},
 	{
-		"Scenario": "157",
+		"Scenario": "#157",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
@@ -22671,7 +22653,7 @@
 		}
 	},
 	{
-		"Scenario": "189",
+		"Scenario": "#189",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
@@ -22804,7 +22786,7 @@
 		}
 	},
 	{
-		"Scenario": "190",
+		"Scenario": "#190",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
@@ -24639,7 +24621,7 @@
 		}
 	},
 	{
-		"Scenario": "207",
+		"Scenario": "#207",
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
