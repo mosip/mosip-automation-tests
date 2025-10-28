@@ -35,13 +35,9 @@ public class GenerateAuthCertifcates extends BaseTestCaseUtil implements StepInt
 
 		String uriPartsforkyc[] = kycPartnerKeyUrl.split("/");
 		kycPartnerId = uriPartsforkyc[uriPartsforkyc.length - 2];
-		BaseTestCaseUtil.kycPartnerKeyUrl = kycPartnerKeyUrl;
-
 		partnerKeyUrl = PartnerRegistration.partnerKeyUrl;
 		String uriParts[] = PartnerRegistration.partnerKeyUrl.split("/");
 		partnerId = uriParts[uriParts.length - 2];
-		logger.info(partnerKeyUrl);
-		BaseTestCaseUtil.partnerKeyUrl = partnerKeyUrl;
 		logger.info(partnerKeyUrl);
 
 	}

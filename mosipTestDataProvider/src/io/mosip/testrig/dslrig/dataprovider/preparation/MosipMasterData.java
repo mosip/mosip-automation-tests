@@ -51,6 +51,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.ResidentAttribute;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+import io.restassured.response.Response;
 
 public  class MosipMasterData {
 	private static final Logger logger = LoggerFactory.getLogger(MosipMasterData.class);
@@ -300,65 +301,78 @@ public  class MosipMasterData {
 	
 	public static MosipPreRegLoginConfig getPreregLoginConfig(String contextKey) {
 		MosipPreRegLoginConfig config = new MosipPreRegLoginConfig();
-		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"loginconfig").toString();
-		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
-		Object o = MosipDataSetup.getCache(url,run_context);
-		if(o != null)
-			return( (MosipPreRegLoginConfig) o);
+		try {
+			config.setMosip_country_code(getValueFromActuators("mosip.country.code",contextKey));
+		} catch (Exception e) {
 
+		}
+		try {
+			config.setMandatory_languages(getValueFromActuators("mosip.mandatory-languages",contextKey));
+		} catch (Exception e) {
+
+		}
+		try {
+			config.setMin_languages_count(getValueFromActuators("mosip.min-languages.count",contextKey));
+		} catch (Exception e) {
+
+		}
+		try {
+			config.setOptional_languages(getValueFromActuators("mosip.optional-languages",contextKey));
+		} catch (Exception e) {
+
+		}
+		try {
+			config.setMosip_id_validation_identity_dateOfBirth(
+					getValueFromActuators("mosip.id.validation.identity.dateOfBirth",contextKey));
+		} catch (Exception e) {
+
+		}
 
 		try {
-			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
-			
-			
-			if(resp != null) {
-				try {
-					config.setMosip_country_code(  resp.getString("mosip.country.code"));
-				}catch(Exception e) {
-					
-				}
-				try {
-					config.setMandatory_languages(resp.getString("mosip.mandatory-languages"));
-				}catch(Exception e) {
-					
-				}
-				try {
-					config.setMin_languages_count(resp.getString("mosip.min-languages.count"));
-				}catch(Exception e) {
-					
-				}
-				try {
-					config.setOptional_languages(resp.getString("mosip.optional-languages"));
-				}catch(Exception e) {
-					
-				}
-				try {
-					config.setMosip_id_validation_identity_dateOfBirth(resp.getString("mosip.id.validation.identity.dateOfBirth"));
-				}catch(Exception e) {
-					
-				}
-				
-				try {
-					config.setMosip_primary_language(resp.getString("mosip.primary-language"));
-				}catch(Exception e) {
-					
-				}
-				
-				try {
-				config.setPreregistration_documentupload_allowed_file_type(resp.getString("preregistration.documentupload.allowed.file.type"));
-				}catch(Exception e) {
-					
-				}
-				
-				MosipDataSetup.setCache(url, config, run_context);
-			}
+			config.setMosip_primary_language(getValueFromActuators("mosip.primary-language",contextKey));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+
+		}
+
+		try {
+			config.setPreregistration_documentupload_allowed_file_type(
+					getValueFromActuators("preregistration.documentupload.allowed.file.type",contextKey));
+		} catch (Exception e) {
+
 		}
 		return config;
 	}
 
+	public static JSONArray idaActuatorResponseArray = null;
+
+	public static String getValueFromActuators(String key, String contextKey) {
+		String section = "/mosip-config/application-default.properties";
+		String url = VariableManager.getVariableValue(contextKey, "urlBase").toString()
+				+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "actuatorMasterDataEndpoint").toString();
+		String value = null;
+		try {
+			if (idaActuatorResponseArray == null) {
+				JSONObject responseJson = RestClient.get(url, new JSONObject(), new JSONObject(), contextKey);
+				idaActuatorResponseArray = responseJson.getJSONArray("propertySources");
+			}
+			logger.info("idaActuatorResponseArray=" + idaActuatorResponseArray);
+
+			for (int i = 0, size = idaActuatorResponseArray.length(); i < size; i++) {
+				org.json.JSONObject eachJson = idaActuatorResponseArray.getJSONObject(i);
+				if (eachJson.get("name").toString().contains(section)) {
+					value = eachJson.getJSONObject("properties").getJSONObject(key).get("value").toString();
+					logger.info("value=" + value);
+					break;
+				}
+			}
+
+			return value;
+		} catch (Exception e) {
+			logger.error(e.toString());
+			return value;
+		}
+
+	}
 	public static  ApplicationConfigIdSchema getAppConfigIdSchema(String contextKey) {
 		ApplicationConfigIdSchema config = new ApplicationConfigIdSchema();
 		
