@@ -695,7 +695,8 @@ public  class MosipMasterData {
 	List<MosipDocCategoryModel> docCatList = null;
 		
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"documentCategories").toString();
+				VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "documentCategories").toString()+"/"
+				+ VariableManager.getVariableValue(contextKey, "langCode").toString();
 		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
 		Object o = MosipDataSetup.getCache(url,run_context);
 		if(o != null)
