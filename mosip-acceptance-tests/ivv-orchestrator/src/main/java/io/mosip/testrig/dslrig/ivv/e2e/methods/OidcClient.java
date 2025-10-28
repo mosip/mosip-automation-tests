@@ -13,6 +13,7 @@ import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
@@ -178,6 +179,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 
 			step.getScenario().getOidcPmsProp().put("partnerId", partnerId);
 		}
+		PartnerRegistration.partnerId = partnerId;
 
 		// Upload CA Call
 
