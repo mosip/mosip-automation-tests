@@ -76,12 +76,12 @@ public class Machine extends BaseTestCaseUtil implements StepInterface {
 
 		case "DCOM":
 
-			machineDetailsmap = machineHelper.updateMachine(machineDetailsmap, centerCount);
+			machineDetailsmap = machineHelper.updateMachine(machineDetailsmap, 0);
 			machineHelper.dcomMachine(machineDetailsmap.get("machineid"));
 			break;
 		case "REMOVE_CENTER":
 
-			machineDetailsmap = machineHelper.updateMachine(machineDetailsmap, centerCount);
+			machineDetailsmap = machineHelper.updateMachine(machineDetailsmap, 0);
 			break;
 
 		default:
