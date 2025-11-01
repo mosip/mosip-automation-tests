@@ -2791,7 +2791,7 @@
 		"Step-18": {
 			"Description": "Gets user info after eSignet based authentication",
 			"Input Parameters": "Transaction ID and OIDC client ID",
-			"Return Value": "NA",
+			"Return Value": "OAuth transaction ID",
 			"Action": "e2e_UserInfo($$transactionId,$$clientId)"
 		},
 		"Step-19": {
