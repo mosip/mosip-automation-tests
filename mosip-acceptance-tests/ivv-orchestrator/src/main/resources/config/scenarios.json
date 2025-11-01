@@ -55,19 +55,19 @@
 		},
 		"Step-8": {
 			"Description": "Deletes the zone mapping ",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(DELETE_ZONEMAPPING,$$details1)"
 		},
 		"Step-9": {
 			"Description": "Maps the zone",
-			"Input Parameters": "Action and ceneter machine user details",
+			"Input Parameters": "Action and center machine user details",
 			"Return Value": "NA",
 			"Action": "e2e_User(CREATE_ZONEMAPPING,$$details1)"
 		},
 		"Step-10": {
 			"Description": "Activates Zone mapping",
-			"Input Parameters": "Action and ceneter machine user details. Other parameter details can be found in parameter in-line comments",
+			"Input Parameters": "Action and center machine user details. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_User(ACTIVATE_ZONEMAPPING,$$details1,T/*ZONE_MAPPING_ACTIVATION_FLAG*/)"
 		},
@@ -109,7 +109,7 @@
 		},
 		"Step-17": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Environment and user details. Other prarameters details can be found in-line",
+			"Input Parameters": "Environment and user details. Other parameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,true/*GENERATE_PRIVATE_KEY*/)"
 		},
