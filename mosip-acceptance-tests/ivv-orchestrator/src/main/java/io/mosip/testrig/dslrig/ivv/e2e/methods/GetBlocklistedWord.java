@@ -1,24 +1,19 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
-import javax.ws.rs.core.MediaType;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import io.mosip.testrig.apirig.utils.GlobalConstants;
-import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.UserHelper;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 public class GetBlocklistedWord extends BaseTestCaseUtil implements StepInterface {
 
 	static Logger logger = Logger.getLogger(GetBlocklistedWord.class);
-	KernelAuthentication kernelAuthLib = new KernelAuthentication();
+	UserHelper userHelper = new UserHelper();
 
 	static {
 		if (dslConfigManager.IsDebugEnabled())
@@ -29,32 +24,36 @@ public class GetBlocklistedWord extends BaseTestCaseUtil implements StepInterfac
 
 	@Override
 	public void run() throws RigInternalError {
-		String token = kernelAuthLib.getTokenByRole("admin");
+		String callType = null;
+		String blocklistedWordParam = null;
 
-		String url = BaseTestCase.ApplnURI + props.getProperty("blocklistedWord") + BaseTestCase.languageCode;
+		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
+			logger.error("Method Type[POST/GET/PUT/PATCH] parameter is missing from DSL step");
+			this.hasError = true;
+			throw new RigInternalError(
+					"Method Type[POST/GET/PUT/PATCH] parameter is missing from DSL step: " + step.getName());
+		} else {
+			callType = step.getParameters().get(0);
+		}
 
-		Response response = null;
+		if (step.getParameters().size() >= 2) {
+			blocklistedWordParam = step.getParameters().get(1);
+		}
+
 		String blocklistedWord = null;
 
 		try {
-			response = BaseTestCaseUtil.getRequestWithCookie(url, MediaType.APPLICATION_JSON,
-					MediaType.APPLICATION_JSON, GlobalConstants.AUTHORIZATION, token);
+			blocklistedWord = userHelper.createBlocklistedWord(blocklistedWordParam, BaseTestCase.languageCode, step);
+			logger.info("Blocklisted word is: " + blocklistedWord);
 
-			if (response != null) {
-				JSONObject jsonObject = new JSONObject(response.getBody().asString());
-				JSONArray blocklistedWords = jsonObject.getJSONObject("response").getJSONArray("blocklistedwords");
-
-				blocklistedWord = blocklistedWords.getJSONObject(0).getString("word");
-				logger.info("blocklistedWord is :" + blocklistedWord);
-				if (step.getOutVarName() != null)
-					step.getScenario().getVariables().put(step.getOutVarName(), blocklistedWord);
-				return;
+			if (step.getOutVarName() != null) {
+				step.getScenario().getVariables().put(step.getOutVarName(), blocklistedWord);
 			}
 
 		} catch (Exception e) {
 			this.hasError = true;
-			logger.error(e.getMessage());
-			throw new RigInternalError(response.getBody().asString());
+			logger.error("Error in GetBlocklistedWord: " + e.getMessage(), e);
+			throw new RigInternalError(e.getMessage());
 		}
 	}
 }
