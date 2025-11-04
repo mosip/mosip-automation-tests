@@ -5978,7 +5978,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details75,75/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details75)"
 		},
 		"Step-34": {
 			"Description": "Deletes center mapping",
@@ -8407,7 +8407,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details76,76/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details76)"
 		},
 		"Step-34": {
 			"Description": "Deletes center mapping",
@@ -8628,18 +8628,12 @@
 			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,2/*SLOT_NUMBER*/)"
 		},
 		"Step-12": {
-			"Description": "Books the appointment for give pre registration",
-			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
-			"Return Value": "NA",
-			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,3/*SLOT_NUMBER*/)"
-		},
-		"Step-13": {
 			"Description": "Generates and uploads the packet with pre pregistration",
 			"Input Parameters": "PRID and template file path",
 			"Return Value": "RID",
 			"Action": "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
 		},
-		"Step-14": {
+		"Step-13": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
@@ -8921,7 +8915,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details52,52/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details52)"
 		},
 		"Step-21": {
 			"Description": "Deletes center mapping",
@@ -9156,7 +9150,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details531/*USER_DETAILS*/,531/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details531/*USER_DETAILS*/)"
 		},
 		"Step-35": {
 			"Description": "Deletes center mapping",
@@ -9319,7 +9313,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details54,54/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details54)"
 		},
 		"Step-23": {
 			"Description": "Deletes center mapping",
@@ -9440,7 +9434,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details55,55/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details55)"
 		},
 		"Step-16": {
 			"Description": "Waits for given period in seconds",
@@ -9579,7 +9573,7 @@
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_Machine(REMOVE_CENTER,$$details56,56/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(REMOVE_CENTER,$$details56)"
 		},
 		"Step-17": {
 			"Description": "Decomissions the center",
@@ -9609,7 +9603,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details56,56/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details56)"
 		},
 		"Step-22": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -9724,7 +9718,7 @@
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_Machine(REMOVE_CENTER,$$details57,57/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(REMOVE_CENTER,$$details57)"
 		},
 		"Step-17": {
 			"Description": "<<<Step detailed description>>>",
@@ -9760,7 +9754,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details57,57/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details57)"
 		},
 		"Step-23": {
 			"Description": "Decomissions the center",
@@ -10340,7 +10334,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details77,77/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details77)"
 		},
 		"Step-34": {
 			"Description": "Deletes center mapping",
@@ -17698,7 +17692,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
 		},
 		"Step-22": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -18202,7 +18196,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS,RPR-PKV-FAILED-014)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
 		},
 		"Step-8": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -18693,7 +18687,7 @@
 			"Description": "<<<Step detailed description>>>",
 			"Input Parameters": "<<<Step inputs values details>>>",
 			"Return Value": "<<<Step output details>>>",
-			"Action": "e2e_Machine(REMOVE_CENTER,$$details156,156/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(REMOVE_CENTER,$$details156)"
 		},
 		"Step-16": {
 			"Description": "<<<Step detailed description>>>",
@@ -18735,13 +18729,13 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
+			"Action": "e2e_CheckRIDStage($$rid,CMD_VALIDATION,ERROR)"
 		},
 		"Step-23": {
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details156,156/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details156)"
 		},
 		"Step-24": {
 			"Description": "Decomissions the center",
@@ -18971,7 +18965,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details8,8/*CENTER_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details8)"
 		},
 		"Step-22": {
 			"Description": "<<<Step detailed description>>>",
@@ -25459,7 +25453,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details1,1/*MACHINE_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details1)"
 		},
 		"Step-7": {
 			"Description": "Unmaps machine from the center",
@@ -25483,7 +25477,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details2,2/*MACHINE_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details2)"
 		},
 		"Step-11": {
 			"Description": "<<<Step detailed description>>>",
@@ -25507,7 +25501,7 @@
 			"Description": "Decomissions the machine",
 			"Input Parameters": "Action and ceneter machine user details",
 			"Return Value": "NA",
-			"Action": "e2e_Machine(DCOM,$$details3,3/*MACHINE_INDEX*/)"
+			"Action": "e2e_Machine(DCOM,$$details3)"
 		},
 		"Step-15": {
 			"Description": "<<<Step detailed description>>>",
