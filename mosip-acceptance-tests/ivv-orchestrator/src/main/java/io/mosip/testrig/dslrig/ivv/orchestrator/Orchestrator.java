@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -77,6 +76,8 @@ public class Orchestrator {
 	public static long suiteStartTime = 0;
 	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
+	private static AtomicInteger totalFailedScenarios = new AtomicInteger(0);
+	private static final int MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY = 20;
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
@@ -232,23 +233,35 @@ public class Orchestrator {
 										scenarioCopy.setModules(new ArrayList<>(scenario.getModules()));
 										scenarioCopy.setVariables(new HashMap<>(scenario.getVariables()));
 										scenarioCopy.setObjectVariables(new HashMap<>(scenario.getObjectVariables()));
-										scenarioCopy.setResidentTemplatePaths(new LinkedHashMap<>(scenario.getResidentTemplatePaths()));
-										scenarioCopy.setResidentPathsPrid(new LinkedHashMap<>(scenario.getResidentPathsPrid()));
-										scenarioCopy.setTemplatePacketPath(new LinkedHashMap<>(scenario.getTemplatePacketPath()));
-										scenarioCopy.setManualVerificationRid(new LinkedHashMap<>(scenario.getManualVerificationRid()));
-										scenarioCopy.setResidentPersonaIdPro((Properties) scenario.getResidentPersonaIdPro().clone());
+										scenarioCopy.setResidentTemplatePaths(
+												new LinkedHashMap<>(scenario.getResidentTemplatePaths()));
+										scenarioCopy.setResidentPathsPrid(
+												new LinkedHashMap<>(scenario.getResidentPathsPrid()));
+										scenarioCopy.setTemplatePacketPath(
+												new LinkedHashMap<>(scenario.getTemplatePacketPath()));
+										scenarioCopy.setManualVerificationRid(
+												new LinkedHashMap<>(scenario.getManualVerificationRid()));
+										scenarioCopy.setResidentPersonaIdPro(
+												(Properties) scenario.getResidentPersonaIdPro().clone());
 										scenarioCopy.setPridsAndRids(new LinkedHashMap<>(scenario.getPridsAndRids()));
 										scenarioCopy.setUinReqIds(new LinkedHashMap<>(scenario.getUinReqIds()));
-										scenarioCopy.setGeneratedResidentData(new ArrayList<>(scenario.getGeneratedResidentData()));
-										scenarioCopy.setTemplatPath_updateResident(scenario.getTemplatPath_updateResident());
+										scenarioCopy.setGeneratedResidentData(
+												new ArrayList<>(scenario.getGeneratedResidentData()));
+										scenarioCopy.setTemplatPath_updateResident(
+												scenario.getTemplatPath_updateResident());
 										scenarioCopy.setRid_updateResident(scenario.getRid_updateResident());
 										scenarioCopy.setUin_updateResident(scenario.getUin_updateResident());
 										scenarioCopy.setPrid_updateResident(scenario.getPrid_updateResident());
-										scenarioCopy.setRidPersonaPath(new LinkedHashMap<>(scenario.getRidPersonaPath()));
-										scenarioCopy.setVidPersonaProp((Properties) scenario.getVidPersonaProp().clone());
+										scenarioCopy
+												.setRidPersonaPath(new LinkedHashMap<>(scenario.getRidPersonaPath()));
+										scenarioCopy
+												.setVidPersonaProp((Properties) scenario.getVidPersonaProp().clone());
 										scenarioCopy.setOidcPmsProp((Properties) scenario.getOidcPmsProp().clone());
-										scenarioCopy.setAppointmentDate((Properties) scenario.getAppointmentDate().clone());
-										scenarioCopy.setResidentPathGuardianRid(scenario.getResidentPathGuardianRid() == null ? null : new LinkedHashMap<>(scenario.getResidentPathGuardianRid()));
+										scenarioCopy
+												.setAppointmentDate((Properties) scenario.getAppointmentDate().clone());
+										scenarioCopy.setResidentPathGuardianRid(
+												scenario.getResidentPathGuardianRid() == null ? null
+														: new LinkedHashMap<>(scenario.getResidentPathGuardianRid()));
 										scenarioCopy.setId(scenarioId + "_" + i);
 										// Deep copy steps
 										List<Scenario.Step> copiedSteps = new ArrayList<>();
@@ -420,20 +433,20 @@ public class Orchestrator {
 		}
 		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId())) {
 			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
-		 updateRunStatistics(scenario);
+			updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
 		}
 		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
 			extentTest.skip("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
-		 updateRunStatistics(scenario);
+			updateRunStatistics(scenario);
 			throw new SkipException("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
 		}
 
 		Reporter.log(
 				"<div class='box black-bg left-aligned' style='max-width: 100%; word-wrap: break-word;'><b><u>Scenario_"
-					+ scenario.getId() + ": " + scenario.getDescription() + "</u></b></div>");
+						+ scenario.getId() + ": " + scenario.getDescription() + "</u></b></div>");
 
 		// Prepare a base store (used to reset state between retry attempts)
 		Store store = new Store();
@@ -451,14 +464,14 @@ public class Orchestrator {
 		for (int attempt = 1; attempt <= maxAttempts && !scenarioSucceeded; attempt++) {
 			// Determine whether this attempt will be retried on failure
 			boolean willRetry = (attempt < maxAttempts);
- 			// Reset store to initial values before each attempt
- 			store = new Store();
- 			store.setConfigs(configs);
- 			store.setGlobals(globals);
- 			store.setPersona(scenario.getPersona());
- 			store.setRegistrationUsers(scenario.getRegistrationUsers());
- 			store.setPartners(scenario.getPartners());
- 			store.setProperties(this.properties);
+			// Reset store to initial values before each attempt
+			store = new Store();
+			store.setConfigs(configs);
+			store.setGlobals(globals);
+			store.setPersona(scenario.getPersona());
+			store.setRegistrationUsers(scenario.getRegistrationUsers());
+			store.setPartners(scenario.getPartners());
+			store.setProperties(this.properties);
 
 			int jumpBackIndex = 0;
 			int iterationCount = 0;
@@ -467,9 +480,10 @@ public class Orchestrator {
 					Scenario.Step step = scenario.getSteps().get(stepIndex);
 
 					identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters()
-						+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
+							+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule()
+							+ "] [variant: "
 
-						+ step.getVariant() + "]";
+							+ step.getVariant() + "]";
 					logger.info(identifier);
 
 					extentTest.info(identifier + " - running"); //
@@ -490,9 +504,9 @@ public class Orchestrator {
 
 					String stepParams[] = getStepDetails("S_" + step.getScenario().getId() + stepAction);
 					if (stepParams == null && step.getScenario().getId().contains("_")) {
-					    // Try with the base scenario ID (before the underscore)
-					    String baseScenarioId = step.getScenario().getId().split("_")[0];
-					    stepParams = getStepDetails("S_" + baseScenarioId + stepAction);
+						// Try with the base scenario ID (before the underscore)
+						String baseScenarioId = step.getScenario().getId().split("_")[0];
+						stepParams = getStepDetails("S_" + baseScenarioId + stepAction);
 					}
 
 					if (!step.getName().contains("loopWindow")) {
@@ -500,7 +514,7 @@ public class Orchestrator {
 						StringBuilder sb = new StringBuilder();
 
 						sb.append(
-							"<div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='3' readonly='true'>");
+								"<div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='3' readonly='true'>");
 						sb.append("Step Name: " + step.getName() + "\n");
 						if (stepParams != null) {
 							sb.append("Step Description: " + stepParams[0] + "\n");
@@ -584,44 +598,61 @@ public class Orchestrator {
 				Reporter.log(e.getMessage());
 				// Feature not supported - keep behavior as before (treat as not fatal)
 			} catch (Exception e) {
-			    finalException = e;
-			    String failMessage = "Attempt " + attempt + " failed for scenario " + scenario.getId() + " : " + e.getMessage();
-			    logger.error(failMessage, e);
+				finalException = e;
+				String failMessage = "Attempt " + attempt + " failed for scenario " + scenario.getId() + " : "
+						+ e.getMessage();
+				logger.error(failMessage, e);
 
-			    // HTML formatted red text for TestNG report
-			    String redFailMessage = "<span style='color:red; font-weight:bold;'>" + failMessage + "</span>";
-			    Reporter.log(redFailMessage);
+				// HTML red text in TestNG report
+				String redFailMessage = "<span style='color:red; font-weight:bold;'>" + failMessage + "</span>";
+				Reporter.log(redFailMessage);
 
-			    if (attempt < maxAttempts) {
-			        String humanRetryMessage = ordinalWord(attempt) + " try for scenario " + scenario.getId()
-			                + " failed; trying for " + ordinalWord(attempt + 1) + " time.";
-			        extentTest.info("Scenario failed on attempt " + attempt + ". Retrying attempt " + (attempt + 1));
-			        extentTest.info(humanRetryMessage);
+				// Increment total failure counter
+				totalFailedScenarios.incrementAndGet();
 
-			        // Add yellow text for retry info in TestNG
-			        String yellowRetryMessage = "<span style='color:orange;'>" + humanRetryMessage + "</span>";
-			        Reporter.log(yellowRetryMessage);
+				// ✅ Check global threshold first
+				if (totalFailedScenarios.get() >= MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY) {
+					String thresholdMessage = "Global retry threshold (" + MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY
+							+ ") reached. Marking scenario " + scenario.getId() + " as failed.";
 
-			        logger.info(humanRetryMessage);
-			        Thread.sleep(2000);
-			        continue; // retry
-			    } else {
-			        // Final failure
-			        String finalFail = "<span style='color:red; font-weight:bold;'>Scenario failed after " + maxAttempts
-			                + " attempts: " + e.getMessage() + "</span>";
-			        extentTest.fail("Scenario failed after " + maxAttempts + " attempts: " + e.getMessage());
-			        Reporter.log(finalFail);
-			        updateRunStatistics(scenario);
-			        if (e instanceof RuntimeException)
-			            throw (RuntimeException) e;
-			        else
-			            throw new RuntimeException(e);
-			    }
+					logger.error(thresholdMessage);
+					extentTest.fail(thresholdMessage);
+					Reporter.log("<span style='color:red; font-weight:bold;'>" + thresholdMessage + "</span>");
+					updateRunStatistics(scenario);
+
+					// Explicitly fail (so TestNG marks it as FAILED, not SKIPPED)
+					throw new RuntimeException(thresholdMessage);
+				}
+
+				// ✅ If this was not the last retry
+				if (attempt < maxAttempts) {
+					String humanRetryMessage = ordinalWord(attempt) + " try for scenario " + scenario.getId()
+							+ " failed; trying for " + ordinalWord(attempt + 1) + " time.";
+
+					extentTest.info("Scenario failed on attempt " + attempt + ". Retrying attempt " + (attempt + 1));
+					String yellowRetryMessage = "<span style='color:orange;'>" + humanRetryMessage + "</span>";
+					Reporter.log(yellowRetryMessage);
+
+					logger.info(humanRetryMessage);
+					Thread.sleep(2000);
+					continue; // retry next attempt
+				}
+				// ✅ Final failure (after last attempt)
+				else {
+					String finalFail = "<span style='color:red; font-weight:bold;'>Scenario failed after " + maxAttempts
+							+ " attempts: " + e.getMessage() + "</span>";
+
+					extentTest.fail("Scenario failed after " + maxAttempts + " attempts: " + e.getMessage());
+					Reporter.log(finalFail);
+					updateRunStatistics(scenario);
+
+					if (e instanceof RuntimeException)
+						throw (RuntimeException) e;
+					else
+						throw new RuntimeException(e);
+				}
 			}
-
 		}
-
-		// Update run statistics after scenario finished (either succeeded or ultimately failed)
 		updateRunStatistics(scenario);
 
 	}
@@ -861,34 +892,35 @@ public class Orchestrator {
 	}
 
 	private static Scenario.Step deepCopyStep(Scenario.Step original, Scenario scenarioCopy) {
-    Scenario.Step copy = new Scenario.Step();
-    copy.setName(original.getName());
-    copy.setVariant(original.getVariant());
-    copy.setModule(original.getModule());
-    copy.setAsserts(original.getAsserts() == null ? null : new ArrayList<>(original.getAsserts()));
-    copy.setErrors(original.getErrors() == null ? null : new ArrayList<>(original.getErrors()));
-    copy.setAssertionPolicy(original.getAssertionPolicy());
-    copy.setFailExpected(original.isFailExpected());
-    copy.setParameters(original.getParameters() == null ? null : new ArrayList<>(original.getParameters()));
-    copy.setIndex(original.getIndex() == null ? null : new ArrayList<>(original.getIndex()));
-    copy.setOutVarName(original.getOutVarName());
-    copy.setScenario(scenarioCopy);
-    return copy;
-}
-    private static String ordinalWord(int number) {
-        switch (number) {
-            case 1:
-                return "First";
-            case 2:
-                return "Second";
-            case 3:
-                return "Third";
-            case 4:
-                return "Fourth";
-            case 5:
-                return "Fifth";
-            default:
-                return number + "th";
-        }
-    }
+		Scenario.Step copy = new Scenario.Step();
+		copy.setName(original.getName());
+		copy.setVariant(original.getVariant());
+		copy.setModule(original.getModule());
+		copy.setAsserts(original.getAsserts() == null ? null : new ArrayList<>(original.getAsserts()));
+		copy.setErrors(original.getErrors() == null ? null : new ArrayList<>(original.getErrors()));
+		copy.setAssertionPolicy(original.getAssertionPolicy());
+		copy.setFailExpected(original.isFailExpected());
+		copy.setParameters(original.getParameters() == null ? null : new ArrayList<>(original.getParameters()));
+		copy.setIndex(original.getIndex() == null ? null : new ArrayList<>(original.getIndex()));
+		copy.setOutVarName(original.getOutVarName());
+		copy.setScenario(scenarioCopy);
+		return copy;
+	}
+
+	private static String ordinalWord(int number) {
+		switch (number) {
+		case 1:
+			return "First";
+		case 2:
+			return "Second";
+		case 3:
+			return "Third";
+		case 4:
+			return "Fourth";
+		case 5:
+			return "Fifth";
+		default:
+			return number + "th";
+		}
+	}
 }
