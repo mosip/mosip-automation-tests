@@ -8628,12 +8628,18 @@
 			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,2/*SLOT_NUMBER*/)"
 		},
 		"Step-12": {
+			"Description": "Books the appointment for give pre registration",
+			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
+			"Return Value": "NA",
+			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,3/*SLOT_NUMBER*/)"
+		},
+		"Step-13": {
 			"Description": "Generates and uploads the packet with pre pregistration",
 			"Input Parameters": "PRID and template file path",
 			"Return Value": "RID",
 			"Action": "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
 		},
-		"Step-13": {
+		"Step-14": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
