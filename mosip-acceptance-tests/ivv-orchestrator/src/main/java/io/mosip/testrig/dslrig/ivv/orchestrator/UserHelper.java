@@ -1,6 +1,10 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+
+import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -11,9 +15,12 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.masterdata.testscripts.GetWithParam;
 import io.mosip.testrig.apirig.masterdata.testscripts.PatchWithPathParam;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.masterdata.testscripts.DeleteWithParam;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
+import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.restassured.response.Response;
 
@@ -385,8 +392,68 @@ public class UserHelper extends BaseTestCaseUtil {
 
 
 	}
+	
+	public String createBlocklistedWord(String word, String langCode, Scenario.Step step) throws RigInternalError {
+	    KernelAuthentication kernelAuthLib = new KernelAuthentication();
+	    String token = kernelAuthLib.getTokenByRole("admin");
+	    String url = BaseTestCase.ApplnURI + props.getProperty("blocklistedWord");
 
+	    JSONObject body = new JSONObject();
+	    body.put("id", "string");
+	    body.put("metadata", new JSONObject());
 
+	    JSONObject requestObj = new JSONObject();
+	    requestObj.put("description", "Automation Test Blocklisted Word");
+	    requestObj.put("isActive", true);
+	    requestObj.put("langCode", langCode);
+	    requestObj.put("word", word);
 
+	    body.put("request", requestObj);
+	    body.put("requesttime", AdminTestUtil.generateCurrentUTCTimeStamp());
+	    body.put("version", "string");
+
+	    logger.info("Creating blocklisted word via POST: " + url);
+	    logger.info("Request body: " + body.toString(2));
+
+	    Response response = null;
+
+	    try {
+	        response = postReqestWithCookiesAndBody(url, body.toString(), token, MediaType.APPLICATION_JSON, step);
+	        if (response == null)
+	            throw new RigInternalError("Null response from blocklisted word API");
+
+	        JSONObject jsonResponse = new JSONObject(response.getBody().asString());
+	        logger.info("Response body: " + jsonResponse.toString(2));
+
+	        if (jsonResponse.has("response") && !jsonResponse.isNull("response")) {
+	            JSONObject resp = jsonResponse.getJSONObject("response");
+	            String createdWord = resp.optString("word", null);
+
+	            if (createdWord == null || createdWord.isEmpty())
+	                throw new RigInternalError("Response missing 'word' field: " + jsonResponse);
+
+	            return createdWord;
+	        }
+
+	        if (jsonResponse.has("errors")) {
+	            JSONArray errors = jsonResponse.getJSONArray("errors");
+	            for (int i = 0; i < errors.length(); i++) {
+	                JSONObject err = errors.getJSONObject(i);
+	                String errorCode = err.optString("errorCode");
+	                if ("KER-MSD-071".equalsIgnoreCase(errorCode)) {
+	                    logger.warn("Blocklisted word already exists, returning existing word: " + word);
+	                    return word;
+	                }
+	            }
+	        }
+
+	        throw new RigInternalError("Unexpected API response: " + jsonResponse);
+
+	    } catch (Exception e) {
+	        logger.error("Error creating blocklisted word: " + e.getMessage(), e);
+	        String respBody = (response != null) ? response.getBody().asString() : "No response body";
+	        throw new RigInternalError(respBody);
+	    }
+	}
 
 }

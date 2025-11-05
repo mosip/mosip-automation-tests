@@ -350,8 +350,6 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	public Response postReqestWithCookiesAndBody(String url, String body, String token, String opsToLog,
 			Scenario.Step step) {
-		url = addContextToUrl(url, step);
-
 		Response postResponse = null;
 		if (dslConfigManager.IsDebugEnabled()) {
 			postResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
