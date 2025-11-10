@@ -58,6 +58,7 @@ import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.BioAuth;
@@ -1199,10 +1200,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
 			BioAuth bioAuth, Scenario.Step step) throws RigInternalError {
-		if(test.getTestCaseName().contains("EKYC")) {
+		if (test.getTestCaseName().contains("EKYC")) {
 			test.setEndPoint(test.getEndPoint().replace("$kycPartnerKey$", kycPartnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$kycPartnerName$", kycPartnerId));
-		}else {
+		} else if (test.getTestCaseName().contains("BioAuthDelegated")) {
+		} else {
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 		}
