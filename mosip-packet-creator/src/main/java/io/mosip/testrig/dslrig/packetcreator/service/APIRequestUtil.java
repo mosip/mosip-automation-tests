@@ -62,12 +62,6 @@ public class APIRequestUtil {
 
     @Value("${mosip.test.authmanager.prereg.url:/v1/authmanager/authenticate/clientidsecretkey}")
     private String preregAuthManagerURL;
-    
-    @Value("${mosip.test.regclient.centerid}")
-    private String centerId;
-
-    @Value("${mosip.test.regclient.machineid}")
-    private String machineId;
 
     @Value("${mosip.test.jwks.url}")
     private String jwksUrl;
@@ -87,39 +81,27 @@ public class APIRequestUtil {
     @Autowired
     ContextUtils contextUtils;
  
-    void loadContext(String context) {
-    	Properties props = contextUtils.loadServerContext(context);
-    	props.forEach( (k,v) ->{
-    		if(k.equals("mosip.test.regclient.userid"))
-    			operatorId = v.toString();
-    		else
-    		if(k.equals("mosip.test.regclient.centerid"))
-    			centerId = v.toString();
-    		else
-        	if(k.equals("mosip.test.regclient.machineid"))
-        		machineId = v.toString();
-        	else
-            if(k.equals("mosip.test.regclient.password"))
-            	password = v.toString();
-          	else
-                if(k.equals("mosip.test.authmanager.url"))
-                	authManagerURL = v.toString();
-            	else
-                    if(k.equals("mosip.test.regclient.clientid"))
-                    	clientId = v.toString();
-                	else
-                        if(k.equals("mosip.test.regclient.appId"))
-                        	appId = v.toString();
-                    	else
-                            if(k.equals("mosip.test.regclient.secretkey"))
-                            	secretKey = v.toString();
-                            else
-                                if(k.equals("mosip.test.baseurl"))
-                                	baseUrl = v.toString();
-    		
-    	});
-    	
-    }
+	void loadContext(String context) {
+		Properties props = contextUtils.loadServerContext(context);
+		props.forEach((k, v) -> {
+			if (k.equals("mosip.test.regclient.userid"))
+				operatorId = v.toString();
+			else if (k.equals("mosip.test.regclient.password"))
+				password = v.toString();
+			else if (k.equals("mosip.test.authmanager.url"))
+				authManagerURL = v.toString();
+			else if (k.equals("mosip.test.regclient.clientid"))
+				clientId = v.toString();
+			else if (k.equals("mosip.test.regclient.appId"))
+				appId = v.toString();
+			else if (k.equals("mosip.test.regclient.secretkey"))
+				secretKey = v.toString();
+			else if (k.equals("mosip.test.baseurl"))
+				baseUrl = v.toString();
+
+		});
+
+	}
 
     public void clearToken() {
     	tokens.clear();
@@ -254,7 +236,8 @@ public class APIRequestUtil {
 
     public JSONArray syncRid(String baseUrl,String url, String requestBody, String timestamp,String contextKey) throws Exception {
     	this.baseUrl = baseUrl;
-    
+		String centerId= VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+		String machineId=VariableManager.getVariableValue(contextKey, "machineid").toString();
     	loadContext(contextKey);
     	 tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system",null);
     	if (!isValidToken(contextKey)){

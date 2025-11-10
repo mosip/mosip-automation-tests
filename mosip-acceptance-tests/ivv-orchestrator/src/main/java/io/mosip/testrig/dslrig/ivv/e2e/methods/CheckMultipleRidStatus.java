@@ -98,7 +98,7 @@ public class CheckMultipleRidStatus extends BaseTestCaseUtil implements StepInte
 						packetProcessed = true;
 						if (tempPridAndRid.size() > 1)
 							status_Message = "processed";
-					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+					} catch (AuthenticationTestException | AdminTestException e) {
 						logger.error("Failed at checking Packet status with error: " + e.getMessage());
 						status = postScript.response.getBody().asString().toLowerCase();
 						ridStatusMap.put(rid, JsonPrecondtion.getValueFromJson(postScript.response.getBody().asString(),

@@ -158,13 +158,37 @@ public class DocumentProvider {
 
 		File docFile = File.createTempFile("Passport_", ".pdf");
 		docs.add(docFile.getAbsolutePath());
-		VariableManager.setVariableValue(contextKey, "Passport_", docFile.getAbsolutePath());
+		String newPassportPath = docFile.getAbsolutePath();
+		String existingPassportValue = VariableManager.getVariableValue(contextKey, "Passport_") != null
+		    ? VariableManager.getVariableValue(contextKey, "Passport_").toString()
+		    : "";
+
+		String updatedPassportValue;
+		if (!existingPassportValue.isEmpty()) {
+		    updatedPassportValue = existingPassportValue + "," + newPassportPath;
+		} else {
+		    updatedPassportValue = newPassportPath;
+		}
+
+		VariableManager.setVariableValue(contextKey, "Passport_", updatedPassportValue);
 
 		generatePdfFromHtml(html, docFile);
 
 		docFile = File.createTempFile("DrivingLic_", ".pdf");
 		docs.add(docFile.getAbsolutePath());
-		VariableManager.setVariableValue(contextKey, "DrivingLic_", docFile.getAbsolutePath());
+		String newDrivingLicPath = docFile.getAbsolutePath();
+		String existingDrivingLicValue = VariableManager.getVariableValue(contextKey, "DrivingLic_") != null
+		    ? VariableManager.getVariableValue(contextKey, "DrivingLic_").toString()
+		    : "";
+
+		String updatedDrivingLicValue;
+		if (!existingDrivingLicValue.isEmpty()) {
+		    updatedDrivingLicValue = existingDrivingLicValue + "," + newDrivingLicPath;
+		} else {
+		    updatedDrivingLicValue = newDrivingLicPath;
+		}
+
+		VariableManager.setVariableValue(contextKey, "DrivingLic_", updatedDrivingLicValue);
 
 		html = parseThymeleafTemplateDriverLicense(res.getBiometric().getEncodedPhoto(),
 				res.getName().getFirstName() + " " + res.getName().getSurName(), datelic.toLocaleString(), locAddr,
