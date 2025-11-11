@@ -457,7 +457,9 @@ public class Orchestrator {
 		store.setPartners(scenario.getPartners());
 		store.setProperties(this.properties);
 
-		int maxAttempts = 2; // Run each scenario up to 2 times on failure
+		int maxAttempts = BaseTestCaseUtil.props.getProperty("maxAttempts") != null
+				? Integer.parseInt(BaseTestCaseUtil.props.getProperty("maxAttempts"))
+				: 1;
 		boolean scenarioSucceeded = false;
 		Exception finalException = null;
 
