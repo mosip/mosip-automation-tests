@@ -11,13 +11,13 @@ MultiFactorAuth:
         "otpChannel": "$ID:AddIdentity_ValidParam_smoke_Pos_EMAIL$",
         "requestTime": "$TIMESTAMP$",
         "individualId": "$UIN$",
-        "transactionId": "1234567890",
+        "transactionId": "$TRANSACTIONID$",
         "individualIdType": "UIN",
         "bio": true,
         "demo": true,
         "otp": true,
         "sendOtp":{
-    "transactionID": "1234567890",
+    "transactionID": "$TRANSACTIONID$",
     "requestTime": "$TIMESTAMP$",
     "individualId": "$UIN$",
     "individualIdType": "UIN",
@@ -42,7 +42,7 @@ MultiFactorAuth:
           "type": "Face",
           "key": "dob",
           "value": "1999/01/01",
-    "transactionId": "1234567890",
+    "transactionId": "$TRANSACTIONID$",
     "identityRequestTemplate": "idaData/MultiFactorAuth/MultiFactorIdentityEncrypt",
     "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
     }
@@ -50,7 +50,7 @@ MultiFactorAuth:
       output: '{
   "authStatus": "true",
   "sendOtpResp":{
-        "transactionID": "1234567890",
+        "transactionID": "$TRANSACTIONID$",
         "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"idaData/MultiFactorAuth/sendOtpRes",
         "maskedEmail": "$IGNORE$"

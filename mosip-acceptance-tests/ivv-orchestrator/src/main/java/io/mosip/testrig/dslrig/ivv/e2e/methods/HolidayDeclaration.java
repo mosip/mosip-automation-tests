@@ -59,7 +59,7 @@ public class HolidayDeclaration extends BaseTestCaseUtil implements StepInterfac
 				holidayId = jsonResp.getJSONObject("response").get("holidayId").toString();
 			}
 
-		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
+		} catch (AuthenticationTestException | AdminTestException e) {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		}

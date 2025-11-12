@@ -327,7 +327,7 @@ public class CommonUtil {
 	                .forEach(path -> {
 	                    try {
 	                        Files.delete(path);
-	                        logger.debug("Deleted: {}", path);
+	                        logger.info("Deleted: {}", path);
 	                    } catch (IOException e) {
 	                        logger.error("❌ Failed to delete {}", path, e);
 	                        throw new RuntimeException(e);

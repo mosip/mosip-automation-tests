@@ -66,10 +66,6 @@ public class dslConfigManager extends ConfigManager {
 	public static String getEsignetMockBaseURL() { 
 		return getproperty("esignetMockBaseURL");
 	}
-	
-	public static int getLangselect() {	
-		return Integer.parseInt(getproperty("langselect")); 
-	}
 
 	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
 		String toSkippedList = ConfigManager.getproperty("scenariosToSkip");
@@ -137,6 +133,18 @@ public class dslConfigManager extends ConfigManager {
 		String toExecuteList = ConfigManager.getproperty("scenariosToExecute");
 		if (toExecuteList != null && toExecuteList.isEmpty())
 			return true;
+		if (toExecuteList.contains("@@")) {
+		    String[] pairs = toExecuteList.split(",");
+		    List<String> ids = new ArrayList<>();
+
+		    for (String pair : pairs) {
+		        String[] parts = pair.split("@@");
+		        if (parts.length > 0) {
+		            ids.add(parts[0].trim()); 
+		        }
+		    }
+		    toExecuteList = String.join(",", ids);
+		}
 
 		List<String> toBeExecuteList = Arrays.asList(toExecuteList.split(","));
 		if (IsDebugEnabled())

@@ -118,17 +118,8 @@ public class PacketSyncService {
 	@Value("${mosip.test.primary.langcode}")
 	private String primaryLangCode;
 
-	@Value("${mosip.test.packet.template.process:NEW}")
-	private String process;
-
 	@Value("${mosip.test.packet.template.source:REGISTRATION_CLIENT}")
 	private String src;
-
-	@Value("${mosip.test.regclient.centerid}")
-	private String centerId;
-
-	@Value("${mosip.test.regclient.machineid}")
-	private String machineId;
 
 	@Value("${mosip.test.packet.syncapi}")
 	private String syncapi;
@@ -138,9 +129,6 @@ public class PacketSyncService {
 
 	@Value("${mosip.test.prereg.mapfile:Preregistration.properties}")
 	private String preRegMapFile;
-
-	@Value("${mosip.test.persona.configpath}")
-	private String personaConfigPath;
 
 	@Value("${mosip.test.baseurl}")
 	private String baseUrl;
@@ -253,7 +241,18 @@ public class PacketSyncService {
 
 			tmpDir = Files.createTempDirectory("residents_").toFile().getAbsolutePath();
 
-			VariableManager.setVariableValue(contextKey, "residents_", tmpDir);
+			String existingValue = VariableManager.getVariableValue(contextKey, "residents_") != null
+					? VariableManager.getVariableValue(contextKey, "residents_").toString()
+					: "";
+
+			String updatedValue;
+			if (!existingValue.isEmpty()) {
+				updatedValue = existingValue + "," + tmpDir;
+			} else {
+				updatedValue = tmpDir;
+			}
+
+			VariableManager.setVariableValue(contextKey, "residents_", updatedValue);
 
 			for (ResidentModel r : lst) {
 				Path tempPath = Path.of(tmpDir, r.getId() + ".json");
@@ -289,9 +288,9 @@ public class PacketSyncService {
 			logger.info("makePacketAndSync for PRID : {}", preregId);
 		logger.info("Entered makePacketAndSync at time: " + System.currentTimeMillis());
 		Path idJsonPath = null;
+		String  process = null;
 		Path docPath = null;
 		String location = null;
-		String  process = null;
 		File targetDirectory = null;
 		preregId = preregId.trim();
 		if (!preregId.equals("0") && !preregId.equals("01")) {
@@ -321,8 +320,6 @@ public class PacketSyncService {
 		}
 		if (templateLocation != null) {
 			process = ContextUtils.ProcessFromTemplate(src, templateLocation);
-		}else {
-			process=this.process;
 		}
 		String packetPath = packetMakerService.createContainer(idJsonPath.toString(), templateLocation, src, process,
 				preregId, contextKey, true, additionalInfoReqId , targetDirectory);
@@ -404,7 +401,19 @@ public class PacketSyncService {
 		RestClient.logInfo(contextKey, jsonWrapper.toString());
 		String tmpDir = Files.createTempDirectory("preregIds_").toFile().getAbsolutePath();
 
-		VariableManager.setVariableValue(contextKey, "preregIds_", tmpDir);
+		String newPreregPath = tmpDir;
+		String existingPreregValue = VariableManager.getVariableValue(contextKey, "preregIds_") != null
+		    ? VariableManager.getVariableValue(contextKey, "preregIds_").toString()
+		    : "";
+
+		String updatedPreregValue;
+		if (!existingPreregValue.isEmpty()) {
+			updatedPreregValue = existingPreregValue + "," + newPreregPath;
+		} else {
+			 updatedPreregValue = newPreregPath;
+		}
+
+		VariableManager.setVariableValue(contextKey, "preregIds_", updatedPreregValue);
 
 		Path tempPath = Path.of(tmpDir, resident.getId() + "_ID.json");
 		CommonUtil.write(tempPath, jsonWrapper.toString().getBytes());
@@ -451,18 +460,15 @@ public class PacketSyncService {
 	private RidSyncRequestData prepareRidSyncRequest(String containerFile, String name, String supervisorStatus,
 			String supervisorComment, String proc, String contextKey, String additionalInfoReqId)
 			throws Exception, Exception {
+		String centerId= VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+		String machineId=VariableManager.getVariableValue(contextKey, "machineid").toString();
 		if (contextKey != null && !contextKey.equals("")) {
-
 			Properties props = contextUtils.loadServerContext(contextKey);
 			props.forEach((k, v) -> {
 				if (k.toString().equals("mosip.test.packet.syncapi")) {
 					syncapi = v.toString();
-				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_MACHINEID)) {
-					machineId = v.toString();
 				} else if (k.toString().equals("mosip.test.primary.langcode")) {
 					primaryLangCode = v.toString();
-				} else if (k.toString().equals(MOSIP_TEST_REGCLIENT_CENTERID)) {
-					centerId = v.toString();
 				} else if (k.toString().equals("mosip.test.baseurl")) {
 					baseUrl = v.toString();
 				} else if (k.toString().equals("mosip.version")) {
@@ -478,7 +484,6 @@ public class PacketSyncService {
 		} else {
 			rid = container.getName(container.getNameCount() - 1).toString().replace(".zip", "");
 		}
-		
 		if (RestClient.isDebugEnabled(contextKey)) {
 			logger.info("Syncing data for RID : {}", rid);
 			logger.info("Syncing data: process:", proc);
@@ -874,6 +879,8 @@ public class PacketSyncService {
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
 		logger.info("Template generation started at time: " + System.currentTimeMillis());
+		String centerId= VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+		String machineId=VariableManager.getVariableValue(contextKey, "machineid").toString();
 		boolean packetDirCreated = false;
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
@@ -886,8 +893,19 @@ public class PacketSyncService {
 		}
 		if (outDir == null || outDir.trim().equals("")) {
 			packetDir = Files.createTempDirectory("packets_");
-			VariableManager.setVariableValue(contextKey, "packets_", packetDir.toFile().getAbsolutePath());
+			String newPacketPath = packetDir.toFile().getAbsolutePath();
+			String existingPacketValue = VariableManager.getVariableValue(contextKey, "packets_") != null
+					? VariableManager.getVariableValue(contextKey, "packets_").toString()
+					: "";
 
+			String updatedPacketValue;
+			if (!existingPacketValue.isEmpty()) {
+				updatedPacketValue = existingPacketValue + "," + newPacketPath;
+			} else {
+				updatedPacketValue = newPacketPath;
+			}
+
+			VariableManager.setVariableValue(contextKey, "packets_", updatedPacketValue);
 			RestClient.logInfo(contextKey, "packetDir=" + packetDir);
 		} else {
 			packetDir = Paths.get(outDir);
@@ -915,10 +933,6 @@ public class PacketSyncService {
 				ResidentModel resident = ResidentModel.readPersona(path);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				RestClient.logInfo(contextKey, "packetPath=" + packetPath);
-				machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
-
-				centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
-
 				String returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
 						machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
 						genarateValidCbeff);
@@ -1132,28 +1146,54 @@ public class PacketSyncService {
 	                    newValues.put("maritalstatus", value);
 	                    break;
 
-	                case "name":
-	                    int count = 1;
-	                    String primarylang = persona.getPrimaryLanguage();
-	                    String secLang = persona.getSecondaryLanguage();
-	                    List<Name> eng_names = null;
-	                    List<Name> names_primary;
-	                    List<Name> names_sec;
+					case "name":
+						int count = 1;
+						String primarylang = persona.getPrimaryLanguage();
+						String secLang = persona.getSecondaryLanguage();
+						List<Name> eng_names = null;
+						List<Name> names_primary;
+						List<Name> names_sec;
 
-	                    if (primarylang != null && primarylang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
-	                        names_primary = NameProvider.generateNames(persona.getGender(), primarylang, count, eng_names, contextKey);
-	                        oldValues.put("name", persona.getName().getFirstName()+" "+ persona.getName().getMidName()+" "+ persona.getName().getSurName());
-	                        persona.setName(names_primary.get(0));
-	                        newValues.put("name", persona.getName().getFirstName()+" "+ persona.getName().getMidName()+" "+ persona.getName().getSurName());
-	                    }
+						if (primarylang != null && primarylang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
+							oldValues.put("name", persona.getName().getFirstName() + " "
+									+ persona.getName().getMidName() + " " + persona.getName().getSurName());
 
-	                    if (secLang != null && !secLang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
-	                        names_sec = NameProvider.generateNames(persona.getGender(), secLang, count, eng_names, contextKey);
-	                        oldValues.put("name_seclang", persona.getName_seclang() != null ? persona.getName_seclang().getFirstName() : null);
-	                        persona.setName_seclang(names_sec.get(0));
-	                        newValues.put("name_seclang", persona.getName_seclang().getFirstName());
-	                    }
-	                    break;
+							if (value == null || value.trim().isEmpty()) {
+								// keep old logic - generate a random name
+								names_primary = NameProvider.generateNames(persona.getGender(), primarylang, count,
+										eng_names, contextKey);
+								persona.setName(names_primary.get(0));
+							} else {
+								// set name equal to given value
+								Name newName = new Name();
+								newName.setFirstName(value);
+								persona.setName(newName);
+							}
+
+							newValues.put("name", persona.getName().getFirstName() + " "
+									+ persona.getName().getMidName() + " " + persona.getName().getSurName());
+						}
+
+						if (secLang != null && !secLang.startsWith(DataProviderConstants.LANG_CODE_ENGLISH)) {
+							oldValues.put("name_seclang",
+									persona.getName_seclang() != null ? persona.getName_seclang().getFirstName()
+											: null);
+
+							if (value == null || value.trim().isEmpty()) {
+								// keep old logic - generate secondary language name
+								names_sec = NameProvider.generateNames(persona.getGender(), secLang, count, eng_names,
+										contextKey);
+								persona.setName_seclang(names_sec.get(0));
+							} else {
+								// set secondary language name equal to value
+								Name newNameSec = new Name();
+								newNameSec.setFirstName(value);
+								persona.setName_seclang(newNameSec);
+							}
+
+							newValues.put("name_seclang", persona.getName_seclang().getFirstName());
+						}
+						break;
 
 	                case "residencestatus":
 	                case "rs":
@@ -1556,7 +1596,7 @@ public class PacketSyncService {
 		String regId = getRegIdFromPacketPath(packetPath);
 		String tempPacketRootFolder = Path.of(packetPath).toString();
 		String jsonSchema = MosipMasterData.getIDSchemaSchemaLatestVersion(contextKey);
-		String processRoot = Path.of(tempPacketRootFolder, src, process).toString();
+		String processRoot = Path.of(tempPacketRootFolder, src, VariableManager.getVariableValue(contextKey, "process").toString()).toString();
 		String packetRoot = Path.of(processRoot, "rid_id").toString();
 		String identityJson = CommonUtil.readFromJSONFile(packetRoot + "/ID.json");
 		try {
