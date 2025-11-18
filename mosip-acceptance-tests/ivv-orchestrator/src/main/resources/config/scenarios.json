@@ -12962,13 +12962,13 @@
 			"Return Value": "VID",
 			"Action": "$$vidwithoutotp=e2e_GenerateVIDWithoutOTP(Perpetual,$$childUin)"
 		},
-		"Step-20": {
+		"Step-22": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demographic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin,$$childPersona,$$vidwithoutotp)"
 		},
-		"Step-21": {
+		"Step-23": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -25033,7 +25033,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudrian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -25178,7 +25178,7 @@
 		},
 		"Step-12": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other parameters details can be found in-line",
+			"Input Parameters": "Environment and user details. Other parameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details4,false/*GENERATE_PRIVATE_KEY*/,EXTERNAL/*PACKET_TYPE*/)"
 		},
@@ -25430,7 +25430,7 @@
 			"Tag": "Postive_Test",
 			"Persona": "ResidentMaleAdult",
 			"Group": "NA",
-			"Description": "A differently abled resident walk-ins to registration center completes the process and gets UIN card. Later performs biometric delegated  authentication using left little finger",
+			"Description": "A differently abled resident walks into registration center completes the process and gets UIN card. Later performs biometric delegated  authentication using left little finger",
 			"Step-0": {
 				"Description": "Performs health check of given component",
 				"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -25440,12 +25440,12 @@
 			"Step-1": {
 				"Description": "Reads the pre-requisite data at the given index",
 				"Input Parameters": "Details can be found in in-line comments on the parameters",
-				"Return Value": "pre-requiste details",
+				"Return Value": "pre-requisite details",
 				"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 			},
 			"Step-2": {
 				"Description": "Sets the context for scenario execution",
-				"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+				"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 				"Return Value": "NA",
 				"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 			},
@@ -25492,7 +25492,7 @@
 				"Action": "$$uin=e2e_getUINByRid($$rid)"
 			},
 			"Step-10": {
-				"Description": "Gets Email ID configuired for the UIN",
+				"Description": "Gets Email ID configured for the UIN",
 				"Input Parameters": "UIN",
 				"Return Value": "Email ID",
 				"Action": "$$email=e2e_getEmailByUIN($$uin)"
@@ -25505,7 +25505,7 @@
 			},
 			"Step-12": {
 				"Description": "Generated VID for the given UIN",
-				"Input Parameters": "UIN and other can be found in parameters in-line commnets",
+				"Input Parameters": "UIN and other can be found in parameters in-line comments",
 				"Return Value": "VID",
 				"Action": "$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
 			},
