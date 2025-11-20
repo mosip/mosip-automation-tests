@@ -35,7 +35,6 @@
 		<module>ivv-dg</module>
 		<module>ivv-orchestrator</module>
 	</modules>
-
 	<build>
 		<plugins>
 			<plugin>
