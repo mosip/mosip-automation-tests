@@ -10810,7 +10810,7 @@
 		}
 	},
 	{
-		"Scenario": "88",
+		"Scenario": "#88",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
@@ -12939,30 +12939,24 @@
 			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
 		"Step-19": {
-			"Description": "Gets the credentials request ID",
-			"Input Parameters": "UIN and Email ID",
-			"Return Value": "Request ID",
-			"Action": "$$requestId=e2e_credentialRequest($$childUin,$$email)"
-		},
-		"Step-20": {
-			"Description": "Check credentials status",
-			"Input Parameters": "Request ID",
-			"Return Value": "NA",
-			"Action": "e2e_checkCredentialStatus($$requestId)"
-		},
-		"Step-21": {
 			"Description": "Generates VID without OTP",
 			"Input Parameters": "VID type and UIN",
 			"Return Value": "VID",
 			"Action": "$$vidwithoutotp=e2e_GenerateVIDWithoutOTP(Perpetual,$$childUin)"
 		},
-		"Step-22": {
+		"Step-20": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(UIN_WAIT_TIME)"
+		},
+		"Step-21": {
 			"Description": "Peforms demographic authentication",
-			"Input Parameters": "Demographic details, persona, UIN and VID",
+			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin,$$childPersona,$$vidwithoutotp)"
 		},
-		"Step-23": {
+		"Step-22": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -18763,7 +18757,7 @@
 		}
 	},
 	{
-		"Scenario": "157",
+		"Scenario": "#157",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
@@ -22665,7 +22659,7 @@
 		}
 	},
 	{
-		"Scenario": "189",
+		"Scenario": "#189",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
@@ -22798,7 +22792,7 @@
 		}
 	},
 	{
-		"Scenario": "190",
+		"Scenario": "#190",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
@@ -23723,7 +23717,7 @@
 		}
 	},
 	{
-		"Scenario": "197",
+		"Scenario": "#197",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
@@ -24633,7 +24627,7 @@
 		}
 	},
 	{
-		"Scenario": "207",
+		"Scenario": "#207",
 		"Tag": "Postive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
