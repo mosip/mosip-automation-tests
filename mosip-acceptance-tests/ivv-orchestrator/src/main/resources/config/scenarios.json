@@ -17698,7 +17698,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
 		},
 		"Step-22": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -18202,7 +18202,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
 		},
 		"Step-8": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -18735,7 +18735,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
 		},
 		"Step-23": {
 			"Description": "Decomissions the machine",
@@ -18965,7 +18965,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
 		},
 		"Step-21": {
 			"Description": "Decomissions the machine",
