@@ -35,7 +35,9 @@
 		<module>ivv-dg</module>
 		<module>ivv-orchestrator</module>
 	</modules>
-<repositories>
+
+
+	<repositories>
 		<repository>
 			<id>ossrh</id>
 			<name>CentralRepository</name>
