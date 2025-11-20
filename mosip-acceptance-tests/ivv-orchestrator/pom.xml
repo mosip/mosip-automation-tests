@@ -17,7 +17,7 @@
 	<repositories>
 		 <repository>
             <id>ossrh</id>
-            <name>CentralRepository</name>
+            <name>MavenCentralRepository</name>
             <url>https://central.sonatype.com/repositories/snapshots</url>
             <layout>default</layout>
             <snapshots>
