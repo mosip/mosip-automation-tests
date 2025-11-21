@@ -24,9 +24,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
-import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.SkipException;
@@ -48,7 +45,6 @@ import com.sun.management.OperatingSystemMXBean;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.ConfigManager;
-import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.ParserInputDTO;
 import io.mosip.testrig.dslrig.ivv.core.dtos.RegistrationUser;
@@ -74,7 +70,7 @@ public class Orchestrator {
 	public static Boolean beforeSuiteExeuted = false;
 	public static final Object lock = new Object();
 	public static long suiteStartTime = 0;
-	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
+	public static long suiteMaxTimeInMillis = 700000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
 	private static AtomicInteger totalFailedScenarios = new AtomicInteger(0);
 	private static final int MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY = 20;
@@ -399,6 +395,7 @@ public class Orchestrator {
 					throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
 							+ " Skipping scenarios execution - " + scenario.getId()));
 				}
+				
 
 			}
 		}
@@ -443,6 +440,14 @@ public class Orchestrator {
 			throw new SkipException("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
 		}
+		if (System.currentTimeMillis() - suiteStartTime >= suiteMaxTimeInMillis && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
+			extentTest.skip("S-" + scenario.getId()
+					+ ": Skipping scenarios execution As Exhausted the maximum suite execution time.Hence, terminating the execution");
+			updateRunStatistics(scenario);
+			throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
+					+ " Skipping scenarios execution As Exhausted the maximum suite execution time.Hence, terminating the execution- "
+					+ scenario.getId()));
+		}
 
 		Reporter.log(
 				"<div class='box black-bg left-aligned' style='max-width: 100%; word-wrap: break-word;'><b><u>Scenario_"
@@ -457,7 +462,9 @@ public class Orchestrator {
 		store.setPartners(scenario.getPartners());
 		store.setProperties(this.properties);
 
-		int maxAttempts = 2; // Run each scenario up to 2 times on failure
+		int maxAttempts = BaseTestCaseUtil.props.getProperty("maxAttempts") != null
+				? Integer.parseInt(BaseTestCaseUtil.props.getProperty("maxAttempts"))
+				: 1;
 		boolean scenarioSucceeded = false;
 		Exception finalException = null;
 

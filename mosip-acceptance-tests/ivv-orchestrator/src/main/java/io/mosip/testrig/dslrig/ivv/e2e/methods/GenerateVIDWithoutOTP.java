@@ -78,7 +78,9 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 				try {
 					generatevid.test(test);
 				} catch (NoSuchAlgorithmException | SecurityXSSException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
+					this.hasError = true;
+					throw new RigInternalError(e.getMessage());
 				}
 				Response response = generatevid.response;
 				if (response != null) {

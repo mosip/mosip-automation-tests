@@ -39,6 +39,10 @@ public class GetBlocklistedWord extends BaseTestCaseUtil implements StepInterfac
 		if (step.getParameters().size() >= 2) {
 			blocklistedWordParam = step.getParameters().get(1);
 		}
+		if (blocklistedWordParam == null || blocklistedWordParam.trim().isEmpty()) {
+			this.hasError = true;
+			throw new RigInternalError("Blocklisted word parameter is required for " + callType);
+		}
 
 		String blocklistedWord = null;
 
