@@ -70,7 +70,7 @@ public class Orchestrator {
 	public static Boolean beforeSuiteExeuted = false;
 	public static final Object lock = new Object();
 	public static long suiteStartTime = 0;
-	public static long suiteMaxTimeInMillis = 700000; // 2 hour in milliseconds
+	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
 	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
 	private static AtomicInteger totalFailedScenarios = new AtomicInteger(0);
 	private static final int MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY = 20;
@@ -603,7 +603,8 @@ public class Orchestrator {
 			} catch (FeatureNotSupportedError e) {
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
-				// Feature not supported - keep behavior as before (treat as not fatal)
+				// Feature not supported - treat as not fatal and don't retry
+				scenarioSucceeded = true;
 			} catch (Exception e) {
 				finalException = e;
 				String failMessage = "Attempt " + attempt + " failed for scenario " + scenario.getId() + " : "
