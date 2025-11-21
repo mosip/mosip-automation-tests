@@ -462,9 +462,15 @@ public class Orchestrator {
 		store.setPartners(scenario.getPartners());
 		store.setProperties(this.properties);
 
-		int maxAttempts = BaseTestCaseUtil.props.getProperty("maxAttempts") != null
-				? Integer.parseInt(BaseTestCaseUtil.props.getProperty("maxAttempts"))
-				: 1;
+		int maxAttempts = 1;
+		String maxAttemptsProp = BaseTestCaseUtil.props.getProperty("maxAttempts");
+		if (maxAttemptsProp != null) {
+			try {
+				maxAttempts = Math.max(1, Integer.parseInt(maxAttemptsProp));
+			} catch (NumberFormatException nfe) {
+				logger.warn("Invalid maxAttempts '" + maxAttemptsProp + "', falling back to 1", nfe);
+			}
+		}
 		boolean scenarioSucceeded = false;
 		Exception finalException = null;
 
