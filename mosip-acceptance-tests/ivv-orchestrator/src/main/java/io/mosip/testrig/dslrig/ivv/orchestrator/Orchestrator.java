@@ -476,7 +476,8 @@ public class Orchestrator {
 
 		for (int attempt = 1; attempt <= maxAttempts && !scenarioSucceeded; attempt++) {
 			// Determine whether this attempt will be retried on failure
-			boolean willRetry = (attempt < maxAttempts);
+			boolean willRetry = (attempt < maxAttempts)
+					&& (totalFailedScenarios.get() < MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY);
 			// Reset store to initial values before each attempt
 			store = new Store();
 			store.setConfigs(configs);
@@ -923,18 +924,23 @@ public class Orchestrator {
 
 	private static String ordinalWord(int number) {
 		switch (number) {
-		case 1:
-			return "First";
-		case 2:
-			return "Second";
-		case 3:
-			return "Third";
-		case 4:
-			return "Fourth";
-		case 5:
-			return "Fifth";
+		case 1: return "First";
+		case 2: return "Second";
+		case 3: return "Third";
+		case 4: return "Fourth";
+		case 5: return "Fifth";
 		default:
-			return number + "th";
+			int mod10 = number % 10;
+			int mod100 = number % 100;
+			if (mod100 >= 11 && mod100 <= 13) {
+				return number + "th";
+			}
+			switch (mod10) {
+			case 1: return number + "st";
+			case 2: return number + "nd";
+			case 3: return number + "rd";
+			default: return number + "th";
+			}
 		}
 	}
 }
