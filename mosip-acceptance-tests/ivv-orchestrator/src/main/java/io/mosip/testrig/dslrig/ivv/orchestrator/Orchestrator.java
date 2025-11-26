@@ -621,8 +621,6 @@ public class Orchestrator {
 				String redFailMessage = "<span style='color:red; font-weight:bold;'>" + failMessage + "</span>";
 				Reporter.log(redFailMessage);
 
-				// Increment total failure counter
-				totalFailedScenarios.incrementAndGet();
 
 				// ✅ Check global threshold first
 				if (totalFailedScenarios.get() >= MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY) {
@@ -653,6 +651,8 @@ public class Orchestrator {
 				}
 				// ✅ Final failure (after last attempt)
 				else {
+					// Increment total failure counter
+					totalFailedScenarios.incrementAndGet();
 					String finalFail = "<span style='color:red; font-weight:bold;'>Scenario failed after " + maxAttempts
 							+ " attempts: " + e.getMessage() + "</span>";
 
