@@ -22,6 +22,7 @@ import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.DemoAuth;
@@ -327,6 +328,19 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				for (Object object : casesListUIN) {
 					test = (TestCaseDTO) object;
 					test.setInput(inputJson.toString());
+					String partnerKeyUrl = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.partnerId + "/" + PartnerRegistration.apiKey;
+					String ekycPartnerKeyURL = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.ekycPartnerId + "/" + PartnerRegistration.kycApiKey;
+					
+					if(test.getEndPoint().contains("$partnerKeyURL$"))
+					{
+						test.setEndPoint(test.getEndPoint().replace("$partnerKeyURL$", partnerKeyUrl));
+						PartnerRegistration.appendEkycOrRp.set("rp-");
+					}
+					if(test.getEndPoint().contains("$ekycPartnerKeyURL$"))
+					{
+						test.setEndPoint(test.getEndPoint().replace("$ekycPartnerKeyURL$", ekycPartnerKeyURL));
+						PartnerRegistration.appendEkycOrRp.set("ekyc-");
+					}
 					try {
 						demoAuth.test(test);
 					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
@@ -528,8 +542,21 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				for (Object object : casesListVID) {
 					test = (TestCaseDTO) object;
 					test.setInput(inputJson.toString());
-
+					String partnerKeyUrl = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.partnerId + "/" + PartnerRegistration.apiKey;
+					String ekycPartnerKeyURL = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.ekycPartnerId + "/" + PartnerRegistration.kycApiKey;
+					
+					if(test.getEndPoint().contains("$partnerKeyURL$"))
+					{
+						test.setEndPoint(test.getEndPoint().replace("$partnerKeyURL$", partnerKeyUrl));
+						PartnerRegistration.appendEkycOrRp.set("rp-");
+					}
+					if(test.getEndPoint().contains("$ekycPartnerKeyURL$"))
+					{
+						test.setEndPoint(test.getEndPoint().replace("$ekycPartnerKeyURL$", ekycPartnerKeyURL));
+						PartnerRegistration.appendEkycOrRp.set("ekyc-");
+					}
 					try {
+						demoAuth.test(test);
 						demoAuth.test(test);
 					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 						logger.error(e.getMessage());
