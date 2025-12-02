@@ -10,8 +10,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+
+import io.mosip.testrig.apirig.auth.testscripts.SimplePostForAutoGenId;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import io.mosip.testrig.apirig.masterdata.testscripts.SimplePostForAutoGenId;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
@@ -76,8 +77,10 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 			try {
 				try {
 					generatevid.test(test);
-				} catch (NoSuchAlgorithmException e) {
-					logger.error(e.getMessage());
+				} catch (NoSuchAlgorithmException | SecurityXSSException e) {
+					logger.error(e.getMessage(), e);
+					this.hasError = true;
+					throw new RigInternalError(e.getMessage());
 				}
 				Response response = generatevid.response;
 				if (response != null) {

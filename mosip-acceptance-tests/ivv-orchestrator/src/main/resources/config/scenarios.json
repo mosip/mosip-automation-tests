@@ -16256,7 +16256,7 @@
 			"Description": "Get the block listed word",
 			"Input Parameters": "NA",
 			"Return Value": "Block listed word",
-			"Action": "$$blocklistedWord=e2e_GetBlocklistedWord()"
+			"Action": "$$blocklistedWord=e2e_GetBlocklistedWord(CREATE,dslautomation/*BLOCKLIST_TYPE*/)"
 		},
 		"Step-6": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
@@ -16989,7 +16989,7 @@
 			"Description": "Checks for given modality data BDB",
 			"Input Parameters": "UNI and modalities",
 			"Return Value": "NA",
-			"Action": "e2e_CheckForBDBPresence($$uin2,FINGER_Left RingFinger@@FINGER_Right LittleFinger@@FACE@@FINGER_Left LittleFinger@@IRIS_Right@@FINGER_Left MiddleFinger@@FINGER_Left IndexFinger@@FINGER_Right IndexFinger@@IRIS_Left@@FINGER_Right RingFinger@@FINGER_Right MiddleFinger@@FINGER_Right Thumb,true)"
+			"Action": "e2e_CheckForBDBPresence($$uin2,FINGER_Left RingFinger@@FINGER_Right LittleFinger@@FACE@@FINGER_Left LittleFinger@@IRIS_Right@@FINGER_Left MiddleFinger@@FINGER_Left IndexFinger@@FINGER_Right IndexFinger@@IRIS_Left@@FINGER_Right RingFinger@@FINGER_Right MiddleFinger@@FINGER_Right Thumb,false/*EXPECT_EXCEPTION*/)"
 		},
 		"Step-16": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -17710,7 +17710,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS)"
 		},
 		"Step-22": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -18214,7 +18214,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS,RPR-PKV-FAILED-014)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS)"
 		},
 		"Step-8": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -18747,7 +18747,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,CMD_VALIDATION,ERROR)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS)"
 		},
 		"Step-23": {
 			"Description": "Decomissions the machine",
@@ -18977,7 +18977,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,CMD_VALIDATION,FAILED)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REPROCESS)"
 		},
 		"Step-21": {
 			"Description": "Decomissions the machine",

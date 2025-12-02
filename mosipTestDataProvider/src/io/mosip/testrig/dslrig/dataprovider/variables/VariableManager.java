@@ -51,7 +51,7 @@ public final class VariableManager {
             // configure the cache
             cacheConfig = new MutableConfiguration<String, Object>()
                     .setTypes(String.class, Object.class)
-                    .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ETERNAL))
+                    .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_DAY))
                     .setStatisticsEnabled(true);
             // create the cache
             if (varNameSpaces == null) {
