@@ -23655,18 +23655,12 @@
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$Rid2)"
 		},
 		"Step-17": {
-			"Description": "Gets the UIN for the given RID",
-			"Input Parameters": "RID",
-			"Return Value": "UIN",
-			"Action": "$$Uin2=e2e_getUINByRid($$Rid2)"
-		},
-		"Step-18": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
-			"Action": "e2e_demoAuthentication(name,$$Uin2,$$personaFilePath,$$vid)"
+			"Action": "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -25322,18 +25316,12 @@
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$Rid2)"
 		},
 		"Step-17": {
-			"Description": "Gets the UIN for the given RID",
-			"Input Parameters": "RID",
-			"Return Value": "UIN",
-			"Action": "$$Uin2=e2e_getUINByRid($$Rid2)"
-		},
-		"Step-18": {
 			"Description": "Performs eKYC Biometric authentication",
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_ekycBio(faceDevice,$$uin2,$$vid,$$personaFilePath)"
+			"Action": "e2e_ekycBio(faceDevice,$$uin,$$vid,$$personaFilePath)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
