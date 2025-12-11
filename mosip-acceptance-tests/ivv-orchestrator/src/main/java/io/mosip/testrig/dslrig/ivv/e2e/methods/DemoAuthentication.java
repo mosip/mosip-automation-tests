@@ -557,7 +557,6 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					}
 					try {
 						demoAuth.test(test);
-						demoAuth.test(test);
 					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 						logger.error(e.getMessage());
 						this.hasError = true;
