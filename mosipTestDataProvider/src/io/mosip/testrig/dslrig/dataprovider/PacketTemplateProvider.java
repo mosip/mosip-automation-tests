@@ -1293,7 +1293,8 @@ public class PacketTemplateProvider {
 						}
 					}
 
-				if (primaryValue == null || primaryValue.equals("")) {
+				if ((primaryValue == null || primaryValue.equals("")) 
+				        && (!s.getId().equals("dob") && !s.getId().equals("dateOfBirth"))) {
 					primaryValue = generateDefaultAttributes(s, resident, identity, contextKey);
 					if (secLanguage != null) {
 						secValue = Translator.translate(secLanguage, primaryValue, contextKey);
