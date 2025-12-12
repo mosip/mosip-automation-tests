@@ -14,6 +14,7 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import io.mosip.testrig.apirig.auth.testscripts.BioAuth;
 import io.mosip.testrig.apirig.auth.testscripts.DemoAuth;
 import io.mosip.testrig.apirig.auth.testscripts.MultiFactorAuthNew;
@@ -181,6 +182,24 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						input = JsonPrecondtion.parseAndReturnJsonContent(input,
 								"UIN", "sendOtp.individualIdType");
 						test.setInput(input);
+						String partnerKeyUrl = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.partnerId + "/"
+								+ PartnerRegistration.apiKey;
+
+						String ekycPartnerKeyURL = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.ekycPartnerId + "/"
+								+ PartnerRegistration.kycApiKey;
+
+						if (test.getEndPoint().contains("$partnerKeyURL$")) {
+							test.setEndPoint(test.getEndPoint().replace("$partnerKeyURL$", partnerKeyUrl));
+							PartnerRegistration.appendEkycOrRp.set("rp-");
+						}
+						if (test.getEndPoint().contains("$ekycPartnerKeyURL$")) {
+							test.setEndPoint(test.getEndPoint().replace("$ekycPartnerKeyURL$", ekycPartnerKeyURL));
+							PartnerRegistration.appendEkycOrRp.set("ekyc-");
+						}
+						if (test.getEndPoint().contains("$UpdatedPartnerKeyURL$")) {
+							test.setEndPoint(
+									test.getEndPoint().replace("$UpdatedPartnerKeyURL$", PartnerRegistration.updatedpartnerKeyUrl));
+						}
 						try {
 							multiFactorAuth.test(test);
 						} catch (Exception e) {
@@ -233,6 +252,24 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						input = JsonPrecondtion.parseAndReturnJsonContent(input,
 								"VID", "sendOtp.individualIdType");
 						test.setInput(input);
+						String partnerKeyUrl = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.partnerId + "/"
+								+ PartnerRegistration.apiKey;
+
+						String ekycPartnerKeyURL = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.ekycPartnerId + "/"
+								+ PartnerRegistration.kycApiKey;
+
+						if (test.getEndPoint().contains("$partnerKeyURL$")) {
+							test.setEndPoint(test.getEndPoint().replace("$partnerKeyURL$", partnerKeyUrl));
+							PartnerRegistration.appendEkycOrRp.set("rp-");
+						}
+						if (test.getEndPoint().contains("$ekycPartnerKeyURL$")) {
+							test.setEndPoint(test.getEndPoint().replace("$ekycPartnerKeyURL$", ekycPartnerKeyURL));
+							PartnerRegistration.appendEkycOrRp.set("ekyc-");
+						}
+						if (test.getEndPoint().contains("$UpdatedPartnerKeyURL$")) {
+							test.setEndPoint(
+									test.getEndPoint().replace("$UpdatedPartnerKeyURL$", PartnerRegistration.updatedpartnerKeyUrl));
+						}
 						try {
 							multiFactorAuth.test(test);
 						} catch (Exception e) {

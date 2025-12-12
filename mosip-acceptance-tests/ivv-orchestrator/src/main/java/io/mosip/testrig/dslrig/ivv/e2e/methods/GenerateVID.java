@@ -17,6 +17,7 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -82,7 +83,8 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 				getOtpByPhone = true;
 
 			if (emailId.startsWith("$$")) {
-				emailId = step.getScenario().getVariables().get(emailId);
+				emailId = AdminTestUtil.removeLeadingPlusSigns(step.getScenario().getVariables().get(emailId));
+
 			}
 		}
 
@@ -152,7 +154,7 @@ public class GenerateVID extends BaseTestCaseUtil implements StepInterface {
 						logger.info(step.getScenario().getVidPersonaProp());
 					}
 
-				} catch (AuthenticationTestException | AdminTestException e) {
+				} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 					this.hasError = true;
 					throw new RigInternalError(e.getMessage());
 

@@ -2360,18 +2360,30 @@
 			"Action": "$$childRid=e2e_ridsync(NEW/*PACKET_TYPE*/,$$childZipPacketPath)"
 		},
 		"Step-14": {
-			"Description": "Uploads multiple packets together",
-			"Input Parameters": "Packet paths",
+			"Description": "Sync a packet",
+			"Input Parameters": "Process and persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_bulkUploadPacket($$childZipPacketPath,$$parentZipPacketPath)"
+			"Action": "e2e_packetsync($$parentZipPacketPath)"
 		},
 		"Step-15": {
+			"Description": "Sync a packet",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "NA",
+			"Action": "e2e_packetsync($$childZipPacketPath)"
+		},
+		"Step-16": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$parentRid,$$childRid,all/*EXPECTED_RIDs_TO_BE_PROCESSED*/)"
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$parentRid)"
 		},
-		"Step-16": {
+		"Step-17": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,REPROCESS)"
+		},
+		"Step-18": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -6798,36 +6810,42 @@
 			"Action": "$$childRid=e2e_ridsync(NEW/*PACKET_TYPE*/,$$childZipPacketPath)"
 		},
 		"Step-14": {
-			"Description": "Upload child bulk packet",
+			"Description": "Sync a packet",
 			"Input Parameters": "Process and persona file path",
-			"Return Value": "Generated Template file path",
-			"Action": "e2e_bulkUploadPacket($$childZipPacketPath,$$parentZipPacketPath)"
+			"Return Value": "NA",
+			"Action": "e2e_packetsync($$parentZipPacketPath)"
 		},
 		"Step-15": {
-			"Description": "Checks the RID status against given packet processing status",
-			"Input Parameters": "Packet processing status and RID",
+			"Description": "Sync a packet",
+			"Input Parameters": "Process and persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$childRid)"
+			"Action": "e2e_packetsync($$childZipPacketPath)"
 		},
 		"Step-16": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$parentRid)"
+			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$childRid)"
 		},
 		"Step-17": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,ERROR)"
+			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$parentRid)"
 		},
 		"Step-18": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$parentRid,VALIDATE_PACKET,REJECTED)"
+			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,ERROR)"
 		},
 		"Step-19": {
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$parentRid,VALIDATE_PACKET,REJECTED)"
+		},
+		"Step-20": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -13344,30 +13362,36 @@
 			"Action": "$$childRid=e2e_ridsync(NEW/*PACKET_TYPE*/,$$childZipPacketPath)"
 		},
 		"Step-16": {
-			"Description": "Uploads multiple packets",
-			"Input Parameters": "Packets file paths",
+			"Description": "Sync a packet",
+			"Input Parameters": "Process and persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_bulkUploadPacket($$childZipPacketPath,$$parentZipPacketPath)"
+			"Action": "e2e_packetsync($$parentZipPacketPath)"
 		},
 		"Step-17": {
+			"Description": "Sync a packet",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "NA",
+			"Action": "e2e_packetsync($$childZipPacketPath)"
+		},
+		"Step-18": {
 			"Description": "Sets manual verification status",
 			"Input Parameters": "RID and status",
 			"Return Value": "NA",
 			"Action": "e2e_postMockMv($$parentRid,REJECTED)"
 		},
-		"Step-18": {
+		"Step-19": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REJECTED/*PACKET_STATUS*/,$$parentRid)"
 		},
-		"Step-19": {
+		"Step-20": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REJECTED/*PACKET_STATUS*/,$$childRid)"
 		},
-		"Step-20": {
+		"Step-21": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -23631,18 +23655,12 @@
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$Rid2)"
 		},
 		"Step-17": {
-			"Description": "Gets the UIN for the given RID",
-			"Input Parameters": "RID",
-			"Return Value": "UIN",
-			"Action": "$$Uin2=e2e_getUINByRid($$Rid2)"
-		},
-		"Step-18": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
-			"Action": "e2e_demoAuthentication(name,$$Uin2,$$personaFilePath,$$vid)"
+			"Action": "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -24590,36 +24608,42 @@
 			"Action": "$$childRid=e2e_ridsync(NEW/*PACKET_TYPE*/,$$childZipPacketPath)"
 		},
 		"Step-14": {
-			"Description": "Upload both the packet at onces",
-			"Input Parameters": "Packet path",
+			"Description": "Sync a packet",
+			"Input Parameters": "Process and persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_bulkUploadPacket($$childZipPacketPath,$$parentZipPacketPath)"
+			"Action": "e2e_packetsync($$parentZipPacketPath)"
 		},
 		"Step-15": {
-			"Description": "Checks the RID status against given packet processing status",
-			"Input Parameters": "Packet processing status and RID",
+			"Description": "Sync a packet",
+			"Input Parameters": "Process and persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$childRid)"
+			"Action": "e2e_packetsync($$childZipPacketPath)"
 		},
 		"Step-16": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$parentRid)"
+			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$childRid)"
 		},
 		"Step-17": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,ERROR)"
+			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$parentRid)"
 		},
 		"Step-18": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$parentRid,VALIDATE_PACKET,REJECTED)"
+			"Action": "e2e_CheckRIDStage($$childRid,INTRODUCER_VALIDATION,ERROR)"
 		},
 		"Step-19": {
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$parentRid,VALIDATE_PACKET,REJECTED)"
+		},
+		"Step-20": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -25292,18 +25316,12 @@
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$Rid2)"
 		},
 		"Step-17": {
-			"Description": "Gets the UIN for the given RID",
-			"Input Parameters": "RID",
-			"Return Value": "UIN",
-			"Action": "$$Uin2=e2e_getUINByRid($$Rid2)"
-		},
-		"Step-18": {
 			"Description": "Performs eKYC Biometric authentication",
 			"Input Parameters": "Modality, UIN, VID and Persona file path",
 			"Return Value": "NA",
-			"Action": "e2e_ekycBio(faceDevice,$$uin2,$$vid,$$personaFilePath)"
+			"Action": "e2e_ekycBio(faceDevice,$$uin,$$vid,$$personaFilePath)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -25404,7 +25422,7 @@
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
-			"Action": "e2e_checkStatus(FAILED/*PACKET_STATUS*/,$$rid2)"
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
 		},
 		"Step-15 ": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
