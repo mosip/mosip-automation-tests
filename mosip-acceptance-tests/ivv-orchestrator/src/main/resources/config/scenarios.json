@@ -19514,24 +19514,30 @@
 			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-7": {
+			"Description": "Waits for given period in seconds",
+			"Input Parameters": "Time period in seconds to wait",
+			"Return Value": "NA",
+			"Action": "e2e_wait(PACKET_UPLOAD_WAIT_TIME)"
+		},
+		"Step-8": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
 		},
-		"Step-8": {
+		"Step-9": {
 			"Description": "Gets the UIN for the given RID",
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin=e2e_getUINByRid($$rid)"
 		},
-		"Step-9": {
+		"Step-10": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VERIFICATION,SUCCESS)"
 		},
-		"Step-10": {
+		"Step-11": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
