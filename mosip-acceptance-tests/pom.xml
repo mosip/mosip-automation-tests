@@ -37,7 +37,7 @@
 	</modules>
 	
 	<properties>
-		<central.publishing.maven.plugin.version>0.3.5</central.publishing.maven.plugin.version>
+		<central.publishing.maven.plugin.version>0.7.0</central.publishing.maven.plugin.version>
 	</properties>
 	
 	<distributionManagement>
