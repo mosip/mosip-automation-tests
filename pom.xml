@@ -69,6 +69,16 @@
     <build>
         <pluginManagement>
             <plugins>
+            <plugin>
+				<groupId>org.sonatype.central</groupId>
+				<artifactId>central-publishing-maven-plugin</artifactId>
+				<version>${central.publishing.maven.plugin.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<publishingServerId>ossrh</publishingServerId>
+					<autoPublish>false</autoPublish>
+				</configuration>
+			</plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
@@ -274,6 +284,7 @@
                 <sonar.exclusions>${sonar.coverage.exclusions}</sonar.exclusions>
                 <sonar.host.url>https://sonarcloud.io</sonar.host.url>
                 <sonar.organization>mosip</sonar.organization>
+                <central.publishing.maven.plugin.version>0.7.0</central.publishing.maven.plugin.version>
             </properties>
             <activation>
                 <activeByDefault>false</activeByDefault>
