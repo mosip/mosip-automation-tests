@@ -6,13 +6,13 @@
 	<parent>
 		<groupId>io.mosip.testrig.dslrig.ivv</groupId>
 		<artifactId>dslrig-ivv-parent</artifactId>
-		<version>1.3.0-SNAPSHOT</version>
+		<version>1.3.0</version>
 	</parent>
 
 	<groupId>io.mosip.testrig.dslrig.ivv.orchestrator</groupId>
 	<artifactId>dslrig-ivv-orchestrator</artifactId>
 	<name>mosip-dsl-test</name>
-	<version>1.3.0-SNAPSHOT</version>
+	<version>1.3.0</version>
 
 	<repositories>
 		<repository>
@@ -97,7 +97,7 @@
 						</goals>
 						<configuration>
 							<finalName>
-								dslrig-ivv-orchestrator-1.3.0-SNAPSHOT-jar-with-dependencies</finalName>
+								dslrig-ivv-orchestrator-1.3.0-jar-with-dependencies</finalName>
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
@@ -140,13 +140,13 @@
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
 			<artifactId>dslrig-ivv-core</artifactId>
-			<version>1.3.0-SNAPSHOT</version>
+			<version>1.3.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
 			<artifactId>dslrig-ivv-dg</artifactId>
-			<version>1.3.0-SNAPSHOT</version>
+			<version>1.3.0</version>
 		</dependency>
 
 		<dependency>
@@ -228,7 +228,7 @@
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-biometrics-api</artifactId>
-			<version>1.3.0-SNAPSHOT</version>
+			<version>1.3.0</version>
 		</dependency>
 
 		<dependency>
@@ -305,7 +305,7 @@
 			<dependency>
 				<groupId>io.mosip.kernel</groupId>
 				<artifactId>kernel-bom</artifactId>
-				<version>1.3.0-SNAPSHOT</version>
+				<version>1.3.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
