@@ -1113,7 +1113,7 @@
 		},
 		"Step-9": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -1283,7 +1283,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -1398,7 +1398,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -1658,7 +1658,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -1882,7 +1882,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details.Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details.Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -1961,7 +1961,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -3957,7 +3957,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -4180,7 +4180,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -4482,7 +4482,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -4917,7 +4917,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -6321,13 +6321,13 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona1,$$childPersona)"
 		},
 		"Step-12": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona1,$$childPersona)"
 		},
@@ -6775,7 +6775,7 @@
 		},
 		"Step-10": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -9801,7 +9801,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -11409,7 +11409,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -12160,7 +12160,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -12275,7 +12275,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -12384,7 +12384,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -12493,7 +12493,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -12614,7 +12614,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -12717,7 +12717,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -12898,7 +12898,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -13049,7 +13049,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -13333,7 +13333,7 @@
 		},
 		"Step-12": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -13636,7 +13636,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -13775,7 +13775,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -14312,7 +14312,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -14724,7 +14724,7 @@
 		},
 		"Step-13": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -14845,7 +14845,7 @@
 		},
 		"Step-12": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -15045,7 +15045,7 @@
 		},
 		"Step-12": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -15166,7 +15166,7 @@
 		},
 		"Step-12": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -15511,7 +15511,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -15674,7 +15674,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -16097,7 +16097,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Input Parameters": "Environment and user details. Other prarameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -16454,7 +16454,7 @@
 		},
 		"Step-12": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -16575,7 +16575,7 @@
 		},
 		"Step-12": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -18091,7 +18091,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -20333,7 +20333,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -20532,7 +20532,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -21162,7 +21162,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other prarameters details can be found in-line",
+			"Input Parameters": "Environment and user details. Other prarameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -22986,7 +22986,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -23294,7 +23294,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -23348,7 +23348,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaurdian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -24979,7 +24979,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -25033,7 +25033,7 @@
 		},
 		"Step-11": {
 			"Description": "Updates persona data with gaudrian details",
-			"Input Parameters": "Gaurdian and child persona file pahts",
+			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"
 		},
@@ -25178,7 +25178,7 @@
 		},
 		"Step-12": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other parameters details can be found in-line",
+			"Input Parameters": "Environment and user details. Other parameters details can be found in-line",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details4,false/*GENERATE_PRIVATE_KEY*/,EXTERNAL/*PACKET_TYPE*/)"
 		},
@@ -25445,7 +25445,7 @@
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Enviornment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
