@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.env.Environment;
 
 @Configuration
 public class PacketCreatorConfig {
@@ -29,9 +30,21 @@ public class PacketCreatorConfig {
 
 	@Bean
 	@DependsOn("storageProvider")
-	public JobScheduler jobScheduler(StorageProvider storageProvider, ApplicationContext applicationContext) {
-		return JobRunr.configure().useStorageProvider(storageProvider).useJobActivator(applicationContext::getBean)
-				.useDefaultBackgroundJobServer().useDashboard().useJmxExtensions().initialize();
+	public JobScheduler jobScheduler(StorageProvider storageProvider, ApplicationContext applicationContext, Environment env) {
+		// Make dashboard optional to avoid Address already in use errors when the default
+		// JobRunr dashboard port is occupied. Enable by setting 'jobrunr.dashboard.enabled=true'
+		var builder = JobRunr.configure()
+			.useStorageProvider(storageProvider)
+			.useJobActivator(applicationContext::getBean)
+			.useDefaultBackgroundJobServer();
+
+		boolean enableDashboard = Boolean.parseBoolean(env.getProperty("jobrunr.dashboard.enabled", "false"));
+		if (enableDashboard) {
+			builder.useDashboard();
+		}
+
+		builder.useJmxExtensions();
+		return builder.initialize();
 	}
 
 }

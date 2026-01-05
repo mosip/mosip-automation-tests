@@ -41,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
 @Service
 public class CommandsService {
@@ -129,9 +130,9 @@ public class CommandsService {
 				retJson.put("status", false);
 				retJson.put("failed", failedAPIs);
 			}
-		} catch (Exception ex) {
-			logger.error(ex.getMessage());
-		}
+		} catch (ServiceException se) {
+	        throw se;
+	    }
 
 		return retJson.toString();
 	}
