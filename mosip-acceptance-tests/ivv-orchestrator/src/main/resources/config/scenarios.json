@@ -25430,7 +25430,7 @@
 		"Tag": "Positive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "A differently abled resident walk-ins to registration center completes the process and gets UIN card. Later performs biometric delegated  authentication using left little finger",
+		"Description": "A differently abled resident walk-ins to registration center completes the process and gets UIN card. Later performs biometric delegated  authentication using face modality with UIN and VID",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -25539,7 +25539,7 @@
 		"Tag": "Positive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Adult_Update",
-		"Description": "Resident walks into reg-center and uploads a packet and tries to update the name using mixed cases.",
+		"Description": "Resident walks into reg-center and uploads a packet and tries to update the date of birth as empty.",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
