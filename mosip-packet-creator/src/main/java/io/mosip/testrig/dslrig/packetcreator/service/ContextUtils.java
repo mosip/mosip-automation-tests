@@ -159,8 +159,12 @@ public class ContextUtils {
 	        keyGenerator.initialize(2048, new SecureRandom());
 	        KeyPair keypair = keyGenerator.generateKeyPair();
 
-	        String privateKeyPath = personaConfigPath + File.separator + "privatekeys" + File.separator
-	                + VariableManager.getVariableValue(contextKey, "db-server") + "." + machineId + ".reg.key";
+			Object dbServer = VariableManager.getVariableValue(contextKey, "db-server");
+			if (dbServer == null) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "DB_SERVER_MISSING");
+			}
+			String privateKeyPath = personaConfigPath + File.separator + "privatekeys" + File.separator + dbServer + "."
+					+ machineId + ".reg.key";
 
 	        createKeyFile(privateKeyPath, keypair.getPrivate().getEncoded());
 

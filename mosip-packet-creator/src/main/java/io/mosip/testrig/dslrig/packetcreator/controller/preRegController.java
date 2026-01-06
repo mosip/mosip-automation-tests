@@ -308,7 +308,7 @@ public class preRegController {
 			@ApiResponse(responseCode = "200", description = "Successfully cancelled the appointment") })
 	@PostMapping(value = "/appointment/cancel/{preregid}/{contextKey}")
 	public @ResponseBody String cancelAppointment(@RequestBody AppointmentDto appointmentDto,
-			@PathVariable("preregId") String preregId, @PathVariable("contextKey") String contextKey) {
+			@PathVariable("preregid") String preregId, @PathVariable("contextKey") String contextKey) {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
@@ -325,7 +325,7 @@ public class preRegController {
 	@Operation(summary = "Delete Applications for a given pre-registration-Id")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted the application") })
 	@DeleteMapping(value = "/application/{preregid}/{contextKey}")
-	public @ResponseBody String deleteApplication(@PathVariable("preregId") String preregId,
+	public @ResponseBody String deleteApplication(@PathVariable("preregid") String preregId,
 			@PathVariable("contextKey") String contextKey) {
 
 		return packetSyncService.deleteApplication(preregId, contextKey);
@@ -336,7 +336,7 @@ public class preRegController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully updated the application status") })
 	@PutMapping(value = "/application/status/{preregid}/{contextKey}")
-	public @ResponseBody String updatePreRegStatus(@PathVariable("preregId") String preregId,
+	public @ResponseBody String updatePreRegStatus(@PathVariable("preregid") String preregId,
 			@RequestParam(name = "statusCode") String statusCode, @PathVariable("contextKey") String contextKey) {
 
 		try {
@@ -355,7 +355,7 @@ public class preRegController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Document uploaded successfully") })
 	@PostMapping(value = "/documents/{preregid}/{contextKey}")
 	public @ResponseBody String uploadDocuments(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-			@PathVariable("preregId") String preregId, @PathVariable("contextKey") String contextKey) {
+			@PathVariable("preregid") String preregId, @PathVariable("contextKey") String contextKey) {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
