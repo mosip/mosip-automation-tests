@@ -132,17 +132,19 @@ public class CommandsService {
 				retJson.put("failed", failedAPIs);
 			}
 		} catch (ServiceException se) {
-		    throw se;
-		} catch (Exception ex) {
-		    logger.error("Command execution failed", ex);
-		    throw new ServiceException(
-		            HttpStatus.INTERNAL_SERVER_ERROR,
-		            ex.getMessage(),
-		            baseUrl
-		    );
-		}
+            throw se;
+        } catch (Exception ex) {
+            logger.error("Command execution failed", ex);
+            // Use error-key based ServiceException constructor: (status, errorKey, apiUrl, args...)
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "CHECK_CONTEXT_FAIL",
+                    baseUrl,
+                    ex.getMessage()
+            );
+        }
 
-		return retJson.toString();
+        return retJson.toString();
 	}
 
 	public String writeToFile(String contextKey, Properties requestData, long offset) throws IOException {

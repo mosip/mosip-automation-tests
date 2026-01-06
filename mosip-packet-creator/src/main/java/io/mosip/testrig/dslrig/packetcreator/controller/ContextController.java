@@ -116,8 +116,15 @@ public class ContextController {
         Properties bRet = null;
         try {
             bRet = contextUtils.loadServerContext(contextKey);
+        }  catch (ServiceException se) {
+            throw se; // let global exception handler process it
         } catch (Exception ex) {
-            logger.error("getServerContext", ex);
+            logger.error("resetContextData", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "RESET_CONTEXT_FAIL",
+                    ex.getMessage()
+            );
         }
         return bRet;
     }
