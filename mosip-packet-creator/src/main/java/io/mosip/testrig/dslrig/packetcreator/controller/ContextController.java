@@ -71,10 +71,7 @@ public class ContextController {
 	        throw se; // let global exception handler process it
 	    } catch (Exception ex) {
 	        logger.error("createServerContext", ex);
-	        throw new ServiceException(
-	                HttpStatus.INTERNAL_SERVER_ERROR,
-	                "CREATE_SERVER_CONTEXT_FAIL"
-	        );
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "CREATE_SERVER_CONTEXT_FAIL", null, ex);
 	    }
 	}
 
@@ -97,10 +94,7 @@ public class ContextController {
             throw se; // let global exception handler process it
         } catch (Exception ex) {
             logger.error("checkContext", ex);
-            throw new ServiceException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "CHECK_CONTEXT_FAIL"
-            );
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "CHECK_CONTEXT_FAIL", null, ex);
         }
     }
 
@@ -116,10 +110,7 @@ public class ContextController {
             throw se; // let global exception handler process it
         } catch (Exception ex) {
             logger.error("getServerContext", ex);
-            throw new ServiceException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "GET_SERVER_CONTEXT_FAIL"
-            );
+            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_SERVER_CONTEXT_FAIL", null, ex);
         }
         return bRet;
     }
@@ -128,17 +119,18 @@ public class ContextController {
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Context data reset successfully") })
     @GetMapping(value = "/resetContextData/{contextKey}")
     public @ResponseBody String resetContextData(@PathVariable("contextKey") String contextKey) {
-        try {
-            return VariableManager.deleteNameSpace(
-                    VariableManager.getVariableValue(contextKey, "urlBase").toString() + "run_context");
-        } catch (ServiceException se) {
+		try {
+			Object urlBase = VariableManager.getVariableValue(contextKey, "urlBase");
+			if (urlBase == null) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "URL_BASE_NOT_FOUND");
+			}
+			return VariableManager.deleteNameSpace(urlBase.toString() + "run_context");
+		} catch (ServiceException se) {
             throw se; // let global exception handler process it
         } catch (Exception ex) {
             logger.error("resetContextData", ex);
-            throw new ServiceException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "RESET_CONTEXT_FAIL"
-            );
+            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "RESET_CONTEXT_FAIL", null, ex);
+
         }
     }
 }

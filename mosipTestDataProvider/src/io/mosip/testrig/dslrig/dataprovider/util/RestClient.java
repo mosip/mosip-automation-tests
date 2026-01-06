@@ -200,7 +200,9 @@ public class RestClient {
 				logInfo(contextKey, response.getBody().asString());
 
 			}
-			checkErrorResponse(response.getBody().asString(), url);
+			if (response != null) {
+			    checkErrorResponse(response.getBody().asString(), url);
+			}
 
 		} catch (ServiceException se) {
 			// already has status, code, message, url
@@ -595,13 +597,13 @@ public class RestClient {
 		}
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
-			token = token.split(";")[0];
-
-			String key = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role;
-
-			if (!tokens.containsKey(key)) {
-				tokens.put(key, token);
+			String[] parts = cookie.split("=");
+			if (parts.length > 1) {
+				token = parts[1].split(";")[0];
+				String key = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role;
+				if (!tokens.containsKey(key)) {
+					tokens.put(key, token);
+				}
 			}
 		}
 
@@ -1481,12 +1483,8 @@ public class RestClient {
             }
 
             JSONObject err = errors.getJSONObject(0);
-            throw new ServiceException(
-                    HttpStatus.BAD_REQUEST,
-                    err.optString("message", "Unknown MOSIP error"),
-                    err.optString("errorCode", "UNKNOWN"),
-                    url
-            );
+			throw new ServiceException(HttpStatus.BAD_REQUEST, err.optString("errorCode", "UNKNOWN"), url, null,
+					err.optString("message", err.toString()));
         }
 
         // ---- errors : { } → ERROR ----
