@@ -331,6 +331,9 @@ public class RestClient {
 			if (isDebugEnabled(contextKey) && response != null) {
 				logInfo(contextKey, response.getBody().asString());
 			}
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
 			checkErrorResponse(response.getBody().asString(), url);
 		} catch (ServiceException se) {
 			throw se;
@@ -637,7 +640,9 @@ public class RestClient {
 					logInfo(contextKey, "Response: null");
 				}
 			}
-
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
 			for (Header h : response.getHeaders()) {
 				logInfo(contextKey, h.getName() + "=" + h.getValue());
 			}
@@ -1560,10 +1565,8 @@ public class RestClient {
 			} else
 				bDone = true;
 		}
-
-		if (response != null) {
-			logInfo(contextKey, "hello");
-
+		if (response == null) {
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
 		}
 		checkErrorResponse(response.getBody().asString(), url);
 
