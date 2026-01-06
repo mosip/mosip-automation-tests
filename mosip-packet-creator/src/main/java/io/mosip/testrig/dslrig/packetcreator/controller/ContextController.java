@@ -71,7 +71,6 @@ public class ContextController {
 	        throw se; // let global exception handler process it
 	    } catch (Exception ex) {
 	        logger.error("createServerContext", ex);
-	        // Preserve original exception as cause; apiUrl is not applicable so pass null
 	        throw new ServiceException(
 	                HttpStatus.INTERNAL_SERVER_ERROR,
 	                "CREATE_SERVER_CONTEXT_FAIL"

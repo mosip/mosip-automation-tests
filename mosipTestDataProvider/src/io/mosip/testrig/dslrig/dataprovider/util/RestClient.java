@@ -404,7 +404,14 @@ public class RestClient {
 			logInfo(contextKey, response.getBody().asString());
 
 		}
-		checkErrorResponse(response.getBody().asString(), url);
+		try {
+			checkErrorResponse(response.getBody().asString(), url);
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+		}
 
 		return new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
 	}
@@ -436,7 +443,14 @@ public class RestClient {
 		}
 
 		if (response != null) {
-			checkErrorResponse(response.getBody().asString(), url);
+			try {
+				checkErrorResponse(response.getBody().asString(), url);
+			} catch (ServiceException se) {
+				throw se;
+			} catch (Exception e) {
+				logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+				throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+			}
 		}
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -472,55 +486,70 @@ public class RestClient {
 				response = given().cookie(kukki).multiPart("file", new File(filePath)).post(url);
 		}
 
-		checkErrorResponse(response.getBody().asString(), url);
-		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
-	}
-
-	public static JSONObject uploadFiles(String url, List<String> filePaths, JSONObject requestData, String contextKey)
-			throws Exception {
-		String role = ADMIN;
-
-		if (!isValidToken(role, contextKey)) {
-			if (role.equalsIgnoreCase(ADMIN)) {
-				initToken_admin(contextKey);
-			} else if (role.equalsIgnoreCase(PREREG)) {
-				initPreregToken(url, new JSONObject(), contextKey);
-
-			} else {
-				initToken(contextKey);
-			}
-
+		try {
+			checkErrorResponse(response.getBody().asString(), url);
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("POST (file upload) failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
+		
+         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+     }
 
-		Response response = null;
-		RequestSpecification spec = null;
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+     public static JSONObject uploadFiles(String url, List<String> filePaths, JSONObject requestData, String contextKey)
+             throws Exception {
+         String role = ADMIN;
 
-		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
+         if (!isValidToken(role, contextKey)) {
+             if (role.equalsIgnoreCase(ADMIN)) {
+                 initToken_admin(contextKey);
+             } else if (role.equalsIgnoreCase(PREREG)) {
+                 initPreregToken(url, new JSONObject(), contextKey);
 
-		if (isDebugEnabled(contextKey))
-			spec = given().log().all().cookie(kukki);
-		else
-			spec = given().cookie(kukki);
-		for (String fName : filePaths)
-			spec = spec.multiPart("files", new File(fName));
-		if (requestData != null) {
-			Iterator<String> paramKeys = requestData.keys();
-			while (paramKeys.hasNext()) {
-				String key = paramKeys.next();
-				spec = spec.formParam(key, requestData.get(key));
+             } else {
+                 initToken(contextKey);
+             }
 
-			}
-		}
+         }
 
-		if (isDebugEnabled(contextKey))
-			response = spec.post(url).then().log().all().extract().response();
-		else
-			response = spec.post(url);
+         Response response = null;
+         RequestSpecification spec = null;
+         String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
-		checkErrorResponse(response.getBody().asString(), url);
-		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
-	}
+         Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
+
+         if (isDebugEnabled(contextKey))
+             spec = given().log().all().cookie(kukki);
+         else
+             spec = given().cookie(kukki);
+         for (String fName : filePaths)
+             spec = spec.multiPart("files", new File(fName));
+         if (requestData != null) {
+             Iterator<String> paramKeys = requestData.keys();
+             while (paramKeys.hasNext()) {
+                 String key = paramKeys.next();
+                 spec = spec.formParam(key, requestData.get(key));
+
+             }
+         }
+
+         if (isDebugEnabled(contextKey))
+             response = spec.post(url).then().log().all().extract().response();
+         else
+             response = spec.post(url);
+
+        try {
+            checkErrorResponse(response.getBody().asString(), url);
+        } catch (ServiceException se) {
+            throw se;
+        } catch (Exception e) {
+            logger.error("POST (files upload) failed for url {} : {}", url, e.getMessage(), e);
+            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+        }
+         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+     }
 
 	public static JSONObject postNoAuth(String url, JSONObject jsonRequest, String contextKey) throws Exception {
 		return postNoAuth(url, jsonRequest, ADMIN, contextKey);
