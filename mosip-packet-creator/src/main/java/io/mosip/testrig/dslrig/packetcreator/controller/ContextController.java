@@ -1,6 +1,5 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.mosip.testrig.apirig.utils.ErrorCodes;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -76,10 +74,7 @@ public class ContextController {
 	        // Preserve original exception as cause; apiUrl is not applicable so pass null
 	        throw new ServiceException(
 	                HttpStatus.INTERNAL_SERVER_ERROR,
-	                "CREATE_SERVER_CONTEXT_FAIL",
-	                null,
-	                ex,
-	                ex.getMessage()
+	                "CREATE_SERVER_CONTEXT_FAIL"
 	        );
 	    }
 	}
@@ -105,10 +100,7 @@ public class ContextController {
             logger.error("checkContext", ex);
             throw new ServiceException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    "CHECK_CONTEXT_FAIL",
-                    null,
-                    ex,
-                    ex.getMessage()
+                    "CHECK_CONTEXT_FAIL"
             );
         }
     }
@@ -127,10 +119,7 @@ public class ContextController {
             logger.error("getServerContext", ex);
             throw new ServiceException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    "GET_SERVER_CONTEXT_FAIL",
-                    null,
-                    ex,
-                    ex.getMessage()
+                    "GET_SERVER_CONTEXT_FAIL"
             );
         }
         return bRet;
@@ -149,10 +138,7 @@ public class ContextController {
             logger.error("resetContextData", ex);
             throw new ServiceException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    "RESET_CONTEXT_FAIL",
-                    null,
-                    ex,
-                    ex.getMessage()
+                    "RESET_CONTEXT_FAIL"
             );
         }
     }
