@@ -504,17 +504,9 @@ public class RestClient {
              throws Exception {
          String role = ADMIN;
 
-         if (!isValidToken(role, contextKey)) {
-             if (role.equalsIgnoreCase(ADMIN)) {
-                 initToken_admin(contextKey);
-             } else if (role.equalsIgnoreCase(PREREG)) {
-                 initPreregToken(url, new JSONObject(), contextKey);
-
-             } else {
-                 initToken(contextKey);
-             }
-
-         }
+			if (!isValidToken(role, contextKey)) {
+				initToken_admin(contextKey);
+			}
 
          Response response = null;
          RequestSpecification spec = null;
