@@ -73,10 +73,11 @@ public class ContextController {
 	        throw se; // let global exception handler process it
 	    } catch (Exception ex) {
 	        logger.error("createServerContext", ex);
+	        // Pass arguments as an Object[] to ensure the varargs constructor (HttpStatus, String, Object...) is selected
 	        throw new ServiceException(
 	                HttpStatus.INTERNAL_SERVER_ERROR,
 	                "CREATE_SERVER_CONTEXT_FAIL",
-	                ex.getMessage()
+	                new Object[] { ex.getMessage() }
 	        );
 	    }
 	}
@@ -103,7 +104,7 @@ public class ContextController {
             throw new ServiceException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "CHECK_CONTEXT_FAIL",
-                    ex.getMessage()
+                    new Object[] { ex.getMessage() }
             );
         }
     }
@@ -119,11 +120,11 @@ public class ContextController {
         }  catch (ServiceException se) {
             throw se; // let global exception handler process it
         } catch (Exception ex) {
-            logger.error("resetContextData", ex);
+            logger.error("getServerContext", ex);
             throw new ServiceException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    "RESET_CONTEXT_FAIL",
-                    ex.getMessage()
+                    "GET_SERVER_CONTEXT_FAIL",
+                    new Object[] { ex.getMessage() }
             );
         }
         return bRet;
@@ -143,7 +144,7 @@ public class ContextController {
             throw new ServiceException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "RESET_CONTEXT_FAIL",
-                    ex.getMessage()
+                    new Object[] { ex.getMessage() }
             );
         }
     }
