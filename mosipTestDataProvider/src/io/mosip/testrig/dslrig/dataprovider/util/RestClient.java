@@ -592,17 +592,15 @@ public class RestClient {
 		}
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
+
 			String[] parts = cookie.split("=");
 			if (parts.length > 1) {
 				token = parts[1].split(";")[0];
-				String key = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role;
-				if (!tokens.containsKey(key)) {
-					tokens.put(key, token);
-				}
+				tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 			}
+
 		}
 
-		logInfo(contextKey, token);
 		checkErrorResponse(response.getBody().asString(), url);
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
