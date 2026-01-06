@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.ReadEmail;
+import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.packetcreator.service.ResidentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -44,10 +46,12 @@ public class ResidentController {
 		}
 		try {
 			return residentService.getRIDStatus(rid, contextKey);
+		} catch (ServiceException se) {
+			throw se;
 		} catch (Exception e) {
 			logger.error("getRIDStatus", e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_RID_STATUS_FAIL", e.getMessage());
 		}
-		return "{Failed}";
 	}
 
 	@Operation(summary = "Get the UIN with respect to RID from resident")
@@ -64,11 +68,12 @@ public class ResidentController {
 
 		try {
 			return residentService.getUINByRID(rid, contextKey);
+		} catch (ServiceException se) {
+			throw se;
 		} catch (Exception e) {
 			logger.error("getUINByRid", e);
-			err = String.format(err, e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_UIN_BY_RID_FAIL", e.getMessage());
 		}
-		return err;
 	}
 
 	// resident/v1/req/credential
@@ -86,11 +91,12 @@ public class ResidentController {
 
 		try {
 			return residentService.downloadCard(personaPath, uin, contextKey);
+		} catch (ServiceException se) {
+			throw se;
 		} catch (Exception e) {
-			logger.error("getUINByRid", e);
-			err = String.format(err, e.getMessage());
+			logger.error("downloadCard", e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DOWNLOAD_CARD_FAIL", e.getMessage());
 		}
-		return err;
 
 		/*
 		 * { "id": "string", "request": { "additionalData": {}, "credentialType":
@@ -116,8 +122,11 @@ public class ResidentController {
 			List<String> getadditionalInfoReqIds = ReadEmail.getadditionalInfoReqIds();
 			if (!getadditionalInfoReqIds.isEmpty() && getadditionalInfoReqIds.size() > 0)
 				return getadditionalInfoReqIds.get(0);
+		} catch (ServiceException se) {
+			throw se;
 		} catch (Exception e) {
 			logger.error("AdditionalRequestId", e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_ADDITIONAL_REQ_ID_FAIL", e.getMessage());
 		}
 		return "{Failed}";
 	}
@@ -162,11 +171,13 @@ public class ResidentController {
 
 		try {
 			return residentService.getStagesByRID(rid, contextKey).getBody().asString();
+		} catch (ServiceException se) {
+			throw se;
 		} catch (Exception e) {
 			logger.error("getStagesByRid", e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_STAGES_BY_RID_FAIL", e.getMessage());
 
 		}
-		return r;
 	}
 
 }

@@ -44,8 +44,7 @@ public class ServiceException extends RuntimeException {
         this.apiUrl = apiUrl;
     }
 
-    public ServiceException(HttpStatus status, String message, String code, String apiUrl) {
-        super(message);                 
+    public ServiceException(HttpStatus status, String code, String apiUrl) {
         this.status = status;
         this.errorCode = code;
         this.apiUrl = apiUrl;

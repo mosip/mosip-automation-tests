@@ -75,8 +75,8 @@ public class ContextController {
 	        logger.error("createServerContext", ex);
 	        throw new ServiceException(
 	                HttpStatus.INTERNAL_SERVER_ERROR,
-	                ErrorCodes.code("SERVER_CONTEXT_FAIL"),
-	                ErrorCodes.message("SERVER_CONTEXT_FAIL", ex.getMessage())
+	                "CREATE_SERVER_CONTEXT_FAIL",
+	                ex.getMessage()
 	        );
 	    }
 	}
@@ -97,41 +97,47 @@ public class ContextController {
 			return commandsService.checkContext(contextKey, module, eSignetDeployed);
 
 		} catch (ServiceException se) {
-	        throw se; // let global exception handler process it
-	    } catch (Exception ex) {
-	        logger.error("createServerContext", ex);
-	        throw new ServiceException(
-	                HttpStatus.INTERNAL_SERVER_ERROR,
-	                ErrorCodes.code("SERVER_CONTEXT_FAIL"),
-	                ErrorCodes.message("SERVER_CONTEXT_FAIL", ex.getMessage())
-	        );
-	    }
-	}
+            throw se; // let global exception handler process it
+        } catch (Exception ex) {
+            logger.error("checkContext", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "CHECK_CONTEXT_FAIL",
+                    ex.getMessage()
+            );
+        }
+    }
 
-	@Operation(summary = "Retrieve the server context")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Successfully retrieved the server context") })
-	@GetMapping(value = "/context/server/{contextKey}")
-	public @ResponseBody Properties getServerContext(@PathVariable("contextKey") String contextKey) {
-		Properties bRet = null;
-		try {
-			bRet = contextUtils.loadServerContext(contextKey);
-		} catch (Exception ex) {
-			logger.error("createServerContext", ex);
-		}
-		return bRet;
-	}
+    @Operation(summary = "Retrieve the server context")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the server context") })
+    @GetMapping(value = "/context/server/{contextKey}")
+    public @ResponseBody Properties getServerContext(@PathVariable("contextKey") String contextKey) {
+        Properties bRet = null;
+        try {
+            bRet = contextUtils.loadServerContext(contextKey);
+        } catch (Exception ex) {
+            logger.error("getServerContext", ex);
+        }
+        return bRet;
+    }
 
-	@Operation(summary = "Reset the server context data")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Context data reset successfully") })
-	@GetMapping(value = "/resetContextData/{contextKey}")
-	public @ResponseBody String resetContextData(@PathVariable("contextKey") String contextKey) {
-		try {
-			return VariableManager.deleteNameSpace(
-					VariableManager.getVariableValue(contextKey, "urlBase").toString() + "run_context");
-		} catch (Exception ex) {
-			logger.error("resetNameSpaceData", ex);
-			return "{\"" + ex.getMessage() + "\"}";
-		}
-	}
+    @Operation(summary = "Reset the server context data")
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Context data reset successfully") })
+    @GetMapping(value = "/resetContextData/{contextKey}")
+    public @ResponseBody String resetContextData(@PathVariable("contextKey") String contextKey) {
+        try {
+            return VariableManager.deleteNameSpace(
+                    VariableManager.getVariableValue(contextKey, "urlBase").toString() + "run_context");
+        } catch (ServiceException se) {
+            throw se; // let global exception handler process it
+        } catch (Exception ex) {
+            logger.error("resetContextData", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "RESET_CONTEXT_FAIL",
+                    ex.getMessage()
+            );
+        }
+    }
 }

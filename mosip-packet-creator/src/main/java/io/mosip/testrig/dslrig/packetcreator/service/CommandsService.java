@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -131,8 +132,15 @@ public class CommandsService {
 				retJson.put("failed", failedAPIs);
 			}
 		} catch (ServiceException se) {
-	        throw se;
-	    }
+		    throw se;
+		} catch (Exception ex) {
+		    logger.error("Command execution failed", ex);
+		    throw new ServiceException(
+		            HttpStatus.INTERNAL_SERVER_ERROR,
+		            ex.getMessage(),
+		            baseUrl
+		    );
+		}
 
 		return retJson.toString();
 	}

@@ -1422,13 +1422,13 @@ public class RestClient {
 	    try {
 	        json = new JSONObject(response);
 	    } catch (Exception e) {
-	        throw new ServiceException(
-	                HttpStatus.INTERNAL_SERVER_ERROR,
-	                "REST_INVALID_RESPONSE",
-	                response,
-	                url
-	                
-	        );
+	    	throw new ServiceException(
+	    	        HttpStatus.INTERNAL_SERVER_ERROR,
+	    	        "REST_INVALID_RESPONSE",
+	    	        response,
+	    	        url
+	    	);
+
 	    }
 
 	    // ---- NO errors key → SUCCESS ----
