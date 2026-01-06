@@ -66,7 +66,7 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("updatePersonaData", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PERSONA_DATA_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PERSONA_DATA_FAIL", null, ex, ex.getMessage());
 		} 
 	}
 	
@@ -88,7 +88,7 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("updateResidentData", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_RESIDENT_DATA_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_RESIDENT_DATA_FAIL", null, ex, ex.getMessage());
 		}
  
 	}
@@ -108,7 +108,7 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("updatePersonaBioExceptions", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PERSONA_BIOEXCEPTIONS_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PERSONA_BIOEXCEPTIONS_FAIL", null, ex, ex.getMessage());
 		}
  
 	}
@@ -141,7 +141,7 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("generateResidentData", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GENERATE_RESIDENT_DATA_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GENERATE_RESIDENT_DATA_FAIL", null, ex, ex.getMessage());
 		}
 	}
 
@@ -158,7 +158,7 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("getPersonaData", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_PERSONA_DATA_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_PERSONA_DATA_FAIL", null, ex, ex.getMessage());
 		}
  
 	}
@@ -178,7 +178,7 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("setPersonaMockABISExpectationV2", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "SET_PERSONA_MOCKABIS_EXPECTATION_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "SET_PERSONA_MOCKABIS_EXPECTATION_FAIL", null, ex, ex.getMessage());
 		}
  
 	}
@@ -194,7 +194,7 @@ public class PersonaController {
 			throw se;
 		} catch (Exception ex) {
 			logger.error("deleteExpectations", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DELETE_MOCKABIS_EXPECTATION_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DELETE_MOCKABIS_EXPECTATION_FAIL", null, ex, ex.getMessage());
 		}
 
 	}

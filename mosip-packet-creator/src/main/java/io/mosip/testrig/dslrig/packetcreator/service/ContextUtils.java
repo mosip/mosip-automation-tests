@@ -63,8 +63,8 @@ public class ContextUtils {
 	        Properties pp = loadServerContext(ctxName);
 	        pp.forEach((k, v) -> VariableManager.setVariableValue(ctxName, k.toString(), v.toString()));
 
-	        String generatePrivateKey = VariableManager.getVariableValue(ctxName, "generatePrivateKey").toString();
-	        boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
+	        Object generatePrivateKeyObj = VariableManager.getVariableValue(ctxName, "generatePrivateKey");
+	        boolean isRequired = generatePrivateKeyObj != null && Boolean.parseBoolean(generatePrivateKeyObj.toString());
 	        if (isRequired) {
 	            // let generateKeyAndUpdateMachineDetail throw ServiceException if anything wrong
 	            generateKeyAndUpdateMachineDetail(pp, ctxName);

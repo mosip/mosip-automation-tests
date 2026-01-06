@@ -207,7 +207,7 @@ public class RestClient {
 			throw se;
 		} catch (Exception e) {
 			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 
 		return response;
@@ -279,7 +279,7 @@ public class RestClient {
 			throw se;
 		} catch (Exception e) {
 			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -334,7 +334,7 @@ public class RestClient {
 			throw se;
 		} catch (Exception e) {
 			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 
 		JSONObject fullResp = new JSONObject(response.getBody().asString());
@@ -553,7 +553,7 @@ public class RestClient {
 			throw se;
 		} catch (Exception e) {
 			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 		if (response != null) {
 			logInfo(contextKey, "Response: " + response.getBody().asString());
@@ -631,7 +631,7 @@ public class RestClient {
 			throw se;
 		} catch (Exception e) {
 			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
@@ -1413,70 +1413,71 @@ public class RestClient {
 
 	private static void checkErrorResponse(String response, String url) {
 
-	    // NULL or empty response
-	    if (response == null || response.trim().isEmpty()) {
-	        throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
-	    }
+        // NULL or empty response
+        if (response == null || response.trim().isEmpty()) {
+            throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+        }
 
-	    JSONObject json;
-	    try {
-	        json = new JSONObject(response);
-	    } catch (Exception e) {
-	    	throw new ServiceException(
-	    	        HttpStatus.INTERNAL_SERVER_ERROR,
-	    	        "REST_INVALID_RESPONSE",
-	    	        response,
-	    	        url
-	    	);
+        JSONObject json;
+        try {
+            json = new JSONObject(response);
+        } catch (Exception e) {
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "REST_INVALID_RESPONSE",
+                    url,
+                    e,
+                    response
+            );
 
-	    }
+        }
 
-	    // ---- NO errors key → SUCCESS ----
-	    if (!json.has(errorKey)) {
-	        return;
-	    }
+        // ---- NO errors key → SUCCESS ----
+        if (!json.has(errorKey)) {
+            return;
+        }
 
-	    Object errObject = json.get(errorKey);
+        Object errObject = json.get(errorKey);
 
-	    // ---- errors : null → SUCCESS ----
-	    if (errObject == JSONObject.NULL) {
-	        return;
-	    }
+        // ---- errors : null → SUCCESS ----
+        if (errObject == JSONObject.NULL) {
+            return;
+        }
 
-	    // ---- errors : [] → SUCCESS ----
-	    if (errObject instanceof JSONArray) {
-	        JSONArray errors = (JSONArray) errObject;
-	        if (errors.isEmpty()) {
-	            return;
-	        }
+        // ---- errors : [] → SUCCESS ----
+        if (errObject instanceof JSONArray) {
+            JSONArray errors = (JSONArray) errObject;
+            if (errors.isEmpty()) {
+                return;
+            }
 
-	        JSONObject err = errors.getJSONObject(0);
-	        throw new ServiceException(
-	                HttpStatus.BAD_REQUEST,
-	                err.optString("message", "Unknown MOSIP error"),
-	                err.optString("errorCode", "UNKNOWN"),
-	                url
-	        );
-	    }
+            JSONObject err = errors.getJSONObject(0);
+            throw new ServiceException(
+                    HttpStatus.BAD_REQUEST,
+                    err.optString("message", "Unknown MOSIP error"),
+                    err.optString("errorCode", "UNKNOWN"),
+                    url
+            );
+        }
 
-	    // ---- errors : { } → ERROR ----
-	    if (errObject instanceof JSONObject) {
-	        JSONObject err = (JSONObject) errObject;
-	        throw new ServiceException(
-	                HttpStatus.BAD_REQUEST,
-	                err.optString("message", err.toString()),
-	                err.optString("errorCode", "UNKNOWN"),
-	                url
-	        );
-	    }
+        // ---- errors : { } → ERROR ----
+        if (errObject instanceof JSONObject) {
+            JSONObject err = (JSONObject) errObject;
+            throw new ServiceException(
+                    HttpStatus.BAD_REQUEST,
+                    err.optString("message", err.toString()),
+                    err.optString("errorCode", "UNKNOWN"),
+                    url
+            );
+        }
 
-	    // ---- fallback ----
-	    throw new ServiceException(
-	            HttpStatus.BAD_REQUEST,
-	            errObject.toString(),
-	            "UNKNOWN",
-	            url
-	    );
+        // ---- fallback ----
+        throw new ServiceException(
+                HttpStatus.BAD_REQUEST,
+                errObject.toString(),
+                "UNKNOWN",
+                url
+        );
 	}
 
 

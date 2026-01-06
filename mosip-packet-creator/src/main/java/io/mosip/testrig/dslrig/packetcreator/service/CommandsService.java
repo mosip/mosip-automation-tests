@@ -135,11 +135,12 @@ public class CommandsService {
             throw se;
         } catch (Exception ex) {
             logger.error("Command execution failed", ex);
-            // Use error-key based ServiceException constructor: (status, errorKey, apiUrl, args...)
+            // Use error-key based ServiceException constructor with cause
             throw new ServiceException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "CHECK_CONTEXT_FAIL",
                     baseUrl,
+                    ex,
                     ex.getMessage()
             );
         }

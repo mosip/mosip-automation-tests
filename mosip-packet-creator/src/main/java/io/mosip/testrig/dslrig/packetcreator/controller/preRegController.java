@@ -59,7 +59,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("requestOtp", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REQUEST_OTP_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REQUEST_OTP_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -79,7 +79,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("verifyOtp", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "VERIFY_OTP_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "VERIFY_OTP_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -97,7 +97,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("preRegisterResident", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "PRE_REGISTER_RESIDENT_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "PRE_REGISTER_RESIDENT_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -116,7 +116,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("updateResidentApplication", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_RESIDENT_APPLICATION_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_RESIDENT_APPLICATION_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -137,7 +137,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("preRegisterGetApplications", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "PRE_REGISTER_GET_APPLICATIONS_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "PRE_REGISTER_GET_APPLICATIONS_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -157,7 +157,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("preRegisterGetApplicationsBooked", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "PRE_REGISTER_GET_APPLICATIONS_BOOKED_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "PRE_REGISTER_GET_APPLICATIONS_BOOKED_FAIL", null, ex, ex.getMessage());
 		}
  	}
 	
@@ -196,7 +196,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("verifyOtp", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "VERIFY_OTP_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "VERIFY_OTP_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -217,7 +217,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("bookAppointment", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_APPOINTMENT_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_APPOINTMENT_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -240,7 +240,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("bookAppointment", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_APPOINTMENT_NTH_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_APPOINTMENT_NTH_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -258,7 +258,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("bookSpecificAppointment", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_SPECIFIC_APPOINTMENT_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_SPECIFIC_APPOINTMENT_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -276,7 +276,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("getAvailableAppointments", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_AVAILABLE_APPOINTMENTS_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_AVAILABLE_APPOINTMENTS_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -299,7 +299,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("bookAppointmentSpecified", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_APPOINTMENT_SPECIFIED_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_APPOINTMENT_SPECIFIED_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -308,7 +308,7 @@ public class preRegController {
 			@ApiResponse(responseCode = "200", description = "Successfully cancelled the appointment") })
 	@PostMapping(value = "/appointment/cancel/{preregid}/{contextKey}")
 	public @ResponseBody String cancelAppointment(@RequestBody AppointmentDto appointmentDto,
-			@PathVariable("preregid") String preregId, @PathVariable("contextKey") String contextKey) {
+			@PathVariable("preregId") String preregId, @PathVariable("contextKey") String contextKey) {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
@@ -318,14 +318,14 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("cancelAppointment", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "CANCEL_APPOINTMENT_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "CANCEL_APPOINTMENT_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
 	@Operation(summary = "Delete Applications for a given pre-registration-Id")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted the application") })
 	@DeleteMapping(value = "/application/{preregid}/{contextKey}")
-	public @ResponseBody String deleteApplication(@PathVariable("preregid") String preregId,
+	public @ResponseBody String deleteApplication(@PathVariable("preregId") String preregId,
 			@PathVariable("contextKey") String contextKey) {
 
 		return packetSyncService.deleteApplication(preregId, contextKey);
@@ -336,7 +336,7 @@ public class preRegController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully updated the application status") })
 	@PutMapping(value = "/application/status/{preregid}/{contextKey}")
-	public @ResponseBody String updatePreRegStatus(@PathVariable("preregid") String preregId,
+	public @ResponseBody String updatePreRegStatus(@PathVariable("preregId") String preregId,
 			@RequestParam(name = "statusCode") String statusCode, @PathVariable("contextKey") String contextKey) {
 
 		try {
@@ -346,8 +346,8 @@ public class preRegController {
 			return packetSyncService.updatePreRegistrationStatus(preregId, statusCode, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("updatePreRegStatus", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PREREG_STATUS_FAIL", ex.getMessage());
+			logger.error("updatePreregStatus", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PREREG_STATUS_FAIL", null, ex, ex.getMessage());
 		}
  	}
 	
@@ -355,7 +355,7 @@ public class preRegController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Document uploaded successfully") })
 	@PostMapping(value = "/documents/{preregid}/{contextKey}")
 	public @ResponseBody String uploadDocuments(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-			@PathVariable("preregid") String preregId, @PathVariable("contextKey") String contextKey) {
+			@PathVariable("preregId") String preregId, @PathVariable("contextKey") String contextKey) {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
@@ -366,7 +366,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("uploadDocuments", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPLOAD_DOCUMENTS_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPLOAD_DOCUMENTS_FAIL", null, ex, ex.getMessage());
 		}
  	}
 
@@ -392,7 +392,7 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("updateAppointment", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_APPOINTMENT_FAIL", ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_APPOINTMENT_FAIL", null, ex, ex.getMessage());
 		}
  	}
 

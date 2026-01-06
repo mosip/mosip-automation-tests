@@ -50,7 +50,7 @@ public class ResidentController {
 			throw se;
 		} catch (Exception e) {
 			logger.error("getRIDStatus", e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_RID_STATUS_FAIL", e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_RID_STATUS_FAIL", null, e, e.getMessage());
 		}
 	}
 
@@ -72,7 +72,7 @@ public class ResidentController {
 			throw se;
 		} catch (Exception e) {
 			logger.error("getUINByRid", e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_UIN_BY_RID_FAIL", e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_UIN_BY_RID_FAIL", null, e, e.getMessage());
 		}
 	}
 
@@ -95,7 +95,7 @@ public class ResidentController {
 			throw se;
 		} catch (Exception e) {
 			logger.error("downloadCard", e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DOWNLOAD_CARD_FAIL", e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DOWNLOAD_CARD_FAIL", null, e, e.getMessage());
 		}
 
 		/*
@@ -126,7 +126,7 @@ public class ResidentController {
 			throw se;
 		} catch (Exception e) {
 			logger.error("AdditionalRequestId", e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_ADDITIONAL_REQ_ID_FAIL", e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_ADDITIONAL_REQ_ID_FAIL", null, e, e.getMessage());
 		}
 		return "{Failed}";
 	}
@@ -175,7 +175,7 @@ public class ResidentController {
 			throw se;
 		} catch (Exception e) {
 			logger.error("getStagesByRid", e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_STAGES_BY_RID_FAIL", e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_STAGES_BY_RID_FAIL", null, e, e.getMessage());
 
 		}
 	}

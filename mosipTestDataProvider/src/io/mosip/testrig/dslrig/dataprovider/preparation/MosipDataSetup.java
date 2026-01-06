@@ -116,7 +116,7 @@ public class MosipDataSetup {
 			throw se;
 		} catch (Exception e) {
 			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 		return machines;
 	}
@@ -155,7 +155,7 @@ public class MosipDataSetup {
 		} catch (ServiceException se) {
 			throw se;
 		} catch (Exception e) {
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "MACHINE_SEARCH_FAIL", url, e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "MACHINE_SEARCH_FAIL", url, e, e.getMessage());
 		}
 	}
 
@@ -375,7 +375,7 @@ public class MosipDataSetup {
 		} catch (ServiceException se) {
 			throw se;
 		} catch (Exception e) {
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "MACHINE_UPDATE_ERROR", url, e.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "MACHINE_UPDATE_ERROR", url, e, e.getMessage());
 		}
 	}
 
