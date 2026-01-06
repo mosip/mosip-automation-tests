@@ -1482,21 +1482,11 @@ public class RestClient {
         // ---- errors : { } → ERROR ----
         if (errObject instanceof JSONObject) {
             JSONObject err = (JSONObject) errObject;
-            throw new ServiceException(
-                    HttpStatus.BAD_REQUEST,
-                    err.optString("message", err.toString()),
-                    err.optString("errorCode", "UNKNOWN"),
-                    url
-            );
+        	throw new ServiceException(HttpStatus.BAD_REQUEST, err.optString("errorCode", "UNKNOWN"), url, null,
+					err.optString("message", err.toString()));
         }
 
-        // ---- fallback ----
-        throw new ServiceException(
-                HttpStatus.BAD_REQUEST,
-                errObject.toString(),
-                "UNKNOWN",
-                url
-        );
+        throw new ServiceException(HttpStatus.BAD_REQUEST, "UNKNOWN", url, null, errObject.toString());
 	}
 
 
