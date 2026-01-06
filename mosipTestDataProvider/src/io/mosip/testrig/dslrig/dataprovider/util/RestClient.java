@@ -600,7 +600,6 @@ public class RestClient {
 			}
 
 		}
-
 		checkErrorResponse(response.getBody().asString(), url);
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -651,7 +650,6 @@ public class RestClient {
 				tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
 			}
 			logInfo(contextKey, token);
-
 			checkErrorResponse(response.getBody().asString(), url);
 		} catch (ServiceException se) {
 			throw se;
@@ -1150,6 +1148,9 @@ public class RestClient {
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
 			checkErrorResponse(response.getBody().asString(), url);
 			if (response != null) {
 				if (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE)) {
@@ -1198,6 +1199,9 @@ public class RestClient {
 					response = given().contentType("application/json").body(jsonBody).post(authUrl);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
+			}
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
 			}
 			checkErrorResponse(response.getBody().asString(), authUrl);
 			if (response != null) {
