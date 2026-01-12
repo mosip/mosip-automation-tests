@@ -198,8 +198,8 @@ public class ContextUtils {
 			Path privateKeysDir = Paths.get(personaConfigPath, "privatekeys").normalize();
 			Path privateKeyFilePath = privateKeysDir.resolve(dbServerStr + "." + machineId + ".reg.key").normalize();
 			if (!privateKeyFilePath.startsWith(privateKeysDir)) {
-				new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_KEY_PATH");
-			}
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_KEY_PATH");
+				}
 			String privateKeyPath = privateKeyFilePath.toString();
 
 	        createKeyFile(privateKeyPath, keypair.getPrivate().getEncoded());

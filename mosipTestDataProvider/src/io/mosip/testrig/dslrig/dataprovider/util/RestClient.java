@@ -539,7 +539,9 @@ public class RestClient {
              response = spec.post(url).then().log().all().extract().response();
          else
              response = spec.post(url);
-
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
         try {
             checkErrorResponse(response.getBody().asString(), url);
         } catch (ServiceException se) {
@@ -1663,9 +1665,8 @@ public class RestClient {
 		else
 			response = given().contentType(ContentType.JSON).get(urlAct);
 
-		checkErrorResponse(response.getBody().asString(), url);
 		if (response != null && response.getStatusCode() == 200) {
-
+			checkErrorResponse(response.getBody().asString(), urlAct);
 			logInfo(contextKey, response.getBody().asString());
 
 			JSONObject jsonResponse = new JSONObject(response.getBody().asString());
