@@ -40,7 +40,7 @@ public class PersonaController {
 	private String personaConfigPath;
 
 	private PacketSyncService packetSyncService;
-	
+
 	@Value("${mosip.test.persona.Angulipath}")
 	private String personaAnguliPath;
 
@@ -66,10 +66,11 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("updatePersonaData", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PERSONA_DATA_FAIL", null, ex, ex.getMessage());
-		} 
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PERSONA_DATA_FAIL", null, ex,
+					ex.getMessage());
+		}
 	}
-	
+
 	@Operation(summary = "Update the persona data with UIN/RID")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Resident data is successfully updated") })
 	@PostMapping(value = "/updateresident/{contextKey}")
@@ -88,9 +89,10 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("updateResidentData", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_RESIDENT_DATA_FAIL", null, ex, ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_RESIDENT_DATA_FAIL", null, ex,
+					ex.getMessage());
 		}
- 
+
 	}
 
 	@Operation(summary = "Update the specified persona record with the provided biometric exceptions")
@@ -108,17 +110,18 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("updatePersonaBioExceptions", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PERSONA_BIOEXCEPTIONS_FAIL", null, ex, ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PERSONA_BIOEXCEPTIONS_FAIL", null, ex,
+					ex.getMessage());
 		}
- 
+
 	}
-	
+
 	@Operation(summary = "Generate the resident data")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully generated the resident data") })
 	@PostMapping(value = "/persona/generate/{contextKey}")
 	public @ResponseBody String generateResidentData(@RequestBody PersonaRequestDto residentRequestDto,
-		 @PathVariable("contextKey") String contextKey) {
+			@PathVariable("contextKey") String contextKey) {
 
 		try {
 			RestClient.logInfo(contextKey, "Persona Config Path=" + personaConfigPath);
@@ -141,7 +144,8 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("generateResidentData", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GENERATE_RESIDENT_DATA_FAIL", null, ex, ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GENERATE_RESIDENT_DATA_FAIL", null, ex,
+					ex.getMessage());
 		}
 	}
 
@@ -158,9 +162,10 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("getPersonaData", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_PERSONA_DATA_FAIL", null, ex, ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_PERSONA_DATA_FAIL", null, ex,
+					ex.getMessage());
 		}
- 
+
 	}
 
 	@Operation(summary = "Extended API to set Persona specific expectations in mock ABIS")
@@ -178,9 +183,10 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("setPersonaMockABISExpectationV2", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "SET_PERSONA_MOCKABIS_EXPECTATION_FAIL", null, ex, ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "SET_PERSONA_MOCKABIS_EXPECTATION_FAIL", null,
+					ex, ex.getMessage());
 		}
- 
+
 	}
 
 	@Operation(summary = "Delete expectation for a given Id")
@@ -190,13 +196,16 @@ public class PersonaController {
 
 		try {
 			return packetSyncService.deleteMockAbisExpectations(contextKey);
+
 		} catch (ServiceException se) {
 			throw se;
-		} catch (Exception ex) {
-			logger.error("deleteExpectations", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DELETE_MOCKABIS_EXPECTATION_FAIL", null, ex, ex.getMessage());
-		}
 
+		} catch (Exception ex) {
+			logger.error("Error while deleting Mock ABIS expectations for contextKey={}", contextKey, ex);
+
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DELETE_MOCKABIS_EXPECTATION_FAIL",
+					"Failed to delete Mock ABIS expectation", null);
+		}
 	}
 
 	/*

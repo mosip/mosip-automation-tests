@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -14,6 +15,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
@@ -22,19 +24,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import io.mosip.testrig.apirig.utils.ErrorCodes;
 import io.mosip.testrig.dslrig.dataprovider.models.ExecContext;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
-import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
 @Component
 public class ContextUtils {
 
-	private String machineId = null;
+	private static final Pattern CONTEXT_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]+$");
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
@@ -56,23 +56,47 @@ public class ContextUtils {
 	}
 
 	public String createUpdateServerContext(Properties props, String ctxName) throws IOException {
-	    String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
-	    try (FileWriter fr = new FileWriter(filePath)) {
+
+	    validateContextName(ctxName); 
+	    Path baseDir = Paths.get(personaConfigPath).normalize();
+	    Path filePath = baseDir
+	            .resolve("server.context." + ctxName + ".properties")
+	            .normalize();
+
+	    if (!filePath.startsWith(baseDir)) {
+	        throw new SecurityException("Path traversal attempt detected");
+	    }
+
+	    try (FileWriter fr = new FileWriter(filePath.toFile())) {
+
 	        props.store(fr, "Server Context Attributes");
 
 	        Properties pp = loadServerContext(ctxName);
-	        pp.forEach((k, v) -> VariableManager.setVariableValue(ctxName, k.toString(), v.toString()));
+	        pp.forEach((k, v) ->
+	                VariableManager.setVariableValue(ctxName, k.toString(), v.toString())
+	        );
 
-	        Object generatePrivateKeyObj = VariableManager.getVariableValue(ctxName, "generatePrivateKey");
-	        boolean isRequired = generatePrivateKeyObj != null && Boolean.parseBoolean(generatePrivateKeyObj.toString());
+	        Object generatePrivateKeyObj =
+	                VariableManager.getVariableValue(ctxName, "generatePrivateKey");
+
+	        boolean isRequired =
+	                generatePrivateKeyObj != null &&
+	                Boolean.parseBoolean(generatePrivateKeyObj.toString());
+
 	        if (isRequired) {
-	            // let generateKeyAndUpdateMachineDetail throw ServiceException if anything wrong
 	            generateKeyAndUpdateMachineDetail(pp, ctxName);
 	        }
 	    } catch (ServiceException se) {
 	        throw se;
 	    }
+
 	    return "true";
+	}
+
+	private void validateContextName(String ctxName) {
+	    if (ctxName == null || !CONTEXT_NAME_PATTERN.matcher(ctxName).matches()) {
+	        throw new IllegalArgumentException("Invalid context name");
+	    }
 	}
 
 
