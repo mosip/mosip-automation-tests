@@ -195,8 +195,12 @@ public class ContextUtils {
 			if (!CONTEXT_NAME_PATTERN.matcher(dbServerStr).matches()) {
 				throw new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_DB_SERVER_NAME");
 			}
-			String privateKeyPath = personaConfigPath + File.separator + "privatekeys" + File.separator + dbServer + "."
-					+ machineId + ".reg.key";
+			Path privateKeysDir = Paths.get(personaConfigPath, "privatekeys").normalize();
+			Path privateKeyFilePath = privateKeysDir.resolve(dbServerStr + "." + machineId + ".reg.key").normalize();
+			if (!privateKeyFilePath.startsWith(privateKeysDir)) {
+				new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_KEY_PATH");
+			}
+			String privateKeyPath = privateKeyFilePath.toString();
 
 	        createKeyFile(privateKeyPath, keypair.getPrivate().getEncoded());
 

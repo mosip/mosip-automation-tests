@@ -409,6 +409,9 @@ public class RestClient {
 			logInfo(contextKey, response.getBody().asString());
 
 		}
+		if (response == null) {
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+		}
 		try {
 			checkErrorResponse(response.getBody().asString(), url);
 		} catch (ServiceException se) {
@@ -656,7 +659,7 @@ public class RestClient {
 		} catch (ServiceException se) {
 			throw se;
 		} catch (Exception e) {
-			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			logger.error("POST failed for url {} : {}", url, e.getMessage(), e);
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
