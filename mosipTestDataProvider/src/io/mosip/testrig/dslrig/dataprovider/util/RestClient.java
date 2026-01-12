@@ -202,10 +202,11 @@ public class RestClient {
 			}
 			if (response != null) {
 			    checkErrorResponse(response.getBody().asString(), url);
-			}
+			}else {
+			    throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+ 			}
 
 		} catch (ServiceException se) {
-			// already has status, code, message, url
 			throw se;
 		} catch (Exception e) {
 			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
@@ -494,7 +495,9 @@ public class RestClient {
 			else
 				response = given().cookie(kukki).multiPart("file", new File(filePath)).post(url);
 		}
-
+		if (response == null) {
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+		}
 		try {
 			checkErrorResponse(response.getBody().asString(), url);
 		} catch (ServiceException se) {
