@@ -829,9 +829,6 @@ public  class MosipMasterData {
 	public static Hashtable<String, List<MosipIndividualTypeModel>> getIndividualTypes(String contextKey) {
 	
 		String mosipVersion = "legacy";
-		Object obj = VariableManager.getVariableValue(contextKey,"mosip.version");
-		if(obj != null)
-			mosipVersion = obj.toString();
 		if(mosipVersion.equals("1.2")) {
 			return getIndividualTypesFromDynamicFields(contextKey);
 		}
@@ -898,9 +895,6 @@ public  class MosipMasterData {
 		List<MosipGenderModel> genderTypeList = Collections.emptyList();
 
 		String mosipVersion = "legacy";
-		Object obj = VariableManager.getVariableValue(contextKey,"mosip.version");
-		if(obj != null)
-			mosipVersion = obj.toString();
 		if(mosipVersion.equals("1.2")) {
 			genderTypeList = getGenderTypesLTS(lang,contextKey);
 		}else {

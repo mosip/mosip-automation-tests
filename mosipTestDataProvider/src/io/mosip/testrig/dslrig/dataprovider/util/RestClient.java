@@ -26,6 +26,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 //import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
@@ -199,11 +200,19 @@ public class RestClient {
 				logInfo(contextKey, response.getBody().asString());
 
 			}
-			checkErrorResponse(response.getBody().asString());
+			if (response != null) {
+			    checkErrorResponse(response.getBody().asString(), url);
+			}else {
+			    throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+ 			}
 
+		} catch (ServiceException se) {
+			throw se;
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
+
 		return response;
 	}
 
@@ -266,12 +275,16 @@ public class RestClient {
 				if (isDebugEnabled(contextKey)) {
 					logInfo(contextKey, response.getBody().asString());
 				}
-				checkErrorResponse(response.getBody().asString());
+				checkErrorResponse(response.getBody().asString(), url);
 			}
 
+		} catch (ServiceException se) {
+			throw se;
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
+
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
 
@@ -318,11 +331,18 @@ public class RestClient {
 
 			if (isDebugEnabled(contextKey) && response != null) {
 				logInfo(contextKey, response.getBody().asString());
-				checkErrorResponse(response.getBody().asString());
 			}
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
+			checkErrorResponse(response.getBody().asString(), url);
+		} catch (ServiceException se) {
+			throw se;
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
+
 		JSONObject fullResp = new JSONObject(response.getBody().asString());
 
 		if (fullResp.has(dataKey)) {
@@ -390,7 +410,17 @@ public class RestClient {
 			logInfo(contextKey, response.getBody().asString());
 
 		}
-		checkErrorResponse(response.getBody().asString());
+		if (response == null) {
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+		}
+		try {
+			checkErrorResponse(response.getBody().asString(), url);
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+		}
 
 		return new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
 	}
@@ -422,8 +452,16 @@ public class RestClient {
 		}
 
 		if (response != null) {
-			checkErrorResponse(response.getBody().asString());
-		}
+			try {
+				checkErrorResponse(response.getBody().asString(), url);
+			} catch (ServiceException se) {
+				throw se;
+			} catch (Exception e) {
+				logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+				throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+			}
+		}else 
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
@@ -457,56 +495,67 @@ public class RestClient {
 			else
 				response = given().cookie(kukki).multiPart("file", new File(filePath)).post(url);
 		}
+		if (response == null) {
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+		}
+		try {
+			checkErrorResponse(response.getBody().asString(), url);
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("POST (file upload) failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+		}
+		
+         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+     }
 
-		checkErrorResponse(response.getBody().asString());
-		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
-	}
+     public static JSONObject uploadFiles(String url, List<String> filePaths, JSONObject requestData, String contextKey)
+             throws Exception {
+         String role = ADMIN;
 
-	public static JSONObject uploadFiles(String url, List<String> filePaths, JSONObject requestData, String contextKey)
-			throws Exception {
-		String role = ADMIN;
-
-		if (!isValidToken(role, contextKey)) {
-			if (role.equalsIgnoreCase(ADMIN)) {
+			if (!isValidToken(role, contextKey)) {
 				initToken_admin(contextKey);
-			} else if (role.equalsIgnoreCase(PREREG)) {
-				initPreregToken(url, new JSONObject(), contextKey);
-
-			} else {
-				initToken(contextKey);
 			}
 
-		}
+         Response response = null;
+         RequestSpecification spec = null;
+         String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
 
-		Response response = null;
-		RequestSpecification spec = null;
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+         Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
-		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
+         if (isDebugEnabled(contextKey))
+             spec = given().log().all().cookie(kukki);
+         else
+             spec = given().cookie(kukki);
+         for (String fName : filePaths)
+             spec = spec.multiPart("files", new File(fName));
+         if (requestData != null) {
+             Iterator<String> paramKeys = requestData.keys();
+             while (paramKeys.hasNext()) {
+                 String key = paramKeys.next();
+                 spec = spec.formParam(key, requestData.get(key));
 
-		if (isDebugEnabled(contextKey))
-			spec = given().log().all().cookie(kukki);
-		else
-			spec = given().cookie(kukki);
-		for (String fName : filePaths)
-			spec = spec.multiPart("files", new File(fName));
-		if (requestData != null) {
-			Iterator<String> paramKeys = requestData.keys();
-			while (paramKeys.hasNext()) {
-				String key = paramKeys.next();
-				spec = spec.formParam(key, requestData.get(key));
+             }
+         }
 
+         if (isDebugEnabled(contextKey))
+             response = spec.post(url).then().log().all().extract().response();
+         else
+             response = spec.post(url);
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
 			}
-		}
-
-		if (isDebugEnabled(contextKey))
-			response = spec.post(url).then().log().all().extract().response();
-		else
-			response = spec.post(url);
-
-		checkErrorResponse(response.getBody().asString());
-		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
-	}
+        try {
+            checkErrorResponse(response.getBody().asString(), url);
+        } catch (ServiceException se) {
+            throw se;
+        } catch (Exception e) {
+            logger.error("POST (files upload) failed for url {} : {}", url, e.getMessage(), e);
+            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+        }
+         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+     }
 
 	public static JSONObject postNoAuth(String url, JSONObject jsonRequest, String contextKey) throws Exception {
 		return postNoAuth(url, jsonRequest, ADMIN, contextKey);
@@ -535,8 +584,11 @@ public class RestClient {
 						.then().log().all().extract().response();
 			else
 				response = given().contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+		} catch (ServiceException se) {
+			throw se;
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 		if (response != null) {
 			logInfo(contextKey, "Response: " + response.getBody().asString());
@@ -549,18 +601,15 @@ public class RestClient {
 		}
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-		    token = cookie.split("=")[1];
-		    token = token.split(";")[0];
 
-		    String key = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role;
+			String[] parts = cookie.split("=");
+			if (parts.length > 1) {
+				token = parts[1].split(";")[0];
+				tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			}
 
-		    if (!tokens.containsKey(key)) {
-		        tokens.put(key, token);
-		    }
 		}
-
-		logInfo(contextKey, token);
-		checkErrorResponse(response.getBody().asString());
+		checkErrorResponse(response.getBody().asString(), url);
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
@@ -590,31 +639,35 @@ public class RestClient {
 			else
 				response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
 
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-
-		if (isDebugEnabled(contextKey)) {
-			if (response != null) {
-				logInfo(contextKey, "Response: " + response.getBody().asString());
-			} else {
-				logInfo(contextKey, "Response: null");
+			if (isDebugEnabled(contextKey)) {
+				if (response != null) {
+					logInfo(contextKey, "Response: " + response.getBody().asString());
+				} else {
+					logInfo(contextKey, "Response: null");
+				}
 			}
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
+			for (Header h : response.getHeaders()) {
+				logInfo(contextKey, h.getName() + "=" + h.getValue());
+			}
+			String cookie = response.getHeader(SET_COOKIE);
+			if (cookie != null && cookie.contains("=")) {
+				String[] parts = cookie.split("=", 2);
+				if (parts.length > 1) {
+					token = parts[1].split(";")[0];
+					tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+				}
+			}
+			logInfo(contextKey, token);
+			checkErrorResponse(response.getBody().asString(), url);
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("POST failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
-
-		for (Header h : response.getHeaders()) {
-			logInfo(contextKey, h.getName() + "=" + h.getValue());
-		}
-		String cookie = response.getHeader(SET_COOKIE);
-		if (cookie != null) {
-			token = cookie.split("=")[1];
-
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
-		}
-		logInfo(contextKey, token);
-
-		checkErrorResponse(response.getBody().asString());
-
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
 
@@ -653,7 +706,7 @@ public class RestClient {
 		}
 		logInfo(contextKey, token);
 		logInfo(contextKey, "Response:" + response.getBody().asString());
-		checkErrorResponse(response.getBody().asString());
+		checkErrorResponse(response.getBody().asString(), url);
 
 		return new JSONObject(response.getBody().asString());
 	}
@@ -684,7 +737,7 @@ public class RestClient {
 		}
 		logInfo(contextKey, token);
 		logInfo(contextKey, "Response:" + response.getBody().asString());
-		checkErrorResponse(response.getBody().asString());
+		checkErrorResponse(response.getBody().asString(), url);
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
@@ -713,7 +766,7 @@ public class RestClient {
 		}
 		logInfo(contextKey, token);
 		logInfo(contextKey, "Response:" + response.getBody().asString());
-
+		checkErrorResponse(response.getBody().asString(), url);
 		return new JSONObject(response.getBody().asString());
 	}
 
@@ -741,7 +794,7 @@ public class RestClient {
 		}
 		logInfo(contextKey, token);
 		logInfo(contextKey, "Response:" + response.getBody().asString());
-
+		checkErrorResponse(response.getBody().asString(), url);
 		return response.getBody().asString();
 	}
 
@@ -772,7 +825,7 @@ public class RestClient {
 		}
 		logInfo(contextKey, token);
 		logInfo(contextKey, "Response:" + response.getBody().asString());
-		checkErrorResponse(response.getBody().asString());
+		checkErrorResponse(response.getBody().asString(), url);
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
@@ -849,7 +902,7 @@ public class RestClient {
 		}
 		if (response.getBody().asString().startsWith("{")) {
 			logInfo(contextKey, "Response:" + response.getBody().asString());
-			checkErrorResponse(response.getBody().asString());
+			checkErrorResponse(response.getBody().asString(), url);
 
 			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 		} else {
@@ -898,7 +951,7 @@ public class RestClient {
 				bDone = true;
 
 		}
-
+		checkErrorResponse(response.getBody().asString(), url);
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
@@ -909,7 +962,7 @@ public class RestClient {
 
 		if (response.getBody().asString().startsWith("{")) {
 			logInfo(contextKey, "Response: " + response.getBody().asString());
-			checkErrorResponse(response.getBody().asString());
+			checkErrorResponse(response.getBody().asString(), url);
 			JSONObject jsonBody = new JSONObject(response.getBody().asString());
 
 			Object data = jsonBody.opt("response"); // corrected key
@@ -989,7 +1042,7 @@ public class RestClient {
 		}
 		if (response.getBody().asString().startsWith("{")) {
 			logInfo(contextKey, "Response:" + response.getBody().asString());
-			checkErrorResponse(response.getBody().asString());
+			checkErrorResponse(response.getBody().asString(), url);
 			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 		} else {
 			return new JSONObject("{\"status\":\"" + response.getBody().asString() + "\"}");
@@ -1036,7 +1089,7 @@ public class RestClient {
 		}
 		if (response.getBody().asString().startsWith("{")) {
 			logInfo(contextKey, "Response:" + response.getBody().asString());
-			checkErrorResponse(response.getBody().asString());
+			checkErrorResponse(response.getBody().asString(), url);
 			return new JSONObject(response.getBody().asString());
 		} else {
 			return new JSONObject("{\"status\":\"" + response.getBody().asString() + "\"}");
@@ -1083,7 +1136,7 @@ public class RestClient {
 		}
 		if (response.getBody().asString().startsWith("{")) {
 			logInfo(contextKey, "Response:" + response.getBody().asString());
-			checkErrorResponse(response.getBody().asString());
+			checkErrorResponse(response.getBody().asString(), url);
 
 			return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 		} else {
@@ -1106,7 +1159,10 @@ public class RestClient {
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
-
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
+			checkErrorResponse(response.getBody().asString(), url);
 			if (response != null) {
 				if (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE)) {
 					return false;
@@ -1155,7 +1211,11 @@ public class RestClient {
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
+			}
 			if (response != null) {
+				checkErrorResponse(response.getBody().asString(), authUrl);
 				if (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE)) {
 					boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
 							: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
@@ -1211,7 +1271,10 @@ public class RestClient {
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
-
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
+			}
+			checkErrorResponse(response.getBody().asString(), authUrl);
 			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {
 				boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
 						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
@@ -1266,7 +1329,10 @@ public class RestClient {
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
-
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
+			}
+			checkErrorResponse(response.getBody().asString(), authUrl);
 			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {
 				boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
 						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
@@ -1318,7 +1384,10 @@ public class RestClient {
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
-
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
+			}
+			checkErrorResponse(response.getBody().asString(), authUrl);
 			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {
 				boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
 						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
@@ -1335,6 +1404,7 @@ public class RestClient {
 		} catch (Exception ex) {
 
 		}
+
 		return false;
 
 	}
@@ -1382,7 +1452,7 @@ public class RestClient {
 			}
 			String token = response.getCookie(AUTHORIZATION);
 			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + CRVS, token);
-
+			checkErrorResponse(response.getBody().asString(), authUrl);
 			return true;
 		} catch (Exception ex) {
 
@@ -1391,21 +1461,61 @@ public class RestClient {
 
 	}
 
-	private static void checkErrorResponse(String response) throws Exception {
-		JSONObject jsonObject = new JSONObject(response);
-		boolean err = false;
-		if (jsonObject.has(errorKey)) {
-			Object errObject = jsonObject.get(errorKey);
-			if (errObject instanceof JSONArray) {
-				if (!((JSONArray) errObject).isEmpty())
-					err = true;
-			} else if (errObject != JSONObject.NULL)
-				err = true;
-		}
-		if (err)
-			throw new Exception(String.valueOf(jsonObject.get(errorKey)));
+	private static void checkErrorResponse(String response, String url) {
 
+        // NULL or empty response
+        if (response == null || response.trim().isEmpty()) {
+            throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+        }
+
+        JSONObject json;
+        try {
+            json = new JSONObject(response);
+        } catch (Exception e) {
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "REST_INVALID_RESPONSE",
+                    url,
+                    e,
+                    response
+            );
+
+        }
+
+        // ---- NO errors key → SUCCESS ----
+        if (!json.has(errorKey)) {
+            return;
+        }
+
+        Object errObject = json.get(errorKey);
+
+        // ---- errors : null → SUCCESS ----
+        if (errObject == JSONObject.NULL) {
+            return;
+        }
+
+        // ---- errors : [] → SUCCESS ----
+        if (errObject instanceof JSONArray) {
+            JSONArray errors = (JSONArray) errObject;
+            if (errors.isEmpty()) {
+                return;
+            }
+
+            JSONObject err = errors.getJSONObject(0);
+			throw new ServiceException(HttpStatus.BAD_REQUEST, err.optString("errorCode", "UNKNOWN"), url, null,
+					err.optString("message", err.toString()));
+        }
+
+        // ---- errors : { } → ERROR ----
+        if (errObject instanceof JSONObject) {
+            JSONObject err = (JSONObject) errObject;
+        	throw new ServiceException(HttpStatus.BAD_REQUEST, err.optString("errorCode", "UNKNOWN"), url, null,
+					err.optString("message", err.toString()));
+        }
+
+        throw new ServiceException(HttpStatus.BAD_REQUEST, "UNKNOWN", url, null, errObject.toString());
 	}
+
 
 	public String get(String uri, Properties queryParam) throws IOException {
 
@@ -1477,12 +1587,10 @@ public class RestClient {
 			} else
 				bDone = true;
 		}
-
-		if (response != null) {
-			logInfo(contextKey, "hello");
-
+		if (response == null) {
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
 		}
-		checkErrorResponse(response.getBody().asString());
+		checkErrorResponse(response.getBody().asString(), url);
 
 		return new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
 	}
@@ -1535,7 +1643,7 @@ public class RestClient {
 			} else
 				bDone = true;
 		}
-
+		checkErrorResponse(response.getBody().asString(), url);
 		if (response != null && response.getStatusCode() == 200) {
 
 			logInfo(contextKey, response.getBody().asString());
@@ -1560,8 +1668,9 @@ public class RestClient {
 					.response();
 		else
 			response = given().contentType(ContentType.JSON).get(urlAct);
-		if (response != null && response.getStatusCode() == 200) {
 
+		if (response != null && response.getStatusCode() == 200) {
+			checkErrorResponse(response.getBody().asString(), urlAct);
 			logInfo(contextKey, response.getBody().asString());
 
 			JSONObject jsonResponse = new JSONObject(response.getBody().asString());

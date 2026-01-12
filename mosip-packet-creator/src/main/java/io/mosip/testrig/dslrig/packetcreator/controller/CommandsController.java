@@ -6,6 +6,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.mosip.testrig.apirig.utils.ErrorCodes;
+import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.packetcreator.service.CommandsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -112,10 +115,16 @@ public class CommandsController {
 			@PathVariable("contextKey") String contextKey) {
 		try {
 			return commandsService.writeToFile(contextKey, reqestData, offset);
+		} catch (ServiceException se) {
+			throw se; // let global exception handler process it
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("writeToFile", e);
+			throw new ServiceException(
+					HttpStatus.INTERNAL_SERVER_ERROR,
+                    "WRITE_TO_FILE_FAIL",
+                    e.getMessage()
+			);
 		}
-		return "{Failed}";
 	}
 
 	@GetMapping(value = "/generatekey/{machineId}/{contextKey}")
@@ -124,11 +133,16 @@ public class CommandsController {
 	public String generatekey(@PathVariable String machineId, @PathVariable("contextKey") String contextKey) {
 		try {
 			return commandsService.generatekey(contextKey, machineId);
+		} catch (ServiceException se) {
+			throw se; // let global exception handler process it
 		} catch (Exception e) {
-
-			logger.error(e.getMessage());
+			logger.error("generatekey", e);
+			throw new ServiceException(
+					HttpStatus.INTERNAL_SERVER_ERROR,
+                    "GENERATE_KEY_FAIL",
+                    e.getMessage()
+			);
 		}
-		return "{Failed}";
 	}
 
 }

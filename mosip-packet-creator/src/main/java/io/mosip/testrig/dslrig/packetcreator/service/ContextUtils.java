@@ -6,31 +6,35 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import io.mosip.testrig.dslrig.dataprovider.models.ExecContext;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
-import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
 @Component
 public class ContextUtils {
 
-	private String machineId = null;
+	private static final Pattern CONTEXT_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9._-]+$");
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
@@ -51,34 +55,50 @@ public class ContextUtils {
 		return p;
 	}
 
-	public String createUpdateServerContext(Properties props, String ctxName) {
+	public String createUpdateServerContext(Properties props, String ctxName) throws IOException {
 
-		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
-		try (FileWriter fr = new FileWriter(filePath);) {
+	    validateContextName(ctxName); 
+	    Path baseDir = Paths.get(personaConfigPath).normalize();
+	    Path filePath = baseDir
+	            .resolve("server.context." + ctxName + ".properties")
+	            .normalize();
 
-			props.store(fr, "Server Context Attributes");
+	    if (!filePath.startsWith(baseDir)) {
+	        throw new SecurityException("Path traversal attempt detected");
+	    }
 
-			Properties pp = loadServerContext(ctxName);
-			pp.forEach((k, v) -> {
-				VariableManager.setVariableValue(ctxName, k.toString(), v.toString());
-			});
+	    try (FileWriter fr = new FileWriter(filePath.toFile())) {
 
-			String generatePrivateKey = VariableManager.getVariableValue(ctxName, "generatePrivateKey").toString();// pp.getProperty("generatePrivateKey");
+	        props.store(fr, "Server Context Attributes");
 
-			boolean isRequired = Boolean.parseBoolean(generatePrivateKey);
-			if (isRequired)
-				generateKeyAndUpdateMachineDetail(pp, ctxName);
-		
-	// Remove the temp directories created for the same context	
-	// Commenting below line as it is impacting the scenarios where we need to reuse the persona file and documents with different set of data 	
-    //			clearPacketGenFolders(ctxName);
+	        Properties pp = loadServerContext(ctxName);
+	        pp.forEach((k, v) ->
+	                VariableManager.setVariableValue(ctxName, k.toString(), v.toString())
+	        );
 
-		} catch (IOException e) {
-			logger.error("write:createUpdateServerContext " + e.getMessage());
-			return e.getMessage();
-		}
-		return "true";
+	        Object generatePrivateKeyObj =
+	                VariableManager.getVariableValue(ctxName, "generatePrivateKey");
+
+	        boolean isRequired =
+	                generatePrivateKeyObj != null &&
+	                Boolean.parseBoolean(generatePrivateKeyObj.toString());
+
+	        if (isRequired) {
+	            generateKeyAndUpdateMachineDetail(pp, ctxName);
+	        }
+	    } catch (ServiceException se) {
+	        throw se;
+	    }
+
+	    return "true";
 	}
+
+	private void validateContextName(String ctxName) {
+	    if (ctxName == null || !CONTEXT_NAME_PATTERN.matcher(ctxName).matches()) {
+	        throw new IllegalArgumentException("Invalid context name");
+	    }
+	}
+
 
 	public static String clearPacketGenFolders(String ctxName) throws IOException {
 
@@ -149,52 +169,104 @@ public class ContextUtils {
 	}
 
 	public void generateKeyAndUpdateMachineDetail(Properties contextProperties, String contextKey) {
-		KeyPairGenerator keyGenerator = null;
-		boolean isMachineDetailFound = false;
-		String machineId = contextProperties.getProperty("mosip.test.regclient.machineid");
-		if (machineId == null || machineId.isEmpty())
-			throw new RuntimeException("MachineId is null or empty!");
 
-		try {
-			keyGenerator = KeyPairGenerator.getInstance("RSA");
-			keyGenerator.initialize(2048, new SecureRandom());
-			final KeyPair keypair = keyGenerator.generateKeyPair();
-
-			createKeyFile(String.valueOf(personaConfigPath) + File.separator + "privatekeys" + File.separator
-					+ VariableManager.getVariableValue(contextKey, "db-server").toString() + "." + machineId
-					+ ".reg.key", keypair.getPrivate().getEncoded());
-
-			final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
-			if (RestClient.isDebugEnabled(contextKey)) {
-				logger.info("publicKey: " + publicKey);
-			}
-			if (publicKey != null && !publicKey.isEmpty()) {
-				List<MosipMachineModel> machines = null;
-				String status = contextProperties.getProperty("machineStatus");
-				if (status != null && status.equalsIgnoreCase("deactive"))
-					machines = MosipDataSetup.searchMachineDetail(machineId, "eng", contextKey);
-				else
-					machines = MosipDataSetup.getMachineDetail(machineId, " ", contextKey);
-				if (machines != null && !machines.isEmpty()) {
-					for (MosipMachineModel mosipMachineModel : machines) {
-						if (mosipMachineModel != null && mosipMachineModel.getId().equalsIgnoreCase(machineId)) { // removed
-							mosipMachineModel.setSignPublicKey(publicKey);
-							mosipMachineModel.setPublicKey(publicKey);
-							mosipMachineModel.setName(RandomStringUtils.randomAlphanumeric(10).toUpperCase());
-							MosipDataSetup.updateMachine(mosipMachineModel, contextKey);
-							isMachineDetailFound = true;
-							break;
-						}
-					}
-					if (!isMachineDetailFound)
-						throw new RuntimeException("MachineId : " + machineId + " details not found in DB.");
-				} else
-					throw new RuntimeException("MachineId : " + machineId + " details not found in DB.");
-			}
-		} catch (NoSuchAlgorithmException e) {
-			logger.error(e.getMessage());
+	    String machineId = contextProperties.getProperty("mosip.test.regclient.machineid");
+	    if (machineId == null || machineId.isEmpty()) {
+	        throw new ServiceException(
+	                HttpStatus.BAD_REQUEST,
+	                "MACHINE_ID_MISSING"
+	        );
+	    }
+	    
+		if (!CONTEXT_NAME_PATTERN.matcher(machineId).matches()) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_MACHINE_ID");
 		}
+
+	    try {
+	        KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
+	        keyGenerator.initialize(2048, new SecureRandom());
+	        KeyPair keypair = keyGenerator.generateKeyPair();
+
+			Object dbServer = VariableManager.getVariableValue(contextKey, "db-server");
+			if (dbServer == null) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "DB_SERVER_MISSING");
+			}
+			String dbServerStr = dbServer.toString();
+			if (!CONTEXT_NAME_PATTERN.matcher(dbServerStr).matches()) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_DB_SERVER_NAME");
+			}
+			Path privateKeysDir = Paths.get(personaConfigPath, "privatekeys").normalize();
+			Path privateKeyFilePath = privateKeysDir.resolve(dbServerStr + "." + machineId + ".reg.key").normalize();
+			if (!privateKeyFilePath.startsWith(privateKeysDir)) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_KEY_PATH");
+				}
+			String privateKeyPath = privateKeyFilePath.toString();
+
+	        createKeyFile(privateKeyPath, keypair.getPrivate().getEncoded());
+
+	        String publicKey = Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
+	        if (publicKey == null || publicKey.isEmpty()) {
+	            throw new ServiceException(
+	                    HttpStatus.INTERNAL_SERVER_ERROR,
+	                    "PUBLIC_KEY_EMPTY"
+	            );
+	        }
+
+	        List<MosipMachineModel> machines;
+	        String status = contextProperties.getProperty("machineStatus");
+
+	        if ("deactive".equalsIgnoreCase(status)) {
+	            machines = MosipDataSetup.searchMachineDetail(machineId, "eng", contextKey);
+	        } else {
+	            machines = MosipDataSetup.getMachineDetail(machineId, " ", contextKey);
+	        }
+
+	        if (machines == null || machines.isEmpty()) {
+	            throw new ServiceException(
+	                    HttpStatus.NOT_FOUND,
+	                    "MACHINE_NOT_FOUND",
+	                    machineId
+	            );
+	        }
+
+	        boolean updated = false;
+	        for (MosipMachineModel model : machines) {
+	            if (model != null && machineId.equalsIgnoreCase(model.getId())) {
+	                model.setPublicKey(publicKey);
+	                model.setSignPublicKey(publicKey);
+	                model.setName(RandomStringUtils.randomAlphanumeric(10).toUpperCase());
+	                MosipDataSetup.updateMachine(model, contextKey);
+	                updated = true;
+	                break;
+	            }
+	        }
+
+	        if (!updated) {
+	            throw new ServiceException(
+	                    HttpStatus.NOT_FOUND,
+	                    "MACHINE_NOT_FOUND",
+	                    machineId
+	            );
+	        }
+
+	    } catch (ServiceException se) {
+	        throw se;
+	    } catch (NoSuchAlgorithmException e) {
+	        throw new ServiceException(
+	                HttpStatus.INTERNAL_SERVER_ERROR,
+	                "KEYGEN_FAIL",
+	                e.getMessage()
+	        );
+	    } catch (Exception e) {
+	        throw new ServiceException(
+	                HttpStatus.INTERNAL_SERVER_ERROR,
+	                "KEY_FILE_WRITE_FAIL",
+	                e.getMessage()
+	        );
+	    }
 	}
+
+
 
 	private static void createKeyFile(final String fileName, final byte[] key) {
 		logger.info("Creating file : " + fileName);
@@ -214,7 +286,7 @@ public class ContextUtils {
 				t = exception;
 			}
 		} catch (IOException e) {
-			// logger.error(e.getMessage());
+			 logger.error(e.getMessage());
 		}
 	}
 
