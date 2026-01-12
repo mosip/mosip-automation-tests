@@ -644,10 +644,12 @@ public class RestClient {
 				logInfo(contextKey, h.getName() + "=" + h.getValue());
 			}
 			String cookie = response.getHeader(SET_COOKIE);
-			if (cookie != null) {
-				token = cookie.split("=")[1];
-
-				tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			if (cookie != null && cookie.contains("=")) {
+				String[] parts = cookie.split("=", 2);
+				if (parts.length > 1) {
+					token = parts[1].split(";")[0];
+					tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+				}
 			}
 			logInfo(contextKey, token);
 			checkErrorResponse(response.getBody().asString(), url);
@@ -1260,6 +1262,9 @@ public class RestClient {
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
+			}
 			checkErrorResponse(response.getBody().asString(), authUrl);
 			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {
 				boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
@@ -1314,6 +1319,9 @@ public class RestClient {
 					response = given().contentType("application/json").body(jsonBody).post(authUrl);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
+			}
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
 			}
 			checkErrorResponse(response.getBody().asString(), authUrl);
 			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {

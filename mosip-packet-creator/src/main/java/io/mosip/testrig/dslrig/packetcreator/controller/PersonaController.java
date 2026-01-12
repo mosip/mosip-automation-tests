@@ -203,8 +203,8 @@ public class PersonaController {
 		} catch (Exception ex) {
 			logger.error("Error while deleting Mock ABIS expectations for contextKey={}", contextKey, ex);
 
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DELETE_MOCKABIS_EXPECTATION_FAIL",
-					"Failed to delete Mock ABIS expectation", null);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DELETE_MOCKABIS_EXPECTATION_FAIL", null, ex,
+										ex.getMessage());
 		}
 	}
 

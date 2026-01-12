@@ -177,6 +177,10 @@ public class ContextUtils {
 	                "MACHINE_ID_MISSING"
 	        );
 	    }
+	    
+		if (!CONTEXT_NAME_PATTERN.matcher(machineId).matches()) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_MACHINE_ID");
+		}
 
 	    try {
 	        KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
@@ -186,6 +190,10 @@ public class ContextUtils {
 			Object dbServer = VariableManager.getVariableValue(contextKey, "db-server");
 			if (dbServer == null) {
 				throw new ServiceException(HttpStatus.BAD_REQUEST, "DB_SERVER_MISSING");
+			}
+			String dbServerStr = dbServer.toString();
+			if (!CONTEXT_NAME_PATTERN.matcher(dbServerStr).matches()) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_DB_SERVER_NAME");
 			}
 			String privateKeyPath = personaConfigPath + File.separator + "privatekeys" + File.separator + dbServer + "."
 					+ machineId + ".reg.key";
