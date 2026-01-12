@@ -459,7 +459,8 @@ public class RestClient {
 				logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
 				throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 			}
-		}
+		}else 
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
