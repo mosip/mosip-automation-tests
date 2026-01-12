@@ -549,9 +549,8 @@ public class MosipDataSetup {
 			response = RestClient.deleteExpectation(url, new JSONObject(), contextKey);
 
 		} catch (Exception e) {
-
-			logger.error(e.getMessage());
-			response = e.getMessage();
+			logger.error("Error during MOSIP data setup", e);
+			response = "MOSIP_DATA_SETUP_FAILED";
 		}
 		return response;
 	}
