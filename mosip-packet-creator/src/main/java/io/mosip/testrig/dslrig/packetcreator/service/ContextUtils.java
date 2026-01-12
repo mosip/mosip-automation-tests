@@ -34,7 +34,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 @Component
 public class ContextUtils {
 
-	private static final Pattern CONTEXT_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]+$");
+	private static final Pattern CONTEXT_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9._-]+$");
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
