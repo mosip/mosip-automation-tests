@@ -1214,8 +1214,8 @@ public class RestClient {
 			if (response == null) {
 				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
 			}
-			checkErrorResponse(response.getBody().asString(), authUrl);
 			if (response != null) {
+				checkErrorResponse(response.getBody().asString(), authUrl);
 				if (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE)) {
 					boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
 							: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
