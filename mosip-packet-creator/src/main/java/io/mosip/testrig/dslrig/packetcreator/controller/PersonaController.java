@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.BioExceptionDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.MockABISExpectationsDto;
@@ -38,7 +40,7 @@ public class PersonaController {
 	private String personaConfigPath;
 
 	private PacketSyncService packetSyncService;
-	
+
 	@Value("${mosip.test.persona.Angulipath}")
 	private String personaAnguliPath;
 
@@ -64,11 +66,11 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("updatePersonaData", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PERSONA_DATA_FAIL", null, ex,
+					ex.getMessage());
 		}
-		return "{Failed}";
-
 	}
-	
+
 	@Operation(summary = "Update the persona data with UIN/RID")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Resident data is successfully updated") })
 	@PostMapping(value = "/updateresident/{contextKey}")
@@ -86,9 +88,10 @@ public class PersonaController {
 			return packetSyncService.updateResidentData(personaRequestDto.getRequests(), uin, rid, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("registerResident", ex);
+			logger.error("updateResidentData", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_RESIDENT_DATA_FAIL", null, ex,
+					ex.getMessage());
 		}
-		return "{Failed}";
 
 	}
 
@@ -106,53 +109,19 @@ public class PersonaController {
 			return packetSyncService.updatePersonaBioExceptions(personaBERequestDto, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("updatePersonaData", ex);
+			logger.error("updatePersonaBioExceptions", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PERSONA_BIOEXCEPTIONS_FAIL", null, ex,
+					ex.getMessage());
 		}
-		return "{Failed}";
 
 	}
 
-	/*
-	 * @Operation(summary =
-	 * "Create a persona record based on the provided specifications")
-	 * 
-	 * @ApiResponses(value = {
-	 * 
-	 * @ApiResponse(responseCode = "200", description =
-	 * "Successfully created the persona record") })
-	 * 
-	 * @PostMapping(value = "/persona/{contextKey}") public @ResponseBody String
-	 * generateResidentData(@RequestBody PersonaRequestDto residentRequestDto,
-	 * 
-	 * @PathVariable("contextKey") String contextKey) {
-	 * 
-	 * try { logger.info("Persona Config Path=" + personaConfigPath); if
-	 * (personaConfigPath != null && !personaConfigPath.equals("")) {
-	 * DataProviderConstants.RESOURCE = personaConfigPath; } if (personaAnguliPath
-	 * != null && !personaAnguliPath.equals("")) { DataProviderConstants.ANGULI_PATH
-	 * = personaAnguliPath; } logger.info("personaAnguliPath =" +
-	 * DataProviderConstants.ANGULI_PATH);
-	 * 
-	 * logger.info("Resource Path=" + DataProviderConstants.RESOURCE); logger.info(
-	 * "DOC_Template Path=" + DataProviderConstants.RESOURCE +
-	 * DataProviderConstants.DOC_TEMPLATE_PATH);
-	 * 
-	 * // clear all tokens // VariableManager.setVariableValue("urlSwitched",
-	 * "true");
-	 * 
-	 * return packetSyncService.generateResidentData(residentRequestDto,
-	 * contextKey).toString();
-	 * 
-	 * } catch (Exception ex) { logger.error("generateResidentData", ex); } return
-	 * "{Failed}"; }
-	 */
-	
 	@Operation(summary = "Generate the resident data")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully generated the resident data") })
 	@PostMapping(value = "/persona/generate/{contextKey}")
 	public @ResponseBody String generateResidentData(@RequestBody PersonaRequestDto residentRequestDto,
-			 @PathVariable("contextKey") String contextKey) {
+			@PathVariable("contextKey") String contextKey) {
 
 		try {
 			RestClient.logInfo(contextKey, "Persona Config Path=" + personaConfigPath);
@@ -175,7 +144,8 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("generateResidentData", ex);
-			return "{\"" + ex.getMessage() + "\"}";
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GENERATE_RESIDENT_DATA_FAIL", null, ex,
+					ex.getMessage());
 		}
 	}
 
@@ -192,8 +162,9 @@ public class PersonaController {
 
 		} catch (Exception ex) {
 			logger.error("getPersonaData", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_PERSONA_DATA_FAIL", null, ex,
+					ex.getMessage());
 		}
-		return "{Failed}";
 
 	}
 
@@ -211,9 +182,10 @@ public class PersonaController {
 			return packetSyncService.setPersonaMockABISExpectation(expectations, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("setPersonaMockABISExpectation", ex);
+			logger.error("setPersonaMockABISExpectationV2", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "SET_PERSONA_MOCKABIS_EXPECTATION_FAIL", null,
+					ex, ex.getMessage());
 		}
-		return "{Failed}";
 
 	}
 
@@ -222,8 +194,18 @@ public class PersonaController {
 	@DeleteMapping(value = "persona/mock-abis-service/config/expectation/{contextKey}")
 	public @ResponseBody String deleteExpectations(@PathVariable("contextKey") String contextKey) {
 
-		return packetSyncService.deleteMockAbisExpectations(contextKey);
+		try {
+			return packetSyncService.deleteMockAbisExpectations(contextKey);
 
+		} catch (ServiceException se) {
+			throw se;
+
+		} catch (Exception ex) {
+			logger.error("Error while deleting Mock ABIS expectations for contextKey={}", contextKey, ex);
+
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DELETE_MOCKABIS_EXPECTATION_FAIL", null, ex,
+										ex.getMessage());
+		}
 	}
 
 	/*
