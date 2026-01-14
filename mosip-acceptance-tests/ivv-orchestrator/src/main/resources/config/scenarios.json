@@ -25602,6 +25602,97 @@
 		}
 	},
 	{
+  "Scenario": "216",
+  "Tag": "Negative_Test",
+  "Persona": "MinorResident",
+  "Group": "NA",
+  "Description": "Minor Resident-A and Adult Resident-B get their UINs. Adult Resident-B attempts to update Minor Resident-A's UIN using his own biometric data. Update should fail.",
+
+  "Step-0": {
+    "Description": "Performs health check of given component",
+    "Input Parameters": "Keyword to check, only packetcreator is supported",
+    "Return Value": "NA",
+    "Action": "e2e_getPingHealth(packetcreator)"
+  },
+
+  "Step-1": {
+    "Description": "Reads the pre-requisite data at the given index",
+    "Input Parameters": "Details can be found in in-line comments on the parameters",
+    "Return Value": "pre-requisite details",
+    "Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+  },
+
+  "Step-2": {
+    "Description": "Sets the context for scenario execution",
+    "Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
+    "Return Value": "NA",
+    "Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
+  },
+
+  "Step-3": {
+    "Description": "Performs health check of required server components to run end-to-end scenarios",
+    "Input Parameters": "NA",
+    "Return Value": "NA",
+    "Action": "e2e_getPingHealth(targetenv)"
+  },
+
+  "Step-4": {
+    "Description": "Generates persona data for Minor Resident-A",
+    "Input Parameters": "Details are in parameter in-line comments",
+    "Return Value": "Persona file path",
+    "Action": "$$personaAFilePath=e2e_getResidentData(minor/*PERSONA_TYPE*/,true/*GUARDIAN_FLAG*/,NA)"
+  },
+
+  "Step-5": {
+    "Description": "Performs registration and generates UIN for Minor Resident-A",
+    "Input Parameters": "Persona data of Minor Resident-A",
+    "Return Value": "UIN of Minor Resident-A",
+    "Action": "$$uinA=e2e_generateUIN($$personaAFilePath)"
+  },
+
+  "Step-6": {
+    "Description": "Generates persona data for Adult Resident-B",
+    "Input Parameters": "Details are in parameter in-line comments",
+    "Return Value": "Persona file path",
+    "Action": "$$personaBFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
+  },
+
+  "Step-7": {
+    "Description": "Performs registration and generates UIN for Adult Resident-B",
+    "Input Parameters": "Persona data of Adult Resident-B",
+    "Return Value": "UIN of Adult Resident-B",
+    "Action": "$$uinB=e2e_generateUIN($$personaBFilePath)"
+  },
+
+  "Step-8": {
+    "Description": "Generates biometric hash using all biometrics of Adult Resident-B",
+    "Input Parameters": "Persona data of Adult Resident-B",
+    "Return Value": "Biometric hash",
+    "Action": "$$bioHashB=e2e_generateBiometricHash($$personaBFilePath)"
+  },
+
+  "Step-9": {
+    "Description": "Sets mock ABIS expectation for Adult Resident-B biometrics as TRUE",
+    "Input Parameters": "Biometric hash of Adult Resident-B",
+    "Return Value": "NA",
+    "Action": "e2e_setMockAbisExpectation($$bioHashB,true/*MATCH_EXPECTATION*/)"
+  },
+
+  "Step-10": {
+    "Description": "Initiates update flow for Minor Resident-A UIN using Adult Resident-B biometric data",
+    "Input Parameters": "UIN of Minor Resident-A and biometric data of Adult Resident-B",
+    "Return Value": "Update response",
+    "Action": "$$updateResponse=e2e_initiateUINUpdateWithBiometrics($$uinA,$$personaBFilePath)"
+  },
+
+  "Step-11": {
+    "Description": "Validates that the update request fails due to biometric ownership mismatch",
+    "Input Parameters": "Update response",
+    "Return Value": "NA",
+    "Action": "e2e_validateFailure($$updateResponse)"
+  }
+},
+	{
 		"Scenario": "AFTER_SUITE",
 		"Tag": "Positive_Test",
 		"Persona": "ResidentMaleAdult",
