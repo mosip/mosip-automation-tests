@@ -20881,7 +20881,7 @@
 			"Return Value": "Generated Template file path",
 			"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$personaFilePath)"
 		},
-		"Step-12": {
+		"Step-13": {
 			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
 			"Input Parameters": "Persona file path and template file path",
 			"Return Value": "RID",
@@ -25816,7 +25816,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,rightMiddle,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath1/*PERSONA_TO_UPDATE*/,$$personaFilePath2/*PERSONA_TO_UPDATE_WITH*/)"
+			"Action": "e2e_updateDemoOrBioDetails(rightMiddle/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath1/*PERSONA_TO_UPDATE*/,$$personaFilePath2/*PERSONA_TO_UPDATE_WITH*/)"
 		},
 		"Step-18": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",

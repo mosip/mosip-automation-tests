@@ -323,20 +323,20 @@ public class MDSClient implements MDSClientInterface {
 				boolean isDeleted = file.delete();
 				if (!isDeleted) {
 					if (RestClient.isDebugEnabled(contextKey)) {
-						logger.info("File Deleted successfully");
+						 logger.info("File {} deleted successfully", file.getName());
 					}
 				}
 				isFileDeleted = file.delete();
 				if (!isFileDeleted) {
 					if (RestClient.isDebugEnabled(contextKey)) {
-						logger.info("File Deleted successfully");
+						 logger.info("File {} deleted successfully", file.getName());
 					}
 				}
 			}
 			isProfDirDeleted = profDir.delete();
 			if (!isProfDirDeleted) {
 				if (RestClient.isDebugEnabled(contextKey)) {
-					logger.info("File Deleted successfully");
+					 logger.info("File {} deleted successfully", isProfDirDeleted);
 				}
 			}
 		}

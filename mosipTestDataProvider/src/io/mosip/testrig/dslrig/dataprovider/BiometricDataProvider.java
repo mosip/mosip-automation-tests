@@ -18,6 +18,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -1180,7 +1182,10 @@ public class BiometricDataProvider {
 		}
 
 		File[] listDir = dir.listFiles(f -> f.isDirectory() && f.getName().startsWith("Impression"));
-
+		if (listDir == null || listDir.length == 0) {
+			logger.error("No impression directories found in {}", dirPath);
+			return data;
+		}
 		int numberOfSubfolders = listDir.length;
 		int min = 1;
 		int max = numberOfSubfolders;
@@ -1201,6 +1206,7 @@ public class BiometricDataProvider {
 				impressionToPick);
 
 		List<File> firstSet = CommonUtil.listFiles(dirPath + "/Impression_" + impressionToPick + "/fp_1/");
+		Collections.sort(firstSet, Comparator.comparing(File::getName));
 
 		// 🔴 Parse DSL argument
 		Set<Integer> indexesToUpdate = Arrays.stream(fingerArgument.split(",")).map(String::trim)
@@ -1209,7 +1215,6 @@ public class BiometricDataProvider {
 
 		// 🔴 Update ONLY selected fingers
 		for (Integer index : indexesToUpdate) {
-
 			if (index >= firstSet.size()) {
 				logger.warn("Fingerprint file not found for index {}", index);
 				continue;
@@ -1546,6 +1551,11 @@ public class BiometricDataProvider {
 
 		File dir = new File(srcPath);
 		File[] listDir = dir.listFiles();
+		if (listDir == null || listDir.length == 0) {
+			    logger.error("No subdirectories found in {}", srcPath);
+			    retVal.add(m);
+			    return retVal;
+			}
 		int numberOfSubfolders = listDir.length;
 		int min = 1;
 		int max = numberOfSubfolders;
@@ -1565,7 +1575,11 @@ public class BiometricDataProvider {
 		File folder = new File(srcPath +"/" + String.format("%03d", impressionToPick));
 
 		File[] listOfFiles = folder.listFiles();
-
+		if (listOfFiles == null || listOfFiles.length == 0) {
+			logger.warn("No iris files found in folder {}", folder.getAbsolutePath());
+			retVal.add(m);
+			return retVal;
+		}
 		String leftbmp = null;
 		String rightbmp = null;
 

@@ -307,8 +307,7 @@ public class Orchestrator {
 		BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_endTime",
 				String.valueOf(endTime));
 
-		if (scenario.getId().equalsIgnoreCase("0")) {
-		    for (Scenario.Step step : scenario.getSteps()) {
+		  for (Scenario.Step step : scenario.getSteps()) {
 		        StepInterface st = getInstanceOf(step);
 		        if (st.hasError()) {
 		            beforeSuiteFailed = true;
@@ -318,8 +317,6 @@ public class Orchestrator {
 		        }
 		    }
 		    beforeSuiteExeuted = true;
-		}
-		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
 	}
 
 	@Test(dataProvider = "ScenarioDataProvider")
@@ -327,7 +324,7 @@ public class Orchestrator {
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
 			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 		// 🔴 If Before Suite failed, skip everything except AFTER_SUITE
-		if (beforeSuiteFailed && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
+		if ((beforeSuiteFailed || disableAllRetries) && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
 		    updateRunStatistics(scenario);
 		    throw new SkipException(
 		        "Skipping scenario " + scenario.getId() + " because Before Suite failed."
