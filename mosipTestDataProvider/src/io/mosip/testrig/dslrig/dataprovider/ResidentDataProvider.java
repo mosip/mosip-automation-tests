@@ -9,6 +9,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,19 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 public class ResidentDataProvider {
 	private static final Logger logger = LoggerFactory.getLogger(ResidentDataProvider.class);
 	private static SecureRandom  rand = new SecureRandom ();
+	private static final Set<String> SINGLE_FINGER_TYPES = Set.of(
+	        "rightindex",
+	        "rightlittle",
+	        "rightring",
+	        "rightmiddle",
+	        "leftindex",
+	        "leftlittle",
+	        "leftring",
+	        "leftmiddle",
+	        "leftthumb",
+	        "rightthumb"
+	);
+
 		Properties attributeList;
 	
 	
@@ -86,22 +100,34 @@ public class ResidentDataProvider {
 	public static ResidentModel updateBiometric(ResidentModel model,String bioType,String contextKey) throws Exception {
 		boolean bDirty = false;
 		
-		if(bioType.equalsIgnoreCase("finger")) {
+		if (bioType.equalsIgnoreCase("finger")) {
 			BiometricDataModel bioData = BiometricDataProvider.updateFingerData(contextKey);
-			model.getBiometric().setFingerPrint( bioData.getFingerPrint());
-			model.getBiometric().setFingerHash( bioData.getFingerHash());
+			model.getBiometric().setFingerPrint(bioData.getFingerPrint());
+			model.getBiometric().setFingerHash(bioData.getFingerHash());
+			model.getBiometric().setFingerRaw(bioData.getFingerRaw());
+			bDirty = true;
+		} else if (SINGLE_FINGER_TYPES.contains(bioType.toLowerCase())) {
+			BiometricDataModel bioData = BiometricDataProvider.updateSelectedFingerData(model ,contextKey, bioType);
+			model.getBiometric().setFingerPrint(bioData.getFingerPrint());
+			model.getBiometric().setFingerHash(bioData.getFingerHash());
 			model.getBiometric().setFingerRaw(bioData.getFingerRaw());
 			bDirty = true;
 		}
-		else
-		if(bioType.equalsIgnoreCase("iris")) {
+		
+		if (bioType.equalsIgnoreCase("iris")) {
 			List<IrisDataModel> iris = BiometricDataProvider.updateIris(contextKey);
-			if(iris != null && !iris.isEmpty()) {
+			if (iris != null && !iris.isEmpty()) {
+				model.getBiometric().setIris(iris.get(0));
+				bDirty = true;
+			}
+		} else if (bioType.equalsIgnoreCase("leftiris") || bioType.equalsIgnoreCase("rightiris")) {
+			List<IrisDataModel> iris = BiometricDataProvider.updateSelectedIris(model, contextKey, bioType);
+			if (iris != null && !iris.isEmpty()) {
 				model.getBiometric().setIris(iris.get(0));
 				bDirty = true;
 			}
 		}
-		else
+		
 		if(bioType.equalsIgnoreCase("face")) {
 			BiometricDataModel bioData = model.getBiometric();
 			byte[][] faceData = BiometricDataProvider.updateFaceData(contextKey);

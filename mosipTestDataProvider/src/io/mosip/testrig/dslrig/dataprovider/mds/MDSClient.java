@@ -6,10 +6,14 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -35,64 +39,64 @@ import io.restassured.response.Response;
 public class MDSClient implements MDSClientInterface {
 
 	private static final Logger logger = LoggerFactory.getLogger(MDSClient.class);
-	public  int port;
+	public int port;
 	public static String MDSURL = "http://127.0.0.1:";
 
 	public MDSClient(int port) {
-		if(port == 0)
+		if (port == 0)
 			this.port = 4501;
 		else
 			this.port = port;
 	}
 
+	// create profile folder and create all ISO images as per resident data
 
-	//create profile folder and create all ISO images as per resident data
-
-	public void createProfileold(String profilePath,String profile, ResidentModel resident,String contextKey,String purpose) throws Exception {
-		//		File profDir = new File(profilePath + "/"+ profile);
-		//		if(!profDir.exists())
-		//			profDir.mkdir();
-		File profDir1 = new File(profilePath + "/"+ profile);
-		File profDir = new File(profilePath + "/"+ profile+ "/" + purpose);
-		if(!profDir1.exists())
+	public void createProfileold(String profilePath, String profile, ResidentModel resident, String contextKey,
+			String purpose) throws Exception {
+		// File profDir = new File(profilePath + "/"+ profile);
+		// if(!profDir.exists())
+		// profDir.mkdir();
+		File profDir1 = new File(profilePath + "/" + profile);
+		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
+		if (!profDir1.exists())
 			profDir1.mkdir();
-		if(!profDir.exists())
+		if (!profDir.exists())
 			profDir.mkdir();
-		//copy from default profile
-		File defProfile = new File( profilePath +"/"+ "Default"+"/"+purpose);
+		// copy from default profile
+		File defProfile = new File(profilePath + "/" + "Default" + "/" + purpose);
 
-		File []defFiles = defProfile.listFiles();
-		for(File f: defFiles) {
+		File[] defFiles = defProfile.listFiles();
+		for (File f : defFiles) {
 			try {
-				Files.copy(f, new File(profDir.getAbsolutePath() +"\\"+ f.getName()));
+				Files.copy(f, new File(profDir.getAbsolutePath() + "\\" + f.getName()));
 			} catch (IOException e) {
 				logger.error(e.getMessage());
 			}
 		}
 		ISOConverter convert = new ISOConverter();
 		try {
-			if(!resident.getSkipFace()) {
+			if (!resident.getSkipFace()) {
 				byte[] face = resident.getBiometric().getRawFaceData();
-				convert.convertFace(face,profDir + "/" + "Face.iso");
+				convert.convertFace(face, profDir + "/" + "Face.iso");
 			}
-			if(!resident.getSkipIris()) {
+			if (!resident.getSkipIris()) {
 
 				IrisDataModel iris = resident.getBiometric().getIris();
-				if(iris != null) {
+				if (iris != null) {
 
-					if(iris.getRawLeft() != null)
-						convert.convertIris(iris.getRawLeft(), profDir + "/"+ "Left_Iris.iso", "Left");
-					if(iris.getRawRight() != null)
-						convert.convertIris(iris.getRawRight(), profDir + "/"+ "Right_Iris.iso", "Right");
+					if (iris.getRawLeft() != null)
+						convert.convertIris(iris.getRawLeft(), profDir + "/" + "Left_Iris.iso", "Left");
+					if (iris.getRawRight() != null)
+						convert.convertIris(iris.getRawRight(), profDir + "/" + "Right_Iris.iso", "Right");
 				}
 			}
-			if(!resident.getSkipFinger()) {
-				byte[] [] fingerData = resident.getBiometric().getFingerRaw();
-				for(int i=0; i < 10; i++) {
+			if (!resident.getSkipFinger()) {
+				byte[][] fingerData = resident.getBiometric().getFingerRaw();
+				for (int i = 0; i < 10; i++) {
 					String fingerName = DataProviderConstants.displayFingerName[i];
 					String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
-					if(fingerData[i] != null) {
-						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName,purpose);
+					if (fingerData[i] != null) {
+						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso", fingerName, purpose);
 					}
 				}
 			}
@@ -101,116 +105,111 @@ public class MDSClient implements MDSClientInterface {
 			logger.error(e.getMessage());
 		}
 
-
 	}
 
+	// create profile folder and create all ISO images as per resident data
 
-
-
-	//create profile folder and create all ISO images as per resident data
-
-	public void createProfile(String profilePath,String profile, ResidentModel resident,String contextKey,String purpose) throws Exception {
-		//		File profDir = new File(profilePath + "/"+ profile+ "/" + purpose);
-		File profDir1 = new File(profilePath + "/"+ profile);
-		File profDir = new File(profilePath + "/"+ profile+ "/" + purpose);
-		if(!profDir1.exists())
+	public void createProfile(String profilePath, String profile, ResidentModel resident, String contextKey,
+			String purpose) throws Exception {
+		// File profDir = new File(profilePath + "/"+ profile+ "/" + purpose);
+		File profDir1 = new File(profilePath + "/" + profile);
+		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
+		if (!profDir1.exists())
 			profDir1.mkdir();
-		if(!profDir.exists())
+		if (!profDir.exists())
 			profDir.mkdir();
-		//copy from default profile
-
+		// copy from default profile
 
 		/////////
-		//reach cached finger prints from folder
-		String dirPath = System.getProperty("java.io.tmpdir")+VariableManager.getVariableValue(contextKey,"mosip.test.persona.fingerprintdatapath").toString();
+		// reach cached finger prints from folder
+		String dirPath = System.getProperty("java.io.tmpdir")
+				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
 		logger.info("createProfile dirPath {}", dirPath);
-		
-		
-		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
-		File dir = new File(dirPath);
 
-		File listDir[]=null;
-		if (dir.isDirectory()) {
-            // Use FileFilter to filter files
-			 listDir = dir.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    // Check if it's a directory and starts with "Impression"
-                    return file.isDirectory() && file.getName().startsWith("Impression");
-                }
-            });		           
-        } else {
-        	logger.error(dirPath + " is not a directory.");
-        }		int numberOfSubfolders = listDir.length;
-		int min=1;
-		int max=numberOfSubfolders ;
-		int randomNumber = (int) (Math.random()*(max-min)) + min;
-		String beforescenario=VariableManager.getVariableValue(contextKey,"scenario").toString();
-		String afterscenario=beforescenario.substring(0, beforescenario.indexOf(':'));
-		if (afterscenario.contains("_")) {
-			afterscenario = afterscenario.replace("_", "0");
-		}
-		int currentScenarioNumber = Integer.valueOf(afterscenario);
-
-
-		// If the available impressions are less than scenario number, pick the random one
-
-		// otherwise pick the impression of same of scenario number
-		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber ;
-
-		logger.info("createProfile currentScenarioNumber={}" , currentScenarioNumber ," numberOfSubfolders={}" , numberOfSubfolders , " impressionToPick={}" , impressionToPick );
-		List<File> lst=new LinkedList<File>();
-		for(int i=min; i <= max; i++) {
-
-			lst = CommonUtil.listFiles(dirPath +
-					String.format("/Impression_%d/fp_1/", i));
-			tblFiles.put(i,lst);
-		}
-
-		List<File> firstSet = tblFiles.get(impressionToPick);
-		logger.info("createProfile Impression used {}", impressionToPick);
+//		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
+//		File dir = new File(dirPath);
+//
+//		File listDir[]=null;
+//		if (dir.isDirectory()) {
+//            // Use FileFilter to filter files
+//			 listDir = dir.listFiles(new FileFilter() {
+//                @Override
+//                public boolean accept(File file) {
+//                    // Check if it's a directory and starts with "Impression"
+//                    return file.isDirectory() && file.getName().startsWith("Impression");
+//                }
+//            });		           
+//        } else {
+//        	logger.error(dirPath + " is not a directory.");
+//        }		int numberOfSubfolders = listDir.length;
+//		int min=1;
+//		int max=numberOfSubfolders ;
+//		int randomNumber = (int) (Math.random()*(max-min)) + min;
+		String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
+//		String afterscenario=beforescenario.substring(0, beforescenario.indexOf(':'));
+//		if (afterscenario.contains("_")) {
+//			afterscenario = afterscenario.replace("_", "0");
+//		}
+//		int currentScenarioNumber = Integer.valueOf(afterscenario);
+//
+//
+//		// If the available impressions are less than scenario number, pick the random one
+//
+//		// otherwise pick the impression of same of scenario number
+//		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber ;
+//
+//		logger.info("createProfile currentScenarioNumber={}" , currentScenarioNumber ," numberOfSubfolders={}" , numberOfSubfolders , " impressionToPick={}" , impressionToPick );
+//		List<File> lst=new LinkedList<File>();
+//		for(int i=min; i <= max; i++) {
+//
+//			lst = CommonUtil.listFiles(dirPath +
+//					String.format("/Impression_%d/fp_1/", i));
+//			tblFiles.put(i,lst);
+//		}
+//
+//		List<File> firstSet = tblFiles.get(impressionToPick);
+//		logger.info("createProfile Impression used {}", impressionToPick);
 
 		///////////////
 
+		// File defProfile = new File( profilePath +"/"+ "Automatic");
 
-		//File defProfile = new File( profilePath +"/"+ "Automatic");
-
-		//File []defFiles = defProfile.listFiles();
-		for(File f: firstSet) {
-			try {
-				Files.copy(f, new File(profDir.getAbsolutePath() +"/"+ f.getName()));
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
-		}
+		// File []defFiles = defProfile.listFiles();
+//		for(File f: firstSet) {
+//			try {
+//				Files.copy(f, new File(profDir.getAbsolutePath() +"/"+ f.getName()));
+//			} catch (IOException e) {
+//				logger.error(e.getMessage());
+//			}
+//		}
 		ISOConverter convert = new ISOConverter();
 		try {
-			if(!resident.getSkipFace()) {
+			if (!resident.getSkipFace()) {
 				byte[] face = resident.getBiometric().getRawFaceData();
-				convert.convertFace(face,profDir + "/" + "Face.iso");
+				convert.convertFace(face, profDir + "/" + "Face.iso");
 			}
-			if(!resident.getSkipIris()) {
+			if (!resident.getSkipIris()) {
 
 				IrisDataModel iris = resident.getBiometric().getIris();
-				logger.info( "IRIS_DATA : "+resident.getBiometric().getIris().toString());
-				logger.info( "IRIS_DATA_PATH : "+ profDir + "/"+ "Left_Iris.iso");
-				if(iris != null) {
-					logger.info( "IRIS_DATA_left: "+iris.getLeftHash().toString());
-					logger.info( "IRIS_RAW_DATA_left: "+iris.getRawLeft());
-					logger.info( "IRIS_RAW_DATA_right: "+iris.getRawRight());
-										if(iris.getRawLeft() != null)
-					convert.convertIris(iris.getRawLeft(), profDir + "/"+ "Left_Iris.iso", "Left");
-										if(iris.getRawRight() != null)
-					convert.convertIris(iris.getRawRight(), profDir + "/"+ "Right_Iris.iso", "Right");
+				logger.info("IRIS_DATA : " + resident.getBiometric().getIris().toString());
+				logger.info("IRIS_DATA_PATH : " + profDir + "/" + "Left_Iris.iso");
+				if (iris != null) {
+					logger.info("IRIS_DATA_left: " + iris.getLeftHash().toString());
+					logger.info("IRIS_RAW_DATA_left: " + iris.getRawLeft());
+					logger.info("IRIS_RAW_DATA_right: " + iris.getRawRight());
+					if (iris.getRawLeft() != null)
+						convert.convertIris(iris.getRawLeft(), profDir + "/" + "Left_Iris.iso", "Left");
+					if (iris.getRawRight() != null)
+						convert.convertIris(iris.getRawRight(), profDir + "/" + "Right_Iris.iso", "Right");
 				}
 			}
-			if(!resident.getSkipFinger()) {
-				byte[] [] fingerData = resident.getBiometric().getFingerRaw();
-				for(int i=0; i < 10; i++) {
+			if (!resident.getSkipFinger()) {
+				byte[][] fingerData = resident.getBiometric().getFingerRaw();
+				for (int i = 0; i < 10; i++) {
 					String fingerName = DataProviderConstants.displayFingerName[i];
 					String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
-					if(fingerData[i] != null) {
-						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso" , fingerName,purpose);
+					if (fingerData[i] != null) {
+						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso", fingerName, purpose);
 					}
 				}
 			}
@@ -219,35 +218,123 @@ public class MDSClient implements MDSClientInterface {
 			logger.error(e.getMessage());
 		}
 
+	}
+	
+	public void updateProfile(String profilePath, String profile, ResidentModel resident, String contextKey,
+			String purpose) throws Exception {
 
+		String biometricTypes = VariableManager.getVariableValue(contextKey, "regenAttribute").toString().toLowerCase();
+
+		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
+		if (!profDir.exists()) {
+			throw new IllegalStateException("Profile does not exist to update: " + profDir.getAbsolutePath());
+		}
+
+		// Raw DSL values
+		Set<String> biometricsToUpdate = Arrays.stream(biometricTypes.split(",")).map(String::trim)
+				.filter(s -> !s.isEmpty()).collect(Collectors.toSet());
+
+		// 🔴 NORMALIZE INSIDE METHOD (THREAD SAFE)
+		Set<String> normalizedFingerSet = biometricsToUpdate.stream().map(s -> s.toLowerCase().replace(" ", ""))
+				.collect(Collectors.toSet());
+
+		ISOConverter convert = new ISOConverter();
+
+		try {
+
+			/* ================= FACE ================= */
+			if (biometricsToUpdate.contains("face") && !resident.getSkipFace()) {
+
+				byte[] face = resident.getBiometric().getRawFaceData();
+				if (face != null) {
+					convert.convertFace(face, profDir + "/Face.iso");
+					logger.info("Face updated for profile {}", profile);
+				}
+			}
+
+			/* ================= IRIS ================= */
+			boolean updateAllIris = biometricsToUpdate.contains("iris");
+			boolean updateLeftIris = updateAllIris || biometricsToUpdate.contains("leftiris");
+			boolean updateRightIris = updateAllIris || biometricsToUpdate.contains("rightiris");
+
+			if ((updateLeftIris || updateRightIris) && !resident.getSkipIris()) {
+
+				IrisDataModel iris = resident.getBiometric().getIris();
+				if (iris != null) {
+
+					if (updateLeftIris && iris.getRawLeft() != null) {
+						convert.convertIris(iris.getRawLeft(), profDir + "/Left_Iris.iso", "Left");
+					}
+
+					if (updateRightIris && iris.getRawRight() != null) {
+						convert.convertIris(iris.getRawRight(), profDir + "/Right_Iris.iso", "Right");
+					}
+
+					logger.info("Iris updated for profile {}", profile);
+				}
+			}
+
+			/* ================= FINGER ================= */
+			boolean updateAllFingers = normalizedFingerSet.contains("finger");
+
+			if (!resident.getSkipFinger()) {
+
+				byte[][] fingerData = resident.getBiometric().getFingerRaw();
+
+				for (int i = 0; i < 10; i++) {
+
+					String fingerKey = DataProviderConstants.schemaFingerNames[i].toLowerCase().replace(" ", "");
+
+					if (updateAllFingers || normalizedFingerSet.contains(fingerKey)) {
+
+						if (fingerData != null && fingerData[i] != null) {
+
+							String fingerName = DataProviderConstants.displayFingerName[i];
+							String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
+
+							convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso", fingerName,
+									purpose);
+
+							logger.info("Updated finger {} for profile {}", fingerName, profile);
+						}
+					}
+				}
+			}
+
+		} catch (IOException e) {
+			logger.error("Error while updating profile {}", profile, e);
+			throw e;
+		}
 	}
 
-	public void removeProfile(String profilePath,String profile,int port,String contextKey) {
-		setProfile("Default",port,contextKey);
-		File profDir = new File(profilePath + "/"+ profile);
+
+
+	public void removeProfile(String profilePath, String profile, int port, String contextKey) {
+		setProfile("Default", port, contextKey);
+		File profDir = new File(profilePath + "/" + profile);
 		boolean isFileDeleted = false;
 		boolean isProfDirDeleted = false;
-		if(profDir.exists()) {
+		if (profDir.exists()) {
 			// list all the files in an array
 			File[] files = profDir.listFiles();
 
 			// delete each file from the directory
-			for(File file : files) {
+			for (File file : files) {
 				boolean isDeleted = file.delete();
 				if (!isDeleted) {
 					if (RestClient.isDebugEnabled(contextKey)) {
 						logger.info("File Deleted successfully");
 					}
 				}
-				isFileDeleted=file.delete();
-				if(!isFileDeleted) {
+				isFileDeleted = file.delete();
+				if (!isFileDeleted) {
 					if (RestClient.isDebugEnabled(contextKey)) {
 						logger.info("File Deleted successfully");
 					}
 				}
 			}
-			isProfDirDeleted=profDir.delete();
-			if(!isProfDirDeleted) {
+			isProfDirDeleted = profDir.delete();
+			if (!isProfDirDeleted) {
 				if (RestClient.isDebugEnabled(contextKey)) {
 					logger.info("File Deleted successfully");
 				}
@@ -256,9 +343,9 @@ public class MDSClient implements MDSClientInterface {
 
 	}
 
-	public  void setProfile(String profile,int port,String contextKey) {
+	public void setProfile(String profile, int port, String contextKey) {
 
-		String url =  MDSURL +port + "/admin/profile";
+		String url = MDSURL + port + "/admin/profile";
 		JSONObject body = new JSONObject();
 		body.put("profileId", profile);
 		body.put("type", "Biometric Device");
@@ -267,35 +354,33 @@ public class MDSClient implements MDSClientInterface {
 			logger.info("Inside Setprofile");
 			HttpRCapture capture = new HttpRCapture(url);
 			capture.setMethod("POST");
-			String response = RestClient.rawHttp(capture, body.toString(),contextKey);
+			String response = RestClient.rawHttp(capture, body.toString(), contextKey);
 			JSONObject respObject = new JSONObject(response);
 
-		}catch(Exception ex) {
+		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 		}
 
 	}
-	//Type ->"Finger", "Iris", "Face"
-	public  List<MDSDevice> getRegDeviceInfo(String type) {
+
+	// Type ->"Finger", "Iris", "Face"
+	public List<MDSDevice> getRegDeviceInfo(String type) {
 
 		List<MDSDevice> devices = null;
 
-		String url =  MDSURL + port;
+		String url = MDSURL + port;
 		JSONObject body = new JSONObject();
 		body.put("type", type);
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.body(body.toString())
-				.post(url );
-		if(response.getStatusCode() == 200) {
+		Response response = given().contentType(ContentType.JSON).body(body.toString()).post(url);
+		if (response.getStatusCode() == 200) {
 			String resp = response.getBody().asString();
 
-			if(resp != null) {
+			if (resp != null) {
 				JSONArray deviceArray = new JSONArray(resp);
 				ObjectMapper objectMapper = new ObjectMapper();
 
 				try {
-					devices = objectMapper.readValue(deviceArray.toString(), 
+					devices = objectMapper.readValue(deviceArray.toString(),
 							objectMapper.getTypeFactory().constructCollectionType(List.class, MDSDevice.class));
 
 				} catch (IOException e) {
@@ -306,25 +391,26 @@ public class MDSClient implements MDSClientInterface {
 		return devices;
 	}
 
+	// capture = mds.captureFromRegDevice(exceptionDevice, capture,
+	// DataProviderConstants.MDS_DEVICE_TYPE_EXCEPTION_PHOTO,
+	// null, 60, exceptionDevice.getDeviceSubId().get(0),
+	// port,contextKey,bioexceptionlist);
 
-	//	capture = mds.captureFromRegDevice(exceptionDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_EXCEPTION_PHOTO,
-	//			null, 60, exceptionDevice.getDeviceSubId().get(0), port,contextKey,bioexceptionlist);
-
-	public  MDSRCaptureModel captureFromRegDevice(MDSDevice device, 
-			MDSRCaptureModel rCaptureModel,
-			String type,
-			String bioSubType, int reqScore,String deviceSubId,int port,String contextKey,List<String> listbioexception) {
-		String mosipVersion=null;;
+	public MDSRCaptureModel captureFromRegDevice(MDSDevice device, MDSRCaptureModel rCaptureModel, String type,
+			String bioSubType, int reqScore, String deviceSubId, int port, String contextKey,
+			List<String> listbioexception) {
+		String mosipVersion = null;
+		;
 		try {
-			mosipVersion=VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"mosip.version").toString();
-		}catch(Exception e) {
+			mosipVersion = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mosip.version").toString();
+		} catch (Exception e) {
 
 		}
 
-		if(rCaptureModel == null)
+		if (rCaptureModel == null)
 			rCaptureModel = new MDSRCaptureModel();
 
-		String url =  MDSURL +port + "/capture";
+		String url = MDSURL + port + "/capture";
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("env", "Developer");
 		jsonReq.put("purpose", "Registration");
@@ -336,15 +422,12 @@ public class MDSClient implements MDSClientInterface {
 		JSONObject bio = new JSONObject();
 		bio.put("type", type);
 
-
-
 		bio.put("count", 1);
 		bio.put("deviceSubId", deviceSubId);
 
-		if(type.equalsIgnoreCase("finger")) {
+		if (type.equalsIgnoreCase("finger")) {
 
-			switch(deviceSubId)
-			{
+			switch (deviceSubId) {
 			case "1":
 				bio.put("count", 4);
 
@@ -353,7 +436,7 @@ public class MDSClient implements MDSClientInterface {
 				bio.put("count", 4);
 
 				break;
-			case "3": 
+			case "3":
 				bio.put("count", 2);
 				break;
 			}
@@ -361,72 +444,73 @@ public class MDSClient implements MDSClientInterface {
 		}
 
 		bio.put("requestedScore", reqScore);
-		//bio.put("deviceId", Integer.valueOf(device.getDeviceId()));
+		// bio.put("deviceId", Integer.valueOf(device.getDeviceId()));
 		bio.put("deviceId", device.getDeviceId());
-		if(listbioexception!=null && !listbioexception.isEmpty())
-			bio.put("exception",listbioexception );
+		if (listbioexception != null && !listbioexception.isEmpty())
+			bio.put("exception", listbioexception);
 
 		JSONArray arr = new JSONArray();
 		arr.put(bio);
 		jsonReq.put("bio", arr);
 		/*
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.body(jsonReq.toString())
-				.post(url );
+		 * Response response = given() .contentType(ContentType.JSON)
+		 * .body(jsonReq.toString()) .post(url );
 		 */
 		try {
 			HttpRCapture capture = new HttpRCapture(url);
 			capture.setMethod("RCAPTURE");
-			String response = RestClient.rawHttp(capture, jsonReq.toString(),contextKey);
-			
+			String response = RestClient.rawHttp(capture, jsonReq.toString(), contextKey);
+
 			JSONObject respObject = new JSONObject(response);
 			JSONArray bioArray = respObject.getJSONArray("biometrics");
-			List<MDSDeviceCaptureModel> lstBiometrics  = rCaptureModel.getLstBiometrics().get(type);
-			if(lstBiometrics == null)
+			logger.info("DATA bioArray " + type + " :" + bioArray.toString());
+
+			List<MDSDeviceCaptureModel> lstBiometrics = rCaptureModel.getLstBiometrics().get(type);
+			if (lstBiometrics == null)
 				lstBiometrics = new ArrayList<MDSDeviceCaptureModel>();
 
-			if(!CollectionUtils.isEmpty(listbioexception) && type.equalsIgnoreCase("face"))
+			if (!CollectionUtils.isEmpty(listbioexception) && type.equalsIgnoreCase("face"))
 				rCaptureModel.getLstBiometrics().put("exception", lstBiometrics);
 			else
 				rCaptureModel.getLstBiometrics().put(type, lstBiometrics);
 
-
-
-			List<String> retriableErrorCodes=new  ArrayList<String>();
+			List<String> retriableErrorCodes = new ArrayList<String>();
 			retriableErrorCodes.add("703");
 			retriableErrorCodes.add("710");
 
-			// Check if Rcapture returns an error response if on error, retry based on Error ;code. 
-			while(bioArray.length()==1 &&  retriableErrorCodes.contains( bioArray.getJSONObject(0).getJSONObject("error").getString("errorCode") ))
-			{
+			// Check if Rcapture returns an error response if on error, retry based on Error
+			// ;code.
+			while (bioArray.length() == 1 && retriableErrorCodes
+					.contains(bioArray.getJSONObject(0).getJSONObject("error").getString("errorCode"))) {
 				logger.info("Check if Rcapture returns an error response if on error, retry based on Error ;code. ");
-				response = RestClient.rawHttp(capture, jsonReq.toString(),contextKey);
+				response = RestClient.rawHttp(capture, jsonReq.toString(), contextKey);
 
 				respObject = new JSONObject(response);
 				bioArray = respObject.getJSONArray("biometrics");
 			}
 
-
-			for(int i=0; i < bioArray.length(); i++) {
+			for (int i = 0; i < bioArray.length(); i++) {
 				JSONObject bioObject = bioArray.getJSONObject(i);
 				String data = bioObject.getString("data");
+				logger.info("DATA DATA : " + data);
 
 				String hash = bioObject.getString("hash");
 				JWTTokenModel jwtTok = new JWTTokenModel(data);
+				logger.info("jwtTok DATA : " + jwtTok);
 				JSONObject jsonPayload = new JSONObject(jwtTok.getJwtPayload());
 				String jwtSign = jwtTok.getJwtSign();
 				MDSDeviceCaptureModel model = new MDSDeviceCaptureModel();
-				model.setBioType( CommonUtil.getJSONObjectAttribute(jsonPayload, "bioType",""));
-				model.setBioSubType( CommonUtil.getJSONObjectAttribute(jsonPayload, "bioSubType",""));
-				model.setQualityScore(CommonUtil.getJSONObjectAttribute(jsonPayload, "qualityScore",""));
-				model.setBioValue ( CommonUtil.getJSONObjectAttribute(jsonPayload,"bioValue",""));
-				model.setDeviceServiceVersion ( CommonUtil.getJSONObjectAttribute(jsonPayload,"deviceServiceVersion",""));
-				model.setDeviceCode( CommonUtil.getJSONObjectAttribute(jsonPayload,"deviceCode",""));
+				model.setBioType(CommonUtil.getJSONObjectAttribute(jsonPayload, "bioType", ""));
+				model.setBioSubType(CommonUtil.getJSONObjectAttribute(jsonPayload, "bioSubType", ""));
+				model.setQualityScore(CommonUtil.getJSONObjectAttribute(jsonPayload, "qualityScore", ""));
+				model.setBioValue(CommonUtil.getJSONObjectAttribute(jsonPayload, "bioValue", ""));
+				model.setDeviceServiceVersion(
+						CommonUtil.getJSONObjectAttribute(jsonPayload, "deviceServiceVersion", ""));
+				model.setDeviceCode(CommonUtil.getJSONObjectAttribute(jsonPayload, "deviceCode", ""));
 				model.setHash(hash);
-				if(mosipVersion!=null && mosipVersion.startsWith("1.2")) {
+				if (mosipVersion != null && mosipVersion.startsWith("1.2")) {
 					model.setSb(jwtSign); // SB is signature block (header..signature)
-					//String temp=jwtTok.getJwtPayload().replace(model.getBioValue(),);
+					// String temp=jwtTok.getJwtPayload().replace(model.getBioValue(),);
 
 					String BIOVALUE_KEY = "bioValue";
 					String BIOVALUE_PLACEHOLDER = "\"<bioValue>\"";
@@ -438,7 +522,8 @@ public class MDSClient implements MDSClientInterface {
 					model.setPayload(payload);
 				}
 				lstBiometrics.add(model);
-
+				logger.info("MODEL DATA : " + model);
+				logger.info("MODEL DATA : " + model.getBioValue());
 			}
 
 		} catch (IOException e) {
@@ -447,7 +532,6 @@ public class MDSClient implements MDSClientInterface {
 
 		return rCaptureModel;
 	}
-
 
 	public void setThresholdValue(String qualityScore) {
 
@@ -465,10 +549,7 @@ public class MDSClient implements MDSClientInterface {
 			 * JSONObject(response);
 			 */
 
-			Response response = given()
-					.contentType(ContentType.JSON)
-					.body(body.toString())
-					.post(url );
+			Response response = given().contentType(ContentType.JSON).body(body.toString()).post(url);
 			String resp = response.getBody().asString();
 			logger.info(resp);
 
@@ -478,35 +559,30 @@ public class MDSClient implements MDSClientInterface {
 
 	}
 
-
-
 	public static void main(String[] args) {
 
 		MDSClient client = new MDSClient(0);
-		//client.setProfile("res643726437264372");
-		//client.setProfile("Default",port);
-		List<MDSDevice> d= client.getRegDeviceInfo("Iris");
-		d.forEach( dv-> {
-			logger.info(dv.toJSONString());	
+		// client.setProfile("res643726437264372");
+		// client.setProfile("Default",port);
+		List<MDSDevice> d = client.getRegDeviceInfo("Iris");
+		d.forEach(dv -> {
+			logger.info(dv.toJSONString());
 		});
 
+		List<MDSDevice> f = client.getRegDeviceInfo("Finger");
 
-		List<MDSDevice> f= client.getRegDeviceInfo("Finger");
+		f.forEach(dv -> {
+			logger.info(dv.toJSONString());
 
-
-		f.forEach( dv-> {
-			logger.info(dv.toJSONString());	
-
-			//			MDSRCaptureModel r =  client.captureFromRegDevice(dv, null, "Finger",null,60,"1",0);
-			//MDSRCaptureModel r =  client.captureFromRegDevice(d.get(0),null, "Iris",null,60,2);
-
-			
+			// MDSRCaptureModel r = client.captureFromRegDevice(dv, null,
+			// "Finger",null,60,"1",0);
+			// MDSRCaptureModel r = client.captureFromRegDevice(d.get(0),null,
+			// "Iris",null,60,2);
 
 		});
 
-		//r = client.captureFromRegDevice(d.get(0),r, "Face",null,60,1);
+		// r = client.captureFromRegDevice(d.get(0),r, "Face",null,60,1);
 
-		
 	}
 
 	@Override
@@ -514,8 +590,5 @@ public class MDSClient implements MDSClientInterface {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-
-
 
 }

@@ -1054,7 +1054,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	    // Handle the special case for "updateLargeDocInPersona"
 	    if (step.getParameters().size() > 2 && step.getParameters().get(2).equalsIgnoreCase("updateLargeDocInPersona")) {
 	        String docPathValue = "yourDocPathValue"; 
-	        String poaValue = String.format("{\"typeCode\": \"DOC016\",\"docPath\": \"%s\"}", docPathValue);
+	        String poaValue = String.format("{\"typeCode\": \"RNC\",\"docPath\": \"%s\"}", docPathValue);
 	        updateAttribute.put("POA", poaValue);
 	    }
 	    else {
