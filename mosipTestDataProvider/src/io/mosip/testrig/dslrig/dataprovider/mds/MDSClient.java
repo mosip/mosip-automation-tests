@@ -68,7 +68,7 @@ public class MDSClient implements MDSClientInterface {
 		File[] defFiles = defProfile.listFiles();
 		for (File f : defFiles) {
 			try {
-				Files.copy(f, new File(profDir.getAbsolutePath() + "\\" + f.getName()));
+				Files.copy(f, new File(profDir.getAbsolutePath() + File.separator + f.getName()));
 			} catch (IOException e) {
 				logger.error(e.getMessage());
 			}
@@ -336,8 +336,10 @@ public class MDSClient implements MDSClientInterface {
 			isProfDirDeleted = profDir.delete();
 			if (!isProfDirDeleted) {
 				if (RestClient.isDebugEnabled(contextKey)) {
-					 logger.info("File {} deleted successfully", isProfDirDeleted);
-				}
+					logger.info("Profile directory {} deleted successfully", profDir.getName());
+				}else {
+					    logger.warn("Failed to delete profile directory {}", profDir.getName());
+				 }
 			}
 		}
 
