@@ -1054,55 +1054,7 @@ public class PacketSyncService {
 	                continue;
 	            }
 
-	            switch (key) {
-	                case "face":
-	                case "photo":
-	                    bioData = persona.getBiometric();
-	                    byte[][] faceData = PhotoProvider.loadPhoto(value);
-
-	                    oldValues.put("encodedPhoto", bioData.getEncodedPhoto());
-	                    oldValues.put("faceHash", bioData.getFaceHash());
-
-	                    bioData.setEncodedPhoto(Base64.encodeBase64URLSafeString(faceData[0]));
-	                    bioData.setRawFaceData(faceData[1]);
-	                    try {
-	                        bioData.setFaceHash(CommonUtil.getHexEncodedHash(faceData[1]));
-	                    } catch (Exception e1) {
-	                        logger.error(e1.getMessage());
-	                    }
-
-	                    newValues.put("encodedPhoto", bioData.getEncodedPhoto());
-	                    newValues.put("faceHash", bioData.getFaceHash());
-	                    break;
-
-	                case "left_iris":
-	                    bioData = persona.getBiometric();
-	                    IrisDataModel im = bioData.getIris();
-	                    oldValues.put("left_iris", im);  // Optional: convert to JSON string
-	                    try {
-	                        IrisDataModel imUpdated = BiometricDataProvider.loadIris(value, "left", im);
-	                        if (imUpdated != null)
-	                            bioData.setIris(imUpdated);
-	                        newValues.put("left_iris", imUpdated);
-	                    } catch (Exception e) {
-	                        logger.error(e.getMessage());
-	                    }
-	                    break;
-
-	                case "right_iris":
-	                    bioData = persona.getBiometric();
-	                    IrisDataModel im1 = bioData.getIris();
-	                    oldValues.put("right_iris", im1);
-	                    try {
-	                        IrisDataModel imUpdated1 = BiometricDataProvider.loadIris(value, "right", im1);
-	                        if (imUpdated1 != null)
-	                            bioData.setIris(imUpdated1);
-	                        newValues.put("right_iris", imUpdated1);
-	                    } catch (Exception e) {
-	                        logger.error(e.getMessage());
-	                    }
-	                    break;
-
+	            switch (key) {            
 	                case "gender":
 	                    oldValues.put("gender", persona.getGender().toString());
 	                    persona.setGender(Gender.valueOf(value));
@@ -1399,6 +1351,8 @@ public class PacketSyncService {
 	        try {
 	            ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
 	            List<String> regenAttrs = req.getRegenAttributeList();
+	            if(regenAttrs != null)
+	            VariableManager.setVariableValue(contextKey, "regenAttribute", String.join(",", regenAttrs));
 	            if (regenAttrs != null) {
 	                for (String attr : regenAttrs) {
 	                    if (req.getTestPersonaPath() != null) {

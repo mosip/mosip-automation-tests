@@ -70,10 +70,11 @@ public class Orchestrator {
 	public static Boolean beforeSuiteExeuted = false;
 	public static final Object lock = new Object();
 	public static long suiteStartTime = 0;
-	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
-	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
+	public static long suiteMaxTimeInMillis = 7200000;
+	static AtomicInteger counterLock = new AtomicInteger(0);
 	private static AtomicInteger totalFailedScenarios = new AtomicInteger(0);
 	private static final int MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY = 20;
+	public static volatile boolean disableAllRetries = false;
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
@@ -306,30 +307,29 @@ public class Orchestrator {
 		BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_endTime",
 				String.valueOf(endTime));
 
-		if (scenario.getId().equalsIgnoreCase("0")) {
-			/// Check if all steps in Before are passed or not
-			for (Scenario.Step step : scenario.getSteps()) {
-				StepInterface st = getInstanceOf(step);
-				if (st.hasError() == true) {
-					beforeSuiteFailed = true;
-					logger.info("Before suite failed");
-					break;
-
-				}
-			}
-			beforeSuiteExeuted = true;
-			logger.info("Before Suite executed");
-		}
-
-		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
-
+		  for (Scenario.Step step : scenario.getSteps()) {
+		        StepInterface st = getInstanceOf(step);
+		        if (st.hasError()) {
+		            beforeSuiteFailed = true;
+		            disableAllRetries = true;   // 🔴 CRITICAL
+		            logger.error("Before Suite FAILED. Disabling all retries.");
+		            break;
+		        }
+		    }
+		    beforeSuiteExeuted = true;
 	}
 
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
 			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-
+		// 🔴 If Before Suite failed, skip everything except AFTER_SUITE
+		if ((beforeSuiteFailed || disableAllRetries) && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
+		    updateRunStatistics(scenario);
+		    throw new SkipException(
+		        "Skipping scenario " + scenario.getId() + " because Before Suite failed."
+		    );
+		}
 		// Capture the start time of the scenario execution
 		long startTime = System.nanoTime();
 		BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
@@ -476,8 +476,12 @@ public class Orchestrator {
 
 		for (int attempt = 1; attempt <= maxAttempts && !scenarioSucceeded; attempt++) {
 			// Determine whether this attempt will be retried on failure
-			boolean willRetry = (attempt < maxAttempts)
-					&& (totalFailedScenarios.get() < MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY);
+			boolean willRetry =
+			        !disableAllRetries
+			        && !"sanity".equalsIgnoreCase(BaseTestCase.testLevel)
+			        && (attempt < maxAttempts)
+			        && (totalFailedScenarios.get() < MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY);
+
 			// Reset store to initial values before each attempt
 			store = new Store();
 			store.setConfigs(configs);
@@ -636,7 +640,11 @@ public class Orchestrator {
 					// Explicitly fail (so TestNG marks it as FAILED, not SKIPPED)
 					throw new RuntimeException(thresholdMessage);
 				}
-
+				if (beforeSuiteFailed || disableAllRetries) {
+				    extentTest.fail("Before Suite failed. No retries allowed.");
+				    updateRunStatistics(scenario);
+				    throw new RuntimeException("Before Suite failed. Aborting scenario execution.");
+				}
 				// ✅ If this was not the last retry
 				if (attempt < maxAttempts) {
 					String humanRetryMessage = ordinalWord(attempt) + " try for scenario " + scenario.getId()

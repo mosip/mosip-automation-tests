@@ -242,5 +242,11 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	@Override
+	public void updateProfile(String profilePath, String profile, ResidentModel resident, String contextKey,
+			String purpose) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 
 }	

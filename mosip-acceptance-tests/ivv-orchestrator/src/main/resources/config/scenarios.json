@@ -591,48 +591,42 @@
 			"Action": "$$uin2=e2e_getUINByRid($$rid2)"
 		},
 		"Step-16": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_checkRIDStatusInDataBase(STORED,$$rid2/*RID*/)"
-		},
-		"Step-17": {
 			"Description": "Gets Email ID configured for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$uin2)"
 		},
-		"Step-18": {
+		"Step-17": {
 			"Description": "Gets the credentials request ID",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "Request ID",
 			"Action": "$$requestId=e2e_credentialRequest($$uin2,$$email)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Check credentials status",
 			"Input Parameters": "Request ID",
 			"Return Value": "NA",
 			"Action": "e2e_checkCredentialStatus($$requestId)"
 		},
-		"Step-20": {
+		"Step-19": {
 			"Description": "Downloads the card",
 			"Input Parameters": "Credential request ID",
 			"Return Value": "NA",
 			"Action": "e2e_downloadCard($$requestId)"
 		},
-		"Step-21": {
+		"Step-20": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-22": {
+		"Step-21": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-23": {
+		"Step-22": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -1484,7 +1478,7 @@
 			"Description": "Updates Demographic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(iris@@face@@finger/*BIO_TYPE*/,0,0,$$personaFilePath)"
 		},
 		"Step-17": {
 			"Description": "Generates packet template based on the persona data",
@@ -2145,7 +2139,7 @@
 			"Description": "Updates Demographic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,leftIris@@rigthIris,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,leftEye@@rightEye,0,$$personaFilePath)"
 		},
 		"Step-11": {
 			"Description": "Generates packet template based on the persona data",
@@ -16844,7 +16838,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath)"
 		},
 		"Step-11": {
 			"Description": "Updates persona with UIN",
@@ -17068,7 +17062,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath)"
 		},
 		"Step-11": {
 			"Description": "Updates persona with UIN",
@@ -20870,48 +20864,42 @@
 			"Action": "$$uin1=e2e_getUINByRid($$rid1)"
 		},
 		"Step-10": {
-			"Description": "Generates persona data",
-			"Input Parameters": "Details are in parameter in-line comments",
-			"Return Value": "Persona file path",
-			"Action": "$$personaFilePath1=e2e_getResidentData(adult/*PERSONA_TYPE*/,false,Female)"
-		},
-		"Step-11": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(face@@finger@@iris/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath1/*PERSONA_TO_UPDATE*/)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@finger@@iris/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath/*PERSONA_TO_UPDATE*/)"
 		},
-		"Step-12": {
+		"Step-11": {
 			"Description": "Updates persona with UIN",
 			"Input Parameters": "Persona file path and UIN",
 			"Return Value": "NA",
-			"Action": "e2e_updateResidentWithUIN($$personaFilePath1,$$uin1)"
+			"Action": "e2e_updateResidentWithUIN($$personaFilePath,$$uin1)"
 		},
-		"Step-13": {
+		"Step-12": {
 			"Description": "Generates packet template based on the persona data",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
-			"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$personaFilePath1)"
+			"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$personaFilePath)"
 		},
-		"Step-14": {
+		"Step-13": {
 			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
 			"Input Parameters": "Persona file path and template file path",
 			"Return Value": "RID",
-			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath1,$$updateTemplate)"
+			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$updateTemplate)"
 		},
-		"Step-15": {
+		"Step-14": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
 		},
-		"Step-16": {
+		"Step-15": {
 			"Description": "Gets the UIN for the given RID",
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin2=e2e_getUINByRid($$rid2)"
 		},
-		"Step-17": {
+		"Step-16": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -20985,48 +20973,42 @@
 			"Action": "$$uin1=e2e_getUINByRid($$rid1)"
 		},
 		"Step-10": {
-			"Description": "Generates persona data",
-			"Input Parameters": "Details are in parameter in-line comments",
-			"Return Value": "Persona file path",
-			"Action": "$$personaFilePath1=e2e_getResidentData(adult/*PERSONA_TYPE*/,false,Female)"
-		},
-		"Step-11": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(face@@finger@@iris/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath1/*PERSONA_TO_UPDATE*/)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@finger@@iris/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath/*PERSONA_TO_UPDATE*/)"
 		},
-		"Step-12": {
+		"Step-11": {
 			"Description": "Updates persona with UIN",
 			"Input Parameters": "Persona file path and UIN",
 			"Return Value": "NA",
-			"Action": "e2e_updateResidentWithUIN($$personaFilePath1,$$uin1)"
+			"Action": "e2e_updateResidentWithUIN($$personaFilePath,$$uin1)"
 		},
-		"Step-13": {
+		"Step-12": {
 			"Description": "Generates packet template based on the persona data",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
-			"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$personaFilePath1)"
+			"Action": "$$updateTemplate=e2e_getPacketTemplate(UPDATE/*PACKET_TYPE*/,$$personaFilePath)"
 		},
-		"Step-14": {
+		"Step-13": {
 			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
 			"Input Parameters": "Persona file path and template file path",
 			"Return Value": "RID",
-			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath1,$$updateTemplate)"
+			"Action": "$$rid2=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$updateTemplate)"
 		},
-		"Step-15": {
+		"Step-14": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid2)"
 		},
-		"Step-16": {
+		"Step-15": {
 			"Description": "Gets the UIN for the given RID",
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin2=e2e_getUINByRid($$rid2)"
 		},
-		"Step-17": {
+		"Step-16": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -21375,7 +21357,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0,$$personaFilePath)"
 		},
 		"Step-12": {
 			"Description": "Updates persona with UIN",
@@ -21423,7 +21405,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0,$$personaFilePath)"
 		},
 		"Step-20": {
 			"Description": "Updates persona with UIN",
@@ -21550,7 +21532,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0,$$personaFilePath)"
 		},
 		"Step-12": {
 			"Description": "Updates persona with UIN",
@@ -21598,7 +21580,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0,$$personaFilePath)"
 		},
 		"Step-20": {
 			"Description": "Updates persona with UIN",
@@ -21676,7 +21658,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0,$$personaFilePath)"
 		},
 		"Step-33": {
 			"Description": "Updates persona with UIN",
@@ -21881,7 +21863,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0,$$personaFilePath)"
 		},
 		"Step-28": {
 			"Description": "Updates persona with UIN",
@@ -22044,7 +22026,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0,$$personaFilePath)"
 		},
 		"Step-18": {
 			"Description": "Updates persona with UIN",
@@ -23030,7 +23012,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0/*UPDATE_ATTRIBUTES*/,$$childPersona)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$childPersona)"
 		},
 		"Step-19": {
 			"Description": "Updates persona with UIN",
@@ -23211,7 +23193,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0/*UPDATE_ATTRIBUTES*/,$$childPersona)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$childPersona)"
 		},
 		"Step-19": {
 			"Description": "Updates persona with UIN",
@@ -23398,7 +23380,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,face@@leftEye@@rightEye@@rightIndex@@rightLittle@@rightRing@@rightMiddle@@leftIndex@@leftLittle@@leftRing@@leftMiddle@@leftThumb@@rightThumb,0/*UPDATE_ATTRIBUTES*/,$$childPersona)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$childPersona)"
 		},
 		"Step-20": {
 			"Description": "Updates persona with UIN",
@@ -25834,13 +25816,13 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,rightMiddle,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath1/*PERSONA_TO_UPDATE*/,$$personaFilePath2/*PERSONA_TO_UPDATE_WITH*/)"
+			"Action": "e2e_updateDemoOrBioDetails(rightMiddle/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath1/*PERSONA_TO_UPDATE*/,$$personaFilePath2/*PERSONA_TO_UPDATE_WITH*/)"
 		},
 		"Step-18": {
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,leftThumb@@leftRing,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath2/*PERSONA_TO_UPDATE*/,$$personaFilePath1/*PERSONA_TO_UPDATE_WITH*/)"
+			"Action": "e2e_updateDemoOrBioDetails(leftThumb@@leftRing/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath2/*PERSONA_TO_UPDATE*/,$$personaFilePath1/*PERSONA_TO_UPDATE_WITH*/)"
 		},
 		"Step-19": {
 			"Description": "Updates persona with UIN",
