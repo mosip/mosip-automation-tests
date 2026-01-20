@@ -122,9 +122,9 @@ public class MDSClient implements MDSClientInterface {
 
 		/////////
 		// reach cached finger prints from folder
-		String dirPath = System.getProperty("java.io.tmpdir")
-				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
-		logger.info("createProfile dirPath {}", dirPath);
+//		String dirPath = System.getProperty("java.io.tmpdir")
+//				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
+//		logger.info("createProfile dirPath {}", dirPath);
 
 //		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 //		File dir = new File(dirPath);
@@ -145,7 +145,7 @@ public class MDSClient implements MDSClientInterface {
 //		int min=1;
 //		int max=numberOfSubfolders ;
 //		int randomNumber = (int) (Math.random()*(max-min)) + min;
-		String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
+//		String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
 //		String afterscenario=beforescenario.substring(0, beforescenario.indexOf(':'));
 //		if (afterscenario.contains("_")) {
 //			afterscenario = afterscenario.replace("_", "0");
@@ -169,8 +169,6 @@ public class MDSClient implements MDSClientInterface {
 //
 //		List<File> firstSet = tblFiles.get(impressionToPick);
 //		logger.info("createProfile Impression used {}", impressionToPick);
-
-		///////////////
 
 		// File defProfile = new File( profilePath +"/"+ "Automatic");
 
@@ -223,7 +221,16 @@ public class MDSClient implements MDSClientInterface {
 	public void updateProfile(String profilePath, String profile, ResidentModel resident, String contextKey,
 			String purpose) throws Exception {
 
-		String biometricTypes = VariableManager.getVariableValue(contextKey, "regenAttribute").toString().toLowerCase();
+		String biometricTypes =
+		        VariableManager.getVariableValue(contextKey, "regenAttribute") != null
+		                ? VariableManager.getVariableValue(contextKey, "regenAttribute").toString().toLowerCase()
+		                : null;
+
+		if (biometricTypes == null || biometricTypes.trim().isEmpty()) {
+		    logger.info("No biometric attributes provided for update. Skipping profile update.");
+		    return;
+		}
+
 
 		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
 		if (!profDir.exists()) {
