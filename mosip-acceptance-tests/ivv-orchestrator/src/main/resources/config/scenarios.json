@@ -2166,18 +2166,12 @@
 			"Action": "e2e_packetsync($$zipPacketPath)"
 		},
 		"Step-15": {
-			"Description": "Waits for given period in seconds",
-			"Input Parameters": "Time period in seconds to wait",
-			"Return Value": "NA",
-			"Action": "e2e_wait(90)"
-		},
-		"Step-16": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$lostRid,BIOGRAPHIC_VERIFICATION,FAILED)"
+			"Action": "e2e_CheckRIDStage($$lostRid,BIOGRAPHIC_VERIFICATION,REPROCESS)"
 		},
-		"Step-17": {
+		"Step-16": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -20867,7 +20861,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(face@@finger@@iris/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath/*PERSONA_TO_UPDATE*/)"
+			"Action": "e2e_updateDemoOrBioDetails(iris@@finger/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath/*PERSONA_TO_UPDATE*/)"
 		},
 		"Step-11": {
 			"Description": "Updates persona with UIN",
@@ -20976,7 +20970,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(face@@finger@@iris/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath/*PERSONA_TO_UPDATE*/)"
+			"Action": "e2e_updateDemoOrBioDetails(finger@@iris/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath/*PERSONA_TO_UPDATE*/)"
 		},
 		"Step-11": {
 			"Description": "Updates persona with UIN",
@@ -23380,7 +23374,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$childPersona)"
+			"Action": "e2e_updateDemoOrBioDetails(iris@@finger/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$childPersona)"
 		},
 		"Step-20": {
 			"Description": "Updates persona with UIN",
@@ -25690,12 +25684,6 @@
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin3=e2e_getUINByRid($$rid3)"
-		},
-		"Step-17": {
-			"Description": "Checks RID stage and stage status",
-			"Input Parameters": "RID, stage and stage status",
-			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid3,MANUAL_ADJUDICATION,SUCCESS)"
 		},
 		"Step-18": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",

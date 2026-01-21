@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -300,19 +301,22 @@ public class BiometricDataProvider {
 				portmap.put("port_" + contextKey, port);
 
 				mds = new MDSClient(port);
+				
+				profileName = "res" + resident.getId();
+
 				if (resident.getBioExceptions() != null && !resident.getBioExceptions().isEmpty()) {
-					mds.setProfile("Default", port, contextKey);
-				} else if(process.equalsIgnoreCase("Update")) {
-					profileName = "res" + resident.getId();
+					copyExceptionPhoto(mdsprofilePath, "Default", profileName);
+				}
+
+				if (process.equalsIgnoreCase("Update")) {
+
 					mds.updateProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-					mds.setProfile(profileName, port, contextKey);
-					
-				}
-				else {
-					profileName = "res" + resident.getId();
+
+				} else {
+
 					mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-					mds.setProfile(profileName, port, contextKey);
 				}
+				mds.setProfile(profileName, port, contextKey);				
 
 			} else {
 				mds = new MDSClientNoMDS();
@@ -1782,5 +1786,35 @@ public class BiometricDataProvider {
 
 		return selectedImages;
 	}
+	
+	 static void copyExceptionPhoto(
+	        String basePath,
+	        String sourceFolderName,
+	        String targetFolderName) throws IOException {
 
+	    Path sourceFile = Paths.get(
+	            basePath,
+	            sourceFolderName+"/Registration/",
+	            "Exception_Photo.iso"
+	    );
+
+	    Path targetDir = Paths.get(basePath, targetFolderName+"/Registration/");
+	    Path targetFile = targetDir.resolve("Exception_Photo.iso");
+
+	    if (!Files.exists(sourceFile)) {
+	        throw new IllegalArgumentException(
+	                "Exception_Photo.iso not found in source folder: " + sourceFile);
+	    }
+
+	    // Create target folder if not exists
+	    if (!Files.exists(targetDir)) {
+	        Files.createDirectories(targetDir);
+	    }
+
+	    Files.copy(
+	            sourceFile,
+	            targetFile,
+	            StandardCopyOption.REPLACE_EXISTING
+	    );
+	}
 }
