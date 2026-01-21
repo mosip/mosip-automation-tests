@@ -12,7 +12,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 public class DeleteCertificatesAndOnboardingPartners extends BaseTestCaseUtil implements StepInterface {
-	public static Logger logger = Logger.getLogger(CheckRIDStage.class);
+	public static Logger logger = Logger.getLogger(DeleteCertificatesAndOnboardingPartners.class);
 
 	static {
 		if (dslConfigManager.IsDebugEnabled())
