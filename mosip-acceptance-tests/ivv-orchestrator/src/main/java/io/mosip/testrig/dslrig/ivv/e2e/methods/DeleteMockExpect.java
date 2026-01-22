@@ -9,7 +9,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 public class DeleteMockExpect extends BaseTestCaseUtil implements StepInterface {
-	public static Logger logger = Logger.getLogger(CheckRIDStage.class);
+	public static Logger logger = Logger.getLogger(DeleteMockExpect.class);
 
 	static {
 		if (dslConfigManager.IsDebugEnabled())

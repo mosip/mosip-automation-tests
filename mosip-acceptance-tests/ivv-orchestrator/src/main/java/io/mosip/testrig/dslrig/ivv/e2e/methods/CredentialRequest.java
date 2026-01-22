@@ -8,7 +8,6 @@ import org.testng.Reporter;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.auth.testscripts.PostWithAutogenIdWithOtpGenerate;
-import io.mosip.testrig.apirig.auth.testscripts.PostWithBodyWithOtpGenerate;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
@@ -93,7 +92,7 @@ public class CredentialRequest extends BaseTestCaseUtil implements StepInterface
 						}
 					}
 				}
-			} catch (AuthenticationTestException | AdminTestException e) {
+			} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 				logger.error(e.getMessage());
 				this.hasError = true;
 				throw new RigInternalError("Failed at credential issuance Response validation");
@@ -111,8 +110,8 @@ public class CredentialRequest extends BaseTestCaseUtil implements StepInterface
 
 						TestCaseDTO test = (TestCaseDTO) object;
 						test.setInput(test.getInput().replace("$UIN$", uin).replace("$UIN$", uin));
-						test.setInput(test.getInput().replace("$TRANSACTIONID$", AdminTestUtil.generateRandomNumberString(10)));
 						test.setInput(test.getInput().replace("$OTP$", emailId).replace("$OTP$", emailId));
+						test.setInput(test.getInput().replace("$TRANSACTIONID$", AdminTestUtil.generateRandomNumberString(10)));
 						test.setOutput(test.getOutput().replace("$UIN$", uin));
 						Reporter.log("<b><u>" + test.getTestCaseName() + "</u></b>");
 
