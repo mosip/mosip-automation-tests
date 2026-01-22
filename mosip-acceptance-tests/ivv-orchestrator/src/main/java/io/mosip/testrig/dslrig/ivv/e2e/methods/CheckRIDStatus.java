@@ -59,8 +59,11 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 					long startTime = System.currentTimeMillis();
 					logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
 					logger.info(this.getClass().getSimpleName() + " Rid :" + Rid);
-					if (Rid == null)
-						logger.info("RID is null");
+					if (Rid == null) {
+						logger.error("RID is null - cannot check status");
+						this.hasError = true;
+						throw new RigInternalError("RID is null - cannot check status");
+					}
 					ridStatus=GetCredentialTableStackTrace.getStatusFromCredentialTransactionTable(Rid);
 					GlobalMethods.ReportRequestAndResponse(null, null, null, null,
 							ridStatus,true);
@@ -98,6 +101,8 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 		} catch (InterruptedException e) {
 			logger.error("Failed due to thread sleep: " + e.getMessage());
 			Thread.currentThread().interrupt();
+			this.hasError = true;
+		    throw new RigInternalError("RID status check interrupted");
 		}
 
 	}
