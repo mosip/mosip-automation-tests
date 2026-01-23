@@ -26144,7 +26144,7 @@
 		"Tag": "Positive_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
-		"Description": "An infant resident is registered and issued a UIN, then later updates to adult using biometrics of another registered resident.",
+		"Description": "An infant resident is registered and issued a UIN then later updates to adult using biometrics of another registered resident.",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -26329,13 +26329,13 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,BIOGRAPHIC_VERIFICATION,FAILED)"
+			"Action": "e2e_CheckRIDStage($$rid3,BIOGRAPHIC_VERIFICATION,FAILED)"
 		},
 		"Step-31": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid2,MANUAL_ADJUDICATION,SUCCESS)"
+			"Action": "e2e_CheckRIDStage($$rid3,MANUAL_ADJUDICATION,SUCCESS)"
 		}
 	},
 	{

@@ -3,18 +3,13 @@ package io.mosip.testrig.dslrig.dataprovider.mds;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
-import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -193,16 +188,12 @@ public class MDSClient implements MDSClientInterface {
 				logger.info("IRIS_DATA : " + resident.getBiometric().getIris().toString());
 				logger.info("IRIS_DATA_PATH : " + profDir + "/" + "Left_Iris.iso");
 				if (iris != null) {
-					if (iris.getRawLeft() != null) {
-					    logger.info("IRIS_RAW_DATA_left (Base64): N{}",
-					            Base64.getEncoder().encodeToString(iris.getRawLeft()));
+					if (logger.isDebugEnabled() && iris.getRawLeft() != null) {
+						logger.debug("IRIS_RAW_DATA_left size={} bytes", iris.getRawLeft().length);
 					}
-
-					if (iris.getRawRight() != null) {
-					    logger.info("IRIS_RAW_DATA_right (Base64): N{}",
-					            Base64.getEncoder().encodeToString(iris.getRawRight()));
+					if (logger.isDebugEnabled() && iris.getRawRight() != null) {
+						logger.debug("IRIS_RAW_DATA_right size={} bytes", iris.getRawRight().length);
 					}
-
 					if (iris.getRawLeft() != null)
 						convert.convertIris(iris.getRawLeft(), profDir + "/" + "Left_Iris.iso", "Left");
 					if (iris.getRawRight() != null)
@@ -274,14 +265,11 @@ public class MDSClient implements MDSClientInterface {
 
 				IrisDataModel iris = resident.getBiometric().getIris();
 				if (iris != null) {
-					if (iris.getRawLeft() != null) {
-					    logger.info("IRIS_RAW_DATA_left (Base64): U{}",
-					            Base64.getEncoder().encodeToString(iris.getRawLeft()));
+					if (logger.isDebugEnabled() && iris.getRawLeft() != null) {
+						logger.debug("IRIS_RAW_DATA_left size={} bytes", iris.getRawLeft().length);
 					}
-
-					if (iris.getRawRight() != null) {
-					    logger.info("IRIS_RAW_DATA_right (Base64): U{}",
-					            Base64.getEncoder().encodeToString(iris.getRawRight()));
+					if (logger.isDebugEnabled() && iris.getRawRight() != null) {
+						logger.debug("IRIS_RAW_DATA_right size={} bytes", iris.getRawRight().length);
 					}
 					if (updateLeftIris && iris.getRawLeft() != null) {
 						convert.convertIris(iris.getRawLeft(), profDir + "/Left_Iris.iso", "Left");
