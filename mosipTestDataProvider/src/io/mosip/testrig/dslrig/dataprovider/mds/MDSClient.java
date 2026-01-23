@@ -7,6 +7,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -192,9 +193,16 @@ public class MDSClient implements MDSClientInterface {
 				logger.info("IRIS_DATA : " + resident.getBiometric().getIris().toString());
 				logger.info("IRIS_DATA_PATH : " + profDir + "/" + "Left_Iris.iso");
 				if (iris != null) {
-					logger.info("IRIS_DATA_left: " + iris.getLeftHash().toString());
-					logger.info("IRIS_RAW_DATA_left: " + iris.getRawLeft());
-					logger.info("IRIS_RAW_DATA_right: " + iris.getRawRight());
+					if (iris.getRawLeft() != null) {
+					    logger.info("IRIS_RAW_DATA_left (Base64): N{}",
+					            Base64.getEncoder().encodeToString(iris.getRawLeft()));
+					}
+
+					if (iris.getRawRight() != null) {
+					    logger.info("IRIS_RAW_DATA_right (Base64): N{}",
+					            Base64.getEncoder().encodeToString(iris.getRawRight()));
+					}
+
 					if (iris.getRawLeft() != null)
 						convert.convertIris(iris.getRawLeft(), profDir + "/" + "Left_Iris.iso", "Left");
 					if (iris.getRawRight() != null)
@@ -221,16 +229,14 @@ public class MDSClient implements MDSClientInterface {
 	public void updateProfile(String profilePath, String profile, ResidentModel resident, String contextKey,
 			String purpose) throws Exception {
 
-		String biometricTypes =
-		        VariableManager.getVariableValue(contextKey, "regenAttribute") != null
-		                ? VariableManager.getVariableValue(contextKey, "regenAttribute").toString().toLowerCase()
-		                : null;
+		String biometricTypes = VariableManager.getVariableValue(contextKey, "regenAttribute") != null
+				? VariableManager.getVariableValue(contextKey, "regenAttribute").toString().toLowerCase()
+				: null;
 
 		if (biometricTypes == null || biometricTypes.trim().isEmpty()) {
-		    logger.info("No biometric attributes provided for update. Skipping profile update.");
-		    return;
+			logger.info("No biometric attributes provided for update. Skipping profile update.");
+			return;
 		}
-
 
 		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
 		if (!profDir.exists()) {
@@ -250,7 +256,7 @@ public class MDSClient implements MDSClientInterface {
 		try {
 
 			/* ================= FACE ================= */
-			if (biometricsToUpdate.contains("face") && !resident.getSkipFace()) {
+			if (biometricsToUpdate.contains("face")) {
 
 				byte[] face = resident.getBiometric().getRawFaceData();
 				if (face != null) {
@@ -264,11 +270,19 @@ public class MDSClient implements MDSClientInterface {
 			boolean updateLeftIris = updateAllIris || biometricsToUpdate.contains("leftiris");
 			boolean updateRightIris = updateAllIris || biometricsToUpdate.contains("rightiris");
 
-			if ((updateLeftIris || updateRightIris) && !resident.getSkipIris()) {
+			if ((updateLeftIris || updateRightIris)) {
 
 				IrisDataModel iris = resident.getBiometric().getIris();
 				if (iris != null) {
+					if (iris.getRawLeft() != null) {
+					    logger.info("IRIS_RAW_DATA_left (Base64): U{}",
+					            Base64.getEncoder().encodeToString(iris.getRawLeft()));
+					}
 
+					if (iris.getRawRight() != null) {
+					    logger.info("IRIS_RAW_DATA_right (Base64): U{}",
+					            Base64.getEncoder().encodeToString(iris.getRawRight()));
+					}
 					if (updateLeftIris && iris.getRawLeft() != null) {
 						convert.convertIris(iris.getRawLeft(), profDir + "/Left_Iris.iso", "Left");
 					}
@@ -284,26 +298,22 @@ public class MDSClient implements MDSClientInterface {
 			/* ================= FINGER ================= */
 			boolean updateAllFingers = normalizedFingerSet.contains("finger");
 
-			if (!resident.getSkipFinger()) {
+			byte[][] fingerData = resident.getBiometric().getFingerRaw();
 
-				byte[][] fingerData = resident.getBiometric().getFingerRaw();
+			for (int i = 0; i < 10; i++) {
 
-				for (int i = 0; i < 10; i++) {
+				String fingerKey = DataProviderConstants.schemaFingerNames[i].toLowerCase().replace(" ", "");
 
-					String fingerKey = DataProviderConstants.schemaFingerNames[i].toLowerCase().replace(" ", "");
+				if (updateAllFingers || normalizedFingerSet.contains(fingerKey)) {
 
-					if (updateAllFingers || normalizedFingerSet.contains(fingerKey)) {
+					if (fingerData != null && fingerData[i] != null) {
 
-						if (fingerData != null && fingerData[i] != null) {
+						String fingerName = DataProviderConstants.displayFingerName[i];
+						String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
 
-							String fingerName = DataProviderConstants.displayFingerName[i];
-							String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
+						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso", fingerName, purpose);
 
-							convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso", fingerName,
-									purpose);
-
-							logger.info("Updated finger {} for profile {}", fingerName, profile);
-						}
+						logger.info("Updated finger {} for profile {}", fingerName, profile);
 					}
 				}
 			}

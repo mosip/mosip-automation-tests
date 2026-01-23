@@ -1072,9 +1072,14 @@ public class PacketSyncService {
 	                case "dateofbirth":
 	                    oldValues.put("dob", persona.getDob());
 	                    if ("minor".equalsIgnoreCase(value)) {
+	                    	persona.setInfant(false);
+	                    	persona.setMinor(true);
 	                        int randomAge = 5 + (int) (Math.random() * (18 - 5 + 1));
 	                        value = LocalDate.now().minusYears(randomAge).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 	                    } else if ("adult".equalsIgnoreCase(value)) {
+	                    	persona.setInfant(false);
+	                    	persona.setMinor(false);
+	                    	persona.setGuardian(null);
 	                        int randomAge = 18 + (int) (Math.random() * (80 - 18 + 1));
 	                        value = LocalDate.now().minusYears(randomAge).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 	                    }
@@ -1436,7 +1441,6 @@ public class PacketSyncService {
 		RestClient.logInfo(contextKey, "updatePersonaBioExceptions:" + contextKey);
 
 		loadServerContextProperties(contextKey);
-		String ret = "{Sucess}";
 		try {
 			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath());
 
