@@ -26164,7 +26164,7 @@
 			"Action": "$$childPersona=e2e_getResidentData(infant/*PERSONA_TYPE*/,true/*GUARDIAN_FLAG*/,Male/*GENDER*/@@false/*FINGER_BIOMETRIC_FLAG*/@@false/*IRIS_BIOMETRIC_FLAG*/@@true/*FACE_BIOMETRIC_FLAG*/)"
 		},
 		"Step-11": {
-			"Description": "Updates persona data with gaudian details",
+			"Description": "Updates persona data with guardian details",
 			"Input Parameters": "Gaurdian and child persona file paths",
 			"Return Value": "NA",
 			"Action": "e2e_updateResidentWithGuardianSkippingPreReg($$parentPersona,$$childPersona)"

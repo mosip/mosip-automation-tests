@@ -18,7 +18,6 @@ public class FaceVariationGenerator {
 
     // ================= VARIATION FLAGS =================
     public static final int HIGH_CONTRAST_FACE = 1 << 0;
-    private static int faceVariations = 0;
 
     // ================= ENTRY POINT =================
     public static String faceVariationGenerator(
@@ -26,8 +25,10 @@ public class FaceVariationGenerator {
             int currentScenarioNumber,
             int impressionToPick) throws IOException {
 
-        // 🔥 RUN_ID GENERATED PER METHOD CALL
-        long RUN_ID = System.currentTimeMillis();
+        // 🔥 NEW RUN_ID PER CALL
+        long runId = System.currentTimeMillis();
+
+        int variationFlags = HIGH_CONTRAST_FACE;
 
         String basePath = System.getProperty("java.io.tmpdir")
                 + VariableManager.getVariableValue(
@@ -44,7 +45,8 @@ public class FaceVariationGenerator {
                 inputImagePath,
                 outputPath,
                 currentScenarioNumber,
-                RUN_ID);
+                runId,
+                variationFlags);
 
         return outputPath;
     }
@@ -54,10 +56,8 @@ public class FaceVariationGenerator {
             String inputFaceTemplatePath,
             String outputUniqueFaceDataPath,
             int scenarioNumber,
-            long runId) {
-
-        resetFaceVariations();
-        setFaceVariations(HIGH_CONTRAST_FACE);
+            long runId,
+            int variationFlags) {
 
         try {
             List<String> files = listFiles(inputFaceTemplatePath);
@@ -73,7 +73,8 @@ public class FaceVariationGenerator {
                         faceFolder,
                         fileName,
                         scenarioNumber,
-                        runId);
+                        runId,
+                        variationFlags);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,20 +88,21 @@ public class FaceVariationGenerator {
             String faceFolder,
             String fileName,
             int scenarioNumber,
-            long runId) throws IOException {
+            long runId,
+            int variationFlags) throws IOException {
 
         BufferedImage original = ImageIO.read(new File(imagePath));
         if (original == null) {
             throw new RuntimeException("Failed to read image: " + imagePath);
         }
 
-        if (isVariationSet(HIGH_CONTRAST_FACE)) {
+        Path dir = Paths.get(outputPath, faceFolder);
+        Files.createDirectories(dir);
+
+        if ((variationFlags & HIGH_CONTRAST_FACE) != 0) {
 
             VariationResult result =
                     applyHighContrast(original, scenarioNumber, runId);
-
-            Path dir = Paths.get(outputPath, faceFolder);
-            Files.createDirectories(dir);
 
             File outFile = new File(
                     dir.toFile(),
@@ -112,8 +114,8 @@ public class FaceVariationGenerator {
 
     // ================= VARIATION RESULT =================
     private static class VariationResult {
-        String name;
-        BufferedImage image;
+        final String name;
+        final BufferedImage image;
 
         VariationResult(String name, BufferedImage image) {
             this.name = name;
@@ -129,14 +131,13 @@ public class FaceVariationGenerator {
 
         BufferedImage copy = cloneImage(original);
 
-        // 🎯 UNIQUE SEED PER CALL
         long seed = runId
-                + (scenarioNumber * 10_000L)
-                + System.nanoTime();
+                ^ (scenarioNumber * 31L)
+                ^ System.nanoTime();
 
         Random random = new Random(seed);
 
-        // Strong contrast (never near-original)
+        // Strong contrast – never same output
         float factor = 1.7f + random.nextFloat() * 1.6f; // 1.7 → 3.3
 
         BufferedImage contrasted = adjustContrast(copy, factor);
@@ -183,19 +184,6 @@ public class FaceVariationGenerator {
 
     private static int clamp(float v) {
         return Math.max(0, Math.min(255, Math.round(v)));
-    }
-
-    // ================= VARIATION FLAGS =================
-    private static void setFaceVariations(int v) {
-        faceVariations |= v;
-    }
-
-    private static void resetFaceVariations() {
-        faceVariations = 0;
-    }
-
-    private static boolean isVariationSet(int v) {
-        return (faceVariations & v) != 0;
     }
 
     // ================= FILE WALK =================
