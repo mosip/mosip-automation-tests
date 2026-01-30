@@ -30,11 +30,22 @@ import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.awt.geom.Point2D;
 import java.awt.*;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 
 public class IrisVariationGenerator {
 
-    static String strIRISvariation = "Original";
-	private static final Logger logger = LoggerFactory.getLogger(IrisVariationGenerator.class);
+    private static final Logger logger = LoggerFactory.getLogger(IrisVariationGenerator.class);
+
+    // small holder to return both image and variation name (thread-safe)
+    public static class VariationResult {
+        public final BufferedImage image;
+        public final String variationName;
+        public VariationResult(BufferedImage image, String variationName) {
+            this.image = image;
+            this.variationName = variationName;
+        }
+    }
 
     public static final int BLUR_IRIS = 1 << 0; // 00000001
     public static final int BRIGHT_IRIS = 1 << 1; // 00000010
@@ -58,84 +69,109 @@ public class IrisVariationGenerator {
     public static final int WATERY_IRIS = 1 << 19; // 00001000 00000000 00000000
 
     // Variable to store the combination of variations
-    public static int irisVariations = 0;
+    // Use ThreadLocal to make variation flags thread-safe
+    private static final ThreadLocal<Integer> irisVariations = ThreadLocal.withInitial(() -> 0);
 
     public static String irisVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) {
         /// Provide folder where the base template image present
         String inputIRISTemplateDirectoryPath = System.getProperty("java.io.tmpdir")
-				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString()+"/"+String.format("%03d", impressionToPick);
+                + VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString()+"/"+String.format("%03d", impressionToPick);
         logger.info("inputIRISTemplateDirectoryPath : "+inputIRISTemplateDirectoryPath);
         /// Provide folder to where the generated variant images should be copied
         String outputUniqueIRISDataPath = System.getProperty("java.io.tmpdir")
-				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString()+"/output/"+currentScenarioNumber;
+                + VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString()+"/output/"+currentScenarioNumber;
         logger.info("outputUniqueIRISDataPath : "+outputUniqueIRISDataPath);
 
         generateIRISVariations(inputIRISTemplateDirectoryPath, outputUniqueIRISDataPath);
-		return outputUniqueIRISDataPath;
+        return outputUniqueIRISDataPath;
     }
-
-
-
 
     /**************************************************************
      * Generates mutlple variations based on the provided
      * input image and copies to the target folder
      ****************************************************************/
-    public static void generateIRISVariations(String inputIRISTemplateDirectoryPath, String outputUniqueIRISDataPath) {
-        resetIRISVariations();
+    private static final int[] IRIS_VARIATIONS = {
+            BRIGHT_IRIS,
+            HIGH_CONTRAST_IRIS,
+            LOW_CONTRAST_IRIS,
+            REFLECTION_IRIS,
+            GLARE_IRIS,
+            ANGLE_IRIS,
+            PUPIL_DILATION_IRIS,
+            PUPIL_CONTRACTION_IRIS,
+            AGING_IRIS,
+            EYELASHES_IRIS,
+            EYELIDS_IRIS,
+            HIGH_RESOLUTION_IRIS,
+            LOW_RESOLUTION_IRIS,
+            HUMID_ENV_IRIS,
+            HIGH_TEMP_ENV_IRIS,
+            LOW_TEMP_ENV_IRIS,
+            TEXTURE_CHANGE_IRIS,
+            COLOR_CHANGE_IRIS,
+            WATERY_IRIS
+    };
 
-        // Set multiple variations at once
-//        setIRISVariations(BLUR_IRIS | BRIGHT_IRIS | HIGH_CONTRAST_IRIS | LOW_CONTRAST_IRIS | REFLECTION_IRIS
-//                | GLARE_IRIS | ANGLE_IRIS | PUPIL_DILATION_IRIS | PUPIL_CONTRACTION_IRIS | AGING_IRIS | EYELASHES_IRIS
-//                | EYELIDS_IRIS | HIGH_RESOLUTION_IRIS  | LOW_RESOLUTION_IRIS | HUMID_ENV_IRIS | HIGH_TEMP_ENV_IRIS 
-//                | LOW_TEMP_ENV_IRIS | TEXTURE_CHANGE_IRIS | COLOR_CHANGE_IRIS | WATERY_IRIS);
-        
-        setIRISVariations(BLUR_IRIS);
+    private static int pickRandomIRISVariation() {
+        return IRIS_VARIATIONS[
+                java.util.concurrent.ThreadLocalRandom.current()
+                        .nextInt(IRIS_VARIATIONS.length)
+        ];
+    }
+
+    public static void generateIRISVariations(
+            String inputIRISTemplateDirectoryPath,
+            String outputUniqueIRISDataPath) {
 
         try {
-            // Get all file names in the directory and subdirectories
             List<String> fileNameAbsPaths = listFiles(inputIRISTemplateDirectoryPath);
 
             for (String fileNameAbsPath : fileNameAbsPaths) {
-                // Convert the string path to a Path object
+
+                // ONE random IRIS variation per image
+                resetIRISVariations();
+                setIRISVariations(pickRandomIRISVariation());
+
                 Path path = Paths.get(fileNameAbsPath);
-
-                // Get the file name
                 String fileName = path.getFileName().toString();
-
-                // Get the parent directory of the file
                 Path parentPath = path.getParent();
 
-                // Extract the last two segments from the parent path
-                String extractedPath = parentPath.getName(parentPath.getNameCount() - 1).toString();
-                generateIRISVariations(fileNameAbsPath, outputUniqueIRISDataPath, extractedPath, fileName);
+                String extractedPath =
+                        parentPath.getName(parentPath.getNameCount() - 1).toString();
+
+                generateIRISVariations(
+                        fileNameAbsPath,
+                        outputUniqueIRISDataPath,
+                        extractedPath,
+                        fileName
+                );
             }
+
         } catch (IOException e) {
-        	logger.error(e.getMessage());
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 
     // Method to set multiple variations
     public static void setIRISVariations(int variations) {
-        irisVariations |= variations;
+        irisVariations.set(irisVariations.get() | variations);
     }
 
     // Method to reset all variations
     public static void resetIRISVariations() {
-        irisVariations = 0;
+        irisVariations.set(0);
     }
 
     // Method to check if a specific variation is set
     public static boolean isVariationSet(int variation) {
-        return (irisVariations & variation) != 0;
+        return (irisVariations.get() & variation) != 0;
     }
 
     public static void generateIRISVariations(String fileNameAbsPath,
             String outputUniqueIRISDataPath, String IRISPath, String FileName) {
 
         // Create a list of active Variations based on boolean flags
-        List<BiFunction<BufferedImage, Integer, BufferedImage>> activeVariations = new ArrayList<>();
+        List<BiFunction<BufferedImage, Integer, VariationResult>> activeVariations = new ArrayList<>();
         if (isVariationSet(BLUR_IRIS))
             activeVariations.add(IrisVariationGenerator::applyBlurIRISVariation);
         if (isVariationSet(BRIGHT_IRIS))
@@ -148,8 +184,6 @@ public class IrisVariationGenerator {
             activeVariations.add(IrisVariationGenerator::applyReflectionIRISVariation);
         if (isVariationSet(GLARE_IRIS))
             activeVariations.add(IrisVariationGenerator::applyGlareIRISVariation);
-        //if (isVariationSet(ANGLE_IRIS))
-        //    activeVariations.add(IrisVariationGenerator::applyAngleIRISVariation);
         if (isVariationSet(PUPIL_DILATION_IRIS))
             activeVariations.add(IrisVariationGenerator::applyPupilDilationIRISVariation);
         if (isVariationSet(PUPIL_CONTRACTION_IRIS))
@@ -174,17 +208,15 @@ public class IrisVariationGenerator {
             activeVariations.add(IrisVariationGenerator::applyTextureIRISVariation);
         if (isVariationSet(COLOR_CHANGE_IRIS))
             activeVariations.add(IrisVariationGenerator::applyColorChangeIRISVariation);
-         if (isVariationSet(WATERY_IRIS))
+        if (isVariationSet(WATERY_IRIS))
             activeVariations.add(IrisVariationGenerator::applyWateryIRISVariation);
 
         // Load the original IRIS image
-        strIRISvariation = "Original";
         BufferedImage irisImage = null;
         try {
             irisImage = ImageIO.read(new File(fileNameAbsPath));
         } catch (IOException e) {
-            // Handle the exception (e.g., log it, notify the user, etc.)
-        	logger.error(e.getMessage());
+            logger.error(e.getMessage());
             e.printStackTrace();
         }
 
@@ -193,47 +225,65 @@ public class IrisVariationGenerator {
             return;
         }
 
-        String outputIRISPath = outputUniqueIRISDataPath + "//" + IRISPath + "//" + strIRISvariation + "_" + FileName;
-        // System.out.println("------------------" + outputIRISPath);
-        // Create directories if they do not exist
-        Path outputPath = Paths.get(outputIRISPath).getParent();
-
-//         First copy the original image as well
+     // ✅ Create output directory once (no original image saved)
+        Path outputDir = Paths.get(outputUniqueIRISDataPath, IRISPath);
         try {
-            if (!Files.exists(outputPath)) {
-                Files.createDirectories(outputPath);
-            }
-//            ImageIO.write(irisImage, "png", new File(outputIRISPath));
+            Files.createDirectories(outputDir);
         } catch (IOException e) {
-        	logger.error(e.getMessage());
-            System.err.println(e.getMessage());
+            logger.error("Failed to create output directory", e);
         }
 
-        // Apply the Variations and genearate varations for this profile
-        for (int j = 1; j <= activeVariations.size(); j++) {
-            BiFunction<BufferedImage, Integer, BufferedImage> Variation = activeVariations
-                    .get((j - 1) % activeVariations.size());
-            BufferedImage irisImageWithVariation = Variation.apply(irisImage, j);
 
-            outputIRISPath = outputUniqueIRISDataPath + "//" + IRISPath + "//" + strIRISvariation + "_" + FileName;
-            // System.out.println("XXXXXXXXXXXXXXXX------------------" + outputIRISPath);
+        // Apply the Variations and generate variations for this profile
+        for (int j = 1; j <= activeVariations.size(); j++) {
+            BiFunction<BufferedImage, Integer, VariationResult> Variation = activeVariations
+                    .get((j - 1) % activeVariations.size());
+
+            // Use a deep copy of the original so that variations do not modify the shared irisImage
+            BufferedImage irisImageCopy = deepCopy(irisImage);
+
+            // Create a non-deterministic seed for this variation (based on time and image)
+            int variationSeed = (int) ((System.nanoTime() ^ irisImage.hashCode() ^ j) & 0x7fffffff);
+            VariationResult vr = Variation.apply(irisImageCopy, variationSeed);
+            BufferedImage irisImageWithVariation = vr == null || vr.image == null ? irisImageCopy : vr.image;
+            String variationName = vr == null || vr.variationName == null ? "Variation" : vr.variationName;
+            String variationSuffix = String.valueOf(System.nanoTime());
+
+            String outputFileName = changeExtensionToPng(FileName);
+            String outputIRISPath =
+                    outputUniqueIRISDataPath + "//" + IRISPath + "//"
+                    + variationName + "_" + variationSuffix + "_" + outputFileName;
 
             try {
                 ImageIO.write(irisImageWithVariation, "png", new File(outputIRISPath));
             } catch (IOException e) {
-                // Handle the exception (e.g., log it, notify the user, etc.)
                 e.printStackTrace();
                 System.err.println(e.getMessage());
             }
         }
     }
 
-    
+    // helper to convert file name extension to .png
+    private static String changeExtensionToPng(String fileName) {
+        if (fileName == null) return "image.png";
+        int dot = fileName.lastIndexOf('.');
+        String base = dot > 0 ? fileName.substring(0, dot) : fileName;
+        return base + ".png";
+    }
+
+    // Helper to deep-copy a BufferedImage so variations cannot mutate the original
+    private static BufferedImage deepCopy(BufferedImage bi) {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    }
+
     /**************************************************************
      * IRIS Watery Variation
      ****************************************************************/
-    private static BufferedImage applyWateryIRISVariation(BufferedImage iris, int seed) {
-        strIRISvariation = "WateryChange";
+    private static VariationResult applyWateryIRISVariation(BufferedImage iris, int seed) {
+        String variationName = "WateryChange";
         int width = iris.getWidth();
         int height = iris.getHeight();
 
@@ -254,7 +304,7 @@ public class IrisVariationGenerator {
         applyGradientOverlay(g2d, width, height);
 
         g2d.dispose();
-        return wateryIRIS;
+        return new VariationResult(wateryIRIS, variationName);
     }
 
     // Method to apply a Gaussian blur effect
@@ -331,14 +381,11 @@ public class IrisVariationGenerator {
         g2d.fillRect(0, 0, width, height);
     }
 
-
-
-
     /**************************************************************
      * IRIS Color Variation
      ****************************************************************/
-    private static BufferedImage applyColorChangeIRISVariation(BufferedImage image, int seed) {
-        strIRISvariation = "ColorChange";
+    private static VariationResult applyColorChangeIRISVariation(BufferedImage image, int seed) {
+        String variationName = "ColorChange";
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -377,7 +424,7 @@ public class IrisVariationGenerator {
         }
 
         g.dispose();
-        return result;
+        return new VariationResult(result, variationName);
     }
 
     // Method to clamp float values between min and max
@@ -388,8 +435,8 @@ public class IrisVariationGenerator {
     /**************************************************************
      * IRIS Texture Variation
      ****************************************************************/
-    private static BufferedImage applyTextureIRISVariation(BufferedImage image, int seed) {
-        strIRISvariation = "TextureChange";
+    private static VariationResult applyTextureIRISVariation(BufferedImage image, int seed) {
+        String variationName = "TextureChange";
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -452,14 +499,14 @@ public class IrisVariationGenerator {
         }
 
         g.dispose();
-        return result;
+        return new VariationResult(result, variationName);
     }
 
     /**************************************************************
      * Low Temp environment IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyLowTemparatureIRISVariation(BufferedImage image, int seed) {
-        strIRISvariation = "LowTemparatureSurrounding";
+    private static VariationResult applyLowTemparatureIRISVariation(BufferedImage image, int seed) {
+        String variationName = "LowTemparatureSurrounding";
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -496,14 +543,14 @@ public class IrisVariationGenerator {
         }
 
         g.dispose();
-        return result;
+        return new VariationResult(result, variationName);
     }
 
     /**************************************************************
      * HighTemp environment IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyHighTemparatureIRISVariation(BufferedImage image, int seed) {
-        strIRISvariation = "HighTemparatureSurrounding";
+    private static VariationResult applyHighTemparatureIRISVariation(BufferedImage image, int seed) {
+        String variationName = "HighTemparatureSurrounding";
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -540,7 +587,7 @@ public class IrisVariationGenerator {
         }
 
         g.dispose();
-        return result;
+        return new VariationResult(result, variationName);
     }
 
     // Method to clamp coordinates within image bounds
@@ -551,8 +598,8 @@ public class IrisVariationGenerator {
     /**************************************************************
      * Humid environment IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyHumidEffectIRISVariation(BufferedImage image, int seed) {
-        strIRISvariation = "HumidSurrounding";
+    private static VariationResult applyHumidEffectIRISVariation(BufferedImage image, int seed) {
+        String variationName = "HumidSurrounding";
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -590,7 +637,7 @@ public class IrisVariationGenerator {
         }
 
         g.dispose();
-        return result;
+        return new VariationResult(result, variationName);
     }
 
     // Method to clamp RGB values between 0 and 255
@@ -601,8 +648,8 @@ public class IrisVariationGenerator {
     /**************************************************************
      * Low resolution IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyLowResolutionIRISVariations(BufferedImage originalImage, int seed) {
-        strIRISvariation = "LowResolution";
+    private static VariationResult applyLowResolutionIRISVariations(BufferedImage originalImage, int seed) {
+        String variationName = "LowResolution";
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -628,14 +675,14 @@ public class IrisVariationGenerator {
         g2d.drawImage(scaledImage, 0, 0, width, height, null);
         g2d.dispose();
 
-        return lowResImage;
+        return new VariationResult(lowResImage, variationName);
     }
 
     /**************************************************************
      * High resolution IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyHighResolutionIRISVariations(BufferedImage originalImage, int seed) {
-        strIRISvariation = "HighResolution";
+    private static VariationResult applyHighResolutionIRISVariations(BufferedImage originalImage, int seed) {
+        String variationName = "HighResolution";
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -658,14 +705,14 @@ public class IrisVariationGenerator {
         g2d.drawImage(scaledImage, 0, 0, width, height, null);
         g2d.dispose();
 
-        return highResLikeImage;
+        return new VariationResult(highResLikeImage, variationName);
     }
 
     /**************************************************************
      * EyeLids IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyEyelidsIRISVariation(BufferedImage originalImage, int seed) {
-        strIRISvariation = "EyeLids";
+    private static VariationResult applyEyelidsIRISVariation(BufferedImage originalImage, int seed) {
+        String variationName = "EyeLids";
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -676,8 +723,6 @@ public class IrisVariationGenerator {
         // Draw the original image as the base
         g2d.drawImage(originalImage, 0, 0, null);
 
-        // Set the color for the eyelid (a natural skin tone)
-        // g2d.setColor(new Color(224, 192, 160)); // Example skin tone color
         g2d.setColor(new Color(84, 84, 84)); // Light grey color
 
         // Generate random eyelid patterns
@@ -711,14 +756,14 @@ public class IrisVariationGenerator {
         // Dispose the graphics context
         g2d.dispose();
 
-        return eyelidImage;
+        return new VariationResult(eyelidImage, variationName);
     }
 
     /**************************************************************
      * EyeLashses IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyEyelashesIRISVariation(BufferedImage originalImage, int seed) {
-        strIRISvariation = "EyeLashses";
+    private static VariationResult applyEyelashesIRISVariation(BufferedImage originalImage, int seed) {
+        String variationName = "EyeLashses";
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -757,14 +802,14 @@ public class IrisVariationGenerator {
         }
 
         g2d.dispose();
-        return eyelashImage;
+        return new VariationResult(eyelashImage, variationName);
     }
 
     /**************************************************************
      * Aging IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyAgingEffectIRISVariation(BufferedImage originalImage, int seed) {
-        strIRISvariation = "Aged";
+    private static VariationResult applyAgingEffectIRISVariation(BufferedImage originalImage, int seed) {
+        String variationName = "Aged";
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -786,7 +831,7 @@ public class IrisVariationGenerator {
         g2d.drawImage(finalAgedImage, 0, 0, null);
         g2d.dispose();
 
-        return agedImage;
+        return new VariationResult(agedImage, variationName);
     }
 
     private static BufferedImage addNoise(BufferedImage image, int seed) {
@@ -847,8 +892,8 @@ public class IrisVariationGenerator {
     /**************************************************************
      * Contraction IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyPupilContractionIRISVariation(BufferedImage originalImage, int seed) {
-        strIRISvariation = "PupilContraction";
+    private static VariationResult applyPupilContractionIRISVariation(BufferedImage originalImage, int seed) {
+        String variationName = "PupilContraction";
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -891,14 +936,14 @@ public class IrisVariationGenerator {
 
         g2d.dispose();
 
-        return contractedImage;
+        return new VariationResult(contractedImage, variationName);
     }
 
     /**************************************************************
      * PupilDilation IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyPupilDilationIRISVariation(BufferedImage originalImage, int seed) {
-        strIRISvariation = "PupilDilation";
+    private static VariationResult applyPupilDilationIRISVariation(BufferedImage originalImage, int seed) {
+        String variationName = "PupilDilation";
 
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
@@ -942,14 +987,14 @@ public class IrisVariationGenerator {
 
         g2d.dispose();
 
-        return dilatedImage;
+        return new VariationResult(dilatedImage, variationName);
     }
 
     /**************************************************************
      * Angle IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyAngleIRISVariation(BufferedImage originalImage, int seed) {
-        strIRISvariation = "Angle";
+    private static VariationResult applyAngleIRISVariation(BufferedImage originalImage, int seed) {
+        String variationName = "Angle";
 
         // Sample the color from the white ball (sclera) in the IRIS
         Color scleraColor = getScleraColor(originalImage);
@@ -976,7 +1021,7 @@ public class IrisVariationGenerator {
 
         g2d.dispose();
 
-        return rotatedImage;
+        return new VariationResult(rotatedImage, variationName);
     }
 
     private static Color getScleraColor(BufferedImage image) {
@@ -992,8 +1037,8 @@ public class IrisVariationGenerator {
     /**************************************************************
      * Glare IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyGlareIRISVariation(BufferedImage originalImage, int seed) {
-        strIRISvariation = "Glare";
+    private static VariationResult applyGlareIRISVariation(BufferedImage originalImage, int seed) {
+        String variationName = "Glare";
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -1003,29 +1048,30 @@ public class IrisVariationGenerator {
         g2d.drawImage(originalImage, 0, 0, null);
 
         // Set up parameters for the glare effect
-        float glareIntensity = 0.3f + 0.005f * seed; // Increase intensity slightly for each image
-        int glareSize = (int) (width * 0.1 + (seed % 30)); // Vary the size of the glare
-        int xPos = width / 4 + (seed % (width / 2)); // Randomize position
-        int yPos = height / 4 + (seed % (height / 2));
+        // seed can be large; use modulus to keep intensity within a small range and clamp to [0,1]
+        float glareIntensity = 0.3f + 0.005f * (seed % 100);
+        glareIntensity = Math.max(0f, Math.min(1f, glareIntensity));
+         int glareSize = (int) (width * 0.1 + (seed % 30)); // Vary the size of the glare
+         int xPos = width / 4 + (seed % (width / 2)); // Randomize position
+         int yPos = height / 4 + (seed % (height / 2));
 
-        // Draw the glare effect (e.g., a bright white spot with transparency)
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, glareIntensity));
-        GradientPaint glarePaint = new GradientPaint(
-                xPos, yPos, Color.WHITE,
-                xPos + glareSize, yPos + glareSize, new Color(255, 255, 255, 0), true);
-        g2d.setPaint(glarePaint);
-        g2d.fillOval(xPos, yPos, glareSize, glareSize);
+         // Draw the glare effect (e.g., a bright white spot with transparency)
+         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, glareIntensity));
+         GradientPaint glarePaint = new GradientPaint(
+                 xPos, yPos, Color.WHITE,
+                 xPos + glareSize, yPos + glareSize, new Color(255, 255, 255, 0), true);
+         g2d.setPaint(glarePaint);
+         g2d.fillOval(xPos, yPos, glareSize, glareSize);
 
-        g2d.dispose();
-
-        return glareImage;
-    }
+         g2d.dispose();
+         return new VariationResult(glareImage, variationName);
+     }
 
     /**************************************************************
      * Reflection IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyReflectionIRISVariation(BufferedImage originalImage, int seed) {
-        strIRISvariation = "Reflection";
+    private static VariationResult applyReflectionIRISVariation(BufferedImage originalImage, int seed) {
+        String variationName = "Reflection";
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -1035,84 +1081,66 @@ public class IrisVariationGenerator {
         g2d.drawImage(originalImage, 0, 0, null);
 
         // Set up parameters for the reflection effect
-        float reflectionIntensity = 0.3f + 0.005f * seed; // Increase intensity slightly for each image
-        int ellipseWidth = (int) (width * 0.2 + (seed % 20)); // Vary the width of the reflection ellipse
-        int ellipseHeight = (int) (height * 0.2 + (seed % 20)); // Vary the height of the reflection ellipse
-        int xPos = width / 4 + (seed % (width / 2)); // Randomize position
-        int yPos = height / 4 + (seed % (height / 2));
+        float reflectionIntensity = 0.3f + 0.005f * (seed % 100);
+        reflectionIntensity = Math.max(0f, Math.min(1f, reflectionIntensity));
+         int ellipseWidth = (int) (width * 0.2 + (seed % 20)); // Vary the width of the reflection ellipse
+         int ellipseHeight = (int) (height * 0.2 + (seed % 20)); // Vary the height of the reflection ellipse
+         int xPos = width / 4 + (seed % (width / 2)); // Randomize position
+         int yPos = height / 4 + (seed % (height / 2));
 
-        // Draw the reflection effect (e.g., a white ellipse with transparency)
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, reflectionIntensity));
-        g2d.setColor(Color.WHITE);
-        g2d.fillOval(xPos, yPos, ellipseWidth, ellipseHeight);
+         // Draw the reflection effect (e.g., a white ellipse with transparency)
+         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, reflectionIntensity));
+         g2d.setColor(Color.WHITE);
+         g2d.fillOval(xPos, yPos, ellipseWidth, ellipseHeight);
 
-        g2d.dispose();
-
-        return reflectionImage;
+         g2d.dispose();
+         return new VariationResult(reflectionImage, variationName);
     }
 
     /**************************************************************
      * Low Contrast IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyLowContrastIRISVariation(BufferedImage originalImage, int index) {
-        // Calculate contrast factor (e.g., ranging from 1.1 to 2.0)
+    private static VariationResult applyLowContrastIRISVariation(BufferedImage originalImage, int index) {
+        String variationName = "LowContrast";
         float contrastFactor = 1.0f + (-25 * 0.02f); // Adjust contrast factor as needed
-
-        strIRISvariation = "LowContrast";
-        // Contrast adjustment with RescaleOp
         float scaleFactor = contrastFactor; // Contrast scaling factor
         float offset = 0f; // No offset, just scaling
 
         RescaleOp rescaleOp = new RescaleOp(scaleFactor, offset, null);
-
-        // Apply the contrast adjustment to the image
         BufferedImage lowContrastImage = rescaleOp.filter(originalImage, null);
-
-        return lowContrastImage;
+        return new VariationResult(lowContrastImage, variationName);
     }
 
     /**************************************************************
      * High Contrast IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyHighContrastIRISVariation(BufferedImage originalImage, int index) {
-        // Calculate contrast factor (e.g., ranging from 1.1 to 2.0)
+    private static VariationResult applyHighContrastIRISVariation(BufferedImage originalImage, int index) {
+        String variationName = "HighContrast";
         float contrastFactor = 1.0f + (50 * 0.02f); // Adjust contrast factor as needed
-
-        strIRISvariation = "HighContrast";
-        // Contrast adjustment with RescaleOp
         float scaleFactor = contrastFactor; // Contrast scaling factor
         float offset = 0f; // No offset, just scaling
 
         RescaleOp rescaleOp = new RescaleOp(scaleFactor, offset, null);
-
-        // Apply the contrast adjustment to the image
         BufferedImage highContrastImage = rescaleOp.filter(originalImage, null);
-
-        return highContrastImage;
+        return new VariationResult(highContrastImage, variationName);
     }
 
     /**************************************************************
-     * Bight IRIS Variation
+     * Bright IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyBrightIRISVariation(BufferedImage originalImage, int index) {
-        strIRISvariation = "Bright";
-        // Calculate brightness factor (e.g., ranging from 1.1 to 2.0)
+    private static VariationResult applyBrightIRISVariation(BufferedImage originalImage, int index) {
+        String variationName = "Bright";
         float brightnessFactor = 1.0f + (index * 0.01f);
-
-        // Create a RescaleOp to adjust the brightness
         RescaleOp rescaleOp = new RescaleOp(brightnessFactor, 0, null);
-
-        // Apply the brightness adjustment to the image
         BufferedImage brightenedImage = rescaleOp.filter(originalImage, null);
-
-        return brightenedImage;
+        return new VariationResult(brightenedImage, variationName);
     }
 
     /**************************************************************
      * Blur IRIS Variation
      ****************************************************************/
-    private static BufferedImage applyBlurIRISVariation(BufferedImage originalImage, int index) {
-        strIRISvariation = "Blur";
+    private static VariationResult applyBlurIRISVariation(BufferedImage originalImage, int index) {
+        String variationName = "Blur";
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
         BufferedImage modifiedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
@@ -1121,12 +1149,11 @@ public class IrisVariationGenerator {
         g2d.dispose();
         // Apply a combination of transformations
         addNoise(modifiedImage);
-        // applyRadialBlur(modifiedImage);
         distortPattern(modifiedImage, index);
-        return modifiedImage;
+        return new VariationResult(modifiedImage, variationName);
     }
 
-    // Function to add random noise to the image
+    // Function to add random noise to the image (void variant used by blur)
     private static void addNoise(BufferedImage image) {
         Random rand = new Random();
         for (int y = 0; y < image.getHeight(); y++) {

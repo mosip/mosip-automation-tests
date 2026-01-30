@@ -24,11 +24,22 @@ import javax.imageio.ImageIO;
 
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
+import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.util.Queue;
 
 public class FingerprintVariationGenerator {
-    static String strFingervariation = "Original";
+    // removed static variation name to avoid shared mutable state
+
+    // small holder to return both image and variation name (thread-safe)
+    public static class VariationResult {
+        public final BufferedImage image;
+        public final String variationName;
+        public VariationResult(BufferedImage image, String variationName) {
+            this.image = image;
+            this.variationName = variationName;
+        }
+    }
 
     public static final int WET_FINGER = 1 << 0; // 00000001
     public static final int SOFT_FINGER = 1 << 1; // 00000010
@@ -53,7 +64,8 @@ public class FingerprintVariationGenerator {
     public static final int SENSITIVE_FINGERS = 1 << 20; // 00010000 00000000 00000000
     public static final int STEADY_FINGERS = 1 << 21; // 00100000 00000000 00000000
     // Variable to store the combination of variations
-    public static int fingerPrintVariations = 0;
+    // Use ThreadLocal to store variation flags per-thread
+    private static final ThreadLocal<Integer> fingerPrintVariations = ThreadLocal.withInitial(() -> 0);
 
     public static String fingerprintVariationGenerator(String contextKey,int currentScenarioNumber,int impressionToPick) throws IOException {
         /// Provide folder where the base template image present
@@ -73,192 +85,220 @@ public class FingerprintVariationGenerator {
      * Generates mutlple variations based on the provided
      * input image and copies to the target folder
      ****************************************************************/
-    public static void generateFingerprintVariations(String inputFPTemplateDirectoryPath,
-            String outputUniqueFingerprintDataPath) {
-        resetFPVariations();
+    private static final int[] FP_VARIATIONS = {
+            WET_FINGER,
+            SOFT_FINGER,
+            ROUGH_FINGER,
+            TREMBLING_FINGERS,
+            COLD_FINGERS,
+            SLIM_FINGERS,
+            LONG_FINGERS,
+            SHORT_FINGERS,
+            THICK_FINGERS,
+            NIMBLE_FINGERS,
+            STIFF_FINGERS,
+            FLEXIBLE_FINGERS,
+            CALLOUSED_FINGERS,
+            SMOOTH_FINGERS,
+            CURVED_FINGERS,
+            STRAIGHT_FINGERS,
+            STRONG_FINGERS,
+            BLISTERED_FINGERS,
+            DELICATE_FINGERS,
+            SWOLLEN_FINGERS,
+            SENSITIVE_FINGERS
+    };
 
-        // Set multiple variations at once
-//        setFPVariations(WET_FINGER | SOFT_FINGER | ROUGH_FINGER | TREMBLING_FINGERS | COLD_FINGERS | SLIM_FINGERS
-//                | LONG_FINGERS | SHORT_FINGERS | THICK_FINGERS | NIMBLE_FINGERS | STIFF_FINGERS | FLEXIBLE_FINGERS
-//                | CALLOUSED_FINGERS
-//                | SMOOTH_FINGERS | CURVED_FINGERS | STRAIGHT_FINGERS | STRONG_FINGERS | BLISTERED_FINGERS
-//                | DELICATE_FINGERS
-//                | SWOLLEN_FINGERS | SENSITIVE_FINGERS | STEADY_FINGERS);
-        setFPVariations(STEADY_FINGERS);
+    private static int pickRandomFPVariation() {
+        return FP_VARIATIONS[
+                java.util.concurrent.ThreadLocalRandom.current()
+                        .nextInt(FP_VARIATIONS.length)
+        ];
+    }
+
+    public static void generateFingerprintVariations(
+            String inputFPTemplateDirectoryPath,
+            String outputUniqueFingerprintDataPath) {
+
         try {
-            // Get all file names in the directory and subdirectories
             List<String> fileNameAbsPaths = listFiles(inputFPTemplateDirectoryPath);
 
-            // Print all file names
             for (String fileNameAbsPath : fileNameAbsPaths) {
-                // Convert the string path to a Path object
+
+                // ✅ ONE random variation per fingerprint
+                resetFPVariations();
+                setFPVariations(pickRandomFPVariation());
+
                 Path path = Paths.get(fileNameAbsPath);
-
-                // Get the file name
                 String fileName = path.getFileName().toString();
-
-                // Get the parent directory of the file
                 Path parentPath = path.getParent();
 
-                // Extract the last two segments from the parent path
                 String segment1 = parentPath.getName(parentPath.getNameCount() - 2).toString();
                 String segment2 = parentPath.getName(parentPath.getNameCount() - 1).toString();
 
-                // Combine the segments to get the desired output
                 String extractedPath = segment1 + "//" + segment2 + "//";
 
-                // System.out.println("fileNameAbsPath: " + fileNameAbsPath + "
-                // outputUniqueFingerprintDataPath : " + outputUniqueFingerprintDataPath + "
-                // extractedPath : " + extractedPath + " File Name: " + fileName);
-
-                generateFingerprintVariations(fileNameAbsPath, outputUniqueFingerprintDataPath, extractedPath,
-                        fileName);
+                generateFingerprintVariations(
+                        fileNameAbsPath,
+                        outputUniqueFingerprintDataPath,
+                        extractedPath,
+                        fileName
+                );
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Method to set multiple variations
+    // Method to set multiple variations (thread-safe)
     public static void setFPVariations(int variations) {
-        fingerPrintVariations |= variations;
+        fingerPrintVariations.set(fingerPrintVariations.get() | variations);
     }
 
-    // Method to reset all variations
+    // Method to reset all variations (thread-safe)
     public static void resetFPVariations() {
-        fingerPrintVariations = 0;
+        fingerPrintVariations.set(0);
     }
 
-    // Method to check if a specific variation is set
+    // Method to check if a specific variation is set (thread-safe)
     public static boolean isVariationSet(int variation) {
-        return (fingerPrintVariations & variation) != 0;
+        return (fingerPrintVariations.get() & variation) != 0;
     }
 
     public static void generateFingerprintVariations(String fileNameAbsPath,
-            String outputUniqueFingerprintDataRelativePath, String FPPath, String FileName) {
+             String outputUniqueFingerprintDataRelativePath, String FPPath, String FileName) {
 
-        // Create a list of active Variations based on boolean flags
-        List<BiFunction<BufferedImage, Integer, BufferedImage>> activeVariations = new ArrayList<>();
-
-        if (isVariationSet(WET_FINGER))
-            activeVariations.add(FingerprintVariationGenerator::applyWetFingerprintVariation);
-        if (isVariationSet(SOFT_FINGER))
-            activeVariations.add(FingerprintVariationGenerator::applySoftFingerprintVariation);
-        if (isVariationSet(ROUGH_FINGER))
-            activeVariations.add(FingerprintVariationGenerator::applyRoughFingerprintVariation);
-        if (isVariationSet(TREMBLING_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyBlurryFingerprintVariation);
-        if (isVariationSet(COLD_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyColdFingerprintVariation);
-        if (isVariationSet(SLIM_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applySlimFingerprintVariation);
-        if (isVariationSet(LONG_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyLongFingerprintVariation);
-        if (isVariationSet(SHORT_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyShortFingerprintVariation);
-        if (isVariationSet(THICK_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyThickFingerprintVariation);
-        if (isVariationSet(NIMBLE_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyNimbleFingerprintVariation);
-        if (isVariationSet(STIFF_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyStiffFingerprintVariation);
-        if (isVariationSet(FLEXIBLE_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyFlexibleFingerprintVariation);
-        if (isVariationSet(CALLOUSED_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyCallousedFingerprintVariation);
-        if (isVariationSet(SMOOTH_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applySmoothFingerprintVariation);
-        if (isVariationSet(CURVED_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyCurvedFingerprintVariation);
-        if (isVariationSet(STRAIGHT_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyStraightFingerprintVariation);
-        if (isVariationSet(STRONG_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyStrongFingerprintVariation);
-        if (isVariationSet(BLISTERED_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyBlisteredFingerprintVariation);
-        if (isVariationSet(DELICATE_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyDelicateFingerprintVariation);
-        if (isVariationSet(SWOLLEN_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applySwollenFingerprintVariation);
-        if (isVariationSet(SENSITIVE_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applySensitiveFingerprintVariation);
-        if (isVariationSet(STEADY_FINGERS))
-            activeVariations.add(FingerprintVariationGenerator::applyApplyFingerprintVariation);
-
-        // Load the original fingerprint image
-        BufferedImage fingerprintImage = null;
-        try {
-            // fingerprintImage = ImageIO.read(new
-            fingerprintImage = ImageIO.read(new File(fileNameAbsPath));
-        } catch (IOException e) {
-            // Handle the exception (e.g., log it, notify the user, etc.)
-            e.printStackTrace();
-            return;
-        }
-
-        if (fingerprintImage == null) {
-            System.out.println("Failed to load fingerprint image.");
-            return;
-        }
-
-//        strFingervariation = "Original";
-        String outputFingerprintPath = outputUniqueFingerprintDataRelativePath + "//" + FPPath + strFingervariation
-                + "_" + FileName;
-        // Create directories if they do not exist
-        Path outputPath = Paths.get(outputFingerprintPath).getParent();
-
-        // First copy the original image as well
-        try {
-            if (!Files.exists(outputPath)) {
-                Files.createDirectories(outputPath);
+            // Create a list of active Variations (name + function returning BufferedImage)
+            class VarFunc {
+                final java.util.function.BiFunction<BufferedImage, Integer, VariationResult> fn;
+                VarFunc(java.util.function.BiFunction<BufferedImage, Integer, VariationResult> fn) { this.fn = fn; }
             }
-//            ImageIO.write(fingerprintImage, "png", new File(outputFingerprintPath));
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            return;
-        }
 
-        // Apply the Variations and genearate varations for this profile
-        for (int j = 1; j <= activeVariations.size(); j++) {
-            BiFunction<BufferedImage, Integer, BufferedImage> Variation = activeVariations
-                    .get((j - 1) % activeVariations.size());
-            BufferedImage fingerprintImageWithVariation = Variation.apply(fingerprintImage, j);
+            List<VarFunc> activeVariations = new ArrayList<>();
 
-//            fingerprintImageWithVariation = postProcessFingerprint(fingerprintImageWithVariation);
+            if (isVariationSet(WET_FINGER))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyWetFingerprintVariation(img, s), "Wet")));
+            if (isVariationSet(SOFT_FINGER))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applySoftFingerprintVariation(img, s), "Soft")));
+            if (isVariationSet(ROUGH_FINGER))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyRoughFingerprintVariation(img, s), "Rough")));
+            if (isVariationSet(TREMBLING_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyBlurryFingerprintVariation(img, s), "Blurry")));
+            if (isVariationSet(COLD_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyColdFingerprintVariation(img, s), "Cold")));
+            if (isVariationSet(SLIM_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applySlimFingerprintVariation(img, s), "Slim")));
+            if (isVariationSet(LONG_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyLongFingerprintVariation(img, s), "Long")));
+            if (isVariationSet(SHORT_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyShortFingerprintVariation(img, s), "Short")));
+            if (isVariationSet(THICK_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyThickFingerprintVariation(img, s), "Thick")));
+            if (isVariationSet(NIMBLE_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyNimbleFingerprintVariation(img, s), "Nimble")));
+            if (isVariationSet(STIFF_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyStiffFingerprintVariation(img, s), "Stiff")));
+            if (isVariationSet(FLEXIBLE_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyFlexibleFingerprintVariation(img, s), "Flexible")));
+            if (isVariationSet(CALLOUSED_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyCallousedFingerprintVariation(img, s), "Calloused")));
+            if (isVariationSet(SMOOTH_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applySmoothFingerprintVariation(img, s), "Smooth")));
+            if (isVariationSet(CURVED_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyCurvedFingerprintVariation(img, s), "Curved")));
+            if (isVariationSet(STRAIGHT_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyStraightFingerprintVariation(img, s), "Straight")));
+            if (isVariationSet(STRONG_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyStrongFingerprintVariation(img, s), "Strong")));
+            if (isVariationSet(BLISTERED_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyBlisteredFingerprintVariation(img, s), "Blistered")));
+            if (isVariationSet(DELICATE_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyDelicateFingerprintVariation(img, s), "Delicate")));
+            if (isVariationSet(SWOLLEN_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applySwollenFingerprintVariation(img, s), "Swollen")));
+            if (isVariationSet(SENSITIVE_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applySensitiveFingerprintVariation(img, s), "Sensitive")));
+            if (isVariationSet(STEADY_FINGERS))
+                activeVariations.add(new VarFunc((img, s) -> new VariationResult(applyApplyFingerprintVariation(img, s), "Steady")));
 
-            outputFingerprintPath = outputUniqueFingerprintDataRelativePath + "//" + FPPath
-                    + strFingervariation + "_" + FileName;
-
+            // Load the original fingerprint image
+            BufferedImage fingerprintImage;
             try {
-                ImageIO.write(fingerprintImageWithVariation, "png", new File(outputFingerprintPath));
+                fingerprintImage = ImageIO.read(new File(fileNameAbsPath));
             } catch (IOException e) {
-                // Handle the exception (e.g., log it, notify the user, etc.)
                 e.printStackTrace();
-                System.err.println(e.getMessage());
+                return;
+            }
+
+            if (fingerprintImage == null) {
+                System.out.println("Failed to load fingerprint image.");
+                return;
+            }
+
+            // Apply the Variations and generate variations for this profile
+            for (int j = 1; j <= activeVariations.size(); j++) {
+                VarFunc vf = activeVariations.get((j - 1) % activeVariations.size());
+
+                // Use a deep copy of the original so that variations do not modify the shared image
+                BufferedImage fpCopy = deepCopy(fingerprintImage);
+
+                // Create a non-deterministic seed for this variation (based on time and image)
+                int variationSeed = (int) ((System.nanoTime() ^ fingerprintImage.hashCode() ^ j) & 0x7fffffff);
+
+                // Call the variation function which now returns both image and name
+                VariationResult vr = vf.fn.apply(fpCopy, variationSeed);
+                BufferedImage fpWithVariation = vr == null ? fpCopy : vr.image;
+                String variationName = (vr != null && vr.variationName != null) ? vr.variationName : "Variation";
+
+                String variationSuffix = String.valueOf(System.nanoTime());
+
+                String outputFileName = changeExtensionToPng(FileName);
+                String normalizedFPPath = FPPath == null ? "" : FPPath.replace("//", File.separator);
+                String outputFingerprintPath = outputUniqueFingerprintDataRelativePath + File.separator + normalizedFPPath
+                        + variationName + "_" + variationSuffix + "_" + outputFileName;
+
+                // Create directories and write PNG
+                try {
+                    Path outPath = Paths.get(outputFingerprintPath).getParent();
+                    if (!Files.exists(outPath)) {
+                        Files.createDirectories(outPath);
+                    }
+                    ImageIO.write(fpWithVariation, "png", new File(outputFingerprintPath));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.err.println(e.getMessage());
+                }
             }
         }
-    }
 
-    public static List<String> listFiles(String directoryPath) throws IOException {
+    // simple listFiles helper
+    private static List<String> listFiles(String directoryPath) throws IOException {
         List<String> fileNames = new ArrayList<>();
-
-        // Start walking through the file tree
         Files.walkFileTree(Paths.get(directoryPath), new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                // Add the file name to the list
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 fileNames.add(file.toString());
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-                // If a file visit fails, print the error and continue
-                System.err.println("Failed to access file: " + file.toString() + " (" + exc.getMessage() + ")");
                 return FileVisitResult.CONTINUE;
             }
         });
         return fileNames;
+    }
+
+    // helper to convert file name extension to .png
+    private static String changeExtensionToPng(String fileName) {
+        if (fileName == null) return "image.png";
+        int dot = fileName.lastIndexOf('.');
+        String base = dot > 0 ? fileName.substring(0, dot) : fileName;
+        return base + ".png";
+    }
+
+    // Helper to deep-copy a BufferedImage so variations cannot mutate the original
+    private static BufferedImage deepCopy(BufferedImage bi) {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 
     /**************************************************************
@@ -420,7 +460,7 @@ public class FingerprintVariationGenerator {
      * Apply Steady finger print Variation
      ****************************************************************/
     private static BufferedImage applyApplyFingerprintVariation(BufferedImage original, int index) {
-        strFingervariation = "Steady";
+        // variation name: "Steady"
         int width = original.getWidth();
         int height = original.getHeight();
 
@@ -456,7 +496,7 @@ public class FingerprintVariationGenerator {
      * Apply Sensitive finger print Variation
      ****************************************************************/
     private static BufferedImage applySensitiveFingerprintVariation(BufferedImage original, int seed) {
-        strFingervariation = "Semsitive";
+        // variation name: "Sensitive"
         int width = original.getWidth();
         int height = original.getHeight();
 
@@ -513,7 +553,7 @@ public class FingerprintVariationGenerator {
      * Apply Swollen finger print Variation
      ****************************************************************/
     private static BufferedImage applySwollenFingerprintVariation(BufferedImage original, int seed) {
-        strFingervariation = "Swollen";
+        // variation name: "Swollen"
         int width = original.getWidth();
         int height = original.getHeight();
 
@@ -568,7 +608,7 @@ public class FingerprintVariationGenerator {
      * Apply Delicate finger print Variation
      ****************************************************************/
     private static BufferedImage applyDelicateFingerprintVariation(BufferedImage original, int seed) {
-        strFingervariation = "Delicate";
+        // variation name: "Delicate"
         int width = original.getWidth();
         int height = original.getHeight();
 
@@ -609,7 +649,7 @@ public class FingerprintVariationGenerator {
      * Apply Blistered finger print Variation
      ****************************************************************/
     private static BufferedImage applyBlisteredFingerprintVariation(BufferedImage original, int seed) {
-        strFingervariation = "Blistered";
+        // variation name: "Blistered"
         int width = original.getWidth();
         int height = original.getHeight();
 
@@ -652,7 +692,7 @@ public class FingerprintVariationGenerator {
      * Apply Strong finger print Variation
      ****************************************************************/
     private static BufferedImage applyStrongFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Strong";
+        // variation name: "Strong"
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -681,7 +721,7 @@ public class FingerprintVariationGenerator {
      * Apply Straight finger print Variation
      ****************************************************************/
     private static BufferedImage applyStraightFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Straight";
+        // variation name: "Straight"
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -709,7 +749,7 @@ public class FingerprintVariationGenerator {
      * Apply Curved finger print Variation
      ****************************************************************/
     private static BufferedImage applyCurvedFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Curved";
+        // variation name: "Curved"
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -744,7 +784,7 @@ public class FingerprintVariationGenerator {
      * Apply Smooth finger print Variation
      ****************************************************************/
     private static BufferedImage applySmoothFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Smooth";
+        // variation name: "Smooth"
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -775,7 +815,7 @@ public class FingerprintVariationGenerator {
      * Apply Calloused finger print Variation
      ****************************************************************/
     private static BufferedImage applyCallousedFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Calloused";
+        // variation name: "Calloused"
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
 
@@ -816,7 +856,7 @@ public class FingerprintVariationGenerator {
      * Apply Flexible finger print Variation
      ****************************************************************/
     private static BufferedImage applyFlexibleFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Flexible";
+        // variation name: "Flexible"
         int originalWidth = originalImage.getWidth();
         int originalHeight = originalImage.getHeight();
 
@@ -863,7 +903,7 @@ public class FingerprintVariationGenerator {
      * Apply Stiff finger print Variation
      ****************************************************************/
     private static BufferedImage applyStiffFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Stiff";
+        // variation name: "Stiff"
         int originalWidth = originalImage.getWidth();
         int originalHeight = originalImage.getHeight();
 
@@ -903,7 +943,7 @@ public class FingerprintVariationGenerator {
      * Apply nimble finger print Variation
      ****************************************************************/
     private static BufferedImage applyNimbleFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Nimble";
+        // variation name: "Nimble"
         int originalWidth = originalImage.getWidth();
         int originalHeight = originalImage.getHeight();
 
@@ -942,7 +982,7 @@ public class FingerprintVariationGenerator {
      * Apply thick finger print Variation
      ****************************************************************/
     private static BufferedImage applyThickFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Thick";
+        // variation name: "Thick"
 
         int originalWidth = originalImage.getWidth();
         int originalHeight = originalImage.getHeight();
@@ -982,7 +1022,7 @@ public class FingerprintVariationGenerator {
      * Apply slim finger print Variation
      ****************************************************************/
     private static BufferedImage applySlimFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Slim";
+        // variation name: "Slim"
         int originalWidth = originalImage.getWidth();
         int originalHeight = originalImage.getHeight();
 
@@ -1019,7 +1059,7 @@ public class FingerprintVariationGenerator {
      * Apply short finger print Variation
      ****************************************************************/
     private static BufferedImage applyShortFingerprintVariation(BufferedImage originalImage, int variationIndex) {
-        strFingervariation = "Short";
+        // variation name: "Short"
 
         int originalWidth = originalImage.getWidth();
         int originalHeight = originalImage.getHeight();
@@ -1052,7 +1092,7 @@ public class FingerprintVariationGenerator {
      * Apply long finger print Variation
      ****************************************************************/
     private static BufferedImage applyLongFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Long";
+        // variation name: "Long"
         int originalWidth = originalImage.getWidth();
         int originalHeight = originalImage.getHeight();
 
@@ -1089,9 +1129,9 @@ public class FingerprintVariationGenerator {
      * Cold finger print Variation
      ****************************************************************/
     private static BufferedImage applyColdFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Cold";
-        int originalWidth = originalImage.getWidth();
-        int originalHeight = originalImage.getHeight();
+        // variation name: "Cold"
+        int width = originalImage.getWidth();
+        int height = originalImage.getHeight();
 
         // Step 1: Increase the blurring effect (stronger blur kernel)
         float[] strongBlurKernel = {
@@ -1110,13 +1150,13 @@ public class FingerprintVariationGenerator {
         BufferedImage noisyImage = addNoise(lowContrastImage, seed);
 
         // Step 4: Create the final image with white background and same dimensions
-        BufferedImage finalImage = new BufferedImage(originalWidth, originalHeight, originalImage.getType());
+        BufferedImage finalImage = new BufferedImage(width, height, originalImage.getType());
         Graphics2D g2d = finalImage.createGraphics();
         g2d.setColor(Color.WHITE);
-        g2d.fillRect(0, 0, originalWidth, originalHeight);
+        g2d.fillRect(0, 0, width, height);
 
         // Center the cold fingerprint on the white background
-        g2d.drawImage(noisyImage, 0, 0, originalWidth, originalHeight, null);
+        g2d.drawImage(noisyImage, 0, 0, width, height, null);
         g2d.dispose();
 
         return finalImage;
@@ -1149,7 +1189,7 @@ public class FingerprintVariationGenerator {
      * Wet finger print Variation
      ****************************************************************/
     private static BufferedImage applyWetFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Wet";
+        // variation name: "Wet"
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
         BufferedImage wetFingerprint = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
@@ -1270,7 +1310,7 @@ public class FingerprintVariationGenerator {
      * Rougher finger print Variation
      ****************************************************************/
     private static BufferedImage applyRoughFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Rough";
+        // variation name: "Rough"
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();
         BufferedImage uniqueRoughFingerprint = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
@@ -1347,172 +1387,6 @@ public class FingerprintVariationGenerator {
                 int newPixelValue = Math.min(255, Math.max(0, pixelValue + noise));
                 Color newColor = new Color(newPixelValue, newPixelValue, newPixelValue);
                 image.setRGB(x, y, newColor.getRGB());
-            }
-        }
-    }
-
-    /**************************************************************
-     * Soft finger print Variation
-     ****************************************************************/
-    private static BufferedImage applySoftFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Soft";
-        int width = originalImage.getWidth();
-        int height = originalImage.getHeight();
-        BufferedImage softFingerprint = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-        Graphics2D g = softFingerprint.createGraphics();
-        g.drawImage(originalImage, 0, 0, null);
-        g.dispose();
-
-        Random random = new Random(seed);
-
-        // Apply slight blur to soften the fingerprint ridges
-        applySoftBlur(softFingerprint, random);
-
-        // Reduce contrast to simulate a soft touch
-        reduceContrast(softFingerprint, random);
-
-        // Slightly distort the ridges to mimic a soft press
-        applyRidgeDistortion(softFingerprint, random);
-
-        return softFingerprint;
-    }
-
-    private static void applySoftBlur(BufferedImage image, Random random) {
-        float[] blurKernel = {
-                1 / 16f, 2 / 16f, 1 / 16f,
-                2 / 16f, 4 / 16f, 2 / 16f,
-                1 / 16f, 2 / 16f, 1 / 16f
-        };
-        BufferedImageOp blurOp = new ConvolveOp(new Kernel(3, 3, blurKernel));
-        BufferedImage blurredImage = blurOp.filter(image, null);
-        Graphics2D g = image.createGraphics();
-        g.drawImage(blurredImage, 0, 0, null);
-        g.dispose();
-    }
-
-    private static void reduceContrast(BufferedImage image, Random random) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int pixelValue = new Color(image.getRGB(x, y)).getRed();
-                int newPixelValue = (int) (pixelValue * 0.85 + 25); // Reduce contrast
-                Color newColor = new Color(newPixelValue, newPixelValue, newPixelValue);
-                image.setRGB(x, y, newColor.getRGB());
-            }
-        }
-    }
-
-    private static void applyRidgeDistortion(BufferedImage image, Random random) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-        BufferedImage distortedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-        Graphics2D g = distortedImage.createGraphics();
-
-        int maxDistortion = 3; // Maximum distortion in pixels
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int distortionX = x + random.nextInt(maxDistortion * 2) - maxDistortion;
-                int distortionY = y + random.nextInt(maxDistortion * 2) - maxDistortion;
-                distortionX = Math.min(Math.max(distortionX, 0), width - 1);
-                distortionY = Math.min(Math.max(distortionY, 0), height - 1);
-                distortedImage.setRGB(distortionX, distortionY, image.getRGB(x, y));
-            }
-        }
-
-        g.drawImage(distortedImage, 0, 0, null);
-        g.dispose();
-    }
-
-    /********************************************************************
-     * Blurry finger print Variation
-     * /
-     ****************************************************************/
-    private static BufferedImage applyBlurryFingerprintVariation(BufferedImage originalImage, int seed) {
-        strFingervariation = "Blurry";
-        BufferedImage outputImage = new BufferedImage(
-                originalImage.getWidth(),
-                originalImage.getHeight(),
-                originalImage.getType());
-
-        Graphics2D g2d = outputImage.createGraphics();
-        g2d.drawImage(originalImage, 0, 0, null);
-
-        Random random = new Random(seed);
-
-        // Apply advanced transformations
-        applyElasticDistortion(outputImage, random);
-        // applyAffineTransformation(outputImage, random);
-        // applyMorphologicalTransformations(outputImage, random);
-        applyRandomTextures(outputImage, random);
-
-        g2d.dispose();
-        return outputImage;
-    }
-
-    private static void applyElasticDistortion(BufferedImage image, Random random) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int dx = (int) (random.nextGaussian() * 3);
-                int dy = (int) (random.nextGaussian() * 3);
-
-                int newX = Math.min(Math.max(x + dx, 0), width - 1);
-                int newY = Math.min(Math.max(y + dy, 0), height - 1);
-
-                int rgb = image.getRGB(newX, newY);
-                image.setRGB(x, y, rgb);
-            }
-        }
-    }
-
-    private static void applyAffineTransformation(BufferedImage image, Random random) {
-        Graphics2D g2d = image.createGraphics();
-        AffineTransform transform = new AffineTransform();
-
-        // Random scaling
-        double scaleX = 1.0 + (random.nextDouble() - 0.5) * 0.1;
-        double scaleY = 1.0 + (random.nextDouble() - 0.5) * 0.1;
-        transform.scale(scaleX, scaleY);
-
-        // Random rotation
-        double rotation = (random.nextDouble() - 0.5) * Math.PI / 8;
-        transform.rotate(rotation, image.getWidth() / 2, image.getHeight() / 2);
-
-        // Random translation
-        double translateX = (random.nextDouble() - 0.5) * 10;
-        double translateY = (random.nextDouble() - 0.5) * 10;
-        transform.translate(translateX, translateY);
-
-        g2d.setTransform(transform);
-        g2d.drawImage(image, 0, 0, null);
-        g2d.dispose();
-    }
-
-    private static void applyMorphologicalTransformations(BufferedImage image, Random random) {
-        // Apply random erosion and dilation
-        float[] kernelData = new float[] {
-                random.nextFloat(), random.nextFloat(), random.nextFloat(),
-                random.nextFloat(), random.nextFloat(), random.nextFloat(),
-                random.nextFloat(), random.nextFloat(), random.nextFloat()
-        };
-
-        Kernel kernel = new Kernel(3, 3, kernelData);
-        ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
-        op.filter(image, null);
-    }
-
-    private static void applyRandomTextures(BufferedImage image, Random random) {
-        for (int y = 0; y < image.getHeight(); y++) {
-            for (int x = 0; x < image.getWidth(); x++) {
-                if (random.nextDouble() < 0.05) { // 5% chance to alter texture
-                    int rgb = image.getRGB(x, y);
-                    int newRgb = rgb ^ (random.nextInt() & 0x00FFFFFF);
-                    image.setRGB(x, y, newRgb);
-                }
             }
         }
     }
@@ -1809,6 +1683,23 @@ public class FingerprintVariationGenerator {
             int noiseLevel = random.nextInt(256);
             raster.setPixel(x, y, new int[] { noiseLevel });
         }
+    }
+
+    private static BufferedImage applySoftFingerprintVariation(BufferedImage original, int seed) {
+        // Soft -> delegate to smooth implementation for now
+        return applySmoothFingerprintVariation(original, seed);
+    }
+
+    private static BufferedImage applyBlurryFingerprintVariation(BufferedImage original, int seed) {
+        // Simple blur implementation used for 'Blurry' variation
+        float[] kernel = {
+                1 / 16f, 2 / 16f, 1 / 16f,
+                2 / 16f, 4 / 16f, 2 / 16f,
+                1 / 16f, 2 / 16f, 1 / 16f
+        };
+        BufferedImageOp blurOp = new ConvolveOp(new Kernel(3, 3, kernel), ConvolveOp.EDGE_NO_OP, null);
+        BufferedImage dst = blurOp.filter(original, null);
+        return dst;
     }
 
 }
