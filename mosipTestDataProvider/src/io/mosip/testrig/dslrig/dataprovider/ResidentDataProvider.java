@@ -244,7 +244,7 @@ public class ResidentDataProvider {
 	 * 
 	 * 
 	 */
-	public List<ResidentModel> generate(String contextKey) {
+	public List<ResidentModel> generate(String contextKey) throws Exception {
 		
 		List<ResidentModel> residents = new ArrayList<ResidentModel>();
 		
@@ -509,6 +509,7 @@ public class ResidentDataProvider {
 				bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger,contextKey);
 			} catch (Exception e2) {
 				logger.error(e2.getMessage());
+				throw e2;
 			}
 			if(bIrisRequired)
 				bioData.setIris(irisList.get(i));

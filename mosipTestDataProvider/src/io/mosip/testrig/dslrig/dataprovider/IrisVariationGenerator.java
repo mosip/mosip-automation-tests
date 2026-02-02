@@ -3,6 +3,9 @@ package io.mosip.testrig.dslrig.dataprovider;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 import javax.imageio.ImageIO;
+
+import org.slf4j.LoggerFactory;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -13,6 +16,8 @@ import java.util.List;
 import java.util.UUID;
 
 public final class IrisVariationGenerator {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(IrisVariationGenerator.class);
+
 
 	private IrisVariationGenerator() {
 	}
@@ -53,7 +58,7 @@ public final class IrisVariationGenerator {
 
 		BufferedImage base = ImageIO.read(input.toFile());
 		if (base == null)
-			return;
+			throw new IllegalStateException("Unable to read iris image: " + input.toString());
 
 		SecureRandom r = SecureRandom.getInstanceStrong();
 		BufferedImage img = copy(base);
@@ -81,7 +86,7 @@ public final class IrisVariationGenerator {
 		Path out = outDir.resolve(uniqueName);
 		ImageIO.write(img, "png", out.toFile());
 
-		System.out.println("[IRIS-NONMATCH] " + sha256(Files.readAllBytes(out)));
+		logger.info("[IRIS-NONMATCH] " + sha256(Files.readAllBytes(out)));
 	}
 
 	/*
