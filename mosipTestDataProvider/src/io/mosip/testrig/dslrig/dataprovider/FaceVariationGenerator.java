@@ -1,385 +1,175 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
-import java.awt.*;
-import java.awt.geom.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiFunction;
-import javax.imageio.ImageIO;
-
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
-public class FaceVariationGenerator {
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.nio.file.*;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.util.List;
+import java.util.UUID;
 
-    /* =========================================================
-       ENTRY POINT
-       ========================================================= */
+public final class FaceVariationGenerator {
 
-    public static String faceVariationGenerator(String contextKey,
-                                                int scenario,
-                                                int impressionToPick) throws IOException {
+	private FaceVariationGenerator() {
+	}
 
-        String basePath = System.getProperty("java.io.tmpdir")
-                + VariableManager.getVariableValue(contextKey,
-                "mosip.test.persona.facedatapath");
+	/*
+	 * ========================================================= BACKWARD COMPATIBLE
+	 * ENTRY POINT (DO NOT CHANGE CALLERS)
+	 * =========================================================
+	 */
+	public static String faceVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick)
+			throws Exception {
 
-        String inputPath = basePath + "/" + String.format("face%04d.jpg", impressionToPick);
-        String outputPath = basePath + "/output/" + scenario;
+		String inputFaceTemplatePath = System.getProperty("java.io.tmpdir")
+				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath") + "/"
+				+ String.format("face%04d.jpg", impressionToPick);
 
-        generateFaceVariations(inputPath, outputPath);
-        return outputPath;
-    }
+		String outputUniqueFaceDataPath = System.getProperty("java.io.tmpdir")
+				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath") + "/output/"
+				+ currentScenarioNumber;
 
-    /* =========================================================
-       CORE GENERATION (THREAD SAFE)
-       ========================================================= */
+		Files.createDirectories(Paths.get(outputUniqueFaceDataPath));
 
-    public static void generateFaceVariations(String inputPath,
-                                               String outputDir) throws IOException {
+		generateNonMatchingFace(inputFaceTemplatePath, outputUniqueFaceDataPath, "face",
+				"face" + impressionToPick + ".png");
 
-        List<String> files = listFiles(inputPath);
+		return outputUniqueFaceDataPath;
+	}
 
-        for (String file : files) {
+	/*
+	 * ========================================================= CORE NON-MATCHING
+	 * FACE ENGINE =========================================================
+	 */
+	private static void generateNonMatchingFace(String inputPath, String outputDir, String facePath,
+			String originalName) throws Exception {
 
-            BufferedImage original = ImageIO.read(new File(file));
-            if (original == null) continue;
+		BufferedImage base = ImageIO.read(new File(inputPath));
+		if (base == null)
+			return;
 
-            FaceVariation variation = FaceVariation.random();
+		SecureRandom r = SecureRandom.getInstanceStrong();
+		BufferedImage img = copy(base);
 
-            long seed = System.nanoTime() ^ ThreadLocalRandom.current().nextLong();
+		// 1️⃣ STRONG ROTATION (breaks pose normalization)
+		rotate(img, r);
 
-            VariationResult result = variation.apply(original, seed);
+		// 2️⃣ EYE OCCLUSION (kills embeddings)
+		occludeEyes(img, r);
 
-            Path src = Paths.get(file);
-            Path outDir = Paths.get(outputDir, src.getParent().getFileName().toString());
-            Files.createDirectories(outDir);
+		// 3️⃣ NOSE BRIDGE BLOCKING
+		blockNose(img, r);
 
-            // Ensure output filename uses .png extension and is unique
-            String originalFileName = src.getFileName().toString();
-            String outputFileName = changeExtensionToPng(originalFileName);
-            String outName = result.name + "_" + seed + "_" + outputFileName;
-            ImageIO.write(result.image, "png", outDir.resolve(outName).toFile());
-        }
-    }
+		// 4️⃣ RANDOM LANDMARK MASKING
+		maskBlocks(img, r);
 
-    // helper to convert file name extension to .png
-    private static String changeExtensionToPng(String fileName) {
-        if (fileName == null) return "image.png";
-        int dot = fileName.lastIndexOf('.');
-        String base = dot > 0 ? fileName.substring(0, dot) : fileName;
-        return base + ".png";
-    }
+		// 5️⃣ LOCAL FEATURE INVERSION
+		localInvert(img, r);
 
-    /* =========================================================
-       VARIATION ENUM
-       ========================================================= */
+		String uniqueName = "NONMATCH_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + originalName;
 
-    private enum FaceVariation {
+		Path outDir = Paths.get(outputDir, facePath);
+		Files.createDirectories(outDir);
 
-        LOW_CONTRAST("LowContrast", FaceVariationGenerator::applyLowContrastFaceVariation),
-        LOW_BRIGHT("LowBright", FaceVariationGenerator::applyLowBrightFaceVariation),
-        HIGH_BRIGHT("HighBright", FaceVariationGenerator::applyHighBrightFaceVariation),
-        UNNATURAL_SKIN("UnnaturalSkinTone", FaceVariationGenerator::applyUnnaturalSkinToneFaceVariation),
-        HIGH_RES("HighResolution", FaceVariationGenerator::applyHighResolutionFaceVariation),
-        LOW_RES("LowResolution", FaceVariationGenerator::applyLowResolutionFaceVariation),
-        SHADOW("Shadow", FaceVariationGenerator::applyShadowOnFaceVariation),
-        OVER_EXPOSURE("OverExposure", FaceVariationGenerator::applyOverExposureFaceVariation),
-        UNDER_EXPOSURE("UnderExposure", FaceVariationGenerator::applyUnderExposureFaceVariation),
-        BLUR("Blurred", FaceVariationGenerator::applyBlurredFaceVariation),
-        NOISE("Noisy", FaceVariationGenerator::applyNosiyFaceVariation),
-        SKEW("Skewed", FaceVariationGenerator::applySkewedFaceVariation),
-        AGED("Aged", FaceVariationGenerator::applyAgedFaceVariation);
+		Path out = outDir.resolve(uniqueName);
+		ImageIO.write(img, "png", out.toFile());
 
-        private final String name;
-        private final BiFunction<BufferedImage, Long, BufferedImage> fn;
+		System.out.println("[FACE-NONMATCH] " + sha256(Files.readAllBytes(out)));
+	}
 
-        FaceVariation(String name,
-                      BiFunction<BufferedImage, Long, BufferedImage> fn) {
-            this.name = name;
-            this.fn = fn;
-        }
+	/*
+	 * ========================================================= DESTRUCTIVE
+	 * OPERATIONS (MATCH BREAKERS)
+	 * =========================================================
+	 */
 
-        VariationResult apply(BufferedImage img, long seed) {
-            return new VariationResult(name, fn.apply(img, seed));
-        }
+	private static void rotate(BufferedImage img, SecureRandom r) {
+		double angle = Math.toRadians(15 + r.nextInt(15)); // 15–30°
+		BufferedImage out = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
 
-        static FaceVariation random() {
-            FaceVariation[] v = values();
-            return v[ThreadLocalRandom.current().nextInt(v.length)];
-        }
-    }
+		Graphics2D g = out.createGraphics();
+		g.setTransform(AffineTransform.getRotateInstance(angle, img.getWidth() / 2.0, img.getHeight() / 2.0));
+		g.drawImage(img, 0, 0, null);
+		g.dispose();
 
-    /* =========================================================
-       VARIATION RESULT
-       ========================================================= */
+		Graphics2D g2 = img.createGraphics();
+		g2.drawImage(out, 0, 0, null);
+		g2.dispose();
+	}
 
-    private static class VariationResult {
-        final String name;
-        final BufferedImage image;
+	private static void occludeEyes(BufferedImage img, SecureRandom r) {
+		Graphics2D g = img.createGraphics();
+		g.setColor(Color.BLACK);
 
-        VariationResult(String name, BufferedImage image) {
-            this.name = name;
-            this.image = image;
-        }
-    }
+		int y = img.getHeight() / 3;
+		int h = img.getHeight() / 8;
 
-    /* =========================================================
-       EXACT ORIGINAL METHODS (PRESERVED)
-       ========================================================= */
+		g.fillRect(0, y, img.getWidth(), h);
+		g.dispose();
+	}
 
-    private static BufferedImage applyAgedFaceVariation(BufferedImage img, long seed) {
-        BufferedImage out = copy(img);
-        applyWrinkles(out);
-        sharpenImage(out);
-        return out;
-    }
+	private static void blockNose(BufferedImage img, SecureRandom r) {
+		Graphics2D g = img.createGraphics();
+		g.setColor(Color.BLACK);
 
-    private static void applyWrinkles(BufferedImage img) {
-        ThreadLocalRandom r = ThreadLocalRandom.current();
-        for (int y = img.getHeight() / 4; y < img.getHeight() * 3 / 4; y++)
-            for (int x = img.getWidth() / 4; x < img.getWidth() * 3 / 4; x++)
-                if (r.nextDouble() > 0.99) {
-                    Color c = new Color(img.getRGB(x, y));
-                    int g = clamp(c.getRed() - 30);
-                    img.setRGB(x, y, new Color(g, g, g).getRGB());
-                }
-    }
+		int w = img.getWidth() / 6;
+		int h = img.getHeight() / 3;
 
-    private static void sharpenImage(BufferedImage img) {
-        float[] kernel = {0, -1, 0, -1, 5, -1, 0, -1, 0};
-        applyConvolution(img, kernel);
-    }
+		int x = (img.getWidth() - w) / 2;
+		int y = img.getHeight() / 3;
 
-    private static void applyConvolution(BufferedImage img, float[] matrix) {
-        int w = img.getWidth(), h = img.getHeight();
-        BufferedImage temp = copy(img);
-        int size = (int) Math.sqrt(matrix.length);
-        int off = size / 2;
+		g.fillRect(x, y, w, h);
+		g.dispose();
+	}
 
-        for (int y = off; y < h - off; y++)
-            for (int x = off; x < w - off; x++) {
-                float r = 0, g = 0, b = 0;
-                for (int j = 0; j < size; j++)
-                    for (int i = 0; i < size; i++) {
-                        Color c = new Color(
-                                temp.getRGB(x + i - off, y + j - off));
-                        float k = matrix[j * size + i];
-                        r += c.getRed() * k;
-                        g += c.getGreen() * k;
-                        b += c.getBlue() * k;
-                    }
-                img.setRGB(x, y, new Color(
-                        clamp((int) r),
-                        clamp((int) g),
-                        clamp((int) b)).getRGB());
-            }
-    }
+	private static void maskBlocks(BufferedImage img, SecureRandom r) {
+		Graphics2D g = img.createGraphics();
+		g.setColor(Color.BLACK);
 
-    private static BufferedImage applySkewedFaceVariation(BufferedImage img, long seed) {
-        BufferedImage out = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
-        Graphics2D g = out.createGraphics();
-        g.setColor(getBackgroundColor(img));
-        g.fillRect(0, 0, out.getWidth(), out.getHeight());
-        g.setTransform(AffineTransform.getShearInstance(0.3, 0.2));
-        g.drawImage(img, 0, 0, null);
-        g.dispose();
-        return out;
-    }
+		int blocks = 3 + r.nextInt(3);
+		for (int i = 0; i < blocks; i++) {
+			int w = img.getWidth() / 5;
+			int h = img.getHeight() / 5;
+			int x = r.nextInt(img.getWidth() - w);
+			int y = r.nextInt(img.getHeight() - h);
+			g.fillRect(x, y, w, h);
+		}
+		g.dispose();
+	}
 
-    private static Color getBackgroundColor(BufferedImage img) {
-        return new Color(img.getRGB(0, 0));
-    }
+	private static void localInvert(BufferedImage img, SecureRandom r) {
+		for (int i = 0; i < 7000; i++) {
+			int x = r.nextInt(img.getWidth());
+			int y = r.nextInt(img.getHeight());
+			int rgb = img.getRGB(x, y);
+			img.setRGB(x, y, (~rgb) | 0xFF000000);
+		}
+	}
 
-    private static BufferedImage applyNosiyFaceVariation(BufferedImage img, long seed) {
-        BufferedImage out = copy(img);
-        ThreadLocalRandom r = ThreadLocalRandom.current();
-        for (int y = 0; y < out.getHeight(); y++)
-            for (int x = 0; x < out.getWidth(); x++) {
-                Color c = new Color(out.getRGB(x, y));
-                int n = (int) (r.nextGaussian() * 20);
-                out.setRGB(x, y,
-                        new Color(clamp(c.getRed() + n),
-                                  clamp(c.getGreen() + n),
-                                  clamp(c.getBlue() + n)).getRGB());
-            }
-        return out;
-    }
+	/*
+	 * ========================================================= UTILITIES
+	 * =========================================================
+	 */
 
-    private static BufferedImage applyBlurredFaceVariation(BufferedImage img, long seed) {
-        BufferedImage out = copy(img);
-        for (int y = 0; y < img.getHeight(); y++)
-            for (int x = 0; x < img.getWidth(); x++)
-                out.setRGB(x, y,
-                        calculateAverageColor(img, x, y, 5).getRGB());
-        return out;
-    }
+	private static BufferedImage copy(BufferedImage img) {
+		BufferedImage c = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
+		Graphics2D g = c.createGraphics();
+		g.drawImage(img, 0, 0, null);
+		g.dispose();
+		return c;
+	}
 
-    private static Color calculateAverageColor(BufferedImage img, int x, int y, int r) {
-        int rs = 0, gs = 0, bs = 0, c = 0;
-        for (int dy = -r; dy <= r; dy++)
-            for (int dx = -r; dx <= r; dx++) {
-                int nx = x + dx, ny = y + dy;
-                if (nx >= 0 && ny >= 0 && nx < img.getWidth() && ny < img.getHeight()) {
-                    Color col = new Color(img.getRGB(nx, ny));
-                    rs += col.getRed();
-                    gs += col.getGreen();
-                    bs += col.getBlue();
-                    c++;
-                }
-            }
-        return new Color(rs / c, gs / c, bs / c);
-    }
-
-    private static BufferedImage applyUnderExposureFaceVariation(BufferedImage img, long seed) {
-        return addUnderexposureEffect(img, 0.5f);
-    }
-
-    private static BufferedImage applyOverExposureFaceVariation(BufferedImage img, long seed) {
-        return addUnderexposureEffect(img, 2.0f);
-    }
-
-    private static BufferedImage addUnderexposureEffect(BufferedImage img, float f) {
-        BufferedImage out = copy(img);
-        for (int y = 0; y < out.getHeight(); y++)
-            for (int x = 0; x < out.getWidth(); x++) {
-                Color c = new Color(out.getRGB(x, y));
-                out.setRGB(x, y,
-                        new Color(clamp((int) (c.getRed() * f)),
-                                  clamp((int) (c.getGreen() * f)),
-                                  clamp((int) (c.getBlue() * f))).getRGB());
-            }
-        return out;
-    }
-
-    private static BufferedImage applyShadowOnFaceVariation(BufferedImage img, long seed) {
-        BufferedImage out = copy(img);
-        Graphics2D g = out.createGraphics();
-        LinearGradientPaint p = new LinearGradientPaint(
-                new Point2D.Float(out.getWidth() / 2f, out.getHeight() / 2f),
-                new Point2D.Float(out.getWidth(), out.getHeight()),
-                new float[]{0f, 1f},
-                new Color[]{new Color(0, 0, 0, 120), new Color(0, 0, 0, 0)});
-        g.setPaint(p);
-        g.fillRect(0, 0, out.getWidth(), out.getHeight());
-        g.dispose();
-        return out;
-    }
-
-    private static BufferedImage applyHighResolutionFaceVariation(BufferedImage img, long seed) {
-        return adjustBrightness(img, 1.4f);
-    }
-
-    private static BufferedImage applyLowResolutionFaceVariation(BufferedImage img, long seed) {
-        return adjustBrightness(createLowResolutionEffect(img, 5), 1.2f);
-    }
-
-    private static BufferedImage createLowResolutionEffect(BufferedImage img, int f) {
-        int w = img.getWidth(), h = img.getHeight();
-        BufferedImage down = new BufferedImage(w / f, h / f, img.getType());
-        Graphics2D g = down.createGraphics();
-        g.drawImage(img, 0, 0, down.getWidth(), down.getHeight(), null);
-        g.dispose();
-
-        BufferedImage up = new BufferedImage(w, h, img.getType());
-        g = up.createGraphics();
-        g.drawImage(down, 0, 0, w, h, null);
-        g.dispose();
-        return up;
-    }
-
-    private static BufferedImage applyUnnaturalSkinToneFaceVariation(BufferedImage img, long seed) {
-        return adjustColor(img, 1.1f, 1.0f, 0.9f);
-    }
-
-    private static BufferedImage applyLowBrightFaceVariation(BufferedImage img, long seed) {
-        return adjustBrightness(img, 0.5f);
-    }
-
-    private static BufferedImage applyHighBrightFaceVariation(BufferedImage img, long seed) {
-        return adjustBrightness(img, 1.2f);
-    }
-
-    private static BufferedImage applyHighContrastFaceVariation(BufferedImage img, long seed) {
-        float f = 1.7f + ThreadLocalRandom.current().nextFloat() * 1.6f;
-        return adjustContrast(img, f);
-    }
-
-    private static BufferedImage applyLowContrastFaceVariation(BufferedImage img, long seed) {
-        return adjustContrast(img, 0.1f);
-    }
-
-    /* =========================================================
-       SHARED IMAGE HELPERS
-       ========================================================= */
-
-    private static BufferedImage adjustBrightness(BufferedImage img, float f) {
-        BufferedImage out = copy(img);
-        for (int y = 0; y < out.getHeight(); y++)
-            for (int x = 0; x < out.getWidth(); x++) {
-                Color c = new Color(out.getRGB(x, y));
-                out.setRGB(x, y,
-                        new Color(clamp((int) (c.getRed() * f)),
-                                  clamp((int) (c.getGreen() * f)),
-                                  clamp((int) (c.getBlue() * f))).getRGB());
-            }
-        return out;
-    }
-
-    private static BufferedImage adjustContrast(BufferedImage img, float f) {
-        BufferedImage out = copy(img);
-        for (int y = 0; y < out.getHeight(); y++)
-            for (int x = 0; x < out.getWidth(); x++) {
-                Color c = new Color(out.getRGB(x, y));
-                out.setRGB(x, y,
-                        new Color(
-                                clamp((int) ((c.getRed() - 128) * f + 128)),
-                                clamp((int) ((c.getGreen() - 128) * f + 128)),
-                                clamp((int) ((c.getBlue() - 128) * f + 128)))
-                                .getRGB());
-            }
-        return out;
-    }
-
-    private static BufferedImage adjustColor(BufferedImage img, float r, float g, float b) {
-        BufferedImage out = copy(img);
-        for (int y = 0; y < out.getHeight(); y++)
-            for (int x = 0; x < out.getWidth(); x++) {
-                Color c = new Color(out.getRGB(x, y));
-                out.setRGB(x, y,
-                        new Color(clamp((int) (c.getRed() * r)),
-                                  clamp((int) (c.getGreen() * g)),
-                                  clamp((int) (c.getBlue() * b))).getRGB());
-            }
-        return out;
-    }
-
-    private static BufferedImage copy(BufferedImage img) {
-        BufferedImage out = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
-        Graphics2D g = out.createGraphics();
-        g.drawImage(img, 0, 0, null);
-        g.dispose();
-        return out;
-    }
-
-    private static int clamp(int v) {
-        return Math.max(0, Math.min(255, v));
-    }
-
-    private static List<String> listFiles(String path) throws IOException {
-        List<String> files = new ArrayList<>();
-        Files.walkFileTree(Paths.get(path), new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                files.add(file.toString());
-                return FileVisitResult.CONTINUE;
-            }
-        });
-        return files;
-    }
+	private static String sha256(byte[] data) throws Exception {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		byte[] h = md.digest(data);
+		StringBuilder sb = new StringBuilder();
+		for (byte b : h)
+			sb.append(String.format("%02x", b));
+		return sb.toString();
+	}
 }

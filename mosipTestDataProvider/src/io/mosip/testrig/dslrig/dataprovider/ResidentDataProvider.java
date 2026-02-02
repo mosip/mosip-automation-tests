@@ -507,7 +507,7 @@ public class ResidentDataProvider {
 			BiometricDataModel bioData =null;
 			try {
 				bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger,contextKey);
-			} catch (IOException e2) {
+			} catch (Exception e2) {
 				logger.error(e2.getMessage());
 			}
 			if(bIrisRequired)

@@ -904,7 +904,7 @@ public class BiometricDataProvider {
 		return tblFiles;
 	}
 
-	public static BiometricDataModel getBiometricData(Boolean bFinger, String contextKey) throws IOException {
+	public static BiometricDataModel getBiometricData(Boolean bFinger, String contextKey) throws Exception {
 
 		BiometricDataModel data = new BiometricDataModel();
 
@@ -1036,7 +1036,7 @@ public class BiometricDataProvider {
 						+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
 
 
-				List<File> firstSet = CommonUtil.listFiles(dirPath + "/" + String.format("/Impression_%d/fp_1/", impressionToPick));
+				List<File> firstSet = CommonUtil.listFiles(dirPath + "/fp/");
 
 
 				String[] fingerPrints = new String[10];
@@ -1075,7 +1075,7 @@ public class BiometricDataProvider {
 		return data;
 	}
 
-	public static BiometricDataModel updateFingerData(String contextKey) throws IOException {
+	public static BiometricDataModel updateFingerData(String contextKey) throws Exception {
 
 		BiometricDataModel data = new BiometricDataModel();
 		// reach cached finger prints from folder
@@ -1116,7 +1116,7 @@ public class BiometricDataProvider {
 
 		dirPath = FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
 
-		List<File> firstSet = CommonUtil.listFiles(dirPath + "/" + String.format("/Impression_%d/fp_1/", impressionToPick));
+		List<File> firstSet = CommonUtil.listFiles(dirPath + "/fp/");
 
 		String[] fingerPrints = new String[10];
 		String[] fingerPrintHash = new String[10];
@@ -1156,7 +1156,7 @@ public class BiometricDataProvider {
 			"leftthumb", 9);
 
 	public static BiometricDataModel updateSelectedFingerData(ResidentModel model, String contextKey,
-			String fingerArgument) throws IOException {
+			String fingerArgument) throws Exception {
 
 		// 🔴 Get existing biometric data
 		BiometricDataModel data = model.getBiometric();
@@ -1209,7 +1209,7 @@ public class BiometricDataProvider {
 		dirPath = FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber,
 				impressionToPick);
 
-		List<File> firstSet = CommonUtil.listFiles(dirPath + "/Impression_" + impressionToPick + "/fp_1/");
+		List<File> firstSet = CommonUtil.listFiles(dirPath + "/fp/");
 		Collections.sort(firstSet, Comparator.comparing(File::getName));
 
 		// 🔴 Parse DSL argument
@@ -1394,8 +1394,8 @@ public class BiometricDataProvider {
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 			srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
 
-			File folder = new File(srcPath+"/" + String.format("%03d", impressionToPick));
-			logger.info(srcPath+"/" + String.format("%03d", impressionToPick));
+			File folder = new File(srcPath + "/iris/");
+			logger.info(srcPath + "/iris/");
 
 			File[] listOfFiles = folder.listFiles();
 			//			listOfFiles=getRandomIrisVariation(listOfFiles);
@@ -1414,8 +1414,8 @@ public class BiometricDataProvider {
 			if (rightbmp == null) {
 				rightbmp = leftbmp;
 			}
-			String fPathL = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
-			String fPathR = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
+			String fPathL = srcPath+"/" + "iris" + "/" + leftbmp;
+			String fPathR = srcPath+"/" + "iris" + "/" + rightbmp;
 			String leftIrisData = "";
 			String rightIrisData = "";
 			String irisHash = "";
@@ -1483,7 +1483,7 @@ public class BiometricDataProvider {
 
 		srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
 
-		File folder = new File(srcPath +"/" + String.format("%03d", impressionToPick));
+		File folder = new File(srcPath +"/iris/");
 
 		File[] listOfFiles = folder.listFiles();
 		//		listOfFiles=getRandomIrisVariation(listOfFiles);
@@ -1501,8 +1501,8 @@ public class BiometricDataProvider {
 		if (rightbmp == null) {
 			rightbmp = leftbmp;
 		}
-		String fPathL = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
-		String fPathR = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
+		String fPathL = srcPath +"/iris/" +  leftbmp;
+		String fPathR = srcPath +"/iris/" + rightbmp;
 
 		String leftIrisData = "";
 		String rightIrisData = "";
@@ -1576,7 +1576,7 @@ public class BiometricDataProvider {
 
 		srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
 
-		File folder = new File(srcPath +"/" + String.format("%03d", impressionToPick));
+		File folder = new File(srcPath +"/iris/");
 
 		File[] listOfFiles = folder.listFiles();
 		if (listOfFiles == null || listOfFiles.length == 0) {
@@ -1596,10 +1596,10 @@ public class BiometricDataProvider {
 		}
 
 		String fPathL = leftbmp == null ? null
-				: srcPath + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
+				: srcPath  +"/iris/" + leftbmp;
 
 		String fPathR = rightbmp == null ? null
-				: srcPath + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
+				: srcPath + "/iris/" + rightbmp;
 
 		// 🔴 Parse DSL argument (use IRIS naming)
 		Set<String> irisToUpdate = Arrays.stream(irisArgument.split(",")).map(String::trim).map(String::toLowerCase)
@@ -1665,15 +1665,14 @@ public class BiometricDataProvider {
 
 			dirPath=FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
 
-			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face_data/");
+			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face/");
 			
-			List<File> filteredFiles = firstSet.stream().filter(file -> file.getName().contains("00"+impressionToPick)).toList();
 			BufferedImage img = null;
 
-			try (FileInputStream fos = new FileInputStream(filteredFiles.get(0));
+			try (FileInputStream fos = new FileInputStream(firstSet.get(0));
 					BufferedInputStream bis = new BufferedInputStream(fos)) {
 				img = ImageIO.read(bis);
-				logger.info("Image picked from this path=" + filteredFiles.get(0));
+				logger.info("Image picked from this path=" + firstSet.get(0));
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -1691,7 +1690,7 @@ public class BiometricDataProvider {
 		return new byte[][] { bencoded, bData };
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		try {
 
