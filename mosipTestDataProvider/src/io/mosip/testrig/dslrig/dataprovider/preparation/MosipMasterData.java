@@ -1178,7 +1178,7 @@ public  class MosipMasterData {
 	static Boolean validateCondn(String cndnexpr, Object inputObject) {
 		return MVEL.evalToBoolean(cndnexpr,inputObject);
 	}
-	static void testSchemaRule(String contextKey) {
+	static void testSchemaRule(String contextKey) throws Exception {
 		
 		ResidentDataProvider residentProvider = new ResidentDataProvider();
 		residentProvider.addCondition(ResidentAttribute.RA_SECONDARY_LANG, "ara")
@@ -1255,7 +1255,7 @@ public  class MosipMasterData {
 	
 	
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		 String	contextKey="globalvariable";
 		VariableManager.setVariableValue(contextKey,"urlBase","https://sandbox.mosip.net/");
 		VariableManager.setVariableValue(contextKey,"configpath","config/*/mz/1.1.5/registration-processor-mz.properties");

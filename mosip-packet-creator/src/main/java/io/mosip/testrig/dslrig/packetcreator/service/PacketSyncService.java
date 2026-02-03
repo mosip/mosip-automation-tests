@@ -165,7 +165,7 @@ public class PacketSyncService {
 		}
 	}
 
-	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) {
+	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) throws Exception {
 		logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
 		// TO do --Check why we need to load the context here
 //		loadServerContextProperties(contextKey);

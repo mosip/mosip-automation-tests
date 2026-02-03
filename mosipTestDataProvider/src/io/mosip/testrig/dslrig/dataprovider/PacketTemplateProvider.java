@@ -1669,7 +1669,7 @@ public class PacketTemplateProvider {
 
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		ResidentDataProvider provider = new ResidentDataProvider();
 		List<ResidentModel> residents = provider.generate("contextKey");
 		try {

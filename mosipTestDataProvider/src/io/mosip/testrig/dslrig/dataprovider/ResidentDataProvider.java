@@ -83,7 +83,7 @@ public class ResidentDataProvider {
 		attributeList.put(attributeName, attributeValue);
 		return this;
 	}
-	public static ResidentModel genGuardian(Properties attributes,String contextKey) {
+	public static ResidentModel genGuardian(Properties attributes,String contextKey) throws Exception {
 		Properties attributeList = new Properties();
 		attributes.forEach( (k,v) ->{
 			attributeList.put(k, v);
