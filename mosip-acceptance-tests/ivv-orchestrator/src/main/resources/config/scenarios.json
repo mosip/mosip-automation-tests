@@ -2097,7 +2097,7 @@
 			"Description": "Updates Demographic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(leftEye@@rightEye/*BIO_TYPE*/,0,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(face@@iris@@finger/*BIO_TYPE*/,0,0,$$personaFilePath)"
 		},
 		"Step-11": {
 			"Description": "Generates packet template based on the persona data",
@@ -2127,7 +2127,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$lostRid,BIOGRAPHIC_VERIFICATION,REPROCESS)"
+			"Action": "e2e_CheckRIDStage($$lostRid,BIOGRAPHIC_VERIFICATION,FAILED)"
 		},
 		"Step-16": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -23366,7 +23366,7 @@
 			"Description": "Creates user with given user name and password",
 			"Input Parameters": "Action, Username and Password. Other parameter details can be found in parameter in-line comments",
 			"Return Value": "User details",
-			"Action": "$$user5=e2e_User(ADD_User,4/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
+			"Action": "$$user5=e2e_User(ADD_User,5/*USER_INDEX*/@@Techno@123/*PASSWORD*/)"
 		},
 		"Step-2": {
 			"Description": "Creates center and maps to user to that",
