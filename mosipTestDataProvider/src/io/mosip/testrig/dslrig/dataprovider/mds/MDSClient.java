@@ -219,7 +219,12 @@ public class MDSClient implements MDSClientInterface {
 	
 	public void updateProfile(String profilePath, String profile, ResidentModel resident, String contextKey,
 			String purpose) throws Exception {
-
+		File profDir1 = new File(profilePath + "/" + profile);
+		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
+		if (!profDir1.exists())
+			profDir1.mkdir();
+		if (!profDir.exists())
+			profDir.mkdir();
 		String biometricTypes = VariableManager.getVariableValue(contextKey, "regenAttribute") != null
 				? VariableManager.getVariableValue(contextKey, "regenAttribute").toString().toLowerCase()
 				: null;
@@ -227,11 +232,6 @@ public class MDSClient implements MDSClientInterface {
 		if (biometricTypes == null || biometricTypes.trim().isEmpty()) {
 			logger.info("No biometric attributes provided for update. Skipping profile update.");
 			return;
-		}
-
-		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
-		if (!profDir.exists()) {
-			throw new IllegalStateException("Profile does not exist to update: " + profDir.getAbsolutePath());
 		}
 
 		// Raw DSL values
