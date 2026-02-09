@@ -60,9 +60,9 @@ public class TestRunner {
 		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
 		
 		OTPListener mockSMTPListener = new OTPListener();
-		AllNotificationListner allNotificationListner = new AllNotificationListner();
+//		AllNotificationListner allNotificationListner = new AllNotificationListner();
 		mockSMTPListener.run();
-		allNotificationListner.run();
+//		allNotificationListner.run();
 		startTestRunner();
 	}
 
@@ -98,9 +98,9 @@ public class TestRunner {
 		runner.run();
 		
 		OTPListener mockSMTPListener = new OTPListener();
-		AllNotificationListner allNotificationListner = new AllNotificationListner();
+//		AllNotificationListner allNotificationListner = new AllNotificationListner();
 		mockSMTPListener.bTerminate = true;
-		allNotificationListner.bTerminate = true;
+//		allNotificationListner.bTerminate = true;
 		System.exit(0);
 		
 	}

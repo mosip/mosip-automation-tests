@@ -63,10 +63,8 @@ public class PhotoProvider {
 			logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders=" + numberOfSubfolders
 					+ " impressionToPick=" + impressionToPick);
 			
-			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face_data/");
+			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face/");
 			
-			List<File> filteredFiles = firstSet.stream().filter(file -> file.getName().contains("00"+impressionToPick)).toList();
-
 			Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "enableExternalBiometricSource");
 			boolean bExternalSrc = false;
 			BufferedImage img = null;
@@ -84,10 +82,10 @@ public class PhotoProvider {
 				}
 			} else {
 
-				try (FileInputStream fos = new FileInputStream(filteredFiles.get(0));
+				try (FileInputStream fos = new FileInputStream(firstSet.get(0));
 						BufferedInputStream bis = new BufferedInputStream(fos)) {
 					img = ImageIO.read(bis);
-					logger.info("Image picked from this path=" + filteredFiles.get(0));
+					logger.info("Image picked from this path=" + firstSet.get(0));
 				}
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -98,7 +96,7 @@ public class PhotoProvider {
 			bencoded = encodeFaceImageData(bData);
 
 			baos.close();
-//			CommonUtil.deleteOldTempDir(dirPath);
+			CommonUtil.deleteOldTempDir(dirPath);
 
 
 		} catch (Exception e) {

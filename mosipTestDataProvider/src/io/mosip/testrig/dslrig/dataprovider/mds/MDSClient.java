@@ -3,17 +3,13 @@ package io.mosip.testrig.dslrig.dataprovider.mds;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -192,9 +188,12 @@ public class MDSClient implements MDSClientInterface {
 				logger.info("IRIS_DATA : " + resident.getBiometric().getIris().toString());
 				logger.info("IRIS_DATA_PATH : " + profDir + "/" + "Left_Iris.iso");
 				if (iris != null) {
-					logger.info("IRIS_DATA_left: " + iris.getLeftHash().toString());
-					logger.info("IRIS_RAW_DATA_left: " + iris.getRawLeft());
-					logger.info("IRIS_RAW_DATA_right: " + iris.getRawRight());
+					if (logger.isDebugEnabled() && iris.getRawLeft() != null) {
+						logger.debug("IRIS_RAW_DATA_left size={} bytes", iris.getRawLeft().length);
+					}
+					if (logger.isDebugEnabled() && iris.getRawRight() != null) {
+						logger.debug("IRIS_RAW_DATA_right size={} bytes", iris.getRawRight().length);
+					}
 					if (iris.getRawLeft() != null)
 						convert.convertIris(iris.getRawLeft(), profDir + "/" + "Left_Iris.iso", "Left");
 					if (iris.getRawRight() != null)
@@ -220,21 +219,19 @@ public class MDSClient implements MDSClientInterface {
 	
 	public void updateProfile(String profilePath, String profile, ResidentModel resident, String contextKey,
 			String purpose) throws Exception {
-
-		String biometricTypes =
-		        VariableManager.getVariableValue(contextKey, "regenAttribute") != null
-		                ? VariableManager.getVariableValue(contextKey, "regenAttribute").toString().toLowerCase()
-		                : null;
+		File profDir1 = new File(profilePath + "/" + profile);
+		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
+		if (!profDir1.exists())
+			profDir1.mkdir();
+		if (!profDir.exists())
+			profDir.mkdir();
+		String biometricTypes = VariableManager.getVariableValue(contextKey, "regenAttribute") != null
+				? VariableManager.getVariableValue(contextKey, "regenAttribute").toString().toLowerCase()
+				: null;
 
 		if (biometricTypes == null || biometricTypes.trim().isEmpty()) {
-		    logger.info("No biometric attributes provided for update. Skipping profile update.");
-		    return;
-		}
-
-
-		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
-		if (!profDir.exists()) {
-			throw new IllegalStateException("Profile does not exist to update: " + profDir.getAbsolutePath());
+			logger.info("No biometric attributes provided for update. Skipping profile update.");
+			return;
 		}
 
 		// Raw DSL values
@@ -250,7 +247,7 @@ public class MDSClient implements MDSClientInterface {
 		try {
 
 			/* ================= FACE ================= */
-			if (biometricsToUpdate.contains("face") && !resident.getSkipFace()) {
+			if (biometricsToUpdate.contains("face")) {
 
 				byte[] face = resident.getBiometric().getRawFaceData();
 				if (face != null) {
@@ -264,11 +261,16 @@ public class MDSClient implements MDSClientInterface {
 			boolean updateLeftIris = updateAllIris || biometricsToUpdate.contains("leftiris");
 			boolean updateRightIris = updateAllIris || biometricsToUpdate.contains("rightiris");
 
-			if ((updateLeftIris || updateRightIris) && !resident.getSkipIris()) {
+			if ((updateLeftIris || updateRightIris)) {
 
 				IrisDataModel iris = resident.getBiometric().getIris();
 				if (iris != null) {
-
+					if (logger.isDebugEnabled() && iris.getRawLeft() != null) {
+						logger.debug("IRIS_RAW_DATA_left size={} bytes", iris.getRawLeft().length);
+					}
+					if (logger.isDebugEnabled() && iris.getRawRight() != null) {
+						logger.debug("IRIS_RAW_DATA_right size={} bytes", iris.getRawRight().length);
+					}
 					if (updateLeftIris && iris.getRawLeft() != null) {
 						convert.convertIris(iris.getRawLeft(), profDir + "/Left_Iris.iso", "Left");
 					}
@@ -284,26 +286,22 @@ public class MDSClient implements MDSClientInterface {
 			/* ================= FINGER ================= */
 			boolean updateAllFingers = normalizedFingerSet.contains("finger");
 
-			if (!resident.getSkipFinger()) {
+			byte[][] fingerData = resident.getBiometric().getFingerRaw();
 
-				byte[][] fingerData = resident.getBiometric().getFingerRaw();
+			for (int i = 0; i < 10; i++) {
 
-				for (int i = 0; i < 10; i++) {
+				String fingerKey = DataProviderConstants.schemaFingerNames[i].toLowerCase().replace(" ", "");
 
-					String fingerKey = DataProviderConstants.schemaFingerNames[i].toLowerCase().replace(" ", "");
+				if (updateAllFingers || normalizedFingerSet.contains(fingerKey)) {
 
-					if (updateAllFingers || normalizedFingerSet.contains(fingerKey)) {
+					if (fingerData != null && fingerData[i] != null) {
 
-						if (fingerData != null && fingerData[i] != null) {
+						String fingerName = DataProviderConstants.displayFingerName[i];
+						String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
 
-							String fingerName = DataProviderConstants.displayFingerName[i];
-							String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
+						convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso", fingerName, purpose);
 
-							convert.convertFinger(fingerData[i], profDir + "/" + outFileName + ".iso", fingerName,
-									purpose);
-
-							logger.info("Updated finger {} for profile {}", fingerName, profile);
-						}
+						logger.info("Updated finger {} for profile {}", fingerName, profile);
 					}
 				}
 			}

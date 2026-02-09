@@ -144,7 +144,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 				model = new MDSDeviceCaptureModel();
 				model.setBioType(bioType);
 				model.setBioSubType(s);
-				int idx = ISOConverter.getFingerPos(s);
+				int idx = ISOConverter.getFingerPosition(s);
 				model.setBioValue( Base64.getUrlEncoder().encodeToString(current.getFingersISO()[idx])) ;
 				lstBiometrics.add(model);
 			}

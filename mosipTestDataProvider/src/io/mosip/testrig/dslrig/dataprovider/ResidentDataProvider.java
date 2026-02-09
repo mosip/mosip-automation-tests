@@ -83,7 +83,7 @@ public class ResidentDataProvider {
 		attributeList.put(attributeName, attributeValue);
 		return this;
 	}
-	public static ResidentModel genGuardian(Properties attributes,String contextKey) {
+	public static ResidentModel genGuardian(Properties attributes,String contextKey) throws Exception {
 		Properties attributeList = new Properties();
 		attributes.forEach( (k,v) ->{
 			attributeList.put(k, v);
@@ -99,18 +99,20 @@ public class ResidentDataProvider {
 	}
 	public static ResidentModel updateBiometric(ResidentModel model,String bioType,String contextKey) throws Exception {
 		boolean bDirty = false;
-		
+		model.setFilteredBioAttribtures(null);
 		if (bioType.equalsIgnoreCase("finger")) {
 			BiometricDataModel bioData = BiometricDataProvider.updateFingerData(contextKey);
 			model.getBiometric().setFingerPrint(bioData.getFingerPrint());
 			model.getBiometric().setFingerHash(bioData.getFingerHash());
 			model.getBiometric().setFingerRaw(bioData.getFingerRaw());
+			model.setSkipFinger(false);
 			bDirty = true;
 		} else if (SINGLE_FINGER_TYPES.contains(bioType.toLowerCase())) {
 			BiometricDataModel bioData = BiometricDataProvider.updateSelectedFingerData(model ,contextKey, bioType);
 			model.getBiometric().setFingerPrint(bioData.getFingerPrint());
 			model.getBiometric().setFingerHash(bioData.getFingerHash());
 			model.getBiometric().setFingerRaw(bioData.getFingerRaw());
+			model.setSkipFinger(false);
 			bDirty = true;
 		}
 		
@@ -119,12 +121,14 @@ public class ResidentDataProvider {
 			if (iris != null && !iris.isEmpty()) {
 				model.getBiometric().setIris(iris.get(0));
 				bDirty = true;
+				model.setSkipIris(false);
 			}
 		} else if (bioType.equalsIgnoreCase("leftiris") || bioType.equalsIgnoreCase("rightiris")) {
 			List<IrisDataModel> iris = BiometricDataProvider.updateSelectedIris(model, contextKey, bioType);
 			if (iris != null && !iris.isEmpty()) {
 				model.getBiometric().setIris(iris.get(0));
 				bDirty = true;
+				model.setSkipIris(false);
 			}
 		}
 		
@@ -146,20 +150,28 @@ public class ResidentDataProvider {
 	
 	public static ResidentModel updateBiometricWithTestPersona(ResidentModel model, ResidentModel testModel,
 			String bioType, String contextKey) throws Exception {
-
+		model.setFilteredBioAttribtures(null);
+		boolean bDirty = false;
 		if (bioType.equalsIgnoreCase("finger")) {
-
 			model.getBiometric().setFingerHash(testModel.getBiometric().getFingerHash());
 			model.getBiometric().setFingerPrint(testModel.getBiometric().getFingerPrint());
 			model.getBiometric().setFingerRaw(testModel.getBiometric().getFingerRaw());
+			model.setSkipFinger(false);
+			bDirty = true;
 		} else if (bioType.equalsIgnoreCase("iris")) {
 			model.getBiometric().setIris(testModel.getBiometric().getIris());
+			model.setSkipIris(false);
+			bDirty = true;
 		} else if (bioType.equalsIgnoreCase("face")) {
-
 			model.getBiometric().setEncodedPhoto(testModel.getBiometric().getEncodedPhoto());
 			model.getBiometric().setFaceHash(testModel.getBiometric().getFaceHash());
 			model.getBiometric().setRawFaceData(testModel.getBiometric().getRawFaceData());
+			bDirty = true;
 		}
+		 if(bDirty) {
+			 model.setFilteredBioAttribtures(null);
+			 model.getBiometric().setCbeff(null);
+		 }
 		return model;
 	}
 	
@@ -232,7 +244,7 @@ public class ResidentDataProvider {
 	 * 
 	 * 
 	 */
-	public List<ResidentModel> generate(String contextKey) {
+	public List<ResidentModel> generate(String contextKey) throws Exception {
 		
 		List<ResidentModel> residents = new ArrayList<ResidentModel>();
 		
@@ -495,8 +507,9 @@ public class ResidentDataProvider {
 			BiometricDataModel bioData =null;
 			try {
 				bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger,contextKey);
-			} catch (IOException e2) {
+			} catch (Exception e2) {
 				logger.error(e2.getMessage());
+				throw e2;
 			}
 			if(bIrisRequired)
 				bioData.setIris(irisList.get(i));
