@@ -29,25 +29,25 @@ public class VerifyNotification extends BaseTestCaseUtil implements StepInterfac
 
 	@Override
 	public void run() throws RigInternalError {
-		String notifiationValue = null;
+		String notificationValue = null;
 		String emailId = "";
 
-		if (step.getParameters() == null || step.getParameters().isEmpty()) {
+		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 2) {
 			logger.error("Parameter is missing from DSL step");
-			throw new RigInternalError("qStatusCode parameter is missing in step: " + step.getName());
+			throw new RigInternalError("Missing required parameters: notificationValue, emailIdVar in step: " + step.getName());
 		} else if (step.getParameters().size() >= 2) {
-			notifiationValue = step.getParameters().get(0);
+			notificationValue = step.getParameters().get(0);
 			emailId = step.getScenario().getVariables().get(step.getParameters().get(1));
 		}
 
-		String notification = OTPListener.getNotification(emailId);
+		String notification = OTPListener.getNotification(emailId, notificationValue);
 		logger.info("Notification received: " + notification);
 
-		if (notification == null || !notification.toLowerCase().contains(notifiationValue.toLowerCase())) {
+		if (notification == null || !notification.toLowerCase().contains(notificationValue.toLowerCase())) {
 
-			logger.error("Expected notification text '" + notifiationValue + "' not found in: " + notification);
+			logger.error("Expected notification text '" + notificationValue + "' not found in: " + notification);
 			throw new RigInternalError(
-					"Notification verification failed! Expected text not found: " + notifiationValue);
+					"Notification verification failed! Expected text not found: " + notificationValue);
 
 		}
 		String successMsg = "✅ Notification verification passed: " + notification;
