@@ -9,7 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
-import io.mosip.testrig.apirig.testrunner.AllNotificationListner;
+import io.mosip.testrig.apirig.testrunner.OTPListener;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -40,7 +40,7 @@ public class VerifyNotification extends BaseTestCaseUtil implements StepInterfac
 			emailId = step.getScenario().getVariables().get(step.getParameters().get(1));
 		}
 
-		String notification = AllNotificationListner.getNotification(emailId);
+		String notification = OTPListener.getNotification(emailId);
 		logger.info("Notification received: " + notification);
 
 		if (notification == null || !notification.toLowerCase().contains(notifiationValue.toLowerCase())) {
