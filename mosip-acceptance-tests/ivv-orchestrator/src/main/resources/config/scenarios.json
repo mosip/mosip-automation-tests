@@ -26282,7 +26282,7 @@
 	},
 	{
 		"Scenario": "223",
-		"Tag": "Positive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walks into registration center completes the process with invalid type of packet and gets error at upload stage",
@@ -26332,7 +26332,7 @@
 			"Description": "Creates a NEW PACKET",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
-			"Action": "$$rid=e2e_ridsync(UPDATE/*PACKET_TYPE*/,$$zipPacketPath)"
+			"Action": "$$rid=e2e_ridsync(NEW/*PACKET_TYPE*/,$$zipPacketPath)"
 		},
 		"Step-8": {
 			"Description": "Sync a packet",
@@ -26506,7 +26506,7 @@
 	},
 	{
 		"Scenario": "225",
-		"Tag": "Postive_Test",
+		"Tag": "Positive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Adult_Update",
 		"Description": "Resident walks into registration center uploads packet and gets UIN. Resident then performs multiple sequential updates name DOB gender and email address.",
@@ -26718,7 +26718,7 @@
 			"Description": "Updates Demographic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(/*BIO_TYPE*/0,0/*MISS_FIELDS*/,email=test,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,email=test,$$personaFilePath)"
 		},
 		"Step-35": {
 			"Description": "Updates persona with UIN",
