@@ -26759,7 +26759,7 @@
 	},
 	{
 		"Scenario": "226",
-		"Tag": "Positive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walks into registration center completes the process  gets UIN card . Resident then updates name and gets updated UIN try to authenticate with old name",
@@ -26890,7 +26890,7 @@
 			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=salman khan,$$personaFilePath)"
 		},
 		"Step-21": {
-			"Description": "Peforms demographic authentication",
+			"Description": "Performs demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$uin2,$$personaFilePath,$$vid,ERROR)"

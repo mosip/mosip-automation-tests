@@ -63,7 +63,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		Object[] casesListVID = null;
 		Object[] casesListHandles = null;
 		String updateAgeFlag = null;
-		String  SceanrioFlow= "POSTIVE";
+		String  SceanrioFlow= "POSITIVE";
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
