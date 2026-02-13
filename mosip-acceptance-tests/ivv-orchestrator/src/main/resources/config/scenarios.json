@@ -26983,7 +26983,7 @@
 	},
 	{
 		"Scenario": "228",
-		"Tag": "Positive_Test",
+		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
 		"Description": "Resident walks into the registration center completes the process with empty email id failed gets the UIN card.",
