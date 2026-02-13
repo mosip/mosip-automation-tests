@@ -30044,13 +30044,13 @@
 		},
 		"Step-1": {
 			"Description": "Reads the pre-requisite data at the given index",
-			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
-			"Return Value": "Pre-requisite details",
+			"Input Parameters": "Details can be found in in-line comments on the parameters",
+			"Return Value": "pre-requisite details",
 			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
 		},
 		"Step-2": {
 			"Description": "Sets the context for scenario execution",
-			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
+			"Input Parameters": "Environment and user details.Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
 			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
 		},
@@ -30067,42 +30067,36 @@
 			"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
 		},
 		"Step-5": {
+			"Description": "Updates Demographic details and biometric in the persona file",
+			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_updateDemoOrBioDetails(0/*BIO_TYPE*/,0/*MISS_FIELDS*/,name=^&*%:@#,$$personaFilePath)"
+		},
+		"Step-6": {
 			"Description": "Generates packet template based on the persona data",
 			"Input Parameters": "Process and persona file path",
 			"Return Value": "Generated Template file path",
 			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
 		},
-		"Step-6": {
-			"Description": "Create New packet based on the template path",
-			"Input Parameters": "Process and persona file path",
-			"Return Value": "Generated Template file path",
-			"Action": "$$zipPacketPath=e2e_packetcreator(NEW/*PACKET_TYPE*/,$$templatePath)"
-		},
 		"Step-7": {
-			"Description": "Packet to be Rejected",
-			"Input Parameters": "Process and persona file path",
-			"Return Value": "Generated Template file path",
-			"Action": "$$rid=e2e_ridSyncRejected(NEW/*PACKET_TYPE*/,$$zipPacketPath)"
+			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
 		},
 		"Step-8": {
-			"Description": "Sync the Packet",
-			"Input Parameters": "Process and persona file path",
-			"Return Value": "NA",
-			"Action": "e2e_packetsync($$zipPacketPath)"
-		},
-		"Step-9": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
 		},
-		"Step-10": {
+		"Step-9": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,REJECTED)"
+			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
 		},
-		"Step-11": {
+		"Step-10": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
