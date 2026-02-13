@@ -27059,7 +27059,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
-		"Description": "Resident walks into the registration center completes the process with gender marked as invalid and failed gets the UIN card.",
+		"Description": "Resident walks into the registration center completes the process with gender marked as invalid and failed to gets the UIN card.",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
@@ -27114,13 +27114,13 @@
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REREGISTER/*PACKET_STATUS*/,$$rid)"
 		},
-		"Step-10": {
+		"Step-9": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,VALIDATE_PACKET,FAILED)"
 		},
-		"Step-11": {
+		"Step-10": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
