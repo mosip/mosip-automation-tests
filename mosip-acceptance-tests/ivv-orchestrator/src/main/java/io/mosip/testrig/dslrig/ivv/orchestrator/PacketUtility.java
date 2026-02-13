@@ -1077,10 +1077,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 						updateAttribute.put(arr[0].trim(), langcode + "=" + arr[1].trim());
 					} else
 						updateAttribute.put(arr[0].trim(),
-								(arr[0].trim().equalsIgnoreCase("email")
-										? (arr[1].trim().equalsIgnoreCase("testmosip") ? "dslautomation@mosip.io"
-												: arr[1].trim() + "@mosip.io")
-										: arr[1].trim()));
+						        (arr[1].trim().equalsIgnoreCase("empty") ? ""
+						                : (arr[0].trim().equalsIgnoreCase("email")
+						                        ? (arr[1].trim().equalsIgnoreCase("testmosip")
+						                                ? "dslautomation@mosip.io"
+						                                : arr[1].trim() + "@mosip.io")
+						                        : arr[1].trim())));
+
 				}
 				// Pass phone and email as empty
 				else {
