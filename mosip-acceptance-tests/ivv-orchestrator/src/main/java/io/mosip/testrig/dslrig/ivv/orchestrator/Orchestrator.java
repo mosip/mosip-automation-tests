@@ -429,7 +429,7 @@ public class Orchestrator {
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 		}
 		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId())) {
-			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform known issue");
 			updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
 		}
