@@ -80,52 +80,45 @@ public class dslConfigManager extends ConfigManager {
 		return false;
 	}
 	
-	public static synchronized boolean isInTobeBugList(String stringToFind) {
-		List<String> mergedSkipList = new ArrayList<>();
-//	     Add from file
-		List<String> fileSkipList = loadTestcaseToBeSkippedList();
-		for (String scenario : fileSkipList) {
-			if (!mergedSkipList.contains(scenario)) {
-				mergedSkipList.add(scenario);
-			}
-		}
-
-		if (IsDebugEnabled())
-			LOGGER.info("Final skip list: " + mergedSkipList + ", stringToFind: " + stringToFind);
-
-		for (String scenario : mergedSkipList) {
-			if (scenario.equalsIgnoreCase(stringToFind)) {
-				return true;
-			}
-		}
-		return false;
+	public static synchronized boolean isInTobeBugList(String scenario) {
+	    Map<String, String> skipMap = loadTestcaseToBeSkippedMap();
+	    return skipMap.containsKey(scenario);
 	}
 
+	public static String getBugId(String scenario) {
+	    Map<String, String> skipMap = loadTestcaseToBeSkippedMap();
+	    return skipMap.getOrDefault(scenario, "");
+	}
 	
-	 public static List<String> loadTestcaseToBeSkippedList() {
-	        List<String> testcaseToBeSkippedList = new ArrayList<>();
-	        try (BufferedReader br = new BufferedReader(
-	                new FileReader(BaseTestCase.getGlobalResourcePath() + "/" + "config/TestCaseSkip.txt"))) {
-	            String line;
-	            while ((line = br.readLine()) != null) {
-	                // Ignore lines starting with # as they are comments
-	                if (line.startsWith("#")) {
-	                    continue;
-	                }
+	public static Map<String, String> loadTestcaseToBeSkippedMap() {
+	    Map<String, String> testcaseToBeSkippedMap = new HashMap<>();
 
-	                // Split the line by "==" and store the second part
-	                if (line.contains("==")) {
-	                    String[] parts = line.split("==");
-	                    if (parts.length > 1) {
-	                        testcaseToBeSkippedList.add(parts[1].trim());
-	                    }
+	    try (BufferedReader br = new BufferedReader(
+	            new FileReader(BaseTestCase.getGlobalResourcePath() + "/" + "config/TestCaseSkip.txt"))) {
+
+	        String line;
+	        while ((line = br.readLine()) != null) {
+
+	            if (line.startsWith("#")) {
+	                continue;
+	            }
+
+	            if (line.contains("==")) {
+	                String[] parts = line.split("==");
+	                if (parts.length > 1) {
+	                    String bugId = parts[0].trim();
+	                    String scenario = parts[1].trim();
+	                    testcaseToBeSkippedMap.put(scenario, bugId);
 	                }
 	            }
-	        } catch (IOException e) {
-	            e.printStackTrace();
 	        }
-	        return testcaseToBeSkippedList;
+	    } catch (IOException e) {
+	        e.printStackTrace();
 	    }
+
+	    return testcaseToBeSkippedMap;
+	}
+
 
 
 	public static synchronized boolean isInTobeExecuteList(String stringToFind) {
