@@ -27269,7 +27269,7 @@
 			"Description": "Updates Demographic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(iris/*BIO_TYPE*/,0/*MISS_FIELDS*/,gender=Male,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(iris/*BIO_TYPE*/,0/*MISS_FIELDS*/,0,$$personaFilePath)"
 		},
 		"Step-23": {
 			"Description": "Updates persona with UIN",
