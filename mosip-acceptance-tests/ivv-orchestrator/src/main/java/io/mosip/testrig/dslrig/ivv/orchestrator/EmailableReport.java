@@ -309,15 +309,11 @@ public class EmailableReport implements IReporter {
 		NumberFormat decimalFormat = NumberFormat.getNumberInstance();
 		LocalDate currentDate = LocalDate.now();
 		String formattedDate = null;
-//		String branch = null;
 
 		// Format date and get Git branch
 		try {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			formattedDate = currentDate.format(formatter);
-//			Process process = Runtime.getRuntime().exec("git rev-parse --abbrev-ref HEAD");
-//			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//			branch = reader.readLine();
 		} catch (Exception e) {
 			logger.info(e);
 		}
@@ -354,17 +350,6 @@ public class EmailableReport implements IReporter {
 			writer.print("</p>");
 			writer.print("</div>");
 			writer.print("</th></tr>");
-
-			// Component details
-//			writer.print("<tr>");
-//			writer.print("<th colspan='2' style='text-align:center;'><span class='not-bold'><pre>");
-//			writer.print(Utils.escapeHtml("Tested Component Details"));
-//			writer.print("</pre></span></th>");
-//			writer.print("<td colspan='5'><pre>");
-//			writer.print(Utils.escapeHtml(AdminTestUtil.getServerComponentsDetails()));
-//			writer.print("</pre></td>");
-//			writer.print("</tr>");
-//			writer.print(GlobalConstants.TRTR);
 
 			// Summary title
 			writer.print("<tr><th colspan='7'><strong>Summary of Test Results</strong></th></tr>");
@@ -467,12 +452,6 @@ public class EmailableReport implements IReporter {
 		int testIndex = 0;
 		int scenarioIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
-			/*
-			 * writer.print("<tbody><tr><th colspan=\"4\">"); //
-			 * writer.print(Utils.escapeHtml(suiteResult.getSuiteName()));
-			 * writer.print("</th></tr></tbody>");
-			 */
-
 			for (TestResult testResult : suiteResult.getTestResults()) {
 				writer.print("<tbody id=\"t");
 				writer.print(testIndex);
@@ -535,10 +514,6 @@ public class EmailableReport implements IReporter {
 						String scenarioName = Utils.escapeHtml("Scenario_" + scenarioDetails[0]);
 						String scenarioDescription = Utils.escapeHtml(scenarioDetails[1]);
 
-						/*
-						 * long scenarioStart = result.getStartMillis(); long scenarioDuration =
-						 * result.getEndMillis() - scenarioStart;
-						 */
 
 						String scenarioStart = BaseTestCaseUtil.sceanrioExecutionStatistics
 								.get("Scenario_" + scenarioDetails[0] + "_startTime");
@@ -599,18 +574,6 @@ public class EmailableReport implements IReporter {
 		String [] s1 = new String[2];
 		s1[0] = s.getId();
 		s1[1] = s.getDescription();
-		
-		/*
-		 * String substringBeforeColon =""; Class<?> clazz = instance.getClass(); for
-		 * (Field field : clazz.getDeclaredFields()) { try { field.setAccessible(true);
-		 * Object value = field.get(instance); if
-		 * (field.getName().equalsIgnoreCase("message")) { int colonIndex =
-		 * value.toString().indexOf(":"); if (colonIndex != -1) { // Extract the
-		 * substring before the colon substringBeforeColon =
-		 * value.toString().substring(0, colonIndex).trim(); return
-		 * substringBeforeColon; } } } catch (IllegalAccessException e) {
-		 * e.printStackTrace(); } } return substringBeforeColon;
-		 */
         return s1;
 	}
 
@@ -621,12 +584,6 @@ public class EmailableReport implements IReporter {
 		int scenarioIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
 			for (TestResult testResult : suiteResult.getTestResults()) {
-				/*
-				 * writer.print("<h2>");
-				 * writer.print(Utils.escapeHtml(testResult.getTestName()));
-				 * writer.print("</h2>");
-				 */
-
 				scenarioIndex += writeScenarioDetails(testResult.getFailedConfigurationResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getFailedTestResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getIgnoredConfigurationResults(), scenarioIndex);
@@ -676,18 +633,6 @@ public class EmailableReport implements IReporter {
 		// Write test parameters (if any)
 		Object[] parameters = result.getParameters();
 		int parameterCount = (parameters == null ? 0 : parameters.length);
-
-		/*
-		 * if (parameterCount > 0) { writer.print("<tr class=\"param\">"); for (int i =
-		 * 1; i <= parameterCount; i++) { writer.print("<th>Parameter #");
-		 * writer.print(i); writer.print("</th>"); }
-		 * writer.print("</tr><tr class=\"param stripe\">"); for (Object parameter :
-		 * parameters) { writer.print("<td>");
-		 * writer.print(Utils.escapeHtml(Utils.toString(parameter)));
-		 * writer.print("</td>"); } writer.print("</tr>"); }
-		 */
-
-		// Write reporter messages (if any)
 		List<String> reporterMessages = Reporter.getOutput(result);
 		if (!reporterMessages.isEmpty()) {
 			writer.print("<tr><td colspan=\"" + parameterCount + "\">");
@@ -861,7 +806,6 @@ public class EmailableReport implements IReporter {
 			Set<ITestResult> failedConfigurations = context.getFailedConfigurations().getAllResults();
 			Set<ITestResult> failedTests = context.getFailedTests().getAllResults();
 			Set<ITestResult> SkippedConfigurations = context.getSkippedConfigurations().getAllResults();
-//			Set<ITestResult> skippedTests = context.getSkippedTests().getAllResults();
 			Set<ITestResult> knownIssueTests =  getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.KNOWN_ISSUES_STRING);
 			Set<ITestResult> ignoredTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.IGNORED_SUBSET_STRING);
 			Set<ITestResult> skippedTests = getResultsSubSet(context.getSkippedTests().getAllResults(), GlobalConstants.SKIPPED_SUBSET_STRING);
@@ -871,7 +815,6 @@ public class EmailableReport implements IReporter {
 			failedConfigurationResults = groupResults(failedConfigurations);
 			failedTestResults = groupResults(failedTests);
 			skippedConfigurationResults = groupResults(SkippedConfigurations);
-//			knownIssuesConfigurationResults= groupResults(skippedConfigurations);
 			ignoredTestResults = groupResults(ignoredTests);
 			skippedTestResults = groupResults(skippedTests);
 			knownIssuesTestResults = groupResults(knownIssueTests);
@@ -920,7 +863,6 @@ public class EmailableReport implements IReporter {
 		}
 		
 		public static boolean containsAny(String stringToCheckIn, String delimitedString) {
-		    // Split the input string into an array based on semicolons
 	        String[] stringsToCheckFor = delimitedString.split(";");
 			
 	        for (String str : stringsToCheckFor) {
