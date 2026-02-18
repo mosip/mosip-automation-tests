@@ -41,16 +41,16 @@ public class VerifyNotification extends BaseTestCaseUtil implements StepInterfac
 		}
 
 		String notification = OTPListener.getNotification(emailId, notificationValue);
-		logger.info("Notification received: " + notification);
+		logger.info("Notification received successfully for verification");
 
 		if (notification == null || !notification.toLowerCase().contains(notificationValue.toLowerCase())) {
 
-			logger.error("Expected notification text '" + notificationValue + "' not found in: " + notification);
+			logger.error("Expected notification text '" + notificationValue + "' not found in received notification");
 			throw new RigInternalError(
 					"Notification verification failed! Expected text not found: " + notificationValue);
 
 		}
-		String successMsg = "✅ Notification verification passed: " + notification;
+		String successMsg = "✅ Notification verification passed for: " + notificationValue;
 		logger.info(successMsg);
 		Reporter.log(successMsg, true);
 
