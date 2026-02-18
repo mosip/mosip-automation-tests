@@ -87,7 +87,7 @@ public class EmailableReport implements IReporter {
 		writer.close();
 		String failedReportName = generateFailedAndSkippedReport(outputDirectory);
 
-		int totalTestCases = totalPassedTests + totalSkippedTests + totalIgnoredTests + +totalKnownIssuesTests
+		int totalTestCases = totalPassedTests + totalSkippedTests + totalIgnoredTests + totalKnownIssuesTests
 				+ totalFailedTests;
 		String oldString = System.getProperty("emailable.report2.name");
 		String temp = "-report_T-" + totalTestCases + "_P-" + totalPassedTests + "_KI-" + totalKnownIssuesTests + "_I-"
@@ -925,6 +925,7 @@ public class EmailableReport implements IReporter {
 		}
 
 		public static boolean containsAny(String stringToCheckIn, String delimitedString) {
+			if (stringToCheckIn == null) return false;
 			String[] stringsToCheckFor = delimitedString.split(";");
 
 			for (String str : stringsToCheckFor) {
