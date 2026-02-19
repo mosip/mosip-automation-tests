@@ -17240,48 +17240,42 @@
          "Action":"e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
       },
       "Step-20":{
-         "Description":"Gets Email ID configuired for the UIN",
-         "Input Parameters":"UIN",
-         "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin2)"
-      },
-      "Step-21":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(UIN_WAIT_TIME)"
       },
-      "Step-22":{
+      "Step-21":{
          "Description":"Generated VID for the given UIN",
          "Input Parameters":"UIN and other can be found in parameters in-line commnets",
          "Return Value":"VID",
          "Action":"$$vid=e2e_generateVID(Perpetual,$$uin2,$$email)"
       },
-      "Step-23":{
+      "Step-22":{
          "Description":"Verifies notification is sent to resident for VID generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
          "Action":"e2e_verifyNotification(Successful Generation of VID,$$email)"
       },
-      "Step-24":{
+      "Step-23":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(90)"
       },
-      "Step-25":{
+      "Step-24":{
          "Description":"Peforms demographic authentication",
          "Input Parameters":"Demo graphic details, persona, UIN and VID",
          "Return Value":"NA",
          "Action":"e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
       },
-      "Step-26":{
+      "Step-25":{
          "Description":"Performs biometric authentication",
          "Input Parameters":"Modalitiy UIN VID and persona file path",
          "Return Value":"NA",
          "Action":"e2e_bioAuthentication(rightThumbDevice,$$uin,$$vid,$$personaFilePath)"
       },
-      "Step-27":{
+      "Step-26":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
          "Input Parameters":"NA",
          "Return Value":"NA",
@@ -17415,66 +17409,60 @@
          "Action":"e2e_CheckRIDStage($$rid2,PRINT_SERVICE,PROCESSED)"
       },
       "Step-20":{
-         "Description":"Gets Email ID configured for the UIN",
-         "Input Parameters":"UIN",
-         "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin2)"
-      },
-      "Step-21":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(UIN_WAIT_TIME)"
       },
-      "Step-22":{
+      "Step-21":{
          "Description":"Gets the credentials request ID",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"Request ID",
          "Action":"$$requestId=e2e_credentialRequest($$uin2,$$email)"
       },
-      "Step-23":{
+      "Step-22":{
          "Description":"Check credentials status",
          "Input Parameters":"Request ID",
          "Return Value":"NA",
          "Action":"e2e_checkCredentialStatus($$requestId)"
       },
-      "Step-24":{
+      "Step-23":{
          "Description":"Verifies notification is sent to resident for Credential issuance status",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
          "Action":"e2e_verifyNotification(Credential Issuance Status,$$email)"
       },
-      "Step-25":{
+      "Step-24":{
          "Description":"Generated VID for the given UIN",
          "Input Parameters":"UIN and other can be found in parameters in-line commnets",
          "Return Value":"VID",
          "Action":"$$vid=e2e_generateVID(Perpetual,$$uin2,$$email)"
       },
-      "Step-26":{
+      "Step-25":{
          "Description":"Verifies notification is sent to resident for VID generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
          "Action":"e2e_verifyNotification(Successful Generation of VID,$$email)"
       },
-      "Step-27":{
+      "Step-26":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(90)"
       },
-      "Step-28":{
+      "Step-27":{
          "Description":"Peforms demographic authentication",
          "Input Parameters":"Demo graphic details, persona, UIN and VID",
          "Return Value":"NA",
          "Action":"e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)"
       },
-      "Step-29":{
+      "Step-28":{
          "Description":"Performs biometric authentication",
          "Input Parameters":"Modalitiy UIN VID and persona file path",
          "Return Value":"NA",
          "Action":"e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$personaFilePath)"
       },
-      "Step-30":{
+      "Step-29":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
          "Input Parameters":"NA",
          "Return Value":"NA",
@@ -17608,24 +17596,18 @@
          "Action":"$$uin2=e2e_getUINByRid($$ridLost)"
       },
       "Step-20":{
-         "Description":"Gets Email ID configured for the UIN",
-         "Input Parameters":"UIN",
-         "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin2)"
-      },
-      "Step-21":{
          "Description":"Verifies notification is sent to resident UIN generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
          "Action":"e2e_verifyNotification(UIN Generated,$$email)"
       },
-      "Step-22":{
+      "Step-21":{
          "Description":"Checks RID stage and stage status",
          "Input Parameters":"RID, stage and stage status",
          "Return Value":"NA",
          "Action":"e2e_CheckRIDStage($$ridLost,PRINT_SERVICE,PROCESSED)"
       },
-      "Step-23":{
+      "Step-22":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
          "Input Parameters":"NA",
          "Return Value":"NA",
@@ -19770,30 +19752,24 @@
          "Action":"$$childRid2=e2e_generateAndUploadPacketSkippingPrereg($$childPersona,$$childTemplate)"
       },
       "Step-23":{
-         "Description":"Gets Email ID configured for the child UIN",
-         "Input Parameters":"UIN",
-         "Return Value":"Email ID",
-         "Action":"$$email2=e2e_getEmailByUIN($$childUin2)"
-      },
-      "Step-24":{
          "Description":"Verifies notification is sent to resident UIN Generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
          "Action":"e2e_verifyNotification(UIN Generated,$$email2)"
       },
-      "Step-25":{
+      "Step-24":{
          "Description":"Checks RID stage and stage status",
          "Input Parameters":"RID, stage and stage status",
          "Return Value":"NA",
          "Action":"e2e_CheckRIDStage($$childRid2,INTRODUCER_VALIDATION,SUCCESS)"
       },
-      "Step-26":{
+      "Step-25":{
          "Description":"Checks RID stage and stage status",
          "Input Parameters":"RID, stage and stage status",
          "Return Value":"NA",
          "Action":"e2e_CheckRIDStage($$childRid2,VERIFICATION,SUCCESS)"
       },
-      "Step-27":{
+      "Step-26":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
          "Input Parameters":"NA",
          "Return Value":"NA",
@@ -21851,13 +21827,13 @@
          "Description":"Gets Email ID configured for the UIN",
          "Input Parameters":"UIN",
          "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin2)"
+         "Action":"$$email1=e2e_getEmailByUIN($$uin2)"
       },
       "Step-18":{
          "Description":"Verifies notification is sent to resident UIN generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email)"
+         "Action":"e2e_verifyNotification(UIN Generated,$$email1)"
       },
       "Step-19":{
          "Description":"Updates Demo graphic details and biometric in the persona file",
@@ -22020,13 +21996,13 @@
          "Description":"Gets Email ID configured for the UIN",
          "Input Parameters":"UIN",
          "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin2)"
+         "Action":"$$email1=e2e_getEmailByUIN($$uin2)"
       },
       "Step-18":{
          "Description":"Verifies notification is sent to resident for UIN generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email)"
+         "Action":"e2e_verifyNotification(UIN Generated,$$email1)"
       },
       "Step-19":{
          "Description":"Updates Demo graphic details and biometric in the persona file",
@@ -22297,7 +22273,7 @@
          "Description":"Verifies notification is sent to resident for updated UIN details",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(updated,$$email1)"
+         "Action":"e2e_verifyNotification(updated,$$email)"
       },
       "Step-36":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
@@ -22484,13 +22460,13 @@
          "Description":"Gets Email ID configured for the UIN",
          "Input Parameters":"UIN",
          "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin)"
+         "Action":"$$email1=e2e_getEmailByUIN($$uin)"
       },
       "Step-29":{
          "Description":"Verifies notification is sent to resident for UIN generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email)"
+         "Action":"e2e_verifyNotification(UIN Generated,$$email1)"
       },
       "Step-30":{
          "Description":"Updates Demo graphic details and biometric in the persona file",
@@ -23186,13 +23162,13 @@
          "Description":"Gets Email ID configured for the UIN",
          "Input Parameters":"UIN",
          "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin2)"
+         "Action":"$$email1=e2e_getEmailByUIN($$uin2)"
       },
       "Step-19":{
          "Description":"Verifies notification is sent to resident for UIN generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email)"
+         "Action":"e2e_verifyNotification(UIN Generated,$$email1)"
       },
       "Step-20":{
          "Description":"Updates Demo graphic details and biometric in the persona file",
@@ -23394,30 +23370,24 @@
          "Action":"$$uin3=e2e_getUINByRid($$rid3)"
       },
       "Step-24":{
-         "Description":"Gets Email ID configured for the UIN",
-         "Input Parameters":"UIN",
-         "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin3)"
-      },
-      "Step-25":{
-         "Description":"Verifies notification is sent to resident for UIN generation",
+         "Description":"Verifies notification is sent to resident for updated UIN details",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email)"
+         "Action":"e2e_verifyNotification(updated,$$email)"
       },
-      "Step-26":{
+      "Step-25":{
          "Description":"Checks RID stage and stage status",
          "Input Parameters":"RID, stage and stage status",
          "Return Value":"NA",
          "Action":"e2e_CheckRIDStage($$rid3,PRINT_SERVICE,PROCESSED)"
       },
-      "Step-27":{
+      "Step-26":{
          "Description":"Checks uin after updating it",
          "Input Parameters":"RID, stage and stage status",
          "Return Value":"NA",
          "Action":"e2e_CheckUpdatedUIN($$uin1,$$uin3)"
       },
-      "Step-28":{
+      "Step-27":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
          "Input Parameters":"NA",
          "Return Value":"NA",
@@ -23614,13 +23584,13 @@
          "Description":"Gets Email ID configured for the UIN",
          "Input Parameters":"UIN",
          "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin4)"
+         "Action":"$$email1=e2e_getEmailByUIN($$uin4)"
       },
       "Step-31":{
          "Description":"Verifies notification is sent to resident for UIN generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email)"
+         "Action":"e2e_verifyNotification(UIN Generated,$$email1)"
       },
       "Step-32":{
          "Description":"Updates Demo graphic details and biometric in the persona file",
@@ -25127,42 +25097,36 @@
          "Action":"$$minorUin=e2e_getUINByRid($$rid2)"
       },
       "Step-28":{
-         "Description":"Gets Email ID configured for the UIN",
-         "Input Parameters":"UIN",
-         "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$minorUin)"
-      },
-      "Step-29":{
-         "Description":"Verifies notification is sent to resident for minor UIN generation",
+         "Description":"Verifies notification is sent to resident for updated UIN details",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email)"
+         "Action":"e2e_verifyNotification(updated,$$email)"
       },
-      "Step-30":{
+      "Step-29":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(90)"
       },
-      "Step-31":{
+      "Step-30":{
          "Description":"Generates VID without OTP",
          "Input Parameters":"VID tyoe and UIN",
          "Return Value":"VID",
          "Action":"$$vid=e2e_GenerateVIDWithoutOTP(Perpetual,$$minorUin)"
       },
-      "Step-32":{
+      "Step-31":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(90)"
       },
-      "Step-33":{
+      "Step-32":{
          "Description":"Performs biometric authentication",
          "Input Parameters":"Modalitiy UIN VID and persona file path",
          "Return Value":"NA",
          "Action":"e2e_bioAuthentication(faceDevice,$$minorUin,$$vid,$$childPersona)"
       },
-      "Step-34":{
+      "Step-33":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
          "Input Parameters":"NA",
          "Return Value":"NA",
@@ -25233,13 +25197,13 @@
          "Description":"Gets Email ID configured for the parent UIN",
          "Input Parameters":"UIN",
          "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$parentUin)"
+         "Action":"$$email1=e2e_getEmailByUIN($$parentUin)"
       },
       "Step-10":{
          "Description":"Verifies notification is sent to resident for parent UIN generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email)"
+         "Action":"e2e_verifyNotification(UIN Generated,$$email1)"
       },
       "Step-11":{
          "Description":"Updates persona with UIN",
@@ -25344,42 +25308,36 @@
          "Action":"$$uin=e2e_getUINByRid($$rid2)"
       },
       "Step-28":{
-         "Description":"Gets Email ID configured for the UIN",
-         "Input Parameters":"UIN",
-         "Return Value":"Email ID",
-         "Action":"$$email2=e2e_getEmailByUIN($$uin)"
-      },
-      "Step-29":{
-         "Description":"Verifies notification is sent to resident for UIN generation",
+         "Description":"Verifies notification is sent to resident for updated UIN details",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email2)"
+         "Action":"e2e_verifyNotification(updated,$$email)"
       },
-      "Step-30":{
+      "Step-29":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(90)"
       },
-      "Step-31":{
+      "Step-30":{
          "Description":"Generates VID without OTP",
          "Input Parameters":"VID tyoe and UIN",
          "Return Value":"VID",
          "Action":"$$vid=e2e_GenerateVIDWithoutOTP(Perpetual,$$uin)"
       },
-      "Step-32":{
+      "Step-31":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(90)"
       },
-      "Step-33":{
+      "Step-32":{
          "Description":"Performs biometric authentication",
          "Input Parameters":"Modality UIN VID and persona file path",
          "Return Value":"NA",
          "Action":"e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$childPersona)"
       },
-      "Step-34":{
+      "Step-33":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
          "Input Parameters":"NA",
          "Return Value":"NA",
@@ -28186,13 +28144,13 @@
          "Description":"Gets Email ID configured for the UIN",
          "Input Parameters":"UIN",
          "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin2)"
+         "Action":"$$email1=e2e_getEmailByUIN($$uin2)"
       },
       "Step-18":{
          "Description":"Verifies notification is sent to resident for UIN generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email)"
+         "Action":"e2e_verifyNotification(UIN Generated,$$email1)"
       },
       "Step-19":{
          "Description":"Updates Demo graphic details and biometric in the persona file",
@@ -28264,7 +28222,7 @@
          "Description":"Verifies notification is sent to resident for updated UIN details",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(updated,$$email1)"
+         "Action":"e2e_verifyNotification(updated,$$email)"
       },
       "Step-31":{
          "Description":"Gets the UIN for the given RID",
@@ -28711,13 +28669,13 @@
          "Description":"Gets Email ID configured for the UIN",
          "Input Parameters":"UIN",
          "Return Value":"Email ID",
-         "Action":"$$email=e2e_getEmailByUIN($$uin1)"
+         "Action":"$$email1=e2e_getEmailByUIN($$uin1)"
       },
       "Step-26":{
          "Description":"Verifies notification is sent to resident for UIN generation",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(UIN Generated,$$email)"
+         "Action":"e2e_verifyNotification(UIN Generated,$$email1)"
       },
       "Step-27":{
          "Description":"Updates Demo graphic details and biometric in the persona file",
@@ -29702,13 +29660,19 @@
          "Return Value":"UIN",
          "Action":"$$uin6=e2e_getUINByRid($$rid6)"
       },
-      "Step-46":{
+	  "Step-46": {
+	  	"Description": "Gets Email ID configured for the UIN",
+	  	"Input Parameters": "UIN",
+	  	"Return Value": "Email ID",
+	  	"Action": "$$email1=e2e_getEmailByUIN($$uin6)"
+	  },
+      "Step-47":{
          "Description":"Verifies notification is sent to resident for updated UIN details",
          "Input Parameters":"UIN and Email ID",
          "Return Value":"NA",
-         "Action":"e2e_verifyNotification(updated,$$email)"
+         "Action":"e2e_verifyNotification(updated,$$email1)"
       },
-      "Step-47":{
+      "Step-48":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
          "Input Parameters":"NA",
          "Return Value":"NA",
