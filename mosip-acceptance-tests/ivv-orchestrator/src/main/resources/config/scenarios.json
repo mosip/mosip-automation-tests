@@ -2757,61 +2757,73 @@
          "Return Value":"Email ID",
          "Action":"$$email=e2e_getEmailByUIN($$uin)"
       },
-      "Step-11":{
+	  "Step-11": {
+	  	"Description": "Verifies notification is sent to resident for UIN generation",
+	  	"Input Parameters": "UIN and Email ID",
+	  	"Return Value": "NA",
+	  	"Action": "e2e_verifyNotification(UIN Generated,$$email)"
+	  },
+      "Step-12":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(UIN_WAIT_TIME)"
       },
-      "Step-12":{
+      "Step-13":{
          "Description":"Generated VID for the given UIN",
          "Input Parameters":"UIN and other can be found in parameters in-line commnets",
          "Return Value":"VID",
          "Action":"$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
       },
-      "Step-13":{
+	  "Step-14": {
+	  	"Description": "Verifies notification is sent to resident for VID generation",
+	  	"Input Parameters": "UIN and Email ID",
+	  	"Return Value": "NA",
+	  	"Action": "e2e_verifyNotification(Successful Generation of VID,$$email)"
+	  },
+      "Step-15":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(90)"
       },
-      "Step-14":{
+      "Step-16":{
          "Description":"Performs biometric authentication",
          "Input Parameters":"Modalitiy UIN VID and persona file path",
          "Return Value":"NA",
          "Action":"e2e_bioAuthentication(leftLittleDevice,$$uin,$$vid,$$personaFilePath)"
       },
-      "Step-15":{
+      "Step-17":{
          "Description":"Creates OIDC client",
          "Input Parameters":"Client configuration parameters",
          "Return Value":"Generated OIDC client ID",
          "Action":"$$clientId=e2e_OidcClient()"
       },
-      "Step-16":{
+      "Step-18":{
          "Description":"Create an OAuth Request",
          "Input Parameters":"OIDC client ID",
          "Return Value":"OAuth transaction ID",
          "Action":"$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
       },
-      "Step-17":{
+      "Step-19":{
          "Description":"Create an OAuth Request",
          "Input Parameters":"OIDC client ID",
          "Return Value":"OAuth transaction ID",
          "Action":"$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
       },
-      "Step-18":{
+      "Step-20":{
          "Description":"Performs eSignet based biometric authentication",
          "Input Parameters":"Modalities, persona file path, UIN and VID",
          "Return Value":"NA",
          "Action":"e2e_BioEsignetAuthentication(leftLittleDevice,$$uin,$$personaFilePath,$$transactionId1,$$vid,$$transactionId2)"
       },
-      "Step-19":{
+      "Step-21":{
          "Description":"Gets user info after eSignet based authentication",
          "Input Parameters":"Transaction ID and OIDC client ID",
          "Return Value":"NA",
          "Action":"e2e_UserInfo($$transactionId,$$clientId)"
       },
-      "Step-20":{
+      "Step-22":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
          "Input Parameters":"NA",
          "Return Value":"NA",
@@ -2884,61 +2896,73 @@
          "Return Value":"Email ID",
          "Action":"$$email=e2e_getEmailByUIN($$uin)"
       },
-      "Step-10":{
+	  "Step-10": {
+	  	"Description": "Verifies notification is sent to resident for UIN generation",
+	  	"Input Parameters": "UIN and Email ID",
+	  	"Return Value": "NA",
+	  	"Action": "e2e_verifyNotification(UIN Generated,$$email)"
+	  },
+      "Step-11":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(UIN_WAIT_TIME)"
       },
-      "Step-11":{
+      "Step-12":{
          "Description":"Generated VID for the given UIN",
          "Input Parameters":"UIN and other can be found in parameters in-line comments",
          "Return Value":"VID",
          "Action":"$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
       },
-      "Step-12":{
+	  "Step-13": {
+	  	"Description": "Verifies notification is sent to resident for VID generation",
+	  	"Input Parameters": "UIN and Email ID",
+	  	"Return Value": "NA",
+	  	"Action": "e2e_verifyNotification(Successful Generation of VID,$$email)"
+	  },
+      "Step-14":{
          "Description":"Waits for given period in seconds",
          "Input Parameters":"Time period in seconds to wait",
          "Return Value":"NA",
          "Action":"e2e_wait(90)"
       },
-      "Step-13":{
+      "Step-15":{
          "Description":"Performs biometric authentication",
          "Input Parameters":"Modalitiy UIN VID and persona file path",
          "Return Value":"NA",
          "Action":"e2e_bioAuthentication(rightThumbDevice,$$uin,$$vid,$$personaFilePath)"
       },
-      "Step-14":{
+      "Step-16":{
          "Description":"Creates OIDC client",
          "Input Parameters":"Client metadata such as redirect URI, client name, grant type",
          "Return Value":"Generated OIDC client ID used for subsequent OAuth requests",
          "Action":"$$clientId=e2e_OidcClient()"
       },
-      "Step-15":{
+      "Step-17":{
          "Description":"Create an OAuth Request",
          "Input Parameters":"Client metadata such as redirect URI, client name, grant type",
          "Return Value":"OAuth transaction ID for tracking and authorization",
          "Action":"$$transactionId1=e2e_OAuthDetailsRequest($$clientId,transactionId1)"
       },
-      "Step-16":{
+      "Step-18":{
          "Description":"Create an OAuth Request",
          "Input Parameters":"Client metadata such as redirect URI, client name, grant type",
          "Return Value":"OAuth transaction ID for the second request",
          "Action":"$$transactionId2=e2e_OAuthDetailsRequest($$clientId,transactionId2)"
       },
-      "Step-17":{
+      "Step-19":{
          "Description":"Perform eSignet based biometric authentication",
          "Input Parameters":"Modalities, persona file path, UIN and VID",
          "Return Value":"OAuth transaction ID",
          "Action":"e2e_BioEsignetAuthentication(rightThumbDevice,$$uin,$$personaFilePath,$$transactionId1,$$vid,$$transactionId2)"
       },
-      "Step-18":{
+      "Step-20":{
          "Description":"Gets user info after eSignet based authentication",
          "Input Parameters":"Transaction ID and OIDC client ID",
          "Return Value":"NA",
          "Action":"e2e_UserInfo($$transactionId,$$clientId)"
       },
-      "Step-19":{
+      "Step-21":{
          "Description":"Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
          "Input Parameters":"NA",
          "Return Value":"NA",
