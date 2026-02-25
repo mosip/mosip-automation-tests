@@ -568,9 +568,16 @@ public class PacketMakerService {
 
 				updatePacketMetaInfo(packetRootFolder, METADATA, "preRegistrationId", preregId, true);
 
-			if (VariableManager.getVariableValue(contextKey, "invalidDateFlag").toString()
-					.equals("invalidCreationDate")) {
+			String invalidDateValue = VariableManager
+			        .getVariableValue(contextKey, "invalidDateFlag")
+			        .toString();
+
+			if (invalidDateValue.equals("invalidCreationDate")) {
 				updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", null, true);
+			} else if (invalidDateValue.contains("CreationDate")) {
+				String offsetValue = invalidDateValue.split("=")[1];
+				String updatedDate = APIRequestUtil.getAdjustedUTCDate(offsetValue);
+				updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", updatedDate, true);
 			} else {
 				updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", APIRequestUtil.getUTCDateTime(null),
 						true);
@@ -677,9 +684,6 @@ public class PacketMakerService {
 			logger.error("Encryption failed!!! ");
 			return false;
 		}
-
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-
 		String encryptedHashFlag = VariableManager.getVariableValue(contextKey, "invalidEncryptedHashFlag").toString();
 		String encryptedHash = null;
 

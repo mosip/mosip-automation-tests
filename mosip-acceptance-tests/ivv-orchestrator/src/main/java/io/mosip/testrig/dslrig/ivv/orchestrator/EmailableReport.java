@@ -53,6 +53,12 @@ public class EmailableReport implements IReporter {
 	int totalSkippedTests = 0;
 	int totalKnownIssuesTests = 0;
 	int totalFailedTests = 0;
+	private long totalScenarioDuration = 0;
+	private long fastestScenarioDuration = Long.MAX_VALUE;
+	private long slowestScenarioDuration = Long.MIN_VALUE;
+	private String fastestScenarioName = "";
+	private String slowestScenarioName = "";
+	private int totalScenarioCount = 0;
 
 	static {
 		if (dslConfigManager.IsDebugEnabled())
@@ -161,19 +167,18 @@ public class EmailableReport implements IReporter {
 		}
 	}
 
-	private String getCommitId() {
+	private String getGitProperty(String key) {
 		Properties properties = new Properties();
 		try (InputStream is = EmailableReport.class.getClassLoader().getResourceAsStream("git.properties")) {
-			properties.load(is);
 
-			return "Commit Id : " + properties.getProperty("git.commit.id.abbrev") + " & Branch Name : "
-					+ properties.getProperty("git.branch");
-
+			if (is != null) {
+				properties.load(is);
+				return properties.getProperty(key);
+			}
 		} catch (IOException e) {
-			logger.error("Error getting git branch information: " + e.getMessage());
-			return "";
+			logger.error("Error reading git.properties: " + e.getMessage());
 		}
-
+		return null;
 	}
 
 	private String buildFailedReportName() {
@@ -250,6 +255,7 @@ public class EmailableReport implements IReporter {
 
 	protected void writeBody() {
 		writer.print("<body>");
+		calculateExecutionStats();
 		writeSuiteSummary();
 		writeScenarioSummary();
 		writeScenarioDetails();
@@ -260,25 +266,22 @@ public class EmailableReport implements IReporter {
 		writer.print("</html>");
 	}
 
-	private static String convertNanosToTime(long nanoseconds) {
-		long totalSeconds = nanoseconds / 1_000_000_000;
-		long seconds = totalSeconds % 60;
-		long totalMinutes = totalSeconds / 60;
-		long minutes = totalMinutes % 60;
-		long hours = totalMinutes / 60; 
-
-		// Format time into HH:MM:SS
-		return String.format("%02d:%02d:%02d", hours, Math.abs(minutes), Math.abs(seconds));
-	}
-
 	public static String getExecutionTime() {
 		long duration = BaseTestCaseUtil.exectionEndTime - BaseTestCaseUtil.exectionStartTime;
 		long totalSeconds = duration / 1000;
 		long seconds = totalSeconds % 60;
 		long totalMinutes = totalSeconds / 60;
 		long minutes = totalMinutes % 60;
-		long hours = totalMinutes / 60; 
+		long hours = totalMinutes / 60;
 		return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+	}
+
+	private String getDockerImage() {
+		String docker = System.getenv("DOCKER_IMAGE");
+		if (docker == null || docker.isEmpty()) {
+			return "Not Available";
+		}
+		return docker;
 	}
 
 	protected void writeSuiteSummary() {
@@ -292,6 +295,12 @@ public class EmailableReport implements IReporter {
 		} catch (Exception e) {
 			logger.info(e);
 		}
+		String commitId = getGitProperty("git.commit.id.abbrev");
+		String branch = getGitProperty("git.branch");
+
+		String commitUrl = "https://github.com/mosip/mosip-automation-tests/commit/" + commitId;
+		String branchUrl = "https://github.com/mosip/mosip-automation-tests/tree/" + branch;
+
 		totalPassedTests = 0;
 		totalIgnoredTests = 0;
 		totalSkippedTests = 0;
@@ -312,23 +321,149 @@ public class EmailableReport implements IReporter {
 					+ "background-color:#f4f6f9; border-radius:8px; " + "font-family:Arial;'>");
 			writer.print("<h2 style='margin:5px; color:#2c3e50;'>DSL Scenarios Test Report</h2>");
 			writer.print("<p style='margin:4px; font-size:14px;'>");
-			writer.print("<b>Report Date : </b> " + formattedDate + " &nbsp; | &nbsp; ");
-			writer.print("<b>Environment : </b> " + System.getProperty("env.endpoint").replaceAll("https?://", "")
-					+ " &nbsp; | &nbsp; ");
-			writer.print("<b>" + getCommitId() + "</b> &nbsp; | &nbsp; ");
-			writer.print("<b>Thread Count : </b> " + dslConfigManager.getThreadCount());
+			String endpoint = System.getProperty("env.endpoint");
+			endpoint = endpoint.replaceAll("https?://", "");
+			endpoint = endpoint.replace("api-internal.", "");
+			if (!endpoint.endsWith("/")) {
+				endpoint = endpoint + "/";
+			}
+			String finalUrl = "https://" + endpoint;
 			writer.print("</p>");
 			writer.print("</div>");
 			writer.print("</th></tr>");
-			writer.print("<tr><th colspan='7'><strong>Summary of Test Results</strong></th></tr>");
+			// ---------------- EXECUTION STATISTICS SECTION ----------------
+
 			writer.print("<tr>");
-			writer.print("<th style='text-align:center;'># Total</th>");
-			writer.print("<th style='text-align:center;'># Passed</th>");
-			writer.print("<th style='text-align:center;'># Ignored</th>");
-			writer.print("<th style='text-align:center;'># Known Issues</th>");
-			writer.print("<th style='text-align:center;'># Skipped</th>");
-			writer.print("<th style='text-align:center;'># Failed</th>");
-			writer.print("<th style='text-align:center;'>Time (HH:MM:SS)</th>");
+			writer.print("<td colspan='7' " + "style='background:#eef1f5; font-size:18px; font-weight:bold; "
+					+ "padding:12px; border-top:2px solid #ccc; text-align:center; " + "color:#2c3e50;'>");
+			writer.print("Execution Details");
+			writer.print("</td>");
+			writer.print("</tr>");
+
+			// Calculate durations safely
+			long averageDuration = 0;
+			if (totalScenarioCount > 0) {
+				averageDuration = totalScenarioDuration / totalScenarioCount;
+			}
+
+			String fastestDisplay = "NA";
+			if (fastestScenarioDuration != Long.MAX_VALUE) {
+				fastestDisplay = fastestScenarioName + " (" + PacketUtility.convertNanosToTime(fastestScenarioDuration)
+						+ ")";
+			}
+
+			String slowestDisplay = "NA";
+			if (slowestScenarioDuration != Long.MIN_VALUE) {
+				slowestDisplay = slowestScenarioName + " (" + PacketUtility.convertNanosToTime(slowestScenarioDuration)
+						+ ")";
+			}
+
+			String host;
+			try {
+				host = java.net.InetAddress.getLocalHost().getHostName();
+			} catch (Exception e) {
+				host = "Unknown";
+			}
+
+			String dockerImage = System.getenv("DOCKER_IMAGE");
+			if (dockerImage == null || dockerImage.isEmpty()) {
+				dockerImage = "Local Execution";
+			}
+
+			// ----- COMMON ROW STYLE -----
+			String rowStyle = "style='background:#f9fbfd;'";
+
+			// ---- Report Metadata ----
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>📅 Report Date</b></td>");
+			writer.print("<td colspan='4'>" + formattedDate + "</td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>🌐 Environment</b></td>");
+			writer.print("<td colspan='4'><a href='" + finalUrl + "' target='_blank' "
+			        + "style='color:#2980b9;text-decoration:none;font-weight:bold;'>"
+			        + finalUrl + "</a></td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>🔖 Commit Id</b></td>");
+			writer.print("<td colspan='4'><a href='" + commitUrl + "' target='_blank' "
+			        + "style='color:#2980b9;text-decoration:none;font-weight:bold;'>"
+			        + commitId + "</a></td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>🌿 Branch</b></td>");
+			writer.print("<td colspan='4'><a href='" + branchUrl + "' target='_blank' "
+			        + "style='color:#2980b9;text-decoration:none;font-weight:bold;'>"
+			        + branch + "</a></td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>🧵 Thread Count</b></td>");
+			writer.print("<td colspan='4'>" + dslConfigManager.getThreadCount() + "</td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>⏱️ Average Scenario Time</b></td>");
+			writer.print("<td colspan='4'>" + PacketUtility.convertNanosToTime(averageDuration) + "</td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>⚡ Fastest Scenario</b></td>");
+			writer.print("<td colspan='4'>" + fastestDisplay + "</td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>🐢 Slowest Scenario</b></td>");
+			writer.print("<td colspan='4'>" + slowestDisplay + "</td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>☕ Java</b></td>");
+			writer.print("<td colspan='4'>" + System.getProperty("java.version") + "</td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>💻 OS</b></td>");
+			writer.print("<td colspan='4'>" + System.getProperty("os.name") + "</td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + ">");
+			writer.print("<td colspan='3'><b>🖥️ Host</b></td>");
+			writer.print("<td colspan='4'>" + host + "</td>");
+			writer.print("</tr>");
+
+			writer.print("<tr " + rowStyle + " style='border-bottom:2px solid #ccc;'>");
+			writer.print("<td colspan='3'><b>🐳 Docker Image</b></td>");
+			writer.print("<td colspan='4'>" + dockerImage + "</td>");
+			writer.print("</tr>");
+
+			writer.print("<tr><td colspan='7' style='background:#e0e6ed; height:2px;'></td></tr>");
+			writer.print("<tr>");
+			writer.print("<td colspan='7' " + "style='background:#eef1f5; font-size:18px; font-weight:bold; "
+					+ "padding:12px; border-top:2px solid #ccc; text-align:center; " + "color:#2c3e50;'>");
+			writer.print("Summary of Test Results");
+			writer.print("</td>");
+			writer.print("</tr>");
+			writer.print("<tr>");
+			writer.print("<td colspan='7' style='background:#f9fafc; padding:10px; font-size:13px; text-align:left;'>");
+			writer.print("<b>Result Legend:</b><br/>");
+			writer.print("&#9989; <b>Passed</b> – Scenario executed successfully.<br/>");
+			writer.print("&#10060; <b>Failed</b> – Scenario executed but failed due to validation or exception.<br/>");
+			writer.print("&#9888; <b> Known Issue</b> – Scenario failed but mapped to an existing bug ID.<br/>");
+			writer.print("&#9193; <b>Skipped</b> – Scenario skipped due to runtime issues (e.g., before suite failure, execution timeout > 2 hours).<br/>");
+			writer.print("&#128683; <b>Ignored</b> – Scenario intentionally excluded from execution via configuration.");
+			writer.print("</td>");
+			writer.print("</tr>");
+			writer.print("<th style='text-align:center;'>📊  Total</th>");
+			writer.print("<th style='text-align:center;'>✅  Passed</th>");
+			writer.print("<th style='text-align:center;'>🚫  Ignored</th>");
+			writer.print("<th style='text-align:center;'>⚠️  Known Issues</th>");
+			writer.print("<th style='text-align:center;'>⏭️  Skipped</th>");
+			writer.print("<th style='text-align:center;'>❌  Failed</th>");
+			writer.print("<th style='text-align:center;'>⏱️ Time (HH:MM:SS)</th>");
 			writer.print("</tr>");
 			for (TestResult testResult : suiteResult.getTestResults()) {
 				int passedTests = testResult.getPassedTestCount();
@@ -432,6 +567,64 @@ public class EmailableReport implements IReporter {
 		}
 
 		writer.print("</table>");
+
+	}
+
+	private void calculateExecutionStats() {
+
+		totalScenarioDuration = 0;
+		totalScenarioCount = 0;
+		fastestScenarioDuration = Long.MAX_VALUE;
+		slowestScenarioDuration = Long.MIN_VALUE;
+
+		for (SuiteResult suiteResult : suiteResults) {
+			for (TestResult testResult : suiteResult.getTestResults()) {
+
+				calculateFromClassResults(testResult.getFailedTestResults());
+				calculateFromClassResults(testResult.getPassedTestResults());
+				calculateFromClassResults(testResult.getSkippedTestResults());
+				calculateFromClassResults(testResult.getknownIssuesTestResults());
+				calculateFromClassResults(testResult.getIgnoredTestResults());
+			}
+		}
+	}
+
+	private void calculateFromClassResults(List<ClassResult> classResults) {
+
+		for (ClassResult classResult : classResults) {
+			for (MethodResult methodResult : classResult.getMethodResults()) {
+				for (ITestResult result : methodResult.getResults()) {
+
+					String[] scenarioDetails = getScenarioDetails(result);
+
+					String scenarioStart = BaseTestCaseUtil.sceanrioExecutionStatistics
+							.get("Scenario_" + scenarioDetails[0] + "_startTime");
+					String scenarioEnd = BaseTestCaseUtil.sceanrioExecutionStatistics
+							.get("Scenario_" + scenarioDetails[0] + "_endTime");
+
+					if (scenarioStart == null)
+						continue;
+
+					long startTime = Long.parseLong(scenarioStart);
+					long endTime = (scenarioEnd == null) ? System.nanoTime() : Long.parseLong(scenarioEnd);
+
+					long scenarioDuration = endTime - startTime;
+
+					totalScenarioDuration += scenarioDuration;
+					totalScenarioCount++;
+
+					if (scenarioDuration < fastestScenarioDuration) {
+						fastestScenarioDuration = scenarioDuration;
+						fastestScenarioName = "Scenario_" + scenarioDetails[0];
+					}
+
+					if (scenarioDuration > slowestScenarioDuration) {
+						slowestScenarioDuration = scenarioDuration;
+						slowestScenarioName = "Scenario_" + scenarioDetails[0];
+					}
+				}
+			}
+		}
 	}
 
 	private int writeScenarioSummary(String description, List<ClassResult> classResults, String cssClassPrefix,
@@ -476,6 +669,19 @@ public class EmailableReport implements IReporter {
 
 						long startTime = Long.parseLong(scenarioStart);
 						long scenarioDuration = endTime - startTime;
+						// Track statistics
+						totalScenarioDuration += scenarioDuration;
+						totalScenarioCount++;
+
+						if (scenarioDuration < fastestScenarioDuration) {
+							fastestScenarioDuration = scenarioDuration;
+							fastestScenarioName = "Scenario_" + scenarioDetails[0];
+						}
+
+						if (scenarioDuration > slowestScenarioDuration) {
+							slowestScenarioDuration = scenarioDuration;
+							slowestScenarioName = "Scenario_" + scenarioDetails[0];
+						}
 
 						String displayValue;
 
@@ -492,7 +698,7 @@ public class EmailableReport implements IReporter {
 							}
 
 						} else {
-							displayValue = convertNanosToTime(scenarioDuration);
+							displayValue = PacketUtility.convertNanosToTime(scenarioDuration);
 						}
 
 						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
@@ -525,39 +731,36 @@ public class EmailableReport implements IReporter {
 
 	private String generateFailedAndSkippedReport(String outputDirectory) {
 
-	    PrintWriter originalWriter = writer;
-	    String failedReportName = buildFailedReportName();
+		PrintWriter originalWriter = writer;
+		String failedReportName = buildFailedReportName();
 
-	    try {
+		try {
 
-	        writer = new PrintWriter(
-	                new BufferedWriter(
-	                        new FileWriter(new File(outputDirectory, failedReportName))));
+			writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(outputDirectory, failedReportName))));
 
-	        writeDocumentStart();
-	        writeHead();
+			writeDocumentStart();
+			writeHead();
 
-	        writer.print("<body>");
+			writer.print("<body>");
 
-	        writeSuiteSummaryForFailedReport();
-	        writeScenarioSummaryForFailedReport();
-	        writeScenarioDetailsForFailedReport();
+			writeSuiteSummaryForFailedReport();
+			writeScenarioSummaryForFailedReport();
+			writeScenarioDetailsForFailedReport();
 
-	        writer.print("</body>");
-	        writeDocumentEnd();
+			writer.print("</body>");
+			writeDocumentEnd();
 
-	        writer.close();
+			writer.close();
 
-	        logger.info("Failed + Skipped report generated: " + failedReportName);
+			logger.info("Failed + Skipped report generated: " + failedReportName);
 
-	    } catch (Exception e) {
-	        logger.error("Error generating failed/skipped report", e);
-	    }
+		} catch (Exception e) {
+			logger.error("Error generating failed/skipped report", e);
+		}
 
-	    writer = originalWriter;
-	    return failedReportName;
+		writer = originalWriter;
+		return failedReportName;
 	}
-
 
 	protected void writeSuiteSummaryForFailedReport() {
 
@@ -925,7 +1128,8 @@ public class EmailableReport implements IReporter {
 		}
 
 		public static boolean containsAny(String stringToCheckIn, String delimitedString) {
-			if (stringToCheckIn == null) return false;
+			if (stringToCheckIn == null)
+				return false;
 			String[] stringsToCheckFor = delimitedString.split(";");
 
 			for (String str : stringsToCheckFor) {

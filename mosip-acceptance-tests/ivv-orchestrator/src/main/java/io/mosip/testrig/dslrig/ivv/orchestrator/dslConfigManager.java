@@ -51,6 +51,10 @@ public class dslConfigManager extends ConfigManager {
 		return ConfigManager.getproperty("uinWaitTime");
 	}
 	
+	public static String checkNotification() {
+		return ConfigManager.getproperty("checkNotification");
+	}
+	
 	public static String getNextPacketUploadWaitTime() {
 		return ConfigManager.getproperty("nextPacketUploadWaitTime");
 	}
