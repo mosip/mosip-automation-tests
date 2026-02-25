@@ -62,7 +62,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				indexOfUser = userDetails[0];
 				user = userDetails[0];
 				if (user.contains("dsl-0"))
-					user = "dsl-" + dslConfigManager.getUserAdminName();
+					user = BaseTestCase.currentModule+"-" + dslConfigManager.getUserAdminName();
 				else
 					user = dslConfigManager.getUserAdminName().substring(0,
 							dslConfigManager.getUserAdminName().length() - 1) + user;

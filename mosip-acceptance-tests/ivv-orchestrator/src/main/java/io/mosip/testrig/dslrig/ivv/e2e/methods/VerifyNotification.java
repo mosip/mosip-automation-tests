@@ -39,27 +39,26 @@ public class VerifyNotification extends BaseTestCaseUtil implements StepInterfac
 			notificationValue = step.getParameters().get(0);
 			emailId = step.getScenario().getVariables().get(step.getParameters().get(1));
 		}
-		
 		if(dslConfigManager.checkNotification().equalsIgnoreCase("no") || dslConfigManager.checkNotification().equalsIgnoreCase("false")) {
 			logger.info("Notification verification is disabled in config. Skipping step: " + step.getName());
 			Reporter.log("Notification verification is disabled in config. Skipping step: " + step.getName() + " emailId - "+emailId, true);
 			return;
 		}
-
-		String notification = OTPListener.getNotification(emailId);
-		logger.info("Notification received: " + notification);
+		String notification = OTPListener.getNotification(emailId, notificationValue);
+		logger.info("Notification received successfully for verification");
 
 		if (notification == null || !notification.toLowerCase().contains(notificationValue.toLowerCase())) {
 
-			logger.error("Expected notification text '" + notificationValue + "' not found in: " + notification+" emailId- "+emailId);
+			logger.error("Expected notification text '" + notificationValue + "' not found in received notification");
 			throw new RigInternalError(
-					"Notification verification failed! Expected text not found: " + notificationValue+" emailId- "+emailId);
+					"Notification verification failed! Expected text not found: " + notificationValue);
 
 		}
-		String successMsg = "✅ Notification verification passed: " + notification+" emailId- "+emailId;
+		String successMsg = "✅ Notification verification passed for: " + notificationValue;
 		logger.info(successMsg);
 		Reporter.log(successMsg, true);
 
 	}
 
 }
+
