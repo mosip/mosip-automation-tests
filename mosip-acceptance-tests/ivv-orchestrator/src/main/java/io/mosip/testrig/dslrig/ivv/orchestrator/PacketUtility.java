@@ -229,8 +229,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 				+ genarateValidCbeff;
 
 		int count = 0;
-		int maxRetryCount = Integer.parseInt(props.getProperty("loopCount"));
-		;
+		int maxRetryCount = Integer.parseInt(props.getProperty("loopCount"));;
 		Response templateResponse = null;
 		JSONArray resp = null;
 		do {
@@ -240,10 +239,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 				if (count == maxRetryCount) {
 					this.hasError = true;
 					throw new RigInternalError(templateResponse.getBody().asString());
-				} else {
+				} 
+				else {
 					logger.info("Unable to get biometrics via mds.Retrying...");
 					continue;
-				}
+				}		
 			}
 			JSONObject jsonResponse = new JSONObject(templateResponse.asString());
 			resp = jsonResponse.getJSONArray("packets");
@@ -251,17 +251,17 @@ public class PacketUtility extends BaseTestCaseUtil {
 				if (count == maxRetryCount) {
 					this.hasError = true;
 					throw new RigInternalError("Unable to get Template from packet utility");
-				}
-				logger.info("Unable to get Template from packet utility.Retrying...");
+				} 
+					logger.info("Unable to get Template from packet utility.Retrying...");				
 			} else {
 				break;
 			}
 		} while (count < maxRetryCount);
 		return resp;
 	}
-
-	public String createUploadPacket(Set<String> resPath, String source, String process, boolean genrateValidateToken,
-			String uin, HashMap<String, String> contextKey, Scenario.Step step, String valid) throws RigInternalError {
+	
+	public String createUploadPacket(Set<String> resPath, String source, String process, boolean genrateValidateToken, String uin, HashMap<String, String> contextKey,
+			Scenario.Step step ,String valid) throws RigInternalError {
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
 		for (String residentPath : resPath) {
@@ -274,33 +274,31 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PERSONAFILEPATH, arr);
 		jsonReq.put("source", source);
 		if (uin != null) {
-			jsonReq.put("uin", uin);
+		    jsonReq.put("uin", uin);
 		}
-		String url = baseUrl + props.getProperty("getCreatePacketUrl") + process + "/" + genRid + "/"
-				+ genrateValidateToken;
+		String url = baseUrl + props.getProperty("getCreatePacketUrl") + process + "/" + genRid +"/"+ genrateValidateToken;
 
 		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
-		if (valid.equalsIgnoreCase("invalid")) {
+		if(valid.equalsIgnoreCase("invalid")) {
 			return templateResponse.getBody().asString();
-		} else {
-			JSONObject jsonObject = new JSONObject(templateResponse.getBody().asString());
-			JSONArray responseArray = jsonObject.getJSONArray("response");
-			String id = null;
-			if (responseArray.length() > 0) {
-				id = responseArray.getJSONObject(0).getString("id");
-				System.out.println("ID: " + id);
-			}
-			return id;
+		}else {
+		JSONObject jsonObject = new JSONObject(templateResponse.getBody().asString());
+		JSONArray responseArray = jsonObject.getJSONArray("response");
+		String id = null;
+		if (responseArray.length() > 0) {
+			id = responseArray.getJSONObject(0).getString("id");
+			System.out.println("ID: " + id);
+		}
+		return id;
 		}
 	}
-
-	public String syncAndTriggerPacket(String rid, HashMap<String, String> contextKey, Scenario.Step step)
-			throws RigInternalError {
-		JSONObject jsonReq = new JSONObject();
-
-		String url = baseUrl + props.getProperty("getSyncExternalPacketUrl") + rid;
-		Response templateResponse = postRequest(url, jsonReq.toString(), "SYNC-PACKET", step);
-		return templateResponse.getBody().asString();
+	
+	public String syncAndTriggerPacket( String rid, HashMap<String, String> contextKey, Scenario.Step step) throws RigInternalError {
+	    JSONObject jsonReq = new JSONObject();
+	 
+	    String url = baseUrl + props.getProperty("getSyncExternalPacketUrl") + rid;
+	    Response templateResponse = postRequest(url, jsonReq.toString(), "SYNC-PACKET", step);
+	    return templateResponse.getBody().asString();
 	}
 
 	public String requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone, Scenario.Step step)
@@ -578,8 +576,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String updateResidentWithGuardianSkippingPreReg_old(String residentFilePath,
 			HashMap<String, String> contextKey, String withRidOrUin, String missingFields, Scenario.Step step,
-			boolean getRidFromSync, String qualityScore, boolean genarateValidCbeff, String invalidMachineFlag)
-			throws RigInternalError {
+			boolean getRidFromSync, String qualityScore, boolean genarateValidCbeff, String invalidMachineFlag) throws RigInternalError {
 		Reporter.log("<b><u>Execution Steps for Generating GuardianPacket And linking with Child Resident: </u></b>");
 		List<String> generatedResidentData = generateResidents(1, true, true, "Any", missingFields, contextKey, step);
 		JSONArray jsonArray = getTemplate(new HashSet<String>(generatedResidentData), "NEW", contextKey, step,
@@ -587,8 +584,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject obj = jsonArray.getJSONObject(0);
 		String templatePath = obj.get("path").toString();
 		String rid = generateAndUploadPacketSkippingPrereg(templatePath,
-				step.getScenario().getGeneratedResidentData().get(0), null, contextKey, SUCCESS, step, getRidFromSync,
-				invalidMachineFlag);
+				step.getScenario().getGeneratedResidentData().get(0), null, contextKey, SUCCESS, step, getRidFromSync,invalidMachineFlag);
 
 		String url = baseUrl + props.getProperty(UPDATERESIDENTURL);
 
@@ -650,8 +646,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public String generateAndUploadPacketWrongHash(String packetPath, String residentPath, String additionalInfoReqId,
-			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync,
-			String invalidMachineFlag) throws RigInternalError {
+			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync, String invalidMachineFlag)
+			throws RigInternalError {
 
 		String url = baseUrl + "/packet/sync/01/" + true; // 01 -- to generate wrong hash
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
@@ -664,7 +660,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; // 0 -- to skip prereg
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, true, invalidMachineFlag);
+				getRidFromSync, true,invalidMachineFlag);
 
 	}
 
@@ -674,13 +670,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; // 0 -- to skip prereg
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, false, invalidMachineFlag);
+				getRidFromSync, false,invalidMachineFlag);
 
 	}
 
 	public String getRID(String url, String packetPath, String residentPath, String additionalInfoReqId,
 			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync,
-			boolean genarateValidCbeff, String invalidMachineFlag) throws RigInternalError {
+			boolean genarateValidCbeff,String invalidMachineFlag) throws RigInternalError {
 		String rid = null;
 		if (genarateValidCbeff)
 			url += "/1"; // 1 --- to generateValid Cbeff
@@ -697,11 +693,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		int maxRetryCount = Integer.parseInt(props.getProperty("loopCount"));
 
 		do {
-			count++;
+	  		count++;
 			Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
-
-			if (invalidMachineFlag.contentEquals("invalidMachine")
-					&& response.getBody().asString().toLowerCase().contains("failed to sign data")) {
+			
+			if (invalidMachineFlag.contentEquals("invalidMachine") && response.getBody().asString().toLowerCase().contains("failed to sign data")) {
 				return "";
 			}
 			if (!response.getBody().asString().toLowerCase().contains(responseStatus)
@@ -711,7 +706,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 					throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
 				} else {
 					logger.info("Unable to generate and upload packet . Retrying...");
-					continue;
+				    continue;
 				}
 			}
 
@@ -751,8 +746,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String createContexts(String key, String userAndMachineDetailParam, Boolean generatePrivateKey,
-			String status, String envbaseUrl, Scenario.Step step) throws RigInternalError {
+	public String createContexts(String key, String userAndMachineDetailParam, 
+			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step) throws RigInternalError {
 		String url = this.baseUrl + "/context/server/";
 		Map<String, String> map = new HashMap<String, String>();
 		if (userAndMachineDetailParam != null && !userAndMachineDetailParam.isEmpty()) {
@@ -822,13 +817,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	public String createContexts(String negative, String key, HashMap<String, String> map,
+	public String createContexts(String negative, String key, HashMap<String, String> map, 
 
 			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,
 			String consent, boolean changeSupervisorNameToDiffCase, String invalidEncryptedHashFlag,
-			String invalidCheckSum, String invalidIdSchemaFlag, String skipBiometricClassification,
-			String skipApplicantDocuments, String invalidDateFlag, String invalidOfficerIDFlag, String flow,
-			String Signature) throws RigInternalError {
+			String invalidCheckSum , String invalidIdSchemaFlag ,String skipBiometricClassification,String skipApplicantDocuments, String invalidDateFlag, String invalidOfficerIDFlag, String flow, String Signature) throws RigInternalError {
 		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
 		logger.info("packet utility base url : " + url);
 
@@ -849,12 +842,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} else {
 			jsonReq.put(SCENARIO, step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		}
-
-		// Add age category from actuator
-		jsonReq.put("ageCategory",
-				MasterDataUtil.getValueFromRegprocActuator(
-						"/mosip/mosip-config/registration-processor-default.properties",
-						"mosip.regproc.packet.classifier.tagging.agegroup.ranges"));
+		
+		//Add age category from actuator
+		jsonReq.put("ageCategory", MasterDataUtil.getValueFromRegprocActuator("/mosip/mosip-config/registration-processor-default.properties", "mosip.regproc.packet.classifier.tagging.agegroup.ranges"));
 		// id json mapping
 		jsonReq.put("IDSchemaVersion", getValueFromIdJson("IDSchemaVersion"));
 		jsonReq.put("uin", getValueFromIdJson("uin"));
@@ -897,7 +887,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("Female", "FLE");
 		jsonReq.put("Other", "OTH");
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
-
+		
 		jsonReq.put("langCode", BaseTestCase.languageCode);
 
 		jsonReq.put("validUIN", (map.get("$$uin") != null) ? map.get("$$uin") : "createnew");
@@ -979,20 +969,20 @@ public class PacketUtility extends BaseTestCaseUtil {
 					jsonReq.put("mosip.test.regclient.supervisorBiometricFileName", supervOpertoDetails[5]);
 			}
 		}
-		if (flow.equalsIgnoreCase("EXTERNAL")) {
-			MachineHelper machineHelper = new MachineHelper();
-			try {
-				String publicKey = machineHelper.createPublicKey();
-				Map<String, String> result = machineHelper.getIdAndRegCenterIdByPublicKey(publicKey);
-				if (result != null) {
-					jsonReq.put("mosip.test.regclient.machineid", result.get("id"));
-					jsonReq.put("mosip.test.regclient.centerid", result.get("regCenterId"));
-				} else {
-					System.out.println("No matching machine found for public key: " + publicKey);
-				}
-			} catch (RigInternalError e) {
-				e.printStackTrace();
-			}
+		if(flow.equalsIgnoreCase("EXTERNAL")) {
+		    MachineHelper machineHelper = new MachineHelper();
+		    try {
+		        String publicKey = machineHelper.createPublicKey();
+		        Map<String, String> result = machineHelper.getIdAndRegCenterIdByPublicKey(publicKey);
+		        if (result != null) {
+		            jsonReq.put("mosip.test.regclient.machineid", result.get("id"));
+		            jsonReq.put("mosip.test.regclient.centerid", result.get("regCenterId"));
+		        } else {
+		            System.out.println("No matching machine found for public key: " + publicKey);
+		        }
+		    } catch (RigInternalError e) {
+		        e.printStackTrace();
+		    }
 		}
 		JSONObject JO = new JSONObject(map);
 
@@ -1049,9 +1039,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return jsonMachine;
 	}
 
-	public String updateDemoOrBioDetail(String resFilePath, String testPersona, List<String> attributeList,
-			List<String> missAttributeList, List<String> updateAttributeList, Scenario.Step step)
-			throws RigInternalError {
+	public String updateDemoOrBioDetail(String resFilePath, String testPersona,  List<String> attributeList, List<String> missAttributeList,
+			List<String> updateAttributeList, Scenario.Step step) throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePersonaData");
 		JSONObject jsonReqInner = new JSONObject();
 		JSONObject updateAttribute = new JSONObject();
@@ -1061,85 +1050,86 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReqInner.put("testPersonaPath", testPersona);
 		if (attributeList != null && !(attributeList.isEmpty()))
 			jsonReqInner.put("regenAttributeList", attributeList);
+		
+	    // Handle the special case for "updateLargeDocInPersona"
+	    if (step.getParameters().size() > 2 && step.getParameters().get(2).equalsIgnoreCase("updateLargeDocInPersona")) {
+	        String docPathValue = "yourDocPathValue"; 
+	        String poaValue = String.format("{\"typeCode\": \"RNC\",\"docPath\": \"%s\"}", docPathValue);
+	        updateAttribute.put("POA", poaValue);
+	    }
+	    else {
+		if (updateAttributeList != null && !(updateAttributeList.isEmpty())) {
+			String langcode = null;
+			for (String keys : updateAttributeList) {
+				String[] arr = keys.split("=");
+				if (arr.length > 1) {
+					if (arr[0].trim().equalsIgnoreCase(LANGCODE)) {
+						langcode = arr[1].trim();
+						continue;
+					}
+					if (arr[0].trim().equalsIgnoreCase("residencestatus")) {
+						if (StringUtils.isEmpty(langcode)) {
 
-		// Handle the special case for "updateLargeDocInPersona"
-		if (step.getParameters().size() > 2
-				&& step.getParameters().get(2).equalsIgnoreCase("updateLargeDocInPersona")) {
-			String docPathValue = "yourDocPathValue";
-			String poaValue = String.format("{\"typeCode\": \"RNC\",\"docPath\": \"%s\"}", docPathValue);
-			updateAttribute.put("POA", poaValue);
-		} else {
-			if (updateAttributeList != null && !(updateAttributeList.isEmpty())) {
-				String langcode = null;
-				for (String keys : updateAttributeList) {
-					String[] arr = keys.split("=");
-					if (arr.length > 1) {
-						if (arr[0].trim().equalsIgnoreCase(LANGCODE)) {
-							langcode = arr[1].trim();
-							continue;
+							this.hasError = true;
+							throw new RigInternalError("LangCode is missing in paramter");
+
 						}
-						if (arr[0].trim().equalsIgnoreCase("residencestatus")) {
-							if (StringUtils.isEmpty(langcode)) {
+						updateAttribute.put(arr[0].trim(), langcode + "=" + arr[1].trim());
+					} else
+						updateAttribute.put(arr[0].trim(),
+						        (arr[1].trim().equalsIgnoreCase("empty") ? ""
+						                : (arr[0].trim().equalsIgnoreCase("email")
+						                	    ? (arr[1].trim().equalsIgnoreCase("testmosip")
+						                	            ? "dslautomation@mosip.io"
+						                	            : (arr[1].toLowerCase().contains("invalid")
+						                	                    ? arr[1].trim() 
+						                	                    : arr[1].trim() + "@mosip.io"))
+						                	    : arr[1].trim())));
 
-								this.hasError = true;
-								throw new RigInternalError("LangCode is missing in paramter");
-
-							}
-							updateAttribute.put(arr[0].trim(), langcode + "=" + arr[1].trim());
-						} else
-							updateAttribute
-									.put(arr[0].trim(),
-											(arr[1].trim().equalsIgnoreCase("empty") ? ""
-													: (arr[0].trim().equalsIgnoreCase("email")
-															? (arr[1].trim().equalsIgnoreCase("testmosip")
-																	? "dslautomation@mosip.io"
-																	: (arr[1].toLowerCase().contains("invalid")
-																			? arr[1].trim()
-																			: arr[1].trim() + "@mosip.io"))
-															: arr[1].trim())));
-
-					}
-					// Pass phone and email as empty
-					else {
-						String key = arr[0].trim();
-						updateAttribute.put(key, "");
-					}
+				}
+				// Pass phone and email as empty
+				else {
+					String key = arr[0].trim();
+					updateAttribute.put(key, "");
 				}
 			}
 		}
-		jsonReqInner.put("updateAttributeList", updateAttribute);
+	    }
+	    jsonReqInner.put("updateAttributeList", updateAttribute);
 		JSONArray jsonReq = new JSONArray();
 		jsonReq.put(0, jsonReqInner);
 		Response response = putRequestWithBody(url, jsonReq.toString(), "Update DemoOrBioDetail", step);
 		String body = response.getBody().asString().toLowerCase();
 
 		try {
-			JsonPath jsonPath = response.jsonPath();
+		    JsonPath jsonPath = response.jsonPath();
 
-			// Case: Full JSON with result list
-			if (jsonPath.get("result") != null) {
-				List<Map<String, Object>> results = jsonPath.getList("result");
+		    // Case: Full JSON with result list
+		    if (jsonPath.get("result") != null) {
+		        List<Map<String, Object>> results = jsonPath.getList("result");
 
-				boolean allSuccess = results.stream().allMatch(
-						r -> r.get("status") != null && r.get("status").toString().equalsIgnoreCase("success"));
+		        boolean allSuccess = results.stream().allMatch(r ->
+		            r.get("status") != null &&
+		            r.get("status").toString().equalsIgnoreCase("success")
+		        );
 
-				if (!allSuccess) {
-					this.hasError = true;
-					throw new RigInternalError("One or more result entries failed for attributes: " + attributeList);
-				}
-			}
-			// Case: Only a basic success string/object
-			else if (!body.contains("sucess")) {
-				this.hasError = true;
-				throw new RigInternalError("Response does not contain success status for attributes: " + attributeList);
-			}
+		        if (!allSuccess) {
+		            this.hasError = true;
+		            throw new RigInternalError("One or more result entries failed for attributes: " + attributeList);
+		        }
+		    }
+		    // Case: Only a basic success string/object
+		    else if (!body.contains("sucess")) {
+		        this.hasError = true;
+		        throw new RigInternalError("Response does not contain success status for attributes: " + attributeList);
+		    }
 
 		} catch (Exception e) {
-			// Fallback: last chance check if response body contains word "success"
-			if (!body.contains("sucess")) {
-				this.hasError = true;
-				throw new RigInternalError("Failed to parse success from response for attributes: " + attributeList);
-			}
+		    // Fallback: last chance check if response body contains word "success"
+		    if (!body.contains("sucess")) {
+		        this.hasError = true;
+		        throw new RigInternalError("Failed to parse success from response for attributes: " + attributeList);
+		    }
 		}
 		return response.getBody().asString();
 
@@ -1223,37 +1213,29 @@ public class PacketUtility extends BaseTestCaseUtil {
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 		}
-
+		
 //		test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, INDIVIDUALID);
-		logger.info("After UIN: " + input);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(BIOSUBTYPE),
-				"identityRequest." + BIOSUBTYPE);
-		logger.info("After BioSubType: " + input);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(BIOTYPE),
-				"identityRequest." + BIOTYPE);
-		logger.info("After BioSubType: " + input);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICECODE),
-				"identityRequest." + DEVICECODE);
+		logger.info("After UIN: "+ input);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(BIOSUBTYPE), "identityRequest."+BIOSUBTYPE);
+		logger.info("After BioSubType: "+ input);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(BIOTYPE), "identityRequest."+BIOTYPE);
+		logger.info("After BioSubType: "+ input);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICECODE), "identityRequest."+DEVICECODE);
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICEPROVIDERID),
-				"identityRequest." + DEVICEPROVIDERID);
+				"identityRequest."+DEVICEPROVIDERID);
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICESERVICEID),
-				"identityRequest." + DEVICESERVICEID);
+				"identityRequest."+DEVICESERVICEID);
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICESERVICEVERSION),
-				"identityRequest." + DEVICESERVICEVERSION);
+				"identityRequest."+DEVICESERVICEVERSION);
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICEPROVIDER),
-				"identityRequest." + DEVICEPROVIDER);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICESUBTYPE),
-				"identityRequest." + DEVICESUBTYPE);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("make"),
-				"identityRequest.make");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(MODEL),
-				"identityRequest." + MODEL);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(SERIALNO),
-				"identityRequest." + SERIALNO);
-		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"),
-				"identityRequest.type");
+				"identityRequest."+DEVICEPROVIDER);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(DEVICESUBTYPE), "identityRequest."+DEVICESUBTYPE);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("make"), "identityRequest.make");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(MODEL), "identityRequest."+MODEL);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty(SERIALNO), "identityRequest."+SERIALNO);
+		input = JsonPrecondtion.parseAndReturnJsonContent(input, deviceProps.getProperty("type"), "identityRequest.type");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
 		test.setInput(input);
 		Reporter.log("<b><u>" + test.getTestCaseName() + "_" + modility + "</u></b>");
@@ -1315,23 +1297,20 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		}
 	}
-
+	
 	private String getAuthTransactionId(String oidcTransactionId) {
-		final String transactionId = oidcTransactionId.replaceAll("_|-", "");
-		String lengthOfTransactionId = EsignetUtil.getValueFromEsignetActuator(
-				"/mosip/mosip-config/esignet-default.properties", "mosip.esignet.auth-txn-id-length");
-		int authTransactionIdLength = lengthOfTransactionId != null ? Integer.parseInt(lengthOfTransactionId) : 0;
-		final byte[] oidcTransactionIdBytes = transactionId.getBytes();
-		final byte[] authTransactionIdBytes = new byte[authTransactionIdLength];
-		int i = oidcTransactionIdBytes.length - 1;
-		int j = 0;
-		while (j < authTransactionIdLength) {
-			authTransactionIdBytes[j++] = oidcTransactionIdBytes[i--];
-			if (i < 0) {
-				i = oidcTransactionIdBytes.length - 1;
-			}
-		}
-		return new String(authTransactionIdBytes);
+	    final String transactionId = oidcTransactionId.replaceAll("_|-", "");
+	    String lengthOfTransactionId =  EsignetUtil.getValueFromEsignetActuator("/mosip/mosip-config/esignet-default.properties", "mosip.esignet.auth-txn-id-length");
+	   int authTransactionIdLength = lengthOfTransactionId != null ? Integer.parseInt(lengthOfTransactionId): 0;
+	    final byte[] oidcTransactionIdBytes = transactionId.getBytes();
+	    final byte[] authTransactionIdBytes = new byte[authTransactionIdLength];
+	    int i = oidcTransactionIdBytes.length - 1;
+	    int j = 0;
+	    while(j < authTransactionIdLength) {
+	        authTransactionIdBytes[j++] = oidcTransactionIdBytes[i--];
+	        if(i < 0) { i = oidcTransactionIdBytes.length - 1; }
+	    }
+	    return new String(authTransactionIdBytes);
 	}
 
 	public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList, Scenario.Step step)
@@ -1886,9 +1865,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public static String signJWKKey(String clientId, RSAKey jwkKey) {
-		String tempUrl = EsignetUtil.getValueFromEsignetWellKnownEndPoint("token_endpoint",
-				ConfigManager.getEsignetBaseUrl());
-		;
+		String tempUrl = EsignetUtil.getValueFromEsignetWellKnownEndPoint("token_endpoint", ConfigManager.getEsignetBaseUrl());;
 		String clientAssertionToken = "";
 		// Create RSA-signer with the private key
 		JWSSigner signer;
@@ -1900,8 +1877,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(clientId)//
 					.audience(tempUrl)//
 					.issuer(clientId)//
-					.issueTime(new Date()).expirationTime(new Date(new Date().getTime() + 180 * 1000)).jwtID(clientId)
-					.build();
+					.issueTime(new Date()).expirationTime(new Date(new Date().getTime() + 180 * 1000)).jwtID(clientId).build();
 
 			SignedJWT signedJWT = new SignedJWT(
 					new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(jwkKey.getKeyID()).build(), claimsSet);
