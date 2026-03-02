@@ -45,6 +45,7 @@ public class VerifyNotification extends BaseTestCaseUtil implements StepInterfac
 			Reporter.log("Notification verification is disabled in config. Skipping step: " + step.getName() + " emailId - "+emailId, true);
 			return;
 		}
+		try {
 		String notification = NotificationListener.getNotification(emailId, notificationValue);
 		logger.info("Notification received successfully for verification");
 
@@ -58,7 +59,9 @@ public class VerifyNotification extends BaseTestCaseUtil implements StepInterfac
 		String successMsg = "✅ Notification verification passed for: " + notificationValue;
 		logger.info(successMsg);
 		Reporter.log(successMsg, true);
+		}finally {
 		NotificationListener.markRequestRemove();
+		}
 
 	}
 
