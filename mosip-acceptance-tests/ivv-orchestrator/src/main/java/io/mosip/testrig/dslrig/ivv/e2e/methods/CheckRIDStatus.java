@@ -65,8 +65,6 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 						throw new RigInternalError("RID is null - cannot check status");
 					}
 					ridStatus=GetCredentialTableStackTrace.getStatusFromCredentialTransactionTable(Rid);
-					GlobalMethods.ReportRequestAndResponse(null, null, null, null,
-							ridStatus,true);
 					long stopTime = System.currentTimeMillis();
 					long elapsedTime = stopTime - startTime;
 					logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
@@ -74,7 +72,7 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 					logger.info("Response from check RID status : " + Rid + " => " + ridStatus);
 				}
 				ridStatusMap.put(Rid, ridStatus);
-
+				GlobalMethods.ReportRequestAndResponse(null, null, null, null, "Final RID Status : " + ridStatus, true);
 			
 			if (ridStatusMap.size() == 1) {
 				if (!ridStatusMap.entrySet().iterator().next().getValue().contains(ridStatusParam)) {

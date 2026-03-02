@@ -173,6 +173,21 @@ public class BaseTestCaseUtil extends BaseStep {
 				getResponse.getBody().asString(),true);
 		return getResponse;
 	}
+	
+	public static Response getRequestSilent(String url, Scenario.Step step) {
+		url = addContextToUrl(url, step);
+		Response getResponse = null;
+
+		if (dslConfigManager.IsDebugEnabled()) {
+			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract()
+					.response();
+		} else {
+			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON).when().get(url).then().extract().response();
+		}
+		return getResponse;
+	}
 
 	public static Response getRequestWithQueryParam(String url, HashMap<String, String> contextKey, String opsToLog,
 			Scenario.Step step) {
