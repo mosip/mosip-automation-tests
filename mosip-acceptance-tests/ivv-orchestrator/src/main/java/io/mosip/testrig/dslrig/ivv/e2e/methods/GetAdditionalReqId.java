@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import io.mosip.testrig.apirig.testrunner.OTPListener;
+import io.mosip.testrig.apirig.utils.NotificationListener;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -26,18 +27,21 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 		if (!step.getParameters().isEmpty() && step.getParameters().size() > 0)
 			email = step.getParameters().get(0) + "@mosip.io";
 
-		String additonalInfoRequestId = OTPListener.getAdditionalReqId(email).trim();
+		String additonalInfoRequestId = NotificationListener.getAdditionalReqId(email).trim();
 		if (additonalInfoRequestId != null && !additonalInfoRequestId.isEmpty()
 				&& !additonalInfoRequestId.equals("{Failed}")) {
 			logger.info("AdditionalInfoReqId retrieved for emailID: " + email + ": " + additonalInfoRequestId);
 			additonalInfoRequestId = additonalInfoRequestId + "-BIOMETRIC_CORRECTION-1";
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().put(step.getOutVarName(), additonalInfoRequestId);
+			
+			NotificationListener.markRequestRemove();
 			return;
 		}
 
 		this.hasError = true;
 		throw new RigInternalError("Failed to retrieve the value for addtionalInfoRequestId from email");
+		
 
 	}
 

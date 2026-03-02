@@ -9155,90 +9155,84 @@
 			"Action": "$$email=e2e_sendOtp($$personaFilePath)"
 		},
 		"Step-7": {
-			"Description": "Verifies notification is sent to resident to validate OTP",
-			"Input Parameters": "UIN and Email ID",
-			"Return Value": "NA",
-			"Action": "e2e_verifyNotification(One time password from digital identify,$$email)"
-		},
-		"Step-8": {
 			"Description": "Validates the OTP",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_validateOtp($$personaFilePath,$$email)"
 		},
-		"Step-9": {
+		"Step-8": {
 			"Description": "Generates pre registration packet with given persona file",
 			"Input Parameters": "Persona file path",
 			"Return Value": "PRID",
 			"Action": "$$prid=e2e_preRegister($$personaFilePath)"
 		},
-		"Step-10": {
+		"Step-9": {
 			"Description": "Uploads mandatory documents for pre-registration",
 			"Input Parameters": "Persona file path and PRID",
 			"Return Value": "NA",
 			"Action": "e2e_uploadDocuments($$personaFilePath,$$prid)"
 		},
-		"Step-11": {
+		"Step-10": {
 			"Description": "Update pre registration status",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_updatePreRegStatus(0,$$prid,valid)"
 		},
-		"Step-12": {
+		"Step-11": {
 			"Description": "Books the appointment for give pre registration",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,2/*SLOT_NUMBER*/)"
 		},
-		"Step-13": {
+		"Step-12": {
 			"Description": "Cancel the Pre-registration Appointment",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "cancel PRID",
 			"Action": "e2e_cancelAppointment(cancel,$$prid)"
 		},
-		"Step-14": {
+		"Step-13": {
 			"Description": "Books the appointment for give pre registration",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,3/*SLOT_NUMBER*/)"
 		},
-		"Step-15": {
+		"Step-14": {
 			"Description": "Generates and uploads the packet with pre pregistration",
 			"Input Parameters": "PRID and template file path",
 			"Return Value": "RID",
 			"Action": "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
 		},
-		"Step-16": {
+		"Step-15": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
 		},
-		"Step-17": {
+		"Step-16": {
 			"Description": "Gets the UIN for the given RID",
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin=e2e_getUINByRid($$rid)"
 		},
-		"Step-18": {
+		"Step-17": {
 			"Description": "Gets Email ID configured for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$uin)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Verifies notification is sent to resident for UIN generation",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "NA",
 			"Action": "e2e_verifyNotification(UIN Generated,$$email)"
 		},
-		"Step-20": {
+		"Step-19": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-21": {
+		"Step-20": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -9294,84 +9288,78 @@
 			"Action": "$$email=e2e_sendOtp($$personaFilePath)"
 		},
 		"Step-7": {
-			"Description": "Verifies notification is sent to resident to validate OTP",
-			"Input Parameters": "UIN and Email ID",
-			"Return Value": "NA",
-			"Action": "e2e_verifyNotification(One time password from digital identify,$$email)"
-		},
-		"Step-8": {
 			"Description": "Validates the OTP",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_validateOtp($$personaFilePath,$$email)"
 		},
-		"Step-9": {
+		"Step-8": {
 			"Description": "Generates pre registration packet with given persona file",
 			"Input Parameters": "Persona file path",
 			"Return Value": "PRID",
 			"Action": "$$prid=e2e_preRegister($$personaFilePath)"
 		},
-		"Step-10": {
+		"Step-9": {
 			"Description": "Uploads mandatory documents for pre-registration",
 			"Input Parameters": "Persona file path and PRID",
 			"Return Value": "NA",
 			"Action": "e2e_uploadDocuments($$personaFilePath,$$prid)"
 		},
-		"Step-11": {
+		"Step-10": {
 			"Description": "Update pre registration status",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_updatePreRegStatus(0,$$prid,valid)"
 		},
-		"Step-12": {
+		"Step-11": {
 			"Description": "Books the appointment for given pre registration",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,2/*SLOT_NUMBER*/)"
 		},
-		"Step-13": {
+		"Step-12": {
 			"Description": "Books the appointment for given pre registration",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,3/*SLOT_NUMBER*/)"
 		},
-		"Step-14": {
+		"Step-13": {
 			"Description": "Generates and uploads the packet with pre pregistration",
 			"Input Parameters": "PRID and template file path",
 			"Return Value": "RID",
 			"Action": "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
 		},
-		"Step-15": {
+		"Step-14": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
 		},
-		"Step-16": {
+		"Step-15": {
 			"Description": "Gets the UIN for the given RID",
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin=e2e_getUINByRid($$rid)"
 		},
-		"Step-17": {
+		"Step-16": {
 			"Description": "Gets Email ID configured for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$uin)"
 		},
-		"Step-18": {
+		"Step-17": {
 			"Description": "Verifies notification is sent to resident for UIN generation",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "NA",
 			"Action": "e2e_verifyNotification(UIN Generated,$$email)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-20": {
+		"Step-19": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -9427,96 +9415,90 @@
 			"Action": "$$email=e2e_sendOtp($$personaFilePath)"
 		},
 		"Step-7": {
-			"Description": "Verifies notification is sent to resident to validate OTP",
-			"Input Parameters": "UIN and Email ID",
-			"Return Value": "NA",
-			"Action": "e2e_verifyNotification(One time password from digital identify,$$email)"
-		},
-		"Step-8": {
 			"Description": "Validates the OTP",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_validateOtp($$personaFilePath,$$email)"
 		},
-		"Step-9": {
+		"Step-8": {
 			"Description": "Generates pre registration packet with given persona file",
 			"Input Parameters": "Persona file path",
 			"Return Value": "PRID",
 			"Action": "$$prid=e2e_preRegister($$personaFilePath)"
 		},
-		"Step-10": {
+		"Step-9": {
 			"Description": "Uploads mandatory documents for pre-registration",
 			"Input Parameters": "Persona file path and PRID",
 			"Return Value": "NA",
 			"Action": "e2e_uploadDocuments($$personaFilePath,$$prid)"
 		},
-		"Step-11": {
+		"Step-10": {
 			"Description": "Update pre registration status",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_updatePreRegStatus(0,$$prid,valid)"
 		},
-		"Step-12": {
+		"Step-11": {
 			"Description": "Books the appointment for give pre registration",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,1/*SLOT_NUMBER*/)"
 		},
-		"Step-13": {
+		"Step-12": {
 			"Description": "Generates and uploads the packet with pre registration",
 			"Input Parameters": "PRID and template file path",
 			"Return Value": "RID",
 			"Action": "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
 		},
-		"Step-14": {
+		"Step-13": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
 		},
-		"Step-15": {
+		"Step-14": {
 			"Description": "Gets the UIN for the given RID",
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$uin=e2e_getUINByRid($$rid)"
 		},
-		"Step-16": {
+		"Step-15": {
 			"Description": "Gets Email ID configured for the UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email=e2e_getEmailByUIN($$uin)"
 		},
-		"Step-17": {
+		"Step-16": {
 			"Description": "Verifies notification is sent to resident for UIN generation",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "NA",
 			"Action": "e2e_verifyNotification(UIN Generated,$$email)"
 		},
-		"Step-18": {
+		"Step-17": {
 			"Description": "Generates and uploads the packet with pre registration",
 			"Input Parameters": "PRID and template file path",
 			"Return Value": "RID",
 			"Action": "$$rid2=e2e_generateAndUploadPacket($$prid,$$templatePath)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Sets manual verification status",
 			"Input Parameters": "RID and status",
 			"Return Value": "NA",
 			"Action": "e2e_postMockMv($$rid2,REJECTED)"
 		},
-		"Step-20": {
+		"Step-19": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(REJECTED/*PACKET_STATUS*/,$$rid2)"
 		},
-		"Step-21": {
+		"Step-20": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$rid2,DEMOGRAPHIC_VERIFICATION,FAILED)"
 		},
-		"Step-22": {
+		"Step-21": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -15469,108 +15451,102 @@
 			"Action": "$$email=e2e_sendOtp($$childPersona)"
 		},
 		"Step-16": {
-			"Description": "Verifies notification is sent to resident to validate OTP",
-			"Input Parameters": "UIN and Email ID",
-			"Return Value": "NA",
-			"Action": "e2e_verifyNotification(One time password from digital identify,$$email)"
-		},
-		"Step-17": {
 			"Description": "Validates OTP ",
 			"Input Parameters": "Persona file path",
 			"Return Value": "NA",
 			"Action": "e2e_validateOtp($$childPersona,$$email)"
 		},
-		"Step-18": {
+		"Step-17": {
 			"Description": "Generates pre registration packet with given persona file",
 			"Input Parameters": "Persona file path",
 			"Return Value": "PRID",
 			"Action": "$$prid=e2e_preRegister($$childPersona)"
 		},
-		"Step-19": {
+		"Step-18": {
 			"Description": "Uploads mandatory documents for pre-registration",
 			"Input Parameters": "Persona file path and PRID",
 			"Return Value": "NA",
 			"Action": "e2e_uploadDocuments($$childPersona,$$prid)"
 		},
-		"Step-20": {
+		"Step-19": {
 			"Description": "Update pre registration status",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_updatePreRegStatus(0/*STATUS_CODE*/,$$prid,valid)"
 		},
-		"Step-21": {
+		"Step-20": {
 			"Description": "Books the appointment for give pre registration",
 			"Input Parameters": "PRID and other details can be found in in-line comments of parameters",
 			"Return Value": "NA",
 			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,1/*SLOT_NUMBER*/)"
 		},
-		"Step-22": {
+		"Step-21": {
 			"Description": "Generates and uploads the packet with pre pregistration",
 			"Input Parameters": "PRID and template file path",
 			"Return Value": "RID",
 			"Action": "$$childRid=e2e_generateAndUploadPacket($$prid,$$childTemplate)"
 		},
-		"Step-23": {
+		"Step-22": {
 			"Description": "Checks the RID status against given packet processing status",
 			"Input Parameters": "Packet processing status and RID",
 			"Return Value": "NA",
 			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$childRid)"
 		},
-		"Step-24": {
+		"Step-23": {
 			"Description": "Gets the UIN for the given RID",
 			"Input Parameters": "RID",
 			"Return Value": "UIN",
 			"Action": "$$childUin=e2e_getUINByRid($$childRid)"
 		},
-		"Step-25": {
+		"Step-24": {
 			"Description": "Gets Email ID configured for the child UIN",
 			"Input Parameters": "UIN",
 			"Return Value": "Email ID",
 			"Action": "$$email2=e2e_getEmailByUIN($$childUin)"
 		},
-		"Step-26": {
+		"Step-25": {
 			"Description": "Verifies notification is sent to resident for child UIN generation",
 			"Input Parameters": "UIN and Email ID",
 			"Return Value": "NA",
 			"Action": "e2e_verifyNotification(UIN Generated,$$email2)"
 		},
-		"Step-27": {
+		"Step-26": {
 			"Description": "Generates VID without OTP",
 			"Input Parameters": "VID tyoe and UIN",
 			"Return Value": "VID",
 			"Action": "$$vidwithoutotp=e2e_GenerateVIDWithoutOTP(Perpetual,$$childUin)"
 		},
-		"Step-28": {
+		"Step-27": {
 			"Description": "Waits for given period in seconds",
 			"Input Parameters": "Time period in seconds to wait",
 			"Return Value": "NA",
 			"Action": "e2e_wait(UIN_WAIT_TIME)"
 		},
-		"Step-29": {
+		"Step-28": {
 			"Description": "Peforms demographic authentication",
 			"Input Parameters": "Demo graphic details, persona, UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$childUin,$$childPersona,$$vidwithoutotp)"
 		},
-		"Step-30": {
+		"Step-29": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$parentRid,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-31": {
+		"Step-30": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,PRINT_SERVICE,PROCESSED)"
 		},
-		"Step-32": {
+		"Step-31": {
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
 			"Action": "e2e_CheckRIDStage($$childRid,VERIFICATION,SUCCESS)"
 		},
-		"Step-33": {
+		"Step-32": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
 			"Input Parameters": "NA",
 			"Return Value": "NA",
@@ -30766,7 +30742,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Environment and user details. Other parameters details can be found in-line",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/,CreationDate=+1m)"
+			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/,invalidCreationDate=+1y)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",

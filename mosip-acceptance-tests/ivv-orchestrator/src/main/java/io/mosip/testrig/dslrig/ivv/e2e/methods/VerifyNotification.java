@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.testrunner.OTPListener;
+import io.mosip.testrig.apirig.utils.NotificationListener;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -44,7 +45,7 @@ public class VerifyNotification extends BaseTestCaseUtil implements StepInterfac
 			Reporter.log("Notification verification is disabled in config. Skipping step: " + step.getName() + " emailId - "+emailId, true);
 			return;
 		}
-		String notification = OTPListener.getNotification(emailId, notificationValue);
+		String notification = NotificationListener.getNotification(emailId, notificationValue);
 		logger.info("Notification received successfully for verification");
 
 		if (notification == null || !notification.toLowerCase().contains(notificationValue.toLowerCase())) {
@@ -57,6 +58,7 @@ public class VerifyNotification extends BaseTestCaseUtil implements StepInterfac
 		String successMsg = "✅ Notification verification passed for: " + notificationValue;
 		logger.info(successMsg);
 		Reporter.log(successMsg, true);
+		NotificationListener.markRequestRemove();
 
 	}
 

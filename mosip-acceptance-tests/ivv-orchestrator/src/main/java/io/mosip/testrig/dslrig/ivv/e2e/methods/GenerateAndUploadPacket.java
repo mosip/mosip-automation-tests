@@ -2,6 +2,8 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import io.mosip.testrig.apirig.utils.NotificationListener;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -19,6 +21,7 @@ public class GenerateAndUploadPacket extends BaseTestCaseUtil implements StepInt
 
 	@Override
 	public void run() throws RigInternalError {
+		NotificationListener.markRequestStart();
 		String responseStatus = "success";
 		Boolean isForChildPacket = false;
 		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) {
