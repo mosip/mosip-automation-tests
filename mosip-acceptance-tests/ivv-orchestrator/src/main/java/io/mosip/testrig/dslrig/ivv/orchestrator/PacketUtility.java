@@ -1941,5 +1941,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 			}
 		}
 	}
+	
+	static String convertNanosToTime(long nanoseconds) {
+		long totalSeconds = nanoseconds / 1_000_000_000;
+		long seconds = totalSeconds % 60;
+		long totalMinutes = totalSeconds / 60;
+		long minutes = totalMinutes % 60;
+		long hours = totalMinutes / 60;
+		return String.format("%02d:%02d:%02d", hours, Math.abs(minutes), Math.abs(seconds));
+	}
 
 }

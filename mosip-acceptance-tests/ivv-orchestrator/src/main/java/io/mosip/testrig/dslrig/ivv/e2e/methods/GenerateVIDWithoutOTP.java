@@ -16,6 +16,7 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.NotificationListener;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -38,6 +39,7 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 
 	@Override
 	public void run() throws RigInternalError {
+		NotificationListener.markRequestStart();
 		step.getScenario().getVidPersonaProp().clear();
 		String uins = null;
 		String vidtype = null;
