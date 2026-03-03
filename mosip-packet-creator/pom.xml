@@ -217,8 +217,8 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
-	
-<distributionManagement>
+
+	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
 			<url>https://central.sonatype.com/repository/maven-snapshots/</url>
@@ -228,7 +228,7 @@
 			<url>https://central.sonatype.com/api/v1/publisher</url>
 		</repository>
 	</distributionManagement>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -257,7 +257,7 @@
 
 	<build>
 		<plugins>
-		<plugin>
+			<plugin>
 				<groupId>org.sonatype.central</groupId>
 				<artifactId>central-publishing-maven-plugin</artifactId>
 				<version>${central.publishing.maven.plugin.version}</version>
@@ -270,6 +270,10 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<jmxPort>9001</jmxPort>
+					<wait>120000</wait>
+				</configuration>
 				<executions>
 					<execution>
 						<id>pre-integration-test</id>
@@ -375,7 +379,7 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<profiles>
 		<profile>
 			<id>sonar</id>

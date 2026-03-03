@@ -43,6 +43,7 @@ public class VerifyNotification extends BaseTestCaseUtil implements StepInterfac
 		if(dslConfigManager.checkNotification().equalsIgnoreCase("no") || dslConfigManager.checkNotification().equalsIgnoreCase("false")) {
 			logger.info("Notification verification is disabled in config. Skipping step: " + step.getName());
 			Reporter.log("Notification verification is disabled in config. Skipping step: " + step.getName() + " emailId - "+emailId, true);
+			NotificationListener.markRequestRemove();
 			return;
 		}
 		try {
