@@ -84,7 +84,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 					logger.info(this.getClass().getSimpleName() + " Rid :" + rid);
 					if (rid == null)
 						logger.info("RID is null");
-					Response response = getRequest(baseUrl + getRidStatusUrl + rid, "Check rid status: " + rid, step);
+					Response response = getRequestSilent(baseUrl + getRidStatusUrl + rid, step);
 					long stopTime = System.currentTimeMillis();
 					long elapsedTime = stopTime - startTime;
 					logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
@@ -92,6 +92,8 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 					logger.info("Response from check RID status : " + rid + " => " + response.asString());
 					ridStatus = response.asString().toLowerCase();
 				}
+				Response finalResponse = getRequest(baseUrl + getRidStatusUrl + rid, "Check rid status: " + rid, step);
+				ridStatus = finalResponse.asString().toLowerCase();
 				ridStatusMap.put(rid, ridStatus);
 
 			}
