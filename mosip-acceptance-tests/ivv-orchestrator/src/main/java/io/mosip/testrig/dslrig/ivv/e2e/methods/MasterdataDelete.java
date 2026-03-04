@@ -17,9 +17,13 @@ public class MasterdataDelete extends BaseTestCaseUtil implements StepInterface 
 	public void run() throws RigInternalError {
 		Session session = null;
 		try {
-			session = DBManager.getDataBaseConnection(dslConfigManager.getMASTERDbUrl(), dslConfigManager.getMasterDbUser(),
-					dslConfigManager.getMasterDbPass(), dslConfigManager.getMasterDbSchema());
-			DBManager.executeQueries(session,
+//			session = DBManager.getDataBaseConnection(dslConfigManager.getMASTERDbUrl(), dslConfigManager.getMasterDbUser(),
+//					dslConfigManager.getMasterDbPass(), dslConfigManager.getMasterDbSchema());
+//			DBManager.executeQueries(session,
+//					TestRunner.getGlobalResourcePath() + "/" + "config/masterDataDeleteQueries.txt");
+			
+			DBManager.executeDBQueries(dslConfigManager.getMASTERDbUrl(), dslConfigManager.getKMDbUser(),
+					dslConfigManager.getKMDbPass(), dslConfigManager.getKMDbSchema(),
 					TestRunner.getGlobalResourcePath() + "/" + "config/masterDataDeleteQueries.txt");
 		} catch (Exception e) {
 			logger.error("Error:: While executing MASTER DB Quiries." + e.getMessage());
