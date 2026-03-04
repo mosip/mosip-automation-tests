@@ -696,7 +696,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	  		count++;
 			Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
 			
-			if ("invalidMachine".equalsIgnoreCase(invalidMachineFlag) && response.getBody().asString().toLowerCase().contains("failed to sign data")) {
+			if (invalidMachineFlag.contentEquals("invalidMachine") && response.getBody().asString().toLowerCase().contains("failed to sign data")) {
 				return "";
 			}
 			if (!response.getBody().asString().toLowerCase().contains(responseStatus)
@@ -969,7 +969,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 					jsonReq.put("mosip.test.regclient.supervisorBiometricFileName", supervOpertoDetails[5]);
 			}
 		}
-		if ("EXTERNAL".equalsIgnoreCase(flow)) {
+		if (flow.equalsIgnoreCase("EXTERNAL")) {
 		    MachineHelper machineHelper = new MachineHelper();
 		    try {
 		        String publicKey = machineHelper.createPublicKey();
@@ -1120,14 +1120,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 		        }
 		    }
 		    // Case: Only a basic success string/object
-		    else if (!(body.contains("success") || body.contains("sucess"))) {
+		    else if (!(body.contains("success"))) {
 		        this.hasError = true;
 		        throw new RigInternalError("Response does not contain success status for attributes: " + attributeList);
 		    }
 
 		} catch (Exception e) {
 		    // Fallback: last chance check if response body contains word "success"
-			if (!(body.contains("success") || body.contains("sucess"))) {
+			if (!(body.contains("success"))) {
 		        this.hasError = true;
 		        throw new RigInternalError("Failed to parse success from response for attributes: " + attributeList);
 		    }

@@ -179,7 +179,6 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 
 			step.getScenario().getOidcPmsProp().put("partnerId", partnerId);
 		}
-		PartnerRegistration.partnerId = partnerId;
 
 		// Upload CA Call
 
