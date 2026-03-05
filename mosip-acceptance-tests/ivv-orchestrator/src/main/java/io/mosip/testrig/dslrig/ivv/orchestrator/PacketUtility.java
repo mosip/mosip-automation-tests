@@ -1213,7 +1213,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			String mispLicKey = PartnerRegistration.mispLicKey;
 			String PartnerKeyURL = mispLicKey + "/" + PartnerRegistration.partnerId;
 			String endpoint = test.getEndPoint().replaceAll("[\\u200B-\\u200D\\uFEFF]", "");
-			test.setEndPoint(endpoint.replace("$PartnerKeyURL$", PartnerKeyURL));
+			test.setEndPoint(endpoint.replace("$partialPartnerKeyUrl$", PartnerKeyURL));
 			PartnerRegistration.appendEkycOrRp.set("rp-");
 		} else {
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
