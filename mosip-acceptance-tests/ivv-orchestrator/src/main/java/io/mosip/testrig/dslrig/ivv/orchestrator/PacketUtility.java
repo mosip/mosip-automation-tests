@@ -1203,13 +1203,20 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		return response.getBody().asString();
 	}
+	public static final ThreadLocal<String> ekycPartnerId = ThreadLocal.withInitial(() -> "");
 
+	
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
 			BioAuth bioAuth, Scenario.Step step) throws RigInternalError {
 		if (test.getTestCaseName().contains("EKYC")) {
 			test.setEndPoint(test.getEndPoint().replace("$kycPartnerKey$", kycPartnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$kycPartnerName$", kycPartnerId));
 		} else if (test.getTestCaseName().contains("BioAuthDelegated")) {
+			String mispLicKey = PartnerRegistration.mispLicKey;
+			String PartnerKeyURL = mispLicKey + "/" + PartnerRegistration.partnerId;
+			String endpoint = test.getEndPoint().replaceAll("[\\u200B-\\u200D\\uFEFF]", "");
+			test.setEndPoint(endpoint.replace("$PartnerKeyURL$", PartnerKeyURL));
+			PartnerRegistration.appendEkycOrRp.set("rp-");
 		} else {
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));

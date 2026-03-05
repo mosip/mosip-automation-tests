@@ -70,7 +70,7 @@ public class Orchestrator {
 	public static Boolean beforeSuiteExeuted = false;
 	public static final Object lock = new Object();
 	public static long suiteStartTime = 0;
-	public static long suiteMaxTimeInMillis = 7200000;
+	public static long suiteMaxTimeInMillis = 3600000 * dslConfigManager.getMaxSuiteTime(); 
 	static AtomicInteger counterLock = new AtomicInteger(0);
 	private static AtomicInteger totalFailedScenarios = new AtomicInteger(0);
 	private static final int MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY = 20;
