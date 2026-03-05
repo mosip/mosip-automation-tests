@@ -47,6 +47,14 @@ public class dslConfigManager extends ConfigManager {
 		return ConfigManager.getproperty("threadCount");
 	}
 	
+	public static int getMaxSuiteTime() {
+		try {
+		    return Integer.parseInt(ConfigManager.getproperty("maxSuiteTime"));
+		} catch (NumberFormatException e) {
+		    return 2; // or default value
+		}
+	}
+	
 	public static String getUinWaitTime() {
 		return ConfigManager.getproperty("uinWaitTime");
 	}
