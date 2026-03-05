@@ -1203,8 +1203,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		return response.getBody().asString();
 	}
-	public static final ThreadLocal<String> ekycPartnerId = ThreadLocal.withInitial(() -> "");
-
 	
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
 			BioAuth bioAuth, Scenario.Step step) throws RigInternalError {
