@@ -20022,7 +20022,7 @@
 			"Description": "Checks RID stage and stage status",
 			"Input Parameters": "RID, stage and stage status",
 			"Return Value": "NA",
-			"Action": "e2e_CheckRIDStage($$rid1,VERIFICATION,SUCCESS)"
+			"Action": "e2e_CheckRIDStage($$rid1,MANUAL_ADJUDICATION,SUCCESS)"
 		},
 		"Step-20": {
 			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
