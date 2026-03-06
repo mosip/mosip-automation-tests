@@ -11,6 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1958,5 +1961,50 @@ public class PacketUtility extends BaseTestCaseUtil {
 		long hours = totalMinutes / 60;
 		return String.format("%02d:%02d:%02d", hours, Math.abs(minutes), Math.abs(seconds));
 	}
+	
+	public static String getAdjustedUTCDate(String offsetValue) {
+
+        ZonedDateTime utcDate = ZonedDateTime.now(ZoneOffset.UTC);
+
+        if (offsetValue == null || offsetValue.isBlank()) {
+            throw new IllegalArgumentException("Offset value cannot be empty");
+        }
+
+        // Example: +1y / -2m / +10d
+        char sign = offsetValue.charAt(0);
+        char unit = offsetValue.charAt(offsetValue.length() - 1);
+
+        int value = Integer.parseInt(
+                offsetValue.substring(1, offsetValue.length() - 1)
+        );
+
+        // Apply negative if needed
+        if (sign == '-') {
+            value = -value;
+        }
+
+        switch (unit) {
+            case 'y':
+                utcDate = utcDate.plusYears(value);
+                break;
+
+            case 'm':
+                utcDate = utcDate.plusMonths(value);
+                break;
+
+            case 'd':
+                utcDate = utcDate.plusDays(value);
+                break;
+
+            default:
+                throw new IllegalArgumentException(
+                        "Unsupported offset unit: " + unit);
+        }
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        return utcDate.format(formatter);
+    }
 
 }
