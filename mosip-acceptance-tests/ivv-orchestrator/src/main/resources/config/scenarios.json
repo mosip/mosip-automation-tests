@@ -11596,7 +11596,7 @@
 		}
 	},
 	{
-		"Scenario": "88",
+		"Scenario": "#88",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",
@@ -20425,7 +20425,7 @@
 		}
 	},
 	{
-		"Scenario": "#157",
+		"Scenario": "157",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
@@ -20446,7 +20446,7 @@
 			"Description": "Sets the context for scenario execution",
 			"Input Parameters": "Environment and user details. Other parameters details can be found in-line",
 			"Return Value": "NA",
-			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
+			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/,invalidCreationDate=-1d)"
 		},
 		"Step-3": {
 			"Description": "Performs health check of required server components to run end-to-end scenarios",
@@ -20458,7 +20458,7 @@
 			"Description": "Create and activate holiday",
 			"Input Parameters": "NA",
 			"Return Value": "holidayId",
-			"Action": "$$holidayId=e2e_HolidayDeclaration()"
+			"Action": "$$holidayId=e2e_HolidayDeclaration(holidayDate=-1d)"
 		},
 		"Step-5": {
 			"Description": "Generates persona data",
