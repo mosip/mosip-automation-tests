@@ -850,7 +850,7 @@ public class PacketSyncService {
 	        PacketTemplateProvider provider = new PacketTemplateProvider();
 	        return provider.getSchema(key).getSchema();
 	    });
-
+	    preregId = preregId.replaceAll("[^a-zA-Z0-9_-]", "");
 	    Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"),
 	            "docs_" + preregId + "_" + Thread.currentThread().getId());
 
