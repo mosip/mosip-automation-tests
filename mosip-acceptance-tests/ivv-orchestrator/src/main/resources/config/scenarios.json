@@ -28934,7 +28934,7 @@
 			"Description": "Updates Demo graphic details and biometric in the persona file",
 			"Input Parameters": "Data to update and persona file path. Other details can be found in the parameter in-line comments",
 			"Return Value": "NA",
-			"Action": "e2e_updateDemoOrBioDetails(finger@@iris@@face/*BIO_TYPE*/,0,0,$$personaFilePath)"
+			"Action": "e2e_updateDemoOrBioDetails(iris@@finger@@face/*BIO_TYPE*/,0,0/*UPDATE_ATTRIBUTES*/,$$personaFilePath/*PERSONA_TO_UPDATE*/,$$personaFilePath2/*PERSONA_TO_UPDATE_WITH*/)"
 		},
 		"Step-33": {
 			"Description": "Updates persona with UIN",
@@ -30782,7 +30782,7 @@
 		}
 	},
 	{
-		"Scenario": "236",
+		"Scenario": "#236",
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "NA",

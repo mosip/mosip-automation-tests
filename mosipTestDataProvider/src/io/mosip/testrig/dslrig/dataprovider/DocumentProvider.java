@@ -3,13 +3,11 @@ package io.mosip.testrig.dslrig.dataprovider;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
@@ -23,237 +21,230 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import com.lowagie.text.DocumentException;
 
-import io.mosip.testrig.dslrig.dataprovider.models.MosipDocCategoryModel;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipDocTypeModel;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipDocument;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipIDSchema;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipLocationModel;
-import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
+import io.mosip.testrig.dslrig.dataprovider.models.*;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class DocumentProvider {
 
-	// public static String parseThymeleafTemplate(String photo, String name,String
-	// date, String address) {
+    private static TemplateEngine initTemplateEngine(String contextKey) {
 
-	static String parseThymeleafTemplateDriverLicense(String photo, String name, String date, String address,
-			String contextKey) {
+        FileTemplateResolver resolver = new FileTemplateResolver();
+        resolver.setPrefix(System.getProperty("java.io.tmpdir")
+                + VariableManager.getVariableValue(contextKey, "mosip.test.persona.documentsdatapath"));
 
-		FileTemplateResolver templateResolver = new FileTemplateResolver();// ClassLoaderTemplateResolver();
-		templateResolver.setPrefix(System.getProperty("java.io.tmpdir")
-				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.documentsdatapath").toString());
-		templateResolver.setSuffix(".html");
-		templateResolver.setTemplateMode(TemplateMode.HTML);
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode(TemplateMode.HTML);
 
-		TemplateEngine templateEngine = new TemplateEngine();
-		templateEngine.setTemplateResolver(templateResolver);
+        TemplateEngine engine = new TemplateEngine();
+        engine.setTemplateResolver(resolver);
 
-		Context context = new Context();
-		context.setVariable("myphoto", photo);
-		context.setVariable("date", date);
-		context.setVariable("name", name);
+        return engine;
+    }
 
-		context.setVariable("address", address);
+    private static String parseTemplate(String templateName,
+                                        String photo,
+                                        String name,
+                                        String date,
+                                        String address,
+                                        TemplateEngine engine) {
 
-		return templateEngine.process("driverlicense", context);
-	}
+        Context context = new Context();
+        context.setVariable("myphoto", photo);
+        context.setVariable("date", date);
+        context.setVariable("name", name);
+        context.setVariable("address", address);
 
-	static String parseThymeleafTemplatePassport(String photo, String name, String date, String address,
-			String contextKey) {
+        return engine.process(templateName, context);
+    }
 
-		FileTemplateResolver templateResolver = new FileTemplateResolver();// ClassLoaderTemplateResolver();
-		templateResolver.setPrefix(System.getProperty("java.io.tmpdir")
-				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.documentsdatapath").toString());
-		templateResolver.setSuffix(".html");
-		templateResolver.setTemplateMode(TemplateMode.HTML);
+    private static void generatePdfFromHtml(String html, File outFile) {
+        try (OutputStream outputStream =
+                     new BufferedOutputStream(new FileOutputStream(outFile))) {
 
-		TemplateEngine templateEngine = new TemplateEngine();
-		templateEngine.setTemplateResolver(templateResolver);
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocumentFromString(html);
+            renderer.layout();
+            renderer.createPDF(outputStream);
 
-		Context context = new Context();
-		context.setVariable("myphoto", photo);
-		context.setVariable("date", date);
-		context.setVariable("name", name);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
-		context.setVariable("address", address);
+    private static void updateVariable(String contextKey,
+                                       String variable,
+                                       String newPath) {
 
-		return templateEngine.process("passport", context);
-	}
+        String existing = VariableManager.getVariableValue(contextKey, variable) != null
+                ? VariableManager.getVariableValue(contextKey, variable).toString()
+                : "";
 
-	/*
-	 * static void generatePdfFromHtml(String html, File outFile) throws
-	 * DocumentException, IOException {
-	 * 
-	 * OutputStream outputStream = new FileOutputStream(outFile);
-	 * 
-	 * ITextRenderer renderer = new ITextRenderer();
-	 * renderer.setDocumentFromString(html); renderer.layout();
-	 * renderer.createPDF(outputStream);
-	 * 
-	 * outputStream.close(); }
-	 */
+        String updated = existing.isEmpty()
+                ? newPath
+                : existing + "," + newPath;
 
-	static void generatePdfFromHtml(String html, File outFile) throws DocumentException, IOException {
-		try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outFile))) {
-			ITextRenderer renderer = new ITextRenderer();
-			renderer.setDocumentFromString(html);
-			renderer.layout();
-			renderer.createPDF(outputStream);
-		} catch (Exception ex) {
-//	            logger.error("Error generating PDF from HTML", ex);
-		}
-	}
+        VariableManager.setVariableValue(contextKey, variable, updated);
+    }
 
-	public static List<MosipIDSchema> getDocTypesFromSchema(String contextKey) {
-		List<MosipIDSchema> docSchema = new ArrayList<MosipIDSchema>();
+    private static String buildAddress(ResidentModel res) {
 
-		Hashtable<Double, Properties> schema = MosipMasterData.getIDSchemaLatestVersion(contextKey);
-		// List<MosipIDSchema> lstSchema = (List<MosipIDSchema>)
-		// tbl1.get(schemaId).get("schemaList");
-		// List<String> reqdFields = (List<String>)
-		// tbl1.get(schemaId).get("requiredAttributes");
+        StringBuilder addr = new StringBuilder();
 
-		Double schemVersion = schema.keySet().iterator().next();
-		List<MosipIDSchema> lstSchema = (List<MosipIDSchema>) schema.get(schemVersion).get("schemaList");
-		for (MosipIDSchema schemaItem : lstSchema) {
-			if (!schemaItem.getRequired() && !schemaItem.getInputRequired()) {
-				continue;
-			}
-			if (schemaItem.getType() != null && schemaItem.getType().equals("documentType")) {
-				docSchema.add(schemaItem);
-			}
-		}
-		return docSchema;
-	}
+        Hashtable<String, MosipLocationModel> locs = res.getLocation();
+        Set<String> keys = locs.keySet();
 
-	public static MosipDocCategoryModel getDocCategoryByType(String docType, List<MosipDocCategoryModel> docCats) {
-		for (MosipDocCategoryModel m : docCats) {
-			if (m.getIsActive() && m.getCode().equals(docType))
-				return m;
-		}
-		return null;
-	}
+        for (String k : keys) {
+            MosipLocationModel loc = locs.get(k);
+            addr.append(" ").append(loc.getName());
+        }
 
-	public static List<MosipDocument> generateDocuments(ResidentModel res, String contextKey)
-			throws DocumentException, IOException, ParseException {
-		List<String> docs = new ArrayList<String>();
+        return addr.toString();
+    }
 
-		String locAddr = "";
-		DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-		Date dob = df.parse(res.getDob());
+    private static LocalDate calculateLicenseDate(String dob) {
 
-		int age = new Date().getYear() - dob.getYear();
-		Hashtable<String, MosipLocationModel> locs = res.getLocation();
-		Set<String> locKeys = locs.keySet();
-		for (String k : locKeys) {
-			MosipLocationModel loc = locs.get(k);
-			locAddr = locAddr + " " + loc.getName();
-		}
-		Date datelic = dob;
-		datelic.setYear(datelic.getYear() + age + 5);
-		String html = parseThymeleafTemplatePassport(res.getBiometric().getEncodedPhoto(),
-				res.getName().getFirstName() + " " + res.getName().getSurName(), datelic.toLocaleString(), locAddr,
-				contextKey);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
-		File docFile = File.createTempFile("Passport_", ".pdf");
-		docs.add(docFile.getAbsolutePath());
-		String newPassportPath = docFile.getAbsolutePath();
-		String existingPassportValue = VariableManager.getVariableValue(contextKey, "Passport_") != null
-		    ? VariableManager.getVariableValue(contextKey, "Passport_").toString()
-		    : "";
+        LocalDate birthDate = LocalDate.parse(dob, formatter);
 
-		String updatedPassportValue;
-		if (!existingPassportValue.isEmpty()) {
-		    updatedPassportValue = existingPassportValue + "," + newPassportPath;
-		} else {
-		    updatedPassportValue = newPassportPath;
-		}
+        int age = Period.between(birthDate, LocalDate.now()).getYears();
 
-		VariableManager.setVariableValue(contextKey, "Passport_", updatedPassportValue);
+        return birthDate.plusYears(age + 5);
+    }
 
-		generatePdfFromHtml(html, docFile);
+    public static List<MosipIDSchema> getDocTypesFromSchema(String contextKey) {
 
-		docFile = File.createTempFile("DrivingLic_", ".pdf");
-		docs.add(docFile.getAbsolutePath());
-		String newDrivingLicPath = docFile.getAbsolutePath();
-		String existingDrivingLicValue = VariableManager.getVariableValue(contextKey, "DrivingLic_") != null
-		    ? VariableManager.getVariableValue(contextKey, "DrivingLic_").toString()
-		    : "";
+        List<MosipIDSchema> docSchema = new ArrayList<>();
 
-		String updatedDrivingLicValue;
-		if (!existingDrivingLicValue.isEmpty()) {
-		    updatedDrivingLicValue = existingDrivingLicValue + "," + newDrivingLicPath;
-		} else {
-		    updatedDrivingLicValue = newDrivingLicPath;
-		}
+        Hashtable<Double, Properties> schema =
+                MosipMasterData.getIDSchemaLatestVersion(contextKey);
 
-		VariableManager.setVariableValue(contextKey, "DrivingLic_", updatedDrivingLicValue);
+        Double schemaVersion = schema.keySet().iterator().next();
 
-		html = parseThymeleafTemplateDriverLicense(res.getBiometric().getEncodedPhoto(),
-				res.getName().getFirstName() + " " + res.getName().getSurName(), datelic.toLocaleString(), locAddr,
-				contextKey);
-		generatePdfFromHtml(html, docFile);
+        List<MosipIDSchema> lstSchema =
+                (List<MosipIDSchema>) schema.get(schemaVersion).get("schemaList");
 
-		/*
-		 * docs as per template
-		 */
-		List<MosipDocument> lstDocs = new ArrayList<MosipDocument>();
-		List<MosipDocCategoryModel> docCats = MosipMasterData.getDocumentCategories(contextKey);
-		List<MosipIDSchema> lstSchema = getDocTypesFromSchema(contextKey);
+        for (MosipIDSchema item : lstSchema) {
 
-		for (MosipIDSchema schema : lstSchema) {
+            if (!item.getRequired() && !item.getInputRequired())
+                continue;
 
-			MosipDocCategoryModel catModel = getDocCategoryByType(schema.getSubType(), docCats);
-			if (catModel == null)
-				continue;
-			List<MosipDocTypeModel> docTypes = null;
-			// List<MosipDocTypeModel> allDocTypes=
-			// MosipMasterData.getDocumentTypes(catModel.getCode(), catModel.getLangCode());
-			List<MosipDocTypeModel> allDocTypes = MosipMasterData.getMappedDocumentTypes(catModel.getCode(),
-					catModel.getLangCode(), contextKey);
-			List<String> catDocs = null;
-			if (allDocTypes != null && !allDocTypes.isEmpty()) {
-				MosipDocument doc = new MosipDocument();
-				doc.setDocCategoryName(catModel.getName());
-				doc.setDocCategoryCode(catModel.getCode());
-				doc.setDocCategoryLang(catModel.getLangCode());
-				docTypes = new ArrayList<MosipDocTypeModel>();
-				catDocs = new ArrayList<String>();
-				doc.setType(docTypes);
-				doc.setDocs(catDocs);
-				lstDocs.add(doc);
-			} else
-				continue;
-			int i = 0;
-			for (MosipDocTypeModel dt : allDocTypes) {
-				docTypes.add(dt);
-				catDocs.add(docs.get(i % docs.size()));
-				i++;
-			}
+            if ("documentType".equals(item.getType()))
+                docSchema.add(item);
+        }
 
-		}
-		/*
-		 * List<MosipDocCategoryModel> docCats =MosipMasterData.getDocumentCategories();
-		 * for(MosipDocCategoryModel cat: docCats) { List<MosipDocTypeModel> docTypes
-		 * =null; List<MosipDocTypeModel> allDocTypes=
-		 * MosipMasterData.getDocumentTypes(cat.getCode(),cat.getLangCode());
-		 * List<String> catDocs = null; if(allDocTypes != null &&
-		 * !allDocTypes.isEmpty()) { MosipDocument doc = new MosipDocument();
-		 * doc.setDcoCategoryName(cat.getName()); doc.setDocCategoryCode(cat.getCode());
-		 * doc.setDocCategoryLang(cat.getLangCode()); docTypes = new
-		 * ArrayList<MosipDocTypeModel>(); catDocs = new ArrayList<String> ();
-		 * doc.setType(docTypes); doc.setDocs(catDocs); lstDocs.add(doc); } else
-		 * continue; int i=0; for(MosipDocTypeModel dt: allDocTypes) { docTypes.add(dt);
-		 * catDocs.add( docs.get( i % docs.size())); i++; }
-		 * 
-		 * }
-		 */
+        return docSchema;
+    }
 
-		return lstDocs;
-	}
+    private static MosipDocCategoryModel getDocCategoryByType(
+            String docType,
+            List<MosipDocCategoryModel> docCats) {
 
-	public static void main(String[] args) {
+        for (MosipDocCategoryModel m : docCats) {
+            if (m.getIsActive() && m.getCode().equals(docType))
+                return m;
+        }
 
-	}
+        return null;
+    }
+
+    public static List<MosipDocument> generateDocuments(
+            ResidentModel res,
+            String contextKey) throws Exception {
+
+        List<String> docs = new ArrayList<>();
+
+        TemplateEngine templateEngine = initTemplateEngine(contextKey);
+
+        String name = res.getName().getFirstName() + " " + res.getName().getSurName();
+        String photo = res.getBiometric().getEncodedPhoto();
+
+        String address = buildAddress(res);
+
+        LocalDate licenseDate = calculateLicenseDate(res.getDob());
+
+        String date = licenseDate.toString();
+
+        /* Passport */
+
+        String passportHtml =
+                parseTemplate("passport", photo, name, date, address, templateEngine);
+
+        File passportFile = File.createTempFile("Passport_", ".pdf");
+
+        generatePdfFromHtml(passportHtml, passportFile);
+
+        docs.add(passportFile.getAbsolutePath());
+
+        updateVariable(contextKey, "Passport_", passportFile.getAbsolutePath());
+
+        /* Driving License */
+
+        String dlHtml =
+                parseTemplate("driverlicense", photo, name, date, address, templateEngine);
+
+        File dlFile = File.createTempFile("DrivingLic_", ".pdf");
+
+        generatePdfFromHtml(dlHtml, dlFile);
+
+        docs.add(dlFile.getAbsolutePath());
+
+        updateVariable(contextKey, "DrivingLic_", dlFile.getAbsolutePath());
+
+        /* Map documents */
+
+        List<MosipDocument> lstDocs = new ArrayList<>();
+
+        List<MosipDocCategoryModel> docCats =
+                MosipMasterData.getDocumentCategories(contextKey);
+
+        List<MosipIDSchema> schemaList =
+                getDocTypesFromSchema(contextKey);
+
+        for (MosipIDSchema schema : schemaList) {
+
+            MosipDocCategoryModel catModel =
+                    getDocCategoryByType(schema.getSubType(), docCats);
+
+            if (catModel == null)
+                continue;
+
+            List<MosipDocTypeModel> allDocTypes =
+                    MosipMasterData.getMappedDocumentTypes(
+                            catModel.getCode(),
+                            catModel.getLangCode(),
+                            contextKey);
+
+            if (allDocTypes == null || allDocTypes.isEmpty())
+                continue;
+
+            MosipDocument doc = new MosipDocument();
+
+            doc.setDocCategoryName(catModel.getName());
+            doc.setDocCategoryCode(catModel.getCode());
+            doc.setDocCategoryLang(catModel.getLangCode());
+
+            List<MosipDocTypeModel> docTypes = new ArrayList<>();
+            List<String> catDocs = new ArrayList<>();
+
+            doc.setType(docTypes);
+            doc.setDocs(catDocs);
+
+            int i = 0;
+
+            for (MosipDocTypeModel dt : allDocTypes) {
+
+                docTypes.add(dt);
+
+                catDocs.add(docs.get(i % docs.size()));
+
+                i++;
+            }
+
+            lstDocs.add(doc);
+        }
+
+        return lstDocs;
+    }
 }
