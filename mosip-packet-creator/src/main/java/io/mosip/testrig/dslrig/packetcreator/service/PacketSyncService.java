@@ -836,41 +836,37 @@ public class PacketSyncService {
 
 	public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
 
-	    if (!preregId.matches("^[a-zA-Z0-9_-]+$")) {
-	        throw new IllegalArgumentException("Invalid preregId");
-	    }
-
 	    StringBuilder responseBuilder = new StringBuilder();
 
 	    loadServerContextProperties(contextKey);
 
 	    ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 
+	    // Thread-safe schema cache
 	    List<MosipIDSchema> documentSchemas = schemaCache.computeIfAbsent(contextKey, key -> {
 	        PacketTemplateProvider provider = new PacketTemplateProvider();
 	        return provider.getSchema(key).getSchema();
 	    });
-	    preregId = preregId.replaceAll("[^a-zA-Z0-9_-]", "");
-	    Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"),
-	            "docs_" + preregId + "_" + Thread.currentThread().getId());
 
-	    Path safeTempDir = tempDir.normalize().toAbsolutePath();
-	    Files.createDirectories(safeTempDir);
+	    // Create secure temporary directory (CodeQL safe)
+	    Path tempDir = Files.createTempDirectory("docs_" + Thread.currentThread().getId());
 
 	    for (MosipIDSchema schema : documentSchemas) {
 
-	        if (!"documentType".equalsIgnoreCase(schema.getType()))
+	        if (!"documentType".equalsIgnoreCase(schema.getType())) {
 	            continue;
+	        }
 
 	        for (MosipDocument doc : resident.getDocuments()) {
 
-	            if (!schema.getSubType().equals(doc.getDocCategoryCode()))
+	            if (!schema.getSubType().equals(doc.getDocCategoryCode())) {
 	                continue;
+	            }
 
 	            String originalDocPath = doc.getDocs().get(0);
 	            String copiedFileName = schema.getId() + ".pdf";
 
-	            Path copiedDocPath = safeTempDir.resolve(copiedFileName).normalize();
+	            Path copiedDocPath = tempDir.resolve(copiedFileName).normalize();
 
 	            CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), copiedDocPath);
 

@@ -351,30 +351,24 @@ public class preRegController {
 		}
  	}
 	
+	@Operation(summary = "Uploading the document for a given pre-registration-Id")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Document uploaded successfully") })
 	@PostMapping(value = "/documents/{preregid}/{contextKey}")
 	public @ResponseBody String uploadDocuments(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
 			@PathVariable("preregid") String preregId, @PathVariable("contextKey") String contextKey) {
 
 		try {
-
-			// Validate preregId to prevent path traversal
-			if (!preregId.matches("^[a-zA-Z0-9_-]+$")) {
-				throw new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_PREREG_ID", null, null, "Invalid preregId");
-			}
-
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
-
 			return packetSyncService.uploadDocuments(preRegisterRequestDto.getPersonaFilePath().get(0), preregId,
 					contextKey);
 
 		} catch (Exception ex) {
 			logger.error("uploadDocuments", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPLOAD_DOCUMENTS_FAIL", null, ex,
-					ex.getMessage());
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPLOAD_DOCUMENTS_FAIL", null, ex, ex.getMessage());
 		}
-	}
+ 	}
 
 	@Operation(summary = "Delete Booking appointment for a given pre-registration-Id")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted the appointment") })
