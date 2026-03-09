@@ -865,11 +865,9 @@ public class PacketSyncService {
 	                continue;
 
 	            String originalDocPath = doc.getDocs().get(0);
+	            String copiedFileName = schema.getId() + ".pdf";
 
-	            // Unique filename per thread
-	            String copiedFileName = schema.getId() + "_" + UUID.randomUUID() + ".pdf";
-
-	            Path copiedDocPath = tempDir.resolve(copiedFileName);
+	            Path copiedDocPath = tempDir.resolve(copiedFileName).normalize();
 
 	            CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), copiedDocPath);
 
