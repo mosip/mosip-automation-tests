@@ -291,31 +291,40 @@ public class PreRegistrationSteps {
 			}		
 			return result;
 	}
-	public static JSONObject UploadDocument(String docCatCode,String docTypCode, String langCode, String docFilePath, String preRegID, String contextKey) throws JSONException {
-		JSONObject response=null;
-		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +
-				VariableManager.getVariableValue(contextKey,"uploaddocument").toString().trim();
-				
-		JSONObject obj = new JSONObject();
-		JSONObject requestObject = new JSONObject();
-		obj.put("id", "mosip.pre-registration.document.upload");
-		obj.put("version", "1.0");
-		obj.put("request", requestObject);
-		obj.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
-		requestObject.put("docCatCode", docCatCode);
-		requestObject.put("docTypCode", docTypCode);
-		requestObject.put("langCode", langCode);
-		
-		try {
-			response = RestClient.uploadFile(url + preRegID,docFilePath,obj,contextKey);
-			
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-		
-		
-		return response;
+	public static JSONObject UploadDocument(
+	        String docCatCode,
+	        String docTypCode,
+	        String langCode,
+	        String docFilePath,
+	        String preRegID,
+	        String contextKey) throws JSONException {
+
+	    String baseUrl = String.valueOf(VariableManager.getVariableValue(contextKey, "urlBase")).trim();
+	    String uploadEndpoint = String.valueOf(VariableManager.getVariableValue(contextKey, "uploaddocument")).trim();
+	    String url = baseUrl + uploadEndpoint + preRegID;
+
+	    JSONObject obj = new JSONObject();
+	    JSONObject requestObject = new JSONObject();
+
+	    obj.put("id", "mosip.pre-registration.document.upload");
+	    obj.put("version", "1.0");
+	    obj.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
+	    obj.put("request", requestObject);
+
+	    requestObject.put("docCatCode", docCatCode);
+	    requestObject.put("docTypCode", docTypCode);
+	    requestObject.put("langCode", langCode);
+
+	    try {
+	        return RestClient.uploadFile(url, docFilePath, obj, contextKey);
+	    } catch (Exception e) {
+	        logger.error("UploadDocument failed for preregId={} file={}", preRegID, docFilePath, e);
+	        throw new RuntimeException("Document upload failed", e);
+	    }
 	}
+		
+		
+	
 	public static void main(String[] args) throws JSONException {
 
 	

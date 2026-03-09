@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -833,47 +834,61 @@ public class PacketSyncService {
 
 	private static final Map<String, List<MosipIDSchema>> schemaCache = new ConcurrentHashMap<>();
 
-	public synchronized String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
-		StringBuilder responseBuilder = new StringBuilder();
+	public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
 
-		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+	    StringBuilder responseBuilder = new StringBuilder();
 
-		// Thread-safe caching of schema per context
-		List<MosipIDSchema> documentSchemas = schemaCache.computeIfAbsent(contextKey, key -> {
-			PacketTemplateProvider provider = new PacketTemplateProvider();
-			return provider.getSchema(key).getSchema();
-		});
+	    loadServerContextProperties(contextKey);
 
-		// Create a unique temp directory for each preregId to avoid file conflicts
-		String tempDir = System.getProperty("java.io.tmpdir") + File.separator + "docs_" + preregId;
-		new File(tempDir).mkdirs();
+	    ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 
-		for (MosipIDSchema schema : documentSchemas) {
-			if (!"documentType".equalsIgnoreCase(schema.getType()))
-				continue;
+	    // Thread-safe cache
+	    List<MosipIDSchema> documentSchemas = schemaCache.computeIfAbsent(contextKey, key -> {
+	        PacketTemplateProvider provider = new PacketTemplateProvider();
+	        return provider.getSchema(key).getSchema();
+	    });
 
-			for (MosipDocument doc : resident.getDocuments()) {
-				if (!schema.getSubType().equals(doc.getDocCategoryCode()))
-					continue;
+	    // Unique directory per thread
+	    Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"),
+	            "docs_" + preregId + "_" + Thread.currentThread().getId());
 
-				String originalDocPath = doc.getDocs().get(0);
-				String copiedFileName = schema.getId() + ".pdf";
-				String copiedDocPath = tempDir + File.separator + copiedFileName;
+	    Files.createDirectories(tempDir);
 
-				CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), Paths.get(copiedDocPath));
+	    for (MosipIDSchema schema : documentSchemas) {
 
-				JSONObject respObject = PreRegistrationSteps.UploadDocument(doc.getDocCategoryCode(),
-						doc.getType().get(0).getDocTypeCode(), doc.getDocCategoryLang(), copiedDocPath, preregId,
-						contextKey);
+	        if (!"documentType".equalsIgnoreCase(schema.getType()))
+	            continue;
 
-				if (respObject != null) {
-					responseBuilder.append(respObject.toString());
-				}
-			}
-		}
+	        for (MosipDocument doc : resident.getDocuments()) {
 
-		return responseBuilder.toString();
+	            if (!schema.getSubType().equals(doc.getDocCategoryCode()))
+	                continue;
+
+	            String originalDocPath = doc.getDocs().get(0);
+
+	            // Unique filename per thread
+	            String copiedFileName = schema.getId() + "_" + UUID.randomUUID() + ".pdf";
+
+	            Path copiedDocPath = tempDir.resolve(copiedFileName);
+
+	            CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), copiedDocPath);
+
+	            JSONObject respObject = PreRegistrationSteps.UploadDocument(
+	                    doc.getDocCategoryCode(),
+	                    doc.getType().get(0).getDocTypeCode(),
+	                    doc.getDocCategoryLang(),
+	                    copiedDocPath.toString(),
+	                    preregId,
+	                    contextKey
+	            );
+
+	            if (respObject != null) {
+	                responseBuilder.append(respObject.toString());
+	            }
+	        }
+	    }
+
+	    return responseBuilder.toString();
 	}
 
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
