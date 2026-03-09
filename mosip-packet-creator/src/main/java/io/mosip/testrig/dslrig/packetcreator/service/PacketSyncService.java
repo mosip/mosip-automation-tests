@@ -836,19 +836,21 @@ public class PacketSyncService {
 
 	public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
 
+	    if (!preregId.matches("^[a-zA-Z0-9_-]+$")) {
+	        throw new IllegalArgumentException("Invalid preregId");
+	    }
+
 	    StringBuilder responseBuilder = new StringBuilder();
 
 	    loadServerContextProperties(contextKey);
 
 	    ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 
-	    // Thread-safe cache
 	    List<MosipIDSchema> documentSchemas = schemaCache.computeIfAbsent(contextKey, key -> {
 	        PacketTemplateProvider provider = new PacketTemplateProvider();
 	        return provider.getSchema(key).getSchema();
 	    });
 
-	    // Unique directory per thread
 	    Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"),
 	            "docs_" + preregId + "_" + Thread.currentThread().getId());
 
@@ -868,7 +870,7 @@ public class PacketSyncService {
 	            String originalDocPath = doc.getDocs().get(0);
 	            String copiedFileName = schema.getId() + ".pdf";
 
-	            Path copiedDocPath = tempDir.resolve(copiedFileName).normalize();
+	            Path copiedDocPath = safeTempDir.resolve(copiedFileName).normalize();
 
 	            CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), copiedDocPath);
 
