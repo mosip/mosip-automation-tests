@@ -852,7 +852,8 @@ public class PacketSyncService {
 	    Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"),
 	            "docs_" + preregId + "_" + Thread.currentThread().getId());
 
-	    Files.createDirectories(tempDir);
+	    Path safeTempDir = tempDir.normalize().toAbsolutePath();
+	    Files.createDirectories(safeTempDir);
 
 	    for (MosipIDSchema schema : documentSchemas) {
 
