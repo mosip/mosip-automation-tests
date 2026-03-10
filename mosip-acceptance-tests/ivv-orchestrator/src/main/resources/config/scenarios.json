@@ -30800,7 +30800,7 @@
 			"Action": "e2e_bookAppointment(false/*HOLIDAY_BOOKING_FLAG*/,$$prid,3/*SLOT_NUMBER*/)"
 		},
 		"Step-13": {
-			"Description": "Generates and uploads the packet with pre pregistration",
+			"Description": "Generates and uploads the packet with pre-registration",
 			"Input Parameters": "PRID and template file path",
 			"Return Value": "RID",
 			"Action": "$$rid=e2e_generateAndUploadPacket($$prid,$$templatePath)"
