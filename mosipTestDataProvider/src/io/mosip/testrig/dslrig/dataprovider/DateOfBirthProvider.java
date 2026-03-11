@@ -1,6 +1,5 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
-import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,31 +8,46 @@ import java.util.Random;
 
 import com.ibm.icu.text.SimpleDateFormat;
 
-import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.ResidentAttribute;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class DateOfBirthProvider {
 
-	private static SecureRandom rand = new SecureRandom();
 	byte bytes[] = new byte[20];
 
 	
 	public static String generateDob(int minAge, int maxAge) {
-	    Random rand = new Random();
-	    int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-	    int earliestYear = Math.max(1870, currentYear - maxAge); // ensure not before 1870
-        int latestYear = currentYear - minAge;
-        int year = rand.nextInt(latestYear - earliestYear + 1) + earliestYear;
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, year);
-        int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
-        int dayOfYear = rand.nextInt(maxDay) + 1;
-        calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
-        Date dob = calendar.getTime();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-        return formatter.format(dob);
+
+	    Calendar today = Calendar.getInstance();
+
+	    // Latest allowed DOB (youngest person)
+	    Calendar latestDob = (Calendar) today.clone();
+	    latestDob.add(Calendar.YEAR, -minAge);
+
+	    // Earliest allowed DOB (oldest person)
+	    Calendar earliestDob = (Calendar) today.clone();
+	    earliestDob.add(Calendar.YEAR, -maxAge);
+
+	    // Safety: do not allow dates before 1870
+	    Calendar minAllowed = Calendar.getInstance();
+	    minAllowed.set(1870, Calendar.JANUARY, 1);
+	    if (earliestDob.before(minAllowed)) {
+	        earliestDob = minAllowed;
+	    }
+
+	    long startMillis = earliestDob.getTimeInMillis();
+	    long endMillis = latestDob.getTimeInMillis();
+
+	    Random random = new Random();
+	    long randomMillis =
+	            startMillis + (long) (random.nextDouble() * (endMillis - startMillis));
+
+	    Date dob = new Date(randomMillis);
+
+	    SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+	    return formatter.format(dob);
 	}
+
 
 	 
 

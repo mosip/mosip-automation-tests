@@ -1,4 +1,6 @@
 #####  DB queries to be executed to tear down the data used and generated during the test rig run
 
-delete from master.loc_holiday where cr_by='dsl0'
-delete from master.loc_holiday where cr_by='dsl0'
+DELETE from master.registration_center WHERE cr_by LIKE '%dsl%';
+DELETE FROM master.machine_master WHERE cr_by LIKE '%dsl%';
+DELETE FROM master.machine_master_h WHERE cr_by LIKE '%dsl%';
+

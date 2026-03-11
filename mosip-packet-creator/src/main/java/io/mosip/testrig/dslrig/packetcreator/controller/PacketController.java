@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.mosip.testrig.apirig.utils.ErrorCodes;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.packetcreator.dto.ExternalPacketRequestDTO;
 import io.mosip.testrig.dslrig.packetcreator.dto.PacketCreateDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.PacketReprocessDto;
@@ -36,7 +39,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "PacketController", description = "REST APIs for Packet processing")
 public class PacketController {
 
-	private static final Logger logger = LoggerFactory.getLogger(TestDataController.class);
+    private static final Logger logger = LoggerFactory.getLogger(PacketController.class);
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
@@ -67,10 +70,16 @@ public class PacketController {
 					requestDto.getPersonaFilePath().get(1), contextKey, requestDto.getAdditionalInfoReqId());
 			// return packetSyncService.createPackets(requestDto.,process,null, contextKey);
 
-		} catch (Exception ex) {
-			logger.error("createPackets", ex);
-		}
-		return "{\"Failed\"}";
+		} catch (ServiceException se) {
+            throw se; // let global exception handler process it
+        } catch (Exception ex) {
+            logger.error("createPacket", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "CREATE_PACKET_FROM_TEMPLATE_FAIL",
+                    ex.getMessage()
+            );
+        }
 	}
 
 	/*
@@ -117,10 +126,16 @@ public class PacketController {
 			return packetSyncService.createPacketTemplates(requestDto.getPersonaFilePath(), process, null, null,
 					contextKey, "Registration", qualityScore, genarateValidCbeff);
 
-		} catch (Exception ex) {
-			logger.error("createTemplate", ex);
-			return "{\"" + ex.getMessage() + "\"}";
-		}
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception ex) {
+            logger.error("createTemplate", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "CREATE_TEMPLATE_FAIL",
+                    ex.getMessage()
+            );
+        }
 	}
 
 	@Operation(summary = "Bulk upload of packets")
@@ -136,11 +151,16 @@ public class PacketController {
 
 			return packetSyncService.bulkuploadPackets(packetPaths, contextKey);
 
-		} catch (Exception ex) {
-			logger.error("createPackets", ex);
-		}
-		return "{\"Failed\"}";
-
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception ex) {
+            logger.error("bulkUploadPackets", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "BULK_UPLOAD_PACKETS_FAIL",
+                    ex.getMessage()
+            );
+        }
 	}
 	
 	@Operation(summary = "Make the packet and sync it")
@@ -160,10 +180,16 @@ public class PacketController {
 			return packetSyncService.makePacketAndSync(preregId, null, null, contextKey, null, getRidFromSync, true)
 					.toString();
 
-		} catch (Exception ex) {
-			logger.error("makePacketAndSync", ex);
-		}
-		return "{Failed}";
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception ex) {
+            logger.error("makePacketAndSync", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "MAKE_PACKET_AND_SYNC_FAIL",
+                    ex.getMessage()
+            );
+        }
 	}
 	
 	@Operation(summary = "Create the packet for the context")
@@ -175,10 +201,16 @@ public class PacketController {
 			return packetMakerService.createContainer(packetCreateDto.getIdJsonPath(), packetCreateDto.getTemplatePath(),
 					packetCreateDto.getSource(), packetCreateDto.getProcess(), null, contextKey, true,
 					packetCreateDto.getAdditionalInfoReqId() ,null);
-		} catch (Exception ex) {
-			logger.error("", ex);
-		}
-		return "Failed!";
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception ex) {
+            logger.error("createPacket", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "CREATE_PACKET_CONTAINER_FAIL",
+                    ex.getMessage()
+            );
+        }
 	}
 
 	@Operation(summary = "Fetch the tags related to the packet")
@@ -189,10 +221,17 @@ public class PacketController {
 		try {
 			return packetSyncService.getPacketTags(contextKey);
 
-		} catch (Exception ex) {
-			logger.error("get tags", ex);
-		}
-		return "{\"Failed\"}";
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception ex) {
+            logger.error("getPacketTags", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "GET_PACKET_TAGS_FAIL",
+                    ex.getMessage()
+            );
+        }
+		
 	}
 
 	@Operation(summary = "Synchronize the packet")
@@ -225,11 +264,18 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) throws Exception {
 		try {
 			return packetSyncService.uploadPacket(path.getPersonaFilePath().get(0), contextKey);
-		} catch (Exception e) {
-			// We need to explicitly catch the exception to handle negative scenarios ,
-			// where packet sync is expected to fail
-			return e.getMessage();
-		}
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception e) {
+            // We need to explicitly catch the exception to handle negative scenarios ,
+            // where packet sync is expected to fail
+            logger.error("packetsync", e);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "PACKET_SYNC_FAIL",
+                    e.getMessage()
+            );
+        }
 	}
 	
 	@Operation(summary = "Sync and upload the packet")
@@ -261,10 +307,16 @@ public class PacketController {
 					personaPath, contextKey, preRegisterRequestDto.getAdditionalInfoReqId(), getRidFromSync,
 					genarateValidCbeff);
 
-		} catch (Exception ex) {
-			logger.error("createPacket", ex);
-			return ex.getMessage();
-		}
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception ex) {
+            logger.error("preRegToRegister", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "PRE_REG_TO_REGISTER_FAIL",
+                    ex.getMessage()
+            );
+        }
 	}
 	
 	@Operation(summary = "Reprocess the packet")
@@ -275,10 +327,16 @@ public class PacketController {
 		try {
 			return packetSyncService.reprocessPacket(requestDto.getRID() ,requestDto.getWorkflowInstanceId(), contextKey);
 
-		}catch (Exception ex) {
-			logger.error("get tags", ex);
-		}
-		return "{\"Failed\"}";
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception ex) {
+            logger.error("packetReprocess", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "PACKET_REPROCESS_FAIL",
+                    ex.getMessage()
+            );
+        }
 	}
 	
 	@Operation(summary = "Create the external packet and upload")
@@ -298,10 +356,16 @@ public class PacketController {
 			return packetSyncService.createPacketUpload(requestDto.getPersonaFilePath(),requestDto.getSource(), process, requestDto.getUin(), rid,
 					validateToken,contextKey);
 
-		} catch (Exception ex) {
-			logger.error("createExternalPacket", ex);
-			return "{\"" + ex.getMessage() + "\"}";
-		}
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception ex) {
+            logger.error("createCRVSPacket", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "CREATE_CRVSPACKET_FAIL",
+                    ex.getMessage()
+            );
+        }
 	}
 
 	@Operation(summary = "sync the external packet")
@@ -317,10 +381,16 @@ public class PacketController {
 
 			return packetSyncService.syncAndUpload(rid, contextKey);
 
-		} catch (Exception ex) {
-			logger.error("createCRVSPacket", ex);
-			return "{\"" + ex.getMessage() + "\"}";
-		}
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception ex) {
+            logger.error("syncCRVSPacket", ex);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "SYNC_CRVSPACKET_FAIL",
+                    ex.getMessage()
+            );
+        }
 	}
 	
 	@Operation(summary = "delete the packet template and resident data")
@@ -329,9 +399,17 @@ public class PacketController {
 	public @ResponseBody String deletePacketData(@PathVariable("contextKey") String contextKey) throws Exception {
 		try {
 			return ContextUtils.clearPacketGenFolders(contextKey);
-		} catch (Exception e) {
-			return e.getMessage();
-		}
-	}
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception e) {
+            logger.error("deletePacketData", e);
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "DELETE_PACKET_DATA_FAIL",
+                    e.getMessage()
+            );
+        }
+
+    }
 
 }

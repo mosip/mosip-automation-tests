@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.testng.Reporter;
+
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -75,23 +77,39 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			for (String rid : tempPridAndRid.values()) {
 				int counter = 0;
 				String ridStatus = "under";
-				while (ridStatus.contains("under") && counter < Integer.parseInt(props.getProperty("loopCount"))) {
-					counter++;
-					logger.info("Waiting for " + Long.parseLong(waitTime) / 1000 + " sec to get packet procesed");
-					Thread.sleep(Long.parseLong(waitTime));
-					long startTime = System.currentTimeMillis();
-					logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
-					logger.info(this.getClass().getSimpleName() + " Rid :" + rid);
-					if (rid == null)
-						logger.info("RID is null");
-					Response response = getRequest(baseUrl + getRidStatusUrl + rid, "Check rid status: " + rid, step);
-					long stopTime = System.currentTimeMillis();
-					long elapsedTime = stopTime - startTime;
-					logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
-							+ " MilliSec");
-					logger.info("Response from check RID status : " + rid + " => " + response.asString());
-					ridStatus = response.asString().toLowerCase();
+				int maxLoop = Integer.parseInt(props.getProperty("loopCount"));
+				long startTime = System.currentTimeMillis(); // start time
+				while (counter < maxLoop) {
+				    counter++;
+				    logger.info("Waiting for " + Long.parseLong(waitTime) / 1000 + " sec to get packet processed");
+				    Thread.sleep(Long.parseLong(waitTime));
+				    Response response = getRequestSilent(baseUrl + getRidStatusUrl + rid, step);
+				    ridStatus = response.asString().toLowerCase();
+				    logger.info("RID Status: " + ridStatus + " | Loop Count: " + counter);
+				    if (!ridStatus.contains("under")) {
+				        break;
+				    }
 				}
+				long endTime = System.currentTimeMillis(); // end time
+				long totalTime = endTime - startTime;
+				long timeInMinutes = totalTime / 60000;
+				long timeInSeconds = (totalTime % 60000) / 1000;
+				String message = "<div style='"
+				        + "padding:8px;"
+				        + "border-radius:6px;"
+				        + "background-color:#eef6ff;"
+				        + "border-left:5px solid #2f80ed;"
+				        + "font-family:Arial;'>"
+				        + "<b style='color:#2f80ed;'>Packet Processing Report</b><br>"
+				        + "<span><b>RID:</b> " + rid + "</span><br>"
+				        + "<span><b>Status:</b> <span style='color:green;'>" + ridStatus.toUpperCase() + "</span></span><br>"
+				        + "<span><b>Time Taken:</b> " + timeInMinutes + " min " + timeInSeconds + " sec</span>"
+				        + "</div>";
+
+				logger.info(message);          
+				Response finalResponse = getRequest(baseUrl + getRidStatusUrl + rid, "Check rid status: " + rid, step);
+				Reporter.log(message, true); 
+				ridStatus = finalResponse.asString().toLowerCase();
 				ridStatusMap.put(rid, ridStatus);
 
 			}

@@ -59,11 +59,12 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 					long startTime = System.currentTimeMillis();
 					logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
 					logger.info(this.getClass().getSimpleName() + " Rid :" + Rid);
-					if (Rid == null)
-						logger.info("RID is null");
+					if (Rid == null) {
+						logger.error("RID is null - cannot check status");
+						this.hasError = true;
+						throw new RigInternalError("RID is null - cannot check status");
+					}
 					ridStatus=GetCredentialTableStackTrace.getStatusFromCredentialTransactionTable(Rid);
-					GlobalMethods.ReportRequestAndResponse(null, null, null, null,
-							ridStatus,true);
 					long stopTime = System.currentTimeMillis();
 					long elapsedTime = stopTime - startTime;
 					logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
@@ -71,7 +72,7 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 					logger.info("Response from check RID status : " + Rid + " => " + ridStatus);
 				}
 				ridStatusMap.put(Rid, ridStatus);
-
+				GlobalMethods.ReportRequestAndResponse(null, null, null, null, "Final RID Status : " + ridStatus, true);
 			
 			if (ridStatusMap.size() == 1) {
 				if (!ridStatusMap.entrySet().iterator().next().getValue().contains(ridStatusParam)) {
@@ -98,6 +99,8 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 		} catch (InterruptedException e) {
 			logger.error("Failed due to thread sleep: " + e.getMessage());
 			Thread.currentThread().interrupt();
+			this.hasError = true;
+		    throw new RigInternalError("RID status check interrupted");
 		}
 
 	}

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -165,7 +166,7 @@ public class PacketSyncService {
 		}
 	}
 
-	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) {
+	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) throws Exception {
 		logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
 		// TO do --Check why we need to load the context here
 //		loadServerContextProperties(contextKey);
@@ -833,47 +834,58 @@ public class PacketSyncService {
 
 	private static final Map<String, List<MosipIDSchema>> schemaCache = new ConcurrentHashMap<>();
 
-	public synchronized String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
-		StringBuilder responseBuilder = new StringBuilder();
+	public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
 
-		loadServerContextProperties(contextKey);
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+	    StringBuilder responseBuilder = new StringBuilder();
 
-		// Thread-safe caching of schema per context
-		List<MosipIDSchema> documentSchemas = schemaCache.computeIfAbsent(contextKey, key -> {
-			PacketTemplateProvider provider = new PacketTemplateProvider();
-			return provider.getSchema(key).getSchema();
-		});
+	    loadServerContextProperties(contextKey);
 
-		// Create a unique temp directory for each preregId to avoid file conflicts
-		String tempDir = System.getProperty("java.io.tmpdir") + File.separator + "docs_" + preregId;
-		new File(tempDir).mkdirs();
+	    ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 
-		for (MosipIDSchema schema : documentSchemas) {
-			if (!"documentType".equalsIgnoreCase(schema.getType()))
-				continue;
+	    // Thread-safe schema cache
+	    List<MosipIDSchema> documentSchemas = schemaCache.computeIfAbsent(contextKey, key -> {
+	        PacketTemplateProvider provider = new PacketTemplateProvider();
+	        return provider.getSchema(key).getSchema();
+	    });
 
-			for (MosipDocument doc : resident.getDocuments()) {
-				if (!schema.getSubType().equals(doc.getDocCategoryCode()))
-					continue;
+	    // Create secure temporary directory (CodeQL safe)
+	    Path tempDir = Files.createTempDirectory("docs_" + Thread.currentThread().getId());
 
-				String originalDocPath = doc.getDocs().get(0);
-				String copiedFileName = schema.getId() + ".pdf";
-				String copiedDocPath = tempDir + File.separator + copiedFileName;
+	    for (MosipIDSchema schema : documentSchemas) {
 
-				CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), Paths.get(copiedDocPath));
+	        if (!"documentType".equalsIgnoreCase(schema.getType())) {
+	            continue;
+	        }
 
-				JSONObject respObject = PreRegistrationSteps.UploadDocument(doc.getDocCategoryCode(),
-						doc.getType().get(0).getDocTypeCode(), doc.getDocCategoryLang(), copiedDocPath, preregId,
-						contextKey);
+	        for (MosipDocument doc : resident.getDocuments()) {
 
-				if (respObject != null) {
-					responseBuilder.append(respObject.toString());
-				}
-			}
-		}
+	            if (!schema.getSubType().equals(doc.getDocCategoryCode())) {
+	                continue;
+	            }
 
-		return responseBuilder.toString();
+	            String originalDocPath = doc.getDocs().get(0);
+	            String copiedFileName = schema.getId() + ".pdf";
+
+	            Path copiedDocPath = tempDir.resolve(copiedFileName).normalize();
+
+	            CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), copiedDocPath);
+
+	            JSONObject respObject = PreRegistrationSteps.UploadDocument(
+	                    doc.getDocCategoryCode(),
+	                    doc.getType().get(0).getDocTypeCode(),
+	                    doc.getDocCategoryLang(),
+	                    copiedDocPath.toString(),
+	                    preregId,
+	                    contextKey
+	            );
+
+	            if (respObject != null) {
+	                responseBuilder.append(respObject.toString());
+	            }
+	        }
+	    }
+
+	    return responseBuilder.toString();
 	}
 
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
@@ -1054,55 +1066,7 @@ public class PacketSyncService {
 	                continue;
 	            }
 
-	            switch (key) {
-	                case "face":
-	                case "photo":
-	                    bioData = persona.getBiometric();
-	                    byte[][] faceData = PhotoProvider.loadPhoto(value);
-
-	                    oldValues.put("encodedPhoto", bioData.getEncodedPhoto());
-	                    oldValues.put("faceHash", bioData.getFaceHash());
-
-	                    bioData.setEncodedPhoto(Base64.encodeBase64URLSafeString(faceData[0]));
-	                    bioData.setRawFaceData(faceData[1]);
-	                    try {
-	                        bioData.setFaceHash(CommonUtil.getHexEncodedHash(faceData[1]));
-	                    } catch (Exception e1) {
-	                        logger.error(e1.getMessage());
-	                    }
-
-	                    newValues.put("encodedPhoto", bioData.getEncodedPhoto());
-	                    newValues.put("faceHash", bioData.getFaceHash());
-	                    break;
-
-	                case "left_iris":
-	                    bioData = persona.getBiometric();
-	                    IrisDataModel im = bioData.getIris();
-	                    oldValues.put("left_iris", im);  // Optional: convert to JSON string
-	                    try {
-	                        IrisDataModel imUpdated = BiometricDataProvider.loadIris(value, "left", im);
-	                        if (imUpdated != null)
-	                            bioData.setIris(imUpdated);
-	                        newValues.put("left_iris", imUpdated);
-	                    } catch (Exception e) {
-	                        logger.error(e.getMessage());
-	                    }
-	                    break;
-
-	                case "right_iris":
-	                    bioData = persona.getBiometric();
-	                    IrisDataModel im1 = bioData.getIris();
-	                    oldValues.put("right_iris", im1);
-	                    try {
-	                        IrisDataModel imUpdated1 = BiometricDataProvider.loadIris(value, "right", im1);
-	                        if (imUpdated1 != null)
-	                            bioData.setIris(imUpdated1);
-	                        newValues.put("right_iris", imUpdated1);
-	                    } catch (Exception e) {
-	                        logger.error(e.getMessage());
-	                    }
-	                    break;
-
+	            switch (key) {            
 	                case "gender":
 	                    oldValues.put("gender", persona.getGender().toString());
 	                    persona.setGender(Gender.valueOf(value));
@@ -1120,9 +1084,14 @@ public class PacketSyncService {
 	                case "dateofbirth":
 	                    oldValues.put("dob", persona.getDob());
 	                    if ("minor".equalsIgnoreCase(value)) {
+	                    	persona.setInfant(false);
+	                    	persona.setMinor(true);
 	                        int randomAge = 5 + (int) (Math.random() * (18 - 5 + 1));
 	                        value = LocalDate.now().minusYears(randomAge).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 	                    } else if ("adult".equalsIgnoreCase(value)) {
+	                    	persona.setInfant(false);
+	                    	persona.setMinor(false);
+	                    	persona.setGuardian(null);
 	                        int randomAge = 18 + (int) (Math.random() * (80 - 18 + 1));
 	                        value = LocalDate.now().minusYears(randomAge).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 	                    }
@@ -1399,6 +1368,8 @@ public class PacketSyncService {
 	        try {
 	            ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
 	            List<String> regenAttrs = req.getRegenAttributeList();
+	            if(regenAttrs != null)
+	            VariableManager.setVariableValue(contextKey, "regenAttribute", String.join(",", regenAttrs));
 	            if (regenAttrs != null) {
 	                for (String attr : regenAttrs) {
 	                    if (req.getTestPersonaPath() != null) {
@@ -1482,7 +1453,6 @@ public class PacketSyncService {
 		RestClient.logInfo(contextKey, "updatePersonaBioExceptions:" + contextKey);
 
 		loadServerContextProperties(contextKey);
-		String ret = "{Sucess}";
 		try {
 			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath());
 

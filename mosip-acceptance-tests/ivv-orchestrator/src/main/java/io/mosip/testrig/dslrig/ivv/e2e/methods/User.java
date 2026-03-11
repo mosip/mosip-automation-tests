@@ -62,7 +62,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				indexOfUser = userDetails[0];
 				user = userDetails[0];
 				if (user.contains("dsl-0"))
-					user = "dsl-" + dslConfigManager.getUserAdminName();
+					user = BaseTestCase.currentModule+"-" + dslConfigManager.getUserAdminName();
 				else
 					user = dslConfigManager.getUserAdminName().substring(0,
 							dslConfigManager.getUserAdminName().length() - 1) + user;
@@ -133,7 +133,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			String val = map.get("uin") != null ? map.get("uin") : "11000000";
 			list.add(val);
 			attrmap.put("individualId", list);
-			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap);
+			KeycloakUserManager.createUsers(user, pwd, attrmap);
 			zone = userHelper.getZoneOfUser(user);
 			if (zone != null && zone.equalsIgnoreCase("NOTSET")) {
 				zone = userHelper.getLeafZones();
@@ -156,7 +156,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			String val2 = map.get("uin") != null ? map.get("uin") : "11000000";
 			list2.add(val2);
 			attrmap2.put("individualId", list2);
-			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap2);
+			KeycloakUserManager.createUsers(user, pwd,  attrmap2);
 			userdetails2.put("user" + indexOfUser, user);
 			userdetails2.put("pwd", pwd);
 			String publicKey = machineHelper.createPublicKey();
@@ -196,7 +196,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			// Utilizing the remove user functionality to update the attribute
 			// "individualId" with UIN
 			KeycloakUserManager.removeUser(user);
-			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap1);
+			KeycloakUserManager.createUsers(user, pwd,  attrmap1);
 			zone = userHelper.getZoneOfUser(user);
 			if (zone != null && zone.equalsIgnoreCase("NOTSET")) {
 				zone = userHelper.getLeafZones();
@@ -216,7 +216,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			String val3 = map.get("$$uin") != null ? map.get("$$uin") : "11000000";
 			list3.add(val3);
 			attrmap3.put("individualId", list3);
-			KeycloakUserManager.createUsers(user, pwd, "roles", attrmap3);
+			KeycloakUserManager.createUsers(user, pwd,  attrmap3);
 			HashMap<String, String> userdetails3 = new HashMap<String, String>();
 			userdetails3.put("user", user);
 			userdetails3.put("pwd", pwd);

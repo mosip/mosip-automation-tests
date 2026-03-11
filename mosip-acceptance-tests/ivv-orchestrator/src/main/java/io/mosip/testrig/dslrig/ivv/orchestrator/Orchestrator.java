@@ -70,10 +70,11 @@ public class Orchestrator {
 	public static Boolean beforeSuiteExeuted = false;
 	public static final Object lock = new Object();
 	public static long suiteStartTime = 0;
-	public static long suiteMaxTimeInMillis = 7200000; // 2 hour in milliseconds
-	static AtomicInteger counterLock = new AtomicInteger(0); // enable fairness policy
+	public static long suiteMaxTimeInMillis = 3600000 * dslConfigManager.getMaxSuiteTime(); 
+	static AtomicInteger counterLock = new AtomicInteger(0);
 	private static AtomicInteger totalFailedScenarios = new AtomicInteger(0);
 	private static final int MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY = 20;
+	public static volatile boolean disableAllRetries = false;
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
@@ -306,30 +307,29 @@ public class Orchestrator {
 		BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_endTime",
 				String.valueOf(endTime));
 
-		if (scenario.getId().equalsIgnoreCase("0")) {
-			/// Check if all steps in Before are passed or not
-			for (Scenario.Step step : scenario.getSteps()) {
-				StepInterface st = getInstanceOf(step);
-				if (st.hasError() == true) {
-					beforeSuiteFailed = true;
-					logger.info("Before suite failed");
-					break;
-
-				}
-			}
-			beforeSuiteExeuted = true;
-			logger.info("Before Suite executed");
-		}
-
-		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenarios Executed : " + counterLock.get());
-
+		  for (Scenario.Step step : scenario.getSteps()) {
+		        StepInterface st = getInstanceOf(step);
+		        if (st.hasError()) {
+		            beforeSuiteFailed = true;
+		            disableAllRetries = true;   // 🔴 CRITICAL
+		            logger.error("Before Suite FAILED. Disabling all retries.");
+		            break;
+		        }
+		    }
+		    beforeSuiteExeuted = true;
 	}
 
 	@Test(dataProvider = "ScenarioDataProvider")
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
 			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-
+		// 🔴 If Before Suite failed, skip everything except AFTER_SUITE
+		if ((beforeSuiteFailed || disableAllRetries) && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
+		    updateRunStatistics(scenario);
+		    throw new SkipException(
+		        "Skipping scenario " + scenario.getId() + " because Before Suite failed."
+		    );
+		}
 		// Capture the start time of the scenario execution
 		long startTime = System.nanoTime();
 		BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
@@ -421,19 +421,19 @@ public class Orchestrator {
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 
 		// Check whether the scenario is in the defined skipped list
-		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId())) {
+		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 			updateRunStatistics(scenario);
 			throw new SkipException("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 		}
-		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId())) {
-			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform issue");
+		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
+			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform known issue");
 			updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
 		}
-		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
+		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
 			updateRunStatistics(scenario);
@@ -462,15 +462,26 @@ public class Orchestrator {
 		store.setPartners(scenario.getPartners());
 		store.setProperties(this.properties);
 
-		int maxAttempts = BaseTestCaseUtil.props.getProperty("maxAttempts") != null
-				? Integer.parseInt(BaseTestCaseUtil.props.getProperty("maxAttempts"))
-				: 1;
+		int maxAttempts = 1;
+		String maxAttemptsProp = BaseTestCaseUtil.props.getProperty("maxAttempts");
+		if (maxAttemptsProp != null) {
+			try {
+				maxAttempts = Math.max(1, Integer.parseInt(maxAttemptsProp));
+			} catch (NumberFormatException nfe) {
+				logger.warn("Invalid maxAttempts '" + maxAttemptsProp + "', falling back to 1", nfe);
+			}
+		}
 		boolean scenarioSucceeded = false;
 		Exception finalException = null;
 
 		for (int attempt = 1; attempt <= maxAttempts && !scenarioSucceeded; attempt++) {
 			// Determine whether this attempt will be retried on failure
-			boolean willRetry = (attempt < maxAttempts);
+			boolean willRetry =
+			        !disableAllRetries
+			        && !"sanity".equalsIgnoreCase(BaseTestCase.testLevel)
+			        && (attempt < maxAttempts)
+			        && (totalFailedScenarios.get() < MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY);
+
 			// Reset store to initial values before each attempt
 			store = new Store();
 			store.setConfigs(configs);
@@ -603,7 +614,8 @@ public class Orchestrator {
 			} catch (FeatureNotSupportedError e) {
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
-				// Feature not supported - keep behavior as before (treat as not fatal)
+				// Feature not supported - treat as not fatal and don't retry
+				scenarioSucceeded = true;
 			} catch (Exception e) {
 				finalException = e;
 				String failMessage = "Attempt " + attempt + " failed for scenario " + scenario.getId() + " : "
@@ -614,8 +626,6 @@ public class Orchestrator {
 				String redFailMessage = "<span style='color:red; font-weight:bold;'>" + failMessage + "</span>";
 				Reporter.log(redFailMessage);
 
-				// Increment total failure counter
-				totalFailedScenarios.incrementAndGet();
 
 				// ✅ Check global threshold first
 				if (totalFailedScenarios.get() >= MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY) {
@@ -630,7 +640,11 @@ public class Orchestrator {
 					// Explicitly fail (so TestNG marks it as FAILED, not SKIPPED)
 					throw new RuntimeException(thresholdMessage);
 				}
-
+				if (beforeSuiteFailed || disableAllRetries) {
+				    extentTest.fail("Before Suite failed. No retries allowed.");
+				    updateRunStatistics(scenario);
+				    throw new RuntimeException("Before Suite failed. Aborting scenario execution.");
+				}
 				// ✅ If this was not the last retry
 				if (attempt < maxAttempts) {
 					String humanRetryMessage = ordinalWord(attempt) + " try for scenario " + scenario.getId()
@@ -646,6 +660,8 @@ public class Orchestrator {
 				}
 				// ✅ Final failure (after last attempt)
 				else {
+					// Increment total failure counter
+					totalFailedScenarios.incrementAndGet();
 					String finalFail = "<span style='color:red; font-weight:bold;'>Scenario failed after " + maxAttempts
 							+ " attempts: " + e.getMessage() + "</span>";
 
@@ -916,18 +932,23 @@ public class Orchestrator {
 
 	private static String ordinalWord(int number) {
 		switch (number) {
-		case 1:
-			return "First";
-		case 2:
-			return "Second";
-		case 3:
-			return "Third";
-		case 4:
-			return "Fourth";
-		case 5:
-			return "Fifth";
+		case 1: return "First";
+		case 2: return "Second";
+		case 3: return "Third";
+		case 4: return "Fourth";
+		case 5: return "Fifth";
 		default:
-			return number + "th";
+			int mod10 = number % 10;
+			int mod100 = number % 100;
+			if (mod100 >= 11 && mod100 <= 13) {
+				return number + "th";
+			}
+			switch (mod10) {
+			case 1: return number + "st";
+			case 2: return number + "nd";
+			case 3: return number + "rd";
+			default: return number + "th";
+			}
 		}
 	}
 }

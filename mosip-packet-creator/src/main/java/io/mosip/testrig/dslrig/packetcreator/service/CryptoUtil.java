@@ -109,9 +109,6 @@ public class CryptoUtil {
 	@Value("${mosip.test.baseurl}")
 	private String baseUrl;
 
-	@Value("${mosip.test.regclient.machineid}")
-	private String machineid;
-
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
@@ -452,22 +449,16 @@ public class CryptoUtil {
 
 	private PrivateKey getMachinePrivateKey(String contextKey) throws Exception {
 		String filePath = null;
+		String machineId = "";
 		if (contextKey != null && !contextKey.equals("")) {
-
-			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.regclient.machineid")) {
-					machineid = v.toString().trim();
-				}
-
-			});
+			machineId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.machineid").toString();
 		}
 		File folder = new File(String.valueOf(personaConfigPath) + File.separator + "privatekeys" + File.separator);
 		File[] listOfFiles = folder.listFiles();
 		for (File file : listOfFiles) {
 			if (file.isFile()) {
 				if (file.getName().contains(
-						VariableManager.getVariableValue(contextKey, "db-server").toString() + "." + machineid)) {
+						VariableManager.getVariableValue(contextKey, "db-server").toString() + "." + machineId)) {
 					filePath = file.getAbsolutePath();
 					break;
 				}

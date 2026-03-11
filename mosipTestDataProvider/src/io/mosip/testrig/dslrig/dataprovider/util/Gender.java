@@ -4,5 +4,6 @@ public enum Gender {
 	Male ,
 	Female,
 	Others,
-	Any
+	Any,
+	invalid
 }

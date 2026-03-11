@@ -15,7 +15,6 @@ import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.KeyMgrUtil;
-import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.OtpAuthNew;
@@ -52,6 +51,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 		Object[] casesListVID = null;
 		String res ="";
 		KeyMgrUtil keyMgrUtil = new KeyMgrUtil(); 
+		
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
@@ -125,20 +125,6 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {
 					test.setInput(input);
-					String partnerKeyUrl = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.partnerId + "/" + PartnerRegistration.apiKey;
-					String ekycPartnerKeyURL = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.ekycPartnerId + "/" + PartnerRegistration.kycApiKey;
-					
-					if(test.getEndPoint().contains("$partnerKeyURL$"))
-						
-					{
-						test.setEndPoint(test.getEndPoint().replace("$partnerKeyURL$", partnerKeyUrl));
-						PartnerRegistration.appendEkycOrRp.set("rp-");
-					}
-					if(test.getEndPoint().contains("$ekycPartnerKeyURL$"))
-					{
-						test.setEndPoint(test.getEndPoint().replace("$ekycPartnerKeyURL$", ekycPartnerKeyURL));
-						PartnerRegistration.appendEkycOrRp.set("ekyc-");
-					}
 					try {
 						otpauth.test(test);
 					} catch (AuthenticationTestException e) {
@@ -174,6 +160,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, "VID", "sendOtp.individualIdType");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otpChannel");
 			input = input.replace("$TRANSACTIONID$", AdminTestUtil.generateRandomNumberString(10));
+
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 			test.setEndPoint(test.getEndPoint().replace("uinnumber", vid));
@@ -181,20 +168,6 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			if (casesListVID != null) {
 				for (Object object : casesListVID) {
 					test.setInput(input);
-					String partnerKeyUrl = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.partnerId + "/" + PartnerRegistration.apiKey;
-					String ekycPartnerKeyURL = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.ekycPartnerId + "/" + PartnerRegistration.kycApiKey;
-					
-					if(test.getEndPoint().contains("$partnerKeyURL$"))
-						
-					{
-						test.setEndPoint(test.getEndPoint().replace("$partnerKeyURL$", partnerKeyUrl));
-						PartnerRegistration.appendEkycOrRp.set("rp-");
-					}
-					if(test.getEndPoint().contains("$ekycPartnerKeyURL$"))
-					{
-						test.setEndPoint(test.getEndPoint().replace("$ekycPartnerKeyURL$", ekycPartnerKeyURL));
-						PartnerRegistration.appendEkycOrRp.set("ekyc-");
-					}
 					try {
 						otpauth.test(test);
 						Response response = otpauth.response;

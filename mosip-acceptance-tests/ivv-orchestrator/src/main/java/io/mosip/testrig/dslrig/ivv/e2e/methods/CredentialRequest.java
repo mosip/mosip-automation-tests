@@ -8,10 +8,10 @@ import org.testng.Reporter;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.auth.testscripts.PostWithAutogenIdWithOtpGenerate;
-import io.mosip.testrig.apirig.auth.testscripts.PostWithBodyWithOtpGenerate;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.NotificationListener;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -33,6 +33,7 @@ public class CredentialRequest extends BaseTestCaseUtil implements StepInterface
 	@SuppressWarnings("static-access")
 	@Override
 	public void run() throws RigInternalError {
+		NotificationListener.markRequestStart();
 		String emailId = "";
 		if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {
 			String _uin = step.getParameters().get(0);

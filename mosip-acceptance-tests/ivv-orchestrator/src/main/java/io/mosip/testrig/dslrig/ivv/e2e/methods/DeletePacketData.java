@@ -12,7 +12,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 public class DeletePacketData extends BaseTestCaseUtil implements StepInterface {
-	public static Logger logger = Logger.getLogger(CheckRIDStage.class);
+	public static Logger logger = Logger.getLogger(DeletePacketData.class);
 
 	static {
 		if (dslConfigManager.IsDebugEnabled())
