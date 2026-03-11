@@ -41,7 +41,7 @@ public class ResidentPreRegistration {
 	
 
 	@Given("^Adult \"(.*)\" from \"(.*)\"$")
-	public void createPersonaAdult(String gender, String country, String contextKey) {
+	public void createPersonaAdult(String gender, String country, String contextKey) throws Exception {
 
 		logger.info(String.format("createPersonaAdult %s from %s", gender, country));
 		ResidentDataProvider provider = new ResidentDataProvider();

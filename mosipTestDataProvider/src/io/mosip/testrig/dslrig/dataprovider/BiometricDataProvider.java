@@ -15,16 +15,21 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -220,7 +225,7 @@ public class BiometricDataProvider {
 	}
 
 	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey, String purpose,
-			String qualityScore) throws Exception {
+			String qualityScore, String process) throws Exception {
 		CentralizedMockSBI.stopSBI(contextKey);
 		BiometricDataModel biodata = null;
 		MDSRCaptureModel capture = null;
@@ -296,13 +301,22 @@ public class BiometricDataProvider {
 				portmap.put("port_" + contextKey, port);
 
 				mds = new MDSClient(port);
+				
+				profileName = "res" + resident.getId();
+
 				if (resident.getBioExceptions() != null && !resident.getBioExceptions().isEmpty()) {
-					mds.setProfile("Default", port, contextKey);
-				} else {
-					profileName = "res" + resident.getId();
-					mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
-					mds.setProfile(profileName, port, contextKey);
+					copyExceptionPhoto(mdsprofilePath, "Default", profileName);
 				}
+
+				if (process.equalsIgnoreCase("Update")) {
+
+					mds.updateProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
+
+				} else {
+
+					mds.createProfile(mdsprofilePath, profileName, resident, contextKey, purpose);
+				}
+				mds.setProfile(profileName, port, contextKey);				
 
 			} else {
 				mds = new MDSClientNoMDS();
@@ -510,7 +524,7 @@ public class BiometricDataProvider {
 
 //		mds.removeProfile(mdsprofilePath, profileName, port, contextKey);
 		mds.setProfile("Default",port,contextKey);
-		CommonUtil.deleteOldTempDir(mdsprofilePath+"/"+ profileName);
+//		CommonUtil.deleteOldTempDir(mdsprofilePath+"/"+ profileName);
 		CentralizedMockSBI.stopSBI(contextKey);
 		return capture;
 	}
@@ -518,6 +532,7 @@ public class BiometricDataProvider {
 	public static String toCBEFFFromCapture(List<String> bioFilter, MDSRCaptureModel capture, String toFile,
 			List<String> missAttribs, boolean genarateValidCbeff, List<BioModality> exceptionlist, String contextKey)
 					throws Exception {
+		logger.info("CAPTURE XML DATA: " +capture.toString());
 
 		String retXml = "";
 
@@ -572,12 +587,15 @@ public class BiometricDataProvider {
 
 		// Step 3: Add IRIS
 		try {
+			if(bioFilter.contains(LEFTEYE) && bioFilter.contains(RIGHTEYE)) {
+
 			List<MDSDeviceCaptureModel> lstIrisData = capture.getLstBiometrics()
 					.get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
+			logger.info("IRIS DATA XML DATA: " +lstIrisData.toString());
 
 			builder = xmlbuilderIris(bioFilter, lstIrisData, bioSubType, builder, genarateValidCbeff, exceptionlist,
 					contextKey);
-
+			}
 			if (exceptionlist != null && !exceptionlist.isEmpty()) {
 				builder = xmlbuilderIrisExcep(bioFilter, exceptionlist, bioSubType, builder, genarateValidCbeff,
 						contextKey);
@@ -886,7 +904,7 @@ public class BiometricDataProvider {
 		return tblFiles;
 	}
 
-	public static BiometricDataModel getBiometricData(Boolean bFinger, String contextKey) throws IOException {
+	public static BiometricDataModel getBiometricData(Boolean bFinger, String contextKey) throws Exception {
 
 		BiometricDataModel data = new BiometricDataModel();
 
@@ -1018,7 +1036,7 @@ public class BiometricDataProvider {
 						+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
 
 
-				List<File> firstSet = CommonUtil.listFiles(dirPath + "/" + String.format("/Impression_%d/fp_1/", impressionToPick));
+				List<File> firstSet = CommonUtil.listFiles(dirPath + "/fp/");
 
 
 				String[] fingerPrints = new String[10];
@@ -1057,7 +1075,7 @@ public class BiometricDataProvider {
 		return data;
 	}
 
-	public static BiometricDataModel updateFingerData(String contextKey) throws IOException {
+	public static BiometricDataModel updateFingerData(String contextKey) throws Exception {
 
 		BiometricDataModel data = new BiometricDataModel();
 		// reach cached finger prints from folder
@@ -1098,7 +1116,7 @@ public class BiometricDataProvider {
 
 		dirPath = FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
 
-		List<File> firstSet = CommonUtil.listFiles(dirPath + "/" + String.format("/Impression_%d/fp_1/", impressionToPick));
+		List<File> firstSet = CommonUtil.listFiles(dirPath + "/fp/");
 
 		String[] fingerPrints = new String[10];
 		String[] fingerPrintHash = new String[10];
@@ -1132,6 +1150,104 @@ public class BiometricDataProvider {
 
 		return data;
 	}
+	
+	private static final Map<String, Integer> FINGER_INDEX_MAP = Map.of("rightindex", 0, "rightmiddle", 1, "rightring",
+			2, "rightlittle", 3, "rightthumb", 4, "leftindex", 5, "leftmiddle", 6, "leftring", 7, "leftlittle", 8,
+			"leftthumb", 9);
+
+	public static BiometricDataModel updateSelectedFingerData(ResidentModel model, String contextKey,
+			String fingerArgument) throws Exception {
+
+		// 🔴 Get existing biometric data
+		BiometricDataModel data = model.getBiometric();
+
+		// 🔴 IMPORTANT: Reuse existing arrays
+		String[] fingerPrints = data.getFingerPrint();
+		String[] fingerPrintHash = data.getFingerHash();
+		byte[][] fingerPrintRaw = data.getFingerRaw();
+
+		// Initialize if null (first time case)
+		if (fingerPrints == null)
+			fingerPrints = new String[10];
+		if (fingerPrintHash == null)
+			fingerPrintHash = new String[10];
+		if (fingerPrintRaw == null)
+			fingerPrintRaw = new byte[10][1];
+
+		String dirPath = System.getProperty("java.io.tmpdir")
+				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
+
+		RestClient.logInfo(contextKey, DIRPATH + dirPath);
+
+		File dir = new File(dirPath);
+		if (!dir.isDirectory()) {
+			logger.error(dirPath + " is not a directory.");
+			return data;
+		}
+
+		File[] listDir = dir.listFiles(f -> f.isDirectory() && f.getName().startsWith("Impression"));
+		if (listDir == null || listDir.length == 0) {
+			logger.error("No impression directories found in {}", dirPath);
+			return data;
+		}
+		int numberOfSubfolders = listDir.length;
+		int min = 1;
+		int max = numberOfSubfolders;
+		int randomNumber;
+
+		String beforeScenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
+
+		String afterScenario = beforeScenario.substring(0, beforeScenario.indexOf(':')).replace("_", "0");
+
+		int currentScenarioNumber = Integer.parseInt(afterScenario);
+
+		randomNumber = (int) (Math.random() * (max - min)) + min;
+		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+
+		RestClient.logInfo(contextKey, "Impression used " + impressionToPick);
+
+		dirPath = FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber,
+				impressionToPick);
+
+		List<File> firstSet = CommonUtil.listFiles(dirPath + "/fp/");
+		Collections.sort(firstSet, Comparator.comparing(File::getName));
+
+		// 🔴 Parse DSL argument
+		Set<Integer> indexesToUpdate = Arrays.stream(fingerArgument.split(",")).map(String::trim)
+				.map(String::toLowerCase).map(FINGER_INDEX_MAP::get).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
+		// 🔴 Update ONLY selected fingers
+		for (Integer index : indexesToUpdate) {
+			if (index >= firstSet.size()) {
+				logger.warn("Fingerprint file not found for index {}", index);
+				continue;
+			}
+
+			try {
+				File f = firstSet.get(index);
+				byte[] fdata = CommonUtil.read(f.getAbsolutePath());
+
+				fingerPrintRaw[index] = fdata;
+				fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
+				fingerPrintHash[index] = CommonUtil.getHexEncodedHash(fdata);
+
+				RestClient.logInfo(contextKey, "Updated finger index " + index);
+
+			} catch (Exception e) {
+				logger.error("Error updating finger index " + index, e);
+			}
+		}
+
+		// 🔴 Set back updated arrays
+		data.setFingerPrint(fingerPrints);
+		data.setFingerHash(fingerPrintHash);
+		data.setFingerRaw(fingerPrintRaw);
+
+		CommonUtil.deleteOldTempDir(dirPath);
+		return data;
+	}
+
 
 	// generate using Anguli
 
@@ -1278,8 +1394,8 @@ public class BiometricDataProvider {
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 			srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
 
-			File folder = new File(srcPath+"/" + String.format("%03d", impressionToPick));
-			logger.info(srcPath+"/" + String.format("%03d", impressionToPick));
+			File folder = new File(srcPath + "/iris/");
+			logger.info(srcPath + "/iris/");
 
 			File[] listOfFiles = folder.listFiles();
 			//			listOfFiles=getRandomIrisVariation(listOfFiles);
@@ -1298,8 +1414,8 @@ public class BiometricDataProvider {
 			if (rightbmp == null) {
 				rightbmp = leftbmp;
 			}
-			String fPathL = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
-			String fPathR = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
+			String fPathL = srcPath+"/" + "iris" + "/" + leftbmp;
+			String fPathR = srcPath+"/" + "iris" + "/" + rightbmp;
 			String leftIrisData = "";
 			String rightIrisData = "";
 			String irisHash = "";
@@ -1367,7 +1483,7 @@ public class BiometricDataProvider {
 
 		srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
 
-		File folder = new File(srcPath +"/" + String.format("%03d", impressionToPick));
+		File folder = new File(srcPath +"/iris/");
 
 		File[] listOfFiles = folder.listFiles();
 		//		listOfFiles=getRandomIrisVariation(listOfFiles);
@@ -1385,8 +1501,8 @@ public class BiometricDataProvider {
 		if (rightbmp == null) {
 			rightbmp = leftbmp;
 		}
-		String fPathL = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + leftbmp;
-		String fPathR = srcPath + "/" + String.format("%03d", impressionToPick) + "/" + rightbmp;
+		String fPathL = srcPath +"/iris/" +  leftbmp;
+		String fPathR = srcPath +"/iris/" + rightbmp;
 
 		String leftIrisData = "";
 		String rightIrisData = "";
@@ -1420,6 +1536,99 @@ public class BiometricDataProvider {
 		CommonUtil.deleteOldTempDir(srcPath);
 		return retVal;
 	}
+	
+	static List<IrisDataModel> updateSelectedIris(ResidentModel model, String contextKey, String irisArgument)
+			throws Exception {
+
+		List<IrisDataModel> retVal = new ArrayList<>();
+
+		// 🔴 Reuse existing iris data
+		IrisDataModel m = model.getBiometric().getIris();
+		if (m == null) {
+			m = new IrisDataModel();
+		}
+
+		String srcPath = System.getProperty("java.io.tmpdir")
+				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString();
+
+		RestClient.logInfo(contextKey, DIRPATH + srcPath);
+
+		File dir = new File(srcPath);
+		File[] listDir = dir.listFiles();
+		if (listDir == null || listDir.length == 0) {
+			    logger.error("No subdirectories found in {}", srcPath);
+			    retVal.add(m);
+			    return retVal;
+			}
+		int numberOfSubfolders = listDir.length;
+		int min = 1;
+		int max = numberOfSubfolders;
+		int randomNumber;
+
+		String beforeScenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
+
+		String afterScenario = beforeScenario.substring(0, beforeScenario.indexOf(':')).replace("_", "0");
+
+		int currentScenarioNumber = Integer.parseInt(afterScenario);
+
+		randomNumber = (int) (Math.random() * (max - min)) + min;
+		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+
+		srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey,currentScenarioNumber,impressionToPick);
+
+		File folder = new File(srcPath +"/iris/");
+
+		File[] listOfFiles = folder.listFiles();
+		if (listOfFiles == null || listOfFiles.length == 0) {
+			logger.warn("No iris files found in folder {}", folder.getAbsolutePath());
+			retVal.add(m);
+			return retVal;
+		}
+		String leftbmp = null;
+		String rightbmp = null;
+
+		for (File file : listOfFiles) {
+			if (file.getName().contains("L")) {
+				leftbmp = file.getName();
+			} else {
+				rightbmp = file.getName();
+			}
+		}
+
+		String fPathL = leftbmp == null ? null
+				: srcPath  +"/iris/" + leftbmp;
+
+		String fPathR = rightbmp == null ? null
+				: srcPath + "/iris/" + rightbmp;
+
+		// 🔴 Parse DSL argument (use IRIS naming)
+		Set<String> irisToUpdate = Arrays.stream(irisArgument.split(",")).map(String::trim).map(String::toLowerCase)
+				.collect(Collectors.toSet());
+
+		/* ========== LEFT IRIS ========== */
+		if (irisToUpdate.contains("leftiris") && fPathL != null && Files.exists(Paths.get(fPathL))) {
+
+			byte[] fldata = CommonUtil.read(fPathL);
+			m.setLeft(Hex.encodeHexString(fldata));
+			m.setLeftHash(CommonUtil.getHexEncodedHash(fldata));
+			m.setRawLeft(fldata);
+		}
+
+		/* ========== RIGHT IRIS ========== */
+		if (irisToUpdate.contains("rightiris") && fPathR != null && Files.exists(Paths.get(fPathR))) {
+
+			byte[] frdata = CommonUtil.read(fPathR);
+			m.setRight(Hex.encodeHexString(frdata));
+			m.setRightHash(CommonUtil.getHexEncodedHash(frdata));
+			m.setRawRight(frdata);
+		}
+
+		retVal.add(m);
+		CommonUtil.deleteOldTempDir(srcPath);
+		return retVal;
+	}
+
+
 
 	static byte[][] updateFaceData(String contextKey) {
 
@@ -1456,15 +1665,14 @@ public class BiometricDataProvider {
 
 			dirPath=FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
 
-			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face_data/");
+			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face/");
 			
-			List<File> filteredFiles = firstSet.stream().filter(file -> file.getName().contains("00"+impressionToPick)).toList();
 			BufferedImage img = null;
 
-			try (FileInputStream fos = new FileInputStream(filteredFiles.get(0));
+			try (FileInputStream fos = new FileInputStream(firstSet.get(0));
 					BufferedInputStream bis = new BufferedInputStream(fos)) {
 				img = ImageIO.read(bis);
-				logger.info("Image picked from this path=" + filteredFiles.get(0));
+				logger.info("Image picked from this path=" + firstSet.get(0));
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -1482,7 +1690,7 @@ public class BiometricDataProvider {
 		return new byte[][] { bencoded, bData };
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		try {
 
@@ -1577,5 +1785,35 @@ public class BiometricDataProvider {
 
 		return selectedImages;
 	}
+	
+	 static void copyExceptionPhoto(
+	        String basePath,
+	        String sourceFolderName,
+	        String targetFolderName) throws IOException {
 
+	    Path sourceFile = Paths.get(
+	            basePath,
+	            sourceFolderName+"/Registration/",
+	            "Exception_Photo.iso"
+	    );
+
+	    Path targetDir = Paths.get(basePath, targetFolderName+"/Registration/");
+	    Path targetFile = targetDir.resolve("Exception_Photo.iso");
+
+	    if (!Files.exists(sourceFile)) {
+	        throw new IllegalArgumentException(
+	                "Exception_Photo.iso not found in source folder: " + sourceFile);
+	    }
+
+	    // Create target folder if not exists
+	    if (!Files.exists(targetDir)) {
+	        Files.createDirectories(targetDir);
+	    }
+
+	    Files.copy(
+	            sourceFile,
+	            targetFile,
+	            StandardCopyOption.REPLACE_EXISTING
+	    );
+	}
 }

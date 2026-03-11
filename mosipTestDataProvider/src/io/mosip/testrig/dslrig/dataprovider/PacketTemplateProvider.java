@@ -171,7 +171,7 @@ public class PacketTemplateProvider {
 		String idJson = null;
 		try {
 			idJson = generateIDJson(resident, fileInfo, contextKey, props, preregResponse, purpose, contextSchemaDetail,
-					qualityScore, genarateValidCbeff);
+					qualityScore, genarateValidCbeff, process);
 
 			if (idJson != null && idJson.equalsIgnoreCase("Failed to generate biometric via mds"))
 				return "Failed to generate biometric via mds";
@@ -689,7 +689,7 @@ public class PacketTemplateProvider {
 	}
 
 	Boolean generateCBEFF(ResidentModel resident, List<String> bioAttrib, String outFile, String contextKey,
-			String purpose, String qualityScore, List<String> missAttribs, boolean genarateValidCbeff)
+			String purpose, String qualityScore, List<String> missAttribs, boolean genarateValidCbeff, String process)
 					throws Exception {
 
 		String strVal = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "usemds").toString();
@@ -702,7 +702,7 @@ public class PacketTemplateProvider {
 		if (bMDS) {
 			if (cbeff == null) {
 				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident, contextKey, purpose,
-						qualityScore);
+						qualityScore , process);
 
 				if (capture == null) {
 					logger.error("Failed to generate biometric via mds");
@@ -988,7 +988,7 @@ public class PacketTemplateProvider {
 
 	String generateIDJson(ResidentModel resident, HashMap<String, String[]> fileInfo, String contextKey,
 			Properties prop, JSONObject preregResponse, String purpose, ContextSchemaDetail contextSchemaDetail,
-			String qualityScore, boolean genarateValidCbeff) {
+			String qualityScore, boolean genarateValidCbeff, String process) {
 
 		String idjson = "";
 
@@ -1123,19 +1123,24 @@ public class PacketTemplateProvider {
 					String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
 					try {
 						List<String> missAttribs = resident.getMissAttributes();
-						List<BioModality> bioExceptions = resident.getBioExceptions();
-
 						List<String> bioAttrib = s.getBioAttributes();
-						if (missAttribs != null && !missAttribs.isEmpty())
+						if (missAttribs != null && !missAttribs.isEmpty()) {
 							bioAttrib.removeAll(missAttribs);
+							resident.getBiometric().setCbeff(null);
+						}		
 						if (resident.getFilteredBioAttribtures() == null)
 							resident.setFilteredBioAttribtures(bioAttrib);
-						if (resident.getSkipFace())
+						if (resident.getSkipFace()) {
 							bioAttrib.removeAll(List.of("face"));
-						if (resident.getSkipIris())
+							resident.getBiometric().setCbeff(null);
+						}
+						if (resident.getSkipIris()) {
 							bioAttrib.removeAll(List.of("leftEye", "rightEye"));
+							resident.getBiometric().setCbeff(null);
+						}
 						if (resident.getSkipFinger()) {
 							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
+							resident.getBiometric().setCbeff(null);
 						}
 						RestClient.logInfo(contextKey, "Before Cbeff Generation contextkey=" + contextKey + " fileinfo="
 								+ fileInfo + " outFile=" + outFile);
@@ -1143,7 +1148,7 @@ public class PacketTemplateProvider {
 						boolean bret = false;
 
 						bret = generateCBEFF(resident, bioAttrib, outFile, contextKey, purpose, qualityScore,
-								missAttribs, genarateValidCbeff);
+								missAttribs, genarateValidCbeff, process);
 
 						if (bret == false)
 							return "Failed to generate biometric via mds";
@@ -1159,7 +1164,7 @@ public class PacketTemplateProvider {
 							bret = generateCBEFF(resident, bioAttrib,
 									fileInfo.get(RID_FOLDER)[0] + "/"
 											+ prop.get("mosip.test.regclient.officerBiometricFileName") + ".xml",
-											contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
+											contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff, process);
 							if (bret == false)
 								return "";
 						}
@@ -1167,7 +1172,7 @@ public class PacketTemplateProvider {
 							bret = generateCBEFF(resident, bioAttrib,
 									fileInfo.get(RID_FOLDER)[0] + "/"
 											+ prop.get("mosip.test.regclient.supervisorBiometricFileName") + ".xml",
-											contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
+											contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff, process);
 
 							if (bret == false)
 								return "";
@@ -1196,11 +1201,14 @@ public class PacketTemplateProvider {
 							// Implement excetpions by parsing 'Miss' list
 							List<String> missAttribs = resident.getMissAttributes();
 							List<String> bioAttrib = s.getBioAttributes();
-							if (missAttribs != null && !missAttribs.isEmpty())
+							if (missAttribs != null && !missAttribs.isEmpty()) {
 								bioAttrib.removeAll(missAttribs);
+								resident.getBiometric().setCbeff(null);
+							}
+								
 
 							boolean bret = generateCBEFF(resident.getGuardian(), bioAttrib, outFile, contextKey,
-									purpose, qualityScore, missAttribs, genarateValidCbeff);
+									purpose, qualityScore, missAttribs, genarateValidCbeff, process);
 
 							if (bret == false)
 								return "";
@@ -1293,7 +1301,8 @@ public class PacketTemplateProvider {
 						}
 					}
 
-				if (primaryValue == null || primaryValue.equals("")) {
+				if ((primaryValue == null || primaryValue.equals("")) 
+				        && (!s.getId().equals("dob") && !s.getId().equals("dateOfBirth"))) {
 					primaryValue = generateDefaultAttributes(s, resident, identity, contextKey);
 					if (secLanguage != null) {
 						secValue = Translator.translate(secLanguage, primaryValue, contextKey);
@@ -1660,7 +1669,7 @@ public class PacketTemplateProvider {
 
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		ResidentDataProvider provider = new ResidentDataProvider();
 		List<ResidentModel> residents = provider.generate("contextKey");
 		try {

@@ -11,6 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -969,7 +972,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 					jsonReq.put("mosip.test.regclient.supervisorBiometricFileName", supervOpertoDetails[5]);
 			}
 		}
-		if(flow.equalsIgnoreCase("EXTERNAL")) {
+		if (flow.equalsIgnoreCase("EXTERNAL")) {
 		    MachineHelper machineHelper = new MachineHelper();
 		    try {
 		        String publicKey = machineHelper.createPublicKey();
@@ -978,10 +981,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		            jsonReq.put("mosip.test.regclient.machineid", result.get("id"));
 		            jsonReq.put("mosip.test.regclient.centerid", result.get("regCenterId"));
 		        } else {
-		            System.out.println("No matching machine found for public key: " + publicKey);
+		            logger.warn("No matching machine found for public key: " + publicKey);
 		        }
 		    } catch (RigInternalError e) {
-		        e.printStackTrace();
+		    	this.hasError = true;
+		    	throw new RigInternalError("Failed to resolve external machine mapping: " + e.getMessage());
 		    }
 		}
 		JSONObject JO = new JSONObject(map);
@@ -1054,7 +1058,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	    // Handle the special case for "updateLargeDocInPersona"
 	    if (step.getParameters().size() > 2 && step.getParameters().get(2).equalsIgnoreCase("updateLargeDocInPersona")) {
 	        String docPathValue = "yourDocPathValue"; 
-	        String poaValue = String.format("{\"typeCode\": \"DOC016\",\"docPath\": \"%s\"}", docPathValue);
+	        String poaValue = String.format("{\"typeCode\": \"RNC\",\"docPath\": \"%s\"}", docPathValue);
 	        updateAttribute.put("POA", poaValue);
 	    }
 	    else {
@@ -1077,10 +1081,15 @@ public class PacketUtility extends BaseTestCaseUtil {
 						updateAttribute.put(arr[0].trim(), langcode + "=" + arr[1].trim());
 					} else
 						updateAttribute.put(arr[0].trim(),
-								(arr[0].trim().equalsIgnoreCase("email")
-										? (arr[1].trim().equalsIgnoreCase("testmosip") ? "dslautomation@mosip.io"
-												: arr[1].trim() + "@mosip.io")
-										: arr[1].trim()));
+						        (arr[1].trim().equalsIgnoreCase("empty") ? ""
+						                : (arr[0].trim().equalsIgnoreCase("email")
+						                	    ? (arr[1].trim().equalsIgnoreCase("testmosip")
+						                	            ? "dslautomation@mosip.io"
+						                	            : (arr[1].toLowerCase().contains("invalid")
+						                	                    ? arr[1].trim() 
+						                	                    : arr[1].trim() + "@mosip.io"))
+						                	    : arr[1].trim())));
+
 				}
 				// Pass phone and email as empty
 				else {
@@ -1114,14 +1123,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 		        }
 		    }
 		    // Case: Only a basic success string/object
-		    else if (!body.contains("sucess")) {
+		    else if (!(body.contains("success"))) {
 		        this.hasError = true;
 		        throw new RigInternalError("Response does not contain success status for attributes: " + attributeList);
 		    }
 
 		} catch (Exception e) {
 		    // Fallback: last chance check if response body contains word "success"
-		    if (!body.contains("sucess")) {
+			if (!(body.contains("success"))) {
 		        this.hasError = true;
 		        throw new RigInternalError("Failed to parse success from response for attributes: " + attributeList);
 		    }
@@ -1197,13 +1206,19 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		return response.getBody().asString();
 	}
-
+	
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
 			BioAuth bioAuth, Scenario.Step step) throws RigInternalError {
-		if(test.getTestCaseName().contains("EKYC")) {
+		if (test.getTestCaseName().contains("EKYC")) {
 			test.setEndPoint(test.getEndPoint().replace("$kycPartnerKey$", kycPartnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$kycPartnerName$", kycPartnerId));
-		}else {
+		} else if (test.getTestCaseName().contains("BioAuthDelegated")) {
+			String mispLicKey = PartnerRegistration.mispLicKey;
+			String PartnerKeyURL = mispLicKey + "/" + PartnerRegistration.partnerId;
+			String endpoint = test.getEndPoint().replaceAll("[\\u200B-\\u200D\\uFEFF]", "");
+			test.setEndPoint(endpoint.replace("$partialPartnerKeyUrl$", PartnerKeyURL));
+			PartnerRegistration.appendEkycOrRp.set("rp-");
+		} else {
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 		}
@@ -1233,24 +1248,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
 		test.setInput(input);
 		Reporter.log("<b><u>" + test.getTestCaseName() + "_" + modility + "</u></b>");
-		String partnerKeyUrl = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.partnerId + "/"
-				+ PartnerRegistration.apiKey;
 
-		String ekycPartnerKeyURL = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.ekycPartnerId + "/"
-				+ PartnerRegistration.kycApiKey;
-
-		if (test.getEndPoint().contains("$partnerKeyURL$")) {
-			test.setEndPoint(test.getEndPoint().replace("$partnerKeyURL$", partnerKeyUrl));
-			PartnerRegistration.appendEkycOrRp.set("rp-");
-		}
-		if (test.getEndPoint().contains("$ekycPartnerKeyURL$")) {
-			test.setEndPoint(test.getEndPoint().replace("$ekycPartnerKeyURL$", ekycPartnerKeyURL));
-			PartnerRegistration.appendEkycOrRp.set("ekyc-");
-		}
-		if (test.getEndPoint().contains("$UpdatedPartnerKeyURL$")) {
-			test.setEndPoint(test.getEndPoint().replace("$UpdatedPartnerKeyURL$",
-					PartnerRegistration.updatedpartnerKeyUrl));
-		}
 		try {
 			bioAuth.test(test);
 		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
@@ -1835,24 +1833,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
 		test.setInput(input);
 		Reporter.log("<b><u>" + test.getTestCaseName() + "_" + modility + "</u></b>");
-		String partnerKeyUrl = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.partnerId + "/"
-				+ PartnerRegistration.apiKey;
 
-		String ekycPartnerKeyURL = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.ekycPartnerId + "/"
-				+ PartnerRegistration.kycApiKey;
-
-		if (test.getEndPoint().contains("$partnerKeyURL$")) {
-			test.setEndPoint(test.getEndPoint().replace("$partnerKeyURL$", partnerKeyUrl));
-			PartnerRegistration.appendEkycOrRp.set("rp-");
-		}
-		if (test.getEndPoint().contains("$ekycPartnerKeyURL$")) {
-			test.setEndPoint(test.getEndPoint().replace("$ekycPartnerKeyURL$", ekycPartnerKeyURL));
-			PartnerRegistration.appendEkycOrRp.set("ekyc-");
-		}
-		if (test.getEndPoint().contains("$UpdatedPartnerKeyURL$")) {
-			test.setEndPoint(
-					test.getEndPoint().replace("$UpdatedPartnerKeyURL$", PartnerRegistration.updatedpartnerKeyUrl));
-		}
 		try {
 			bioAuth.test(test);
 		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
@@ -1971,5 +1952,59 @@ public class PacketUtility extends BaseTestCaseUtil {
 			}
 		}
 	}
+	
+	static String convertNanosToTime(long nanoseconds) {
+		long totalSeconds = nanoseconds / 1_000_000_000;
+		long seconds = totalSeconds % 60;
+		long totalMinutes = totalSeconds / 60;
+		long minutes = totalMinutes % 60;
+		long hours = totalMinutes / 60;
+		return String.format("%02d:%02d:%02d", hours, Math.abs(minutes), Math.abs(seconds));
+	}
+	
+	public static String getAdjustedUTCDate(String offsetValue) {
+
+        ZonedDateTime utcDate = ZonedDateTime.now(ZoneOffset.UTC);
+
+        if (offsetValue == null || offsetValue.isBlank()) {
+            throw new IllegalArgumentException("Offset value cannot be empty");
+        }
+
+        // Example: +1y / -2m / +10d
+        char sign = offsetValue.charAt(0);
+        char unit = offsetValue.charAt(offsetValue.length() - 1);
+
+        int value = Integer.parseInt(
+                offsetValue.substring(1, offsetValue.length() - 1)
+        );
+
+        // Apply negative if needed
+        if (sign == '-') {
+            value = -value;
+        }
+
+        switch (unit) {
+            case 'y':
+                utcDate = utcDate.plusYears(value);
+                break;
+
+            case 'm':
+                utcDate = utcDate.plusMonths(value);
+                break;
+
+            case 'd':
+                utcDate = utcDate.plusDays(value);
+                break;
+
+            default:
+                throw new IllegalArgumentException(
+                        "Unsupported offset unit: " + unit);
+        }
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        return utcDate.format(formatter);
+    }
 
 }

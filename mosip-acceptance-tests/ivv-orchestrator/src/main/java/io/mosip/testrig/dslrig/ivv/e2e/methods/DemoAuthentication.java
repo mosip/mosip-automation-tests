@@ -22,7 +22,6 @@ import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.DemoAuth;
@@ -35,7 +34,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 public class DemoAuthentication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(DemoAuthentication.class);
 	private static final String DEMOPATH = "idaData/DemoAuth/DemoAuth.yml";
-
+	private static final String DEMOPATHNEG = "idaData/DemoAuth/DemoAuthNeg.yml";
 	DemoAuth demoAuth = new DemoAuth();
 
 	static {
@@ -64,6 +63,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		Object[] casesListVID = null;
 		Object[] casesListHandles = null;
 		String updateAgeFlag = null;
+		String  SceanrioFlow= "POSITIVE";
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
@@ -108,7 +108,11 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		if (step.getParameters().size() > 4)
 			updateAgeFlag = step.getParameters().get(4);
 		
-		if (step.getParameters().size() > 5) {
+		if (step.getParameters().size() == 5 && step.getParameters().get(4).equals("ERROR")) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+			SceanrioFlow = step.getParameters().get(4);
+		}
+		
+		if (step.getParameters().size() > 5 && !step.getParameters().get(4).equals("ERROR")) {
 			handleKey = step.getParameters().get(5);
 			_personFilePath = step.getParameters().get(2);
 			if (handleKey.startsWith("$$") && _personFilePath.startsWith("$$")) {
@@ -132,6 +136,11 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		} else
 			handleList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
 
+		String fileName = null;
+		if(SceanrioFlow.equalsIgnoreCase("ERROR"))
+			fileName = DEMOPATHNEG;
+		else
+			fileName = DEMOPATH;
 		for (String uin : uinList) {
 			String personFilePathvalue = null;
 
@@ -150,7 +159,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
 			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList, step);
-			Object[] testObj = demoAuth.getYmlTestData(DEMOPATH);
+			Object[] testObj = demoAuth.getYmlTestData(fileName);
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "individualId");
@@ -304,43 +313,30 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
 
-				casesListUIN = demoAuth.getYmlTestData(DEMOPATH);
+				casesListUIN = demoAuth.getYmlTestData(fileName);
 
 			}
 
 			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
-				casesListVID = demoAuth.getYmlTestData(DEMOPATH);
+				casesListVID = demoAuth.getYmlTestData(fileName);
 			}
 
 			else {
-				casesListUIN = demoAuth.getYmlTestData(DEMOPATH);
-				casesListVID = demoAuth.getYmlTestData(DEMOPATH);
+				casesListUIN = demoAuth.getYmlTestData(fileName);
+				casesListVID = demoAuth.getYmlTestData(fileName);
 			}
 
 			// inputJson.put("identityRequest", identityReqJson.toString());
 
 			if (idType.contains("UIN") || idType.contains("uin")) {
-				casesListUIN = demoAuth.getYmlTestData(DEMOPATH);
+				casesListUIN = demoAuth.getYmlTestData(fileName);
 			}
 
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {
 					test = (TestCaseDTO) object;
 					test.setInput(inputJson.toString());
-					String partnerKeyUrl = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.partnerId + "/" + PartnerRegistration.apiKey;
-					String ekycPartnerKeyURL = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.ekycPartnerId + "/" + PartnerRegistration.kycApiKey;
-					
-					if(test.getEndPoint().contains("$partnerKeyURL$"))
-					{
-						test.setEndPoint(test.getEndPoint().replace("$partnerKeyURL$", partnerKeyUrl));
-						PartnerRegistration.appendEkycOrRp.set("rp-");
-					}
-					if(test.getEndPoint().contains("$ekycPartnerKeyURL$"))
-					{
-						test.setEndPoint(test.getEndPoint().replace("$ekycPartnerKeyURL$", ekycPartnerKeyURL));
-						PartnerRegistration.appendEkycOrRp.set("ekyc-");
-					}
 					try {
 						demoAuth.test(test);
 					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
@@ -372,7 +368,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
 			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList, step);
-			Object[] testObj = demoAuth.getYmlTestData(DEMOPATH);
+			Object[] testObj = demoAuth.getYmlTestData(fileName);
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");
@@ -518,43 +514,31 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
 
-				casesListUIN = demoAuth.getYmlTestData(DEMOPATH);
+				casesListUIN = demoAuth.getYmlTestData(fileName);
 
 			}
 
 			else if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 					|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
-				casesListVID = demoAuth.getYmlTestData(DEMOPATH);
+				casesListVID = demoAuth.getYmlTestData(fileName);
 			}
 
 			else {
-				casesListUIN = demoAuth.getYmlTestData(DEMOPATH);
-				casesListVID = demoAuth.getYmlTestData(DEMOPATH);
+				casesListUIN = demoAuth.getYmlTestData(fileName);
+				casesListVID = demoAuth.getYmlTestData(fileName);
 			}
 
 			// inputJson.put("identityRequest", identityReqJson.toString());
 
 			if (idType.contains("VID") || idType.contains("vid")) {
-				casesListVID = demoAuth.getYmlTestData(DEMOPATH);
+				casesListVID = demoAuth.getYmlTestData(fileName);
 			}
 
 			if (casesListVID != null) {
 				for (Object object : casesListVID) {
 					test = (TestCaseDTO) object;
 					test.setInput(inputJson.toString());
-					String partnerKeyUrl = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.partnerId + "/" + PartnerRegistration.apiKey;
-					String ekycPartnerKeyURL = PartnerRegistration.mispLicKey + "/" + PartnerRegistration.ekycPartnerId + "/" + PartnerRegistration.kycApiKey;
-					
-					if(test.getEndPoint().contains("$partnerKeyURL$"))
-					{
-						test.setEndPoint(test.getEndPoint().replace("$partnerKeyURL$", partnerKeyUrl));
-						PartnerRegistration.appendEkycOrRp.set("rp-");
-					}
-					if(test.getEndPoint().contains("$ekycPartnerKeyURL$"))
-					{
-						test.setEndPoint(test.getEndPoint().replace("$ekycPartnerKeyURL$", ekycPartnerKeyURL));
-						PartnerRegistration.appendEkycOrRp.set("ekyc-");
-					}
+
 					try {
 						demoAuth.test(test);
 					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
@@ -585,7 +569,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			List<String> addressFetchList = new ArrayList<String>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
 			addressResponse = packetUtility.retrieveBiometric(personFilePathvalue, addressFetchList, step);
-			Object[] testObj = demoAuth.getYmlTestData(DEMOPATH);
+			Object[] testObj = demoAuth.getYmlTestData(fileName);
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
 			String input = test.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, handle, "individualId");
@@ -732,7 +716,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 			if (idType.stream()
 				    .anyMatch(s -> s != null && s.toLowerCase().contains("handle"))) {
-				casesListHandles = demoAuth.getYmlTestData(DEMOPATH);
+				casesListHandles = demoAuth.getYmlTestData(fileName);
 			}
 
 			if (casesListHandles != null) {

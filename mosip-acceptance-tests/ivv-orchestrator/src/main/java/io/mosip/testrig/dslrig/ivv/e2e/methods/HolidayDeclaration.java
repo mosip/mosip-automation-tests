@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -10,6 +11,7 @@ import io.mosip.testrig.apirig.masterdata.testscripts.PatchWithPathParam;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
@@ -17,6 +19,8 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.CenterHelper;
+import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
+import io.mosip.testrig.dslrig.ivv.orchestrator.TestRunner;
 import io.restassured.response.Response;
 
 public class HolidayDeclaration extends BaseTestCaseUtil implements StepInterface {
@@ -30,8 +34,16 @@ public class HolidayDeclaration extends BaseTestCaseUtil implements StepInterfac
 
 	@Override
 	public void run() throws RigInternalError {
+		String holidayDate = null;
 		step.getScenario().getVidPersonaProp().clear();
-
+		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
+			logger.error("Parameter is  missing from DSL step");
+			this.hasError = true;
+			throw new RigInternalError("Modality paramter is  missing in step: " + step.getName());
+		} else {
+			holidayDate = step.getParameters().get(0);
+			holidayDate=holidayDate.split("=")[1];
+		}
 		String holidayLocationCode = centerHelper.getLocationCodeHoliday();
 		Object[] testObj = holidayDeclaration.getYmlTestData(GenerateHolidayYml);
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
@@ -42,8 +54,7 @@ public class HolidayDeclaration extends BaseTestCaseUtil implements StepInterfac
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, holidayLocationCode, "locationCode");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, BaseTestCase.getLanguageList().get(0), "langCode");
-		input = JsonPrecondtion.parseAndReturnJsonContent(input,
-				LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "holidayDate");
+		input = JsonPrecondtion.parseAndReturnJsonContent(input,PacketUtility.getAdjustedUTCDate(holidayDate), "holidayDate");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input,
 				"mosip" + BaseTestCase.generateRandomAlphaNumericString(6), "holidayDesc");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, BaseTestCase.generateRandomAlphaNumericString(6),

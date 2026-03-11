@@ -13,145 +13,226 @@ import java.util.regex.*;
 
 public class HtmlToExcelReport {
 
-	static class Scenario {
-		String description;
-		String status;
+    static class Scenario {
+        String description;
+        String status;
 
-		Scenario(String description, String status) {
-			this.description = description;
-			this.status = status;
-		}
-	}
+        Scenario(String description, String status) {
+            this.description = description;
+            this.status = status;
+        }
+    }
 
-	public static Map<String, Scenario> extractScenarios(File htmlFile) throws IOException {
-		Document doc = Jsoup.parse(htmlFile, "UTF-8");
-		Element table = doc.selectFirst("table#summary");
-		if (table == null)
-			return Collections.emptyMap();
+    public static Map<String, Scenario> extractScenarios(File htmlFile) throws IOException {
+        Document doc = Jsoup.parse(htmlFile, "UTF-8");
+        Element table = doc.selectFirst("table#summary");
+        if (table == null)
+            return Collections.emptyMap();
 
-		Map<String, Scenario> scenarios = new LinkedHashMap<>();
-		String currentStatus = "";
+        Map<String, Scenario> scenarios = new LinkedHashMap<>();
+        String currentStatus = "";
 
-		for (Element row : table.select("tr")) {
-			Elements headers = row.select("th");
-			if (headers.size() == 1) {
-				String headerText = headers.get(0).text();
-				String[] statusParts = headerText.split("—"); // en dash
-				if (statusParts.length >= 2) {
-					currentStatus = statusParts[1].trim();
-				} else {
-					System.out.println("⚠️ Unexpected header format: " + headerText);
-					currentStatus = "Unknown";
-				}
-			} else {
-				Elements cols = row.select("td");
-				if (cols.size() == 3) {
-					String id = cols.get(0).text().trim();
-					String desc = cols.get(1).text().trim();
-					scenarios.put(id, new Scenario(desc, currentStatus));
-				}
-			}
-		}
-		return scenarios;
-	}
+        for (Element row : table.select("tr")) {
+            Elements headers = row.select("th");
+            if (headers.size() == 1) {
+                String headerText = headers.get(0).text();
+                String[] statusParts = headerText.split("—");
+                if (statusParts.length >= 2) {
+                    currentStatus = statusParts[1].trim();
+                } else {
+                    currentStatus = "Unknown";
+                }
+            } else {
+                Elements cols = row.select("td");
+                if (cols.size() == 3) {
+                    String id = cols.get(0).text().trim();
+                    String desc = cols.get(1).text().trim();
+                    scenarios.put(id, new Scenario(desc, currentStatus));
+                }
+            }
+        }
+        return scenarios;
+    }
 
-	public static Map<String, Integer> extractSummaryCounts(String filename) {
-		Map<String, Integer> counts = new LinkedHashMap<>();
-		counts.put("Total", extractInt(filename, "T-(\\d+)"));
-		counts.put("Passed", extractInt(filename, "P-(\\d+)"));
-		counts.put("Skipped", extractInt(filename, "S-(\\d+)"));
-		counts.put("Failed", extractInt(filename, "F-(\\d+)"));
-		counts.put("Known Issues", extractInt(filename, "KI-(\\d+)"));
-		return counts;
-	}
+    public static void writeExcel(
+            Map<String, Scenario> baseline,
+            Map<String, Map<String, Scenario>> inputMap,
+            String outputFilePath) throws IOException {
 
-	public static int extractInt(String text, String regex) {
-		Matcher matcher = Pattern.compile(regex).matcher(text);
-		return matcher.find() ? Integer.parseInt(matcher.group(1)) : 0;
-	}
+        Workbook wb = new XSSFWorkbook();
+        Sheet comparison = wb.createSheet("Comparison");
 
-	public static void writeExcel(Map<String, Scenario> baseline, Map<String, Map<String, Scenario>> inputMap,
-			List<Map<String, Integer>> summaryList, String outputFilePath) throws IOException {
-		Workbook wb = new XSSFWorkbook();
-		Sheet comparison = wb.createSheet("Comparison");
+        // ================== CREATE STYLES ==================
 
-		// Header row
-		Row header = comparison.createRow(0);
-		header.createCell(0).setCellValue("Scenario ID");
-		header.createCell(1).setCellValue("Description");
-		header.createCell(2).setCellValue("BASE_LINE Status");
+        // Header Style
+        CellStyle headerStyle = wb.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        Font headerFont = wb.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
 
-		int col = 3;
-		List<String> labels = new ArrayList<>(inputMap.keySet());
-		for (String label : labels) {
-			header.createCell(col++).setCellValue(label + " Status");
-		}
+        // Passed - Green
+        CellStyle passStyle = wb.createCellStyle();
+        passStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+        passStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-		// Build data
-		Set<String> allIds = new TreeSet<>(baseline.keySet());
-		for (Map<String, Scenario> input : inputMap.values()) {
-			allIds.addAll(input.keySet());
-		}
+        // Failed - Red
+        CellStyle failStyle = wb.createCellStyle();
+        failStyle.setFillForegroundColor(IndexedColors.ROSE.getIndex());
+        failStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-		int rowNum = 1;
-		for (String id : allIds) {
-			Row row = comparison.createRow(rowNum++);
-			row.createCell(0).setCellValue(id);
-			row.createCell(1)
-					.setCellValue(baseline.containsKey(id) ? baseline.get(id).description
-							: inputMap.values().stream().filter(m -> m.containsKey(id)).map(m -> m.get(id).description)
-									.findFirst().orElse(""));
-			row.createCell(2).setCellValue(baseline.containsKey(id) ? baseline.get(id).status : "Not Found");
+        // Skipped - Orange
+        CellStyle skipStyle = wb.createCellStyle();
+        skipStyle.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
+        skipStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-			int colIndex = 3;
-			for (String label : labels) {
-				Map<String, Scenario> input = inputMap.get(label);
-				row.createCell(colIndex++).setCellValue(input.containsKey(id) ? input.get(id).status : "Not Found");
-			}
-		}
+        // Ignored - Grey
+        CellStyle ignoreStyle = wb.createCellStyle();
+        ignoreStyle.setFillForegroundColor(IndexedColors.GREY_40_PERCENT.getIndex());
+        ignoreStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-		// Create formatting
-		Sheet legend = wb.createSheet("Legend");
-		legend.createRow(0).createCell(0).setCellValue("Color Conditions:");
-		legend.createRow(1).createCell(0).setCellValue("✅ Green: Same as baseline and passed");
-		legend.createRow(2).createCell(0).setCellValue("🔵 Blue: Different and passed");
-		legend.createRow(3).createCell(0).setCellValue("🔴 Red: Different and failed");
-		legend.createRow(4).createCell(0).setCellValue("🟤 Brown: Baseline missing, input failed");
+        // Known Issue - Yellow
+        CellStyle knownStyle = wb.createCellStyle();
+        knownStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+        knownStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-		try (FileOutputStream fileOut = new FileOutputStream(outputFilePath)) {
-			wb.write(fileOut);
-		}
-		wb.close();
-	}
+        // ================== HEADER ROW ==================
 
-	public static String CreateExcelReport(String newReportPath , String fileName) throws Exception {
-		String outputFile = "comparison_vs_BASE_LINE.xlsx";
+        Row header = comparison.createRow(0);
 
-		File dir = new File(TestRunner.getGlobalResourcePath()+"/"+"config");
-		File[] htmlFiles = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".html"));
+        String[] baseHeaders = {"Scenario ID", "Description", "BASE_LINE Status"};
 
-		if (htmlFiles == null || htmlFiles.length == 0) {
-		    throw new RuntimeException("No .html file found in: " + dir.getAbsolutePath());
-		}
+        int colIndex = 0;
+        for (String h : baseHeaders) {
+            Cell cell = header.createCell(colIndex++);
+            cell.setCellValue(h);
+            cell.setCellStyle(headerStyle);
+        }
 
-		// Pick the first .html file (you can also sort if needed)
-		File baselineFile = htmlFiles[0];
-		Map<String, Scenario> baseline = extractScenarios(baselineFile);
-		List<Map<String, Integer>> summaryList = new ArrayList<>();
+        List<String> labels = new ArrayList<>(inputMap.keySet());
+        for (String label : labels) {
+            Cell cell = header.createCell(colIndex++);
+            cell.setCellValue(label + " Status");
+            cell.setCellStyle(headerStyle);
+        }
 
-		summaryList.add(extractSummaryCounts(baselineFile.getName()));
+        // Freeze header row
+        comparison.createFreezePane(0, 1);
 
-		Map<String, Map<String, Scenario>> inputMap = new LinkedHashMap<>();
-		File inputFile = new File(newReportPath+fileName);
+        // ================== DATA ==================
 
-		String label = inputFile.getName().replace(".html", "");
-		inputMap.put(label, extractScenarios(inputFile));
-		summaryList.add(extractSummaryCounts(inputFile.getName()));
+        Set<String> allIds = new TreeSet<>(baseline.keySet());
+        for (Map<String, Scenario> input : inputMap.values()) {
+            allIds.addAll(input.keySet());
+        }
 
-		new File(newReportPath).mkdirs();
-		String outputPath = newReportPath + File.separator + outputFile;
-		writeExcel(baseline, inputMap, summaryList, outputPath);
-		System.out.println("✅ Report generated at: " + outputPath);
-		return outputPath;
-	}
+        int rowNum = 1;
+
+        for (String id : allIds) {
+            Row row = comparison.createRow(rowNum++);
+
+            row.createCell(0).setCellValue(id);
+
+            String description = baseline.containsKey(id)
+                    ? baseline.get(id).description
+                    : inputMap.values().stream()
+                    .filter(m -> m.containsKey(id))
+                    .map(m -> m.get(id).description)
+                    .findFirst()
+                    .orElse("");
+
+            row.createCell(1).setCellValue(description);
+
+            // Baseline status
+            String baselineStatus = baseline.containsKey(id)
+                    ? baseline.get(id).status
+                    : "Not Found";
+
+            Cell baseCell = row.createCell(2);
+            baseCell.setCellValue(baselineStatus);
+            applyStyle(baseCell, baselineStatus, passStyle, failStyle, skipStyle, ignoreStyle, knownStyle);
+
+            int dynamicCol = 3;
+
+            for (String label : labels) {
+                Map<String, Scenario> input = inputMap.get(label);
+
+                String status = input.containsKey(id)
+                        ? input.get(id).status
+                        : "Not Found";
+
+                Cell statusCell = row.createCell(dynamicCol++);
+                statusCell.setCellValue(status);
+
+                applyStyle(statusCell, status, passStyle, failStyle, skipStyle, ignoreStyle, knownStyle);
+            }
+        }
+
+        // Auto-size columns
+        for (int i = 0; i < colIndex; i++) {
+            comparison.autoSizeColumn(i);
+        }
+
+        // Write file
+        try (FileOutputStream fileOut = new FileOutputStream(outputFilePath)) {
+            wb.write(fileOut);
+        }
+
+        wb.close();
+    }
+
+    private static void applyStyle(
+            Cell cell,
+            String status,
+            CellStyle passStyle,
+            CellStyle failStyle,
+            CellStyle skipStyle,
+            CellStyle ignoreStyle,
+            CellStyle knownStyle) {
+
+        if (status == null) return;
+
+        if (status.equalsIgnoreCase("Passed")) {
+            cell.setCellStyle(passStyle);
+        } else if (status.equalsIgnoreCase("Failed")) {
+            cell.setCellStyle(failStyle);
+        } else if (status.equalsIgnoreCase("Skipped")) {
+            cell.setCellStyle(skipStyle);
+        } else if (status.equalsIgnoreCase("Ignored")) {
+            cell.setCellStyle(ignoreStyle);
+        } else if (status.equalsIgnoreCase("Known Issues")) {
+            cell.setCellStyle(knownStyle);
+        }
+    }
+
+    public static String CreateExcelReport(String newReportPath, String fileName) throws Exception {
+
+        String outputFile = "comparison_vs_BASE_LINE.xlsx";
+
+        File dir = new File(TestRunner.getGlobalResourcePath() + "/config");
+        File[] htmlFiles = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".html"));
+
+        if (htmlFiles == null || htmlFiles.length == 0) {
+            throw new RuntimeException("No .html file found in: " + dir.getAbsolutePath());
+        }
+
+        File baselineFile = htmlFiles[0];
+        Map<String, Scenario> baseline = extractScenarios(baselineFile);
+
+        Map<String, Map<String, Scenario>> inputMap = new LinkedHashMap<>();
+        File inputFile = new File(newReportPath + fileName);
+
+        String label = inputFile.getName().replace(".html", "");
+        inputMap.put(label, extractScenarios(inputFile));
+
+        new File(newReportPath).mkdirs();
+        String outputPath = newReportPath + File.separator + outputFile;
+
+        writeExcel(baseline, inputMap, outputPath);
+
+        System.out.println("✅ Excel Report generated at: " + outputPath);
+
+        return outputPath;
+    }
 }

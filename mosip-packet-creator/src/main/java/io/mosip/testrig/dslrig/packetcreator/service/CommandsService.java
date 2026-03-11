@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -41,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
 @Service
 public class CommandsService {
@@ -129,11 +131,21 @@ public class CommandsService {
 				retJson.put("status", false);
 				retJson.put("failed", failedAPIs);
 			}
-		} catch (Exception ex) {
-			logger.error(ex.getMessage());
-		}
+		} catch (ServiceException se) {
+            throw se;
+        } catch (Exception ex) {
+            logger.error("Command execution failed", ex);
+            // Use error-key based ServiceException constructor with cause
+            throw new ServiceException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "CHECK_CONTEXT_FAIL",
+                    baseUrl,
+                    ex,
+                    ex.getMessage()
+            );
+        }
 
-		return retJson.toString();
+        return retJson.toString();
 	}
 
 	public String writeToFile(String contextKey, Properties requestData, long offset) throws IOException {

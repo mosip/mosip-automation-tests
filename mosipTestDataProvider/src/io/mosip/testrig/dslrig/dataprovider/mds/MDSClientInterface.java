@@ -8,6 +8,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
 
 public interface MDSClientInterface {
 	public void createProfile(String profilePath,String profile, ResidentModel resident,String contextKey,String purpose ) throws Exception ;
+	public void updateProfile(String profilePath,String profile, ResidentModel resident,String contextKey,String purpose ) throws Exception ;
 	public void removeProfile(String profilePath,String profile,int port,String contextKey) ;
 	public  void setProfile(String profile,int port,String contextKey) ;
 	//Type ->"Finger", "Iris", "Face"

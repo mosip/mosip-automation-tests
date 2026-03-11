@@ -7,7 +7,7 @@ DemoAuth:
       outputTemplate: idaData/DemoAuth/demoEkycResult
       input: '{
         "timestamp": "$TIMESTAMP$",
-        "transactionId": "1234567890"
+        "transactionId": "$TRANSACTIONID$"
     }'
       output: '{
   "authStatus": "true"

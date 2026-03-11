@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.packetcreator.dto.AppointmentDto;
@@ -57,9 +59,9 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("requestOtp", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REQUEST_OTP_FAIL", null, ex, ex.getMessage());
 		}
-		return "{Failed}";
-	}
+ 	}
 
 	@Operation(summary = "Verify the sent OTP for the given Persona and channel {mail | phone}")
 	@ApiResponses(value = {
@@ -77,9 +79,9 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("verifyOtp", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "VERIFY_OTP_FAIL", null, ex, ex.getMessage());
 		}
-		return "{Failed}";
-	}
+ 	}
 
 	@Operation(summary = "Post Application for a given Persona")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully created application") })
@@ -94,10 +96,10 @@ public class preRegController {
 			return packetSyncService.preRegisterResident(preRegisterRequestDto.getPersonaFilePath(), contextKey);
 
 		} catch (Exception ex) {
-			logger.error("registerResident", ex);
+			logger.error("preRegisterResident", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "PRE_REGISTER_RESIDENT_FAIL", null, ex, ex.getMessage());
 		}
-		return "{Failed}";
-	}
+ 	}
 
 	@Operation(summary = "Update Application for a given PreRegID with updated Persona")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully updated the application") })
@@ -113,10 +115,10 @@ public class preRegController {
 					preregId, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("registerResident", ex);
+			logger.error("updateResidentApplication", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_RESIDENT_APPLICATION_FAIL", null, ex, ex.getMessage());
 		}
-		return "{Failed}";
-	}
+ 	}
 
 	@Operation(summary = "Retrive all Applications for the logged in user or for a given pre-registraion-Id")
 	@ApiResponses(value = {
@@ -134,10 +136,10 @@ public class preRegController {
 			return packetSyncService.preRegisterGetApplications(null, preregId, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("registerResident", ex);
+			logger.error("preRegisterGetApplications", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "PRE_REGISTER_GET_APPLICATIONS_FAIL", null, ex, ex.getMessage());
 		}
-		return "{Failed}";
-	}
+ 	}
 
 	@Operation(summary = "Retrive all Booked Applications for the logged in user or for a given pre-registraion-Id")
 	@ApiResponses(value = {
@@ -154,10 +156,10 @@ public class preRegController {
 			return packetSyncService.preRegisterGetApplications("Booked", preregId, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("registerResident", ex);
+			logger.error("preRegisterGetApplicationsBooked", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "PRE_REGISTER_GET_APPLICATIONS_BOOKED_FAIL", null, ex, ex.getMessage());
 		}
-		return "{Failed}";
-	}
+ 	}
 	
 	/*
 	 * @Operation(summary = "Requesting the OTP")
@@ -194,9 +196,9 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("verifyOtp", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "VERIFY_OTP_FAIL", null, ex, ex.getMessage());
 		}
-		return "{Failed}";
-	}
+ 	}
 
 	/*
 	 * Book first nn th available slot
@@ -215,9 +217,9 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("bookAppointment", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_APPOINTMENT_FAIL", null, ex, ex.getMessage());
 		}
-		return "{\"Failed\"}";
-	}
+ 	}
 
 	/*
 	 * Book first nn th available slot
@@ -238,9 +240,9 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("bookAppointment", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_APPOINTMENT_NTH_FAIL", null, ex, ex.getMessage());
 		}
-		return "{\"Failed\"}";
-	}
+ 	}
 
 	@Operation(summary = "Book Specific slot (by date & time slot) for a given pre-registraion-Id")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully booked specific slot") })
@@ -255,10 +257,10 @@ public class preRegController {
 			return packetSyncService.bookSpecificAppointment(preregId, appointmentDto, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("bookAppointment", ex);
+			logger.error("bookSpecificAppointment", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_SPECIFIC_APPOINTMENT_FAIL", null, ex, ex.getMessage());
 		}
-		return "{\"Failed\"}";
-	}
+ 	}
 
 	@Operation(summary = "Get All Available slots")
 	@ApiResponses(value = {
@@ -274,9 +276,9 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("getAvailableAppointments", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_AVAILABLE_APPOINTMENTS_FAIL", null, ex, ex.getMessage());
 		}
-		return "{\"Failed\"}";
-	}
+ 	}
 
 	/*
 	 * Try to book a specified slot
@@ -296,10 +298,10 @@ public class preRegController {
 			return packetSyncService.bookAppointmentSlot(preregId, nthSlot, bookOnHolidays, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("bookAppointment", ex);
+			logger.error("bookAppointmentSpecified", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "BOOK_APPOINTMENT_SPECIFIED_FAIL", null, ex, ex.getMessage());
 		}
-		return "{\"Failed\"}";
-	}
+ 	}
 
 	@Operation(summary = "Cancel appointment for a given pre-registration-Id")
 	@ApiResponses(value = {
@@ -315,10 +317,10 @@ public class preRegController {
 			return packetSyncService.cancelAppointment(preregId, appointmentDto, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("bookAppointment", ex);
+			logger.error("cancelAppointment", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "CANCEL_APPOINTMENT_FAIL", null, ex, ex.getMessage());
 		}
-		return "{\"Failed\"}";
-	}
+ 	}
 
 	@Operation(summary = "Delete Applications for a given pre-registration-Id")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted the application") })
@@ -344,10 +346,10 @@ public class preRegController {
 			return packetSyncService.updatePreRegistrationStatus(preregId, statusCode, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("updatePreRegStatus", ex);
+			logger.error("updatePreregStatus", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PREREG_STATUS_FAIL", null, ex, ex.getMessage());
 		}
-		return "{Failed}";
-	}
+ 	}
 	
 	@Operation(summary = "Uploading the document for a given pre-registration-Id")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Document uploaded successfully") })
@@ -364,9 +366,9 @@ public class preRegController {
 
 		} catch (Exception ex) {
 			logger.error("uploadDocuments", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPLOAD_DOCUMENTS_FAIL", null, ex, ex.getMessage());
 		}
-		return "{\"Failed\"}";
-	}
+ 	}
 
 	@Operation(summary = "Delete Booking appointment for a given pre-registration-Id")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted the appointment") })
@@ -389,10 +391,10 @@ public class preRegController {
 			return packetSyncService.updatePreRegAppointment(preregid, contextKey);
 
 		} catch (Exception ex) {
-			logger.error("registerResident", ex);
+			logger.error("updateAppointment", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_APPOINTMENT_FAIL", null, ex, ex.getMessage());
 		}
-		return "{Failed}";
-	}
+ 	}
 
 	@Operation(summary = "Discard Applications for a given pre-registration-Id")
 	@ApiResponses(value = {

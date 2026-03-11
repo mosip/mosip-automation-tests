@@ -4,6 +4,8 @@ import static io.restassured.RestAssured.given;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +36,7 @@ public class APIRequestUtil {
     private static final String UNDERSCORE = "_";
 
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
+	private static final String DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
    // private ConfigurableJWTProcessor<SecurityContext> jwtProcessor = null;
 	static Map<String, String> tokens = new HashMap<String,String>();
@@ -520,7 +523,6 @@ public class APIRequestUtil {
      * @return the date as string as used by our request api.
      */
     public static String getUTCDateTime(LocalDateTime time) {
-		String DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(DATEFORMAT);
         if (time == null){
             time = LocalDateTime.now(TimeZone.getTimeZone("UTC").toZoneId());
@@ -554,6 +556,51 @@ public class APIRequestUtil {
         if(jsonObject.has(errorKey)  && !arr.isEmpty()) {
             throw new Exception(String.valueOf(jsonObject.get(errorKey)));
         }}
+    }
+	
+	public static String getAdjustedUTCDate(String offsetValue) {
+
+        ZonedDateTime utcDate = ZonedDateTime.now(ZoneOffset.UTC);
+
+        if (offsetValue == null || offsetValue.isBlank()) {
+            throw new IllegalArgumentException("Offset value cannot be empty");
+        }
+
+        // Example: +1y / -2m / +10d
+        char sign = offsetValue.charAt(0);
+        char unit = offsetValue.charAt(offsetValue.length() - 1);
+
+        int value = Integer.parseInt(
+                offsetValue.substring(1, offsetValue.length() - 1)
+        );
+
+        // Apply negative if needed
+        if (sign == '-') {
+            value = -value;
+        }
+
+        switch (unit) {
+            case 'y':
+                utcDate = utcDate.plusYears(value);
+                break;
+
+            case 'm':
+                utcDate = utcDate.plusMonths(value);
+                break;
+
+            case 'd':
+                utcDate = utcDate.plusDays(value);
+                break;
+
+            default:
+                throw new IllegalArgumentException(
+                        "Unsupported offset unit: " + unit);
+        }
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern(DATEFORMAT);
+
+        return utcDate.format(formatter);
     }
     
 }
