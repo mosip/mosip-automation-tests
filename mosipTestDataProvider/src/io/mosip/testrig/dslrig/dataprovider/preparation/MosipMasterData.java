@@ -56,7 +56,7 @@ import io.restassured.response.Response;
 public  class MosipMasterData {
 	private static final Logger logger = LoggerFactory.getLogger(MosipMasterData.class);
 	public static String RUN_CONTEXT = "run_context";
-
+	
 	public static List<MosipBiometricAttributeModel> getBiometricAttrByTypes(String bioType,String lang,String contextKey){
 		
 		List<MosipBiometricAttributeModel> biotypes =null;
@@ -352,7 +352,7 @@ public  class MosipMasterData {
 		String value = null;
 		try {
 			if (idaActuatorResponseArray == null) {
-				JSONObject responseJson = RestClient.get(url, new JSONObject(), new JSONObject(), contextKey);
+				JSONObject responseJson = RestClient.getWithoutAuth(url, new JSONObject(), new JSONObject(), contextKey);
 				idaActuatorResponseArray = responseJson.getJSONArray("propertySources");
 			}
 			logger.info("idaActuatorResponseArray=" + idaActuatorResponseArray);

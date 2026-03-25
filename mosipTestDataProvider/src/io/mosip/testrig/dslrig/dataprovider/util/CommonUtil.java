@@ -1,11 +1,5 @@
 package io.mosip.testrig.dslrig.dataprovider.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +13,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Random;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
 
-import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 
 import java.io.*;
 
@@ -45,7 +38,20 @@ public class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 	private static SecureRandom rand = new SecureRandom();
 
-	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+	
+	private static String CACHED_UTC_DATEFORMAT;
+	
+	public static void initializeUTCDateFormat(String contextKey) {
+		if (CACHED_UTC_DATEFORMAT != null && !CACHED_UTC_DATEFORMAT.isEmpty()) {
+			logger.info("UTC Date Format already initialized: {}", CACHED_UTC_DATEFORMAT);
+			return;
+		}		
+		CACHED_UTC_DATEFORMAT = MosipMasterData.getValueFromActuators("mosip.utc-datetime-pattern", contextKey);
+		if (CACHED_UTC_DATEFORMAT == null || CACHED_UTC_DATEFORMAT.isEmpty()) {
+			CACHED_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+		}
+		logger.info("UTC Date Format initialized: {}", CACHED_UTC_DATEFORMAT);
+	}
 
 	public static boolean isExists(List<String> missList, String categoryCode) {
 		if (missList != null) {
@@ -89,8 +95,7 @@ public class CommonUtil {
 	}
 
 	public static String getUTCDateTime(LocalDateTime time) {
-		String DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(DATEFORMAT);
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(CACHED_UTC_DATEFORMAT);
 		if (time == null) {
 			time = LocalDateTime.now(TimeZone.getTimeZone("UTC").toZoneId());
 		}
@@ -274,11 +279,6 @@ public class CommonUtil {
 	
 	public static void write(Path filePath, byte[] bytes) throws IOException {
 		Files.write(filePath, bytes);
-		
-//		ObjectMapper mapper = new ObjectMapper();
-//		try (OutputStream outputStream = new FileOutputStream(filePath.toString())) {
-//			mapper.writeValue(outputStream, bytes);
-//		}
 	}	
 	
 	public static void write( byte[] bytes,File file) throws IOException {
@@ -294,7 +294,6 @@ public class CommonUtil {
 		try {
 			data = Files.readAllBytes(Paths.get(path));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			logger.error(e.getMessage());
 		}
 		 
@@ -303,13 +302,7 @@ public class CommonUtil {
 	
 	
 	public static void main(String[] args) throws Exception {
-		String regex1 = "^|^0[5-7][0-9]{8}$";
-		String regex2 = "^[a-zA-Zء-ي٠-٩ ]{5,47}$";
-		String regex3 = "(^|^[A-Z]{2}[0-9]{1,6}$)|(^[A-Z]{1}[0-9]{1,7}$)";
-		String regex4 = "^|^(?=.{0,10}$).*";
-
 		String regex5 = "^(1869|18[7-9][0-9]|19[0-9][0-9]|20[0-9][0-9])/([0][1-9]|1[0-2])/([0][1-9]|[1-2][0-9]|3[01])$";
-
 		String rex = regex5;
 		String contextKey= null;
 		String values = genStringAsperRegex(rex,contextKey);

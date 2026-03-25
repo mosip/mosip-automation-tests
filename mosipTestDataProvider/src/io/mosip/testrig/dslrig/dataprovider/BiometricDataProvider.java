@@ -108,7 +108,7 @@ public class BiometricDataProvider {
 	static String buildBirIris(String irisInfo, String irisName, String jtwSign, String payload, String qualityScore,
 			boolean genarateValidCbeff, String exception, String contextKey) throws ParserConfigurationException,
 	FactoryConfigurationError, TransformerException, FileNotFoundException {
-		String today = CommonUtil.getUTCDateTime(null);
+		String today = CommonUtil.	getUTCDateTime(null);
 		XMLBuilder builder = XMLBuilder.create("BIR").a(XMLNS, XMLNS_URL)
 				.e(VERSION).e(MAJOR).t("1").up().e(MINOR).t("1").up().up().e(CBEFFVERSION).e(MAJOR).t("1").up().e(MINOR)
 				.t("1").up().up().e(BIRINFO).e(INTEGRITY).t(FALSE).up().up().e(BDBINFO).e(FORMAT).e(ORGANIZATION)
