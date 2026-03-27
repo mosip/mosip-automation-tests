@@ -1364,7 +1364,7 @@ public  class MosipMasterData {
 				for(int i=0; i < locHierachies.length; i++) {
 					List<MosipLocationModel> list = getLocationsByLevel(locHierachies[i].getHierarchyLevelName(), contextKey);
 					list.forEach((m) ->{
-						logger.info(m.getName());
+						logger.info(m.getCode());
 					});
 				}	
 			});

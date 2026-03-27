@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -39,18 +40,22 @@ public class CommonUtil {
 	private static SecureRandom rand = new SecureRandom();
 
 	
-	private static String CACHED_UTC_DATEFORMAT;
+	private static final Map<String, String> CACHED_UTC_DATEFORMAT = new java.util.concurrent.ConcurrentHashMap<>();
+	private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 	
 	public static void initializeUTCDateFormat(String contextKey) {
-		if (CACHED_UTC_DATEFORMAT != null && !CACHED_UTC_DATEFORMAT.isEmpty()) {
-			logger.info("UTC Date Format already initialized: {}", CACHED_UTC_DATEFORMAT);
+		String key = contextKey == null ? "__default__" : contextKey;
+		String existing = CACHED_UTC_DATEFORMAT.get(key);
+		if (existing != null && !existing.isEmpty()) {
+			logger.info("UTC Date Format already initialized for context [{}]: {}", key, existing);
 			return;
-		}		
-		CACHED_UTC_DATEFORMAT = MosipMasterData.getValueFromActuators("mosip.utc-datetime-pattern", contextKey);
-		if (CACHED_UTC_DATEFORMAT == null || CACHED_UTC_DATEFORMAT.isEmpty()) {
-			CACHED_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 		}
-		logger.info("UTC Date Format initialized: {}", CACHED_UTC_DATEFORMAT);
+		String dateFormat = MosipMasterData.getValueFromActuators("mosip.utc-datetime-pattern", contextKey);
+		if (dateFormat == null || dateFormat.isEmpty()) {
+			dateFormat = DEFAULT_UTC_DATEFORMAT;
+		}
+		CACHED_UTC_DATEFORMAT.put(key, dateFormat);
+		logger.info("UTC Date Format initialized for context [{}]: {}", key, dateFormat);
 	}
 
 	public static boolean isExists(List<String> missList, String categoryCode) {
@@ -95,12 +100,24 @@ public class CommonUtil {
 	}
 
 	public static String getUTCDateTime(LocalDateTime time) {
-		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(CACHED_UTC_DATEFORMAT);
+		return getUTCDateTime(time, null);
+	}
+
+	public static String getUTCDateTime(LocalDateTime time, String contextKey) {
+		String key = contextKey == null ? "__default__" : contextKey;
+		String pattern = CACHED_UTC_DATEFORMAT.get(key);
+		if (pattern == null || pattern.isEmpty()) {
+			initializeUTCDateFormat(contextKey);
+			pattern = CACHED_UTC_DATEFORMAT.get(key);
+		}
+		if (pattern == null || pattern.isEmpty()) {
+			pattern = DEFAULT_UTC_DATEFORMAT;
+		}
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
 		if (time == null) {
 			time = LocalDateTime.now(TimeZone.getTimeZone("UTC").toZoneId());
 		}
-		String utcTime = time.format(dateFormat);
-		return utcTime;
+		return time.format(dateFormat);
 	}
 
 	public static String genStringAsperRegex(String regex, String contextKey) throws Exception {

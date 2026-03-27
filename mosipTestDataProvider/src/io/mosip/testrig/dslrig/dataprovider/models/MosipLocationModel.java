@@ -9,7 +9,6 @@ public class MosipLocationModel  implements Serializable{
 	 private static final long serialVersionUID = 1L;
 	String code;
 	String langCode;
-	String name;
 	int hierarchyLevel;
 	String hierarchyName;
 	String parentLocCode;
