@@ -39,24 +39,18 @@ public class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 	private static SecureRandom rand = new SecureRandom();
 
-	
-	private static final Map<String, String> CACHED_UTC_DATEFORMAT = new java.util.concurrent.ConcurrentHashMap<>();
-	private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-	
-	public static void initializeUTCDateFormat(String contextKey) {
-		String key = contextKey == null ? "__default__" : contextKey;
-		String existing = CACHED_UTC_DATEFORMAT.get(key);
-		if (existing != null && !existing.isEmpty()) {
-			logger.info("UTC Date Format already initialized for context [{}]: {}", key, existing);
-			return;
-		}
-		String dateFormat = MosipMasterData.getValueFromActuators("mosip.utc-datetime-pattern", contextKey);
-		if (dateFormat == null || dateFormat.isEmpty()) {
-			dateFormat = DEFAULT_UTC_DATEFORMAT;
-		}
-		CACHED_UTC_DATEFORMAT.put(key, dateFormat);
-		logger.info("UTC Date Format initialized for context [{}]: {}", key, dateFormat);
-	}
+private static String cachedUtcDateformat;
+private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+
+public static void initializeUTCDateFormat(String contextKey) {
+    if (cachedUtcDateformat != null) 
+        return;
+    String dateFormat = MosipMasterData .getValueFromActuators("mosip.utc-datetime-pattern", contextKey);
+    if (dateFormat == null || dateFormat.isEmpty()) 
+        dateFormat = DEFAULT_UTC_DATEFORMAT;
+    cachedUtcDateformat = dateFormat;
+    logger.info("UTC Date Format initialized: {}", dateFormat);
+}
 
 	public static boolean isExists(List<String> missList, String categoryCode) {
 		if (missList != null) {
@@ -104,11 +98,10 @@ public class CommonUtil {
 	}
 
 	public static String getUTCDateTime(LocalDateTime time, String contextKey) {
-		String key = contextKey == null ? "__default__" : contextKey;
-		String pattern = CACHED_UTC_DATEFORMAT.get(key);
+		String pattern = cachedUtcDateformat;
 		if (pattern == null || pattern.isEmpty()) {
 			initializeUTCDateFormat(contextKey);
-			pattern = CACHED_UTC_DATEFORMAT.get(key);
+			pattern = cachedUtcDateformat;
 		}
 		if (pattern == null || pattern.isEmpty()) {
 			pattern = DEFAULT_UTC_DATEFORMAT;
