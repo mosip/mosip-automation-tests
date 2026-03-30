@@ -161,8 +161,9 @@ public class CryptoUtil {
 		wrapper.put("requesttime", APIRequestUtil.getUTCDateTime(LocalDateTime.now(ZoneOffset.UTC)));
 		wrapper.put("version", "1.0");
 		wrapper.put("request", encryptObj);
-
+		logger.debug("Prepared encrypt request for referenceId={}, appId={}", referenceId, encryptionAppId);
 		JSONObject secretObject = apiUtil.post(baseUrl, baseUrl + encryptApi, wrapper, contextKey);
+		
 		byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
 		return mergeEncryptedData(encBytes,
 				org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),

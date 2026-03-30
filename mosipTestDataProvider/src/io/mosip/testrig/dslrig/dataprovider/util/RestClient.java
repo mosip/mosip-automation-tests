@@ -366,6 +366,52 @@ public class RestClient {
 		return getResponse;
 	}
 
+	// method for GET request without authentication
+	public static JSONObject getWithoutAuth(String url, JSONObject requestParams, JSONObject pathParam, String contextKey)
+			throws Exception {
+
+		Response response = null;
+
+		try {
+			Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
+			Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
+
+			if (isDebugEnabled(contextKey)) {
+				response = given().log().all().contentType(ContentType.JSON).queryParams(mapParam)
+						.get(url, mapPathParam).then().log().all().extract().response();
+			} else {
+				response = given().contentType(ContentType.JSON).queryParams(mapParam).get(url, mapPathParam);
+			}
+
+			if (isDebugEnabled(contextKey) && response != null) {
+				logInfo(contextKey, response.getBody().asString());
+			}
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
+			checkErrorResponse(response.getBody().asString(), url);
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+		}
+
+		JSONObject fullResp = new JSONObject(response.getBody().asString());
+
+		if (fullResp.has(dataKey)) {
+			Object respObj = fullResp.get(dataKey);
+
+			if (respObj instanceof JSONObject) {
+				return (JSONObject) respObj;
+			} else if (respObj instanceof JSONArray) {
+				return fullResp;
+			}
+		}
+
+		return fullResp;
+	}
+
 	// method used with system role
 	public static JSONArray getDoc(String url, JSONObject requestParams, JSONObject pathParam, String contextKey)
 			throws Exception {
