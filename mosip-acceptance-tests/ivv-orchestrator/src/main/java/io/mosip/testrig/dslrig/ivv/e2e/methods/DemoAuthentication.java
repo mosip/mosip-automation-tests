@@ -128,16 +128,17 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			        logger.error("handles is not a List: " + handles);
 			    }
 			}
-		} else
-			handleList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
+		}
 
 		String fileName = null;
 		if(SceanrioFlow.equalsIgnoreCase("ERROR"))
 			fileName = DEMOPATHNEG;
 		else
 			fileName = DEMOPATH;
-		for (String uin : uinList) {
-			String personFilePathvalue = null;
+		boolean hasHandleAuth = handleList != null && !handleList.isEmpty();
+		if (!hasHandleAuth) {
+			for (String uin : uinList) {
+				String personFilePathvalue = null;
 
 			if (step.getParameters().size() > 2) {
 				personFilePathvalue = _personFilePath;
@@ -344,8 +345,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 		}
 
-		for (String vid : vidList) {
-			String personFilePathvalue = null;
+			for (String vid : vidList) {
+				String personFilePathvalue = null;
 
 			if (step.getParameters().size() > 2) {
 				personFilePathvalue = _personFilePath;
@@ -544,6 +545,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				}
 			}
 
+			}
 		}
 		
 		for (String handle : handleList) {
