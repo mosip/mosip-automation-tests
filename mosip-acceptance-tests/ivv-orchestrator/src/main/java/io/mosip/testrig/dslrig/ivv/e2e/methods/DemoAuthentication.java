@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang.StringUtils;
@@ -14,8 +13,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.utils.AdminTestException;
@@ -119,18 +116,16 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				handles = step.getScenario().getObjectVariables().get(handleKey);
 				_personFilePath = step.getScenario().getVariables().get(_personFilePath);
 				
-				if (handles instanceof Map) {
+				if (handles instanceof List) {
 			        @SuppressWarnings("unchecked")
-			        Map<String, String> handleMap = (Map<String, String>) handles;
+			        List<String> handleNames = (List<String>) handles;  // e.g., ["phone", "email"]
 
-			        for (Map.Entry<String, String> entry : handleMap.entrySet()) {
-			            String key = entry.getKey();     // e.g., "phone"
-			            String value = entry.getValue(); // e.g., "89765442"
-			            handleList.add(value + "@" + key);  // e.g., "89765442@phone"
+			        for (String handleName : handleNames) {
+			            handleList.add(handleName);  // e.g., "phone", "email"
 			        }
 
 			    } else {
-			        logger.error("handleMapObj is not a Map: " + handles);
+			        logger.error("handles is not a List: " + handles);
 			    }
 			}
 		} else
@@ -552,6 +547,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		}
 		
 		for (String handle : handleList) {
+			Reporter.log("<span style='color:blue;'>Handle : " + handle + "</span>");
 			String personFilePathvalue = null;
 
 			if (step.getParameters().size() > 2) {
@@ -572,7 +568,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 			Object[] testObj = demoAuth.getYmlTestData(fileName);
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
 			String input = test.getInput();
-			input = JsonPrecondtion.parseAndReturnJsonContent(input, handle, "individualId");
+			String handleValue = getHandleValueFromPersona(handle, demoResponse, addressResponse, updateAgeFlag);
+			input = JsonPrecondtion.parseAndReturnJsonContent(input, handleValue+"@"+handle, "individualId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, "HANDLE", "individualIdType");
 			JSONObject inputJson = new JSONObject(input);
 
@@ -765,6 +762,89 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		LocalDate currentDate = LocalDate.now();
 		long newAge = ChronoUnit.YEARS.between(newDate, currentDate);
 		return String.valueOf(newAge);
+	}
+
+	private String getHandleValueFromPersona(String handle, String demoResponse, String addressResponse,
+			String updateAgeFlag) throws RigInternalError {
+		String handleValue = null;
+		String normalizedHandle = handle == null ? "" : handle.trim();
+		String lowerHandle = normalizedHandle.toLowerCase();
+
+		try {
+			if (normalizedHandle.equalsIgnoreCase(E2EConstants.DEMOEMAIL) || lowerHandle.contains("mail")) {
+				handleValue = JsonPrecondtion.getValueFromJson(demoResponse,
+						E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOEMAIL);
+			} else if (normalizedHandle.equalsIgnoreCase(E2EConstants.DEMOYMLPHONE)
+					|| normalizedHandle.equalsIgnoreCase(E2EConstants.DEMOPHONE) || lowerHandle.contains("phone")
+					|| lowerHandle.contains("mobile")) {
+				handleValue = JsonPrecondtion.getValueFromJson(demoResponse,
+						E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOPHONE);
+			} else if (normalizedHandle.equalsIgnoreCase(E2EConstants.DEMONAME)
+					|| lowerHandle.equals("fullname") || lowerHandle.contains("name")) {
+				String firstNm = JsonPrecondtion.getValueFromJson(demoResponse,
+						E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOFNAME);
+				String midNm = JsonPrecondtion.getValueFromJson(demoResponse,
+						E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOMNAME);
+				String lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
+						E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
+
+				StringBuilder fullNameBuilder = new StringBuilder();
+				if (!StringUtils.isBlank(firstNm)) {
+					fullNameBuilder.append(firstNm);
+				}
+				if (!StringUtils.isBlank(midNm)) {
+					if (fullNameBuilder.length() > 0) {
+						fullNameBuilder.append(" ");
+					}
+					fullNameBuilder.append(midNm);
+				}
+				if (!StringUtils.isBlank(lastNm)) {
+					if (fullNameBuilder.length() > 0) {
+						fullNameBuilder.append(" ");
+					}
+					fullNameBuilder.append(lastNm);
+				}
+				handleValue = fullNameBuilder.length() == 0 ? null : fullNameBuilder.toString();
+			} else if (normalizedHandle.equalsIgnoreCase(E2EConstants.DEMOGENDER) || lowerHandle.contains("gender")) {
+				handleValue = JsonPrecondtion.getValueFromJson(demoResponse,
+						E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOGENDER);
+			} else if (normalizedHandle.equalsIgnoreCase(E2EConstants.DEMOAGE) || lowerHandle.contains("age")
+					|| lowerHandle.contains("dob") || lowerHandle.contains("birth")) {
+				String dobValue = JsonPrecondtion.getValueFromJson(demoResponse,
+						E2EConstants.DEMOFETCH + "." + E2EConstants.DEMODOB);
+				if (!StringUtils.isBlank(dobValue)) {
+					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease")) {
+						handleValue = decreaseAge(dobValue);
+					} else {
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+						LocalDate birthDate = LocalDate.parse(dobValue, formatter);
+						handleValue = String.valueOf(ChronoUnit.YEARS.between(birthDate, LocalDate.now()));
+					}
+				}
+			} else if (lowerHandle.contains("addressline1") || lowerHandle.contains("address1")) {
+				handleValue = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
+						E2EConstants.DEMOADDRESSLINE1);
+			} else if (lowerHandle.contains("addressline2") || lowerHandle.contains("address2")) {
+				handleValue = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
+						E2EConstants.DEMOADDRESSLINE2);
+			} else if (lowerHandle.contains("addressline3") || lowerHandle.contains("address3")) {
+				handleValue = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH,
+						E2EConstants.DEMOADDRESSLINE3);
+			} else {
+				handleValue = JsonPrecondtion.getValueFromJson(demoResponse,
+						E2EConstants.DEMOFETCH + "." + normalizedHandle);
+			}
+		} catch (Exception e) {
+			this.hasError = true;
+			throw new RigInternalError("Unable to get the handle value for field " + handle + " from Persona");
+		}
+
+		if (StringUtils.isBlank(handleValue)) {
+			this.hasError = true;
+			throw new RigInternalError("Unable to get the handle value for field " + handle + " from Persona");
+		}
+
+		return handleValue;
 	}
 
 }
