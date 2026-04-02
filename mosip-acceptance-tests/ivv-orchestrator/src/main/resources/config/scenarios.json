@@ -30921,7 +30921,7 @@
 			"Action": "e2e_wait(90)"
 		},
 		"Step-12": {
-			"Description": "Generated VID for the given UIN",
+			"Description": "Generates VID for the given UIN",
 			"Input Parameters": "UIN and other can be found in parameters in-line comments",
 			"Return Value": "VID",
 			"Action": "$$vid=e2e_generateVID(Perpetual,$$uin,$$email)"
@@ -30945,8 +30945,8 @@
 			"Action": "$$handles=e2e_getHandlesByUIN($$uin)"
 		},
 		"Step-16": {
-			"Description": "Peforms demographic authentication",
-			"Input Parameters": "Demo graphic details, persona, UIN and VID",
+			"Description": "Performs demographic authentication",
+			"Input Parameters": "Demographic details persona UIN and VID",
 			"Return Value": "NA",
 			"Action": "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid,0,$$handles)"
 		},
