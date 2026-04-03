@@ -96,7 +96,7 @@ public class DocumentProvider {
 
         for (String k : keys) {
             MosipLocationModel loc = locs.get(k);
-            addr.append(" ").append(loc.getName());
+            addr.append(" ").append(loc.getCode());
         }
 
         return addr.toString();
