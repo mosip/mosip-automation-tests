@@ -180,20 +180,7 @@
   "proofOfIdentity" : "DOC004",
   "proofOfException" : "EOP",
   "registrationId" : "10003100240000420210219103615",
-  "capturedRegisteredDevices" : [ {
-    "deviceServiceVersion" : "0.9.5",
-    "digitalId" : {
-      "dateTime" : "2021-02-19T10:30:58.926Z",
-      "deviceSubType" : "Slap",
-      "model" : "SLAP01",
-      "type" : "Finger",
-      "make" : "MOSIP",
-      "serialNo" : "1234567890",
-      "deviceProviderId" : "MOSIP.PROXY.SBI",
-      "deviceProvider" : "MOSIP"
-    },
-    "deviceCode" : "b692b595-3523-slap-99fc-bd76e35f190f"
-  },
+  "capturedRegisteredDevices" : [ 
   {
     "deviceServiceVersion" : "0.9.5",
     "digitalId" : {
