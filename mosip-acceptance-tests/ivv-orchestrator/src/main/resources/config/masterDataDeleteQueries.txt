@@ -6,7 +6,6 @@ delete from master.machine_master where mspec_id in (select id from master.machi
 delete from master.machine_spec where cr_by LIKE '${currentModule}-%';
 delete from master.machine_type where cr_by LIKE '${currentModule}-%';
 delete from master.device_master where cr_by LIKE '${currentModule}-%';
-delete from master.device_master where upd_by LIKE '${currentModule}-%';
 delete from master.device_spec where cr_by LIKE '${currentModule}-%';
 delete from master.device_type where cr_by LIKE '${currentModule}-%';
 delete from master.loc_holiday where cr_by LIKE '${currentModule}-%';
