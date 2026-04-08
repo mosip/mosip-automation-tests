@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.dataprovider.util;
 
 import static io.restassured.RestAssured.given;
+import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -360,14 +361,23 @@ public class RestClient {
 
 	public static Response getWithoutCookie(String url) {
 
-		Response response;
+		Response response = null;
+		try {
+			response = given()
+					.relaxedHTTPSValidation()
+					.log().all()
+					.when()
+					.get(url);
 
-		response = given()
-				.relaxedHTTPSValidation()
-				.log().all()
-				.when()
-				.get(url);
-
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+		}
 		return response;
 	}
 
