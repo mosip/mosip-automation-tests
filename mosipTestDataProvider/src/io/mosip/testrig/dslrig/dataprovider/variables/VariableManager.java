@@ -43,42 +43,62 @@ public final class VariableManager {
 	}
 
 	public static synchronized void Init() {
-        synchronized (VariableManager.class) {
-            if (bInit) return;
-            // resolve a cache manager
-            CachingProvider cachingProvider = Caching.getCachingProvider();
-            cacheManager = cachingProvider.getCacheManager();
-            // configure the cache
-            cacheConfig = new MutableConfiguration<String, Object>()
-                    .setTypes(String.class, Object.class)
-                    .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_DAY))
-                    .setStatisticsEnabled(true);
-            // create the cache
-            if (varNameSpaces == null) {
-                varNameSpaces = new Hashtable<String, Cache<String, Object>>();
-                Cache<String, Object> cache = cacheManager.createCache(NS_DEFAULT, cacheConfig);
-                varNameSpaces.put(NS_DEFAULT, cache);
-            }
-            CONFIG_PATH = DataProviderConstants.RESOURCE + "config/";
-            Boolean bret = loadNamespaceFromPropertyFile(CONFIG_PATH + "default.properties", NS_DEFAULT);
-            bInit = bret;
-        }
-    }
+		synchronized (VariableManager.class) {
+			if (bInit)
+				return;
+			// resolve a cache manager
+			CachingProvider cachingProvider = Caching.getCachingProvider();
+			cacheManager = cachingProvider.getCacheManager();
+			// configure the cache
+			cacheConfig = new MutableConfiguration<String, Object>()
+					.setTypes(String.class, Object.class)
+					.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_DAY))
+					.setStatisticsEnabled(true);
+			// create the cache
+			if (varNameSpaces == null) {
+				varNameSpaces = new Hashtable<String, Cache<String, Object>>();
+				Cache<String, Object> cache = cacheManager.createCache(NS_DEFAULT, cacheConfig);
+				varNameSpaces.put(NS_DEFAULT, cache);
+			}
+			CONFIG_PATH = DataProviderConstants.RESOURCE + "config/";
+			Boolean bret = loadNamespaceFromPropertyFile(CONFIG_PATH + "default.properties", NS_DEFAULT);
+			bInit = bret;
+		}
+	}
 
-	 static Cache<String, Object> createNameSpace(String contextKey) {
-	            Cache<String, Object> ht = varNameSpaces.get(contextKey);
-	            if (ht == null) {
-	                ht = cacheManager.createCache(contextKey, cacheConfig);
-	                varNameSpaces.put(contextKey, ht);
-	            }
-	            return ht;
-	    }
+	static Cache<String, Object> createNameSpace(String contextKey) {
+		Cache<String, Object> ht = varNameSpaces.get(contextKey);
+		if (ht == null) {
+			ht = cacheManager.createCache(contextKey, cacheConfig);
+			varNameSpaces.put(contextKey, ht);
+		}
+		return ht;
+	}
 
-	    public static Object setVariableValue(String contextKey, String varName, Object value) {
-	            Cache<String, Object> ht = createNameSpace(contextKey);
-	            ht.put(varName, value);
-	            return value;
-	    }
+	public static Object setVariableValue(String contextKey, String varName, Object value) {
+		Cache<String, Object> ht = createNameSpace(contextKey);
+		ht.put(varName, value);
+		return value;
+	}
+
+	public static Object appendVariableValue(String contextKey,String varName,Object newValue){
+		if (newValue==null || newValue.toString().isEmpty())
+			return null;
+	Cache<String,Object> ht=createNameSpace(contextKey);
+	Object existingValue=getVariableValue(contextKey,varName);
+	String newVal=newValue.toString();
+	if(existingValue==null){
+		ht.put(varName,newVal);
+		return newVal;
+	}else{
+		String existing=existingValue.toString();
+		if(!java.util.Arrays.asList(existing.split(",")).contains(newVal)){
+			existing=existing+","+newVal;
+			ht.put(varName,existing);
+		}
+		return existing;
+	}
+}
 
 	public static String[] findVariables(String text) {
 
@@ -101,25 +121,26 @@ public final class VariableManager {
 		return set.toArray(a);
 	}
 
-	   public static Object getVariableValue(String contextKey, String varName) {
-	        if (!bInit) Init();
-	            Cache<String, ?> ht = varNameSpaces.get(contextKey);
-	            Object ret = null;
-	            try {
-	                if (ht != null) {
-	                    ret = ht.get(varName);
-	                    if (ret == null && contextKey.equalsIgnoreCase(NS_DEFAULT)) {
-	                        // Cache expired, reloading the default namespace
-	                        loadNamespaceFromPropertyFile(CONFIG_PATH + "default.properties", NS_DEFAULT);
-	                        ht = varNameSpaces.get(contextKey);
-	                        ret = ht.get(varName);
-	                    }
-	                }
-	            } catch (Exception e) {
-	                logger.error(e.getMessage());
-	            }
-	            return ret;
-	    }
+	public static Object getVariableValue(String contextKey, String varName) {
+		if (!bInit)
+			Init();
+		Cache<String, ?> ht = varNameSpaces.get(contextKey);
+		Object ret = null;
+		try {
+			if (ht != null) {
+				ret = ht.get(varName);
+				if (ret == null && contextKey.equalsIgnoreCase(NS_DEFAULT)) {
+					// Cache expired, reloading the default namespace
+					loadNamespaceFromPropertyFile(CONFIG_PATH + "default.properties", NS_DEFAULT);
+					ht = varNameSpaces.get(contextKey);
+					ret = ht.get(varName);
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return ret;
+	}
 
 	public static Boolean loadNamespaceFromPropertyFile(String propFile, String contextKey) {
 		Boolean bRet = false;
@@ -140,21 +161,21 @@ public final class VariableManager {
 		return bRet;
 	}
 
-    public static String deleteNameSpace(String contextKey) {
-            try {
-                printAllContents();
-                Cache<String, Object> cache = varNameSpaces.remove(contextKey);
-                if (cache != null) {
-                    synchronized (cacheManager) {
-                        cacheManager.destroyCache(contextKey);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                return "false";
-            }
-        return "true";
-    }
+	public static String deleteNameSpace(String contextKey) {
+		try {
+			printAllContents();
+			Cache<String, Object> cache = varNameSpaces.remove(contextKey);
+			if (cache != null) {
+				synchronized (cacheManager) {
+					cacheManager.destroyCache(contextKey);
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return "false";
+		}
+		return "true";
+	}
 
 	public static void printAllContents() {
 		StringBuffer s = new StringBuffer();

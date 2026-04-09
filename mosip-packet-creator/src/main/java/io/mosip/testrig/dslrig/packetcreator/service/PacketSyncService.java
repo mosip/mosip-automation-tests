@@ -563,22 +563,6 @@ public class PacketSyncService {
 		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face",
 				"MOSIP-FACE01-2345678901");
 
-		logger.debug("Tags set while generating the packet: "
-				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId")
-				+ VariableManager.getVariableValue(contextKey, "Biometric_Quality-Iris")
-				+ VariableManager.getVariableValue(contextKey, "INTRODUCER_AVAILABILITY")
-				+ VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger")
-				+ VariableManager.getVariableValue(contextKey, "META_INFO-META_DATA-centerId")
-				+ VariableManager.getVariableValue(contextKey, "Biometric_Quality-Face")
-				+ VariableManager.getVariableValue(contextKey, "Biometric_Quality-Finger")
-				+ VariableManager.getVariableValue(contextKey, "EXCEPTION_BIOMETRICS")
-				+ VariableManager.getVariableValue(contextKey, "ID_OBJECT-gender")
-				+ VariableManager.getVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face")
-				+ VariableManager.getVariableValue(contextKey, "AGE_GROUP")
-				+ VariableManager.getVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS")
-				+ VariableManager.getVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-officerId")
-				+ VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus"));
-
 		RestClient.logInfo(contextKey, baseUrl + uploadapi + ",path=" + path);
 		JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl + uploadapi, path, contextKey);
 			if (VariableManager.getVariableValue(contextKey, "mosip.test.temp") != null
