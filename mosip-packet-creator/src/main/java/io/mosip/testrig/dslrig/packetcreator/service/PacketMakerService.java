@@ -1034,10 +1034,19 @@ public class PacketMakerService {
 	}
 
 	private List<String> getBiometricFiles(String packetRootFolder) {
+
 		List<String> paths = new ArrayList<>();
+
+		Path trustedRoot = Paths.get(System.getProperty("user.dir"))
+				.toAbsolutePath()
+				.normalize();
 		Path baseDir = Paths.get(packetRootFolder)
 				.toAbsolutePath()
 				.normalize();
+		if (!baseDir.startsWith(trustedRoot)) {
+			throw new SecurityException(
+					"Invalid packet root folder: " + baseDir);
+		}
 		File packetFolder = baseDir.toFile();
 		File[] biometricFiles = packetFolder.listFiles((d, name) -> name.endsWith(".xml"));
 		if (biometricFiles == null) {
