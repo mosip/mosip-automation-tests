@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.dataprovider.util;
 
 import static io.restassured.RestAssured.given;
+import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -201,10 +202,10 @@ public class RestClient {
 
 			}
 			if (response != null) {
-			    checkErrorResponse(response.getBody().asString(), url);
-			}else {
-			    throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
- 			}
+				checkErrorResponse(response.getBody().asString(), url);
+			} else {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
 
 		} catch (ServiceException se) {
 			throw se;
@@ -358,16 +359,31 @@ public class RestClient {
 		return fullResp;
 	}
 
-	public static Response getWithoutParams(String url, String cookie) {
+	public static Response getWithoutCookie(String url) {
 
-		Cookie.Builder builder = new Cookie.Builder("Authorization", cookie);
-		Response getResponse;
-		getResponse = given().cookie(builder.build()).relaxedHTTPSValidation().log().all().when().get(url);
-		return getResponse;
+		Response response = null;
+		try {
+			response = given()
+					.relaxedHTTPSValidation()
+					.log().all()
+					.when()
+					.get(url);
+
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+		}
+		return response;
 	}
 
 	// method for GET request without authentication
-	public static JSONObject getWithoutAuth(String url, JSONObject requestParams, JSONObject pathParam, String contextKey)
+	public static JSONObject getWithoutAuth(String url, JSONObject requestParams, JSONObject pathParam,
+			String contextKey)
 			throws Exception {
 
 		Response response = null;
@@ -506,7 +522,7 @@ public class RestClient {
 				logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
 				throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 			}
-		}else 
+		} else
 			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
 
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -552,56 +568,56 @@ public class RestClient {
 			logger.error("POST (file upload) failed for url {} : {}", url, e.getMessage(), e);
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
-		
-         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
-     }
 
-     public static JSONObject uploadFiles(String url, List<String> filePaths, JSONObject requestData, String contextKey)
-             throws Exception {
-         String role = ADMIN;
+		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+	}
 
-			if (!isValidToken(role, contextKey)) {
-				initToken_admin(contextKey);
+	public static JSONObject uploadFiles(String url, List<String> filePaths, JSONObject requestData, String contextKey)
+			throws Exception {
+		String role = ADMIN;
+
+		if (!isValidToken(role, contextKey)) {
+			initToken_admin(contextKey);
+		}
+
+		Response response = null;
+		RequestSpecification spec = null;
+		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+
+		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
+
+		if (isDebugEnabled(contextKey))
+			spec = given().log().all().cookie(kukki);
+		else
+			spec = given().cookie(kukki);
+		for (String fName : filePaths)
+			spec = spec.multiPart("files", new File(fName));
+		if (requestData != null) {
+			Iterator<String> paramKeys = requestData.keys();
+			while (paramKeys.hasNext()) {
+				String key = paramKeys.next();
+				spec = spec.formParam(key, requestData.get(key));
+
 			}
+		}
 
-         Response response = null;
-         RequestSpecification spec = null;
-         String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
-
-         Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
-
-         if (isDebugEnabled(contextKey))
-             spec = given().log().all().cookie(kukki);
-         else
-             spec = given().cookie(kukki);
-         for (String fName : filePaths)
-             spec = spec.multiPart("files", new File(fName));
-         if (requestData != null) {
-             Iterator<String> paramKeys = requestData.keys();
-             while (paramKeys.hasNext()) {
-                 String key = paramKeys.next();
-                 spec = spec.formParam(key, requestData.get(key));
-
-             }
-         }
-
-         if (isDebugEnabled(contextKey))
-             response = spec.post(url).then().log().all().extract().response();
-         else
-             response = spec.post(url);
-			if (response == null) {
-				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
-			}
-        try {
-            checkErrorResponse(response.getBody().asString(), url);
-        } catch (ServiceException se) {
-            throw se;
-        } catch (Exception e) {
-            logger.error("POST (files upload) failed for url {} : {}", url, e.getMessage(), e);
-            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
-        }
-         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
-     }
+		if (isDebugEnabled(contextKey))
+			response = spec.post(url).then().log().all().extract().response();
+		else
+			response = spec.post(url);
+		if (response == null) {
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+		}
+		try {
+			checkErrorResponse(response.getBody().asString(), url);
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("POST (files upload) failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+		}
+		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
+	}
 
 	public static JSONObject postNoAuth(String url, JSONObject jsonRequest, String contextKey) throws Exception {
 		return postNoAuth(url, jsonRequest, ADMIN, contextKey);
@@ -1509,59 +1525,57 @@ public class RestClient {
 
 	private static void checkErrorResponse(String response, String url) {
 
-        // NULL or empty response
-        if (response == null || response.trim().isEmpty()) {
-            throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
-        }
+		// NULL or empty response
+		if (response == null || response.trim().isEmpty()) {
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+		}
 
-        JSONObject json;
-        try {
-            json = new JSONObject(response);
-        } catch (Exception e) {
-            throw new ServiceException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "REST_INVALID_RESPONSE",
-                    url,
-                    e,
-                    response
-            );
+		JSONObject json;
+		try {
+			json = new JSONObject(response);
+		} catch (Exception e) {
+			throw new ServiceException(
+					HttpStatus.INTERNAL_SERVER_ERROR,
+					"REST_INVALID_RESPONSE",
+					url,
+					e,
+					response);
 
-        }
+		}
 
-        // ---- NO errors key → SUCCESS ----
-        if (!json.has(errorKey)) {
-            return;
-        }
+		// ---- NO errors key → SUCCESS ----
+		if (!json.has(errorKey)) {
+			return;
+		}
 
-        Object errObject = json.get(errorKey);
+		Object errObject = json.get(errorKey);
 
-        // ---- errors : null → SUCCESS ----
-        if (errObject == JSONObject.NULL) {
-            return;
-        }
+		// ---- errors : null → SUCCESS ----
+		if (errObject == JSONObject.NULL) {
+			return;
+		}
 
-        // ---- errors : [] → SUCCESS ----
-        if (errObject instanceof JSONArray) {
-            JSONArray errors = (JSONArray) errObject;
-            if (errors.isEmpty()) {
-                return;
-            }
+		// ---- errors : [] → SUCCESS ----
+		if (errObject instanceof JSONArray) {
+			JSONArray errors = (JSONArray) errObject;
+			if (errors.isEmpty()) {
+				return;
+			}
 
-            JSONObject err = errors.getJSONObject(0);
+			JSONObject err = errors.getJSONObject(0);
 			throw new ServiceException(HttpStatus.BAD_REQUEST, err.optString("errorCode", "UNKNOWN"), url, null,
 					err.optString("message", err.toString()));
-        }
+		}
 
-        // ---- errors : { } → ERROR ----
-        if (errObject instanceof JSONObject) {
-            JSONObject err = (JSONObject) errObject;
-        	throw new ServiceException(HttpStatus.BAD_REQUEST, err.optString("errorCode", "UNKNOWN"), url, null,
+		// ---- errors : { } → ERROR ----
+		if (errObject instanceof JSONObject) {
+			JSONObject err = (JSONObject) errObject;
+			throw new ServiceException(HttpStatus.BAD_REQUEST, err.optString("errorCode", "UNKNOWN"), url, null,
 					err.optString("message", err.toString()));
-        }
+		}
 
-        throw new ServiceException(HttpStatus.BAD_REQUEST, "UNKNOWN", url, null, errObject.toString());
+		throw new ServiceException(HttpStatus.BAD_REQUEST, "UNKNOWN", url, null, errObject.toString());
 	}
-
 
 	public String get(String uri, Properties queryParam) throws IOException {
 

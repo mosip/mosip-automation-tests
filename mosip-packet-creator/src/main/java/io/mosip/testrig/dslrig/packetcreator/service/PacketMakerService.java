@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 
 import jakarta.annotation.PostConstruct;
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -50,6 +52,8 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -587,6 +591,8 @@ public class PacketMakerService {
 			updatePacketMetaInfo(packetRootFolder, METADATA, "registrationType",
 					StringUtils.capitalize(process.toLowerCase()), false);
 
+            updatePacketMetaInfo(packetRootFolder, METADATA, "Registration Client Version Number",
+					getRegistrationClientVersion(contextKey), false);
 			// ToRead Context file
 			String filePath = personaConfigPath + "/server.context." + contextKey + ".properties";
 			Properties p = new Properties();
@@ -1159,6 +1165,31 @@ public class PacketMakerService {
 				if (RestClient.isDebugEnabled(contextKey))
 					logger.info("Failed to update audit.json", e);
 			}
+		}
+	}
+
+	public String getRegistrationClientVersion(String contextKey) {
+		String baseUrl = VariableManager
+				.getVariableValue(contextKey, "mosip.test.baseurl").toString()
+				.replaceAll("api-internal", "regclient")
+				+ VariableManager
+						.getVariableValue(
+								VariableManager.NS_DEFAULT,
+								"regClientVersion")
+						.toString();
+		io.restassured.response.Response response = RestClient.getWithoutCookie(baseUrl);
+		try {
+			String xml = response.getBody().asString();
+			Document doc = DocumentBuilderFactory
+					.newInstance()
+					.newDocumentBuilder()
+					.parse(new ByteArrayInputStream(xml.getBytes()));
+
+			NodeList nodeList = doc.getElementsByTagName("version");
+			return nodeList.item(0).getTextContent();
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"Failed to parse version from metadata XML", e);
 		}
 	}
 }
