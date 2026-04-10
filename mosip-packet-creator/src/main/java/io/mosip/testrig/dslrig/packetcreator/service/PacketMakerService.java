@@ -1035,10 +1035,23 @@ public class PacketMakerService {
 
 	private List<String> getBiometricFiles(String packetRootFolder) {
 		List<String> paths = new ArrayList<>();
-		File packetFolder = Path.of(packetRootFolder).toFile();
+		Path baseDir = Paths.get(packetRootFolder)
+				.toAbsolutePath()
+				.normalize();
+		File packetFolder = baseDir.toFile();
 		File[] biometricFiles = packetFolder.listFiles((d, name) -> name.endsWith(".xml"));
+		if (biometricFiles == null) {
+			return paths;
+		}
 		for (File file : biometricFiles) {
-			paths.add(file.getAbsolutePath());
+			Path filePath = file.toPath()
+					.toAbsolutePath()
+					.normalize();
+			if (!filePath.startsWith(baseDir)) {
+				throw new SecurityException(
+						"Invalid file path detected: " + filePath);
+			}
+			paths.add(filePath.toString());
 		}
 		return paths;
 	}
