@@ -327,14 +327,9 @@ public class PacketMakerService {
 				} else {
 					originalFileName = originalFileName.replaceFirst("^[^_]*_", "");
 				}
-				Path baseDir = Paths.get(templateLocation, source, processArg, "rid_id")
-						.normalize();
 
-				Path target = baseDir.resolve(originalFileName).normalize();
-
-				if (!target.startsWith(baseDir)) {
-					throw new SecurityException("Invalid file path detected: " + originalFileName);
-				}
+				Path target = Paths.get(templateLocation + File.separator + source + File.separator +
+						processArg + File.separator + "rid_id", originalFileName);
 
 				try {
 					Files.copy(sourceprereg, target, StandardCopyOption.REPLACE_EXISTING);
@@ -511,9 +506,8 @@ public class PacketMakerService {
 
 	boolean createPacket(String containerRootFolder, String regId, String dataFilePath, String type, String preregId,
 			String contextKey) throws Exception {
-		Path packetRootFolder = resolvePacketRootFolder(
-				getPacketRoot(getProcessRoot(containerRootFolder, contextKey), regId, type), contextKey);
-		String templateFile = getIdJSONFileLocation(packetRootFolder.toString());
+		String packetRootFolder = getPacketRoot(getProcessRoot(containerRootFolder, contextKey), regId, type);
+		String templateFile = getIdJSONFileLocation(packetRootFolder);
 		String process = VariableManager.getVariableValue(contextKey, "process").toString();
 		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 		String officerId = null;
@@ -582,30 +576,30 @@ public class PacketMakerService {
 				return false;
 			}
 
-			updatePacketMetaInfo(packetRootFolder.toString(), METADATA, "registrationId", regId, true);
+			updatePacketMetaInfo(packetRootFolder, METADATA, "registrationId", regId, true);
 			if (preregId != null && !preregId.equalsIgnoreCase("0")) // newly added
 
-				updatePacketMetaInfo(packetRootFolder.toString(), METADATA, "preRegistrationId", preregId, true);
+				updatePacketMetaInfo(packetRootFolder, METADATA, "preRegistrationId", preregId, true);
 
 			String invalidDateValue = VariableManager
 					.getVariableValue(contextKey, "invalidDateFlag")
 					.toString();
 
 			if (invalidDateValue.equals("invalidCreationDate")) {
-				updatePacketMetaInfo(packetRootFolder.toString(), METADATA, "creationDate", null, true);
+				updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", null, true);
 			} else if (invalidDateValue.contains("CreationDate")) {
 				String offsetValue = invalidDateValue.split("=")[1];
 				String updatedDate = APIRequestUtil.getAdjustedUTCDate(offsetValue);
-				updatePacketMetaInfo(packetRootFolder.toString(), METADATA, "creationDate", updatedDate, true);
+				updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", updatedDate, true);
 			} else {
-				updatePacketMetaInfo(packetRootFolder.toString(), METADATA, "creationDate",
-						APIRequestUtil.getUTCDateTime(null), true);
+				updatePacketMetaInfo(packetRootFolder, METADATA, "creationDate", APIRequestUtil.getUTCDateTime(null),
+						true);
 			}
-			updatePacketMetaInfo(packetRootFolder.toString(), METADATA, "machineId", machineId, false);
-			updatePacketMetaInfo(packetRootFolder.toString(), METADATA, "centerId", centerId, false);
-			updatePacketMetaInfo(packetRootFolder.toString(), METADATA, "Registration Client Version Number",
+			updatePacketMetaInfo(packetRootFolder, METADATA, "machineId", machineId, false);
+			updatePacketMetaInfo(packetRootFolder, METADATA, "centerId", centerId, false);
+			updatePacketMetaInfo(packetRootFolder, METADATA, "Registration Client Version Number",
 					getRegistrationClientVersion(contextKey), false);
-			updatePacketMetaInfo(packetRootFolder.toString(), METADATA, "registrationType",
+			updatePacketMetaInfo(packetRootFolder, METADATA, "registrationType",
 					StringUtils.capitalize(process.toLowerCase()), false);
 
 			// ToRead Context file
@@ -623,7 +617,7 @@ public class PacketMakerService {
 
 			if (!VariableManager.getVariableValue(contextKey, "invalidOfficerIDFlag").toString()
 					.equals("invalidOfficerID")) {
-				updatePacketMetaInfo(packetRootFolder.toString(), OPERATIONSDATA, "officerId", officerId, false);
+				updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerId", officerId, false);
 			}
 			supervisorId = p.getProperty(MOSIPTEST_REGCLIENT_SUPERVISORID);
 
@@ -631,7 +625,7 @@ public class PacketMakerService {
 					.equalsIgnoreCase("true"))
 				supervisorId = generateCaseConvertedString(supervisorId);
 
-			updatePacketMetaInfo(packetRootFolder.toString(), OPERATIONSDATA, "supervisorId", supervisorId, false);
+			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorId", supervisorId, false);
 
 			// officerP
 			officerP = p.getProperty(MOSIP_TEST_REGCLIENT_PASSWORD);
@@ -641,7 +635,7 @@ public class PacketMakerService {
 				officerP = "true"; // valid
 			else
 				officerP = FALSE; // null
-			updatePacketMetaInfo(packetRootFolder.toString(), OPERATIONSDATA, "officerPassword", officerP, false);
+			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerPassword", officerP, false);
 
 			// supervisorP
 			supervisorP = p.getProperty(MOSIP_TEST_REGCLIENT_supervisorP);
@@ -651,33 +645,33 @@ public class PacketMakerService {
 				supervisorP = "true"; // valid
 			else
 				supervisorP = FALSE; // null
-			updatePacketMetaInfo(packetRootFolder.toString(), OPERATIONSDATA, "supervisorPassword", supervisorP, false);
+			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorPassword", supervisorP, false);
 
 			// officerBiometricFileName
 			officerBiometricFileName = p.getProperty("mosip.test.regclient.officerBiometricFileName");
 			if (officerBiometricFileName != null && officerBiometricFileName.length() > 1) {
 			} else
 				officerBiometricFileName = null;
-			updatePacketMetaInfo(packetRootFolder.toString(), OPERATIONSDATA, "officerBiometricFileName",
-					officerBiometricFileName, false);
+			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "officerBiometricFileName", officerBiometricFileName,
+					false);
 
 			// supervisorBiometricFileName
 			supervisorBiometricFileName = p.getProperty("mosip.test.regclient.supervisorBiometricFileName");
 			if (supervisorBiometricFileName != null && supervisorBiometricFileName.length() > 1) {
 			} else
 				supervisorBiometricFileName = null;
-			updatePacketMetaInfo(packetRootFolder.toString(), OPERATIONSDATA, "supervisorBiometricFileName",
+			updatePacketMetaInfo(packetRootFolder, OPERATIONSDATA, "supervisorBiometricFileName",
 					supervisorBiometricFileName, false);
 
-			updateAudit(packetRootFolder.toString(), regId, contextKey);
+			updateAudit(packetRootFolder, regId, contextKey);
 
 			LinkedList<String> sequence = updateHashSequence1(packetRootFolder);
 			LinkedList<String> operations_seq = updateHashSequence2(packetRootFolder);
 			if (preregId != null && preregId.equals("01")) // to generte invalid hash data
 			{
-				CommonUtil.write(packetRootFolder.resolve(PACKET_DATA_HASH_FILENAME),
+				CommonUtil.write(Path.of(packetRootFolder, PACKET_DATA_HASH_FILENAME),
 						"PACKET_DATA_HASH_INVALID_DATA".getBytes());
-				CommonUtil.write(packetRootFolder.resolve(PACKET_OPERATION_HASH_FILENAME),
+				CommonUtil.write(Path.of(packetRootFolder, PACKET_OPERATION_HASH_FILENAME),
 						"PACKET_OPERATION_HASH_INVALID_DATA".getBytes());
 			} else {
 				updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME, contextKey);
@@ -707,21 +701,14 @@ public class PacketMakerService {
 		}
 		String encryptedHashFlag = VariableManager.getVariableValue(contextKey, "invalidEncryptedHashFlag").toString();
 		String encryptedHash = null;
-		Path baseDir = Paths.get(containerRootFolder).normalize();
-		Path zipPath = Paths.get(containerRootFolder + ".zip")
-				.normalize();
-		if (!zipPath.startsWith(baseDir.getParent())) {
-			throw new SecurityException(
-					"Invalid zip path detected: " + zipPath);
-		}
-		if (encryptedHashFlag.equalsIgnoreCase("invalidEncryptedHash")
-				&& type.equals("id")) {
+
+		// Make encrypted hash as invalid if "invalidEncryptedHashFlag --yes"
+		if (encryptedHashFlag.equalsIgnoreCase("invalidEncryptedHash") && type.equals("id"))
 			encryptedHash = "INVALID_ENCRYPTED_HASH";
-		} else {
-			byte[] fileBytes = Files.readAllBytes(zipPath);
+		else
 			encryptedHash = CryptoUtil.encodeToURLSafeBase64(
-					HMACUtils2.generateHash(fileBytes));
-		}
+					HMACUtils2.generateHash(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
+
 		String signaturevalue = VariableManager.getVariableValue(contextKey, "signature").toString();
 		String signature = "";
 		if (signaturevalue.equalsIgnoreCase("invalidSignature")) {
@@ -980,9 +967,9 @@ public class PacketMakerService {
 		return centerId + machineId + counter + currUTCTime;
 	}
 
-	private LinkedList<String> updateHashSequence1(Path packetRootFolder) throws Exception {
+	private LinkedList<String> updateHashSequence1(String packetRootFolder) throws Exception {
 		LinkedList<String> sequence = new LinkedList<>();
-		Path metaInfoPath = packetRootFolder.resolve(PACKET_META_FILENAME);
+		Path metaInfoPath = Path.of(packetRootFolder, PACKET_META_FILENAME);
 		JSONObject metaInfo;
 		try (BufferedReader reader = Files.newBufferedReader(metaInfoPath, StandardCharsets.UTF_8)) {
 			metaInfo = new JSONObject(reader.lines().collect(Collectors.joining()));
@@ -999,9 +986,9 @@ public class PacketMakerService {
 		return sequence;
 	}
 
-	private LinkedList<String> updateHashSequence2(Path packetRootFolder) throws Exception {
+	private LinkedList<String> updateHashSequence2(String packetRootFolder) throws Exception {
 		LinkedList<String> sequence = new LinkedList<>();
-		Path metaInfoPath = packetRootFolder.resolve(PACKET_META_FILENAME);
+		Path metaInfoPath = Path.of(packetRootFolder, PACKET_META_FILENAME);
 		JSONObject metaInfo;
 		try (BufferedReader reader = Files.newBufferedReader(metaInfoPath, StandardCharsets.UTF_8)) {
 			metaInfo = new JSONObject(reader.lines().collect(Collectors.joining()));
@@ -1016,7 +1003,7 @@ public class PacketMakerService {
 		return sequence;
 	}
 
-	private void updatePacketDataHash(Path packetRootFolder, LinkedList<String> sequence, String fileName,
+	private void updatePacketDataHash(String packetRootFolder, LinkedList<String> sequence, String fileName,
 			String contextKey) throws Exception {
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -1032,83 +1019,36 @@ public class PacketMakerService {
 			logger.info("sequence packetDataHash >> {} ", packetDataHash);
 			logger.info("sequence packetDataHash2 >> {} ", packetDataHash2);
 		}
-		CommonUtil.write(packetRootFolder.resolve(fileName), packetDataHash2.getBytes());
+		CommonUtil.write(Path.of(packetRootFolder, fileName), packetDataHash2.getBytes());
 	}
 
-	private Path resolvePacketRootFolder(String packetRootFolder, String contextKey) throws IOException {
-		Path allowedBaseDirectory = resolvePacketBaseDirectory(contextKey);
-		Path normalizedPacketFolder = Paths.get(packetRootFolder)
-				.toAbsolutePath()
-				.normalize();
-
-		if (!normalizedPacketFolder.startsWith(allowedBaseDirectory)) {
-			throw new SecurityException("Invalid packet folder path: " + normalizedPacketFolder);
-		}
-
-		if (!Files.isDirectory(normalizedPacketFolder)) {
-			throw new SecurityException("Packet folder does not exist: " + normalizedPacketFolder);
-		}
-
-		Path canonicalPacketFolder = normalizedPacketFolder.toRealPath();
-		if (!canonicalPacketFolder.startsWith(allowedBaseDirectory)) {
-			throw new SecurityException("Invalid packet folder path: " + canonicalPacketFolder);
-		}
-
-		return canonicalPacketFolder;
+	private List<String> getBiometricFiles(String packetRootFolder) {
+		List<String> paths = new ArrayList<>();
+		File packetFolder = Path.of(packetRootFolder).toFile();
+		File[] biometricFiles = packetFolder.listFiles((d, name) -> name.endsWith(".xml"));
+		for (File file : biometricFiles) {
+			paths.add(file.getAbsolutePath());
 	}
-
-	private Path resolvePacketBaseDirectory(String contextKey) {
-		if (contextKey != null) {
-			Object configuredPacketPath = VariableManager.getVariableValue(contextKey, PACKETPATH);
-			if (configuredPacketPath != null && StringUtils.hasText(configuredPacketPath.toString())) {
-				return Paths.get(configuredPacketPath.toString()).toAbsolutePath().normalize();
-			}
-		}
-		return Paths.get(workDirectory).toAbsolutePath().normalize();
-	}
-
-	private List<String> getBiometricFiles(Path packetRootFolder) {
-		return getPacketFiles(packetRootFolder, path -> path.getFileName().toString().endsWith(".xml"));
+		return paths;
 	}
 
 	private List<String> getDemographicDocFiles(String packetRootFolder) {
-		return getPacketFiles(Paths.get(packetRootFolder).toAbsolutePath().normalize(),
-				path -> {
-					String fileName = path.getFileName().toString();
-					return fileName.endsWith(".pdf") || fileName.endsWith(".jpg") || fileName.equals("ID.json");
-				});
-	}
-
-	private List<String> getDemographicDocFiles(Path packetRootFolder) {
-		return getPacketFiles(packetRootFolder,
-				path -> {
-					String fileName = path.getFileName().toString();
-					return fileName.endsWith(".pdf") || fileName.endsWith(".jpg") || fileName.equals("ID.json");
-				});
-	}
-
-	private List<String> getOperationsFiles(Path packetRootFolder) {
-		return getPacketFiles(packetRootFolder, path -> path.getFileName().toString().equals("audit.json"));
-	}
-
-	private List<String> getPacketFiles(Path packetRootFolder, DirectoryStream.Filter<Path> filter) {
 		List<String> paths = new ArrayList<>();
-		if (!Files.isDirectory(packetRootFolder)) {
-			return paths;
+		File packetFolder = Path.of(packetRootFolder).toFile();
+		File[] documents = packetFolder
+				.listFiles((d, name) -> name.endsWith(".pdf") || name.endsWith(".jpg") || name.equals("ID.json"));
+		for (File file : documents) {
+			paths.add(file.getAbsolutePath());
 		}
+		return paths;
+	}
 
-		try (DirectoryStream<Path> files = Files.newDirectoryStream(packetRootFolder, filter)) {
-			for (Path file : files) {
-				Path canonicalFile = file.toRealPath();
-				if (!canonicalFile.startsWith(packetRootFolder)) {
-					throw new SecurityException("Invalid file path: " + canonicalFile);
-				}
-				if (Files.isRegularFile(canonicalFile)) {
-					paths.add(canonicalFile.toString());
-				}
-			}
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading packet files", e);
+	private List<String> getOperationsFiles(String packetRootFolder) {
+		List<String> paths = new ArrayList<>();
+		File packetFolder = Path.of(packetRootFolder).toFile();
+		File[] documents = packetFolder.listFiles((d, name) -> name.equals("audit.json"));
+		for (File file : documents) {
+			paths.add(file.getAbsolutePath());
 		}
 		return paths;
 	}
