@@ -326,14 +326,19 @@ public class PacketMakerService {
 				} else {
 					originalFileName = originalFileName.replaceFirst("^[^_]*_", "");
 				}
+				Path baseDir = Paths.get(templateLocation, source, processArg, "rid_id")
+						.normalize();
 
-				Path target = Paths.get(templateLocation + File.separator + source + File.separator +
-						processArg + File.separator + "rid_id", originalFileName);
+				Path target = baseDir.resolve(originalFileName).normalize();
+
+				if (!target.startsWith(baseDir)) {
+					throw new SecurityException("Invalid file path detected: " + originalFileName);
+				}
 
 				try {
 					Files.copy(sourceprereg, target, StandardCopyOption.REPLACE_EXISTING);
 				} catch (IOException e) {
-					e.printStackTrace(); // or log the error appropriately
+					e.printStackTrace(); // Replace with proper logging
 				}
 			}
 		}
@@ -700,14 +705,21 @@ public class PacketMakerService {
 		}
 		String encryptedHashFlag = VariableManager.getVariableValue(contextKey, "invalidEncryptedHashFlag").toString();
 		String encryptedHash = null;
-
-		// Make encrypted hash as invalid if "invalidEncryptedHashFlag --yes"
-		if (encryptedHashFlag.equalsIgnoreCase("invalidEncryptedHash") && type.equals("id"))
+		Path baseDir = Paths.get(containerRootFolder).normalize();
+		Path zipPath = Paths.get(containerRootFolder + ".zip")
+				.normalize();
+		if (!zipPath.startsWith(baseDir.getParent())) {
+			throw new SecurityException(
+					"Invalid zip path detected: " + zipPath);
+		}
+		if (encryptedHashFlag.equalsIgnoreCase("invalidEncryptedHash")
+				&& type.equals("id")) {
 			encryptedHash = "INVALID_ENCRYPTED_HASH";
-		else
+		} else {
+			byte[] fileBytes = Files.readAllBytes(zipPath);
 			encryptedHash = CryptoUtil.encodeToURLSafeBase64(
-					HMACUtils2.generateHash(Files.readAllBytes(Path.of(Path.of(containerRootFolder) + ".zip"))));
-
+					HMACUtils2.generateHash(fileBytes));
+		}
 		String signaturevalue = VariableManager.getVariableValue(contextKey, "signature").toString();
 		String signature = "";
 		if (signaturevalue.equalsIgnoreCase("invalidSignature")) {
