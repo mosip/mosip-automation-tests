@@ -74,7 +74,7 @@ public class DateOfBirthProvider {
 			ageRange = ageRanges.get("ADULT");
 			break;
 		case RA_Minor:
-			ageGroup = "CHILD";
+			ageGroup = "MINOR";
 			ageRange = ageRanges.get("MINOR");
 			break;
 		case RA_Senior:
@@ -82,7 +82,7 @@ public class DateOfBirthProvider {
 			ageRange = ageRanges.get("ADULT");
 			break;
 		case RA_Infant:
-			ageGroup = "CHILD";
+			ageGroup = "INFANT";
 			ageRange = ageRanges.get("INFANT");
 			break;
 		default:
