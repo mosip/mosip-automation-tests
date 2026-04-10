@@ -590,6 +590,7 @@ public class PacketMakerService {
 			updatePacketMetaInfo(packetRootFolder, METADATA, "centerId", centerId, false);
 			updatePacketMetaInfo(packetRootFolder, METADATA, "registrationType",
 					StringUtils.capitalize(process.toLowerCase()), false);
+
             updatePacketMetaInfo(packetRootFolder, METADATA, "Registration Client Version Number",
 					getRegistrationClientVersion(contextKey), false);
 			// ToRead Context file
