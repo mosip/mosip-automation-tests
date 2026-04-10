@@ -1037,31 +1037,46 @@ public class PacketMakerService {
 
 		List<String> paths = new ArrayList<>();
 
-		Path trustedRoot = Paths.get(System.getProperty("user.dir"))
-				.toAbsolutePath()
-				.normalize();
+		// Normalize base directory
 		Path baseDir = Paths.get(packetRootFolder)
 				.toAbsolutePath()
 				.normalize();
-		if (!baseDir.startsWith(trustedRoot)) {
+
+		// ✅ Validate directory exists
+		if (!Files.exists(baseDir) || !Files.isDirectory(baseDir)) {
 			throw new SecurityException(
 					"Invalid packet root folder: " + baseDir);
 		}
+
 		File packetFolder = baseDir.toFile();
-		File[] biometricFiles = packetFolder.listFiles((d, name) -> name.endsWith(".xml"));
+
+		File[] biometricFiles = packetFolder.listFiles((d, name) -> name != null && name.endsWith(".xml"));
+
+		// ✅ Handle null safely
 		if (biometricFiles == null) {
 			return paths;
 		}
+
 		for (File file : biometricFiles) {
+
 			Path filePath = file.toPath()
 					.toAbsolutePath()
 					.normalize();
+
+			// ✅ Ensure file stays inside base directory
 			if (!filePath.startsWith(baseDir)) {
 				throw new SecurityException(
 						"Invalid file path detected: " + filePath);
 			}
+
+			// ✅ Ensure it's a regular file
+			if (!Files.isRegularFile(filePath)) {
+				continue;
+			}
+
 			paths.add(filePath.toString());
 		}
+
 		return paths;
 	}
 
