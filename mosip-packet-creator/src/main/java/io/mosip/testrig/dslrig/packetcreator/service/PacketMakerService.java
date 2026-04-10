@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -1037,44 +1038,40 @@ public class PacketMakerService {
 
 		List<String> paths = new ArrayList<>();
 
-		// Normalize base directory
-		Path baseDir = Paths.get(packetRootFolder)
-				.toAbsolutePath()
-				.normalize();
+		try {
 
-		// ✅ Validate directory exists
-		if (!Files.exists(baseDir) || !Files.isDirectory(baseDir)) {
-			throw new SecurityException(
-					"Invalid packet root folder: " + baseDir);
-		}
+			File packetFolder = new File(packetRootFolder).getCanonicalFile();
 
-		File packetFolder = baseDir.toFile();
-
-		File[] biometricFiles = packetFolder.listFiles((d, name) -> name != null && name.endsWith(".xml"));
-
-		// ✅ Handle null safely
-		if (biometricFiles == null) {
-			return paths;
-		}
-
-		for (File file : biometricFiles) {
-
-			Path filePath = file.toPath()
-					.toAbsolutePath()
-					.normalize();
-
-			// ✅ Ensure file stays inside base directory
-			if (!filePath.startsWith(baseDir)) {
-				throw new SecurityException(
-						"Invalid file path detected: " + filePath);
+			// Validate directory
+			if (!packetFolder.exists() || !packetFolder.isDirectory()) {
+				return paths;
 			}
 
-			// ✅ Ensure it's a regular file
-			if (!Files.isRegularFile(filePath)) {
-				continue;
+			File[] biometricFiles = packetFolder.listFiles(
+					(dir, name) -> name != null && name.endsWith(".xml"));
+
+			if (biometricFiles == null) {
+				return paths;
 			}
 
-			paths.add(filePath.toString());
+			for (File file : biometricFiles) {
+
+				File canonicalFile = file.getCanonicalFile();
+
+				// Ensure file stays inside base directory
+				if (!canonicalFile.getPath()
+						.startsWith(packetFolder.getPath())) {
+
+					throw new SecurityException(
+							"Invalid file path: " + canonicalFile);
+				}
+
+				paths.add(canonicalFile.getAbsolutePath());
+			}
+
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"Error reading biometric files", e);
 		}
 
 		return paths;
