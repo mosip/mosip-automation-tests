@@ -27,7 +27,13 @@ ENV work_dir=/home/${container_user}/
 ARG KUBECTL_VERSION=1.22.9
 
 # install packages and create user
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update -o Acquire::Retries=5 && apt-get install -y --no-install-recommends unzip jq curl ca-certificates && groupadd -g ${container_user_gid} ${container_user_group} && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/bash -m ${container_user} -d ${work_dir} && curl -fsSL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && chmod +x /usr/local/bin/kubectl
+RUN apt-get -y update \
+    && apt-get install -y unzip jq curl \
+    && groupadd -g ${container_user_gid} ${container_user_group} \
+    && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/bash -m ${container_user} -d ${work_dir} \
+    && curl -LO "https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
+    && chmod +x kubectl \
+    && mv kubectl /usr/local/bin/
 
 # select container user for all tasks
 USER ${container_user_uid}:${container_user_gid}
