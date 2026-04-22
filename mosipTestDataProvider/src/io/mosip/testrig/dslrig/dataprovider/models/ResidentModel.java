@@ -197,7 +197,7 @@ public class ResidentModel  implements Serializable {
 		demodata.put("nrcId", nrcId.getNrcId());
 		demodata.put("mobileNumber", contact.getMobileNumber());
 		demodata.put("residenceNumber", contact.getResidenceNumber());
-		
+		demodata.put("location", location);
 		return demodata;
 	}
 

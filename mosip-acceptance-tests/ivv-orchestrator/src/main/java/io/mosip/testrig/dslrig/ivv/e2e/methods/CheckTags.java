@@ -6,7 +6,11 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.masterdata.testscripts.SimplePost;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
@@ -85,7 +89,7 @@ public class CheckTags extends BaseTestCaseUtil implements StepInterface {
 
 	}
 
-	public static String comparePacketTags(String jsonFromServer, String jsonFromPacketCreator) {
+	public  String comparePacketTags(String jsonFromServer, String jsonFromPacketCreator) {
 		String tagMismatched = "";
 
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -94,14 +98,17 @@ public class CheckTags extends BaseTestCaseUtil implements StepInterface {
 			JsonNode nodePacketCreator = objectMapper.readTree(jsonFromPacketCreator);
 
 			// Convert JSON nodes to Map for easier comparison
-			Map<String, String> mapFromServer = objectMapper.convertValue(nodeFromServer, Map.class);
-			Map<String, String> mapPacketCreator = objectMapper.convertValue(nodePacketCreator, Map.class);
-
+			Map<String, String> mapFromServer = new TreeMap<>(objectMapper.convertValue(nodeFromServer, Map.class));
+			Map<String, String> mapPacketCreator = new TreeMap<>(
+					objectMapper.convertValue(nodePacketCreator, Map.class));
 			// Compare key-value pairs
 			for (Map.Entry<String, String> entry : mapFromServer.entrySet()) {
 				String key = entry.getKey();
 				String valueFromServer = entry.getValue();
 				String valuePacketCreator = mapPacketCreator.get(key);
+
+				valueFromServer = sortValue(valueFromServer);
+				valuePacketCreator = sortValue(valuePacketCreator);
 
 				if (valuePacketCreator != null && valuePacketCreator.equals(valueFromServer)) {
 					logger.info("Key :" + key + "has the same value in both JSONs: " + valueFromServer);
@@ -115,5 +122,16 @@ public class CheckTags extends BaseTestCaseUtil implements StepInterface {
 			logger.error(e.getMessage());
 		}
 		return tagMismatched;
+	}
+
+	private String sortValue(String value) {
+		if (value == null || value.isEmpty()) {
+			return value;
+		}
+
+		return Arrays.stream(value.split(","))
+				.map(String::trim)
+				.sorted()
+				.collect(Collectors.joining(","));
 	}
 }

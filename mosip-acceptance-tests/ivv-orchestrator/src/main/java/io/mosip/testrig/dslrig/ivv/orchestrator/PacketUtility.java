@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -61,7 +63,9 @@ import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.utils.PartnerRegistration;
+import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.auth.testscripts.BioAuth;
@@ -2006,5 +2010,385 @@ public class PacketUtility extends BaseTestCaseUtil {
 
         return utcDate.format(formatter);
     }
+
+	public  String updateIdentityHbs(String personeFilePath , Scenario.Step step) throws RigInternalError {
+		JSONObject requestJson = new JSONObject();
+		 KernelAuthentication kernelAuthLib = new KernelAuthentication();
+		String token = kernelAuthLib.getTokenByRole(GlobalConstants.ADMIN);
+		String url = AdminTestUtil.getSchemaURL();
+
+		Response response = RestClient.getRequestWithCookie(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON,
+				GlobalConstants.AUTHORIZATION, token);
+
+		org.json.JSONObject responseJson = new org.json.JSONObject(response.asString());
+		org.json.JSONObject schemaData = (org.json.JSONObject) responseJson.get(GlobalConstants.RESPONSE);
+
+		Double schemaVersion = ((BigDecimal) schemaData.get(GlobalConstants.ID_VERSION)).doubleValue();
+		String schemaJsonData = schemaData.getString(GlobalConstants.SCHEMA_JSON);
+
+		String schemaFile = schemaJsonData;
+
+		// Retrieve data from persona file
+		String demoResponse = null;
+		String addressResponse = null;
+		
+		try {
+			// Fetch demo data from persona file
+			List<String> demoFetchList = new ArrayList<>();
+			demoFetchList.add(E2EConstants.DEMOFETCH);
+			demoResponse = retrieveBiometric(personeFilePath, demoFetchList, step);
+			
+			// Fetch address data from persona file
+			List<String> addressFetchList = new ArrayList<>();
+			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
+			addressResponse = retrieveBiometric(personeFilePath, addressFetchList, step);
+		} catch (Exception e) {
+			logger.error("Error retrieving biometric data from persona file: " + e.getMessage());
+		}
+        String phoneSchemaRegex = "";
+		boolean emailFieldAdditionallyAdded = false;
+		boolean phoneFieldAdditionallyAdded = false;
+		try {
+			JSONObject schemaFileJson = new JSONObject(schemaFile);
+			JSONObject schemaPropsJson = schemaFileJson.getJSONObject("properties");
+			JSONObject schemaIdentityJson = schemaPropsJson.getJSONObject("identity");
+			JSONObject identityPropsJson = schemaIdentityJson.getJSONObject("properties");
+			JSONArray requiredPropsArray = schemaIdentityJson.getJSONArray("required");
+
+			String phone = AdminTestUtil.getValueFromAuthActuator("json-property", "phone_number");
+			String result = phone.replaceAll("\\[\"|\"\\]", "");
+
+			if (!AdminTestUtil.isElementPresent(requiredPropsArray, result)) {
+				requiredPropsArray.put(result);
+				phoneFieldAdditionallyAdded = true;
+			}
+			if (identityPropsJson.has(result)) {
+				phoneSchemaRegex = identityPropsJson.getJSONObject(result).getJSONArray("validators").getJSONObject(0)
+						.getString("validator");
+			}
+
+			String email = AdminTestUtil.getValueFromAuthActuator("json-property", "emailId");
+			String emailResult = email.replaceAll("\\[\"|\"\\]", "");
+
+			if (!AdminTestUtil.isElementPresent(requiredPropsArray, emailResult)) {
+				requiredPropsArray.put(emailResult);
+				emailFieldAdditionallyAdded = true;
+			}
+
+			requestJson.put("id", "{{id}}");
+			requestJson.put("status", "ACTIVATED");
+			requestJson.put("request", new HashMap<>());
+			requestJson.getJSONObject("request").put("registrationId", "{{registrationId}}");
+			JSONObject identityJson = new JSONObject();
+			identityJson.put("UIN", "{{UIN}}");
+			JSONArray handleArray = new JSONArray();
+			handleArray.put("handles");
+
+			List<String> selectedHandles = new ArrayList<>();
+			// requiredPropsArray.put("functionalId");
+			for (int i = 0, size = requiredPropsArray.length(); i < size; i++) {
+				String eachRequiredProp = requiredPropsArray.getString(i);
+
+				if (!identityPropsJson.has(eachRequiredProp)) {
+					continue;
+				}
+
+				JSONObject eachPropDataJson = (JSONObject) identityPropsJson.get(eachRequiredProp);
+				String randomValue = "";
+				if (Objects.equals(eachRequiredProp, emailResult)) {
+					randomValue = "shshssh";
+				}
+				if (Objects.equals(eachRequiredProp, result)) {
+					randomValue = phoneSchemaRegex;
+				}
+
+				// Processing for TaggedListType
+				if (eachPropDataJson.has("$ref")
+						&& eachPropDataJson.get("$ref").toString().contains("TaggedListType")) {
+					JSONArray eachPropDataArrayForHandles = new JSONArray();
+					JSONObject eachValueJsonForHandles = new JSONObject();
+				String taggedValue = null;
+				
+				if (eachRequiredProp.equals(emailResult)) {
+					taggedValue = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, null);
+					selectedHandles.add(emailResult);
+				} else if (eachRequiredProp.equals(result)) {
+					taggedValue = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, null);
+					selectedHandles.add(result);
+				} else if (eachRequiredProp.equals("nrcId")) {
+					taggedValue = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, null);
+					selectedHandles.add("nrcId");
+				} else {
+					taggedValue = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, null);
+					selectedHandles.add(eachRequiredProp);
+				}
+				
+				eachValueJsonForHandles.put("value", taggedValue != null ? taggedValue : "");
+				eachValueJsonForHandles.put("tags", handleArray);
+				eachPropDataArrayForHandles.put(eachValueJsonForHandles);
+				identityJson.put(eachRequiredProp, eachPropDataArrayForHandles);
+
+			} else if (eachPropDataJson.has("$ref")
+					&& eachPropDataJson.get("$ref").toString().contains("simpleType")) {
+					if (eachPropDataJson.has("handle")) {
+						selectedHandles.add(eachRequiredProp);
+					}
+					JSONArray eachPropDataArray = new JSONArray();
+
+					for (int j = 0; j < BaseTestCase.getLanguageList().size(); j++) {
+						if (BaseTestCase.getLanguageList().get(j) != null
+								&& !BaseTestCase.getLanguageList().get(j).isEmpty()) {
+							JSONObject eachValueJson = new JSONObject();
+							eachValueJson.put("language", BaseTestCase.getLanguageList().get(j));
+							
+							// Extract actual data from persona file
+							String valueFromPersona = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, 
+									BaseTestCase.getLanguageList().get(j));
+							
+							if (valueFromPersona != null) {
+								eachValueJson.put(GlobalConstants.VALUE, valueFromPersona);
+							} else {
+								// No fallback generation - persona file should contain all required data
+								logger.warn("No persona data found for field: " + eachRequiredProp);
+								eachValueJson.put(GlobalConstants.VALUE, "");
+							}
+							eachPropDataArray.put(eachValueJson);
+						}
+					}
+					identityJson.put(eachRequiredProp, eachPropDataArray);
+
+				} else {
+					if (eachRequiredProp.equals("IDSchemaVersion")) {
+						identityJson.put(eachRequiredProp, schemaVersion);
+					} else if (eachRequiredProp.equals("individualBiometrics")) {
+						identityJson.remove("individualBiometrics");
+					} else if (eachRequiredProp.equals(emailResult)) {
+						if (eachPropDataJson.has("handle")) {
+							selectedHandles.add(eachRequiredProp);
+						}
+						String emailValue = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, null);
+						identityJson.put(eachRequiredProp, emailValue != null ? emailValue : "");
+					} else if (eachRequiredProp.equals(result)) {
+						if (eachPropDataJson.has("handle")) {
+							selectedHandles.add(eachRequiredProp);
+						}
+						String phoneValue = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, null);
+						identityJson.put(eachRequiredProp, phoneValue != null ? phoneValue : "");
+					} else if (eachRequiredProp.equals("nrcId")) {
+						if (eachPropDataJson.has("handle")) {
+							selectedHandles.add(eachRequiredProp);
+						}
+						String nrcValue = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, null);
+						identityJson.put(eachRequiredProp, nrcValue != null ? nrcValue : "");
+					} else if (eachRequiredProp.equals("proofOfIdentity")) {
+						identityJson.remove("proofOfIdentity");
+					} else {
+						if (eachPropDataJson.has("handle")) {
+							selectedHandles.add(eachRequiredProp);
+						}
+						String fieldValue = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, null);
+						identityJson.put(eachRequiredProp, fieldValue != null ? fieldValue : "");
+					}
+				}
+			}
+			if (selectedHandles != null) {
+				AdminTestUtil.setfoundHandlesInIdSchema(true);
+				identityJson.put("selectedHandles", selectedHandles);
+			}
+
+			requestJson.getJSONObject("request").put("identity", identityJson);
+			requestJson.put("requesttime", "{{requesttime}}");
+			requestJson.put("version", "{{version}}");
+
+			System.out.println(requestJson);
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		AdminTestUtilAccessor.setUpdateIdentityHbs(requestJson.toString());
+		return requestJson.toString();
+	}
+
+	private static class AdminTestUtilAccessor extends AdminTestUtil {
+		private static void setUpdateIdentityHbs(String value) {
+			updateIdentityHbs = value;
+		}
+	}
+
+	private static String getValueFromPersona(String demoResponse, String addressResponse, String fieldName, String language) {
+		String value = null;
+		
+		try {
+			// Try to extract from demo response
+			if (demoResponse != null) {
+				if (fieldName.contains("name") || fieldName.equalsIgnoreCase("fullName")) {
+					// Combine firstName + midName + lastName for full name
+					try {
+						String firstName = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".firstName");
+						String midName = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".midName");
+						String lastName = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".lastName");
+						
+						if (firstName != null && !firstName.isEmpty()) {
+							value = firstName;
+							if (midName != null && !midName.isEmpty()) {
+								value += " " + midName;
+							}
+							if (lastName != null && !lastName.isEmpty()) {
+								value += " " + lastName;
+							}
+						}
+					} catch (Exception e) {
+						logger.warn("Error extracting name fields: " + e.getMessage());
+					}
+				} else if (fieldName.equalsIgnoreCase("gender")) {
+					try {
+						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".gender");
+					} catch (Exception e) {
+						logger.warn("Error extracting gender: " + e.getMessage());
+					}
+				} else if (fieldName.equalsIgnoreCase("email") || fieldName.contains("mail")) {
+					try {
+						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".emailId");
+					} catch (Exception e) {
+						logger.warn("Error extracting email: " + e.getMessage());
+					}
+				} else if (fieldName.contains("phone") || fieldName.contains("mobileNo")) {
+					try {
+						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".mobileNumber");
+					} catch (Exception e) {
+						logger.warn("Error extracting phone: " + e.getMessage());
+					}
+				} else if (fieldName.contains("nrc") || fieldName.equalsIgnoreCase("nrcId")) {
+					try {
+						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".nrcId");
+					} catch (Exception e) {
+						logger.warn("Error extracting nrcId: " + e.getMessage());
+					}
+				} else if (fieldName.contains("DOB") || fieldName.contains("dateOfBirth")) {
+					try {
+						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".dob");
+					} catch (Exception e) {
+						logger.warn("Error extracting dob: " + e.getMessage());
+					}
+				} else if (fieldName.contains("city")) {
+					// Try nested location structure first
+					try {
+						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".location.City.name");
+					} catch (Exception e) {
+						logger.warn("Error extracting city from nested structure: " + e.getMessage());
+					}
+					// Fallback to simple path
+					if (value == null) {
+						try {
+							value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".city");
+						} catch (Exception e) {
+							logger.warn("Error extracting city from simple path: " + e.getMessage());
+						}
+					}
+				} else if (fieldName.contains("zone")) {
+					// Try nested location structure first
+					try {
+						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".location.Zone.name");
+					} catch (Exception e) {
+						logger.warn("Error extracting zone from nested structure: " + e.getMessage());
+					}
+					// Fallback to simple path
+					if (value == null) {
+						try {
+							value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".zone");
+						} catch (Exception e) {
+							logger.warn("Error extracting zone from simple path: " + e.getMessage());
+						}
+					}
+				} else if (fieldName.contains("postalCode") || fieldName.contains("postal")) {
+					// Direct JSONObject parsing for postalCode with proper error handling
+					try {
+						JSONObject demoObj = new JSONObject(demoResponse);
+						JSONObject demoData = demoObj.optJSONObject("demodata");
+						if (demoData != null) {
+							JSONObject locationObj = demoData.optJSONObject("location");
+							if (locationObj != null) {
+								JSONObject postalCodeObj = locationObj.optJSONObject("Postal Code");
+								if (postalCodeObj != null) {
+									value = postalCodeObj.optString("name", null);
+								}
+							}
+						}
+					} catch (Exception e) {
+						logger.warn("Error extracting postalCode from nested structure: " + e.getMessage());
+					}
+					// Fallback to simple path if nested not found
+					if (value == null) {
+						try {
+							JSONObject demoObj = new JSONObject(demoResponse);
+							JSONObject demoData = demoObj.optJSONObject("demodata");
+							if (demoData != null) {
+								value = demoData.optString("postalCode", null);
+							}
+						} catch (Exception e) {
+							logger.warn("Error extracting postalCode from simple path: " + e.getMessage());
+						}
+					}
+				} else if (fieldName.contains("region")) {
+					// Try nested location structure first
+					try {
+						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".location.Region.name");
+					} catch (Exception e) {
+						logger.warn("Error extracting region from nested structure: " + e.getMessage());
+					}
+					// Fallback to simple path
+					if (value == null) {
+						try {
+							value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".region");
+						} catch (Exception e) {
+							logger.warn("Error extracting region from simple path: " + e.getMessage());
+						}
+					}
+				} else if (fieldName.contains("province")) {
+					// Extract province from nested location structure
+					try {
+						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".location.Province.name");
+					} catch (Exception e) {
+						logger.warn("Error extracting province from nested structure: " + e.getMessage());
+					}
+					// Fallback to simple path
+					if (value == null) {
+						try {
+							value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".province");
+						} catch (Exception e) {
+							logger.warn("Error extracting province from simple path: " + e.getMessage());
+						}
+					}
+				}
+			}
+			
+			// Try to extract address lines from address response
+			if (value == null && addressResponse != null) {
+				if (fieldName.contains("address1") || fieldName.contains("addressLine1")) {
+					try {
+						value = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH, E2EConstants.DEMOADDRESSLINE1);
+					} catch (Exception e) {
+						logger.warn("Error extracting addressLine1: " + e.getMessage());
+					}
+				} else if (fieldName.contains("address2") || fieldName.contains("addressLine2")) {
+					try {
+						value = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH, E2EConstants.DEMOADDRESSLINE2);
+					} catch (Exception e) {
+						logger.warn("Error extracting addressLine2: " + e.getMessage());
+					}
+				} else if (fieldName.contains("address3") || fieldName.contains("addressLine3")) {
+					try {
+						value = JsonPrecondtion.JsonObjSimpleParsing(addressResponse, E2EConstants.DEMOADDRESSFETCH, E2EConstants.DEMOADDRESSLINE3);
+					} catch (Exception e) {
+						logger.warn("Error extracting addressLine3: " + e.getMessage());
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Error extracting value from persona for field: " + fieldName + ", " + e.getMessage());
+		}
+		
+		return value;
+	}
 
 }

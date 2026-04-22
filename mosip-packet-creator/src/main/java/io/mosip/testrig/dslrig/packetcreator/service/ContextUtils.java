@@ -56,7 +56,6 @@ public class ContextUtils {
 	}
 
 	public String createUpdateServerContext(Properties props, String ctxName) throws IOException {
-
 	    validateContextName(ctxName); 
 	    Path baseDir = Paths.get(personaConfigPath).normalize();
 	    Path filePath = baseDir
@@ -75,7 +74,7 @@ public class ContextUtils {
 	        pp.forEach((k, v) ->
 	                VariableManager.setVariableValue(ctxName, k.toString(), v.toString())
 	        );
-
+            CommonUtil.initializeUTCDateFormat(ctxName); 
 	        Object generatePrivateKeyObj =
 	                VariableManager.getVariableValue(ctxName, "generatePrivateKey");
 
@@ -89,7 +88,6 @@ public class ContextUtils {
 	    } catch (ServiceException se) {
 	        throw se;
 	    }
-
 	    return "true";
 	}
 

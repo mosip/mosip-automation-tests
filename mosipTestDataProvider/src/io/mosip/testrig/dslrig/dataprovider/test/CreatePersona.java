@@ -269,9 +269,6 @@ public class CreatePersona {
 			}
 			else
 			if(schemaItem.getId().toLowerCase().equals("dateofbirth") ||schemaItem.getId().toLowerCase().equals("dob") || schemaItem.getId().toLowerCase().equals("birthdate") ) {
-						
-						//should be informat yyyy/mm/dd
-						//SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");  
 						String strDate= resident.getDob();
 						constructNode(identity, schemaItem.getId(), resident.getPrimaryLanguage(),
 								resident.getSecondaryLanguage(),

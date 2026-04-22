@@ -7,6 +7,7 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.idrepo.testscripts.UpdateIdentityForArrayHandles;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -31,6 +32,7 @@ public class UpdateIdentityWithArrayHandles extends BaseTestCaseUtil implements 
 	public void run() throws RigInternalError, FeatureNotSupportedError {
 
 		String uin = "";
+		String personaFilePath = "";
 
 		Object[] testObj = updateIdentity.getYmlTestData(updateIdentityWithHandlesYml);
 
@@ -39,10 +41,14 @@ public class UpdateIdentityWithArrayHandles extends BaseTestCaseUtil implements 
 		if (!step.getParameters().isEmpty()) {
 			
 			if (step.getParameters().get(0).startsWith("$$")) {
-				uin = (String) step.getScenario().getVariables().get(step.getParameters().get(0));
+				uin = step.getScenario().getVariables().get(step.getParameters().get(0));
 			}
 			else {
 				uin = step.getParameters().get(0);
+			}
+
+			if (step.getParameters().get(1).startsWith("$$")) {
+				personaFilePath =step.getScenario().getVariables().get(step.getParameters().get(1));
 			}
 			
 			logger.info(uin);
@@ -51,7 +57,10 @@ public class UpdateIdentityWithArrayHandles extends BaseTestCaseUtil implements 
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "UIN");
 		test.setInput(input);
-
+		String updatedHbs = packetUtility.updateIdentityHbs(personaFilePath , step);
+		test.setInputTemplate(updatedHbs);
+		test.setRegenerateHbs(false);
+        System.out.println(updatedHbs);
 		try {
 			updateIdentity.test(test);
 		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {

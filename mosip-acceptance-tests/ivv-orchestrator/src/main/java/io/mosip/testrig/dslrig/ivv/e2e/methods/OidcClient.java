@@ -26,15 +26,20 @@ import io.restassured.response.Response;
 public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(OidcClient.class);
 
-	private static final String CreatePolicyGroupYml = "idaData/PmsIntegration/DefinePolicyGroup/DefinePolicyGroup.yml";
-	private static final String DefinePolicyYml = "idaData/PmsIntegration/DefinePolicy/DefinePolicy.yml";
-	private static final String PublishPolicyYml = "idaData/PmsIntegration/PublishPolicy/PublishPolicy.yml";
-	private static final String CreatePartnerYml = "idaData/PmsIntegration/CreatePartner/CreatePartner.yml";
-	private static final String UploadCACertificateYml = "idaData/PmsIntegration/UploadCertificate/UploadCertificate.yml";
-	private static final String UploadPartnerCertificateYml = "idaData/PmsIntegration/UploadCert/UploadCert.yml";
-	private static final String RequestAPIKeyForAuthPartnerYml = "idaData/PmsIntegration/RequestAPIKey/RequestAPIKey.yml";
-	private static final String ApproveAPIKeyYml = "idaData/PmsIntegration/ApproveAPIKey/ApproveAPIKey.yml";
-	private static final String OidcClientYml = "idaData/OidcClient/OIDCClient.yml";
+	private static final String RESPONSE = "response";
+	private static final String POLICY_GROUP_ID = "policygroupId";
+	private static final String POLICY_NAME = "policyName";
+	private static final String PARTNER_ID = "partnerId";
+	private static final String CLIENT_ID = "clientId";
+	private static final String CREATE_POLICY_GROUP_YML = "idaData/PmsIntegration/DefinePolicyGroup/DefinePolicyGroup.yml";
+	private static final String DEFINE_POLICY_YML = "idaData/PmsIntegration/DefinePolicy/DefinePolicy.yml";
+	private static final String PUBLISH_POLICY_YML = "idaData/PmsIntegration/PublishPolicy/PublishPolicy.yml";
+	private static final String CREATE_PARTNER_YML = "idaData/PmsIntegration/CreatePartner/CreatePartner.yml";
+	private static final String UPLOAD_CA_CERTIFICATE_YML = "idaData/PmsIntegration/UploadCertificate/UploadCertificate.yml";
+	private static final String UPLOAD_PARTNER_CERTIFICATE_YML = "idaData/PmsIntegration/UploadCert/UploadCert.yml";
+	private static final String REQUEST_API_KEY_FOR_AUTH_PARTNER_YML = "idaData/PmsIntegration/RequestAPIKey/RequestAPIKey.yml";
+	private static final String APPROVE_API_KEY_YML = "idaData/PmsIntegration/ApproveAPIKey/ApproveAPIKey.yml";
+	private static final String OIDC_CLIENT_YML = "idaData/OidcClient/OIDCClient.yml";
 	SimplePostForAutoGenId createPolicyGroup = new SimplePostForAutoGenId();
 	SimplePostForAutoGenId definePolicy = new SimplePostForAutoGenId();
 	PostWithOnlyPathParam publishPolicy = new PostWithOnlyPathParam();
@@ -44,7 +49,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 	SimplePost uploadPartnerCertificate = new SimplePost();
 	SimplePostForAutoGenId requestAPIKeyForAuthPartner = new SimplePostForAutoGenId();
 	SimplePut approveAPIKey = new SimplePut();
-	SimplePostForAutoGenId oidcClient = new SimplePostForAutoGenId();
+	SimplePostForAutoGenId oidcClientRequest = new SimplePostForAutoGenId();
 
 	static {
 		if (dslConfigManager.IsDebugEnabled())
@@ -55,25 +60,32 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {
-
-		String name = null;
-		String policygroupId = null;
-		String policyId = null;
-		String partnerId = null;
-		String policyName = null;
-		String mappingkey = null;
-		String clientId = null;
-		Response response = null;
-
-		// check if esignet is installed on the target system
 		if (dslConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
 
-		// CreatePolicyGroup Call
+		String name = executePolicyGroupCreation();
+		String policygroupId = step.getScenario().getOidcPmsProp().get(POLICY_GROUP_ID).toString();
+		
+		String policyId = executeDefinePolicy(name);
+		String policyName = step.getScenario().getOidcPmsProp().get(POLICY_NAME) != null ? 
+			step.getScenario().getOidcPmsProp().get(POLICY_NAME).toString() : null;
 
-		Object[] testObj1 = createPolicyGroup.getYmlTestData(CreatePolicyGroupYml);
+		executePublishPolicy(policygroupId, policyId);
 
+		String partnerId = executeCreatePartner(name);
+
+		executeUploadCertificates(partnerId);
+
+		String mappingkey = executeRequestAPIKey(policyName, partnerId);
+
+		executeApproveAPIKey(mappingkey);
+
+		executeOidcClientCreation(policyId, partnerId);
+	}
+
+	private String executePolicyGroupCreation() throws RigInternalError {
+		Object[] testObj1 = createPolicyGroup.getYmlTestData(CREATE_POLICY_GROUP_YML);
 		TestCaseDTO test1 = (TestCaseDTO) testObj1[0];
 
 		try {
@@ -83,26 +95,24 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		}
-		response = createPolicyGroup.response;
+
+		Response response = createPolicyGroup.response;
 		if (response != null) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			name = jsonResp.getJSONObject("response").getString("name");
-			policygroupId = jsonResp.getJSONObject("response").getString("id");
-
+			String name = jsonResp.getJSONObject(RESPONSE).getString("name");
+			String policygroupId = jsonResp.getJSONObject(RESPONSE).getString("id");
 			step.getScenario().getOidcPmsProp().put("name", name);
-			step.getScenario().getOidcPmsProp().put("policygroupId", policygroupId);
-
+			step.getScenario().getOidcPmsProp().put(POLICY_GROUP_ID, policygroupId);
 			logger.info(name);
+			return name;
 		}
+		return null;
+	}
 
-		// DefinePolicy Call
-
-		Object[] testObj2 = definePolicy.getYmlTestData(DefinePolicyYml);
-
+	private String executeDefinePolicy(String name) throws RigInternalError {
+		Object[] testObj2 = definePolicy.getYmlTestData(DEFINE_POLICY_YML);
 		TestCaseDTO test2 = (TestCaseDTO) testObj2[0];
-
 		String inputForDefinePolicy = test2.getInput();
-
 		inputForDefinePolicy = JsonPrecondtion.parseAndReturnJsonContent(inputForDefinePolicy, name, "policyGroupName");
 		test2.setInput(inputForDefinePolicy);
 
@@ -113,55 +123,42 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		}
-		response = definePolicy.response;
+
+		Response response = definePolicy.response;
 		if (response != null) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			policyId = jsonResp.getJSONObject("response").getString("id");
-			policyName = jsonResp.getJSONObject("response").getString("name");
-			step.getScenario().getOidcPmsProp().put("policyId", policyId); // "$$clientId=e2e_OidcClient()"
-
+			String policyId = jsonResp.getJSONObject(RESPONSE).getString("id");
+			String policyName = jsonResp.getJSONObject(RESPONSE).getString("name");
+			step.getScenario().getOidcPmsProp().put("policyId", policyId);
+			step.getScenario().getOidcPmsProp().put(POLICY_NAME, policyName);
 			logger.info(policyId);
+			return policyId;
 		}
+		return null;
+	}
 
-		// PublishPolicy Call
-
-		Object[] testObj3 = publishPolicy.getYmlTestData(PublishPolicyYml);
-
+	private void executePublishPolicy(String policygroupId, String policyId) throws RigInternalError {
+		Object[] testObj3 = publishPolicy.getYmlTestData(PUBLISH_POLICY_YML);
 		TestCaseDTO test3 = (TestCaseDTO) testObj3[0];
-
 		String inputForPublishPolicy = test3.getInput();
-
-		inputForPublishPolicy = JsonPrecondtion.parseAndReturnJsonContent(inputForPublishPolicy, policygroupId,
-				"policygroupId");
+		inputForPublishPolicy = JsonPrecondtion.parseAndReturnJsonContent(inputForPublishPolicy, policygroupId, "policygroupId");
 		inputForPublishPolicy = JsonPrecondtion.parseAndReturnJsonContent(inputForPublishPolicy, policyId, "policyId");
-
 		test3.setInput(inputForPublishPolicy);
 
 		try {
 			publishPolicy.test(test3);
-			response = publishPolicy.response;
-			if (response != null) {
-				JSONObject jsonResp = new JSONObject(response.getBody().asString());
-
-			}
-
 		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
-
 		}
+	}
 
-		// CreatePartner Call
-
-		Object[] testObj4 = createPartner.getYmlTestData(CreatePartnerYml);
-
+	private String executeCreatePartner(String name) throws RigInternalError {
+		Object[] testObj4 = createPartner.getYmlTestData(CREATE_PARTNER_YML);
 		TestCaseDTO test4 = (TestCaseDTO) testObj4[0];
-
 		String inputForCreatePartner = test4.getInput();
-
 		inputForCreatePartner = JsonPrecondtion.parseAndReturnJsonContent(inputForCreatePartner, name, "policyGroup");
-
 		test4.setInput(inputForCreatePartner);
 
 		try {
@@ -171,103 +168,77 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		}
-		response = createPartner.response;
+
+		Response response = createPartner.response;
 		if (response != null) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			partnerId = jsonResp.getJSONObject("response").getString("partnerId");
-
-			step.getScenario().getOidcPmsProp().put("partnerId", partnerId);
+			String partnerId = jsonResp.getJSONObject(RESPONSE).getString(PARTNER_ID);
+			step.getScenario().getOidcPmsProp().put(PARTNER_ID, partnerId);
+			return partnerId;
 		}
+		return null;
+	}
 
-		// Upload CA Call
+	private void executeUploadCertificates(String partnerId) throws RigInternalError {
+		executeUploadCACertificate(partnerId);
+		executeUploadInterCertificate(partnerId);
+		executeUploadPartnerCertificate(partnerId);
+	}
 
-		Object[] testObj5 = uploadCACertificate.getYmlTestData(UploadCACertificateYml);
-
+	private void executeUploadCACertificate(String partnerId) throws RigInternalError {
+		Object[] testObj5 = uploadCACertificate.getYmlTestData(UPLOAD_CA_CERTIFICATE_YML);
 		TestCaseDTO test5 = (TestCaseDTO) testObj5[0];
-
 		String inputForUploadCACertificate = test5.getInput();
-
-		inputForUploadCACertificate = JsonPrecondtion.parseAndReturnJsonContent(inputForUploadCACertificate, partnerId,
-				"partnerId");
-
+		inputForUploadCACertificate = JsonPrecondtion.parseAndReturnJsonContent(inputForUploadCACertificate, partnerId, PARTNER_ID);
 		test5.setInput(inputForUploadCACertificate);
 
 		try {
 			uploadCACertificate.test(test5);
-			response = uploadCACertificate.response;
-			if (response != null) {
-				JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			}
-
 		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
-
 		}
+	}
 
-		// Upload Inter Call
-
+	private void executeUploadInterCertificate(String partnerId) throws RigInternalError {
+		Object[] testObj5 = uploadCACertificate.getYmlTestData(UPLOAD_CA_CERTIFICATE_YML);
 		TestCaseDTO test6 = (TestCaseDTO) testObj5[1];
-
 		String inputForUploadInterCertificate = test6.getInput();
-		inputForUploadInterCertificate = JsonPrecondtion.parseAndReturnJsonContent(inputForUploadInterCertificate,
-				partnerId, "partnerId");
+		inputForUploadInterCertificate = JsonPrecondtion.parseAndReturnJsonContent(inputForUploadInterCertificate, partnerId, PARTNER_ID);
 		test6.setInput(inputForUploadInterCertificate);
+
 		try {
 			uploadInterCertificate.test(test6);
-			response = uploadInterCertificate.response;
-			if (response != null) {
-				JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			}
-
 		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
-
 		}
+	}
 
-		// Upload PartnerCertificate Call
-
-		Object[] testObj7 = uploadPartnerCertificate.getYmlTestData(UploadPartnerCertificateYml);
-
+	private void executeUploadPartnerCertificate(String partnerId) throws RigInternalError {
+		Object[] testObj7 = uploadPartnerCertificate.getYmlTestData(UPLOAD_PARTNER_CERTIFICATE_YML);
 		TestCaseDTO test7 = (TestCaseDTO) testObj7[0];
-
 		String inputForUploadPartnerCertificate = test7.getInput();
-
-		inputForUploadPartnerCertificate = JsonPrecondtion.parseAndReturnJsonContent(inputForUploadPartnerCertificate,
-				partnerId, "partnerId");
-
+		inputForUploadPartnerCertificate = JsonPrecondtion.parseAndReturnJsonContent(inputForUploadPartnerCertificate, partnerId, PARTNER_ID);
 		test7.setInput(inputForUploadPartnerCertificate);
 
 		try {
 			uploadPartnerCertificate.test(test7);
-			response = uploadPartnerCertificate.response;
-			if (response != null) {
-				JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			}
-
 		} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
-
 		}
+	}
 
-		// Request API Key For Auth Partner Call
-
-		Object[] testObj8 = requestAPIKeyForAuthPartner.getYmlTestData(RequestAPIKeyForAuthPartnerYml);
-
+	private String executeRequestAPIKey(String policyName, String partnerId) throws RigInternalError {
+		Object[] testObj8 = requestAPIKeyForAuthPartner.getYmlTestData(REQUEST_API_KEY_FOR_AUTH_PARTNER_YML);
 		TestCaseDTO test8 = (TestCaseDTO) testObj8[0];
-
 		String inputForRequestAPIKeyForAuthPartner = test8.getInput();
-
-		inputForRequestAPIKeyForAuthPartner = JsonPrecondtion
-				.parseAndReturnJsonContent(inputForRequestAPIKeyForAuthPartner, policyName, "policyName");
-
+		inputForRequestAPIKeyForAuthPartner = JsonPrecondtion.parseAndReturnJsonContent(inputForRequestAPIKeyForAuthPartner, policyName, POLICY_NAME);
 		test8.setEndPoint(test8.getEndPoint().replace("$PARTNERId$", partnerId));
-
 		test8.setInput(inputForRequestAPIKeyForAuthPartner);
 
 		try {
@@ -277,78 +248,61 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		}
-		response = requestAPIKeyForAuthPartner.response;
+
+		Response response = requestAPIKeyForAuthPartner.response;
 		if (response != null) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			mappingkey = jsonResp.getJSONObject("response").getString("mappingkey");
-
+			String mappingkey = jsonResp.getJSONObject(RESPONSE).getString("mappingkey");
 			step.getScenario().getOidcPmsProp().put("mappingkey", partnerId);
+			return mappingkey;
 		}
+		return null;
+	}
 
-		// Request API Key For Auth Partner Call
-
-		Object[] testObj9 = approveAPIKey.getYmlTestData(ApproveAPIKeyYml);
-
+	private void executeApproveAPIKey(String mappingkey) throws RigInternalError {
+		Object[] testObj9 = approveAPIKey.getYmlTestData(APPROVE_API_KEY_YML);
 		TestCaseDTO test9 = (TestCaseDTO) testObj9[0];
-
 		test9.setEndPoint(test9.getEndPoint().replace("$MAPPINGKEY$", mappingkey));
-
 		String inputForApproveAPIKey = test9.getInput();
-
 		test9.setInput(inputForApproveAPIKey);
 
 		try {
 			approveAPIKey.test(test9);
-			response = approveAPIKey.response;
-			if (response != null) {
-				JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			}
-
 		} catch (AdminTestException | SecurityXSSException e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
-
 		}
-		// OIDC_CLIENT Creation Call
+	}
 
-		Object[] testObj11 = oidcClient.getYmlTestData(OidcClientYml);
-
+	private String executeOidcClientCreation(String policyId, String partnerId) throws RigInternalError {
+		Object[] testObj11 = oidcClientRequest.getYmlTestData(OIDC_CLIENT_YML);
 		TestCaseDTO test11 = (TestCaseDTO) testObj11[0];
-
 		String inputForOidcClient = PacketUtility.getJsonFromTemplate(test11.getInput(), test11.getInputTemplate());
-
 		String oidcJwkKey = AdminTestUtil.generateJWKPublicKey();
 
 		step.getScenario().getOidcPmsProp().put("oidcJwkKey" + step.getScenario().getId(), oidcJwkKey);
-
-		if (inputForOidcClient.contains("$OIDCJWKKEY$")) {
-			inputForOidcClient = inputForOidcClient.replace("$OIDCJWKKEY$", oidcJwkKey);
-		}
-
-		if (inputForOidcClient.contains("$POLICYID$")) {
-			inputForOidcClient = inputForOidcClient.replace("$POLICYID$", policyId);
-		}
-
-		if (inputForOidcClient.contains("$PARTNERID$")) {
-			inputForOidcClient = inputForOidcClient.replace("$PARTNERID$", partnerId);
-		}
+		inputForOidcClient = inputForOidcClient.replace("$OIDCJWKKEY$", oidcJwkKey);
+		inputForOidcClient = inputForOidcClient.replace("$POLICYID$", policyId);
+		inputForOidcClient = inputForOidcClient.replace("$PARTNERID$", partnerId);
 		test11.setInput(inputForOidcClient);
 
 		try {
-			oidcClient.test(test11);
+			oidcClientRequest.test(test11);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			this.hasError = true;
 			throw new RigInternalError(e.getMessage());
 		}
-		response = oidcClient.response;
+
+		Response response = oidcClientRequest.response;
 		if (response != null) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
-			clientId = jsonResp.getJSONObject("response").getString("clientId");
-			step.getScenario().getOidcPmsProp().put("clientId", clientId);
-			step.getScenario().getOidcClientProp().put("clientId", clientId);
+			String clientId = jsonResp.getJSONObject(RESPONSE).getString(CLIENT_ID);
+			step.getScenario().getOidcPmsProp().put(CLIENT_ID, clientId);
+			step.getScenario().getOidcClientProp().put(CLIENT_ID, clientId);
+			return clientId;
 		}
-
+		return null;
 	}
 }
