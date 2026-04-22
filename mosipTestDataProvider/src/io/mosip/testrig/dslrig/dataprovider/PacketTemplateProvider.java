@@ -1286,7 +1286,7 @@ public class PacketTemplateProvider {
 
 					if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())
 							|| s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
-						primaryValue = locModel.getCode();
+						primaryValue = locModel.getName();
 
 						break;
 					}
@@ -1296,7 +1296,7 @@ public class PacketTemplateProvider {
 						MosipLocationModel locModel = locations_seclang.get(locKey);
 
 						if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
-							secValue = locModel.getCode();
+							secValue = locModel.getName();
 							break;
 						}
 					}
@@ -1443,7 +1443,7 @@ public class PacketTemplateProvider {
 
 					if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())
 							|| s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
-						primaryValue = locModel.getCode();
+						primaryValue = locModel.getName();
 
 						break;
 					}
@@ -1453,7 +1453,7 @@ public class PacketTemplateProvider {
 						MosipLocationModel locModel = locations_seclang.get(locKey);
 
 						if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
-							secValue = locModel.getCode();
+							secValue = locModel.getName();
 							break;
 						}
 					}
