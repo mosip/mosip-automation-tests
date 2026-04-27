@@ -820,7 +820,7 @@ public class PacketSyncService {
 
 	public void runBookingTask(String preRegID, String contextKey) {
 		String result = bookAppointmentSlot(preRegID, 1, false, contextKey);
-		System.out.println(Thread.currentThread().getName() + ": " + result);
+		logger.info(Thread.currentThread().getName() + ": " + result);
 	}
 
 	public String cancelAppointment(String preregId, AppointmentDto appointmentDto, String contextKey) {
