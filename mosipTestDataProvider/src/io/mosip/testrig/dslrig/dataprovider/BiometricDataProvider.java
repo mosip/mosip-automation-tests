@@ -66,7 +66,7 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class BiometricDataProvider {
 
-	public static HashMap<String, Integer> portmap = new HashMap();
+	public static HashMap<String, Integer> portmap = new HashMap<>();
 	private static final Logger logger = LoggerFactory.getLogger(BiometricDataProvider.class);
 
 	// String constants
@@ -239,8 +239,8 @@ public class BiometricDataProvider {
 		List<String> filteredAttribs = resident.getFilteredBioAttribtures();
 		List<BioModality> bioExceptions = resident.getBioExceptions();
 		List<String> bioexceptionlist = new ArrayList<String>();
-
 		try {
+			try {
 			if (val == null || val.equals("") || val.equals(FALSE)) {
 
 				val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsport").toString();
@@ -337,41 +337,41 @@ public class BiometricDataProvider {
 			// biometrics
 			if (biodata.getFaceHash() == null && biodata.getFingerHash() == null && biodata.getIris() == null)
 				return new MDSRCaptureModel();
-		} catch (Throwable t) {
-			logger.error(" Port issue " + contextKey, t);
-			t.getStackTrace();
-			return null;
-		}
-
-		// Get Exceptions modalities abd add them to list of string
-		if (bioExceptions != null && !bioExceptions.isEmpty()) {
-			for (int modalityCount = 0; modalityCount < bioExceptions.size(); modalityCount++)
-				bioexceptionlist.add(bioExceptions.get(modalityCount).getSubType().toString());
-		}
-
-		// Step 1 : Face get capture
-		try {
-			if ((filteredAttribs != null && filteredAttribs.contains("face")) && biodata.getRawFaceData() != null) {
-
-				List<MDSDevice> faceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
-				MDSDevice faceDevice = faceDevices.get(0);
-
-				capture = mds.captureFromRegDevice(faceDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_FACE,
-						null, 60, faceDevice.getDeviceSubId().get(0), port, contextKey, null);
+			} catch (Throwable t) {
+				logger.error(" Port issue " + contextKey, t);
+				t.getStackTrace();
+				return null;
 			}
-		}
 
-		catch (Throwable t) {
-			logger.error(" Face get capture   fail" + contextKey, t);
-			t.getStackTrace();
-			return null;
-		}
+			// Get Exceptions modalities abd add them to list of string
+			if (bioExceptions != null && !bioExceptions.isEmpty()) {
+				for (int modalityCount = 0; modalityCount < bioExceptions.size(); modalityCount++)
+					bioexceptionlist.add(bioExceptions.get(modalityCount).getSubType().toString());
+			}
 
-		// Step 2 : IRIS get capture
-		try {
-			if (biodata.getIris() != null) {
-				List<BioModality> irisExceptions = null;
-				List<String> listexceptionBio = new ArrayList<String>();
+			// Step 1 : Face get capture
+			try {
+				if ((filteredAttribs != null && filteredAttribs.contains("face")) && biodata.getRawFaceData() != null) {
+
+					List<MDSDevice> faceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
+					MDSDevice faceDevice = faceDevices.get(0);
+
+					capture = mds.captureFromRegDevice(faceDevice, capture, DataProviderConstants.MDS_DEVICE_TYPE_FACE,
+							null, 60, faceDevice.getDeviceSubId().get(0), port, contextKey, null);
+				}
+			}
+
+			catch (Throwable t) {
+				logger.error(" Face get capture   fail" + contextKey, t);
+				t.getStackTrace();
+				return null;
+			}
+
+			// Step 2 : IRIS get capture
+			try {
+				if (biodata.getIris() != null) {
+					List<BioModality> irisExceptions = null;
+					List<String> listexceptionBio = new ArrayList<String>();
 
 				if (bioExceptions != null && !bioExceptions.isEmpty()) {
 					irisExceptions = getModalitiesByType(bioExceptions, "Iris");
@@ -423,18 +423,18 @@ public class BiometricDataProvider {
 						}
 					}
 				}
+				}
+
 			}
 
-		}
+			catch (Throwable t) {
+				logger.error(" IRIS get capture  fail" + contextKey, t);
+				t.getStackTrace();
+				return null;
+			}
 
-		catch (Throwable t) {
-			logger.error(" IRIS get capture  fail" + contextKey, t);
-			t.getStackTrace();
-			return null;
-		}
-
-		try {
-			if (biodata.getFingerPrint() != null) {
+			try {
+				if (biodata.getFingerPrint() != null) {
 				List<BioModality> fingerExceptions = null;
 				List<MDSDeviceCaptureModel> lstToRemove = new ArrayList<MDSDeviceCaptureModel>();
 				List<String> listFingerExceptionBio = new ArrayList<String>();
@@ -486,47 +486,63 @@ public class BiometricDataProvider {
 					lstFingers.removeAll(lstToRemove);
 				}
 
+				}
 			}
-		}
 
-		catch (Throwable t) {
-			logger.error("Finger get capture fail" + contextKey, t);
-			t.getStackTrace();
-			return null;
-		}
+			catch (Throwable t) {
+				logger.error("Finger get capture fail" + contextKey, t);
+				t.getStackTrace();
+				return null;
+			}
 
-		try {
-			// Step 4 : Exception photo face capture
-			if (bioExceptions != null && !bioExceptions.isEmpty()) {
+			try {
+				// Step 4 : Exception photo face capture
+				if (bioExceptions != null && !bioExceptions.isEmpty()) {
 
-				List<MDSDevice> exceptionfaceDevices = mds.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
-				MDSDevice exceptionDevice = exceptionfaceDevices.get(0);
-				try {
-					capture = mds.captureFromRegDevice(exceptionDevice, capture,
-							DataProviderConstants.MDS_DEVICE_TYPE_FACE, null, 60,
-							exceptionDevice.getDeviceSubId().get(0), port, contextKey, bioexceptionlist);
-					// rename the key with exception_photo
-				} catch (Throwable t) {
-					logger.error("Exception photo capture failure" + contextKey, t);
-					t.getStackTrace();
-					return null;
+					List<MDSDevice> exceptionfaceDevices = mds
+							.getRegDeviceInfo(DataProviderConstants.MDS_DEVICE_TYPE_FACE);
+					MDSDevice exceptionDevice = exceptionfaceDevices.get(0);
+					try {
+						capture = mds.captureFromRegDevice(exceptionDevice, capture,
+								DataProviderConstants.MDS_DEVICE_TYPE_FACE, null, 60,
+								exceptionDevice.getDeviceSubId().get(0), port, contextKey, bioexceptionlist);
+						// rename the key with exception_photo
+					} catch (Throwable t) {
+						logger.error("Exception photo capture failure" + contextKey, t);
+						t.getStackTrace();
+						return null;
+					}
+
 				}
 
 			}
 
+			catch (Throwable t) {
+				logger.error("Exceptionphoto face capture", t);
+				t.getStackTrace();
+				return null;
+			}
+			return capture;
+		} finally {
+			cleanupMdsResources(mds, port, contextKey);
 		}
+	}
 
-		catch (Throwable t) {
-			logger.error("Exceptionphoto face capture", t);
-			t.getStackTrace();
-			return null;
+	private static void cleanupMdsResources(MDSClientInterface mds, int port, String contextKey) {
+		try {
+			if (mds != null && port > 0) {
+				mds.setProfile("Default", port, contextKey);
+			}
+		} catch (Throwable t) {
+			logger.warn("Failed to reset MDS profile for context {}", contextKey, t);
+		} finally {
+			portmap.remove("port_" + contextKey);
+			try {
+				CentralizedMockSBI.stopSBI(contextKey);
+			} catch (Throwable t) {
+				logger.warn("Failed to stop SBI for context {}", contextKey, t);
+			}
 		}
-
-		// mds.removeProfile(mdsprofilePath, profileName, port, contextKey);
-		mds.setProfile("Default", port, contextKey);
-		// CommonUtil.deleteOldTempDir(mdsprofilePath+"/"+ profileName);
-		CentralizedMockSBI.stopSBI(contextKey);
-		return capture;
 	}
 
 	public static String toCBEFFFromCapture(List<String> bioFilter, MDSRCaptureModel capture, String toFile,
@@ -1377,22 +1393,29 @@ public class BiometricDataProvider {
 		RestClient.logInfo(contextKey, "Anguli commands" + commands);
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(new File(DataProviderConstants.ANGULI_PATH));
+		pb.redirectErrorStream(true);
 
 		try {
 			Process proc = pb.start(); // rt.exec(commands);
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-			// Read any errors from the attempted command
-			// logger.info("Error:\n");
-			String s;
+			try (BufferedReader processOutput = new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
+				String s;
+				while ((s = processOutput.readLine()) != null) {
+					RestClient.logInfo(contextKey, s);
+				}
+				int exitCode = proc.waitFor();
+				if (exitCode != 0) {
+					logger.warn("Anguli exited with code {} for context {}", exitCode, contextKey);
+				}
+				for (int i = 1; i <= nImpressionsPerPrints; i++) {
 
-			while ((s = stdError.readLine()) != null) {
-				RestClient.logInfo(contextKey, s);
-			}
-			// read from outdir
-			for (int i = 1; i <= nImpressionsPerPrints; i++) {
-
-				List<File> lst = CommonUtil.listFiles(outDir + String.format("/Impression_%d/fp_1/", i));
-				tblFiles.put(i, lst);
+					List<File> lst = CommonUtil.listFiles(outDir + String.format("/Impression_%d/fp_1/", i));
+					tblFiles.put(i, lst);
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				logger.error("Anguli execution interrupted for context {}", contextKey, e);
+			} finally {
+				proc.destroy();
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage());

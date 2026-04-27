@@ -119,6 +119,7 @@ public class ContextUtils {
 	                CommonUtil.deleteOldTempDir(trimmedPath);
 	            }
 	        }
+	        VariableManager.removeVariableValue(ctxName, key);
 	    }
 	}
 

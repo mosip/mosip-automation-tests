@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Queue;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.codec.binary.Base64;
@@ -39,16 +37,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.NameProvider;
 import io.mosip.testrig.dslrig.dataprovider.PacketTemplateProvider;
-import io.mosip.testrig.dslrig.dataprovider.PhotoProvider;
 import io.mosip.testrig.dslrig.dataprovider.ResidentDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.models.AppointmentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.AppointmentTimeSlotModel;
 import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.CenterDetailsModel;
-import io.mosip.testrig.dslrig.dataprovider.models.ContextSchemaDetail;
 import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldValueModel;
 import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipDocTypeModel;
@@ -69,7 +64,6 @@ import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.ResidentAttribute;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
-import io.mosip.testrig.dslrig.dataprovider.util.Translator;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.AppointmentDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.BioExceptionDto;
@@ -85,6 +79,8 @@ public class PacketSyncService {
 
 	private static final String UNDERSCORE = "_";
 	private static final Logger logger = LoggerFactory.getLogger(PacketSyncService.class);
+	private static final Queue<SlotEntry> slotQueue = new ConcurrentLinkedQueue<>();
+	private static final long SLOT_EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 	// String constants
 	private static final String STATUS = "status";
@@ -97,7 +93,6 @@ public class PacketSyncService {
 	private static final String MODALITY = "Modality : ";
 	private List<MosipIDSchema> cachedDocumentSchema = null;
 
-
 	@Autowired
 	private APIRequestUtil apiRequestUtil;
 
@@ -109,10 +104,10 @@ public class PacketSyncService {
 
 	@Autowired
 	private ZipUtils zipUtils;
-	
+
 	private PacketMakerService packetMakerService;
 	private PacketSyncService packetSyncService;
-	
+
 	@Autowired
 	private ContextUtils contextUtils;
 
@@ -142,7 +137,7 @@ public class PacketSyncService {
 
 	@Value("${mosip.test.idrepo.idvidpath}")
 	private String idvid;
-	
+
 	public PacketSyncService(@Lazy PacketSyncService packetSyncService, @Lazy PacketMakerService packetMakerService) {
 		this.packetSyncService = packetSyncService;
 		this.packetMakerService = packetMakerService;
@@ -166,10 +161,10 @@ public class PacketSyncService {
 		}
 	}
 
-	public String generateResidentData( PersonaRequestDto residentRequestDto, String contextKey) throws Exception {
+	public String generateResidentData(PersonaRequestDto residentRequestDto, String contextKey) throws Exception {
 		logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
 		// TO do --Check why we need to load the context here
-//		loadServerContextProperties(contextKey);
+		// loadServerContextProperties(contextKey);
 		VariableManager.setVariableValue(contextKey, "process", "NEW");
 		Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
 		Gender enumGender = Gender.Any;
@@ -177,7 +172,7 @@ public class PacketSyncService {
 		if (props.containsKey("Gender")) {
 			enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
 		}
-//		provider.addCondition(ResidentAttribute.RA_Count, count);
+		// provider.addCondition(ResidentAttribute.RA_Count, count);
 
 		if (props.containsKey("Age")) {
 
@@ -288,84 +283,86 @@ public class PacketSyncService {
 		if (RestClient.isDebugEnabled(contextKey))
 			logger.info("makePacketAndSync for PRID : {}", preregId);
 		logger.info("Entered makePacketAndSync at time: " + System.currentTimeMillis());
+		apiRequestUtil.resetServerApiTrace(contextKey);
 		Path idJsonPath = null;
-		String  process = null;
-		Path docPath = null;
+		String process = null;
 		String location = null;
 		File targetDirectory = null;
 		preregId = preregId.trim();
-		if (!preregId.equals("0") && !preregId.equals("01")) {
-			 location = preregSyncService.downloadPreregPacket(preregId, contextKey);
-			if (RestClient.isDebugEnabled(contextKey))
-				logger.info("Downloaded the prereg packet in {} ", location);
-			 targetDirectory = Path.of(preregSyncService.getWorkDirectory(), preregId).toFile();
-			if (!targetDirectory.exists() && !targetDirectory.mkdir())
-				throw new Exception("Failed to create target directory ! PRID : " + preregId);
+		try {
+			if (!preregId.equals("0") && !preregId.equals("01")) {
+				location = preregSyncService.downloadPreregPacket(preregId, contextKey);
+				if (RestClient.isDebugEnabled(contextKey))
+					logger.info("Downloaded the prereg packet in {} ", location);
+				targetDirectory = Path.of(preregSyncService.getWorkDirectory(), preregId).toFile();
+				if (!targetDirectory.exists() && !targetDirectory.mkdir())
+					throw new Exception("Failed to create target directory ! PRID : " + preregId);
 
-			if (!zipUtils.unzip(location, targetDirectory.getAbsolutePath(), contextKey))
-				throw new Exception("Failed to unzip pre-reg packet >> " + preregId);
+				if (!zipUtils.unzip(location, targetDirectory.getAbsolutePath(), contextKey))
+					throw new Exception("Failed to unzip pre-reg packet >> " + preregId);
 
-			idJsonPath = Path.of(targetDirectory.getAbsolutePath(), "ID.json");
-			if (RestClient.isDebugEnabled(contextKey))
-				logger.info("Unzipped the prereg packet {}, ID.json exists : {}", preregId,
-						idJsonPath.toFile().exists());
+				idJsonPath = Path.of(targetDirectory.getAbsolutePath(), "ID.json");
+				if (RestClient.isDebugEnabled(contextKey))
+					logger.info("Unzipped the prereg packet {}, ID.json exists : {}", preregId,
+							idJsonPath.toFile().exists());
 
-		} else {
-
-			if (templateLocation != null) {
+			} else if (templateLocation != null) {
 				// get idJson From Template itself
 				idJsonPath = ContextUtils.idJsonPathFromTemplate(src, templateLocation);
-			} else
+			} else {
 				idJsonPath = createIDJsonFromPersona(personaPath, contextKey);
+			}
+			if (templateLocation != null) {
+				process = ContextUtils.ProcessFromTemplate(src, templateLocation);
+			}
+			String packetPath = packetMakerService.createContainer(idJsonPath.toString(), templateLocation, src,
+					process,
+					preregId, contextKey, true, additionalInfoReqId, targetDirectory);
 
-		}
-		if (templateLocation != null) {
-			process = ContextUtils.ProcessFromTemplate(src, templateLocation);
-		}
-		String packetPath = packetMakerService.createContainer(idJsonPath.toString(), templateLocation, src, process,
-				preregId, contextKey, true, additionalInfoReqId , targetDirectory);
-
-		String response = null;
-		if (RestClient.isDebugEnabled(contextKey))
-			logger.info("Packet created : {}", packetPath);
-
-		if (getRidFromSync) {
-			logger.info("About to sync packet at time: " + System.currentTimeMillis());
-			response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", process, contextKey,
-					additionalInfoReqId);
-			logger.info("packet sync done  at time: " + System.currentTimeMillis());
+			String response = null;
 			if (RestClient.isDebugEnabled(contextKey))
-				logger.info("RID Sync response : {}", response);
-			JSONObject functionResponse = new JSONObject();
-			JSONObject nobj = new JSONObject();
+				logger.info("Packet created : {}", packetPath);
 
-			JSONArray packets = new JSONArray(response);
-			if (packets.length() > 0) {
-				JSONObject resp = (JSONObject) packets.get(0);
-				if (resp.getString(STATUS).equals(SUCCESS)) {
+			if (getRidFromSync) {
+				logger.info("About to sync packet at time: " + System.currentTimeMillis());
+				response = packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", process,
+						contextKey,
+						additionalInfoReqId);
+				logger.info("packet sync done  at time: " + System.currentTimeMillis());
+				if (RestClient.isDebugEnabled(contextKey))
+					logger.info("RID Sync response : {}", response);
+				JSONObject functionResponse = new JSONObject();
+				JSONObject nobj = new JSONObject();
 
-					String rid = resp.getString(REGISTRATIONID);
-					logger.info("About to upload packet at time: " + System.currentTimeMillis());
-					response = packetSyncService.uploadPacket(packetPath, contextKey);
-					logger.info("Uploaded packet at time: " + System.currentTimeMillis());
-					if (RestClient.isDebugEnabled(contextKey))
-						logger.info("Packet Sync response : {}", response);
-					JSONObject obj = new JSONObject(response);
-					if (obj.getString(STATUS).equals("Packet has reached Packet Receiver")) {
+				JSONArray packets = new JSONArray(response);
+				if (packets.length() > 0) {
+					JSONObject resp = (JSONObject) packets.get(0);
+					if (resp.getString(STATUS).equals(SUCCESS)) {
 
-						functionResponse.put(RESPONSE, nobj);
-						nobj.put(STATUS, SUCCESS);
-						nobj.put(REGISTRATIONID, rid);
-						return functionResponse;
+						String rid = resp.getString(REGISTRATIONID);
+						logger.info("About to upload packet at time: " + System.currentTimeMillis());
+						response = packetSyncService.uploadPacket(packetPath, contextKey);
+						logger.info("Uploaded packet at time: " + System.currentTimeMillis());
+						if (RestClient.isDebugEnabled(contextKey))
+							logger.info("Packet Sync response : {}", response);
+						JSONObject obj = new JSONObject(response);
+						if (obj.getString(STATUS).equals("Packet has reached Packet Receiver")) {
+
+							functionResponse.put(RESPONSE, nobj);
+							nobj.put(STATUS, SUCCESS);
+							nobj.put(REGISTRATIONID, rid);
+							nobj.put("serverApiTrace", apiRequestUtil.consumeServerApiTrace(contextKey));
+							return functionResponse;
+						}
 					}
 				}
+				functionResponse.put(RESPONSE, nobj);
+				nobj.put(STATUS, "Failed");
+				nobj.put("serverApiTrace", apiRequestUtil.consumeServerApiTrace(contextKey));
+
+				return functionResponse;
+
 			}
-			functionResponse.put(RESPONSE, nobj);
-			nobj.put(STATUS, "Failed");
-
-			return functionResponse;
-
-		} else {
 
 			JSONObject functionResponse = new JSONObject();
 			JSONObject nobj = new JSONObject();
@@ -379,17 +376,37 @@ public class PacketSyncService {
 
 				// Get the rid from the packet template
 				nobj.put(REGISTRATIONID, packetMakerService.getNewRegId());
+				nobj.put("serverApiTrace", apiRequestUtil.consumeServerApiTrace(contextKey));
 				logger.info("Packet sync and upload completed at time: " + System.currentTimeMillis());
 				return functionResponse;
 			}
 
 			functionResponse.put(RESPONSE, nobj);
 			nobj.put(STATUS, "Failed");
+			nobj.put("serverApiTrace", apiRequestUtil.consumeServerApiTrace(contextKey));
 
 			return functionResponse;
-
+		} finally {
+			cleanupPreregArtifacts(location, targetDirectory);
 		}
 
+	}
+
+	private void cleanupPreregArtifacts(String location, File targetDirectory) {
+		if (location != null && !location.isBlank()) {
+			try {
+				CommonUtil.deleteOldTempDir(location);
+			} catch (Exception ex) {
+				logger.warn("Failed to delete prereg zip {}", location, ex);
+			}
+		}
+		if (targetDirectory != null && targetDirectory.exists()) {
+			try {
+				CommonUtil.deleteOldTempDir(targetDirectory.getAbsolutePath());
+			} catch (Exception ex) {
+				logger.warn("Failed to delete prereg working directory {}", targetDirectory.getAbsolutePath(), ex);
+			}
+		}
 	}
 
 	public Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
@@ -404,14 +421,14 @@ public class PacketSyncService {
 
 		String newPreregPath = tmpDir;
 		String existingPreregValue = VariableManager.getVariableValue(contextKey, "preregIds_") != null
-		    ? VariableManager.getVariableValue(contextKey, "preregIds_").toString()
-		    : "";
+				? VariableManager.getVariableValue(contextKey, "preregIds_").toString()
+				: "";
 
 		String updatedPreregValue;
 		if (!existingPreregValue.isEmpty()) {
 			updatedPreregValue = existingPreregValue + "," + newPreregPath;
 		} else {
-			 updatedPreregValue = newPreregPath;
+			updatedPreregValue = newPreregPath;
 		}
 
 		VariableManager.setVariableValue(contextKey, "preregIds_", updatedPreregValue);
@@ -461,8 +478,8 @@ public class PacketSyncService {
 	private RidSyncRequestData prepareRidSyncRequest(String containerFile, String name, String supervisorStatus,
 			String supervisorComment, String proc, String contextKey, String additionalInfoReqId)
 			throws Exception, Exception {
-		String centerId= VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
-		String machineId=VariableManager.getVariableValue(contextKey, "machineid").toString();
+		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+		String machineId = VariableManager.getVariableValue(contextKey, "machineid").toString();
 		if (contextKey != null && !contextKey.equals("")) {
 			Properties props = contextUtils.loadServerContext(contextKey);
 			props.forEach((k, v) -> {
@@ -565,13 +582,13 @@ public class PacketSyncService {
 
 		RestClient.logInfo(contextKey, baseUrl + uploadapi + ",path=" + path);
 		JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl + uploadapi, path, contextKey);
-			if (VariableManager.getVariableValue(contextKey, "mosip.test.temp") != null
-					&& VariableManager.getVariableValue(contextKey, "mountPath") != null) {
+		if (VariableManager.getVariableValue(contextKey, "mosip.test.temp") != null
+				&& VariableManager.getVariableValue(contextKey, "mountPath") != null) {
 
-				deleteDirectoryPath(VariableManager.getVariableValue(contextKey, "mountPath").toString()
-						+ VariableManager.getVariableValue(contextKey, "mosip.test.temp").toString()
-						+ contextKey.substring(0, contextKey.lastIndexOf("_context")), contextKey);
-			}
+			deleteDirectoryPath(VariableManager.getVariableValue(contextKey, "mountPath").toString()
+					+ VariableManager.getVariableValue(contextKey, "mosip.test.temp").toString()
+					+ contextKey.substring(0, contextKey.lastIndexOf("_context")), contextKey);
+		}
 		return response.toString();
 	}
 
@@ -673,7 +690,7 @@ public class PacketSyncService {
 		for (String path : personaFilePath) {
 			ResidentModel resident = ResidentModel.readPersona(path);
 			ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
-			builder.append(preReg.sendOtpTo(resident,to, contextKey));
+			builder.append(preReg.sendOtpTo(resident, to, contextKey));
 
 		}
 		return builder.toString();
@@ -685,9 +702,9 @@ public class PacketSyncService {
 		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 		ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 
-		       if(otp != null && otp.isEmpty()) {
-		preReg.fetchOtp(contextKey);
-       }
+		if (otp != null && otp.isEmpty()) {
+			preReg.fetchOtp(contextKey);
+		}
 		return preReg.verifyOtp(to, otp, contextKey);
 
 	}
@@ -741,61 +758,72 @@ public class PacketSyncService {
 		}
 		return retVal;
 	}
-	
-	 private static final Queue<SlotEntry> slotQueue = new ConcurrentLinkedQueue<>();
 
-	    public static class SlotEntry {
-	        public final String date;
-	        public final String regCenterId;
-	        public final AppointmentTimeSlotModel slot;
+	public static class SlotEntry {
+		public final String date;
+		public final String regCenterId;
+		public final AppointmentTimeSlotModel slot;
+		public final long createdTime; // Add timestamp
 
-	        public SlotEntry(String date, String regCenterId, AppointmentTimeSlotModel slot) {
-	            this.date = date;
-	            this.regCenterId = regCenterId;
-	            this.slot = slot;
-	        }
-	    }
+		public SlotEntry(String date, String regCenterId, AppointmentTimeSlotModel slot) {
+			this.date = date;
+			this.regCenterId = regCenterId;
+			this.slot = slot;
+			this.createdTime = System.currentTimeMillis(); // Capture creation time
+		}
 
-	    public static void initializeSlots(String contextKey, boolean bHoliday) {
-	        AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
-	        for (CenterDetailsModel center : res.getAvailableDates()) {
-	            if ((bHoliday && center.getHoliday()) || (!bHoliday && !center.getHoliday())) {
-	                for (AppointmentTimeSlotModel ts : center.getTimeslots()) {
-	                    slotQueue.add(new SlotEntry(center.getDate(), res.getRegCenterId(), ts));
-	                }
-	            }
-	        }
-	    }
+		public boolean isExpired() {
+			return (System.currentTimeMillis() - createdTime) > SLOT_EXPIRATION_TIME_MS;
+		}
+	}
 
-	    public String bookAppointmentSlot(String preRegID, int nthSlot, boolean bHoliday, String contextKey) {
-	        loadServerContextProperties(contextKey);
+	public static void initializeSlots(String contextKey, boolean bHoliday) {
+		AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
+		for (CenterDetailsModel center : res.getAvailableDates()) {
+			if ((bHoliday && center.getHoliday()) || (!bHoliday && !center.getHoliday())) {
+				for (AppointmentTimeSlotModel ts : center.getTimeslots()) {
+					slotQueue.add(new SlotEntry(center.getDate(), res.getRegCenterId(), ts));
+				}
+			}
+		}
+	}
 
-	        // Ensure slots are initialized only once
-	        if (slotQueue.isEmpty()) {
-	            initializeSlots(contextKey, bHoliday);
-	        }
+	// Helper method to clean expired slots
+	private void cleanExpiredSlots() {
+		slotQueue.removeIf(SlotEntry::isExpired);
+	}
 
-	        SlotEntry entry = null;
-	        for (int i = 0; i < nthSlot; i++) {
-	            entry = slotQueue.poll();
-	            if (entry == null) {
-	                return "{\"Failed: No available slots\"}";
-	            }
-	        }
+	public String bookAppointmentSlot(String preRegID, int nthSlot, boolean bHoliday, String contextKey) {
+		loadServerContextProperties(contextKey);
 
-	        return PreRegistrationSteps.bookAppointment(
-	            preRegID,
-	            entry.date,
-	            entry.regCenterId,
-	            entry.slot,
-	            contextKey
-	        );
-	    }
+		// Clean expired slots before booking
+		cleanExpiredSlots();
 
-	    public void runBookingTask(String preRegID, String contextKey) {
-	        String result = bookAppointmentSlot(preRegID, 1, false, contextKey);
-	        System.out.println(Thread.currentThread().getName() + ": " + result);
-	    }
+		// Ensure slots are initialized only once
+		if (slotQueue.isEmpty()) {
+			initializeSlots(contextKey, bHoliday);
+		}
+
+		SlotEntry entry = null;
+		for (int i = 0; i < nthSlot; i++) {
+			entry = slotQueue.poll();
+			if (entry == null) {
+				return "{\"Failed: No available slots\"}";
+			}
+		}
+
+		return PreRegistrationSteps.bookAppointment(
+				preRegID,
+				entry.date,
+				entry.regCenterId,
+				entry.slot,
+				contextKey);
+	}
+
+	public void runBookingTask(String preRegID, String contextKey) {
+		String result = bookAppointmentSlot(preRegID, 1, false, contextKey);
+		System.out.println(Thread.currentThread().getName() + ": " + result);
+	}
 
 	public String cancelAppointment(String preregId, AppointmentDto appointmentDto, String contextKey) {
 		loadServerContextProperties(contextKey);
@@ -816,74 +844,71 @@ public class PacketSyncService {
 		return PreRegistrationSteps.discardBooking(map, contextKey);
 	}
 
-	private static final Map<String, List<MosipIDSchema>> schemaCache = new ConcurrentHashMap<>();
-
 	public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
 
-	    StringBuilder responseBuilder = new StringBuilder();
+		StringBuilder responseBuilder = new StringBuilder();
 
-	    loadServerContextProperties(contextKey);
+		loadServerContextProperties(contextKey);
 
-	    ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 
-	    // Thread-safe schema cache
-	    List<MosipIDSchema> documentSchemas = schemaCache.computeIfAbsent(contextKey, key -> {
-	        PacketTemplateProvider provider = new PacketTemplateProvider();
-	        return provider.getSchema(key).getSchema();
-	    });
+		PacketTemplateProvider provider = new PacketTemplateProvider();
+		List<MosipIDSchema> documentSchemas = provider.getSchema(contextKey).getSchema();
 
-	    // Create secure temporary directory (CodeQL safe)
-	    Path tempDir = Files.createTempDirectory("docs_" + Thread.currentThread().getId());
+		Path tempDir = Files.createTempDirectory("docs_");
 
-	    for (MosipIDSchema schema : documentSchemas) {
+		try {
+			for (MosipIDSchema schema : documentSchemas) {
 
-	        if (!"documentType".equalsIgnoreCase(schema.getType())) {
-	            continue;
-	        }
+				if (!"documentType".equalsIgnoreCase(schema.getType())) {
+					continue;
+				}
 
-	        for (MosipDocument doc : resident.getDocuments()) {
+				for (MosipDocument doc : resident.getDocuments()) {
 
-	            if (!schema.getSubType().equals(doc.getDocCategoryCode())) {
-	                continue;
-	            }
+					if (!schema.getSubType().equals(doc.getDocCategoryCode())) {
+						continue;
+					}
 
-	            String originalDocPath = doc.getDocs().get(0);
-	            String copiedFileName = schema.getId() + ".pdf";
+					String originalDocPath = doc.getDocs().get(0);
+					String copiedFileName = schema.getId() + ".pdf";
 
-	            Path copiedDocPath = tempDir.resolve(copiedFileName).normalize();
+					Path copiedDocPath = tempDir.resolve(copiedFileName).normalize();
 
-	            CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), copiedDocPath);
+					CommonUtil.copyFileWithBuffer(Paths.get(originalDocPath), copiedDocPath);
 
-	            JSONObject respObject = PreRegistrationSteps.UploadDocument(
-	                    doc.getDocCategoryCode(),
-	                    doc.getType().get(0).getDocTypeCode(),
-	                    doc.getDocCategoryLang(),
-	                    copiedDocPath.toString(),
-	                    preregId,
-	                    contextKey
-	            );
+					JSONObject respObject = PreRegistrationSteps.UploadDocument(
+							doc.getDocCategoryCode(),
+							doc.getType().get(0).getDocTypeCode(),
+							doc.getDocCategoryLang(),
+							copiedDocPath.toString(),
+							preregId,
+							contextKey);
 
-	            if (respObject != null) {
-	                responseBuilder.append(respObject.toString());
-	            }
-	        }
-	    }
+					if (respObject != null) {
+						responseBuilder.append(respObject.toString());
+					}
+				}
+			}
+		} finally {
+			CommonUtil.deleteOldTempDir(tempDir.toString());
+		}
 
-	    return responseBuilder.toString();
+		return responseBuilder.toString();
 	}
 
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
 		logger.info("Template generation started at time: " + System.currentTimeMillis());
-		String centerId= VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
-		String machineId=VariableManager.getVariableValue(contextKey, "machineid").toString();
+		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
+		String machineId = VariableManager.getVariableValue(contextKey, "machineid").toString();
 		boolean packetDirCreated = false;
 		Path packetDir = null;
 		JSONArray packetPaths = new JSONArray();
 
 		RestClient.logInfo(contextKey, "createPacketTemplates->outDir:" + outDir);
 
-//		loadServerContextProperties(contextKey);
+		// loadServerContextProperties(contextKey);
 		if (process != null) {
 			VariableManager.setVariableValue(contextKey, "process", process);
 		}
@@ -929,7 +954,8 @@ public class PacketSyncService {
 				ResidentModel resident = ResidentModel.readPersona(path);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				RestClient.logInfo(contextKey, "packetPath=" + packetPath);
-				String returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath, preregId,
+				String returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath,
+						preregId,
 						machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
 						genarateValidCbeff);
 				if (!returnMsg.equalsIgnoreCase("Success"))
@@ -954,8 +980,9 @@ public class PacketSyncService {
 		return response.toString();
 
 	}
-	
-	public String createPacketUpload(List<String> personaFilePaths, String source, String process, String uin, String regId,	
+
+	public String createPacketUpload(List<String> personaFilePaths, String source, String process, String uin,
+			String regId,
 			boolean validateToken, String contextKey) throws IOException {
 		String machineId;
 		String centerId;
@@ -976,7 +1003,7 @@ public class PacketSyncService {
 			centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
 
 			JSONObject returnMsg = packetTemplateProvider.generateCRVSField(source, resident, process, machineId,
-					centerId, contextKey, props, regId ,validateToken , uin);
+					centerId, contextKey, props, regId, validateToken, uin);
 			logger.info(returnMsg.toString());
 			requestNode.put("id", regId);
 			requestNode.put("version", "String");
@@ -1002,102 +1029,105 @@ public class PacketSyncService {
 	}
 
 	public JSONObject updatePersona(Properties updateAttrs, ResidentModel persona, String contextKey) {
-	    JSONObject responseJson = new JSONObject();
-	    JSONObject oldValues = new JSONObject();
-	    JSONObject newValues = new JSONObject();
+		JSONObject responseJson = new JSONObject();
+		JSONObject oldValues = new JSONObject();
+		JSONObject newValues = new JSONObject();
 
-	    synchronized (persona) {
-	        Iterator<Object> it = updateAttrs.keys().asIterator();
-	        BiometricDataModel bioData = null;
+		synchronized (persona) {
+			Iterator<Object> it = updateAttrs.keys().asIterator();
+			BiometricDataModel bioData = null;
 
-	        while (it.hasNext()) {
-	            String key = it.next().toString();
-	            String value = updateAttrs.getProperty(key);
-	            key = key.toLowerCase().trim();
+			while (it.hasNext()) {
+				String key = it.next().toString();
+				String value = updateAttrs.getProperty(key);
+				key = key.toLowerCase().trim();
 
-	            // Check for document updates
-	            MosipDocument doc = null;
-	            for (MosipDocument md : persona.getDocuments()) {
-	                if (md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
-	                    doc = md;
-	                    break;
-	                }
-	            }
+				// Check for document updates
+				MosipDocument doc = null;
+				for (MosipDocument md : persona.getDocuments()) {
+					if (md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
+						doc = md;
+						break;
+					}
+				}
 
-	            if (doc != null) {
-	                JSONObject jsonDoc = new JSONObject(value);
-	                String typeName = jsonDoc.has("typeName") ? jsonDoc.get("typeName").toString() : "";
-	                String typeCode = jsonDoc.has("typeCode") ? jsonDoc.get("typeCode").toString() : "";
-	                int indx = -1;
-	                for (MosipDocTypeModel tm : doc.getType()) {
-	                    indx++;
-	                    if ((tm.getDocTypeCode() != null && tm.getDocTypeCode().equals(typeCode))
-	                            || (tm.getDocTypeName() != null && tm.getDocTypeName().equals(typeName)))
-	                        break;
-	                }
-	                if (indx >= 0 && indx < doc.getType().size()) {
-	                    String docFilePath = jsonDoc.has("docPath")
-	                            ? System.getProperty("java.io.tmpdir")
-	                                + VariableManager.getVariableValue(contextKey, "mosip.test.persona.largedocumentpath")
-	                                + "largeDocument.pdf"
-	                            : null;
-	                    if (docFilePath != null) {
-	                        oldValues.put(key, doc.getDocs().get(indx));
-	                        doc.getDocs().set(indx, docFilePath);
-	                        newValues.put(key, docFilePath);
-	                    }
-	                }
-	                continue;
-	            }
+				if (doc != null) {
+					JSONObject jsonDoc = new JSONObject(value);
+					String typeName = jsonDoc.has("typeName") ? jsonDoc.get("typeName").toString() : "";
+					String typeCode = jsonDoc.has("typeCode") ? jsonDoc.get("typeCode").toString() : "";
+					int indx = -1;
+					for (MosipDocTypeModel tm : doc.getType()) {
+						indx++;
+						if ((tm.getDocTypeCode() != null && tm.getDocTypeCode().equals(typeCode))
+								|| (tm.getDocTypeName() != null && tm.getDocTypeName().equals(typeName)))
+							break;
+					}
+					if (indx >= 0 && indx < doc.getType().size()) {
+						String docFilePath = jsonDoc.has("docPath")
+								? System.getProperty("java.io.tmpdir")
+										+ VariableManager.getVariableValue(contextKey,
+												"mosip.test.persona.largedocumentpath")
+										+ "largeDocument.pdf"
+								: null;
+						if (docFilePath != null) {
+							oldValues.put(key, doc.getDocs().get(indx));
+							doc.getDocs().set(indx, docFilePath);
+							newValues.put(key, docFilePath);
+						}
+					}
+					continue;
+				}
 
-	            switch (key) {            
-	                case "gender":
-	                    oldValues.put("gender", persona.getGender().toString());
-	                    persona.setGender(Gender.valueOf(value));
-	                    newValues.put("gender", value);
-	                    break;
+				switch (key) {
+					case "gender":
+						oldValues.put("gender", persona.getGender().toString());
+						persona.setGender(Gender.valueOf(value));
+						newValues.put("gender", value);
+						break;
 
-	                case "email":
-	                case "emailid":
-	                    oldValues.put("email", persona.getContact().getEmailId());
-	                    persona.getContact().setEmailId(value);
-	                    newValues.put("email", value);
-	                    break;
+					case "email":
+					case "emailid":
+						oldValues.put("email", persona.getContact().getEmailId());
+						persona.getContact().setEmailId(value);
+						newValues.put("email", value);
+						break;
 
-	                case "dob":
-	                case "dateofbirth":
-	                    oldValues.put("dob", persona.getDob());
-	                    if ("minor".equalsIgnoreCase(value)) {
-	                    	persona.setInfant(false);
-	                    	persona.setMinor(true);
-	                        int randomAge = 5 + (int) (Math.random() * (18 - 5 + 1));
-	                        value = LocalDate.now().minusYears(randomAge).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-	                    } else if ("adult".equalsIgnoreCase(value)) {
-	                    	persona.setInfant(false);
-	                    	persona.setMinor(false);
-	                    	persona.setGuardian(null);
-	                        int randomAge = 18 + (int) (Math.random() * (80 - 18 + 1));
-	                        value = LocalDate.now().minusYears(randomAge).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-	                    }
-	                    persona.setDob(value);
-	                    newValues.put("dob", value);
-	                    break;
+					case "dob":
+					case "dateofbirth":
+						oldValues.put("dob", persona.getDob());
+						if ("minor".equalsIgnoreCase(value)) {
+							persona.setInfant(false);
+							persona.setMinor(true);
+							int randomAge = 5 + (int) (Math.random() * (18 - 5 + 1));
+							value = LocalDate.now().minusYears(randomAge)
+									.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+						} else if ("adult".equalsIgnoreCase(value)) {
+							persona.setInfant(false);
+							persona.setMinor(false);
+							persona.setGuardian(null);
+							int randomAge = 18 + (int) (Math.random() * (80 - 18 + 1));
+							value = LocalDate.now().minusYears(randomAge)
+									.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+						}
+						persona.setDob(value);
+						newValues.put("dob", value);
+						break;
 
-	                case "bloodgroup":
-	                case "bg":
-	                    DynamicFieldValueModel bg = persona.getBloodgroup();
-	                    oldValues.put("bloodgroup", bg.getCode());
-	                    bg.setCode(value);
-	                    newValues.put("bloodgroup", value);
-	                    break;
+					case "bloodgroup":
+					case "bg":
+						DynamicFieldValueModel bg = persona.getBloodgroup();
+						oldValues.put("bloodgroup", bg.getCode());
+						bg.setCode(value);
+						newValues.put("bloodgroup", value);
+						break;
 
-	                case "maritalstatus":
-	                case "ms":
-	                    DynamicFieldValueModel ms = persona.getMaritalStatus();
-	                    oldValues.put("maritalstatus", ms.getCode());
-	                    ms.setCode(value);
-	                    newValues.put("maritalstatus", value);
-	                    break;
+					case "maritalstatus":
+					case "ms":
+						DynamicFieldValueModel ms = persona.getMaritalStatus();
+						oldValues.put("maritalstatus", ms.getCode());
+						ms.setCode(value);
+						newValues.put("maritalstatus", value);
+						break;
 
 					case "name":
 						int count = 1;
@@ -1148,42 +1178,41 @@ public class PacketSyncService {
 						}
 						break;
 
-	                case "residencestatus":
-	                case "rs":
-	                    if (value != null && !value.equals("")) {
-	                        String lang = persona.getPrimaryLanguage();
-	                        String[] parts = value.split("=");
-	                        String rsCode = parts.length > 1 ? parts[1].trim() : parts[0].trim();
-	                        lang = parts.length > 1 ? parts[0].trim() : lang;
+					case "residencestatus":
+					case "rs":
+						if (value != null && !value.equals("")) {
+							String lang = persona.getPrimaryLanguage();
+							String[] parts = value.split("=");
+							String rsCode = parts.length > 1 ? parts[1].trim() : parts[0].trim();
+							lang = parts.length > 1 ? parts[0].trim() : lang;
 
-	                        if (lang.equals(persona.getPrimaryLanguage())) {
-	                            MosipIndividualTypeModel rs = persona.getResidentStatus();
-	                            oldValues.put("residencestatus", rs.getCode());
-	                            rs.setCode(rsCode);
-	                            newValues.put("residencestatus", rsCode);
-	                        } else {
-	                            MosipIndividualTypeModel rs = persona.getResidentStatus_seclang();
-	                            oldValues.put("residencestatus_seclang", rs.getCode());
-	                            rs.setCode(rsCode);
-	                            newValues.put("residencestatus_seclang", rsCode);
-	                        }
-	                    }
-	                    break;
+							if (lang.equals(persona.getPrimaryLanguage())) {
+								MosipIndividualTypeModel rs = persona.getResidentStatus();
+								oldValues.put("residencestatus", rs.getCode());
+								rs.setCode(rsCode);
+								newValues.put("residencestatus", rsCode);
+							} else {
+								MosipIndividualTypeModel rs = persona.getResidentStatus_seclang();
+								oldValues.put("residencestatus_seclang", rs.getCode());
+								rs.setCode(rsCode);
+								newValues.put("residencestatus_seclang", rsCode);
+							}
+						}
+						break;
 
-	                default:
-	                    oldValues.put(key, persona.getAddtionalAttributes().get(key));
-	                    persona.getAddtionalAttributes().put(key, value);
-	                    newValues.put(key, value);
-	                    break;
-	            }
-	        }
-	    }
+					default:
+						oldValues.put(key, persona.getAddtionalAttributes().get(key));
+						persona.getAddtionalAttributes().put(key, value);
+						newValues.put(key, value);
+						break;
+				}
+			}
+		}
 
-	    responseJson.put("oldValues", oldValues);
-	    responseJson.put("newValues", newValues);
-	    return responseJson;
+		responseJson.put("oldValues", oldValues);
+		responseJson.put("newValues", newValues);
+		return responseJson;
 	}
-
 
 	public String getPersonaData(List<UpdatePersonaDto> getPersonaRequest, String contextKey) throws Exception {
 
@@ -1198,142 +1227,144 @@ public class PacketSyncService {
 					Object val = null;
 					String key = attr.trim();
 					switch (key.toLowerCase()) {
-					case "demodata":
-						val = persona.loadDemoData();
-						retProp.put(key, val);
-						break;
-					case "faceraw":
-						val = persona.getBiometric().getRawFaceData();
-						retProp.put(key, val);
-						break;
+						case "demodata":
+							val = persona.loadDemoData();
+							retProp.put(key, val);
+							break;
+						case "faceraw":
+							val = persona.getBiometric().getRawFaceData();
+							retProp.put(key, val);
+							break;
 
-					case "face":
-						val = persona.getBiometric().getEncodedPhoto();
-						retProp.put(key, val);
-						break;
-					case "face_encrypted":
-						if (persona.getBiometric().getCapture() != null) {
-							val = persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FACE)
-									.get(0).getBioValue();
-						}
-						retProp.put(key, val);
-						break;
-					case "iris":
-						IrisDataModel irisval = persona.getBiometric().getIris();
-
-						retProp.put(key, irisval.toJSONString());
-						break;
-					case "iris_encrypted":
-						IrisDataModel irisvalue = null;
-						if (persona.getBiometric().getCapture() != null) {
-							irisvalue = new IrisDataModel();
-
-							List<MDSDeviceCaptureModel> lstIrisData = persona.getBiometric().getCapture()
-									.get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
-							for (MDSDeviceCaptureModel cm : lstIrisData) {
-
-								if (cm.getBioSubType().equals("Left"))
-									irisvalue.setLeft(cm.getBioValue());
-								else if (cm.getBioSubType().equals("Right"))
-									irisvalue.setRight(cm.getBioValue());
+						case "face":
+							val = persona.getBiometric().getEncodedPhoto();
+							retProp.put(key, val);
+							break;
+						case "face_encrypted":
+							if (persona.getBiometric().getCapture() != null) {
+								val = persona.getBiometric().getCapture()
+										.get(DataProviderConstants.MDS_DEVICE_TYPE_FACE)
+										.get(0).getBioValue();
 							}
-							val = irisvalue;
-						}
+							retProp.put(key, val);
+							break;
+						case "iris":
+							IrisDataModel irisval = persona.getBiometric().getIris();
 
-						retProp.put(key, val);
-						break;
-					case "finger":
-						String[] fps = persona.getBiometric().getFingerPrint();
-						for (int i = 0; i < fps.length; i++) {
-							retProp.put(DataProviderConstants.displayFingerName[i], fps[i]);
-						}
-						break;
-					case "finger_encrypted":
+							retProp.put(key, irisval.toJSONString());
+							break;
+						case "iris_encrypted":
+							IrisDataModel irisvalue = null;
+							if (persona.getBiometric().getCapture() != null) {
+								irisvalue = new IrisDataModel();
 
-						if (persona.getBiometric().getCapture() != null) {
+								List<MDSDeviceCaptureModel> lstIrisData = persona.getBiometric().getCapture()
+										.get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
+								for (MDSDeviceCaptureModel cm : lstIrisData) {
 
-							List<MDSDeviceCaptureModel> lstFingerData = persona.getBiometric().getCapture()
-									.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
-							for (MDSDeviceCaptureModel cm : lstFingerData) {
-								retProp.put(cm.getBioSubType(), cm.getBioValue());
+									if (cm.getBioSubType().equals("Left"))
+										irisvalue.setLeft(cm.getBioValue());
+									else if (cm.getBioSubType().equals("Right"))
+										irisvalue.setRight(cm.getBioValue());
+								}
+								val = irisvalue;
 							}
-						}
-						break;
-					case "fingerraw":
-						byte[][] fpsraw = persona.getBiometric().getFingerRaw();
-						for (int i = 0; i < fpsraw.length; i++) {
-							retProp.put(DataProviderConstants.displayFingerName[i], fpsraw[i]);
-						}
-						break;
-					case "finger_hash": {
-						if (persona.getBiometric().getCapture() != null) {
 
-							List<MDSDeviceCaptureModel> lstFingerData = persona.getBiometric().getCapture()
-									.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
-							for (MDSDeviceCaptureModel cm : lstFingerData) {
-								byte[] valBytes = java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
-								retProp.put(cm.getBioSubType(), CommonUtil.getSHAFromBytes(valBytes));
+							retProp.put(key, val);
+							break;
+						case "finger":
+							String[] fps = persona.getBiometric().getFingerPrint();
+							for (int i = 0; i < fps.length; i++) {
+								retProp.put(DataProviderConstants.displayFingerName[i], fps[i]);
 							}
-						}
-					}
-						break;
-					case "iris_hash":
-						IrisDataModel irisvalueh = null;
-						if (persona.getBiometric().getCapture() != null) {
-							irisvalueh = new IrisDataModel();
+							break;
+						case "finger_encrypted":
 
-							List<MDSDeviceCaptureModel> lstIrisData = persona.getBiometric().getCapture()
-									.get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
-							for (MDSDeviceCaptureModel cm : lstIrisData) {
+							if (persona.getBiometric().getCapture() != null) {
 
-								if (cm.getBioSubType().equals("Left")) {
-									byte[] valBytes = java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
-									irisvalueh.setLeft(CommonUtil.getSHAFromBytes(valBytes));
-								} else if (cm.getBioSubType().equals("Right")) {
-									byte[] valBytes = java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
-									irisvalueh.setRight(CommonUtil.getSHAFromBytes(valBytes));
+								List<MDSDeviceCaptureModel> lstFingerData = persona.getBiometric().getCapture()
+										.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
+								for (MDSDeviceCaptureModel cm : lstFingerData) {
+									retProp.put(cm.getBioSubType(), cm.getBioValue());
 								}
 							}
-							val = irisvalueh;
-						}
-
-						retProp.put(key, val);
-						break;
-					case "face_hash":
-						if (persona.getBiometric().getCapture() != null) {
-							val = persona.getBiometric().getCapture().get(DataProviderConstants.MDS_DEVICE_TYPE_FACE)
-									.get(0).getBioValue();
-							byte[] valBytes = java.util.Base64.getUrlDecoder().decode(val.toString());
-							val = CommonUtil.getSHAFromBytes(valBytes);
-						}
-						retProp.put(key, val);
-						break;
-					case "address":
-						JSONObject resp = new JSONObject();
-						String secLang = persona.getSecondaryLanguage();
-						String[] addr = persona.getAddress();
-
-						if (secLang != null) {
-							String[] addr_sec = persona.getAddress_seclang();
-							for (int i = 0; i < 3; i++) {
-								JSONArray addrJson = new JSONArray();
-								JSONObject lineJson = new JSONObject();
-								lineJson.put("language", persona.getPrimaryLanguage());
-								lineJson.put("value", addr[i]);
-								addrJson.put(lineJson);
-								lineJson = new JSONObject();
-								lineJson.put("language", persona.getSecondaryLanguage());
-								lineJson.put("value", addr_sec[i]);
-								addrJson.put(lineJson);
-								resp.put("addressLine" + (i + 1), addrJson);
+							break;
+						case "fingerraw":
+							byte[][] fpsraw = persona.getBiometric().getFingerRaw();
+							for (int i = 0; i < fpsraw.length; i++) {
+								retProp.put(DataProviderConstants.displayFingerName[i], fpsraw[i]);
 							}
-						} else {
-							for (int i = 0; i < 3; i++) {
-								resp.put("addressLine" + (i + 1), addr[i]);
+							break;
+						case "finger_hash": {
+							if (persona.getBiometric().getCapture() != null) {
+
+								List<MDSDeviceCaptureModel> lstFingerData = persona.getBiometric().getCapture()
+										.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
+								for (MDSDeviceCaptureModel cm : lstFingerData) {
+									byte[] valBytes = java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
+									retProp.put(cm.getBioSubType(), CommonUtil.getSHAFromBytes(valBytes));
+								}
 							}
 						}
-						retProp.put(key, resp);
-						break;
+							break;
+						case "iris_hash":
+							IrisDataModel irisvalueh = null;
+							if (persona.getBiometric().getCapture() != null) {
+								irisvalueh = new IrisDataModel();
+
+								List<MDSDeviceCaptureModel> lstIrisData = persona.getBiometric().getCapture()
+										.get(DataProviderConstants.MDS_DEVICE_TYPE_IRIS);
+								for (MDSDeviceCaptureModel cm : lstIrisData) {
+
+									if (cm.getBioSubType().equals("Left")) {
+										byte[] valBytes = java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
+										irisvalueh.setLeft(CommonUtil.getSHAFromBytes(valBytes));
+									} else if (cm.getBioSubType().equals("Right")) {
+										byte[] valBytes = java.util.Base64.getUrlDecoder().decode(cm.getBioValue());
+										irisvalueh.setRight(CommonUtil.getSHAFromBytes(valBytes));
+									}
+								}
+								val = irisvalueh;
+							}
+
+							retProp.put(key, val);
+							break;
+						case "face_hash":
+							if (persona.getBiometric().getCapture() != null) {
+								val = persona.getBiometric().getCapture()
+										.get(DataProviderConstants.MDS_DEVICE_TYPE_FACE)
+										.get(0).getBioValue();
+								byte[] valBytes = java.util.Base64.getUrlDecoder().decode(val.toString());
+								val = CommonUtil.getSHAFromBytes(valBytes);
+							}
+							retProp.put(key, val);
+							break;
+						case "address":
+							JSONObject resp = new JSONObject();
+							String secLang = persona.getSecondaryLanguage();
+							String[] addr = persona.getAddress();
+
+							if (secLang != null) {
+								String[] addr_sec = persona.getAddress_seclang();
+								for (int i = 0; i < 3; i++) {
+									JSONArray addrJson = new JSONArray();
+									JSONObject lineJson = new JSONObject();
+									lineJson.put("language", persona.getPrimaryLanguage());
+									lineJson.put("value", addr[i]);
+									addrJson.put(lineJson);
+									lineJson = new JSONObject();
+									lineJson.put("language", persona.getSecondaryLanguage());
+									lineJson.put("value", addr_sec[i]);
+									addrJson.put(lineJson);
+									resp.put("addressLine" + (i + 1), addrJson);
+								}
+							} else {
+								for (int i = 0; i < 3; i++) {
+									resp.put("addressLine" + (i + 1), addr[i]);
+								}
+							}
+							retProp.put(key, resp);
+							break;
 					}
 
 				}
@@ -1345,56 +1376,57 @@ public class PacketSyncService {
 	}
 
 	public String updatePersonaData(List<UpdatePersonaDto> updatePersonaRequest, String contextKey) throws Exception {
-	    JSONArray responseList = new JSONArray();
+		JSONArray responseList = new JSONArray();
 
-	    for (UpdatePersonaDto req : updatePersonaRequest) {
-	        JSONObject individualResponse = new JSONObject();
-	        try {
-	            ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
-	            List<String> regenAttrs = req.getRegenAttributeList();
-	            if(regenAttrs != null)
-	            VariableManager.setVariableValue(contextKey, "regenAttribute", String.join(",", regenAttrs));
-	            if (regenAttrs != null) {
-	                for (String attr : regenAttrs) {
-	                    if (req.getTestPersonaPath() != null) {
-	                        ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath());
-	                        ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
-	                    } else {
-	                        ResidentDataProvider.updateBiometric(persona, attr, contextKey);
-	                    }
-	                }
-	            }
+		for (UpdatePersonaDto req : updatePersonaRequest) {
+			JSONObject individualResponse = new JSONObject();
+			try {
+				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
+				List<String> regenAttrs = req.getRegenAttributeList();
+				if (regenAttrs != null)
+					VariableManager.setVariableValue(contextKey, "regenAttribute", String.join(",", regenAttrs));
+				if (regenAttrs != null) {
+					for (String attr : regenAttrs) {
+						if (req.getTestPersonaPath() != null) {
+							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath());
+							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
+						} else {
+							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
+						}
+					}
+				}
 
-	            Properties updateAttrs = req.getUpdateAttributeList();
-	            if (updateAttrs != null) {
-	                // 👇 This is the key change: call updatePersona and store returned old/new values
-	                JSONObject updateResult = updatePersona(updateAttrs, persona, contextKey);
-	                individualResponse.put("file", req.getPersonaFilePath());
-	                individualResponse.put("updatedAttributes", updateResult);
-	            }
+				Properties updateAttrs = req.getUpdateAttributeList();
+				if (updateAttrs != null) {
+					// 👇 This is the key change: call updatePersona and store returned old/new
+					// values
+					JSONObject updateResult = updatePersona(updateAttrs, persona, contextKey);
+					individualResponse.put("file", req.getPersonaFilePath());
+					individualResponse.put("updatedAttributes", updateResult);
+				}
 
-	            List<String> missList = req.getMissAttributeList();
-	            if (missList != null && !missList.isEmpty())
-	                persona.setMissAttributes(missList);
+				List<String> missList = req.getMissAttributeList();
+				if (missList != null && !missList.isEmpty())
+					persona.setMissAttributes(missList);
 
-	            persona.writePersona(req.getPersonaFilePath());
-	            individualResponse.put("status", "Success");
+				persona.writePersona(req.getPersonaFilePath());
+				individualResponse.put("status", "Success");
 
-	        } catch (IOException e) {
-	            individualResponse.put("status", "Failed");
-	            individualResponse.put("error", e.getMessage());
-	            logger.error("updatePersonaData:" + e.getMessage());
-	        }
-	        responseList.put(individualResponse);
-	    }
+			} catch (IOException e) {
+				individualResponse.put("status", "Failed");
+				individualResponse.put("error", e.getMessage());
+				logger.error("updatePersonaData:" + e.getMessage());
+			}
+			responseList.put(individualResponse);
+		}
 
-	    JSONObject finalResponse = new JSONObject();
-	    finalResponse.put("result", responseList);
-	    return finalResponse.toString(2); // Pretty print with indentation
+		JSONObject finalResponse = new JSONObject();
+		finalResponse.put("result", responseList);
+		return finalResponse.toString(2); // Pretty print with indentation
 	}
 
-
-	public String updateResidentData(Hashtable<PersonaRequestType, Properties> hashtable, String uin, String rid, String contextKey)
+	public String updateResidentData(Hashtable<PersonaRequestType, Properties> hashtable, String uin, String rid,
+			String contextKey)
 			throws IOException {
 
 		Properties list = hashtable.get(PersonaRequestType.PR_ResidentList);
@@ -1459,7 +1491,7 @@ public class PacketSyncService {
 
 	public String getPacketTags(String contextKey) {
 
-//		loadServerContextProperties(contextKey);
+		// loadServerContextProperties(contextKey);
 
 		JSONObject packetTags = new JSONObject();
 
@@ -1550,7 +1582,9 @@ public class PacketSyncService {
 		String regId = getRegIdFromPacketPath(packetPath);
 		String tempPacketRootFolder = Path.of(packetPath).toString();
 		String jsonSchema = MosipMasterData.getIDSchemaSchemaLatestVersion(contextKey);
-		String processRoot = Path.of(tempPacketRootFolder, src, VariableManager.getVariableValue(contextKey, "process").toString()).toString();
+		String processRoot = Path
+				.of(tempPacketRootFolder, src, VariableManager.getVariableValue(contextKey, "process").toString())
+				.toString();
 		String packetRoot = Path.of(processRoot, "rid_id").toString();
 		String identityJson = CommonUtil.readFromJSONFile(packetRoot + "/ID.json");
 		try {
@@ -1667,36 +1701,37 @@ public class PacketSyncService {
 		return status;
 	}
 
-	public String deleteMockAbisExpectations(String contextKey , String mockId) {
+	public String deleteMockAbisExpectations(String contextKey, String mockId) {
 
-		return MosipDataSetup.deleteMockAbisExpectations(contextKey , mockId);
+		return MosipDataSetup.deleteMockAbisExpectations(contextKey, mockId);
 
 	}
-	
-	public String reprocessPacket(String rid,String workflowInstanceId,String contextKey) throws Exception {
+
+	public String reprocessPacket(String rid, String workflowInstanceId, String contextKey) throws Exception {
 		String url = baseUrl + "registrationprocessor/v1/securezone/notification";
-	    JSONObject requestBody = new JSONObject();
-	    requestBody.put("reg_type", "NEW");
-	    requestBody.put("rid", rid);
-	    requestBody.put("isValid", true);
-	    requestBody.put("internalError", false);
-	    requestBody.put("messageBusAddress", JSONObject.NULL);
-	    requestBody.put("retryCount", JSONObject.NULL);
-	    requestBody.put("tags", JSONObject.NULL);
-	    requestBody.put("lastHopTimestamp", JSONObject.NULL);
-	    requestBody.put("source", JSONObject.NULL);
-	    requestBody.put("iteration", 1);
-	    requestBody.put("workflowInstanceId", workflowInstanceId);
+		JSONObject requestBody = new JSONObject();
+		requestBody.put("reg_type", "NEW");
+		requestBody.put("rid", rid);
+		requestBody.put("isValid", true);
+		requestBody.put("internalError", false);
+		requestBody.put("messageBusAddress", JSONObject.NULL);
+		requestBody.put("retryCount", JSONObject.NULL);
+		requestBody.put("tags", JSONObject.NULL);
+		requestBody.put("lastHopTimestamp", JSONObject.NULL);
+		requestBody.put("source", JSONObject.NULL);
+		requestBody.put("iteration", 1);
+		requestBody.put("workflowInstanceId", workflowInstanceId);
 
-	    JSONObject response = RestClient.post(url,requestBody,"regproc", contextKey);
-	    
-	    return response.toString();
+		JSONObject response = RestClient.post(url, requestBody, "regproc", contextKey);
+
+		return response.toString();
 	}
-	
+
 	public String syncAndUpload(String rid, String contextKey)
 			throws Exception {
 		String url = baseUrl + "registrationprocessor/v1/workflowmanager/workflowinstance";
-		ResidentModel resident = ResidentModel.readPersona(VariableManager.getVariableValue(contextKey, "personaFilePath").toString());
+		ResidentModel resident = ResidentModel
+				.readPersona(VariableManager.getVariableValue(contextKey, "personaFilePath").toString());
 		// Outer JSON
 		JSONObject outerRequest = new JSONObject();
 		outerRequest.put("id", "mosip.registration.processor.workflow.instance");
@@ -1712,7 +1747,8 @@ public class PacketSyncService {
 
 		// Notification info
 		JSONObject notificationInfo = new JSONObject();
-		notificationInfo.put("name", (resident.getName().getFirstName() + " " + resident.getName().getMidName() + " " + resident.getName().getSurName()));// Assuming ResidentModel has getName()
+		notificationInfo.put("name", (resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
+				+ resident.getName().getSurName()));// Assuming ResidentModel has getName()
 		notificationInfo.put("phone", resident.getContact().getMobileNumber()); // Assuming ResidentModel has getPhone()
 		notificationInfo.put("email", resident.getContact().getEmailId()); // Assuming ResidentModel has getEmail()
 
@@ -1724,6 +1760,5 @@ public class PacketSyncService {
 
 		return response.toString();
 	}
-
 
 }

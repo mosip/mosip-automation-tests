@@ -144,10 +144,13 @@ public class BiometricFingerPrintProvider {
 		}
 
 		if (toFile != null) {
-			FileOutputStream fos = new FileOutputStream(toFile);
-			PrintWriter writer = new PrintWriter(fos);
-			builder.toWriter(true, writer, null);
-			fos.close();
+			try (FileOutputStream fos = new FileOutputStream(toFile)) {
+				PrintWriter writer = new PrintWriter(fos);
+				builder.toWriter(true, writer, null);
+				fos.close();
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+			}
 		}
 		retXml = builder.asString(null);
 		return retXml;
@@ -176,8 +179,8 @@ public class BiometricFingerPrintProvider {
 
 						if (index > 9)
 							break;
-						
-						byte[] fdata = CommonUtil.read(f.getAbsolutePath()); 
+
+						byte[] fdata = CommonUtil.read(f.getAbsolutePath());
 						fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
 
 						// fingerPrints[index]= Hex.encodeHexString( fdata ) ;
@@ -211,7 +214,7 @@ public class BiometricFingerPrintProvider {
 
 					if (index > 9)
 						break;
-					
+
 					byte[] fdata;
 					try {
 						fdata = CommonUtil.read(f.getAbsolutePath());
@@ -241,25 +244,36 @@ public class BiometricFingerPrintProvider {
 
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(new File(DataProviderConstants.ANGULI_PATH));
+		pb.redirectErrorStream(true);
 
 		try {
 			Process proc = pb.start(); // rt.exec(commands);
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-			// Read any errors from the attempted command
-			String s;
+			try (BufferedReader processOutput = new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
+				String s;
 
-			while ((s = stdError.readLine()) != null) {
-				logger.info(s);
-			}
-			// read from outdir
-			for (int i = 1; i <= nImpressionsPerPrints; i++) {
+				while ((s = processOutput.readLine()) != null) {
+					logger.info(s);
+				}
+				int exitCode = proc.waitFor();
+				if (exitCode != 0) {
+					logger.warn("Anguli exited with code {}", exitCode);
+				}
+				// read from outdir
+				for (int i = 1; i <= nImpressionsPerPrints; i++) {
 
-				List<File> lst = CommonUtil.listFiles(outDir + String.format("/Impression_%d/fp_1/", i));
-				tblFiles.put(i, lst);
+					List<File> lst = CommonUtil.listFiles(outDir + String.format("/Impression_%d/fp_1/", i));
+					tblFiles.put(i, lst);
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				logger.error(e.getMessage());
+			} finally {
+				proc.destroy();
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
+
 		return tblFiles;
 	}
 

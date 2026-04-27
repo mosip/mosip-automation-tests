@@ -59,7 +59,7 @@ public class HtmlToExcelReport {
             Map<String, Map<String, Scenario>> inputMap,
             String outputFilePath) throws IOException {
 
-        Workbook wb = new XSSFWorkbook();
+        Workbook wb = new XSSFWorkbook();              // Need to check  
         Sheet comparison = wb.createSheet("Comparison");
 
         // ================== CREATE STYLES ==================
