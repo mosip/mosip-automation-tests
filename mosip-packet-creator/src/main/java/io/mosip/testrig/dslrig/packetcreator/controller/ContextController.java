@@ -121,10 +121,12 @@ public class ContextController {
     public @ResponseBody String resetContextData(@PathVariable("contextKey") String contextKey) {
 		try {
 			Object urlBase = VariableManager.getVariableValue(contextKey, "urlBase");
-			if (urlBase == null) {
-				throw new ServiceException(HttpStatus.BAD_REQUEST, "URL_BASE_NOT_FOUND");
+			ContextUtils.clearPacketGenFolders(contextKey);
+			VariableManager.deleteNameSpace(contextKey);
+			if (urlBase != null) {
+				VariableManager.deleteNameSpace(urlBase.toString() + "run_context");
 			}
-			return VariableManager.deleteNameSpace(urlBase.toString() + "run_context");
+			return "true";
 		} catch (ServiceException se) {
             throw se; // let global exception handler process it
         } catch (Exception ex) {

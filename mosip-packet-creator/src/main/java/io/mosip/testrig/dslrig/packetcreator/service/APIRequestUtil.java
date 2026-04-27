@@ -8,6 +8,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -34,6 +35,9 @@ import io.restassured.response.Response;
 public class APIRequestUtil {
 
     private static final String UNDERSCORE = "_";
+    private static final String SERVER_API_TRACE_KEY = "packetCreator.serverApiTrace";
+    private static final int MAX_SERVER_API_TRACE_ENTRIES = 50;
+    private static final int MAX_SERVER_API_TRACE_VALUE_LENGTH = 10000;
 
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
 	private static final String DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -110,6 +114,87 @@ public class APIRequestUtil {
     	tokens.clear();
     	//preregToken = null;
     }
+
+    public void resetServerApiTrace(String contextKey) {
+        if (contextKey == null || contextKey.isBlank()) {
+            return;
+        }
+        VariableManager.removeVariableValue(contextKey, SERVER_API_TRACE_KEY);
+    }
+
+    public JSONArray getServerApiTrace(String contextKey) {
+        if (contextKey == null || contextKey.isBlank()) {
+            return new JSONArray();
+        }
+        Object traceObj = VariableManager.getVariableValue(contextKey, SERVER_API_TRACE_KEY);
+        if (traceObj instanceof JSONArray) {
+            return new JSONArray(((JSONArray) traceObj).toString());
+        }
+        if (traceObj instanceof String && !((String) traceObj).isBlank()) {
+            return new JSONArray((String) traceObj);
+        }
+        return new JSONArray();
+    }
+
+    public JSONArray consumeServerApiTrace(String contextKey) {
+        JSONArray trace = getServerApiTrace(contextKey);
+        resetServerApiTrace(contextKey);
+        return trace;
+    }
+
+    private String trimTraceString(String value) {
+        if (value == null || value.length() <= MAX_SERVER_API_TRACE_VALUE_LENGTH) {
+            return value;
+        }
+        return value.substring(0, MAX_SERVER_API_TRACE_VALUE_LENGTH) + "...[truncated]";
+    }
+
+    private Object limitTraceValue(Object value) {
+        if (value == null || value == JSONObject.NULL) {
+            return JSONObject.NULL;
+        }
+        if (value instanceof JSONObject || value instanceof JSONArray) {
+            String serialized = value.toString();
+            if (serialized.length() <= MAX_SERVER_API_TRACE_VALUE_LENGTH) {
+                return value;
+            }
+            return trimTraceString(serialized);
+        }
+        return trimTraceString(String.valueOf(value));
+    }
+
+    private JSONArray limitTraceEntries(JSONArray trace) {
+        if (trace.length() <= MAX_SERVER_API_TRACE_ENTRIES) {
+            return trace;
+        }
+        JSONArray limited = new JSONArray();
+        int startIndex = trace.length() - MAX_SERVER_API_TRACE_ENTRIES;
+        for (int i = startIndex; i < trace.length(); i++) {
+            limited.put(trace.get(i));
+        }
+        return limited;
+    }
+
+    private void addServerApiTrace(String contextKey, String method, String url, Object request,
+            Map<String, String> headers, Response response) {
+        try {
+            if (contextKey == null || contextKey.isBlank()) {
+                return;
+            }
+            JSONArray trace = getServerApiTrace(contextKey);
+            JSONObject entry = new JSONObject();
+            entry.put("method", method);
+            entry.put("url", url);
+            entry.put("request", limitTraceValue(request));
+            entry.put("headers", headers == null ? new JSONObject() : limitTraceValue(new JSONObject(headers)));
+            entry.put("statusCode", response == null ? JSONObject.NULL : response.getStatusCode());
+            entry.put("response", response == null ? JSONObject.NULL : trimTraceString(response.getBody().asString()));
+            trace.put(entry);
+            VariableManager.setVariableValue(contextKey, SERVER_API_TRACE_KEY, limitTraceEntries(trace));
+        } catch (Exception ex) {
+            logger.warn("Failed to record server API trace", ex);
+        }
+    }
     public JSONObject get(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
     	this.baseUrl = baseUrl;
     	logger.info(url);
@@ -135,6 +220,13 @@ public class APIRequestUtil {
     		else
     			bDone = true;
     	}
+        if (response == null) {
+            throw new Exception("No response received for GET " + url);
+        }
+        addServerApiTrace(contextKey, "GET", url,
+                new JSONObject().put("queryParams", requestParams == null ? new JSONObject() : requestParams)
+                        .put("pathParams", pathParam == null ? new JSONObject() : pathParam),
+                null, response);
 
         checkErrorResponse(response.getBody().asString());
 
@@ -165,6 +257,13 @@ public class APIRequestUtil {
     		else
     			bDone = true;
     	}
+        if (response == null) {
+            throw new Exception("No response received for GET " + url);
+        }
+        addServerApiTrace(contextKey, "GET", url,
+                new JSONObject().put("queryParams", requestParams == null ? new JSONObject() : requestParams)
+                        .put("pathParams", pathParam == null ? new JSONObject() : pathParam),
+                null, response);
 
         checkErrorResponse(response.getBody().asString());
 
@@ -199,6 +298,13 @@ public class APIRequestUtil {
     		else
     			bDone = true;
     	}
+        if (response == null) {
+            throw new Exception("No response received for GET " + url);
+        }
+        addServerApiTrace(contextKey, "GET", url,
+                new JSONObject().put("queryParams", requestParams == null ? new JSONObject() : requestParams)
+                        .put("pathParams", pathParam == null ? new JSONObject() : pathParam),
+                null, response);
 
         checkErrorResponse(response.getBody().asString());
 
@@ -231,6 +337,10 @@ public class APIRequestUtil {
     		else
     			bDone = true;
     	}
+        if (response == null) {
+            throw new Exception("No response received for POST " + url);
+        }
+        addServerApiTrace(contextKey, "POST", url, jsonRequest, null, response);
         checkErrorResponse(response.getBody().asString());
 
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -258,7 +368,8 @@ public class APIRequestUtil {
     		objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     		String outputJson = objectMapper.writeValueAsString(requestBody);
 
-    		Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system")).build();
+            String authToken = tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system");
+    		Cookie kukki = new Cookie.Builder("Authorization", authToken).build();
     		response = given().cookie(kukki)
                 .header("timestamp", timestamp)
                 .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
@@ -275,6 +386,13 @@ public class APIRequestUtil {
     		else
     			bDone = true;
     	}
+        if (response == null) {
+            throw new Exception("No response received for POST " + url);
+        }
+        Map<String, String> headers = new LinkedHashMap<>();
+        headers.put("timestamp", timestamp);
+        headers.put("Center-Machine-RefId", centerId + UNDERSCORE + machineId);
+        addServerApiTrace(contextKey, "POST", url, requestBody, headers, response);
         checkErrorResponse(response.getBody().asString());
 
         return new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
@@ -296,6 +414,9 @@ public class APIRequestUtil {
         Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system")
             	).build();
         Response response = given().cookie(kukki).multiPart("file", f.getCanonicalFile()).post(url);
+        addServerApiTrace(contextKey, "POST", url,
+                new JSONObject().put("filePath", filePath),
+                null, response);
         checkErrorResponse(response.getBody().asString());
        
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
@@ -420,6 +541,7 @@ public class APIRequestUtil {
             //authManagerURL
             //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
             Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
+            addServerApiTrace(contextKey, "POST", baseUrl + authManagerURL, requestBody, null, response);
            // Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + preregAuthManagerURL);
 			if(RestClient.isDebugEnabled(contextKey))
             logger.info("Authtoken generation request response: {}", response.asString());
@@ -484,6 +606,7 @@ public class APIRequestUtil {
             //authManagerURL
             //String AUTH_URL = "v1/authmanager/authenticate/internal/useridPwd";
             Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
+            addServerApiTrace(contextKey, "POST", baseUrl + authManagerURL, requestBody, null, response);
             if(RestClient.isDebugEnabled(contextKey))
             logger.info("Authtoken generation request response: {}", response.asString());
 			if(response.getStatusCode() == 401) {

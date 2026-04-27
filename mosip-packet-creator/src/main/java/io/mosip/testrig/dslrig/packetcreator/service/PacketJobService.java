@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 
 @Service
@@ -44,12 +45,14 @@ public class PacketJobService {
 				if (RestClient.isDebugEnabled(contextKey))
 					logger.info("Started for PRID", keys.get(i));
 				String prid = keys.getString(i);
+				String location = null;
+				File targetDirectory = null;
 				try {
-					String location = preregSyncService.downloadPreregPacket(prid, null);
+					location = preregSyncService.downloadPreregPacket(prid, null);
 					if (RestClient.isDebugEnabled(contextKey))
 						logger.info("Downloaded the prereg packet in {} ", location);
 
-					File targetDirectory = Path.of(preregSyncService.getWorkDirectory(), prid).toFile();
+					targetDirectory = Path.of(preregSyncService.getWorkDirectory(), prid).toFile();
 					if (!targetDirectory.exists() && !targetDirectory.mkdir())
 						throw new Exception("Failed to create target directory ! PRID : " + prid);
 
@@ -81,10 +84,29 @@ public class PacketJobService {
 
 				} catch (Exception exception) {
 					logger.error("Failed for PRID : {}", prid, exception);
+				} finally {
+					cleanupPreregArtifacts(location, targetDirectory);
 				}
 			}
 		} catch (Throwable t) {
 			logger.error("Job Failed", t);
+		}
+	}
+
+	private void cleanupPreregArtifacts(String location, File targetDirectory) {
+		if (location != null && !location.isBlank()) {
+			try {
+				CommonUtil.deleteOldTempDir(location);
+			} catch (Exception ex) {
+				logger.warn("Failed to delete prereg zip {}", location, ex);
+			}
+		}
+		if (targetDirectory != null && targetDirectory.exists()) {
+			try {
+				CommonUtil.deleteOldTempDir(targetDirectory.getAbsolutePath());
+			} catch (Exception ex) {
+				logger.warn("Failed to delete prereg working directory {}", targetDirectory.getAbsolutePath(), ex);
+			}
 		}
 	}
 

@@ -2,8 +2,6 @@ package io.mosip.testrig.dslrig.ivv.core.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -181,19 +179,18 @@ public class Utils {
 	}
 
 	public static HashMap getMap(String path) {
-		Object obj = new Object();
 		JSONParser jsonParser = new JSONParser();
-		try {
-			FileReader file = new FileReader(path);
-			obj = jsonParser.parse(file);
-		} catch (FileNotFoundException e) {
-			logger.error(e.getMessage());
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-		} catch (ParseException e) {
-			logger.error(e.getMessage());
+		try (var reader = Files.newBufferedReader(Paths.get(path), StandardCharsets.UTF_8)) {
+			Object obj = jsonParser.parse(reader);
+			if (obj instanceof HashMap) {
+				return (HashMap) obj;
+			}
+			logger.error("Expected a JSON object in file {}, but found {}", path,
+					obj == null ? "null" : obj.getClass().getSimpleName());
+		} catch (IOException | ParseException e) {
+			logger.error("Failed to read JSON map from file {}", path, e);
 		}
-		return (HashMap) obj;
+		return new HashMap();
 	}
 
 	public static String readFileAsString(String path) {

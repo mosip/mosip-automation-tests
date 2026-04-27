@@ -258,8 +258,9 @@ public class CertificateService {
 			throw new IOException("wrong filetype");
 		}
 
-		InputStream fileStream = file.getInputStream();
-		return IOUtils.toString(fileStream, StandardCharsets.UTF_8);
+		try (InputStream fileStream = file.getInputStream()) {
+			return IOUtils.toString(fileStream, StandardCharsets.UTF_8);
+		}
 	}
 
 	public String readCertificate(String name, String contextKey) throws IOException {
