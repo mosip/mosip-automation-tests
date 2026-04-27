@@ -91,8 +91,7 @@ public class PacketSyncService {
 	private static final String MOSIP_TEST_REGCLIENT_MACHINEID = "mosip.test.regclient.machineid";
 	private static final String STATUS_SUCCESS = "{\"status\":\"Success\"}";
 	private static final String MODALITY = "Modality : ";
-	private List<MosipIDSchema> cachedDocumentSchema = null;
-
+	
 	@Autowired
 	private APIRequestUtil apiRequestUtil;
 
