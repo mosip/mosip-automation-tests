@@ -163,8 +163,6 @@ public class PacketSyncService {
 
 	public String generateResidentData(PersonaRequestDto residentRequestDto, String contextKey) throws Exception {
 		logger.info(" Entered Persona generation at time: " + System.currentTimeMillis());
-		// TO do --Check why we need to load the context here
-		// loadServerContextProperties(contextKey);
 		VariableManager.setVariableValue(contextKey, "process", "NEW");
 		Properties props = residentRequestDto.getRequests().get(PersonaRequestType.PR_ResidentAttribute);
 		Gender enumGender = Gender.Any;
