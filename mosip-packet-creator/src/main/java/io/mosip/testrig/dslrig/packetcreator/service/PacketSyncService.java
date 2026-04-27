@@ -1667,9 +1667,9 @@ public class PacketSyncService {
 		return status;
 	}
 
-	public String deleteMockAbisExpectations(String contextKey) {
+	public String deleteMockAbisExpectations(String contextKey , String mockId) {
 
-		return MosipDataSetup.deleteMockAbisExpectations(contextKey);
+		return MosipDataSetup.deleteMockAbisExpectations(contextKey , mockId);
 
 	}
 	
