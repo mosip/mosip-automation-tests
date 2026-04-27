@@ -102,8 +102,6 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 		JSONObject jsonResp = null;
 		try(InputStream inputStream = new FileInputStream(
 					new File(TestResources.getResourcePath() + searchJsonRequest).getAbsoluteFile())) {
-			// InputStream inputStream = new FileInputStream(
-			// 		new File(TestResources.getResourcePath() + searchJsonRequest).getAbsoluteFile()); // Need to check 
 			JSONTokener tokener = new JSONTokener(inputStream);
 			JSONObject jsonObj = new JSONObject(tokener);
 			String json = jsonObj.toString();
