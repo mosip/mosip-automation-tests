@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
@@ -99,9 +100,8 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 			throws RigInternalError {
 		String searchJsonRequest = "kernel/Device/Search.json";
 		JSONObject jsonResp = null;
-		try {
-			InputStream inputStream = new FileInputStream(
-					new File(TestResources.getResourcePath() + searchJsonRequest).getAbsoluteFile());
+		try(InputStream inputStream = new FileInputStream(
+					new File(TestResources.getResourcePath() + searchJsonRequest).getAbsoluteFile())) {
 			JSONTokener tokener = new JSONTokener(inputStream);
 			JSONObject jsonObj = new JSONObject(tokener);
 			String json = jsonObj.toString();
@@ -123,6 +123,9 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 			}
 		} catch (FileNotFoundException e) {
 			logger.error(e.getMessage());
+		} catch (IOException e1) {
+			logger.error(e1.getMessage());
+			e1.printStackTrace();
 		}
 		return jsonResp;
 	}
@@ -130,9 +133,9 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 	public String buildDeviceRequest(JSONObject jsonResp, Boolean isActiveFlag) {
 		String deviceFilePath = "kernel/Device/device.json";
 		String json = null;
-		try {
-			InputStream inputStream = new FileInputStream(
-					new File(TestResources.getResourcePath() + deviceFilePath).getAbsoluteFile());
+		try(InputStream inputStream = new FileInputStream(
+					new File(TestResources.getResourcePath() + deviceFilePath).getAbsoluteFile())) {  // need to cehck 
+			;
 			JSONTokener tokener = new JSONTokener(inputStream);
 			JSONObject jsonObj = new JSONObject(tokener);
 			json = jsonObj.toString();
@@ -158,11 +161,10 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 					"request.zoneCode");
 		} catch (FileNotFoundException e) {
 			logger.error(e.getMessage());
+		} catch (IOException e1) {
+			logger.error(e1.getMessage());
+			e1.printStackTrace();
 		}
-
 		return json;
-
 	}
-
-	//Activate/DeActivate Device--- end
 }

@@ -17,6 +17,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -164,17 +165,19 @@ public static void initializeUTCDateFormat(String contextKey) {
 	public static void CopyRecursivly(Path sourceDirectory, Path targetDirectory) throws IOException {
 
 		// Traverse the file tree and copy each file/directory.
-		Files.walk(sourceDirectory).forEach(sourcePath -> {
+		try (Stream<Path> paths = Files.walk(sourceDirectory)) {
+			paths.forEach(sourcePath -> {
 
-			Path targetPath = targetDirectory.resolve(sourceDirectory.relativize(sourcePath));
+				Path targetPath = targetDirectory.resolve(sourceDirectory.relativize(sourcePath));
 
-			try {
-				Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
+				try {
+					Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+				} catch (IOException e) {
+					logger.error(e.getMessage());
+				}
 
-		});
+			});
+		}
 	}
 
 	public static String generateRandomString(int len) {
@@ -323,10 +326,13 @@ public static void initializeUTCDateFormat(String contextKey) {
 	}
 	
 	 public static void deleteOldTempDir(String folderPath) throws IOException {
+	        if (folderPath == null || folderPath.isBlank()) {
+	            return;
+	        }
 	        Path tempPath = Paths.get(folderPath);
 	        if (Files.exists(tempPath)) {
-	            Files.walk(tempPath)
-	                .sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
+	            try (Stream<Path> paths = Files.walk(tempPath)) {
+	                paths.sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
 	                .forEach(path -> {
 	                    try {
 	                        Files.delete(path);
@@ -336,6 +342,7 @@ public static void initializeUTCDateFormat(String contextKey) {
 	                        throw new RuntimeException(e);
 	                    }
 	                });
+	            }
 	            logger.info("🗑️ Deleted old temp directory: {}", folderPath);
 	        }
     }

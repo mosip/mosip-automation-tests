@@ -59,127 +59,130 @@ public class HtmlToExcelReport {
             Map<String, Map<String, Scenario>> inputMap,
             String outputFilePath) throws IOException {
 
-        Workbook wb = new XSSFWorkbook();
-        Sheet comparison = wb.createSheet("Comparison");
+        try (Workbook wb = new XSSFWorkbook()) {
+            Sheet comparison = wb.createSheet("Comparison");
 
-        // ================== CREATE STYLES ==================
+            // ================== CREATE STYLES ==================
 
-        // Header Style
-        CellStyle headerStyle = wb.createCellStyle();
-        headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        Font headerFont = wb.createFont();
-        headerFont.setBold(true);
-        headerStyle.setFont(headerFont);
+            // Header Style
+            CellStyle headerStyle = wb.createCellStyle();
+            headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            Font headerFont = wb.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
 
-        // Passed - Green
-        CellStyle passStyle = wb.createCellStyle();
-        passStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
-        passStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            // Passed - Green
+            CellStyle passStyle = wb.createCellStyle();
+            passStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+            passStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        // Failed - Red
-        CellStyle failStyle = wb.createCellStyle();
-        failStyle.setFillForegroundColor(IndexedColors.ROSE.getIndex());
-        failStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            // Failed - Red
+            CellStyle failStyle = wb.createCellStyle();
+            failStyle.setFillForegroundColor(IndexedColors.ROSE.getIndex());
+            failStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        // Skipped - Orange
-        CellStyle skipStyle = wb.createCellStyle();
-        skipStyle.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
-        skipStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            // Skipped - Orange
+            CellStyle skipStyle = wb.createCellStyle();
+            skipStyle.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
+            skipStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        // Ignored - Grey
-        CellStyle ignoreStyle = wb.createCellStyle();
-        ignoreStyle.setFillForegroundColor(IndexedColors.GREY_40_PERCENT.getIndex());
-        ignoreStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            // Ignored - Grey
+            CellStyle ignoreStyle = wb.createCellStyle();
+            ignoreStyle.setFillForegroundColor(IndexedColors.GREY_40_PERCENT.getIndex());
+            ignoreStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        // Known Issue - Yellow
-        CellStyle knownStyle = wb.createCellStyle();
-        knownStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
-        knownStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            // Known Issue - Yellow
+            CellStyle knownStyle = wb.createCellStyle();
+            knownStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+            knownStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        // ================== HEADER ROW ==================
+            // ================== HEADER ROW ==================
 
-        Row header = comparison.createRow(0);
+            Row header = comparison.createRow(0);
 
-        String[] baseHeaders = {"Scenario ID", "Description", "BASE_LINE Status"};
+            String[] baseHeaders = { "Scenario ID", "Description", "BASE_LINE Status" };
 
-        int colIndex = 0;
-        for (String h : baseHeaders) {
-            Cell cell = header.createCell(colIndex++);
-            cell.setCellValue(h);
-            cell.setCellStyle(headerStyle);
-        }
+            int colIndex = 0;
+            for (String h : baseHeaders) {
+                Cell cell = header.createCell(colIndex++);
+                cell.setCellValue(h);
+                cell.setCellStyle(headerStyle);
+            }
 
-        List<String> labels = new ArrayList<>(inputMap.keySet());
-        for (String label : labels) {
-            Cell cell = header.createCell(colIndex++);
-            cell.setCellValue(label + " Status");
-            cell.setCellStyle(headerStyle);
-        }
-
-        // Freeze header row
-        comparison.createFreezePane(0, 1);
-
-        // ================== DATA ==================
-
-        Set<String> allIds = new TreeSet<>(baseline.keySet());
-        for (Map<String, Scenario> input : inputMap.values()) {
-            allIds.addAll(input.keySet());
-        }
-
-        int rowNum = 1;
-
-        for (String id : allIds) {
-            Row row = comparison.createRow(rowNum++);
-
-            row.createCell(0).setCellValue(id);
-
-            String description = baseline.containsKey(id)
-                    ? baseline.get(id).description
-                    : inputMap.values().stream()
-                    .filter(m -> m.containsKey(id))
-                    .map(m -> m.get(id).description)
-                    .findFirst()
-                    .orElse("");
-
-            row.createCell(1).setCellValue(description);
-
-            // Baseline status
-            String baselineStatus = baseline.containsKey(id)
-                    ? baseline.get(id).status
-                    : "Not Found";
-
-            Cell baseCell = row.createCell(2);
-            baseCell.setCellValue(baselineStatus);
-            applyStyle(baseCell, baselineStatus, passStyle, failStyle, skipStyle, ignoreStyle, knownStyle);
-
-            int dynamicCol = 3;
-
+            List<String> labels = new ArrayList<>(inputMap.keySet());
             for (String label : labels) {
-                Map<String, Scenario> input = inputMap.get(label);
+                Cell cell = header.createCell(colIndex++);
+                cell.setCellValue(label + " Status");
+                cell.setCellStyle(headerStyle);
+            }
 
-                String status = input.containsKey(id)
-                        ? input.get(id).status
+            // Freeze header row
+            comparison.createFreezePane(0, 1);
+
+            // ================== DATA ==================
+
+            Set<String> allIds = new TreeSet<>(baseline.keySet());
+            for (Map<String, Scenario> input : inputMap.values()) {
+                allIds.addAll(input.keySet());
+            }
+
+            int rowNum = 1;
+
+            for (String id : allIds) {
+                Row row = comparison.createRow(rowNum++);
+
+                row.createCell(0).setCellValue(id);
+
+                String description = baseline.containsKey(id)
+                        ? baseline.get(id).description
+                        : inputMap.values().stream()
+                                .filter(m -> m.containsKey(id))
+                                .map(m -> m.get(id).description)
+                                .findFirst()
+                                .orElse("");
+
+                row.createCell(1).setCellValue(description);
+
+                // Baseline status
+                String baselineStatus = baseline.containsKey(id)
+                        ? baseline.get(id).status
                         : "Not Found";
 
-                Cell statusCell = row.createCell(dynamicCol++);
-                statusCell.setCellValue(status);
+                Cell baseCell = row.createCell(2);
+                baseCell.setCellValue(baselineStatus);
+                applyStyle(baseCell, baselineStatus, passStyle, failStyle, skipStyle, ignoreStyle, knownStyle);
 
-                applyStyle(statusCell, status, passStyle, failStyle, skipStyle, ignoreStyle, knownStyle);
+                int dynamicCol = 3;
+
+                for (String label : labels) {
+                    Map<String, Scenario> input = inputMap.get(label);
+
+                    String status = input.containsKey(id)
+                            ? input.get(id).status
+                            : "Not Found";
+
+                    Cell statusCell = row.createCell(dynamicCol++);
+                    statusCell.setCellValue(status);
+
+                    applyStyle(statusCell, status, passStyle, failStyle, skipStyle, ignoreStyle, knownStyle);
+                }
             }
-        }
 
-        // Auto-size columns
-        for (int i = 0; i < colIndex; i++) {
-            comparison.autoSizeColumn(i);
-        }
+            // Auto-size columns
+            for (int i = 0; i < colIndex; i++) {
+                comparison.autoSizeColumn(i);
+            }
 
-        // Write file
-        try (FileOutputStream fileOut = new FileOutputStream(outputFilePath)) {
-            wb.write(fileOut);
-        }
+            // Write file
+            try (FileOutputStream fileOut = new FileOutputStream(outputFilePath)) {
+                wb.write(fileOut);
+            }
 
-        wb.close();
+            wb.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void applyStyle(
@@ -191,7 +194,8 @@ public class HtmlToExcelReport {
             CellStyle ignoreStyle,
             CellStyle knownStyle) {
 
-        if (status == null) return;
+        if (status == null)
+            return;
 
         if (status.equalsIgnoreCase("Passed")) {
             cell.setCellStyle(passStyle);

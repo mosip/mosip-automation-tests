@@ -448,6 +448,16 @@ public  class MosipMasterData {
         return queryParams;
 	}
 
+	 static JSONObject genIDSchemaAllQueryParams() throws JSONException {
+		JSONObject queryParams = new JSONObject();
+		queryParams.put("orderBy", "desc");
+		queryParams.put("pageNumber", 0);
+		queryParams.put("pageSize", 10);
+		queryParams.put("sortBy", "cr_dtimes");
+
+		return queryParams;
+	}
+
 	 private static JSONArray getRequiredFileds(JSONObject resp) {
 
 			String schemaJson = resp.getString("schemaJson");
@@ -576,10 +586,91 @@ public  class MosipMasterData {
 	    }
 	    return tbl;
 	}
+
+	private static String buildUrl(String baseUrl, String apiPath) {
+	    if (baseUrl.endsWith("/") && apiPath.startsWith("/")) {
+	        return baseUrl + apiPath.substring(1);
+	    }
+	    if (!baseUrl.endsWith("/") && !apiPath.startsWith("/")) {
+	        return baseUrl + "/" + apiPath;
+	    }
+	    return baseUrl + apiPath;
+	}
+
+	private static String getIDSchemaAllUrl(String contextKey) {
+	    Object idschemaApiAll = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "idschemaapiAll");
+	    String apiPath = idschemaApiAll == null ? "/v1/masterdata/idschema/all" : idschemaApiAll.toString();
+	    return buildUrl(VariableManager.getVariableValue(contextKey, "urlBase").toString(), apiPath);
+	}
+
+	private static JSONObject getOldIDSchemaObject(String contextKey) {
+	    String url = getIDSchemaAllUrl(contextKey);
+	    String run_context = VariableManager.getVariableValue(contextKey, "urlBase").toString() + RUN_CONTEXT;
+	    String cacheKey = url + "#oldIDSchema";
+	    Object o = MosipDataSetup.getCache(cacheKey, run_context);
+	    if (o != null) {
+	        return (JSONObject) o;
+	    }
+
+	    try {
+	        JSONObject resp = RestClient.get(url, genIDSchemaAllQueryParams(), new JSONObject(), contextKey);
+	        JSONArray dataArray = resp.optJSONArray("data");
+	        if (dataArray == null || dataArray.length() < 2) {
+	            logger.warn("Old ID schema is not available. Total schemas found: {}",
+	                    dataArray == null ? 0 : dataArray.length());
+	            return null;
+	        }
+
+	        JSONObject latestSchema = null;
+	        JSONObject oldSchema = null;
+	        double latestVersion = Double.NEGATIVE_INFINITY;
+	        double oldVersion = Double.NEGATIVE_INFINITY;
+
+	        for (int i = 0; i < dataArray.length(); i++) {
+	            JSONObject item = dataArray.getJSONObject(i);
+	            double version = item.optDouble("idVersion", Double.NaN);
+	            if (Double.isNaN(version)) {
+	                continue;
+	            }
+	            if (version > latestVersion) {
+	                oldSchema = latestSchema;
+	                oldVersion = latestVersion;
+	                latestSchema = item;
+	                latestVersion = version;
+	            } else if (version < latestVersion && version > oldVersion) {
+	                oldSchema = item;
+	                oldVersion = version;
+	            }
+	        }
+
+	        if (oldSchema == null) {
+	            oldSchema = dataArray.getJSONObject(1);
+	        }
+	        return oldSchema;
+	    } catch (Exception e) {
+	        logger.error("Error processing old ID schema: " + e.getMessage(), e);
+	    }
+	    return null;
+	}
+
+	public static double getIDSchemaOldVersion(String contextKey) {
+	    JSONObject oldSchema = getOldIDSchemaObject(contextKey);
+	    if (oldSchema == null) {
+	        return 0.0;
+	    }
+	    return oldSchema.optDouble("idVersion", 0.0);
+	}
+
+	public static String getIDSchemaOld(String contextKey) {
+	    JSONObject oldSchema = getOldIDSchemaObject(contextKey);
+	    if (oldSchema == null) {
+	        return "";
+	    }
+	    return oldSchema.optString("schemaJson", "");
+	}
 	
 	public static String getIDSchemaALL(String contextKey) {
-	    String url = VariableManager.getVariableValue(contextKey, "urlBase").toString() +
-	                 VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "idschemaapiAll").toString();
+	    String url = getIDSchemaAllUrl(contextKey);
 
 	    String selectedSchemaJson = "";
 	    double maxVersion = -1.0;

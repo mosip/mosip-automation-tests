@@ -81,6 +81,14 @@ public final class VariableManager {
 		return value;
 	}
 
+	public static boolean removeVariableValue(String contextKey, String varName) {
+		Cache<String, Object> ht = varNameSpaces.get(contextKey);
+		if (ht == null) {
+			return false;
+		}
+		return ht.remove(varName);
+	}
+
 	public static Object appendVariableValue(String contextKey,String varName,Object newValue){
 		if (newValue==null || newValue.toString().isEmpty())
 			return null;
@@ -163,7 +171,9 @@ public final class VariableManager {
 
 	public static String deleteNameSpace(String contextKey) {
 		try {
-			printAllContents();
+			if (logger.isDebugEnabled()) {
+				printAllContents();
+			}
 			Cache<String, Object> cache = varNameSpaces.remove(contextKey);
 			if (cache != null) {
 				synchronized (cacheManager) {
@@ -178,6 +188,9 @@ public final class VariableManager {
 	}
 
 	public static void printAllContents() {
+		if (!logger.isDebugEnabled()) {
+			return;
+		}
 		StringBuffer s = new StringBuffer();
 		for (String nameSpace : varNameSpaces.keySet()) {
 			Cache<String, Object> cache = varNameSpaces.get(nameSpace);

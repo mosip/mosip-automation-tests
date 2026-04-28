@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.packetcreator.service;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.*;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
@@ -63,8 +64,8 @@ public class GitFolderDownloader {
     private static void deleteOldTempDir() throws IOException {
         Path tempPath = Paths.get(TEMP_DIR);
         if (Files.exists(tempPath)) {
-            Files.walk(tempPath)
-                .sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
+            try (Stream<Path> paths = Files.walk(tempPath)) {
+                paths.sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
                 .forEach(path -> {
                     try {
                         Files.delete(path);
@@ -74,6 +75,7 @@ public class GitFolderDownloader {
                         throw new RuntimeException(e);
                     }
                 });
+            }
             logger.info("🗑️ Deleted old temp directory: {}", TEMP_DIR);
         }
     }
