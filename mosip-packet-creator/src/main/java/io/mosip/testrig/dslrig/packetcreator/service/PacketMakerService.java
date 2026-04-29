@@ -604,45 +604,68 @@ public class PacketMakerService {
 	}
 
 	boolean packPacket(String containerRootFolder, String regId, String type, String contextKey) throws Exception {
-		if (!zipAndEncrypt(Path.of(containerRootFolder), contextKey)) {
-			logger.error("Encryption failed!!! ");
-			return false;
-		}
-		String encryptedHashFlag = VariableManager.getVariableValue(contextKey, "invalidEncryptedHashFlag").toString();
-		String signatureValue = VariableManager.getVariableValue(contextKey, "signature").toString();
-		String mountPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString();
-		String tempPath = VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString();
-		Path zipPath = Path.of(containerRootFolder + ".zip");
-		Path unencZipPath = Path.of(containerRootFolder + UNENCZIP);
-		byte[] zipBytes = Files.readAllBytes(zipPath);
-		byte[] unencZipBytes = Files.readAllBytes(unencZipPath);
-		String encryptedHash = ("invalidEncryptedHash".equalsIgnoreCase(encryptedHashFlag) && "id".equals(type))
-				? "INVALID_ENCRYPTED_HASH"
-				: CryptoUtil.encodeToURLSafeBase64(HMACUtils2.generateHash(zipBytes));
-		String signature = "";
-		if ("invalidSignature".equalsIgnoreCase(signatureValue)) {
-			String newKey = contextKey.replaceAll("(?<=_S)\\d+(?=_context)", "0");
-			signature = Base64.getUrlEncoder().withoutPadding().encodeToString(cryptoUtil.sign(unencZipBytes, newKey));
-		} else if (!"emptySignature".equalsIgnoreCase(signatureValue)) {
-			signature = Base64.getUrlEncoder().withoutPadding()
-					.encodeToString(cryptoUtil.sign(unencZipBytes, contextKey));
-		}
-		Path destination = Path.of(mountPath + tempPath, contextKey.replace(CONTEXT, ""),
-				unencZipPath.getFileName().toString());
-		CommonUtil.copyFileWithBuffer(unencZipPath, destination);
-		synchronized (containerRootFolder.intern()) {
-			Path unencZipToDelete = validateUnderAllowedTempRoots(unencZipPath, contextKey);
-			if (unencZipToDelete != null) {
-				Files.delete(unencZipToDelete);
-			}
-			Path containerRootToDelete = validateUnderAllowedTempRoots(Path.of(containerRootFolder), contextKey);
-			if (containerRootToDelete != null) {
-				FileSystemUtils.deleteRecursively(containerRootToDelete);
-			}
-		}
+    if (!zipAndEncrypt(Path.of(containerRootFolder), contextKey)) {
+        logger.error("Encryption failed!!! ");
+        return false;
+    }
+    String encryptedHashFlag = VariableManager.getVariableValue(contextKey, "invalidEncryptedHashFlag").toString();
+    String signatureValue = VariableManager.getVariableValue(contextKey, "signature").toString();
+    String mountPath = VariableManager.getVariableValue(contextKey, MOUNTPATH).toString();
+    String tempPath = VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString();
+    
+    // Validate containerRootFolder path before use
+    Path validatedContainerRoot = validateUnderAllowedTempRoots(Path.of(containerRootFolder), contextKey);
+    if (validatedContainerRoot == null) {
+        logger.error("Invalid container root folder path: {}", containerRootFolder);
+        return false;
+    }
+    
+    Path zipPath = validateUnderAllowedTempRoots(validatedContainerRoot.resolveSibling(validatedContainerRoot.getFileName() + ".zip"), contextKey);
+    Path unencZipPath = validateUnderAllowedTempRoots(validatedContainerRoot.resolveSibling(validatedContainerRoot.getFileName() + UNENCZIP), contextKey);
+    
+    if (zipPath == null || unencZipPath == null) {
+        logger.error("Invalid zip path construction");
+        return false;
+    }
+    
+    byte[] zipBytes = Files.readAllBytes(zipPath);
+    byte[] unencZipBytes = Files.readAllBytes(unencZipPath);
+    String encryptedHash = ("invalidEncryptedHash".equalsIgnoreCase(encryptedHashFlag) && "id".equals(type))
+            ? "INVALID_ENCRYPTED_HASH"
+            : CryptoUtil.encodeToURLSafeBase64(HMACUtils2.generateHash(zipBytes));
+    String signature = "";
+    if ("invalidSignature".equalsIgnoreCase(signatureValue)) {
+        String newKey = contextKey.replaceAll("(?<=_S)\\d+(?=_context)", "0");
+        signature = Base64.getUrlEncoder().withoutPadding().encodeToString(cryptoUtil.sign(unencZipBytes, newKey));
+    } else if (!"emptySignature".equalsIgnoreCase(signatureValue)) {
+        signature = Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(cryptoUtil.sign(unencZipBytes, contextKey));
+    }
+    Path destination = Path.of(mountPath + tempPath, contextKey.replace(CONTEXT, ""),
+            unencZipPath.getFileName().toString());
+    CommonUtil.copyFileWithBuffer(unencZipPath, destination);
+    synchronized (containerRootFolder.intern()) {
+        Path unencZipToDelete = validateUnderAllowedTempRoots(unencZipPath, contextKey);
+        if (unencZipToDelete != null) {
+            Files.delete(unencZipToDelete);
+        }
+        Path containerRootToDelete = validateUnderAllowedTempRoots(validatedContainerRoot, contextKey);
+        if (containerRootToDelete != null) {
+            FileSystemUtils.deleteRecursively(containerRootToDelete);
+        }
+    }
 
-		return fixContainerMetaData(containerRootFolder + JSON, regId, type, encryptedHash, signature, contextKey);
-	}
+    // Safely construct and validate the metadata path
+    Path containerMetaDataPath = validateUnderAllowedTempRoots(
+            validatedContainerRoot.resolveSibling(validatedContainerRoot.getFileName() + JSON), contextKey);
+    
+    if (containerMetaDataPath == null) {
+        logger.error("Invalid container metadata path");
+        return false;
+    }
+
+    return fixContainerMetaData(containerMetaDataPath.toString(), regId, type, encryptedHash, signature, contextKey);
+}
 
 	boolean packContainer(String containerRootFolder, String contextKey) throws Exception {
 		Path path = Path.of(containerRootFolder);

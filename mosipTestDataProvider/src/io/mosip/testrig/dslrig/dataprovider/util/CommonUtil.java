@@ -360,37 +360,53 @@ public class CommonUtil {
 		deleteOldTempDir(folderPath, null);
 	}
 
-	public static void deleteOldTempDir(String folderPath, String contextKey) throws IOException {
-		if (folderPath == null || folderPath.isBlank()) {
-			return;
-		}
+		public static void deleteOldTempDir(String folderPath, String contextKey) throws IOException {
+        if (folderPath == null || folderPath.isBlank()) {
+            return;
+        }
 
-		Path tempPath = normalizeAbsolute(Paths.get(folderPath));
-		Path osTempRoot = getOsTempRoot();
-		Path ctxTempRoot = getContextTempRoot(contextKey);
-		boolean allowed = (osTempRoot != null && tempPath.startsWith(osTempRoot))
-				|| (ctxTempRoot != null && tempPath.startsWith(ctxTempRoot));
-		if (!allowed) {
-			logger.warn("Refusing to delete path outside allowed temp roots: {}", tempPath);
-			return;
-		}
-		if (Files.exists(tempPath)) {
-			try (Stream<Path> paths = Files.walk(tempPath)) {
-				paths.sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
-						.forEach(path -> {
-							try {
-								Files.delete(path);
-								logger.info("Deleted: {}", path);
-							} catch (IOException e) {
-								logger.error("❌ Failed to delete {}", path, e);
-								throw new RuntimeException(e);
-							}
-						});
-			}
-			logger.info("🗑️ Deleted old temp directory: {}", folderPath);
-		}
-	}
-
+        Path tempPath = normalizeAbsolute(Paths.get(folderPath));
+        Path osTempRoot = getOsTempRoot();
+        Path ctxTempRoot = getContextTempRoot(contextKey);
+        
+        // Normalize the roots as well to ensure consistent comparison
+        Path normalizedOsTempRoot = osTempRoot != null ? normalizeAbsolute(osTempRoot) : null;
+        Path normalizedCtxTempRoot = ctxTempRoot != null ? normalizeAbsolute(ctxTempRoot) : null;
+        
+        boolean allowed = (normalizedOsTempRoot != null && tempPath.startsWith(normalizedOsTempRoot))
+                || (normalizedCtxTempRoot != null && tempPath.startsWith(normalizedCtxTempRoot));
+        
+        if (!allowed) {
+            logger.warn("Refusing to delete path outside allowed temp roots: {}", tempPath);
+            return;
+        }
+        
+        if (Files.exists(tempPath)) {
+            try (Stream<Path> paths = Files.walk(tempPath)) {
+                paths.sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
+                        .forEach(path -> {
+                            try {
+                                // Re-validate each path before deletion
+                                Path normalizedPath = normalizeAbsolute(path);
+                                boolean pathAllowed = (normalizedOsTempRoot != null && normalizedPath.startsWith(normalizedOsTempRoot))
+                                        || (normalizedCtxTempRoot != null && normalizedPath.startsWith(normalizedCtxTempRoot));
+                                
+                                if (!pathAllowed) {
+                                    logger.warn("Skipping deletion of path outside allowed roots: {}", normalizedPath);
+                                    return;
+                                }
+                                
+                                Files.delete(normalizedPath);
+                                logger.info("Deleted: {}", normalizedPath);
+                            } catch (IOException e) {
+                                logger.error("❌ Failed to delete {}", path, e);
+                                throw new RuntimeException(e);
+                            }
+                        });
+            }
+            logger.info("🗑️ Deleted old temp directory: {}", folderPath);
+        }
+    }
 	public static void createFileIfNotExists(Path path) {
 		createFileIfNotExists(path, null);
 	}
