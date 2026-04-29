@@ -557,7 +557,7 @@ public class PacketSyncService {
 
 			CommonUtil.deleteOldTempDir(VariableManager.getVariableValue(contextKey, "mountPath").toString()
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.temp").toString()
-					+ contextKey.substring(0, contextKey.lastIndexOf("_context")));
+					+ contextKey.substring(0, contextKey.lastIndexOf("_context")), contextKey);
 		}
 		return response.toString();
 	}

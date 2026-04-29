@@ -44,6 +44,38 @@ public class CommonUtil {
 
 	private static String cachedUtcDateformat;
 	private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+	private static final String MOUNT_PATH_KEY = "mountPath";
+	private static final String MOSIP_TEST_TEMP_KEY = "mosip.test.temp";
+
+	private static Path normalizeAbsolute(Path path) {
+		return path.toAbsolutePath().normalize();
+	}
+
+	private static Path getOsTempRoot() {
+		String tmpDir = System.getProperty("java.io.tmpdir");
+		if (tmpDir == null || tmpDir.isBlank()) {
+			return null;
+		}
+		return normalizeAbsolute(Paths.get(tmpDir));
+	}
+
+	private static Path getContextTempRoot(String contextKey) {
+		if (contextKey == null || contextKey.isBlank()) {
+			return null;
+		}
+		Object mountObj = VariableManager.getVariableValue(contextKey, MOUNT_PATH_KEY);
+		Object tempObj = VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP_KEY);
+		if (mountObj == null || tempObj == null) {
+			return null;
+		}
+
+		String mountPath = mountObj.toString();
+		String tempPath = tempObj.toString();
+		if ((mountPath == null || mountPath.isBlank()) && (tempPath == null || tempPath.isBlank())) {
+			return null;
+		}
+		return normalizeAbsolute(Paths.get(String.valueOf(mountPath) + String.valueOf(tempPath)));
+	}
 
 	public static void initializeUTCDateFormat(String contextKey) {
 		if (cachedUtcDateformat != null)
@@ -325,10 +357,23 @@ public class CommonUtil {
 	}
 
 	public static void deleteOldTempDir(String folderPath) throws IOException {
+		deleteOldTempDir(folderPath, null);
+	}
+
+	public static void deleteOldTempDir(String folderPath, String contextKey) throws IOException {
 		if (folderPath == null || folderPath.isBlank()) {
 			return;
 		}
-		Path tempPath = Paths.get(folderPath);
+
+		Path tempPath = normalizeAbsolute(Paths.get(folderPath));
+		Path osTempRoot = getOsTempRoot();
+		Path ctxTempRoot = getContextTempRoot(contextKey);
+		boolean allowed = (osTempRoot != null && tempPath.startsWith(osTempRoot))
+				|| (ctxTempRoot != null && tempPath.startsWith(ctxTempRoot));
+		if (!allowed) {
+			logger.warn("Refusing to delete path outside allowed temp roots: {}", tempPath);
+			return;
+		}
 		if (Files.exists(tempPath)) {
 			try (Stream<Path> paths = Files.walk(tempPath)) {
 				paths.sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
@@ -347,14 +392,28 @@ public class CommonUtil {
 	}
 
 	public static void createFileIfNotExists(Path path) {
+		createFileIfNotExists(path, null);
+	}
+
+	public static void createFileIfNotExists(Path path, String contextKey) {
+		Path normalized = normalizeAbsolute(path);
+		Path osTempRoot = getOsTempRoot();
+		Path ctxTempRoot = getContextTempRoot(contextKey);
+		boolean allowed = (osTempRoot != null && normalized.startsWith(osTempRoot))
+				|| (ctxTempRoot != null && normalized.startsWith(ctxTempRoot));
+		if (!allowed) {
+			logger.warn("Refusing to create file outside allowed temp roots: {}", normalized);
+			return;
+		}
+
 		try {
-			Files.createDirectories(path.getParent());
-			Files.createFile(path);
+			Files.createDirectories(normalized.getParent());
+			Files.createFile(normalized);
 		} catch (FileAlreadyExistsException e) {
-			logger.error("File already exists: {}", path);
+			logger.error("File already exists: {}", normalized);
 		} catch (IOException e) {
 
-			logger.error("Error creating file: {}", path, e);
+			logger.error("Error creating file: {}", normalized, e);
 		}
 	}
 

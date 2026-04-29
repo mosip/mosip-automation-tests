@@ -116,7 +116,7 @@ public class ContextUtils {
 	        for (String path : paths) {
 	            String trimmedPath = path.trim();
 	            if (!trimmedPath.isEmpty()) {
-	                CommonUtil.deleteOldTempDir(trimmedPath);
+	                CommonUtil.deleteOldTempDir(trimmedPath, ctxName);
 	            }
 	        }
 	        VariableManager.removeVariableValue(ctxName, key);

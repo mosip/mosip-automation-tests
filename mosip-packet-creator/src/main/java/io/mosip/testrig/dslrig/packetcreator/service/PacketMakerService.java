@@ -66,7 +66,7 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 @Service
 public class PacketMakerService {
 
-	Logger logger = LoggerFactory.getLogger(PacketMakerService.class);
+	private static final Logger logger = LoggerFactory.getLogger(PacketMakerService.class);
 
 	private static final String UNDERSCORE = "_";
 	private static final String PACKET_META_FILENAME = "packet_meta_info.json";
@@ -96,6 +96,49 @@ public class PacketMakerService {
 	private static final String HASHSEQUENCE1 = "hashSequence1";
 	private static final String LABEL = "label";
 	private static final String CHANGESUPERVISORNAMETODIFFCASE = "changeSupervisorNameToDiffCase";
+
+	private static Path normalizeAbsolute(Path path) {
+		return path.toAbsolutePath().normalize();
+	}
+
+	private static Path getOsTempRoot() {
+		String tmpDir = System.getProperty("java.io.tmpdir");
+		if (tmpDir == null || tmpDir.isBlank()) {
+			return null;
+		}
+		return normalizeAbsolute(Paths.get(tmpDir));
+	}
+
+	private static Path getContextTempRoot(String contextKey) {
+		if (contextKey == null || contextKey.isBlank()) {
+			return null;
+		}
+		Object mountObj = VariableManager.getVariableValue(contextKey, MOUNTPATH);
+		Object tempObj = VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP);
+		if (mountObj == null || tempObj == null) {
+			return null;
+		}
+
+		String mountPath = mountObj.toString();
+		String tempPath = tempObj.toString();
+		if ((mountPath == null || mountPath.isBlank()) && (tempPath == null || tempPath.isBlank())) {
+			return null;
+		}
+		return normalizeAbsolute(Paths.get(String.valueOf(mountPath) + String.valueOf(tempPath)));
+	}
+
+	private static Path validateUnderAllowedTempRoots(Path candidate, String contextKey) {
+		Path normalized = normalizeAbsolute(candidate);
+		Path osTempRoot = getOsTempRoot();
+		Path ctxTempRoot = getContextTempRoot(contextKey);
+		boolean allowed = (osTempRoot != null && normalized.startsWith(osTempRoot))
+				|| (ctxTempRoot != null && normalized.startsWith(ctxTempRoot));
+		if (!allowed) {
+			logger.warn("Refusing to access path outside allowed temp roots: {}", normalized);
+			return null;
+		}
+		return normalized;
+	}
 
 	@Value("${mosip.test.regclient.store:/home/sasikumar/Documents/MOSIP/packetcreator}")
 	private String finalDestination;
@@ -420,7 +463,7 @@ public class PacketMakerService {
 								+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
 						contextKey.replace(CONTEXT, ""), regId + "_schema.json");
 				Files.createDirectories(path.getParent());
-				CommonUtil.createFileIfNotExists(path);
+				CommonUtil.createFileIfNotExists(path, contextKey);
 				CommonUtil.write(path, schemaJson.getBytes());
 
 			}
@@ -434,7 +477,7 @@ public class PacketMakerService {
 						VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 								+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
 						contextKey.replace(CONTEXT, ""), regId + "_invalidIds.json");
-				CommonUtil.createFileIfNotExists(path);
+				CommonUtil.createFileIfNotExists(path, contextKey);
 				CommonUtil.write(path, invalidIds.toString().getBytes());
 			}
 
@@ -556,7 +599,7 @@ public class PacketMakerService {
 		CommonUtil.deleteOldTempDir(
 				VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 						+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString() + "/" +
-						contextKey.replace(CONTEXT, "") + "/" + regId + "_schema.json");
+						contextKey.replace(CONTEXT, "") + "/" + regId + "_schema.json", contextKey);
 		return true;
 	}
 
@@ -588,8 +631,14 @@ public class PacketMakerService {
 				unencZipPath.getFileName().toString());
 		CommonUtil.copyFileWithBuffer(unencZipPath, destination);
 		synchronized (containerRootFolder.intern()) {
-			Files.delete(unencZipPath);
-			FileSystemUtils.deleteRecursively(Path.of(containerRootFolder));
+			Path unencZipToDelete = validateUnderAllowedTempRoots(unencZipPath, contextKey);
+			if (unencZipToDelete != null) {
+				Files.delete(unencZipToDelete);
+			}
+			Path containerRootToDelete = validateUnderAllowedTempRoots(Path.of(containerRootFolder), contextKey);
+			if (containerRootToDelete != null) {
+				FileSystemUtils.deleteRecursively(containerRootToDelete);
+			}
 		}
 
 		return fixContainerMetaData(containerRootFolder + JSON, regId, type, encryptedHash, signature, contextKey);
@@ -607,7 +656,10 @@ public class PacketMakerService {
 				contextKey.replace(CONTEXT, ""), src.getFileName().toString());
 		CommonUtil.copyFileWithBuffer(src, destination);
 
-		Files.delete(src);
+		Path srcToDelete = validateUnderAllowedTempRoots(src, contextKey);
+		if (srcToDelete != null) {
+			Files.delete(srcToDelete);
+		}
 		return result;
 	}
 
