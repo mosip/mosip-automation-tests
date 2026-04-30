@@ -31175,7 +31175,7 @@
 	},
 	{
 		"Scenario": "238",
-		"Tag": "Negative_Test",
+		"Tag": "Positive_Test",
 		"Persona": "ResidentFemaleAdult",
 		"Group": "Adult_New",
 		"Description": "Resident walks into registration center completes the process tries to get uin with old ID Schema version",
