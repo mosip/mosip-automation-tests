@@ -80,7 +80,7 @@ public class PacketSyncService {
 	private static final String UNDERSCORE = "_";
 	private static final Logger logger = LoggerFactory.getLogger(PacketSyncService.class);
 	private static final Queue<SlotEntry> slotQueue = new ConcurrentLinkedQueue<>();
-	private static final long SLOT_EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+	private static final long SLOT_EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000;
 
 	// String constants
 	private static final String STATUS = "status";
@@ -91,6 +91,7 @@ public class PacketSyncService {
 	private static final String MOSIP_TEST_REGCLIENT_MACHINEID = "mosip.test.regclient.machineid";
 	private static final String STATUS_SUCCESS = "{\"status\":\"Success\"}";
 	private static final String MODALITY = "Modality : ";
+	private static final String RESIDENTS_PREFIX = "residents_";
 	
 	@Autowired
 	private APIRequestUtil apiRequestUtil;
@@ -167,12 +168,9 @@ public class PacketSyncService {
 		Gender enumGender = Gender.Any;
 		ResidentDataProvider provider = new ResidentDataProvider();
 		if (props.containsKey("Gender")) {
-			enumGender = Gender.valueOf(props.get("Gender").toString()); // Gender.valueOf(residentRequestDto.getGender());
+			enumGender = Gender.valueOf(props.get("Gender").toString());
 		}
-		// provider.addCondition(ResidentAttribute.RA_Count, count);
-
 		if (props.containsKey("Age")) {
-
 			provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.valueOf(props.get("Age").toString()));
 		} else
 			provider.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
@@ -181,13 +179,11 @@ public class PacketSyncService {
 			provider.addCondition(ResidentAttribute.RA_SKipGaurdian, props.get("SkipGaurdian"));
 		}
 		provider.addCondition(ResidentAttribute.RA_Gender, enumGender);
-
 		String primaryLanguage = "eng";
 		if (props.containsKey("PrimaryLanguage")) {
 			primaryLanguage = props.get("PrimaryLanguage").toString();
 			provider.addCondition(ResidentAttribute.RA_PRIMARAY_LANG, primaryLanguage);
 		}
-
 		if (props.containsKey("SecondaryLanguage")) {
 			provider.addCondition(ResidentAttribute.RA_SECONDARY_LANG, props.get("SecondaryLanguage").toString());
 		}
@@ -222,20 +218,15 @@ public class PacketSyncService {
 
 			provider.addCondition(ResidentAttribute.RA_SCHEMA_VERSION, props.get("SchemaVersion").toString());
 		}
-
 		RestClient.logInfo(contextKey, "before Genrate");
 		List<ResidentModel> lst = provider.generate(contextKey);
 		RestClient.logInfo(contextKey, "After Genrate");
-
 		JSONArray outIds = new JSONArray();
-
 		try {
-			String tmpDir;
+			String tmpDir = Files.createTempDirectory(RESIDENTS_PREFIX).toFile().getAbsolutePath();
 
-			tmpDir = Files.createTempDirectory("residents_").toFile().getAbsolutePath();
-
-			String existingValue = VariableManager.getVariableValue(contextKey, "residents_") != null
-					? VariableManager.getVariableValue(contextKey, "residents_").toString()
+			String existingValue = VariableManager.getVariableValue(contextKey, RESIDENTS_PREFIX) != null
+					? VariableManager.getVariableValue(contextKey, RESIDENTS_PREFIX).toString()
 					: "";
 
 			String updatedValue;
@@ -245,7 +236,7 @@ public class PacketSyncService {
 				updatedValue = tmpDir;
 			}
 
-			VariableManager.setVariableValue(contextKey, "residents_", updatedValue);
+			VariableManager.setVariableValue(contextKey, RESIDENTS_PREFIX, updatedValue);
 
 			for (ResidentModel r : lst) {
 				Path tempPath = Path.of(tmpDir, r.getId() + ".json");
@@ -384,31 +375,13 @@ public class PacketSyncService {
 
 			return functionResponse;
 		} finally {
-			cleanupPreregArtifacts(location, targetDirectory);
+			CommonUtil.cleanupPreregArtifacts(location, targetDirectory);
 		}
 
-	}
-
-	private void cleanupPreregArtifacts(String location, File targetDirectory) {
-		if (location != null && !location.isBlank()) {
-			try {
-				CommonUtil.deleteOldTempDir(location);
-			} catch (Exception ex) {
-				logger.warn("Failed to delete prereg zip {}", location, ex);
-			}
-		}
-		if (targetDirectory != null && targetDirectory.exists()) {
-			try {
-				CommonUtil.deleteOldTempDir(targetDirectory.getAbsolutePath());
-			} catch (Exception ex) {
-				logger.warn("Failed to delete prereg working directory {}", targetDirectory.getAbsolutePath(), ex);
-			}
-		}
 	}
 
 	public Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
 
-		loadServerContextProperties(contextKey);
 		ResidentModel resident = ResidentModel.readPersona(personaFile);
 		JSONObject jsonIdentity = CreatePersona.createIdentity(resident, null, contextKey);
 		JSONObject jsonWrapper = new JSONObject();
@@ -582,52 +555,16 @@ public class PacketSyncService {
 		if (VariableManager.getVariableValue(contextKey, "mosip.test.temp") != null
 				&& VariableManager.getVariableValue(contextKey, "mountPath") != null) {
 
-			deleteDirectoryPath(VariableManager.getVariableValue(contextKey, "mountPath").toString()
+			CommonUtil.deleteOldTempDir(VariableManager.getVariableValue(contextKey, "mountPath").toString()
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.temp").toString()
 					+ contextKey.substring(0, contextKey.lastIndexOf("_context")), contextKey);
 		}
 		return response.toString();
 	}
 
-	public void deleteDirectoryPath(String path, String contextKey) {
-		if (path != null && !path.isEmpty()) {
-			File file = new File(path);
-			if (file.exists()) {
-				do {
-					deleteIt(file, contextKey);
-				} while (file.exists());
-			} else {
-			}
-		}
-	}
-
-	private void deleteIt(File file, String contextKey) {
-		if (file.isDirectory()) {
-			String fileList[] = file.list();
-			if (fileList.length == 0) {
-				if (!file.delete()) {
-					RestClient.logInfo(contextKey, "Files deleted");
-				}
-			} else {
-				int size = fileList.length;
-				for (int i = 0; i < size; i++) {
-					String fileName = fileList[i];
-					String fullPath = file.getPath() + "/" + fileName;
-					File fileOrFolder = new File(fullPath);
-					deleteIt(fileOrFolder, contextKey);
-				}
-			}
-		} else {
-			if (!file.delete()) {
-				RestClient.logInfo(contextKey, "Files deleted");
-			}
-		}
-	}
-
 	public String preRegisterResident(List<String> personaFilePath, String contextKey) throws IOException {
 		StringBuilder builder = new StringBuilder();
 
-		loadServerContextProperties(contextKey);
 
 		for (String path : personaFilePath) {
 			ResidentModel resident = ResidentModel.readPersona(path);
@@ -642,14 +579,12 @@ public class PacketSyncService {
 	public String updateResidentApplication(String personaFilePath, String preregId, String contextKey)
 			throws IOException {
 
-		loadServerContextProperties(contextKey);
 		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 		return PreRegistrationSteps.putApplication(resident, preregId, contextKey);
 
 	}
 
 	public String preRegisterGetApplications(String status, String preregId, String contextKey) {
-		loadServerContextProperties(contextKey);
 		return PreRegistrationSteps.getApplications(status, preregId, contextKey);
 	}
 
@@ -681,9 +616,6 @@ public class PacketSyncService {
 
 	public String requestOtp(List<String> personaFilePath, String to, String contextKey) throws IOException {
 		StringBuilder builder = new StringBuilder();
-
-		loadServerContextProperties(contextKey);
-
 		for (String path : personaFilePath) {
 			ResidentModel resident = ResidentModel.readPersona(path);
 			ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
@@ -694,8 +626,6 @@ public class PacketSyncService {
 	}
 
 	public String verifyOtp(String personaFilePath, String to, String otp, String contextKey) throws IOException {
-
-		loadServerContextProperties(contextKey);
 		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 		ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 
@@ -707,13 +637,11 @@ public class PacketSyncService {
 	}
 
 	public String getAvailableAppointments(String contextKey) {
-		loadServerContextProperties(contextKey);
 		AppointmentModel res = PreRegistrationSteps.getAppointments(contextKey);
 		return res.toJSONString();
 	}
 
 	public String bookSpecificAppointment(String preregId, AppointmentDto appointmentDto, String contextKey) {
-
 		AppointmentTimeSlotModel ts = new AppointmentTimeSlotModel();
 		ts.setFromTime(appointmentDto.getTime_slot_from());
 		ts.setToTime(appointmentDto.getTime_slot_to());
@@ -727,9 +655,6 @@ public class PacketSyncService {
 
 		String retVal = "{\"Failed\"}";
 		Boolean bBooked = false;
-
-		loadServerContextProperties(contextKey);
-
 		String base = VariableManager.getVariableValue(contextKey, "urlBase").toString().trim();
 		String api = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "appointmentslots").toString().trim();
 
@@ -785,18 +710,12 @@ public class PacketSyncService {
 		}
 	}
 
-	// Helper method to clean expired slots
 	private void cleanExpiredSlots() {
 		slotQueue.removeIf(SlotEntry::isExpired);
 	}
 
 	public String bookAppointmentSlot(String preRegID, int nthSlot, boolean bHoliday, String contextKey) {
-		loadServerContextProperties(contextKey);
-
-		// Clean expired slots before booking
 		cleanExpiredSlots();
-
-		// Ensure slots are initialized only once
 		if (slotQueue.isEmpty()) {
 			initializeSlots(contextKey, bHoliday);
 		}
@@ -823,8 +742,6 @@ public class PacketSyncService {
 	}
 
 	public String cancelAppointment(String preregId, AppointmentDto appointmentDto, String contextKey) {
-		loadServerContextProperties(contextKey);
-
 		return PreRegistrationSteps.cancelAppointment(preregId, appointmentDto.getTime_slot_from(),
 				appointmentDto.getTime_slot_to(), appointmentDto.getAppointment_date(),
 				appointmentDto.getRegistration_center_id(), contextKey);
@@ -832,7 +749,6 @@ public class PacketSyncService {
 	}
 
 	public String deleteApplication(String preregId, String contextKey) {
-		loadServerContextProperties(contextKey);
 		return PreRegistrationSteps.deleteApplication(preregId, contextKey);
 	}
 
@@ -844,9 +760,6 @@ public class PacketSyncService {
 	public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
 
 		StringBuilder responseBuilder = new StringBuilder();
-
-		loadServerContextProperties(contextKey);
-
 		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
 
 		PacketTemplateProvider provider = new PacketTemplateProvider();
@@ -904,8 +817,6 @@ public class PacketSyncService {
 		JSONArray packetPaths = new JSONArray();
 
 		RestClient.logInfo(contextKey, "createPacketTemplates->outDir:" + outDir);
-
-		// loadServerContextProperties(contextKey);
 		if (process != null) {
 			VariableManager.setVariableValue(contextKey, "process", process);
 		}
@@ -1464,8 +1375,6 @@ public class PacketSyncService {
 	public String updatePersonaBioExceptions(BioExceptionDto personaBERequestDto, String contextKey) {
 
 		RestClient.logInfo(contextKey, "updatePersonaBioExceptions:" + contextKey);
-
-		loadServerContextProperties(contextKey);
 		try {
 			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath());
 
@@ -1479,17 +1388,11 @@ public class PacketSyncService {
 	}
 
 	public String bulkuploadPackets(List<String> packetPaths, String contextKey) {
-
-		loadServerContextProperties(contextKey);
-
 		return MosipDataSetup.uploadPackets(packetPaths, contextKey);
 
 	}
 
 	public String getPacketTags(String contextKey) {
-
-		// loadServerContextProperties(contextKey);
-
 		JSONObject packetTags = new JSONObject();
 
 		packetTags.put("META_INFO-OPERATIONS_DATA-supervisorId",
@@ -1566,17 +1469,10 @@ public class PacketSyncService {
 
 	}
 
-	String getRegIdFromPacketPath(String packetPath) {
-		// leaf node of packet path is regid
-		return Path.of(packetPath).getFileName().toString();
-	}
-
 	public String validatePacket(String packetPath, String processArg, String contextKey) {
 
 		JSONObject ret = new JSONObject();
 		ret.put(STATUS, SUCCESS);
-		loadServerContextProperties(contextKey);
-		String regId = getRegIdFromPacketPath(packetPath);
 		String tempPacketRootFolder = Path.of(packetPath).toString();
 		String jsonSchema = MosipMasterData.getIDSchemaSchemaLatestVersion(contextKey);
 		String processRoot = Path
@@ -1602,8 +1498,6 @@ public class PacketSyncService {
 
 		String bdbString = "";
 		String[] duplicateBdbs;
-
-		loadServerContextProperties(contextKey);
 		for (MockABISExpectationsDto expct : expectations) {
 
 			ResidentModel persona = ResidentModel.readPersona(expct.getPersonaPath());
@@ -1682,20 +1576,17 @@ public class PacketSyncService {
 	}
 
 	public String updateMachine(MosipMachineModel machine, String contextKey) {
-		loadServerContextProperties(contextKey);
 		MosipDataSetup.updateMachine(machine, contextKey);
 		return STATUS_SUCCESS;
 	}
 
 	public String updatePreRegistrationStatus(String preregId, String statusCode, String contextKey) {
-		loadServerContextProperties(contextKey);
-		String status = MosipDataSetup.updatePreRegStatus(preregId, statusCode, contextKey);
-		return status;
+		return MosipDataSetup.updatePreRegStatus(preregId, statusCode, contextKey);
+	
 	}
 
 	public String updatePreRegAppointment(String preregId, String contextKey) {
-		String status = PreRegistrationSteps.updatePreRegAppointment(preregId, contextKey);
-		return status;
+		return PreRegistrationSteps.updatePreRegAppointment(preregId, contextKey);	
 	}
 
 	public String deleteMockAbisExpectations(String contextKey, String mockId) {
@@ -1737,7 +1628,7 @@ public class PacketSyncService {
 
 		// Inner "request" JSON
 		JSONObject innerRequest = new JSONObject();
-		innerRequest.put("registrationId", rid);
+		innerRequest.put(REGISTRATIONID, rid);
 		innerRequest.put("process", VariableManager.getVariableValue(contextKey, "process").toString());
 		innerRequest.put("source", VariableManager.getVariableValue(contextKey, "source").toString());
 		innerRequest.put("additionalInfoReqId", ""); // can be updated if needed

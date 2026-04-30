@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.dataprovider.util;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
 
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
+import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 import java.io.*;
 
@@ -40,18 +42,50 @@ public class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 	private static SecureRandom rand = new SecureRandom();
 
-private static String cachedUtcDateformat;
-private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+	private static String cachedUtcDateformat;
+	private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+	private static final String MOUNT_PATH_KEY = "mountPath";
+	private static final String MOSIP_TEST_TEMP_KEY = "mosip.test.temp";
 
-public static void initializeUTCDateFormat(String contextKey) {
-    if (cachedUtcDateformat != null) 
-        return;
-    String dateFormat = MosipMasterData .getValueFromActuators("mosip.utc-datetime-pattern", contextKey);
-    if (dateFormat == null || dateFormat.isEmpty()) 
-        dateFormat = DEFAULT_UTC_DATEFORMAT;
-    cachedUtcDateformat = dateFormat;
-    logger.info("UTC Date Format initialized: {}", dateFormat);
-}
+	private static Path normalizeAbsolute(Path path) {
+		return path.toAbsolutePath().normalize();
+	}
+
+	private static Path getOsTempRoot() {
+		String tmpDir = System.getProperty("java.io.tmpdir");
+		if (tmpDir == null || tmpDir.isBlank()) {
+			return null;
+		}
+		return normalizeAbsolute(Paths.get(tmpDir));
+	}
+
+	private static Path getContextTempRoot(String contextKey) {
+		if (contextKey == null || contextKey.isBlank()) {
+			return null;
+		}
+		Object mountObj = VariableManager.getVariableValue(contextKey, MOUNT_PATH_KEY);
+		Object tempObj = VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP_KEY);
+		if (mountObj == null || tempObj == null) {
+			return null;
+		}
+
+		String mountPath = mountObj.toString();
+		String tempPath = tempObj.toString();
+		if ((mountPath == null || mountPath.isBlank()) && (tempPath == null || tempPath.isBlank())) {
+			return null;
+		}
+		return normalizeAbsolute(Paths.get(String.valueOf(mountPath) + String.valueOf(tempPath)));
+	}
+
+	public static void initializeUTCDateFormat(String contextKey) {
+		if (cachedUtcDateformat != null)
+			return;
+		String dateFormat = MosipMasterData.getValueFromActuators("mosip.utc-datetime-pattern", contextKey);
+		if (dateFormat == null || dateFormat.isEmpty())
+			dateFormat = DEFAULT_UTC_DATEFORMAT;
+		cachedUtcDateformat = dateFormat;
+		logger.info("UTC Date Format initialized: {}", dateFormat);
+	}
 
 	public static boolean isExists(List<String> missList, String categoryCode) {
 		if (missList != null) {
@@ -257,7 +291,7 @@ public static void initializeUTCDateFormat(String contextKey) {
 		return props;
 	}
 
-	public static void copyFileWithBuffer(Path source, Path destination)  {
+	public static void copyFileWithBuffer(Path source, Path destination) {
 		try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(source));
 				BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(destination))) {
 			byte[] buffer = new byte[8192]; // Adjust buffer size as needed
@@ -288,62 +322,150 @@ public static void initializeUTCDateFormat(String contextKey) {
 			logger.error(e.getMessage());
 		}
 	}
-	
-	
+
 	public static void write(Path filePath, byte[] bytes) throws IOException {
 		Files.write(filePath, bytes);
-	}	
-	
-	public static void write( byte[] bytes,File file) throws IOException {
+	}
+
+	public static void write(byte[] bytes, File file) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		try (OutputStream outputStream = new FileOutputStream(file)) {
 			mapper.writeValue(outputStream, bytes);
 		}
 	}
-	
-	public static  byte[] read(String path)
-	{
-		 byte[] data = null;
+
+	public static byte[] read(String path) {
+		byte[] data = null;
 		try {
 			data = Files.readAllBytes(Paths.get(path));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-		 
-		 return data;
+
+		return data;
 	}
-	
-	
+
 	public static void main(String[] args) throws Exception {
 		String regex5 = "^(1869|18[7-9][0-9]|19[0-9][0-9]|20[0-9][0-9])/([0][1-9]|1[0-2])/([0][1-9]|[1-2][0-9]|3[01])$";
 		String rex = regex5;
-		String contextKey= null;
-		String values = genStringAsperRegex(rex,contextKey);
+		String contextKey = null;
+		String values = genStringAsperRegex(rex, contextKey);
 		Pattern p = Pattern.compile(rex);// . represents single character
 		Matcher m = p.matcher(values);
 		boolean b = m.matches();
 
 	}
-	
-	 public static void deleteOldTempDir(String folderPath) throws IOException {
-	        if (folderPath == null || folderPath.isBlank()) {
-	            return;
-	        }
-	        Path tempPath = Paths.get(folderPath);
-	        if (Files.exists(tempPath)) {
-	            try (Stream<Path> paths = Files.walk(tempPath)) {
-	                paths.sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
-	                .forEach(path -> {
-	                    try {
-	                        Files.delete(path);
-	                        logger.info("Deleted: {}", path);
-	                    } catch (IOException e) {
-	                        logger.error("❌ Failed to delete {}", path, e);
-	                        throw new RuntimeException(e);
-	                    }
-	                });
-	            }
-	            logger.info("🗑️ Deleted old temp directory: {}", folderPath);
-	        }
+
+	public static void deleteOldTempDir(String folderPath) throws IOException {
+		deleteOldTempDir(folderPath, null);
+	}
+
+		public static void deleteOldTempDir(String folderPath, String contextKey) throws IOException {
+        if (folderPath == null || folderPath.isBlank()) {
+            return;
+        }
+
+        Path tempPath = normalizeAbsolute(Paths.get(folderPath));
+        Path osTempRoot = getOsTempRoot();
+        Path ctxTempRoot = getContextTempRoot(contextKey);
+        
+        // Normalize the roots as well to ensure consistent comparison
+        Path normalizedOsTempRoot = osTempRoot != null ? normalizeAbsolute(osTempRoot) : null;
+        Path normalizedCtxTempRoot = ctxTempRoot != null ? normalizeAbsolute(ctxTempRoot) : null;
+        
+        boolean allowed = (normalizedOsTempRoot != null && tempPath.startsWith(normalizedOsTempRoot))
+                || (normalizedCtxTempRoot != null && tempPath.startsWith(normalizedCtxTempRoot));
+        
+        if (!allowed) {
+            logger.warn("Refusing to delete path outside allowed temp roots: {}", tempPath);
+            return;
+        }
+        
+        if (Files.exists(tempPath)) {
+            try (Stream<Path> paths = Files.walk(tempPath)) {
+                paths.sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
+                        .forEach(path -> {
+                            try {
+                                // Re-validate each path before deletion
+                                Path normalizedPath = normalizeAbsolute(path);
+                                boolean pathAllowed = (normalizedOsTempRoot != null && normalizedPath.startsWith(normalizedOsTempRoot))
+                                        || (normalizedCtxTempRoot != null && normalizedPath.startsWith(normalizedCtxTempRoot));
+                                
+                                if (!pathAllowed) {
+                                    logger.warn("Skipping deletion of path outside allowed roots: {}", normalizedPath);
+                                    return;
+                                }
+                                
+                                Files.delete(normalizedPath);
+                                logger.info("Deleted: {}", normalizedPath);
+                            } catch (IOException e) {
+                                logger.error("❌ Failed to delete {}", path, e);
+                                throw new RuntimeException(e);
+                            }
+                        });
+            }
+            logger.info("🗑️ Deleted old temp directory: {}", folderPath);
+        }
     }
+	public static void createFileIfNotExists(Path path) {
+		createFileIfNotExists(path, null);
+	}
+
+	public static void createFileIfNotExists(Path path, String contextKey) {
+		Path normalized = normalizeAbsolute(path);
+		Path osTempRoot = getOsTempRoot();
+		Path ctxTempRoot = getContextTempRoot(contextKey);
+		boolean allowed = (osTempRoot != null && normalized.startsWith(osTempRoot))
+				|| (ctxTempRoot != null && normalized.startsWith(ctxTempRoot));
+		if (!allowed) {
+			logger.warn("Refusing to create file outside allowed temp roots: {}", normalized);
+			return;
+		}
+
+		try {
+			Files.createDirectories(normalized.getParent());
+			Files.createFile(normalized);
+		} catch (FileAlreadyExistsException e) {
+			logger.error("File already exists: {}", normalized);
+		} catch (IOException e) {
+
+			logger.error("Error creating file: {}", normalized, e);
+		}
+	}
+
+	public static void addTempDir(String contextKey, String variableKey, String newDir) {
+		try {
+
+			Object existing = VariableManager.getVariableValue(contextKey, variableKey);
+
+			String updatedValue = (existing == null || existing.toString().isEmpty())
+					? newDir
+					: existing + "," + newDir;
+
+			VariableManager.setVariableValue(
+					contextKey,
+					variableKey,
+					updatedValue);
+
+		} catch (Exception e) {
+			logger.error("Failed to add temp dir: {}", newDir, e);
+		}
+	}
+
+	public static void cleanupPreregArtifacts(String location, File targetDirectory) {
+		if (location != null && !location.isBlank()) {
+			try {
+				CommonUtil.deleteOldTempDir(location);
+			} catch (Exception ex) {
+				logger.warn("Failed to delete prereg zip {}", location, ex);
+			}
+		}
+		if (targetDirectory != null && targetDirectory.exists()) {
+			try {
+				CommonUtil.deleteOldTempDir(targetDirectory.getAbsolutePath());
+			} catch (Exception ex) {
+				logger.warn("Failed to delete prereg working directory {}", targetDirectory.getAbsolutePath(), ex);
+			}
+		}
+	}
 }

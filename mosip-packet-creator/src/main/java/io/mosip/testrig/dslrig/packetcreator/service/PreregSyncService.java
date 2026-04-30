@@ -73,7 +73,6 @@ public class PreregSyncService {
 		syncRequest.put("toDate",APIRequestUtil.getUTCDate(currentSyncTime));
 
 		JSONObject wrapper = new JSONObject();
-		//wrapper.put("metadata", "");
 		wrapper.put("version", "1.0");
 		wrapper.put("id", "mosip.pre-registration.datasync.fetch.ids");
 		wrapper.put("requesttime", APIRequestUtil.getUTCDateTime(null));
@@ -111,25 +110,4 @@ public class PreregSyncService {
 		logger.info("Wrote prereg id {} to {} ", preregResponse.getString("pre-registration-id"), temPath.toString());
         return temPath.toString();
 	}
-	
-	/*public void syncAndDownload() throws Exception {
-		JSONObject jb = syncPrereg();
-		while(jb.keys().hasNext()) {
-			String prid = (String)jb.get("pre-registration-id");
-			try {
-				String location = downloadPreregPacket(prid);
-				logger.info("downloaded the prereg packet in {} ", location);
-
-				File targetDirectory = Path.of(workDirectory, prid).toFile();
-				if(!targetDirectory.exists()  && !targetDirectory.mkdir())
-					throw new Exception("Failed to create target directory");
-
-				zipUtils.unzip(location, targetDirectory.getAbsolutePath());
-
-			} catch (Exception iox){
-				logger.error("Failed for PRID : {}", prid, iox);
-			}
-		}
-	}*/
-
 }
