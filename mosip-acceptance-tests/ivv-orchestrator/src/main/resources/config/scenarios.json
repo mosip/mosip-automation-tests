@@ -31559,7 +31559,7 @@
 		"Tag": "Positive_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "New_Adult",
-		"Description": "Large face images compressed successfully before upload",
+		"Description": "Resident walks to the center and creates a packet with a large face image size",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
