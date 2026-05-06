@@ -196,6 +196,10 @@ public class PacketSyncService {
 		if (props.containsKey("Face")) {
 			provider.addCondition(ResidentAttribute.RA_Photo, Boolean.parseBoolean(props.get("Face").toString()));
 		}
+		if (props.containsKey("LargeFace")) {
+			provider.addCondition(ResidentAttribute.RA_LargeFace,
+					Boolean.parseBoolean(props.get("LargeFace").toString()));
+		}
 		if (props.containsKey("Document")) {
 			provider.addCondition(ResidentAttribute.RA_Document,
 					Boolean.parseBoolean(props.get("Document").toString()));
