@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,10 @@ public class PhotoProvider {
 	static String Photo_File_Format = "/face%04d.jpg";
 
 	static byte[][] getPhoto(String contextKey) {
+		return getPhoto(contextKey, false);
+	}
+
+	static byte[][] getPhoto(String contextKey, boolean generateLargeFace) {
 
 		byte[] bencoded = null;
 		byte[] bData = null;
@@ -90,6 +95,10 @@ public class PhotoProvider {
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
+			if (generateLargeFace) {
+				// Generate a much bigger face payload so packet upload path validates compression handling.
+				img = upscaleImage(img, 8);
+			}
 			ImageIO.write(img, "jpg", baos);
 			baos.flush();
 			bData = baos.toByteArray();
@@ -104,6 +113,15 @@ public class PhotoProvider {
 			logger.error(e.getMessage());
 		}
 		return new byte[][] { bencoded, bData };
+	}
+
+	private static BufferedImage upscaleImage(BufferedImage source, int factor) {
+		int type = source.getType() == 0 ? BufferedImage.TYPE_INT_RGB : source.getType();
+		BufferedImage enlarged = new BufferedImage(source.getWidth() * factor, source.getHeight() * factor, type);
+		Graphics2D g2d = enlarged.createGraphics();
+		g2d.drawImage(source, 0, 0, enlarged.getWidth(), enlarged.getHeight(), null);
+		g2d.dispose();
+		return enlarged;
 	}
 
 	static void splitImages(String contextKey) {

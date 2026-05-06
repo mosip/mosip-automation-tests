@@ -32,6 +32,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 		String ageCategory = "";
 		Boolean bSkipGuardian = false;
 		String missFields = null;
+		String largeFace = null;
 		String[] bioFlag = null;
 		HashMap<String, String> genderAndBioFlag = new HashMap<String, String>();
 		if (!step.getParameters().isEmpty() && step.getParameters().size() >= 3) {
@@ -51,13 +52,24 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 				genderAndBioFlag.put("Iris", "true");
 				genderAndBioFlag.put("Finger", "true");
 				genderAndBioFlag.put("Face", "true");
+				genderAndBioFlag.put("LargeFace", "false");
 
 			}
 
 			// Get Miss attrobutes list
 
-			if (step.getParameters().size() > 3)
-				missFields = step.getParameters().get(3).replaceAll("@@", ",");
+			if (step.getParameters().size() > 3) {
+				String fourthParam = step.getParameters().get(3);
+				if ("true".equalsIgnoreCase(fourthParam) || "false".equalsIgnoreCase(fourthParam)) {
+					largeFace = fourthParam;
+					if (step.getParameters().size() > 4) {
+						missFields = step.getParameters().get(4).replaceAll("@@", ",");
+					}
+				} else {
+					missFields = fourthParam.replaceAll("@@", ",");
+				}
+			}
+			genderAndBioFlag.put("LargeFace", largeFace == null ? "false" : largeFace);
 
 		} else {
 			logger.warn("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");

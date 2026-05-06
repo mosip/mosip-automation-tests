@@ -24,5 +24,6 @@ public enum ResidentAttribute {
 	RA_SKipGaurdian,		//if Set to true, and if Minor , dont generate gaurdian data
 	RA_InvalidList,
 	RA_MissList,
-	RA_SCHEMA_VERSION
+	RA_SCHEMA_VERSION,
+	RA_LargeFace
 }
