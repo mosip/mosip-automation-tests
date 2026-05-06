@@ -25,5 +25,6 @@ public enum ResidentAttribute {
 	RA_InvalidList,
 	RA_MissList,
 	RA_SCHEMA_VERSION,
-	RA_LargeFace
+	RA_LargeFace,
+	RA_ObstructedFace
 }

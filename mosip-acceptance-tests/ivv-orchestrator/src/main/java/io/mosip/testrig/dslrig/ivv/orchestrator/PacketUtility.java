@@ -215,6 +215,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (genderAndBioFlag.containsKey("LargeFace")) {
 			residentAttrib.put("LargeFace", genderAndBioFlag.get("LargeFace"));
 		}
+		if (genderAndBioFlag.containsKey("ObstructedFace")) {
+			residentAttrib.put("ObstructedFace", genderAndBioFlag.get("ObstructedFace"));
+		}
 
 		if (missFields != null)
 			residentAttrib.put("Miss", missFields);
