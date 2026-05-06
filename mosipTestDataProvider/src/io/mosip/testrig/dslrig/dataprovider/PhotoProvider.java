@@ -41,7 +41,7 @@ public class PhotoProvider {
 			FileFilter filter = new FileFilter() {
 				@Override
 				public boolean accept(File pathname) {
-					return !pathname.isDirectory( ) && pathname.getName().startsWith("face");
+					return !pathname.isDirectory() && pathname.getName().startsWith("face");
 				}
 			};
 			File[] listDir = dir.listFiles(filter);
@@ -62,14 +62,15 @@ public class PhotoProvider {
 
 			// otherwise pick the impression of same of scenario number
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
-			
-			dirPath = FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
-			
+
+			dirPath = FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber,
+					impressionToPick);
+
 			logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders=" + numberOfSubfolders
 					+ " impressionToPick=" + impressionToPick);
-			
+
 			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face/");
-			
+
 			Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "enableExternalBiometricSource");
 			boolean bExternalSrc = false;
 			BufferedImage img = null;
@@ -96,7 +97,8 @@ public class PhotoProvider {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
 			if (generateLargeFace) {
-				// Generate a much bigger face payload so packet upload path validates compression handling.
+				// Generate a much bigger face payload so packet upload path validates
+				// compression handling.
 				img = upscaleImage(img, 8);
 			}
 			ImageIO.write(img, "jpg", baos);
@@ -107,7 +109,6 @@ public class PhotoProvider {
 			baos.close();
 			CommonUtil.deleteOldTempDir(dirPath);
 
-
 		} catch (Exception e) {
 
 			logger.error(e.getMessage());
@@ -116,6 +117,12 @@ public class PhotoProvider {
 	}
 
 	private static BufferedImage upscaleImage(BufferedImage source, int factor) {
+		if (source == null) {
+			throw new IllegalArgumentException("source image must not be null");
+		}
+		if (factor <= 0) {
+			throw new IllegalArgumentException("factor must be > 0");
+		}
 		int type = source.getType() == 0 ? BufferedImage.TYPE_INT_RGB : source.getType();
 		BufferedImage enlarged = new BufferedImage(source.getWidth() * factor, source.getHeight() * factor, type);
 		Graphics2D g2d = enlarged.createGraphics();
@@ -151,7 +158,7 @@ public class PhotoProvider {
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-//		try (DataOutputStream dout = new DataOutputStream(baos)) {
+		// try (DataOutputStream dout = new DataOutputStream(baos)) {
 
 		try (BufferedOutputStream bos = new BufferedOutputStream(baos);
 				DataOutputStream dout = new DataOutputStream(bos)) {
@@ -224,7 +231,7 @@ public class PhotoProvider {
 
 		BufferedImage img;
 		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(faceFile));) {
-//			img = ImageIO.read(new File(faceFile));
+			// img = ImageIO.read(new File(faceFile));
 			img = ImageIO.read(bis);
 			ImageIO.write(img, "jpg", baos);
 			baos.flush();

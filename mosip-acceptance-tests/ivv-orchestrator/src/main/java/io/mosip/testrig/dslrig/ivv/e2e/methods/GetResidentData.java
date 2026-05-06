@@ -59,7 +59,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 			// Get Miss attrobutes list
 
 			if (step.getParameters().size() > 3) {
-				String fourthParam = step.getParameters().get(3);
+				String fourthParam = step.getParameters().get(3).trim();
 				if ("true".equalsIgnoreCase(fourthParam) || "false".equalsIgnoreCase(fourthParam)) {
 					largeFace = fourthParam;
 					if (step.getParameters().size() > 4) {
