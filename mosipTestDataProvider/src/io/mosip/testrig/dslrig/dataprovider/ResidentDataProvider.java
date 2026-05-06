@@ -520,8 +520,11 @@ public class ResidentDataProvider {
 			//	byte[][] faceData = PhotoProvider.getPhoto(idxes[i], res_gender.name(),contextKey );
 				Object largeFaceFlag = attributeList.get(ResidentAttribute.RA_LargeFace);
 				boolean generateLargeFace = largeFaceFlag != null && Boolean.parseBoolean(largeFaceFlag.toString());
+				Object obstructedFaceFlag = attributeList.get(ResidentAttribute.RA_ObstructedFace);
+				boolean generateObstructedFace = obstructedFaceFlag != null
+						&& Boolean.parseBoolean(obstructedFaceFlag.toString());
 				
-				byte[][] faceData = PhotoProvider.getPhoto(contextKey, generateLargeFace);
+				byte[][] faceData = PhotoProvider.getPhoto(contextKey, generateLargeFace, generateObstructedFace);
 				
 				bioData.setEncodedPhoto(
 						Base64.getEncoder().encodeToString(faceData[0]));

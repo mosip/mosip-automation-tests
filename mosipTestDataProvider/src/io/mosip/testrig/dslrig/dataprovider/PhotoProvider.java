@@ -13,6 +13,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
+import java.awt.Color;
+import java.awt.AlphaComposite;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +27,14 @@ public class PhotoProvider {
 	static String Photo_File_Format = "/face%04d.jpg";
 
 	static byte[][] getPhoto(String contextKey) {
-		return getPhoto(contextKey, false);
+		return getPhoto(contextKey, false, false);
 	}
 
 	static byte[][] getPhoto(String contextKey, boolean generateLargeFace) {
+		return getPhoto(contextKey, generateLargeFace, false);
+	}
+
+	static byte[][] getPhoto(String contextKey, boolean generateLargeFace, boolean generateObstructedFace) {
 
 		byte[] bencoded = null;
 		byte[] bData = null;
@@ -101,6 +107,9 @@ public class PhotoProvider {
 				// compression handling.
 				img = upscaleImage(img, 8);
 			}
+			if (generateObstructedFace) {
+				img = applyFaceObstruction(img);
+			}
 			ImageIO.write(img, "jpg", baos);
 			baos.flush();
 			bData = baos.toByteArray();
@@ -129,6 +138,40 @@ public class PhotoProvider {
 		g2d.drawImage(source, 0, 0, enlarged.getWidth(), enlarged.getHeight(), null);
 		g2d.dispose();
 		return enlarged;
+	}
+
+	private static BufferedImage applyFaceObstruction(BufferedImage source) {
+		if (source == null) {
+			throw new IllegalArgumentException("source image must not be null");
+		}
+		int type = source.getType() == 0 ? BufferedImage.TYPE_INT_RGB : source.getType();
+		BufferedImage output = new BufferedImage(source.getWidth(), source.getHeight(), type);
+		Graphics2D g2d = output.createGraphics();
+		g2d.drawImage(source, 0, 0, null);
+
+		int width = output.getWidth();
+		int height = output.getHeight();
+
+		// Mask-like obstruction over lower half of face
+		g2d.setColor(new Color(28, 28, 28, 235));
+		int maskY = (int) (height * 0.58);
+		g2d.fillRoundRect((int) (width * 0.16), maskY, (int) (width * 0.68), (int) (height * 0.28), 30, 30);
+
+		// Cap-like obstruction over forehead
+		g2d.setColor(new Color(18, 18, 18, 245));
+		g2d.fillRoundRect((int) (width * 0.12), (int) (height * 0.02), (int) (width * 0.76), (int) (height * 0.24), 26,
+				26);
+		g2d.fillRect((int) (width * 0.20), (int) (height * 0.21), (int) (width * 0.60), (int) (height * 0.06));
+
+		// Glare-like streak on one eye area
+		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.72f));
+		g2d.setColor(new Color(255, 255, 255));
+		g2d.fillOval((int) (width * 0.55), (int) (height * 0.28), (int) (width * 0.26), (int) (height * 0.12));
+		g2d.fillRoundRect((int) (width * 0.50), (int) (height * 0.34), (int) (width * 0.34), (int) (height * 0.04), 14,
+				14);
+
+		g2d.dispose();
+		return output;
 	}
 
 	static void splitImages(String contextKey) {

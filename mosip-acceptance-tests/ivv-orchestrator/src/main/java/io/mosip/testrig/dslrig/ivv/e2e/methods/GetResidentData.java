@@ -33,6 +33,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 		Boolean bSkipGuardian = false;
 		String missFields = null;
 		String largeFace = null;
+		String obstructedFace = null;
 		String[] bioFlag = null;
 		HashMap<String, String> genderAndBioFlag = new HashMap<String, String>();
 		if (!step.getParameters().isEmpty() && step.getParameters().size() >= 3) {
@@ -53,6 +54,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 				genderAndBioFlag.put("Finger", "true");
 				genderAndBioFlag.put("Face", "true");
 				genderAndBioFlag.put("LargeFace", "false");
+				genderAndBioFlag.put("ObstructedFace", "false");
 
 			}
 
@@ -63,13 +65,22 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 				if ("true".equalsIgnoreCase(fourthParam) || "false".equalsIgnoreCase(fourthParam)) {
 					largeFace = fourthParam;
 					if (step.getParameters().size() > 4) {
-						missFields = step.getParameters().get(4).replaceAll("@@", ",");
+						String fifthParam = step.getParameters().get(4).trim();
+						if ("true".equalsIgnoreCase(fifthParam) || "false".equalsIgnoreCase(fifthParam)) {
+							obstructedFace = fifthParam;
+							if (step.getParameters().size() > 5) {
+								missFields = step.getParameters().get(5).replaceAll("@@", ",");
+							}
+						} else {
+							missFields = fifthParam.replaceAll("@@", ",");
+						}
 					}
 				} else {
 					missFields = fourthParam.replaceAll("@@", ",");
 				}
 			}
 			genderAndBioFlag.put("LargeFace", largeFace == null ? "false" : largeFace);
+			genderAndBioFlag.put("ObstructedFace", obstructedFace == null ? "false" : obstructedFace);
 
 		} else {
 			logger.warn("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");
