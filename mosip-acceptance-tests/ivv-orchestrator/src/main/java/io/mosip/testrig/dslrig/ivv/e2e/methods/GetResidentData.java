@@ -36,7 +36,6 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 		boolean lowQualityDocument = false;
 		String largeFace = null;
 		String obstructedFace = null;
-		String obstructedFace = null;
 		String[] bioFlag = null;
 		HashMap<String, String> genderAndBioFlag = new HashMap<String, String>();
 		if (!step.getParameters().isEmpty() && step.getParameters().size() >= 3) {
@@ -58,29 +57,12 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 				genderAndBioFlag.put("Face", "true");
 				genderAndBioFlag.put("LargeFace", "false");
 				genderAndBioFlag.put("ObstructedFace", "false");
-				genderAndBioFlag.put("ObstructedFace", "false");
 
 			}
 
 			// Get Miss attrobutes list
 
 			if (step.getParameters().size() > 3) {
-				String fourthParam = step.getParameters().get(3).trim();
-				if ("true".equalsIgnoreCase(fourthParam) || "false".equalsIgnoreCase(fourthParam)) {
-					largeFace = fourthParam;
-					if (step.getParameters().size() > 4) {
-						String fifthParam = step.getParameters().get(4).trim();
-						if ("true".equalsIgnoreCase(fifthParam) || "false".equalsIgnoreCase(fifthParam)) {
-							obstructedFace = fifthParam;
-							if (step.getParameters().size() > 5) {
-								missFields = step.getParameters().get(5).replaceAll("@@", ",");
-							}
-						} else {
-							missFields = fifthParam.replaceAll("@@", ",");
-						}
-					}
-				} else {
-					missFields = fourthParam.replaceAll("@@", ",");
 				for (int idx = 3; idx < step.getParameters().size(); idx++) {
 					String optionalParam = step.getParameters().get(idx).trim();
 					if (optionalParam.toLowerCase().startsWith("documentcategory=")) {
@@ -111,7 +93,6 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 				}
 			}
 			genderAndBioFlag.put("LargeFace", largeFace == null ? "false" : largeFace);
-			genderAndBioFlag.put("ObstructedFace", obstructedFace == null ? "false" : obstructedFace);
 			genderAndBioFlag.put("ObstructedFace", obstructedFace == null ? "false" : obstructedFace);
 
 		} else {
