@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -545,7 +546,18 @@ public class ResidentDataProvider {
 			
 			if(bDocRequired) {
 				try {
-					res.setDocuments(DocumentProvider.generateDocuments(res,contextKey));
+					Object lowQualityDocumentAttr = attributeList.get(ResidentAttribute.RA_LowQualityDocument);
+					boolean generateLowQualityDocuments = lowQualityDocumentAttr != null
+							&& Boolean.parseBoolean(lowQualityDocumentAttr.toString());
+					res.setDocuments(DocumentProvider.generateDocuments(res, contextKey, generateLowQualityDocuments));
+					Object docCategoryAttr = attributeList.get(ResidentAttribute.RA_DocumentCategory);
+					if (docCategoryAttr != null && !docCategoryAttr.toString().trim().isEmpty()) {
+						String requiredDocCategory = docCategoryAttr.toString().trim();
+						res.setDocuments(res.getDocuments().stream()
+								.filter(doc -> doc != null && doc.getDocCategoryCode() != null
+										&& doc.getDocCategoryCode().equalsIgnoreCase(requiredDocCategory))
+								.collect(Collectors.toList()));
+					}
 				} catch (DocumentException | IOException  | ParseException e) {
 					
 					logger.error(e.getMessage());

@@ -189,7 +189,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 	}
 
 	public Response generateResident(String ageCategory, Boolean bSkipGuardian, String missFields,
-			HashMap<String, String> genderAndBioFlag, Scenario.Step step) throws RigInternalError {
+			String documentCategory, boolean lowQualityDocument, HashMap<String, String> genderAndBioFlag,
+			Scenario.Step step) throws RigInternalError {
 
 		String url = baseUrl + props.getProperty("getResidentUrl");
 		JSONObject jsonwrapper = new JSONObject();
@@ -221,6 +222,12 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		if (missFields != null)
 			residentAttrib.put("Miss", missFields);
+		if (documentCategory != null && !documentCategory.trim().isEmpty()) {
+			residentAttrib.put("DocumentCategory", documentCategory.trim());
+		}
+		if (lowQualityDocument) {
+			residentAttrib.put("LowQualityDocument", true);
+		}
 		jsonReq.put("PR_ResidentAttribute", residentAttrib);
 		jsonwrapper.put(REQUESTS, jsonReq);
 
