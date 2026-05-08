@@ -1169,16 +1169,16 @@ public class PacketSyncService {
 					switch (key.toLowerCase()) {
 						case "demodata":
 							val = persona.loadDemoData();
-							retProp.put(key, val);
+							putNullableProperty(retProp, key, val);
 							break;
 						case "faceraw":
 							val = persona.getBiometric().getRawFaceData();
-							retProp.put(key, val);
+							putNullableProperty(retProp, key, val);
 							break;
 
 						case "face":
 							val = persona.getBiometric().getEncodedPhoto();
-							retProp.put(key, val);
+							putNullableProperty(retProp, key, val);
 							break;
 						case "face_encrypted":
 							if (persona.getBiometric().getCapture() != null) {
@@ -1186,12 +1186,12 @@ public class PacketSyncService {
 										.get(DataProviderConstants.MDS_DEVICE_TYPE_FACE)
 										.get(0).getBioValue();
 							}
-							retProp.put(key, val);
+							putNullableProperty(retProp, key, val);
 							break;
 						case "iris":
 							IrisDataModel irisval = persona.getBiometric().getIris();
 
-							retProp.put(key, irisval.toJSONString());
+							putNullableProperty(retProp, key, irisval == null ? null : irisval.toJSONString());
 							break;
 						case "iris_encrypted":
 							IrisDataModel irisvalue = null;
@@ -1210,7 +1210,7 @@ public class PacketSyncService {
 								val = irisvalue;
 							}
 
-							retProp.put(key, val);
+							putNullableProperty(retProp, key, val);
 							break;
 						case "finger":
 							String[] fps = persona.getBiometric().getFingerPrint();
@@ -1267,7 +1267,7 @@ public class PacketSyncService {
 								val = irisvalueh;
 							}
 
-							retProp.put(key, val);
+							putNullableProperty(retProp, key, val);
 							break;
 						case "face_hash":
 							if (persona.getBiometric().getCapture() != null) {
@@ -1277,7 +1277,7 @@ public class PacketSyncService {
 								byte[] valBytes = java.util.Base64.getUrlDecoder().decode(val.toString());
 								val = CommonUtil.getSHAFromBytes(valBytes);
 							}
-							retProp.put(key, val);
+							putNullableProperty(retProp, key, val);
 							break;
 						case "address":
 							JSONObject resp = new JSONObject();
@@ -1313,6 +1313,10 @@ public class PacketSyncService {
 		}
 		JSONObject jsonProps = new JSONObject(retProp);
 		return jsonProps.toString();
+	}
+
+	private void putNullableProperty(Properties retProp, String key, Object value) {
+		retProp.put(key, value == null ? JSONObject.NULL : value);
 	}
 
 	public String updatePersonaData(List<UpdatePersonaDto> updatePersonaRequest, String contextKey) throws Exception {

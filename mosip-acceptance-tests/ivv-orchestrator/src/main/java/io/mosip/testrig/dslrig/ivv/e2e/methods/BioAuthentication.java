@@ -143,6 +143,11 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			}
 
 			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList, step);
+			if (bioResponse == null || bioResponse.isBlank()) {
+				this.hasError = true;
+				throw new RigInternalError("retrieveBiometric returned empty response for modality " + modalityToLog
+						+ " and persona " + personFilePathvalue);
+			}
 
 			String fileName = null;
 			if(SceanrioFlow.equalsIgnoreCase("ERROR"))
@@ -242,6 +247,11 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			}
 
 			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList, step);
+			if (bioResponse == null || bioResponse.isBlank()) {
+				this.hasError = true;
+				throw new RigInternalError("retrieveBiometric returned empty response for modality " + modalityToLog
+						+ " and persona " + personFilePathvalue);
+			}
 			String fileName = null;
 			if(SceanrioFlow.equalsIgnoreCase("ERROR"))
 				fileName = BIOMETRIC_FACE_NEGATIVE;
