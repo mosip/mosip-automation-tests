@@ -31971,7 +31971,7 @@
 		"Tag": "Negative_Test",
 		"Persona": "ResidentMaleAdult",
 		"Group": "Adult_Update",
-		"Description": "Resident gets UIN updates demographic details  authenticates successfully with new details and fails with old details",
+		"Description": "Resident gets UIN updates demographic details authenticates successfully with new details and fails with old details",
 		"Step-0": {
 			"Description": "Performs health check of given component",
 			"Input Parameters": "Keyword to check, only packetcreator is supported",
