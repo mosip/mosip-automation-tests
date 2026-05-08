@@ -1257,14 +1257,28 @@ public class PacketTemplateProvider {
 						index = 0;
 						if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
 
-							index = resident.getDocIndexes().get(doc.getDocCategoryCode());
+							if (resident.getDocIndexes() != null
+									&& resident.getDocIndexes().containsKey(doc.getDocCategoryCode())) {
+								index = resident.getDocIndexes().get(doc.getDocCategoryCode());
+							}
+							if (index < 0 || index >= doc.getDocs().size() || index >= doc.getType().size()) {
+								index = 0;
+							}
 
-							String docFile = doc.getDocs().get(0);
+							String docFile = doc.getDocs().get(index);
+							logger.info(
+									"Template doc selection -> schemaSubtype: {}, schemaId: {}, docCategory: {}, selectedIndex: {}, docType: {}, sourcePath: {}",
+									s.getSubType(),
+									s.getId(),
+									doc.getDocCategoryCode(),
+									index,
+									doc.getType().get(index).getDocTypeCode(),
+									docFile);
 							RestClient.logInfo(contextKey,
 									DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
 							JSONObject o = new JSONObject();
 							o.put(FORMAT, "pdf");
-							o.put("type", doc.getType().get(0).getDocTypeCode());
+							o.put("type", doc.getType().get(index).getDocTypeCode());
 							String[] v = fileInfo.get(RID_FOLDER);
 							v[1] = s.getId() + ".pdf";
 							fileInfo.put(RID_FOLDER, v);

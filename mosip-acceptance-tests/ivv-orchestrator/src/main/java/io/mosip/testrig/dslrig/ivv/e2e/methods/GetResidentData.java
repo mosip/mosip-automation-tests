@@ -32,6 +32,8 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 		String ageCategory = "";
 		Boolean bSkipGuardian = false;
 		String missFields = null;
+		String documentCategory = null;
+		boolean lowQualityDocument = false;
 		String largeFace = null;
 		String obstructedFace = null;
 		String[] bioFlag = null;
@@ -61,22 +63,33 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 			// Get Miss attrobutes list
 
 			if (step.getParameters().size() > 3) {
-				String fourthParam = step.getParameters().get(3).trim();
-				if ("true".equalsIgnoreCase(fourthParam) || "false".equalsIgnoreCase(fourthParam)) {
-					largeFace = fourthParam;
-					if (step.getParameters().size() > 4) {
-						String fifthParam = step.getParameters().get(4).trim();
-						if ("true".equalsIgnoreCase(fifthParam) || "false".equalsIgnoreCase(fifthParam)) {
-							obstructedFace = fifthParam;
-							if (step.getParameters().size() > 5) {
-								missFields = step.getParameters().get(5).replaceAll("@@", ",");
-							}
-						} else {
-							missFields = fifthParam.replaceAll("@@", ",");
+				for (int idx = 3; idx < step.getParameters().size(); idx++) {
+					String optionalParam = step.getParameters().get(idx).trim();
+					if (optionalParam.toLowerCase().startsWith("documentcategory=")) {
+						String[] keyValue = optionalParam.split("=", 2);
+						if (keyValue.length == 2) {
+							documentCategory = keyValue[1].trim();
 						}
+						continue;
 					}
-				} else {
-					missFields = fourthParam.replaceAll("@@", ",");
+					if (optionalParam.toLowerCase().startsWith("lowqualitydocument=")) {
+						String[] keyValue = optionalParam.split("=", 2);
+						if (keyValue.length == 2) {
+							lowQualityDocument = Boolean.parseBoolean(keyValue[1].trim());
+						}
+						continue;
+					}
+					if (("true".equalsIgnoreCase(optionalParam) || "false".equalsIgnoreCase(optionalParam))
+							&& largeFace == null) {
+						largeFace = optionalParam;
+						continue;
+					}
+					if (("true".equalsIgnoreCase(optionalParam) || "false".equalsIgnoreCase(optionalParam))
+							&& obstructedFace == null) {
+						obstructedFace = optionalParam;
+						continue;
+					}
+					missFields = optionalParam.replaceAll("@@", ",");
 				}
 			}
 			genderAndBioFlag.put("LargeFace", largeFace == null ? "false" : largeFace);
@@ -90,8 +103,8 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 
 		// Generate Resident for all ages
 		cleanData();
-		Response response = packetUtility.generateResident(ageCategory, bSkipGuardian, missFields,
-				genderAndBioFlag, step);
+		Response response = packetUtility.generateResident(ageCategory, bSkipGuardian, missFields, documentCategory,
+				lowQualityDocument, genderAndBioFlag, step);
 		JSONObject jsonObject = new JSONObject(response.getBody().asString());
 		JSONArray resp = new JSONObject(response.getBody().asString()).getJSONArray("response");
 		if (!jsonObject.getString("status").equalsIgnoreCase("success")) {

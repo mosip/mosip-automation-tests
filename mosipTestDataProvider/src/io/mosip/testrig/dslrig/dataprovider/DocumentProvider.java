@@ -247,4 +247,13 @@ public class DocumentProvider {
 
         return lstDocs;
     }
+
+    public static List<MosipDocument> generateDocuments(
+            ResidentModel res,
+            String contextKey,
+            boolean generateLowQualityDocuments) throws Exception {
+
+        // Keep backward-compatible generation flow until low-quality rendering is implemented.
+        return generateDocuments(res, contextKey);
+    }
 }

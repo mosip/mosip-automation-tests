@@ -208,6 +208,13 @@ public class PacketSyncService {
 			provider.addCondition(ResidentAttribute.RA_Document,
 					Boolean.parseBoolean(props.get("Document").toString()));
 		}
+		if (props.containsKey("DocumentCategory")) {
+			provider.addCondition(ResidentAttribute.RA_DocumentCategory, props.get("DocumentCategory").toString());
+		}
+		if (props.containsKey("LowQualityDocument")) {
+			provider.addCondition(ResidentAttribute.RA_LowQualityDocument,
+					Boolean.parseBoolean(props.get("LowQualityDocument").toString()));
+		}
 		if (props.containsKey("Invalid")) {
 			List<String> invalidList = Arrays.asList(props.get("invalid").toString().split(",", -1));
 			provider.addCondition(ResidentAttribute.RA_InvalidList, invalidList);
@@ -788,7 +795,24 @@ public class PacketSyncService {
 						continue;
 					}
 
-					String originalDocPath = doc.getDocs().get(0);
+					int selectedDocIndex = 0;
+					if (resident.getDocIndexes() != null && resident.getDocIndexes().containsKey(doc.getDocCategoryCode())) {
+						selectedDocIndex = resident.getDocIndexes().get(doc.getDocCategoryCode());
+					}
+					if (selectedDocIndex < 0 || selectedDocIndex >= doc.getDocs().size()
+							|| selectedDocIndex >= doc.getType().size()) {
+						selectedDocIndex = 0;
+					}
+
+					String originalDocPath = doc.getDocs().get(selectedDocIndex);
+					logger.info(
+							"UploadDocuments selection -> preregId: {}, schemaId: {}, docCategory: {}, selectedIndex: {}, docType: {}, sourcePath: {}",
+							preregId,
+							schema.getId(),
+							doc.getDocCategoryCode(),
+							selectedDocIndex,
+							doc.getType().get(selectedDocIndex).getDocTypeCode(),
+							originalDocPath);
 					String copiedFileName = schema.getId() + ".pdf";
 
 					Path copiedDocPath = tempDir.resolve(copiedFileName).normalize();
@@ -797,7 +821,7 @@ public class PacketSyncService {
 
 					JSONObject respObject = PreRegistrationSteps.UploadDocument(
 							doc.getDocCategoryCode(),
-							doc.getType().get(0).getDocTypeCode(),
+							doc.getType().get(selectedDocIndex).getDocTypeCode(),
 							doc.getDocCategoryLang(),
 							copiedDocPath.toString(),
 							preregId,
