@@ -16,6 +16,14 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
+/**
+ * DSL: {@code e2e_configureMockAbis(...)} — programs mock ABIS per modality (identify, duplicate gallery,
+ * response status, and delay). Use {@code delay} as the mock delay parameter (with the literal token
+ * {@code delay}) so {@link PacketUtility#getActuatorDelay()} aligns mock latency with the registration
+ * processor reprocessor interval; packets then stay in the ABIS queue long enough for a reprocess cycle.
+ * Combine with {@code duplicate=true} when the scenario must exercise the biometric deduplication / ABIS
+ * identify path (see parent/duplicate flows elsewhere in {@code scenarios.json}).
+ */
 public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(ConfigureMockAbis.class);
 	boolean isFound = false;

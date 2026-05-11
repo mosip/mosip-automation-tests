@@ -32142,6 +32142,121 @@
 		}
 	},
 	{
+		"Scenario": "246",
+		"Tag": "Positive_Test",
+		"Persona": "ResidentMaleAdult",
+		"Group": "NA",
+		"Description": "Mock ABIS holds the packet in queue longer than the reprocessor interval (delay from actuator) reprocessor runs while ABIS is still pending then bio dedupe completes. Asserts BIOGRAPHIC_VERIFICATION REPROCESS and post-reprocess outcome explicit biometric dedupe skip when regproc records it otherwise a second bio dedupe cycle (pass strictSkip as second arg to require skip-only).",
+		"Step-0": {
+			"Description": "Performs health check of given component",
+			"Input Parameters": "Keyword to check, only packetcreator is supported",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(packetcreator)"
+		},
+		"Step-1": {
+			"Description": "Reads the pre-requisite data at the given index",
+			"Input Parameters": "Index. Other parameter details can be found in parameter in-line comments",
+			"Return Value": "Pre-requisite details",
+			"Action": "$$details1=e2e_ReadPreReq(1/*PRE_REQUISITE_DATA_INDEX*/)"
+		},
+		"Step-2": {
+			"Description": "Sets the context for scenario execution",
+			"Input Parameters": "Environment and user details. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_setContext(env_context,$$details1,false/*GENERATE_PRIVATE_KEY*/)"
+		},
+		"Step-3": {
+			"Description": "Performs health check of required server components to run end-to-end scenarios",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_getPingHealth(targetenv)"
+		},
+		"Step-4": {
+			"Description": "Generates persona data",
+			"Input Parameters": "Details are in parameter in-line comments",
+			"Return Value": "Persona file path",
+			"Action": "$$personaFilePath=e2e_getResidentData(adult/*PERSONA_TYPE*/,false/*GUARDIAN_FLAG*/,Male)"
+		},
+		"Step-5": {
+			"Description": "Generates packet template based on the persona data",
+			"Input Parameters": "Process and persona file path",
+			"Return Value": "Generated Template file path",
+			"Action": "$$templatePath=e2e_getPacketTemplate(NEW/*PACKET_TYPE*/,$$personaFilePath)"
+		},
+		"Step-6": {
+			"Description": "Generates the hash for the given modalities",
+			"Input Parameters": "Modalitie and persona file path. Other details can be found in the parameter in-line comments",
+			"Return Value": "Hash value",
+			"Action": "$$modalityHashValue=e2e_getBioModalityHash(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger@@Left LittleFinger,$$personaFilePath)"
+		},
+		"Step-7": {
+			"Description": "Sets mock ABIS to exercise biometric dedupe with delayed error so the packet sits in the ABIS queue past the reprocessor interval (duplicate=true uses ABIS duplicate gallery for the identify path)",
+			"Input Parameters": "Modalities hash value. Other details can be found in the parameter in-line comments",
+			"Return Value": "NA",
+			"Action": "e2e_configureMockAbis(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger@@Left LittleFinger,true/*DUPLICATE_FLAG*/,Right IndexFinger@@Left LittleFinger,$$personaFilePath,$$modalityHashValue,delay/*DELAY_FROM_ACTUATOR*/,10/*ERROR_CODE*/@@Error/*STATUS_CODE*/)"
+		},
+		"Step-8": {
+			"Description": "Generates and uploads packet with given persona and packet template skipping pre-registration step",
+			"Input Parameters": "Persona file path and template file path",
+			"Return Value": "RID",
+			"Action": "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
+		},
+		"Step-9": {
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$rid,BIOGRAPHIC_VERIFICATION,REPROCESS)"
+		},
+		"Step-10": {
+			"Description": "Verifies post-reprocess biometric dedupe: skip when recorded, otherwise a second BIOGRAPHIC_VERIFICATION cycle after PACKET_REPROCESS (use e2e_verifyBioDedupSkippedAfterReprocess($$rid,strictSkip) to require skip-only)",
+			"Input Parameters": "RID",
+			"Return Value": "NA",
+			"Action": "e2e_verifyBioDedupSkippedAfterReprocess($$rid)"
+		},
+		"Step-11": {
+			"Description": "Re-sets all expectations set on mocks for simulating the scenarios",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeleteMockExpect()"
+		},
+		"Step-12": {
+			"Description": "Checks the RID status against given packet processing status",
+			"Input Parameters": "Packet processing status and RID",
+			"Return Value": "NA",
+			"Action": "e2e_checkStatus(PROCESSED/*PACKET_STATUS*/,$$rid)"
+		},
+		"Step-13": {
+			"Description": "Gets the UIN for the given RID",
+			"Input Parameters": "RID",
+			"Return Value": "UIN",
+			"Action": "$$uin=e2e_getUINByRid($$rid)"
+		},
+		"Step-14": {
+			"Description": "Gets Email ID configured for the UIN",
+			"Input Parameters": "UIN",
+			"Return Value": "Email ID",
+			"Action": "$$email=e2e_getEmailByUIN($$uin)"
+		},
+		"Step-15": {
+			"Description": "Verifies notification is sent to resident for UIN generation",
+			"Input Parameters": "UIN and Email ID",
+			"Return Value": "NA",
+			"Action": "e2e_verifyNotification(UIN Generated,$$email)"
+		},
+		"Step-16": {
+			"Description": "Checks RID stage and stage status",
+			"Input Parameters": "RID, stage and stage status",
+			"Return Value": "NA",
+			"Action": "e2e_CheckRIDStage($$rid,PRINT_SERVICE,PROCESSED)"
+		},
+		"Step-17": {
+			"Description": "Deletes temporary data generated during packet creation including resident data packet templates and extra files to ensure a clean state for each E2E execution",
+			"Input Parameters": "NA",
+			"Return Value": "NA",
+			"Action": "e2e_DeletePacketData()"
+		}
+	},
+	{
 		"Scenario": "AFTER_SUITE",
 		"Tag": "Positive_Test",
 		"Persona": "ResidentMaleAdult",
