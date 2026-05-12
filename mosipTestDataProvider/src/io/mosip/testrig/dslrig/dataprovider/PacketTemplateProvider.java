@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
+import io.mosip.testrig.dslrig.dataprovider.util.DemographicMissFieldUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
@@ -1014,6 +1016,10 @@ public class PacketTemplateProvider {
 		if (locations_seclang != null)
 			locationSet_sec = locations_seclang.keySet();
 		List<String> lstMissedAttributes = resident.getMissAttributes();
+		if (lstMissedAttributes != null && !lstMissedAttributes.isEmpty()) {
+			lstMissedAttributes = DemographicMissFieldUtil.expandMissAttributeIds(new ArrayList<>(lstMissedAttributes),
+					contextSchemaDetail.getSchema(), contextKey);
+		}
 
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			RestClient.logInfo(contextKey, s.toJSONString());
@@ -1375,11 +1381,23 @@ public class PacketTemplateProvider {
 		if (locations_seclang != null)
 			locationSet_sec = locations_seclang.keySet();
 
+		List<String> lstMissedAttributesCRVS = resident.getMissAttributes();
+		if (lstMissedAttributesCRVS != null && !lstMissedAttributesCRVS.isEmpty()) {
+			lstMissedAttributesCRVS = DemographicMissFieldUtil
+					.expandMissAttributeIds(new ArrayList<>(lstMissedAttributesCRVS), contextSchemaDetail.getSchema(),
+							contextKey);
+		}
+
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			RestClient.logInfo(contextKey, s.toJSONString());
 			// if not reqd field , skip it
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
+
+			if (lstMissedAttributesCRVS != null
+					&& lstMissedAttributesCRVS.stream().anyMatch(v -> v.equalsIgnoreCase(s.getId()))) {
+				continue;
+			}
 
 			if (!s.getRequired() && !s.getInputRequired()) {
 				continue;
