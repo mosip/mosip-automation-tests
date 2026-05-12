@@ -292,7 +292,6 @@ public class PacketSyncService {
 		String location = null;
 		File targetDirectory = null;
 		preregId = preregId.trim();
-		boolean personaPathSet = false;
 		try {
 			if (!preregId.equals("0") && !preregId.equals("01")) {
 				location = preregSyncService.downloadPreregPacket(preregId, contextKey);
@@ -318,10 +317,6 @@ public class PacketSyncService {
 			}
 			if (templateLocation != null) {
 				process = ContextUtils.ProcessFromTemplate(src, templateLocation);
-			}
-			if (personaPath != null && !personaPath.isBlank()) {
-				VariableManager.setVariableValue(contextKey, "packetSyncPersonaPath", personaPath.trim());
-				personaPathSet = true;
 			}
 			String packetPath = packetMakerService.createContainer(idJsonPath.toString(), templateLocation, src,
 					process,
@@ -395,9 +390,6 @@ public class PacketSyncService {
 
 			return functionResponse;
 		} finally {
-			if (personaPathSet) {
-				VariableManager.removeVariableValue(contextKey, "packetSyncPersonaPath");
-			}
 			CommonUtil.cleanupPreregArtifacts(location, targetDirectory);
 		}
 

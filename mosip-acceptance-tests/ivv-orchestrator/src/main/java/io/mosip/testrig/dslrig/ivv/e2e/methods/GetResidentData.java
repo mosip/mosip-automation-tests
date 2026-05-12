@@ -3,7 +3,6 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.StringJoiner;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -32,7 +31,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 
 		String ageCategory = "";
 		Boolean bSkipGuardian = false;
-		StringJoiner missFieldJoiner = new StringJoiner(",");
+		String missFields = null;
 		String documentCategory = null;
 		boolean lowQualityDocument = false;
 		String largeFace = null;
@@ -90,13 +89,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 						obstructedFace = optionalParam;
 						continue;
 					}
-					String missToken = optionalParam.replaceAll("@@", ",");
-					for (String piece : missToken.split(",")) {
-						String p = piece.trim();
-						if (!p.isEmpty()) {
-							missFieldJoiner.add(p);
-						}
-					}
+					missFields = optionalParam.replaceAll("@@", ",");
 				}
 			}
 			genderAndBioFlag.put("LargeFace", largeFace == null ? "false" : largeFace);
@@ -107,8 +100,6 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 			this.hasError = true;
 			throw new RigInternalError("Input parameter missing [nofResident/bAdult/bSkipGuardian/gender]");
 		}
-
-		String missFields = missFieldJoiner.length() > 0 ? missFieldJoiner.toString() : null;
 
 		// Generate Resident for all ages
 		cleanData();

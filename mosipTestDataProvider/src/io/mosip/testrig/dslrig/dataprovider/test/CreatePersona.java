@@ -27,7 +27,6 @@ import io.mosip.testrig.dslrig.dataprovider.models.SchemaValidator;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataCallback;
-import io.mosip.testrig.dslrig.dataprovider.util.DemographicMissFieldUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -130,10 +129,6 @@ public class CreatePersona {
 			cb.logDebug("createIdentity:schemaversion=" + schemaversion);
 		//ApplicationConfigSchemaItem schemaItem = null;
 		List<String> lstMissedAttributes = resident.getMissAttributes();
-		if (lstMissedAttributes != null && !lstMissedAttributes.isEmpty()) {
-			lstMissedAttributes = DemographicMissFieldUtil.expandMissAttributeIds(new ArrayList<>(lstMissedAttributes),
-					lstSchema, contextKey);
-		}
 		
 		for(MosipIDSchema schemaItem: lstSchema) {
 
