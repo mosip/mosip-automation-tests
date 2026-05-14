@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
+import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogCollector;
+import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogExchange;
+import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogFormatter;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.service.CommandsService;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
@@ -135,4 +140,14 @@ public class ContextController {
 
         }
     }
+
+	@Operation(summary = "Retrieve formatted internal (outbound) API log for a context", description = "Used by the DSL orchestrator to attach outbound MOSIP traffic to TestNG reports. "
+			+ "Does not log inbound DSL calls to Packet Creator.")
+	@GetMapping(value = "/context/internalApiLogs/{contextKey}", produces = MediaType.TEXT_PLAIN_VALUE)
+	public @ResponseBody String getInternalApiLogs(@PathVariable("contextKey") String contextKey,
+			@RequestParam(name = "clear", defaultValue = "true") boolean clear) {
+		List<InternalApiLogExchange> list = clear ? InternalApiLogCollector.drain(contextKey)
+				: InternalApiLogCollector.snapshot(contextKey);
+		return InternalApiLogFormatter.format(list);
+	}
 }

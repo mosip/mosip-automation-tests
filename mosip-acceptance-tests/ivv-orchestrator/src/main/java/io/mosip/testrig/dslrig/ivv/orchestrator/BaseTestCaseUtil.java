@@ -24,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Reporter;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.Gson;
@@ -146,8 +147,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	protected static String addContextToUrl(String url, Scenario.Step step) {
 
-		String scenarioId = step.getScenario().getId();
-		String context = System.getProperty("env.user") + "_S" + scenarioId + "_context";
+		String context = buildPacketCreatorContextKey(step.getScenario());
 
 		if (url.contains("?")) {
 			String urlArr[] = url.split("\\?");
@@ -156,6 +156,77 @@ public class BaseTestCaseUtil extends BaseStep {
 			return url;
 		else
 			return url + "/" + context;
+	}
+
+	/**
+	 * Context key segment appended to Packet Creator URLs (must match Packet
+	 * Creator / Data Provider namespace).
+	 */
+	public static String buildPacketCreatorContextKey(Scenario scenario) {
+		String scenarioId = scenario.getId();
+		return System.getProperty("env.user") + "_S" + scenarioId + "_context";
+	}
+
+	/**
+	 * After reporting a Packet Creator round-trip, fetch outbound internal API
+	 * traffic captured on the server for this scenario context and append it to
+	 * the TestNG report immediately under that call (when internal API logging is
+	 * enabled). Uses {@code clear=true} so each drain corresponds to traffic since
+	 * the previous drain for this context.
+	 */
+	public static void appendOutboundInternalApiLogsAfterPacketCreatorCall(Scenario.Step step, String resolvedUrl) {
+		if (!dslConfigManager.isInternalApiLoggingForReport() || step == null || resolvedUrl == null) {
+			return;
+		}
+		String pcBase = dslConfigManager.getpacketUtilityBaseUrl();
+		if (pcBase == null || pcBase.isEmpty() || !resolvedUrl.startsWith(pcBase)) {
+			return;
+		}
+		try {
+			String contextKey = buildPacketCreatorContextKey(step.getScenario());
+			String pathKey = java.net.URLEncoder.encode(contextKey, java.nio.charset.StandardCharsets.UTF_8)
+					.replace("+", "%20");
+			String logUrl = pcBase + "/context/internalApiLogs/" + pathKey + "?clear=true";
+			io.restassured.response.Response r = io.restassured.RestAssured.given().relaxedHTTPSValidation()
+					.get(logUrl);
+			String body;
+			if (r.getStatusCode() != 200) {
+				body = "Internal API log fetch failed: HTTP " + r.getStatusCode() + "\nURL: " + logUrl + "\nResponse: "
+						+ r.asString();
+			} else {
+				body = r.getBody().asString();
+				if (body == null) {
+					body = "";
+				}
+			}
+			if (r.getStatusCode() == 200 && (body.isBlank() || body.contains("no internal API calls recorded"))) {
+				return;
+			}
+			String escaped = org.testng.internal.Utils.escapeHtml(body);
+			StringBuilder block = new StringBuilder(512 + escaped.length());
+			block.append("<div class=\"dsl-internal-api-log\" style=\"margin:0.75em 0;\">");
+			block.append("<div style=\"font-weight:bold;margin-bottom:4px;\">");
+			block.append("Outbound internal API traffic (Packet Creator / Data Provider) for this call");
+			block.append("</div>");
+			// Grey bar — same visual role as main report &quot;Headers&quot; rows
+			block.append(
+					"<div style=\"border:solid 1px gray;background-color:lightgray;padding:4px 8px;font-weight:bold;\">");
+			block.append("Internal outbound calls (request + response per call)");
+			block.append("</div>");
+			// White bordered body — scroll capped so long JSON does not stretch the whole report
+			block.append("<div style=\"border:solid 1px gray;border-top:0;background-color:#fff;");
+			block.append("max-height:28em;overflow:auto;padding:8px;width:100%;box-sizing:border-box;\">");
+			block.append("<pre style=\"margin:0;white-space:pre-wrap;word-wrap:break-word;");
+			block.append("text-align:left;font-family:monospace;font-size:12px;line-height:1.25;\">");
+			block.append(escaped);
+			block.append("</pre></div></div>");
+			Reporter.log(block.toString(), false);
+		} catch (Exception e) {
+			logger.warn("Could not attach internal API log after packet creator call for context "
+					+ buildPacketCreatorContextKey(step.getScenario()), e);
+			Reporter.log("<pre>Internal API log error: " + org.testng.internal.Utils.escapeHtml(e.getMessage())
+					+ "</pre>", false);
+		}
 	}
 
 	public static Response getRequest(String url, String opsToLog, Scenario.Step step) {
@@ -171,6 +242,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
 				getResponse.getBody().asString(),true);
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return getResponse;
 	}
 	
@@ -204,6 +276,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
 				getResponse.getBody().asString());
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return getResponse;
 	}
 
@@ -214,6 +287,7 @@ public class BaseTestCaseUtil extends BaseStep {
 				MediaType.APPLICATION_JSON);
 		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
 				apiResponse.getBody().asString(),true);
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return apiResponse;
 	}
 
@@ -230,6 +304,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		GlobalMethods.ReportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, body,
 				puttResponse.asString(),true);
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 
 		return puttResponse;
 	}
@@ -247,6 +322,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		GlobalMethods.ReportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, body,
 				puttResponse.getBody().asString());
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return puttResponse;
 	}
 
@@ -265,6 +341,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		GlobalMethods.ReportRequestAndResponse(null, putResponse.getHeaders().asList().toString(), url, null,
 				putResponse.getBody().asString());
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return putResponse;
 	}
 
@@ -283,6 +360,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		GlobalMethods.ReportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
 				deleteResponse.getBody().asString());
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 
 		return deleteResponse;
 	}
@@ -320,6 +398,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		GlobalMethods.ReportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
 				deleteResponse.getBody().asString());
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 
 		return deleteResponse;
 	}
@@ -331,6 +410,7 @@ public class BaseTestCaseUtil extends BaseStep {
 				"*/*");
 		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
 				apiResponse.getBody().asString());
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return apiResponse;
 	}
 
@@ -342,6 +422,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
 				apiResponse.asString(),true);
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return apiResponse;
 	}
 
@@ -359,6 +440,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
 				apiResponse.getBody().asString());
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 
 		return apiResponse;
 	}
@@ -377,6 +459,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		GlobalMethods.ReportRequestAndResponse(null, postResponse.getHeaders().asList().toString(), url, body,
 				postResponse.getBody().asString());
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 
 		return postResponse;
 	}
@@ -396,6 +479,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		GlobalMethods.ReportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, null,
 				puttResponse.getBody().asString());
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return puttResponse;
 	}
 

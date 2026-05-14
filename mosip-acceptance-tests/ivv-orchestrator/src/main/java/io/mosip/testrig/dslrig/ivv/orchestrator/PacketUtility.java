@@ -745,6 +745,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = this.baseUrl + "/servercontext/" + key;
 
 		JSONObject jsonReq = new JSONObject();
+		jsonReq.put("internalApiLogging", dslConfigManager.getInternalApiLoggingForContextProps());
 		jsonReq.put(URLBASE, baseUrl);
 		jsonReq.put(MOSIP_TEST_BASEURL, baseUrl);
 		jsonReq.put(MOSIP_TEST_REGCLIENT_MACHINEID, E2EConstants.MACHINE_ID);
@@ -782,6 +783,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("enableDebug", dslConfigManager.getEnableDebug());
+		jsonReq.put("internalApiLogging", dslConfigManager.getInternalApiLoggingForContextProps());
 		logger.info("Running suite with enableDebug : " + dslConfigManager.getEnableDebug());
 		jsonReq.put("baselang", BaseTestCase.getLanguageList().get(0));
 
@@ -890,6 +892,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
 		jsonReq.put("enableDebug", dslConfigManager.getEnableDebug());
+		jsonReq.put("internalApiLogging", dslConfigManager.getInternalApiLoggingForContextProps());
 		jsonReq.put("eSignetbaseurl", ConfigManager.getEsignetBaseUrl());
 		logger.info("Running suite with enableDebug : " + dslConfigManager.getEnableDebug());
 		jsonReq.put(URLBASE, envbaseUrl);
@@ -1380,11 +1383,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").when()
 					.body(body).get(url).then().extract().response();
 		}
-		/*
-		 * GlobalMethods.ReportRequestAndResponse(null,
-		 * getResponse.getHeaders().asList().toString(), url, body,
-		 * getResponse.asString(),true);
-		 */
+		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, body,
+				getResponse.getBody().asString(), true);
+		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return getResponse;
 	}
 
@@ -1509,6 +1510,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		GlobalMethods.ReportRequestAndResponse("", "", url, body, puttResponse.getBody().asString());
 
+
 		return puttResponse;
 	}
 
@@ -1524,6 +1526,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 
 		GlobalMethods.ReportRequestAndResponse("", "", url, body, posttResponse.getBody().asString());
+
 
 		return posttResponse;
 	}
@@ -1657,6 +1660,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public Response getRequestWithCookiesAndPathParam(String url, String token, String opsToLog) {
 		Response getResponse = given().relaxedHTTPSValidation().cookie(AUTHORIZATION, token).log().all().when().get(url)
 				.then().log().all().extract().response();
+
 
 		return getResponse;
 	}
@@ -1812,6 +1816,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 					.cookie(AUTHORIZATION, token).put(url).then().extract().response();
 		}
 		GlobalMethods.ReportRequestAndResponse("", "", url, "", puttResponse.getBody().asString());
+
 
 		return puttResponse;
 	}
