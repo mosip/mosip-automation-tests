@@ -1729,10 +1729,10 @@ public class RestClient {
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			if (isDebugEnabled(contextKey))
-				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).get(url).then().log().all()
+				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).get(urlAct).then().log().all()
 						.extract().response();
 			else
-				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).get(url);
+				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).get(urlAct);
 
 			if (response.getStatusCode() == 401) {
 				if (nLoop >= 1)
