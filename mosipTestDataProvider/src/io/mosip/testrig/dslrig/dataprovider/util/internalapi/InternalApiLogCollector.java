@@ -2,21 +2,71 @@ package io.mosip.testrig.dslrig.dataprovider.util.internalapi;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * In-memory store of outbound API exchanges, keyed by Packet Creator /
- * Data Provider context id.
+ * In-memory store of outbound API exchanges, keyed by Packet Creator / Data
+ * Provider context id.
+ * <p>
+ * <strong>Cleanup contract:</strong> Callers that own a context should invoke
+ * {@link #drain(String)} or {@link #clear(String)} when logs are no longer
+ * needed so memory is reclaimed immediately. In addition, each context bucket is
+ * dropped automatically if it has had no activity (no new {@link #record} and no
+ * {@link #snapshot} read) for 12 hours, so long-running suites do not retain
+ * stale context keys indefinitely.
  */
 public final class InternalApiLogCollector {
 
+	private static final int CONTEXT_TTL_HOURS = 12;
+	private static final long CONTEXT_TTL_MILLIS = TimeUnit.HOURS.toMillis(CONTEXT_TTL_HOURS);
+	private static final long CLEANUP_INTERVAL_MILLIS = TimeUnit.MINUTES.toMillis(1);
+
 	private static final AtomicLong SEQ = new AtomicLong(1L);
-	private static final Map<String, List<InternalApiLogExchange>> BY_CONTEXT = new ConcurrentHashMap<>();
+	private static final Map<String, ContextBucket> BY_CONTEXT = new ConcurrentHashMap<>();
+	private static volatile long lastCleanupMillis;
 
 	private InternalApiLogCollector() {
+	}
+
+	private static final class ContextBucket {
+		volatile long lastActivityMillis;
+		final List<InternalApiLogExchange> entries = Collections.synchronizedList(new ArrayList<>());
+
+		ContextBucket() {
+			lastActivityMillis = System.currentTimeMillis();
+		}
+
+		void touch() {
+			lastActivityMillis = System.currentTimeMillis();
+		}
+	}
+
+	/**
+	 * Removes context buckets whose last activity is older than 12 hours. Scans
+	 * are throttled to roughly once per minute.
+	 */
+	private static void maybeExpireStaleContexts() {
+		long now = System.currentTimeMillis();
+		if (now - lastCleanupMillis < CLEANUP_INTERVAL_MILLIS) {
+			return;
+		}
+		synchronized (InternalApiLogCollector.class) {
+			if (now - lastCleanupMillis < CLEANUP_INTERVAL_MILLIS) {
+				return;
+			}
+			lastCleanupMillis = now;
+			for (Iterator<Map.Entry<String, ContextBucket>> it = BY_CONTEXT.entrySet().iterator(); it.hasNext();) {
+				Map.Entry<String, ContextBucket> e = it.next();
+				if (now - e.getValue().lastActivityMillis >= CONTEXT_TTL_MILLIS) {
+					it.remove();
+				}
+			}
+		}
 	}
 
 	public static long nextSequence() {
@@ -30,23 +80,28 @@ public final class InternalApiLogCollector {
 		if (exchange == null) {
 			return;
 		}
+		maybeExpireStaleContexts();
 		String key = contextKey == null || contextKey.isBlank() ? GLOBAL_LOG_KEY : contextKey;
-		BY_CONTEXT.computeIfAbsent(key, k -> Collections.synchronizedList(new ArrayList<>())).add(exchange);
+		ContextBucket bucket = BY_CONTEXT.computeIfAbsent(key, k -> new ContextBucket());
+		bucket.touch();
+		bucket.entries.add(exchange);
 	}
 
 	/**
 	 * Snapshot of exchanges for a context (for reporting without removing).
 	 */
 	public static List<InternalApiLogExchange> snapshot(String contextKey) {
+		maybeExpireStaleContexts();
 		if (contextKey == null || contextKey.isBlank()) {
 			return snapshot(GLOBAL_LOG_KEY);
 		}
-		List<InternalApiLogExchange> list = BY_CONTEXT.get(contextKey);
-		if (list == null || list.isEmpty()) {
+		ContextBucket bucket = BY_CONTEXT.get(contextKey);
+		if (bucket == null || bucket.entries.isEmpty()) {
 			return List.of();
 		}
-		synchronized (list) {
-			return List.copyOf(list);
+		bucket.touch();
+		synchronized (bucket.entries) {
+			return List.copyOf(bucket.entries);
 		}
 	}
 
@@ -54,17 +109,19 @@ public final class InternalApiLogCollector {
 	 * Remove and return all exchanges for the context.
 	 */
 	public static List<InternalApiLogExchange> drain(String contextKey) {
+		maybeExpireStaleContexts();
 		String key = contextKey == null || contextKey.isBlank() ? GLOBAL_LOG_KEY : contextKey;
-		List<InternalApiLogExchange> removed = BY_CONTEXT.remove(key);
-		if (removed == null || removed.isEmpty()) {
+		ContextBucket removed = BY_CONTEXT.remove(key);
+		if (removed == null || removed.entries.isEmpty()) {
 			return List.of();
 		}
-		synchronized (removed) {
-			return new ArrayList<>(removed);
+		synchronized (removed.entries) {
+			return new ArrayList<>(removed.entries);
 		}
 	}
 
 	public static void clear(String contextKey) {
+		maybeExpireStaleContexts();
 		String key = contextKey == null || contextKey.isBlank() ? GLOBAL_LOG_KEY : contextKey;
 		BY_CONTEXT.remove(key);
 	}

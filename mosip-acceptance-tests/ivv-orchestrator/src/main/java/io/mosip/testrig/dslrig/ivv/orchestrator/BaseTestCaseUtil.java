@@ -41,6 +41,8 @@ import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
+import io.restassured.config.HttpClientConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
@@ -58,6 +60,11 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	public static final long DEFAULT_WAIT_TIME = 30000l;
 	public static final long TIME_IN_MILLISEC = 1000l;
+
+	/** Max time to establish TCP connection when draining internal API logs from Packet Creator. */
+	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = 10_000;
+	/** Max time to read response body for internal API log drain (large captured payloads). */
+	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
 
 	public static PacketUtility packetUtility = new PacketUtility();
 	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
@@ -187,8 +194,12 @@ public class BaseTestCaseUtil extends BaseStep {
 			String pathKey = java.net.URLEncoder.encode(contextKey, java.nio.charset.StandardCharsets.UTF_8)
 					.replace("+", "%20");
 			String logUrl = pcBase + "/context/internalApiLogs/" + pathKey + "?clear=true";
-			io.restassured.response.Response r = io.restassured.RestAssured.given().relaxedHTTPSValidation()
-					.get(logUrl);
+			RestAssuredConfig timeoutConfig = RestAssuredConfig.config()
+					.httpClient(HttpClientConfig.httpClientConfig()
+							.setParam("http.connection.timeout", INTERNAL_API_LOG_FETCH_CONNECT_MS)
+							.setParam("http.socket.timeout", INTERNAL_API_LOG_FETCH_READ_MS));
+			io.restassured.response.Response r = io.restassured.RestAssured.given().config(timeoutConfig)
+					.relaxedHTTPSValidation().get(logUrl);
 			String body;
 			if (r.getStatusCode() != 200) {
 				body = "Internal API log fetch failed: HTTP " + r.getStatusCode() + "\nURL: " + logUrl + "\nResponse: "
