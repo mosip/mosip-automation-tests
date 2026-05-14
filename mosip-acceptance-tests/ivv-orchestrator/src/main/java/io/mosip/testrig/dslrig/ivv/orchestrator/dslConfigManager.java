@@ -189,4 +189,26 @@ public class dslConfigManager extends ConfigManager {
 
 		return properties;
 	}
+
+	/**
+	 * When true, the IVV orchestrator pulls outbound Packet Creator API traces after
+	 * each scenario and attaches them to the TestNG report (requires the same flag /
+	 * context variables on Packet Creator so calls are captured).
+	 */
+	public static boolean isInternalApiLoggingForReport() {
+		if (Boolean.parseBoolean(System.getProperty("dslrig.internal.api.logging", "false"))) {
+			return true;
+		}
+		try {
+			String v = ConfigManager.getproperty("internalApiLogging");
+			return v != null && "yes".equalsIgnoreCase(v.trim());
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/** Value stored on Packet Creator context so {@link io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogging} enables capture. */
+	public static String getInternalApiLoggingForContextProps() {
+		return isInternalApiLoggingForReport() ? "yes" : "no";
+	}
 }
