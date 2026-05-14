@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +60,11 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
+import io.mosip.testrig.dslrig.dataprovider.models.MosipIDSchema;
+import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
+import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
+import io.mosip.testrig.dslrig.dataprovider.util.DemographicMissFieldUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
@@ -472,6 +477,7 @@ public class PacketMakerService {
 			JSONObject mergedJsonMap = mergeJSONObject(templateFile, jbToMerge, contextKey);
 
 			if (type.equals("id")) {
+				stripDemographicMissFieldsFromMergedIdentity(mergedJsonMap, contextKey);
 				List<String> invalidIds = CreatePersona.validateIDObject(mergedJsonMap, contextKey);
 				Path path = Paths.get(
 						VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
@@ -838,6 +844,49 @@ public class PacketMakerService {
 			}
 		}
 		return mainNode;
+	}
+
+	/**
+	 * After merge, template ID.json still contains keys omitted from persona data.
+	 * Remove expanded {@link ResidentModel#getMissAttributes()} keys so negative
+	 * demographic scenarios produce packets without those fields.
+	 */
+	private void stripDemographicMissFieldsFromMergedIdentity(JSONObject mergedJsonMap, String contextKey) {
+		Object personaPathObj = VariableManager.getVariableValue(contextKey, "packetSyncPersonaPath");
+		if (personaPathObj == null) {
+			return;
+		}
+		String personaPath = personaPathObj.toString().trim();
+		if (personaPath.isEmpty()) {
+			return;
+		}
+		try {
+			ResidentModel resident = ResidentModel.readPersona(personaPath);
+			List<String> miss = resident.getMissAttributes();
+			if (miss == null || miss.isEmpty()) {
+				return;
+			}
+			Hashtable<Double, Properties> tbl1 = MosipMasterData.getIDSchemaLatestVersion(contextKey);
+			if (tbl1 == null || tbl1.isEmpty()) {
+				return;
+			}
+			Double schemaversion = tbl1.keys().nextElement();
+			@SuppressWarnings("unchecked")
+			List<MosipIDSchema> lstSchema = (List<MosipIDSchema>) tbl1.get(schemaversion).get("schemaList");
+			List<String> expanded = DemographicMissFieldUtil.expandMissAttributeIds(new ArrayList<>(miss), lstSchema,
+					contextKey);
+			JSONObject identity;
+			if (mergedJsonMap.has(IDENTITY)) {
+				identity = mergedJsonMap.getJSONObject(IDENTITY);
+			} else {
+				identity = mergedJsonMap;
+			}
+			for (String id : expanded) {
+				identity.remove(id);
+			}
+		} catch (Exception e) {
+			logger.warn("stripDemographicMissFieldsFromMergedIdentity failed: {}", e.toString());
+		}
 	}
 
 	private String generateRegId(String contextKey) {
