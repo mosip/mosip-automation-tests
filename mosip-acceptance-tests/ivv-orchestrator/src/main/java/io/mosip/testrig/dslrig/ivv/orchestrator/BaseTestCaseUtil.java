@@ -193,7 +193,7 @@ public class BaseTestCaseUtil extends BaseStep {
 			String contextKey = buildPacketCreatorContextKey(step.getScenario());
 			String pathKey = java.net.URLEncoder.encode(contextKey, java.nio.charset.StandardCharsets.UTF_8)
 					.replace("+", "%20");
-			String logUrl = pcBase + "/context/internalApiLogs/" + pathKey + "?clear=true";
+			String logUrl = pcBase + "/context/internalApiLogs/" + pathKey + "?clear=true&reportHints=true";
 			RestAssuredConfig timeoutConfig = RestAssuredConfig.config()
 					.httpClient(HttpClientConfig.httpClientConfig()
 							.setParam("http.connection.timeout", INTERNAL_API_LOG_FETCH_CONNECT_MS)
@@ -214,21 +214,18 @@ public class BaseTestCaseUtil extends BaseStep {
 				return;
 			}
 			String escaped = org.testng.internal.Utils.escapeHtml(body);
+			// Bold labels in log: markers from InternalApiLogFormatter (reportHints=true)
+			escaped = escaped.replace("[[DSL_B]]", "<b>").replace("[[DSL_E]]", "</b>");
 			StringBuilder block = new StringBuilder(512 + escaped.length());
-			block.append("<div class=\"dsl-internal-api-log\" style=\"margin:0.75em 0;\">");
-			block.append("<div style=\"font-weight:bold;margin-bottom:4px;\">");
+			block.append("<div class=\"dsl-internal-api-log\">");
+			block.append("<div class=\"dsl-internal-api-log__title\">");
 			block.append("Outbound internal API traffic (Packet Creator / Data Provider) for this call");
 			block.append("</div>");
-			// Grey bar — same visual role as main report &quot;Headers&quot; rows
-			block.append(
-					"<div style=\"border:solid 1px gray;background-color:lightgray;padding:4px 8px;font-weight:bold;\">");
+			block.append("<div class=\"dsl-internal-api-log__toolbar\">");
 			block.append("Internal outbound calls (request + response per call)");
 			block.append("</div>");
-			// White bordered body — scroll capped so long JSON does not stretch the whole report
-			block.append("<div style=\"border:solid 1px gray;border-top:0;background-color:#fff;");
-			block.append("max-height:28em;overflow:auto;padding:8px;width:100%;box-sizing:border-box;\">");
-			block.append("<pre style=\"margin:0;white-space:pre-wrap;word-wrap:break-word;");
-			block.append("text-align:left;font-family:monospace;font-size:12px;line-height:1.25;\">");
+			block.append("<div class=\"dsl-internal-api-log__body\">");
+			block.append("<pre class=\"dsl-internal-api-log__pre\">");
 			block.append(escaped);
 			block.append("</pre></div></div>");
 			Reporter.log(block.toString(), false);

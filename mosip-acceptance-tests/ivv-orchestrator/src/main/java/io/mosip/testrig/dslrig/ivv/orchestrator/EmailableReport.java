@@ -37,6 +37,8 @@ import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
  */
 public class EmailableReport implements IReporter {
 	static Logger logger = Logger.getLogger(EmailableReport.class);
+	/** Dedicated logger so report enhancement milestones stay visible when {@link #logger} is set to {@link Level#ERROR}. */
+	private static final Logger REPORT_TREE_LOG = Logger.getLogger("io.mosip.dsl.ivv.report.treeview");
 
 	protected PrintWriter writer;
 
@@ -65,6 +67,7 @@ public class EmailableReport implements IReporter {
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
+		REPORT_TREE_LOG.setLevel(Level.INFO);
 	}
 
 	public void setFileName(String fileName) {
@@ -91,7 +94,14 @@ public class EmailableReport implements IReporter {
 		writeBody();
 		writeDocumentEnd();
 		writer.close();
+
+		File primaryReportFile = new File(outputDirectory, fileName).getAbsoluteFile();
+		applyTreeViewEnhancementIfConfigured(primaryReportFile, "primary emailable report");
+
 		String failedReportName = generateFailedAndSkippedReport(outputDirectory);
+
+		File failedDigestReportFile = new File(outputDirectory, failedReportName).getAbsoluteFile();
+		applyTreeViewEnhancementIfConfigured(failedDigestReportFile, "failed and skipped digest report");
 
 		int totalTestCases = totalPassedTests + totalSkippedTests + totalIgnoredTests + totalKnownIssuesTests
 				+ totalFailedTests;
@@ -167,6 +177,37 @@ public class EmailableReport implements IReporter {
 		}
 	}
 
+	private void applyTreeViewEnhancementIfConfigured(File reportFile, String reportLabel) {
+		if (!dslConfigManager.isEnhanceReportTreeViewEnabled()) {
+			REPORT_TREE_LOG.info("DSL report tree-view enhancement is disabled; skipping " + reportLabel + ".");
+			return;
+		}
+		if (reportFile == null) {
+			REPORT_TREE_LOG.warn("DSL report tree-view: no file for " + reportLabel + "; skip.");
+			return;
+		}
+		if (!reportFile.isFile()) {
+			REPORT_TREE_LOG.warn(
+					"DSL report tree-view: original report not found for " + reportLabel + " at "
+							+ reportFile.getAbsolutePath() + "; skip.");
+			return;
+		}
+		REPORT_TREE_LOG.info(
+				"DSL report tree-view: original plain report detected (" + reportLabel + "): "
+						+ reportFile.getAbsolutePath());
+		REPORT_TREE_LOG.info("DSL report tree-view: enhancement starting for " + reportLabel + ".");
+		boolean ok = ReportTreeViewEnhancer.enhanceReportFileInPlace(reportFile, REPORT_TREE_LOG);
+		if (ok) {
+			REPORT_TREE_LOG.info(
+					"DSL report tree-view: enhancement finished for " + reportLabel
+							+ "; plain HTML was removed after successful replace in place.");
+		} else {
+			REPORT_TREE_LOG.error(
+					"DSL report tree-view: enhancement did not complete for " + reportLabel
+							+ "; plain report file left unchanged.");
+		}
+	}
+
 	private String getGitProperty(String key) {
 		Properties properties = new Properties();
 		try (InputStream is = EmailableReport.class.getClassLoader().getResourceAsStream("git.properties")) {
@@ -220,7 +261,8 @@ public class EmailableReport implements IReporter {
 		writer.print("<style type=\"text/css\">");
 
 		writer.print("table {margin-bottom:10px;border-collapse:collapse;empty-cells:show;width:100%;}");
-		writer.print("th:nth-child(3), td:nth-child(3) { width:160px; white-space:nowrap; }");
+		writer.print(
+				"table:not(#summary) th:nth-child(3), table:not(#summary) td:nth-child(3) { width:160px; white-space:nowrap; }");
 		writer.print("th, td {border:1px solid #009;padding:.25em .5em;background-color:#FFF;vertical-align:middle;}");
 		writer.print("th {background-color:#f2f2f2; text-align:center; border:1px solid #ccc;}");
 		writer.print("table a {font-weight:bold}");
@@ -239,6 +281,7 @@ public class EmailableReport implements IReporter {
 		writer.print(".green-bg {background-color: #0A0;}");
 		writer.print(".black-bg {background-color: black;}");
 		writer.print(".yellow-bg {background-color: #fff9db; color: #333;}");
+		writer.print(".blue-bg {background-color: #dbeafe; color: #1e3a5f;}");
 		writer.print(".darkgray-bg {background-color: darkgray;}");
 		writer.print(".num-center {text-align:center;}");
 		writer.print(".scenario-step {text-align:left;}");
@@ -248,7 +291,35 @@ public class EmailableReport implements IReporter {
 		writer.print(".left-aligned {text-align:left;}");
 		writer.print(".attn { background-color: #eb5050 !important; }");
 		writer.print(".red-text { color: #000 !important; font-weight: normal; }");
-		writer.print(".bug-column { width:180px; white-space:nowrap; text-align:center; }");
+		writer.print(".bug-column { width:150px; min-width:150px; white-space:nowrap; text-align:center; overflow:visible; }");
+		writer.print(
+				".dsl-scenario-summary-wrap { border:1px solid #d1d1d1; border-radius:8px; overflow:hidden; margin:12px 0 18px; background:#fff; }");
+		writer.print(".dsl-scenario-summary-wrap #summary.scenario-table { table-layout:fixed; width:100%; margin-bottom:0; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(1), .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(1) { width:12%; min-width:120px; text-align:center; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(2) { width:74%; vertical-align:top; text-align:center; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) { width:74%; vertical-align:top; text-align:left; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(3), .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(3) { width:14%; min-width:150px; text-align:center; vertical-align:top; overflow:visible; white-space:nowrap; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary thead th { background:#d6dfe8 !important; color:#1a1a1a !important; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; text-align:center !important; border-color:#d1d1d1 !important; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary tbody tr.summary-section-header > th { background:#eceff1 !important; color:#1a1a1a !important; font-weight:700; text-align:center !important; border-color:#d1d1d1 !important; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary .passedodd td, .dsl-scenario-summary-wrap #summary .passedeven td { background-color:#dff7ea !important; color:#111 !important; text-align:left !important; border-color:#d1d1d1 !important; }");
+		writer.print(".dsl-scenario-summary-wrap #summary .passedeven td { background-color:#ecfdf5 !important; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary .failedodd td, .dsl-scenario-summary-wrap #summary .failedeven td { background-color:#fee2e2 !important; color:#7f1d1d !important; text-align:left !important; border-color:#d1d1d1 !important; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary .skippedodd td, .dsl-scenario-summary-wrap #summary .skippedeven td, .dsl-scenario-summary-wrap #summary .ignoredodd td, .dsl-scenario-summary-wrap #summary .ignoredeven td { background-color:#fff4e6 !important; color:#7c2d12 !important; text-align:left !important; border-color:#d1d1d1 !important; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary .knownissueodd td, .dsl-scenario-summary-wrap #summary .knownissueeven td { background-color:#fef9c3 !important; color:#422006 !important; text-align:left !important; border-color:#d1d1d1 !important; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary tbody td:nth-child(1) a { color:#1565c0 !important; text-decoration:underline !important; font-weight:600; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary .bug-column a { text-decoration:underline !important; }");
 		writer.print("</style>");
 
 	}
@@ -317,10 +388,9 @@ public class EmailableReport implements IReporter {
 
 		for (SuiteResult suiteResult : suiteResults) {
 			writer.print("<tr><th colspan='7'>");
-			writer.print("<div style='text-align:center; padding:15px; "
-					+ "background-color:#f4f6f9; border-radius:8px; " + "font-family:Arial;'>");
-			writer.print("<h2 style='margin:5px; color:#2c3e50;'>DSL Scenarios Test Report</h2>");
-			writer.print("<p style='margin:4px; font-size:14px;'>");
+			writer.print("<div class=\"report-hero\">");
+			writer.print("<h2 class=\"report-hero__title main-title\">DSL Scenarios Test Report</h2>");
+			writer.print("<p class=\"report-hero__meta\">");
 			String endpoint = System.getProperty("env.endpoint");
 			endpoint = endpoint.replaceAll("https?://", "");
 			endpoint = endpoint.replace("api-internal.", "");
@@ -334,8 +404,7 @@ public class EmailableReport implements IReporter {
 			// ---------------- EXECUTION STATISTICS SECTION ----------------
 
 			writer.print("<tr>");
-			writer.print("<td colspan='7' " + "style='background:#eef1f5; font-size:18px; font-weight:bold; "
-					+ "padding:12px; border-top:2px solid #ccc; text-align:center; " + "color:#2c3e50;'>");
+			writer.print("<td colspan='7' class=\"exec-section-title section-title report-section-bar\">");
 			writer.print("Execution Details");
 			writer.print("</td>");
 			writer.print("</tr>");
@@ -370,85 +439,86 @@ public class EmailableReport implements IReporter {
 				dockerImage = "Local Execution";
 			}
 
-			// ----- COMMON ROW STYLE -----
-			String rowStyle = "style='background:#f9fbfd;'";
+			// ----- COMMON ROW STYLE (cell colors from report CSS: label / value columns) -----
+			String rowOpen = "<tr class=\"exec-kv-row\">";
 
 			// ---- Report Metadata ----
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>📅 Report Date</b></td>");
 			writer.print("<td colspan='4'>" + formattedDate + "</td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>🌐 Environment</b></td>");
 			writer.print("<td colspan='4'><a href='" + finalUrl + "' target='_blank' "
-			        + "style='color:#2980b9;text-decoration:none;font-weight:bold;'>"
+			        + "style='color:#2E86C1;text-decoration:none;font-weight:bold;'>"
 			        + finalUrl + "</a></td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>🔖 Commit Id</b></td>");
 			writer.print("<td colspan='4'><a href='" + commitUrl + "' target='_blank' "
-			        + "style='color:#2980b9;text-decoration:none;font-weight:bold;'>"
+			        + "style='color:#2E86C1;text-decoration:none;font-weight:bold;'>"
 			        + commitId + "</a></td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>🌿 Branch</b></td>");
 			writer.print("<td colspan='4'><a href='" + branchUrl + "' target='_blank' "
-			        + "style='color:#2980b9;text-decoration:none;font-weight:bold;'>"
+			        + "style='color:#2E86C1;text-decoration:none;font-weight:bold;'>"
 			        + branch + "</a></td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>🧵 Thread Count</b></td>");
 			writer.print("<td colspan='4'>" + dslConfigManager.getThreadCount() + "</td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>⏱️ Average Scenario Time</b></td>");
 			writer.print("<td colspan='4'>" + PacketUtility.convertNanosToTime(averageDuration) + "</td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>⚡ Fastest Scenario</b></td>");
 			writer.print("<td colspan='4'>" + fastestDisplay + "</td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>🐢 Slowest Scenario</b></td>");
 			writer.print("<td colspan='4'>" + slowestDisplay + "</td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>☕ Java</b></td>");
 			writer.print("<td colspan='4'>" + System.getProperty("java.version") + "</td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>💻 OS</b></td>");
 			writer.print("<td colspan='4'>" + System.getProperty("os.name") + "</td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + ">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>🖥️ Host</b></td>");
 			writer.print("<td colspan='4'>" + host + "</td>");
 			writer.print("</tr>");
 
-			writer.print("<tr " + rowStyle + " style='border-bottom:2px solid #ccc;'>");
+			writer.print("<tr class=\"exec-kv-row exec-kv-row--footer\">");
 			writer.print("<td colspan='3'><b>🐳 Docker Image</b></td>");
 			writer.print("<td colspan='4'>" + dockerImage + "</td>");
 			writer.print("</tr>");
 
-			writer.print("<tr><td colspan='7' style='background:#e0e6ed; height:2px;'></td></tr>");
-			writer.print("<tr>");
-			writer.print("<td colspan='7' " + "style='background:#eef1f5; font-size:18px; font-weight:bold; "
-					+ "padding:12px; border-top:2px solid #ccc; text-align:center; " + "color:#2c3e50;'>");
+			writer.print("<tr><td colspan='7' class=\"exec-separator\" style='background:#AED6F1; height:2px; padding:0;'></td></tr>");
+			writer.print("<tr id=\"report-exec-summary\">");
+			writer.print("<td colspan='7' class=\"exec-section-title section-title\" style='background:#D6EAF8; font-size:13px; font-weight:700; "
+					+ "padding:8px 10px; border:1px solid #AED6F1; text-align:center; color:#000000; "
+					+ "text-transform:uppercase; letter-spacing:0.06em;'>");
 			writer.print("Summary of Test Results");
 			writer.print("</td>");
 			writer.print("</tr>");
 			writer.print("<tr>");
-			writer.print("<td colspan='7' style='background:#f9fafc; padding:10px; font-size:13px; text-align:left;'>");
+			writer.print("<td colspan='7' class=\"exec-legend\" style='background:#FFFFFF; padding:10px 12px; font-size:12px; text-align:left; border:1px solid #AED6F1;'>");
 			writer.print("<b>Result Legend:</b><br/>");
 			writer.print("&#9989; <b>Passed</b> – Scenario executed successfully.<br/>");
 			writer.print("&#10060; <b>Failed</b> – Scenario executed but failed due to validation or exception.<br/>");
@@ -457,6 +527,7 @@ public class EmailableReport implements IReporter {
 			writer.print("&#128683; <b>Ignored</b> – Scenario intentionally excluded from execution via configuration.");
 			writer.print("</td>");
 			writer.print("</tr>");
+			writer.print("<tr class=\"exec-stats-header-row\">");
 			writer.print("<th style='text-align:center;'>📊  Total</th>");
 			writer.print("<th style='text-align:center;'>✅  Passed</th>");
 			writer.print("<th style='text-align:center;'>🚫  Ignored</th>");
@@ -481,7 +552,8 @@ public class EmailableReport implements IReporter {
 					skippedPercent = (skippedTests * 100.0) / totalTests;
 				}
 
-				writer.print("<tr" + ((testIndex % 2 == 1) ? " class='stripe'" : "") + ">");
+				writer.print("<tr class=\"exec-stats-data-row"
+						+ ((testIndex % 2 == 1) ? " stripe" : "") + "\">");
 
 				buffer.setLength(0);
 				writeTableData(decimalFormat.format(totalTests), "num num-center");
@@ -491,15 +563,11 @@ public class EmailableReport implements IReporter {
 				String skippedDisplay = skippedTests + " (" + String.format("%.0f", skippedPercent) + "%)";
 				String failedDisplay = failedTests + " (" + String.format("%.0f", failPercent) + "%)";
 
-				writeTableData(passedDisplay, (passedTests > 0 ? "num green-bg num-center" : "num num-center"));
-
-				writeTableData(ignoredDisplay, (ignoredTests > 0 ? "num orange-bg num-center" : "num num-center"));
-
-				writeTableData(knownDisplay, (knownIssuesTests > 0 ? "num yellow-bg num-center" : "num num-center"));
-
-				writeTableData(skippedDisplay, (skippedTests > 0 ? "num orange-bg num-center" : "num num-center"));
-
-				writeTableData(failedDisplay, (failedTests > 0 ? "num attn num-center red-text" : "num num-center"));
+				writeTableData(passedDisplay, "num green-bg num-center");
+				writeTableData(ignoredDisplay, "num orange-bg num-center");
+				writeTableData(knownDisplay, "num yellow-bg num-center");
+				writeTableData(skippedDisplay, "num blue-bg num-center");
+				writeTableData(failedDisplay, "num attn num-center red-text");
 
 				writeTableData(getExecutionTime(), "num num-center");
 				writer.print("</tr>");
@@ -531,7 +599,8 @@ public class EmailableReport implements IReporter {
 	 * Writes a summary of all the test scenarios.
 	 */
 	protected void writeScenarioSummary() {
-		writer.print("<table id='summary'>");
+		writer.print("<div class=\"dsl-scenario-summary-wrap\">");
+		writer.print("<table id='summary' class='scenario-table'>");
 		writer.print("<thead>");
 		writer.print("<tr>");
 		writer.print("<th>Scenario</th>");
@@ -567,6 +636,7 @@ public class EmailableReport implements IReporter {
 		}
 
 		writer.print("</table>");
+		writer.print("</div>");
 
 	}
 
@@ -631,7 +701,8 @@ public class EmailableReport implements IReporter {
 			int startingScenarioIndex) {
 		int scenarioCount = 0;
 		if (!classResults.isEmpty()) {
-			writer.print("<tr><th colspan=\"3\">");
+			writer.print(
+					"<tr class=\"summary-section-header summary-section-header--" + cssClassPrefix + "\"><th colspan=\"3\">");
 			writer.print(description);
 			writer.print("</th></tr>");
 
@@ -655,7 +726,8 @@ public class EmailableReport implements IReporter {
 						String[] scenarioDetails = getScenarioDetails(result);
 
 						String scenarioName = Utils.escapeHtml("Scenario_" + scenarioDetails[0]);
-						String scenarioDescription = Utils.escapeHtml(scenarioDetails[1]);
+						String scenarioDesc = scenarioDetails[1] != null ? scenarioDetails[1] : "";
+						String scenarioDescEscaped = Utils.escapeHtml(scenarioDesc);
 
 						String scenarioStart = BaseTestCaseUtil.sceanrioExecutionStatistics
 								.get("Scenario_" + scenarioDetails[0] + "_startTime");
@@ -703,7 +775,7 @@ public class EmailableReport implements IReporter {
 
 						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
 								.append(scenarioIndex).append("\">").append(scenarioName).append("</a></td>")
-								.append("<td style=\"text-align: left;\">").append(scenarioDescription).append("</td>")
+								.append("<td class='scenario-desc-col'>").append(scenarioDescEscaped).append("</td>")
 								.append("<td class='bug-column'>").append(displayValue).append("</td></tr>");
 
 						scenarioIndex++;
@@ -799,12 +871,13 @@ public class EmailableReport implements IReporter {
 
 	protected void writeScenarioSummaryForFailedReport() {
 
-		writer.print("<table id='summary'>");
+		writer.print("<div class=\"dsl-scenario-summary-wrap\">");
+		writer.print("<table id='summary' class='scenario-table'>");
 		writer.print("<thead>");
 		writer.print("<tr>");
 		writer.print("<th>Scenario</th>");
-		writer.print("<th>Description</th>");
-		writer.print("<th>Time</th>");
+		writer.print("<th>Scenario Description</th>");
+		writer.print("<th class='bug-column'>Time / Bug ID</th>");
 		writer.print("</tr>");
 		writer.print("</thead>");
 
@@ -822,6 +895,7 @@ public class EmailableReport implements IReporter {
 		}
 
 		writer.print("</table>");
+		writer.print("</div>");
 	}
 
 	protected void writeScenarioDetailsForFailedReport() {
@@ -883,20 +957,33 @@ public class EmailableReport implements IReporter {
 	 * Writes the details for an individual test scenario.
 	 */
 	private void writeScenario(int scenarioIndex, String label, ITestResult result) {
+		String anchorClass = "scenario-anchor";
+		Object[] parameters = result.getParameters();
+		if (parameters != null && parameters.length > 1 && parameters[1] instanceof Scenario) {
+			String sid = ((Scenario) parameters[1]).getId();
+			if (sid != null) {
+				if ("0".equalsIgnoreCase(sid)) {
+					anchorClass += " scenario-anchor--before-suite";
+				} else if ("AFTER_SUITE".equalsIgnoreCase(sid)) {
+					anchorClass += " scenario-anchor--after-suite";
+				}
+			}
+		}
 		writer.print("<h3 id=\"m");
 		writer.print(scenarioIndex);
+		writer.print("\" class=\"");
+		writer.print(anchorClass);
 		writer.print("\">");
-		// writer.print(label);
 		writer.print("</h3>");
 
 		writer.print("<table class=\"result\">");
 
 		// Write test parameters (if any)
-		Object[] parameters = result.getParameters();
 		int parameterCount = (parameters == null ? 0 : parameters.length);
+		int detailColspan = Math.max(parameterCount, 1);
 		List<String> reporterMessages = Reporter.getOutput(result);
 		if (!reporterMessages.isEmpty()) {
-			writer.print("<tr><td colspan=\"" + parameterCount + "\">");
+			writer.print("<tr><td colspan=\"" + detailColspan + "\">");
 			writeReporterMessages(reporterMessages);
 			writer.print("</td></tr>");
 		}
@@ -904,9 +991,9 @@ public class EmailableReport implements IReporter {
 		// Write exception (if any)
 		Throwable throwable = result.getThrowable();
 		if (throwable != null) {
-			writer.print("<tr><th colspan=\"" + parameterCount + "\">"
+			writer.print("<tr><th colspan=\"" + detailColspan + "\">"
 					+ (result.getStatus() == ITestResult.SUCCESS ? "Expected Exception" : "Exception") + "</th></tr>");
-			writer.print("<tr><td colspan=\"" + parameterCount + "\">");
+			writer.print("<tr><td colspan=\"" + detailColspan + "\">");
 			writeStackTrace(throwable);
 			writer.print("</td></tr>");
 		}
@@ -919,20 +1006,34 @@ public class EmailableReport implements IReporter {
 		writer.print("<div class=\"messages\">");
 		Iterator<String> iterator = reporterMessages.iterator();
 		assert iterator.hasNext();
-		if (Reporter.getEscapeHtml()) {
-			writer.print(Utils.escapeHtml(iterator.next()));
-		} else {
-			writer.print(iterator.next());
-		}
+		writeReporterMessageChunk(iterator.next());
 		while (iterator.hasNext()) {
 			writer.print("<br/>");
-			if (Reporter.getEscapeHtml()) {
-				writer.print(Utils.escapeHtml(iterator.next()));
-			} else {
-				writer.print(iterator.next());
-			}
+			writeReporterMessageChunk(iterator.next());
 		}
 		writer.print("</div>");
+	}
+
+	/** Preserves structured HTML blocks (internal API log, HTTP panels) even when TestNG escapeHtml is on. */
+	private void writeReporterMessageChunk(String message) {
+		if (message == null || message.isEmpty()) {
+			return;
+		}
+		if (Reporter.getEscapeHtml() && !isReporterHtmlBlock(message)) {
+			writer.print(Utils.escapeHtml(message));
+		} else {
+			writer.print(message);
+		}
+	}
+
+	private static boolean isReporterHtmlBlock(String message) {
+		String m = message.trim().toLowerCase();
+		return m.startsWith("<div")
+				&& (m.contains("dsl-internal-api-log")
+						|| m.contains("step-capture-card")
+						|| m.contains("http-payload")
+						|| m.contains("validation-panel")
+						|| m.contains("tc-outcome-banner"));
 	}
 
 	protected void writeStackTrace(Throwable throwable) {

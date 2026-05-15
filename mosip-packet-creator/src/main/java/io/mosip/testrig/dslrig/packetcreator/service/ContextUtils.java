@@ -42,29 +42,18 @@ public class ContextUtils {
 	static Logger logger = LoggerFactory.getLogger(ContextUtils.class);
 
 	public Properties loadServerContext(String ctxName) {
-		String filePath = personaConfigPath + "/server.context." + ctxName + ".properties";
 		Properties p = new Properties();
 
-		try(FileReader reader = new FileReader(filePath);) {
-			
+		try (FileReader reader = new FileReader(resolveServerContextPath(ctxName).toFile())) {
 			p.load(reader);
 		} catch (IOException e) {
-
 			logger.error("loadServerContext " + e.getMessage());
 		}
 		return p;
 	}
 
 	public String createUpdateServerContext(Properties props, String ctxName) throws IOException {
-	    validateContextName(ctxName); 
-	    Path baseDir = Paths.get(personaConfigPath).normalize();
-	    Path filePath = baseDir
-	            .resolve("server.context." + ctxName + ".properties")
-	            .normalize();
-
-	    if (!filePath.startsWith(baseDir)) {
-	        throw new SecurityException("Path traversal attempt detected");
-	    }
+	    Path filePath = resolveServerContextPath(ctxName);
 
 	    try (FileWriter fr = new FileWriter(filePath.toFile())) {
 
@@ -95,6 +84,18 @@ public class ContextUtils {
 	    if (ctxName == null || !CONTEXT_NAME_PATTERN.matcher(ctxName).matches()) {
 	        throw new IllegalArgumentException("Invalid context name");
 	    }
+	}
+
+	private Path resolveServerContextPath(String ctxName) {
+	    validateContextName(ctxName);
+	    Path baseDir = Paths.get(personaConfigPath).normalize();
+	    Path filePath = baseDir
+	            .resolve("server.context." + ctxName + ".properties")
+	            .normalize();
+	    if (!filePath.startsWith(baseDir)) {
+	        throw new SecurityException("Path traversal attempt detected");
+	    }
+	    return filePath;
 	}
 
 

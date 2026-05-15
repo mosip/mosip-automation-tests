@@ -11,6 +11,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public final class InternalApiLogFormatter {
 
+	/**
+	 * Markers for {@link #format(List, boolean)} when {@code reportHints=true}. The
+	 * orchestrator replaces these with {@code <b>}/{@code </b>} after HTML-escaping
+	 * the log body so TestNG reports show bold labels without treating user JSON
+	 * as HTML.
+	 */
+	public static final String REPORT_HINT_BOLD_START = "[[DSL_B]]";
+	public static final String REPORT_HINT_BOLD_END = "[[DSL_E]]";
+
 	private static final String ENTRY_SEP = "\n--------------------------------------------------------------------------------\n";
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -19,6 +28,15 @@ public final class InternalApiLogFormatter {
 	}
 
 	public static String format(List<InternalApiLogExchange> exchanges) {
+		return format(exchanges, false);
+	}
+
+	/**
+	 * @param reportHints when true, wraps fixed section labels in
+	 *            {@link #REPORT_HINT_BOLD_START} / {@link #REPORT_HINT_BOLD_END} for
+	 *            downstream HTML rendering (see ivv-orchestrator report attachment).
+	 */
+	public static String format(List<InternalApiLogExchange> exchanges, boolean reportHints) {
 		if (exchanges == null || exchanges.isEmpty()) {
 			return "OUTBOUND INTERNAL API CALLS\n(no internal API calls recorded for this context)\n";
 		}
@@ -28,22 +46,59 @@ public final class InternalApiLogFormatter {
 		int n = 1;
 		for (InternalApiLogExchange ex : exchanges) {
 			out.append(ENTRY_SEP);
-			out.append("Call #").append(n).append(" | sequence=").append(ex.getSequence()).append('\n');
-			out.append("URL           : ").append(safe(ex.getUrl())).append('\n');
-			out.append("HTTP Method   : ").append(safe(ex.getMethod())).append('\n');
-			out.append("Timestamp     : ").append(formatInstant(ex.getRequestInstant())).append('\n');
-			out.append("Headers       :\n").append(indent(safe(ex.getRequestHeaders()))).append('\n');
-			out.append("Request Body  :\n").append(indent(prettyIfJson(safe(ex.getRequestBody())))).append('\n');
-			out.append("--- Response ---\n");
-			if (ex.getErrorMessage() != null) {
-				out.append("Status Code   : (no HTTP response — error before completion)\n");
-				out.append("Headers       :\n  (n/a)\n");
-				out.append("Response Body :\n").append(indent(safe(ex.getErrorMessage()))).append('\n');
+			if (reportHints) {
+				out.append(REPORT_HINT_BOLD_START).append("Call #").append(n).append(" | sequence=")
+						.append(ex.getSequence()).append(REPORT_HINT_BOLD_END).append('\n');
+				out.append(REPORT_HINT_BOLD_START).append("URL           :").append(REPORT_HINT_BOLD_END).append(' ')
+						.append(safe(ex.getUrl())).append('\n');
+				out.append(REPORT_HINT_BOLD_START).append("HTTP Method   :").append(REPORT_HINT_BOLD_END).append(' ')
+						.append(safe(ex.getMethod())).append('\n');
+				out.append(REPORT_HINT_BOLD_START).append("Timestamp     :").append(REPORT_HINT_BOLD_END).append(' ')
+						.append(formatInstant(ex.getRequestInstant())).append('\n');
+				out.append(REPORT_HINT_BOLD_START).append("Headers       :").append(REPORT_HINT_BOLD_END).append('\n')
+						.append(indent(safe(ex.getRequestHeaders()))).append('\n');
+				out.append(REPORT_HINT_BOLD_START).append("Request Body  :").append(REPORT_HINT_BOLD_END).append('\n')
+						.append(indent(prettyIfJson(safe(ex.getRequestBody())))).append('\n');
+				out.append(REPORT_HINT_BOLD_START).append("--- Response ---").append(REPORT_HINT_BOLD_END).append('\n');
 			} else {
-				out.append("Status Code   : ").append(ex.getStatusCode()).append('\n');
-				out.append("Timestamp     : ").append(formatInstant(ex.getResponseInstant())).append('\n');
-				out.append("Headers       :\n").append(indent(safe(ex.getResponseHeaders()))).append('\n');
-				out.append("Response Body :\n").append(indent(prettyIfJson(safe(ex.getResponseBody())))).append('\n');
+				out.append("Call #").append(n).append(" | sequence=").append(ex.getSequence()).append('\n');
+				out.append("URL           : ").append(safe(ex.getUrl())).append('\n');
+				out.append("HTTP Method   : ").append(safe(ex.getMethod())).append('\n');
+				out.append("Timestamp     : ").append(formatInstant(ex.getRequestInstant())).append('\n');
+				out.append("Headers       :\n").append(indent(safe(ex.getRequestHeaders()))).append('\n');
+				out.append("Request Body  :\n").append(indent(prettyIfJson(safe(ex.getRequestBody())))).append('\n');
+				out.append("--- Response ---\n");
+			}
+			if (ex.getErrorMessage() != null) {
+				if (reportHints) {
+					out.append(REPORT_HINT_BOLD_START).append("Status Code   :").append(REPORT_HINT_BOLD_END)
+							.append(" (no HTTP response — error before completion)\n");
+					out.append(REPORT_HINT_BOLD_START).append("Headers       :").append(REPORT_HINT_BOLD_END)
+							.append('\n').append("  (n/a)\n");
+					out.append(REPORT_HINT_BOLD_START).append("Response Body :").append(REPORT_HINT_BOLD_END)
+							.append('\n').append(indent(safe(ex.getErrorMessage()))).append('\n');
+				} else {
+					out.append("Status Code   : (no HTTP response — error before completion)\n");
+					out.append("Headers       :\n  (n/a)\n");
+					out.append("Response Body :\n").append(indent(safe(ex.getErrorMessage()))).append('\n');
+				}
+			} else {
+				if (reportHints) {
+					out.append(REPORT_HINT_BOLD_START).append("Status Code   :").append(REPORT_HINT_BOLD_END)
+							.append(' ').append(ex.getStatusCode()).append('\n');
+					out.append(REPORT_HINT_BOLD_START).append("Timestamp     :").append(REPORT_HINT_BOLD_END)
+							.append(' ').append(formatInstant(ex.getResponseInstant())).append('\n');
+					out.append(REPORT_HINT_BOLD_START).append("Headers       :").append(REPORT_HINT_BOLD_END)
+							.append('\n').append(indent(safe(ex.getResponseHeaders()))).append('\n');
+					out.append(REPORT_HINT_BOLD_START).append("Response Body :").append(REPORT_HINT_BOLD_END)
+							.append('\n').append(indent(prettyIfJson(safe(ex.getResponseBody())))).append('\n');
+				} else {
+					out.append("Status Code   : ").append(ex.getStatusCode()).append('\n');
+					out.append("Timestamp     : ").append(formatInstant(ex.getResponseInstant())).append('\n');
+					out.append("Headers       :\n").append(indent(safe(ex.getResponseHeaders()))).append('\n');
+					out.append("Response Body :\n").append(indent(prettyIfJson(safe(ex.getResponseBody()))))
+							.append('\n');
+				}
 			}
 			n++;
 		}
