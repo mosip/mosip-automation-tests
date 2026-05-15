@@ -421,19 +421,19 @@ public class Orchestrator {
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 
 		// Check whether the scenario is in the defined skipped list
-		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId())) {
+		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 			updateRunStatistics(scenario);
 			throw new SkipException("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 		}
-		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId())) {
+		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform known issue");
 			updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
 		}
-		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId())) {
+		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
 			updateRunStatistics(scenario);
