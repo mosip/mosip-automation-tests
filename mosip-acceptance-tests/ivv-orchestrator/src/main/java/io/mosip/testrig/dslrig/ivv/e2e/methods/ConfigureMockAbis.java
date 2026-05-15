@@ -79,19 +79,19 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			throw new RigInternalError(
 					"missing input param [personaid,List<String> modalitySubType,duplicate,List<String> hashModality]");
 		}
-		inputList = PacketUtility.getParamsArg(step.getParameters().get(1), "@@"); // List<String> ModalitysubTypeList
+		inputList = PacketUtility.getParamsArg(step.getParameters().get(1), "@@"); 
 		inputList.stream().forEach(key -> modalitysubTypeList.add(key));
-		duplicate = Boolean.parseBoolean(step.getParameters().get(2)); // boolean isDuplicate
-		hashProp = PacketUtility.getParamsArg(step.getParameters().get(3), "@@"); // List<String> hashModality
+		duplicate = Boolean.parseBoolean(step.getParameters().get(2)); 
+		hashProp = PacketUtility.getParamsArg(step.getParameters().get(3), "@@"); 
 		hashProp.stream().forEach(key -> hashModality.add(key));
 
 		if (step.getParameters().size() >= 7 && step.getParameters().get(6).contains("delay")) {
-			// If it is true , read the mockAbis delay time from actuator eg: Packet
-			// reprocessing interval
+
+
 			waitTimeFromActuator = PacketUtility.getActuatorDelay();
 			delaysec = TIME_IN_MILLISEC * waitTimeFromActuator;
 		} else if (step.getParameters().size() >= 7) {
-			// Otherwise , read value which is passed from dsl step
+
 			delaysec = Long.parseLong(step.getParameters().get(6));
 		}
 
@@ -139,7 +139,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			modalityHashValueMap.clear();
 			modalityHashValueMap = hashtable.get(personaId);
 		}
-		// Map<String, String> modalityHashValueMap = hashtable.get(personaId);
+
 		JSONArray outterReq = new JSONArray();
 		JSONObject jsonOutterReq = new JSONObject();
 		jsonOutterReq.put("delaySec", delaySec);

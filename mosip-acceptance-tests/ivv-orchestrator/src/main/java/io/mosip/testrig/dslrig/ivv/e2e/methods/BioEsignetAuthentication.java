@@ -38,7 +38,7 @@ public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepIn
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {
 
-		// check if esignet is installed on the target system
+
 		if (dslConfigManager.isInServiceNotDeployedList("eSignet")) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
@@ -69,11 +69,11 @@ public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepIn
 				throw new RigInternalError("deviceInfo file path Parameter is  missing from DSL step");
 			}
 		}
-		if (step.getParameters().size() == 4) { // "e2e_BioEsignetAuthentication(faceDevice,$$uin,$$personaFilePath,$$transactionId,$$vid)"
+		if (step.getParameters().size() == 4) { 
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else if (step.getParameters().size() == 6) { // "e2e_BioEsignetAuthentication(faceDevice,$$uin,$$personaFilePath,$$transactionId,$$vid)"
+		} else if (step.getParameters().size() == 6) { 
 			uins = step.getParameters().get(1);
 			String _personaFilePath = step.getParameters().get(2);
 			if (uins.startsWith("$$") && _personaFilePath.startsWith("$$")) {
@@ -86,13 +86,12 @@ public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepIn
 		} else
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
-		// FETCHING VID
 
-		if (step.getParameters().size() == 4) { // "e2e_BioIdpAuthentication(faceDevice,$$uin,$$personaFilePath,$$transactionId,$$vid)"
+		if (step.getParameters().size() == 4) { 
 			vids = step.getParameters().get(4);
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
-		} else if (step.getParameters().size() == 6) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+		} else if (step.getParameters().size() == 6) { 
 			vids = step.getParameters().get(4);
 			String _personaFilePath = step.getParameters().get(2);
 			if (vids.startsWith("$$") && _personaFilePath.startsWith("$$")) {
@@ -111,8 +110,8 @@ public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepIn
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId1 = (String) step.getScenario().getOidcClientProp().get("transactionId1");
-			// transactionId1 = step.getParameters().get(3);
-			// transactionId1 = step.getScenario().getVariables().get(transactionId1);
+
+
 			logger.info(transactionId1);
 
 		}
@@ -123,8 +122,8 @@ public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepIn
 			throw new RigInternalError("transactionId paramter is  missing in step: " + step.getName());
 		} else {
 			transactionId2 = (String) step.getScenario().getOidcClientProp().get("transactionId2");
-			// transactionId2 = step.getParameters().get(5);
-			// transactionId2 = step.getScenario().getVariables().get(transactionId2);
+
+
 			logger.info(transactionId2);
 
 		}
@@ -256,7 +255,6 @@ public class BioEsignetAuthentication extends BaseTestCaseUtil implements StepIn
 
 			bioResponse = packetUtility.retrieveBiometric(personFilePathvalue, modalityList, step);
 
-			// System.out.println("bioMetricValue= " + bioResponse);
 
 			String fileName = AuthenticateUser;
 			esignetBioAuth.isInternal = false;

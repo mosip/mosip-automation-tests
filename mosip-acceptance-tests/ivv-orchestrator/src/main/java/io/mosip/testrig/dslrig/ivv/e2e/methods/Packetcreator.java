@@ -53,14 +53,14 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
 				String templatePath = step.getScenario().getResidentTemplatePaths().get(resDataPath);
 				String idJosn = templatePath + "/REGISTRATION_CLIENT/" + process + "/rid_id/" + "ID.json";
-				packetPath = createPacket(idJosn, templatePath, null); // 3rd argument is _additionalInfoReqId here pass
-																		// null
+				packetPath = createPacket(idJosn, templatePath, null); 
+
 				step.getScenario().getTemplatePacketPath().put(templatePath, packetPath);
 				step.getScenario().getRidPersonaPath().put(packetPath, resDataPath);
 			}
 		} else {
-			process = step.getParameters().get(0); // "$$zipPacketPath=e2e_packetcreator(NEW,$$templatePath)" --> now
-													// "$$zipPacketPath=e2e_packetcreator(NEW,$$templatePath,$$additionalInfoReqId)"
+			process = step.getParameters().get(0); 
+
 			String _templatePath = step.getParameters().get(1);
 
 			if (step.getParameters().size() > 2) {

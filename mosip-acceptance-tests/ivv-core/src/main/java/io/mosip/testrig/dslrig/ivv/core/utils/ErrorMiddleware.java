@@ -18,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ErrorMiddleware {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ErrorMiddleware.class);
 
     private ArrayList<Scenario.Step.Error> ers;
@@ -29,7 +29,7 @@ public class ErrorMiddleware {
     @Getter
     @Setter
     public class MiddlewareResponse {
-        /* status: false - failure */
+
         private Boolean status = true;
         private ArrayList<ExtentLogger> reports = new ArrayList<>();
     }

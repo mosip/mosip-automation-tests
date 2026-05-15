@@ -60,15 +60,14 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 				emailId = step.getScenario().getVariables().get(emailId);
 			}
 			if (emailId == null || (emailId != null && emailId.isBlank())) {
-				// in somecases Email Id is not passed so OTP Authentication is not supported
+
 				throw new FeatureNotSupportedError("Email id is Empty hence we cannot perform OTP Authentication");
 
 			}
 		}
 
-		// Fetching UIN
 
-		if (step.getParameters().size() == 5) { // "e2e_otpAuthentication(uin,$$uin,vid,$$vid,$$email)"
+		if (step.getParameters().size() == 5) { 
 			uins = step.getParameters().get(1);
 
 			if (uins.startsWith("$$")) {
@@ -78,9 +77,8 @@ public class OtpAuthentication extends BaseTestCaseUtil implements StepInterface
 		} else
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
-		// Fetching VID
 
-		if (step.getParameters().size() == 5) { // "e2e_otpAuthentication(uin,$$uin,vid,$$vid,$$email)"
+		if (step.getParameters().size() == 5) { 
 			vids = step.getParameters().get(3);
 			if (vids.startsWith("$$")) {
 				vids = step.getScenario().getVariables().get(vids);

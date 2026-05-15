@@ -39,7 +39,7 @@ public class Parser implements ParserInterface {
 	private static final Logger logger = LoggerFactory.getLogger(Parser.class);
     private ParserInputDTO inputDTO;
     Properties properties = null;
-    
+
     public Parser(ParserInputDTO input){
     	inputDTO = input;
     }
@@ -53,13 +53,13 @@ public class Parser implements ParserInterface {
         String idObjectSchema = Utils.readFileAsString(inputDTO.getIdObjectSchema());
         ArrayList<Persona> persona_list = new ArrayList();
 
-        /* Prereg skip fields */
+
         List<String> preregSkipFields = new ArrayList<>();
         if(inputDTO.getConfigProperties() != null && !inputDTO.getConfigProperties().isEmpty()){
             String preregSkip = inputDTO.getConfigProperties().getProperty("ivv.prereg.skip");
             preregSkipFields = Arrays.asList(preregSkip.split(","));
         }
-        /* Regclient skip fields */
+
         List<String> regclientSkipFields = new ArrayList<>();
         if(inputDTO.getConfigProperties() != null && !inputDTO.getConfigProperties().isEmpty()){
             String regclientSkip = inputDTO.getConfigProperties().getProperty("ivv.regclient.skip");
@@ -76,14 +76,14 @@ public class Parser implements ParserInterface {
 
             Person iam = new Person();
 
-            /* persona */
+
             iam.setId(data_map.get("id"));
             iam.setUserid(data_map.get("userid"));
             iam.setPrimaryLang(data_map.get("primaryLang"));
             iam.setSecondaryLang(data_map.get("secondaryLang"));
             iam.setRegistrationCenterId(data_map.get("registrationCenterId"));
 
-            /* Adding documents */
+
             iam.setProofOfAddress(getProofDocumentByCategory(ProofDocument.DOCUMENT_CATEGORY.POA, documentData));
             iam.setProofOfBirth(getProofDocumentByCategory(ProofDocument.DOCUMENT_CATEGORY.POB, documentData));
             iam.setProofOfIdentity(getProofDocumentByCategory(ProofDocument.DOCUMENT_CATEGORY.POI, documentData));
@@ -91,7 +91,7 @@ public class Parser implements ParserInterface {
             iam.setProofOfException(getProofDocumentByCategory(ProofDocument.DOCUMENT_CATEGORY.POEX, documentData));
             iam.setProofOfExemption(getProofDocumentByCategory(ProofDocument.DOCUMENT_CATEGORY.POEM, documentData));
 
-            /* Adding biometrics */
+
             iam.setFace(getBiometricsByCategory(BiometricsDTO.BIOMETRIC_CAPTURE.face, biometricData));
             iam.setLeftEye(getBiometricsByCategory(BiometricsDTO.BIOMETRIC_CAPTURE.leftEye, biometricData));
             iam.setRightEye(getBiometricsByCategory(BiometricsDTO.BIOMETRIC_CAPTURE.rightEye, biometricData));
@@ -219,10 +219,10 @@ public class Parser implements ParserInterface {
             Object obj = iter.next();
             HashMap<String, String> data_map = oMapper.convertValue(obj, HashMap.class);
             RegistrationUser iam = new RegistrationUser();
-            /* persona definition */
+
             iam.setRole(PersonaDef.ROLE.valueOf(data_map.get("user_type")));
 
-            /* persona */
+
             iam.setId(data_map.get("id"));
             iam.setUserId(data_map.get("user_id"));
             iam.setPassword(data_map.get("password"));
@@ -245,10 +245,10 @@ public class Parser implements ParserInterface {
             Object obj = iter.next();
             HashMap<String, String> data_map = oMapper.convertValue(obj, HashMap.class);
             Partner iam = new Partner();
-            /* persona definition */
+
             iam.setRole(PersonaDef.ROLE.valueOf(data_map.get("user_type")));
 
-            /* partner */
+
             iam.setId(data_map.get("id"));
             iam.setUserId(data_map.get("user_id"));
             iam.setPassword(data_map.get("password"));
@@ -377,7 +377,7 @@ public class Parser implements ParserInterface {
                 }
             }
         }
-       
+
         return steps;
     }
 

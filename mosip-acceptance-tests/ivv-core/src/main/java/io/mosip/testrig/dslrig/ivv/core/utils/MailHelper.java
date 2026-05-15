@@ -35,14 +35,7 @@ public class MailHelper {
         }
     }
 
-    /**
-     *
-     * @param subjects (Message Otp, UIN Generated, UIN XXXXXXXX05: OTP Request, UIN XXXXXXXX05: Requête OTP)
-     * @param regex (otp\s([0-9]{6}))
-     * @param recipient
-     * @param maxMessageCount
-     * @return
-     */
+
     public static MailHelperResponse readviaRegex(ArrayList<String> subjects, String regex, String recipient, int maxMessageCount) {
         Message[] messages = null;
         Folder emailInbox;
@@ -53,7 +46,7 @@ public class MailHelper {
         try {
             Session session = Session.getInstance(sysProps, null);
             Store store = session.getStore();
-            //store.connect(BaseHelper.email_hostname, BaseHelper.email_username, BaseHelper.email_password);
+
             store.connect("outlook.office365.com", 993, System.getProperty("ivv.email.server.user"), System.getProperty("ivv.email.server.pass"));
             Thread.sleep(1000);
             emailInbox = store.getFolder("Inbox");
@@ -80,7 +73,7 @@ public class MailHelper {
                         }
                     }
                 } catch (MessagingException me) {
-                    //to do
+
                 }
             }
             emailInbox.close(true);
@@ -102,7 +95,7 @@ public class MailHelper {
         try {
             Session session = Session.getInstance(sysProps, null);
             Store store = session.getStore();
-            //store.connect(BaseHelper.email_hostname, BaseHelper.email_username, BaseHelper.email_password);
+
             store.connect("outlook.office365.com", 993, System.getProperty("ivv.email.server.user"), System.getProperty("ivv.email.server.pass"));
             Thread.sleep(1000);
             emailInbox = store.getFolder("Inbox");
@@ -124,7 +117,7 @@ public class MailHelper {
                         }
                     }
                 } catch (MessagingException me) {
-                    //to do
+
                 }
             }
             emailInbox.close(true);
@@ -163,7 +156,7 @@ public class MailHelper {
                         break;
                     }
                 } catch (MessagingException me) {
-                    //to do
+
                 }
             }
             emailInbox.close(true);
@@ -187,8 +180,8 @@ public class MailHelper {
             while (emailFoundOrNot < 1) {
                 Session session = Session.getInstance(sysProps, null);
                 Store store = session.getStore();
-                //store.connect(BaseHelper.email_hostname, BaseHelper.email_username, BaseHelper.email_password);
-                //store.connect("outlook.office365.com", 993, BaseHelper.email_username, BaseHelper.email_password);
+
+
                 store.connect("outlook.office365.com", 993, email, pass);
                 Thread.sleep(1000);
                 emailInbox = store.getFolder("Inbox");
@@ -207,7 +200,7 @@ public class MailHelper {
                             break;
                         }
                     } catch (MessagingException me) {
-                        //to do
+
                     }
                 }
                 emailInbox.close(true);

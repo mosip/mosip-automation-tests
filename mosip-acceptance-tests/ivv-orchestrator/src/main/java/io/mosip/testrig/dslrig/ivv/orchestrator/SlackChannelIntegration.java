@@ -16,30 +16,30 @@ public class SlackChannelIntegration {
 	static Slack slack = Slack.getInstance();
 	static String token  = "";
 	static String defaultChannel = "#automation-integration";
-	
+
 	public static Boolean postMessage(String channelName, String message) {
-	
+
 		MethodsClient methods = slack.methods(token);
-	    // Build a request object
+
 	    ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-	   .channel(channelName) // Use a channel ID `C1234567` is preferrable
+	   .channel(channelName) 
 	   .text(message)
 	   .build();
 
-	    // Get a response as a Java object
+
 	    try {
 			ChatPostMessageResponse response = methods.chatPostMessage(request);
 			if(response.isOk())
 				return true;
-			
+
 	    } catch (IOException | SlackApiException e) {
 			logger.error(e.getMessage());
 		}
 	    return false;
 	}
-	
+
 	 public static void main(String[] args) throws Exception {
-		 
+
 		 postMessage(defaultChannel, "Test message from Automation");
 	 }
 }

@@ -65,9 +65,7 @@ public class HtmlToExcelReport {
         try (Workbook wb = new XSSFWorkbook()) {
             Sheet comparison = wb.createSheet("Comparison");
 
-            // ================== CREATE STYLES ==================
 
-            // Header Style
             CellStyle headerStyle = wb.createCellStyle();
             headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
             headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
@@ -75,32 +73,31 @@ public class HtmlToExcelReport {
             headerFont.setBold(true);
             headerStyle.setFont(headerFont);
 
-            // Passed - Green
+
             CellStyle passStyle = wb.createCellStyle();
             passStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
             passStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-            // Failed - Red
+
             CellStyle failStyle = wb.createCellStyle();
             failStyle.setFillForegroundColor(IndexedColors.ROSE.getIndex());
             failStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-            // Skipped - Orange
+
             CellStyle skipStyle = wb.createCellStyle();
             skipStyle.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
             skipStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-            // Ignored - Grey
+
             CellStyle ignoreStyle = wb.createCellStyle();
             ignoreStyle.setFillForegroundColor(IndexedColors.GREY_40_PERCENT.getIndex());
             ignoreStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-            // Known Issue - Yellow
+
             CellStyle knownStyle = wb.createCellStyle();
             knownStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
             knownStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-            // ================== HEADER ROW ==================
 
             Row header = comparison.createRow(0);
 
@@ -120,10 +117,9 @@ public class HtmlToExcelReport {
                 cell.setCellStyle(headerStyle);
             }
 
-            // Freeze header row
+
             comparison.createFreezePane(0, 1);
 
-            // ================== DATA ==================
 
             Set<String> allIds = new TreeSet<>(baseline.keySet());
             for (Map<String, Scenario> input : inputMap.values()) {
@@ -137,7 +133,7 @@ public class HtmlToExcelReport {
 
                 row.createCell(0).setCellValue(id);
 
-                // Baseline status
+
                 String baselineStatus = baseline.containsKey(id)
                         ? baseline.get(id).status
                         : "Not Found";
@@ -162,12 +158,12 @@ public class HtmlToExcelReport {
                 }
             }
 
-            // Auto-size columns
+
             for (int i = 0; i < colIndex; i++) {
                 comparison.autoSizeColumn(i);
             }
 
-            // Write file
+
             try (FileOutputStream fileOut = new FileOutputStream(outputFilePath)) {
                 wb.write(fileOut);
             }

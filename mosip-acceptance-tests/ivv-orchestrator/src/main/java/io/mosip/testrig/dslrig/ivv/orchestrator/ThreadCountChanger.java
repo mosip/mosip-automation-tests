@@ -10,19 +10,19 @@ import org.testng.xml.XmlSuite;
 
 public class ThreadCountChanger implements IAlterSuiteListener  {
 	static Logger logger = Logger.getLogger(ThreadCountChanger.class);
-	
+
 	static {
 		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
 	}
-	
+
 	@Override
 	public void alter(List<XmlSuite> suites) {
 	    logger.info("ThreadCountChanger invoked!");
 
-	    int count = Integer.parseInt(dslConfigManager.getThreadCount()); // Read thread count from config
+	    int count = Integer.parseInt(dslConfigManager.getThreadCount()); 
 	    logger.info("Running suite with thread count: " + count);
 
 	    for (XmlSuite suite : suites) {
@@ -40,5 +40,3 @@ public class ThreadCountChanger implements IAlterSuiteListener  {
 	    }
 	}
 }
-
-

@@ -29,7 +29,7 @@ public class UpdateBioExceptionInPersona extends BaseTestCaseUtil implements Ste
 			this.hasError = true;
 			throw new RigInternalError("bioType paramter is  missing in step: " + step.getName());
 		}
-		if (!step.getParameters().isEmpty()) { // "var1=e2e_updateDemoOrBioDetails(0,0,0,$$personaPath)"
+		if (!step.getParameters().isEmpty()) { 
 			String personaFilePath = step.getParameters().get(0);
 
 			if (step.getParameters().size() <= 2) {

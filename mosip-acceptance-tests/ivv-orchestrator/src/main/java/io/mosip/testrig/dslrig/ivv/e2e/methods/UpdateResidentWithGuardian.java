@@ -23,7 +23,7 @@ public class UpdateResidentWithGuardian extends BaseTestCaseUtil implements Step
 	@Override
 	public void run() throws RigInternalError {
 		String gaurdianStatus = "processed";
-		if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { // "var=e2e_updateResidentWithGuardian($$guardianPersonaFilePath,$$childPersonaFilePath)"
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { 
 			String guardianPersonaFilePath = step.getParameters().get(0);
 			String childPersonaFilePath = step.getParameters().get(1);
 			if (guardianPersonaFilePath.startsWith("$$") && childPersonaFilePath.startsWith("$$")) {
@@ -40,7 +40,7 @@ public class UpdateResidentWithGuardian extends BaseTestCaseUtil implements Step
 						packetUtility.updateResidentGuardian(path, step));
 				Reporter.log("<b><u>Checking Status Of Created Guardians</u></b>");
 				checkStatus.tempPridAndRid = step.getScenario().getResidentPathGuardianRid();
-				// checkStatus.checkStatus(gaurdianStatus);
+
 			}
 		}
 	}

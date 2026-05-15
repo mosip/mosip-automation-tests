@@ -19,7 +19,7 @@ import io.restassured.response.Response;
 
 public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 	Logger logger = Logger.getLogger(ActivateDeactivateHelper.class);
-	
+
 	public void deActivateRegCenter(Properties prop, String token) throws RigInternalError {
 		String status = prop.getProperty("status");
 		String value = prop.getProperty("value");
@@ -63,8 +63,7 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 		}
 	}
 
-	// assuming that machineid passed is valid as a response is does not have detail
-	// json.we assume that machine is de-active
+
 	public void deActivateMachine(Properties prop, String token) throws RigInternalError {
 		String status = prop.getProperty("status");
 		String value = prop.getProperty("value");
@@ -94,8 +93,8 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 				.append("\n\t Device [type=device@@filterCoumnName=filterbyValue@@status=true]");
 		return builder.toString();
 	}
-	
-	//Activate/DeActivate Device--- start
+
+
 	public JSONObject filterRecordByColumnName(String columnName, String value, boolean isActive, String token)
 			throws RigInternalError {
 		String searchJsonRequest = "kernel/Device/Search.json";
@@ -134,7 +133,7 @@ public class ActivateDeactivateHelper extends BaseTestCaseUtil {
 		String deviceFilePath = "kernel/Device/device.json";
 		String json = null;
 		try(InputStream inputStream = new FileInputStream(
-					new File(TestResources.getResourcePath() + deviceFilePath).getAbsoluteFile())) {  // need to cehck 
+					new File(TestResources.getResourcePath() + deviceFilePath).getAbsoluteFile())) {  
 			;
 			JSONTokener tokener = new JSONTokener(inputStream);
 			JSONObject jsonObj = new JSONObject(tokener);

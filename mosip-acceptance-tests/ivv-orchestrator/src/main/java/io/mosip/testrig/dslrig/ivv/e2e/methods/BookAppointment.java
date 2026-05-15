@@ -28,7 +28,7 @@ public class BookAppointment extends BaseTestCaseUtil implements StepInterface {
 				packetUtility.bookAppointment(step.getScenario().getResidentPathsPrid().get(resDataPath), 1,
 						step.getScenario().getCurrentStep(), bookOnHolidays, step);
 			}
-		} else if (!step.getParameters().isEmpty() && step.getParameters().size() >= 2) { // "$$var=e2e_bookAppointment(false,$$prid)"
+		} else if (!step.getParameters().isEmpty() && step.getParameters().size() >= 2) { 
 			bookOnHolidays = Boolean.parseBoolean(step.getParameters().get(0));
 			String prid = step.getParameters().get(1);
 			int slotNumber = Integer.parseInt(step.getParameters().get(2));
@@ -37,8 +37,8 @@ public class BookAppointment extends BaseTestCaseUtil implements StepInterface {
 				packetUtility.bookAppointment(prid, slotNumber, step.getScenario().getCurrentStep(), bookOnHolidays,
 						step);
 			}
-		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { // used for child packet
-																							// processing
+		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { 
+
 			bookOnHolidays = Boolean.parseBoolean(step.getParameters().get(0));
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(1));
 			int slotNumber = Integer.parseInt(step.getParameters().get(2));

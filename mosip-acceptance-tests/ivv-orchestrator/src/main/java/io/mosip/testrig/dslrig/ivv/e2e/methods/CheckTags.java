@@ -97,11 +97,11 @@ public class CheckTags extends BaseTestCaseUtil implements StepInterface {
 			JsonNode nodeFromServer = objectMapper.readTree(jsonFromServer);
 			JsonNode nodePacketCreator = objectMapper.readTree(jsonFromPacketCreator);
 
-			// Convert JSON nodes to Map for easier comparison
+
 			Map<String, String> mapFromServer = new TreeMap<>(objectMapper.convertValue(nodeFromServer, Map.class));
 			Map<String, String> mapPacketCreator = new TreeMap<>(
 					objectMapper.convertValue(nodePacketCreator, Map.class));
-			// Compare key-value pairs
+
 			for (Map.Entry<String, String> entry : mapFromServer.entrySet()) {
 				String key = entry.getKey();
 				String valueFromServer = entry.getValue();

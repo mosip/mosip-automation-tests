@@ -25,7 +25,7 @@ public class TestResources {
 			File destination = new File(TestResources.getGlobalResourcePaths() + "/"+TestResources.resourceFolderName);
 			FileUtils.copyDirectoryToDirectory(source, destination);
 			String path=TestResources.getGlobalResourcePaths().replace("classes", "test-classes");
-			
+
 			File destination2 = new File(path);
 			FileUtils.copyDirectoryToDirectory(source2, destination2);
 			FileUtils.copyDirectoryToDirectory(source, destination2);
@@ -44,9 +44,9 @@ public class TestResources {
 	public static void copyTestResource(String resPath) {
 		try {
 			File source = new File(TestResources.getGlobalResourcePaths().replace("MosipTestResource/MosipTemporaryTestResource", "") + resPath);
-		//D:\gitauto\mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\target\classes\idaData
+
 			File destination = new File(TestResources.getGlobalResourcePaths());
-			//D:\gitauto\mosip-automation-tests\mosip-acceptance-tests\ivv-orchestrator\target\classes\MosipTestResource\MosipTemporaryTestResource
+
 			FileUtils.copyDirectoryToDirectory(source, destination);
 			logger.info("source file path :" +source);
 			logger.info("resPath: "+resPath+" destination: "+destination);
@@ -60,15 +60,15 @@ public class TestResources {
 	public static String getGlobalResourcePaths() {
 		return TestRunner.getGlobalResourcePath();
 	}
-	
-	
+
+
 	public static String checkRunType() {
 		if (TestResources.class.getResource("TestResources.class").getPath().toString().contains(".jar"))
 			return "JAR";
 		else
 			return "IDE";
 	}
-	
+
 	public static void removeOldMosipTempTestResource() {
 		File authTestFile = new File(TestResources.getGlobalResourcePaths() + "/"+TestResources.resourceFolderName);
 		if (authTestFile.exists())
@@ -77,7 +77,7 @@ public class TestResources {
 			else
 				logger.error("Old "+TestResources.resourceFolderName+" folder not deleted.");
 	}
-	
+
 	public static boolean deleteDirectory(File dir) {
         if (dir.isDirectory()) {
             File[] children = dir.listFiles();
@@ -90,5 +90,5 @@ public class TestResources {
         }
         return dir.delete();
 	}
-	
+
 }

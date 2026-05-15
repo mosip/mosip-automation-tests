@@ -29,7 +29,7 @@ public class CheckUpdatedUIN extends BaseTestCaseUtil implements StepInterface {
         String uin2 = null;
 
         try {
-            // Validate step parameters
+
             if (step.getParameters() == null || step.getParameters().isEmpty()) {
                 logger.error("Parameters are missing from the DSL step.");
                 assertTrue(false, "Parameters are missing in step: " + step.getName());
@@ -42,7 +42,7 @@ public class CheckUpdatedUIN extends BaseTestCaseUtil implements StepInterface {
                 assertTrue(false, "Expected 2 parameters but found: " + step.getParameters().size());
             }
 
-            // Compare UINs
+
             if (uin1 == null || uin2 == null) {
                 logger.error("One or both UINs are null. UIN1: " + uin1 + ", UIN2: " + uin2);
                 throw new RigInternalError("One or both UINs are null.");
@@ -59,7 +59,7 @@ public class CheckUpdatedUIN extends BaseTestCaseUtil implements StepInterface {
             }
         } catch (RigInternalError e) {
             logger.error("RigInternalError occurred: " + e.getMessage(), e);
-            throw e; // Re-throw after logging
+            throw e; 
         } catch (Exception e) {
             logger.error("An unexpected error occurred: " + e.getMessage(), e);
             throw new RigInternalError("Unexpected error occurred: " + e.getMessage());

@@ -76,7 +76,7 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 					json.put("fullName", identityData.getJSONArray("fullName").getJSONObject(0).getString("value"));
 					json.put("ID", personaCache.get("PersonaID"));
 					jsonArray.put(json);
-					// Write the updated JSON back to the file
+
 
 				} catch (Exception e) {
 					logger.error(e.getMessage());
@@ -102,7 +102,7 @@ public class WritePersonaData extends BaseTestCaseUtil implements StepInterface 
 
 	private static void writeJSONArrayToFile(JSONArray jsonArray, String filePath) {
 		try (FileWriter fileWriter = new FileWriter(filePath)) {
-			// Convert the JSONArray to a string and write it to the file
+
 			String jsonString = jsonArray.toString();
 			fileWriter.write(jsonString);
 			logger.info("JSONArray has been written to the file.");

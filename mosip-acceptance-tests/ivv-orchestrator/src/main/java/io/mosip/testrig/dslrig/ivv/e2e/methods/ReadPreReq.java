@@ -39,10 +39,7 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 				step.getScenario().getVariables().putAll(prereqDataSet.get(path));
 			}
 			Reporter.log("Loaded the prereq data for executing the scenario<br>");
-			/*
-			 * if (ConfigManager.IsDebugEnabled())
-			 * Reporter.log(prereqDataSet.get(path).toString());
-			 */
+
 		} catch (Exception e) {
 			this.hasError = true;
 			logger.error(e.getMessage());

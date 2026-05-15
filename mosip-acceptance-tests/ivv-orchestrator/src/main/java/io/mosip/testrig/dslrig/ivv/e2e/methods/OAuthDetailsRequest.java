@@ -39,7 +39,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 	@Override
 	public void run() throws RigInternalError, FeatureNotSupportedError {
 
-		// check if esignet is installed on the target system
+
 		if (dslConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
@@ -77,12 +77,12 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 
 			Response response = oAuthDetails.response;
 			if (response != null) {
-				JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
+				JSONObject jsonResp = new JSONObject(response.getBody().asString()); 
 
 				String transactionId = jsonResp.getJSONObject("response").getString("transactionId");
 
 				if (step.getParameters().get(1).contains("transactionId1")) {
-					step.getScenario().getOidcClientProp().put("transactionId1", transactionId); // "$$clientId=e2e_OidcClient()"
+					step.getScenario().getOidcClientProp().put("transactionId1", transactionId); 
 					Gson gson = new Gson();
 					JsonObject json = gson.fromJson(response.getBody().asString(), JsonObject.class);
 					String responseJsonString = json.getAsJsonObject("response").toString();
@@ -94,7 +94,7 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 					logger.info(step.getScenario().getOidcClientProp());
 				} else if (step.getParameters().get(1).contains("transactionId2")) {
 
-					step.getScenario().getOidcClientProp().put("transactionId2", transactionId); // "$$clientId=e2e_OidcClient()"
+					step.getScenario().getOidcClientProp().put("transactionId2", transactionId); 
 					Gson gson = new Gson();
 					JsonObject json = gson.fromJson(response.getBody().asString(), JsonObject.class);
 					String responseJsonString = json.getAsJsonObject("response").toString();

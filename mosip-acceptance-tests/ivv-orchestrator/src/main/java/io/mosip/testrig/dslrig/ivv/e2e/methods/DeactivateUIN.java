@@ -21,7 +21,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 public class DeactivateUIN extends BaseTestCaseUtil implements StepInterface {
-	
+
 	static Logger logger = Logger.getLogger(DeactivateUIN.class);
 	private static final String DEACTIVATEUIN = "idaData/DeactivateUIN/UpdateIdentity.yml";
 
@@ -55,7 +55,7 @@ public class DeactivateUIN extends BaseTestCaseUtil implements StepInterface {
 				throw new FeatureNotSupportedError("Email id is Empty hence we cannot perform deactivate uin");
 
 			}
-			
+
 		}
 		if (step.getParameters().size() == 2 && step.getParameters().get(0).startsWith("$$")) {
 			uins = step.getParameters().get(0);
@@ -66,7 +66,6 @@ public class DeactivateUIN extends BaseTestCaseUtil implements StepInterface {
 		} else
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
-		
 
 		if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
 				|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
@@ -84,10 +83,10 @@ public class DeactivateUIN extends BaseTestCaseUtil implements StepInterface {
 			Object[] testObj = updateIdentity.getYmlTestData(DEACTIVATEUIN);
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
 			String input = test.getInput();
-			
+
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "UIN");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "email");
-			
+
 
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {

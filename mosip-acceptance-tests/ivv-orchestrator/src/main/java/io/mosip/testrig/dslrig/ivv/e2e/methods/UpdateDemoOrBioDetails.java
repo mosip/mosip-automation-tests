@@ -68,7 +68,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 		List<String> updateAttributeList = (updateAttribute != null) ? Arrays.asList(updateAttribute.split("@@"))
 				: new ArrayList<>();
 
-		if (!step.getParameters().isEmpty() && step.getParameters().size() > 3) { // "var1=e2e_updateDemoOrBioDetails(0,0,0,$$personaPath)"
+		if (!step.getParameters().isEmpty() && step.getParameters().size() > 3) { 
 			String personaFilePath = step.getParameters().get(3);
 
 			if (step.getParameters().size() == 5) {
@@ -96,24 +96,21 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 			}
 		}
 	}
-	
+
 	public static String generateHandleValues(String fieldName, JSONObject fieldSchema) {
 	    String type = fieldSchema.optString("type", "string");
 	    String pattern = extractRegexPattern(fieldSchema);
 
-	    // For uniqueness
+
 	    String uniqueSuffix = String.valueOf(System.currentTimeMillis());
 
 	    if ("string".equals(type)) {
-	        // If pattern is digits only (e.g., ^[0-9]{10}$ or ^\d{10}$)
+
 	        if (pattern != null && pattern.matches("^\\(?[\\d\\[\\]{}()^$+.*?]+\\)?$")) {
 	            int digits = extractExpectedDigits(pattern);
 	            return AdminTestUtil.generateRandomNumberString(digits);
 	        }
 
-//	        if ("email".equalsIgnoreCase(format) || fieldName.toLowerCase().contains("email")) {
-//	            return "handleUpdate_" + uniqueSuffix + "@example.com";
-//	        }
 
 	        return "handleUpdate_" + fieldName + "_" + uniqueSuffix;
 	    }
@@ -130,7 +127,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 	    return "handleUpdate_" + fieldName + "_" + uniqueSuffix;
 	}
 
-	
+
 	private static String extractRegexPattern(JSONObject fieldSchema) {
 	    if (fieldSchema.has("validators")) {
 	        JSONArray validators = fieldSchema.getJSONArray("validators");
@@ -147,16 +144,16 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 
 	private static int extractExpectedDigits(String pattern) {
 	    if (pattern != null) {
-	        // Supports both \d{10} and [0-9]{10}
+
 	        Matcher m1 = Pattern.compile("\\\\d\\{(\\d+)}").matcher(pattern);
 	        if (m1.find()) return Integer.parseInt(m1.group(1));
 
 	        Matcher m2 = Pattern.compile("\\[0-9]{(\\d+)}").matcher(pattern);
 	        if (m2.find()) return Integer.parseInt(m2.group(1));
 	    }
-	    return 6; // default
+	    return 6; 
 	}
-	
+
 	public static String generateHandleValues(Map<String, JSONObject> selectedHandles) {
 	    List<String> handleValuePairs = new ArrayList<>();
 

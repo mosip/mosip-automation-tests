@@ -51,29 +51,24 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	public static Properties props = new AdminTestUtil()
 			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
-	/*
-	 * public static Properties propsKernel = new AdminTestUtil()
-	 * .getproperty(TestRunner.getExternalResourcePath() +
-	 * "/config/Kernel.properties");
-	 */
+
 	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
 
 	public static final long DEFAULT_WAIT_TIME = 30000l;
 	public static final long TIME_IN_MILLISEC = 1000l;
 
-	/** Max time to establish TCP connection when draining internal API logs from Packet Creator. */
+
 	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = 10_000;
-	/** Max time to read response body for internal API log drain (large captured payloads). */
+
 	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
 
 	public static PacketUtility packetUtility = new PacketUtility();
 	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
-	
+
 	public static Map<String, String> sceanrioExecutionStatistics = Collections
 			.synchronizedMap(new HashMap<String, String>());
-	
-	// public static String scenario = null; // Neeed to check how to add in
-	// scenario
+
+
 	public static String partnerKeyUrl = null;
 	public static String kycPartnerKeyUrl = null;
 	public static String partnerId = null;
@@ -165,22 +160,13 @@ public class BaseTestCaseUtil extends BaseStep {
 			return url + "/" + context;
 	}
 
-	/**
-	 * Context key segment appended to Packet Creator URLs (must match Packet
-	 * Creator / Data Provider namespace).
-	 */
+
 	public static String buildPacketCreatorContextKey(Scenario scenario) {
 		String scenarioId = scenario.getId();
 		return System.getProperty("env.user") + "_S" + scenarioId + "_context";
 	}
 
-	/**
-	 * After reporting a Packet Creator round-trip, fetch outbound internal API
-	 * traffic captured on the server for this scenario context and append it to
-	 * the TestNG report immediately under that call (when internal API logging is
-	 * enabled). Uses {@code clear=true} so each drain corresponds to traffic since
-	 * the previous drain for this context.
-	 */
+
 	public static void appendOutboundInternalApiLogsAfterPacketCreatorCall(Scenario.Step step, String resolvedUrl) {
 		if (!dslConfigManager.isInternalApiLoggingForReport() || step == null || resolvedUrl == null) {
 			return;
@@ -214,7 +200,7 @@ public class BaseTestCaseUtil extends BaseStep {
 				return;
 			}
 			String escaped = org.testng.internal.Utils.escapeHtml(body);
-			// Bold labels in log: markers from InternalApiLogFormatter (reportHints=true)
+
 			escaped = escaped.replace("[[DSL_B]]", "<b>").replace("[[DSL_E]]", "</b>");
 			StringBuilder block = new StringBuilder(512 + escaped.length());
 			block.append("<div class=\"dsl-internal-api-log\">");
@@ -253,7 +239,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return getResponse;
 	}
-	
+
 	public static Response getRequestSilent(String url, Scenario.Step step) {
 		url = addContextToUrl(url, step);
 		Response getResponse = null;
@@ -507,7 +493,7 @@ public class BaseTestCaseUtil extends BaseStep {
 				getResponse.asString(),true);
 		return getResponse;
 	}
-	
+
 	public static Response patchWithQueryParamAndCookie(String url, String jsonInput, String cookieName, String role,
 			String testCaseName) {
 		AdminTestUtil test = new AdminTestUtil();
@@ -563,10 +549,10 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		return bioMetricData;
 	}
-	
+
 	public static String getRegprocWaitFromActuator() {
 		String url = BaseTestCase.ApplnURI + dslConfigManager.getproperty("actuatorRegprocEndpoint");
-		
+
 		if (regProcWaitInterval != null && !regProcWaitInterval.isEmpty())
 			return regProcWaitInterval;
 

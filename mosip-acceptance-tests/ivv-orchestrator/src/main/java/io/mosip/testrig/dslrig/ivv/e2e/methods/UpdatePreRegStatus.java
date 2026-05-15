@@ -22,16 +22,16 @@ public class UpdatePreRegStatus extends BaseTestCaseUtil implements StepInterfac
 	@Override
 	public void run() throws RigInternalError {
 		if (!step.getParameters().isEmpty() && step.getParameters().size() > 1
-				&& step.getParameters().get(1).startsWith("$$")) { // "$$var=e2e_updatePreRegStatus(0,$$prid)"
+				&& step.getParameters().get(1).startsWith("$$")) { 
 			status = (step.getParameters().get(0).equalsIgnoreCase("0")) ? this.status : step.getParameters().get(0);
 			String prid = step.getParameters().get(1);
 			prid = step.getScenario().getVariables().get(prid);
 			String validFlag = step.getParameters().get(2);
-			if (validFlag.equalsIgnoreCase("valid")) { // VALID Scenario
+			if (validFlag.equalsIgnoreCase("valid")) { 
 				response = packetUtility.updatePreRegStatus(prid, status, step.getScenario().getCurrentStep(), step);
-				packetUtility.preRegStatusValidResponse(response);// VALID
+				packetUtility.preRegStatusValidResponse(response);
 			} else {
-				status = "Pending_Appointment"; // INVALID Scenario
+				status = "Pending_Appointment"; 
 				response = packetUtility.updatePreRegStatus(prid, status, step.getScenario().getCurrentStep(), step);
 				packetUtility.preRegStatusInValidResponse(response);
 			}
@@ -40,7 +40,7 @@ public class UpdatePreRegStatus extends BaseTestCaseUtil implements StepInterfac
 			for (String resDataPath : step.getScenario().getResidentPathsPrid().keySet()) {
 				response = packetUtility.updatePreRegStatus(step.getScenario().getResidentPathsPrid().get(resDataPath),
 						status, step.getScenario().getCurrentStep(), step);
-				packetUtility.preRegStatusValidResponse(response); // Valid
+				packetUtility.preRegStatusValidResponse(response); 
 			}
 		}
 	}

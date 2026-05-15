@@ -104,24 +104,24 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 		if (step.getParameters().size() > 4)
 			updateAgeFlag = step.getParameters().get(4);
-		
-		if (step.getParameters().size() == 5 && step.getParameters().get(4).equals("ERROR")) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+
+		if (step.getParameters().size() == 5 && step.getParameters().get(4).equals("ERROR")) { 
 			SceanrioFlow = step.getParameters().get(4);
 		}
-		
+
 		if (step.getParameters().size() > 5 && !step.getParameters().get(4).equals("ERROR")) {
 			handleKey = step.getParameters().get(5);
 			_personFilePath = step.getParameters().get(2);
 			if (handleKey.startsWith("$$") && _personFilePath.startsWith("$$")) {
 				handles = step.getScenario().getObjectVariables().get(handleKey);
 				_personFilePath = step.getScenario().getVariables().get(_personFilePath);
-				
+
 				if (handles instanceof List) {
 			        @SuppressWarnings("unchecked")
-			        List<String> handleNames = (List<String>) handles;  // e.g., ["phone", "email"]
+			        List<String> handleNames = (List<String>) handles;  
 
 			        for (String handleName : handleNames) {
-			            handleList.add(handleName);  // e.g., "phone", "email"
+			            handleList.add(handleName);  
 			        }
 
 			    } else {
@@ -169,7 +169,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOAGE:
 					demoFieldValueKey = E2EConstants.DEMODOB;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 
 					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease")) {
 						demoValue = decreaseAge(demoValue);
@@ -193,7 +193,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOEMAIL:
 					demoFieldValueKey = E2EConstants.DEMOEMAIL;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
@@ -206,7 +206,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOYMLPHONE:
 					demoFieldValueKey = E2EConstants.DEMOPHONE;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
@@ -286,7 +286,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOGENDER:
 					demoFieldValueKey = E2EConstants.DEMOGENDER;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					JSONArray genArray = new JSONArray();
 					JSONObject genderObj = new JSONObject();
 					genderObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -323,7 +323,6 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				casesListVID = demoAuth.getYmlTestData(fileName);
 			}
 
-			// inputJson.put("identityRequest", identityReqJson.toString());
 
 			if (idType.contains("UIN") || idType.contains("uin")) {
 				casesListUIN = demoAuth.getYmlTestData(fileName);
@@ -379,7 +378,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOAGE:
 					demoFieldValueKey = E2EConstants.DEMODOB;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 
 					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease")) {
 						demoValue = decreaseAge(demoValue);
@@ -402,7 +401,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOEMAIL:
 					demoFieldValueKey = E2EConstants.DEMOEMAIL;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
@@ -414,7 +413,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOYMLPHONE:
 					demoFieldValueKey = E2EConstants.DEMOPHONE;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
@@ -488,7 +487,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOGENDER:
 					demoFieldValueKey = E2EConstants.DEMOGENDER;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					JSONArray genArray = new JSONArray();
 					JSONObject genderObj = new JSONObject();
 					genderObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -524,7 +523,6 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				casesListVID = demoAuth.getYmlTestData(fileName);
 			}
 
-			// inputJson.put("identityRequest", identityReqJson.toString());
 
 			if (idType.contains("VID") || idType.contains("vid")) {
 				casesListVID = demoAuth.getYmlTestData(fileName);
@@ -547,7 +545,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 
 			}
 		}
-		
+
 		for (String handle : handleList) {
 			Reporter.log("<span style='color:blue;'>Handle : " + handle + "</span>");
 			String personFilePathvalue = null;
@@ -583,7 +581,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOAGE:
 					demoFieldValueKey = E2EConstants.DEMODOB;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 
 					if (updateAgeFlag != null && updateAgeFlag.contains("ageDecrease")) {
 						demoValue = decreaseAge(demoValue);
@@ -607,7 +605,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOEMAIL:
 					demoFieldValueKey = E2EConstants.DEMOEMAIL;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
@@ -619,7 +617,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOYMLPHONE:
 					demoFieldValueKey = E2EConstants.DEMOPHONE;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
@@ -694,7 +692,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 				case E2EConstants.DEMOGENDER:
 					demoFieldValueKey = E2EConstants.DEMOGENDER;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					JSONArray genArray = new JSONArray();
 					JSONObject genderObj = new JSONObject();
 					genderObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -737,19 +735,19 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 	}
 
 	public static String decreaseAge(String dateString) {
-		// Assuming dateString comes in the format "YYYY/MM/DD"
+
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		LocalDate birthDate = LocalDate.parse(dateString, formatter);
 		LocalDate currentDate = LocalDate.now();
 
 		long currentAge = ChronoUnit.YEARS.between(birthDate, currentDate);
 
-		// If the age is less than 1 year, we cannot decrease it
+
 		if (currentAge < 1) {
-			return "0"; // Return "0" as a string
+			return "0"; 
 		}
 		Random random = new Random();
-		int yearsToSubtract = random.nextInt((int) currentAge) + 1; // Random number between 1 and currentAge
+		int yearsToSubtract = random.nextInt((int) currentAge) + 1; 
 		int decreasedAge = (int) currentAge - yearsToSubtract;
 		return String.valueOf(decreasedAge);
 	}

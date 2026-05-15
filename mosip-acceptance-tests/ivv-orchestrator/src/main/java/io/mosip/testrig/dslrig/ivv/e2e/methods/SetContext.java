@@ -63,37 +63,37 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 					map = step.getScenario().getVariables();
 				}
 			}
-			if (step.getParameters().size() > 2) // true/false (want to generate privatekey)
+			if (step.getParameters().size() > 2) 
 				generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(2));
 
-			if (step.getParameters().size() > 3) // deactivate
+			if (step.getParameters().size() > 3) 
 				status = step.getParameters().get(3);
 
-			if (step.getParameters().size() > 4) // for negative operator and supervisor
+			if (step.getParameters().size() > 4) 
 				negative = step.getParameters().get(4);
 
 			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("true"))
 				invalidCertFlag = Boolean.parseBoolean(step.getParameters().get(3));
 
-			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidIdSchema")) // invalidIdSchema
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidIdSchema")) 
 				invalidIdSchemaFlag = step.getParameters().get(3);
 
-			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("oldIdSchema")) // invalidIdSchema
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("oldIdSchema")) 
 				invalidIdSchemaFlag = step.getParameters().get(3);
 
 			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("skipBiometricClassification")) 
 				skipBiometricClassificationFlag = step.getParameters().get(3);
 
-			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("skipApplicantDocuments")) // Skip
-				// packet
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("skipApplicantDocuments")) 
+
 				skipApplicantDocumentsFlag = step.getParameters().get(3);
 
-			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidCreationDate")) // Invalid
-				// date
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidCreationDate")) 
+
 				invalidDateFlag = step.getParameters().get(3);
 
-			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidOfficerID")) // Invalid
-																												// // ID
+			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("invalidOfficerID")) 
+
 				invalidOfficerIDFlag = step.getParameters().get(3);
 
 			if (step.getParameters().size() == 4 && step.getParameters().get(3).contains("EXTERNAL"))
@@ -103,19 +103,19 @@ public class SetContext extends BaseTestCaseUtil implements StepInterface {
 					|| step.getParameters().get(4).contains("invalidSignature")))
 				signature = step.getParameters().get(4);
 
-			// consent value either "yes" or "no"
+
 			if (step.getParameters().size() == 5
 					&& (step.getParameters().get(4).contains("yes") || step.getParameters().get(4).contains("no")))
 				consent = step.getParameters().get(4);
 
-			// supervisorIDFlag
+
 			if (step.getParameters().size() > 5 && step.getParameters().get(5).contains("true"))
 				changeSupervisorNameToDiffCase = Boolean.parseBoolean(step.getParameters().get(5));
 
-			// encryptedHashFlag
+
 			if (step.getParameters().size() > 6 && step.getParameters().get(6).contains("invalidEncryptedHash"))
 				invalidEncryptedHashFlag = step.getParameters().get(6);
-			// checksumFlag
+
 			if (step.getParameters().size() == 8 && step.getParameters().get(7).contains("invalidCheckSum"))
 				invalidCheckSum = step.getParameters().get(7);
 

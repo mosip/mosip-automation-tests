@@ -45,7 +45,7 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 		}
 		checkStatus(Status,rid);
 	}
-	
+
 	public void checkStatus(String ridStatusParam, String Rid)
 			throws RigInternalError {
 		String waitTime = props.getProperty("waitTime");
@@ -73,7 +73,7 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 				}
 				ridStatusMap.put(Rid, ridStatus);
 				GlobalMethods.ReportRequestAndResponse(null, null, null, null, "Final RID Status : " + ridStatus, true);
-			
+
 			if (ridStatusMap.size() == 1) {
 				if (!ridStatusMap.entrySet().iterator().next().getValue().contains(ridStatusParam)) {
 					this.hasError = true;

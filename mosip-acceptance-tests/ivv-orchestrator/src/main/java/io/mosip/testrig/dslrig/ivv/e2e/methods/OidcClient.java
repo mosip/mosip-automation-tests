@@ -66,7 +66,7 @@ public class OidcClient extends BaseTestCaseUtil implements StepInterface {
 
 		String name = executePolicyGroupCreation();
 		String policygroupId = step.getScenario().getOidcPmsProp().get(POLICY_GROUP_ID).toString();
-		
+
 		String policyId = executeDefinePolicy(name);
 		String policyName = step.getScenario().getOidcPmsProp().get(POLICY_NAME) != null ? 
 			step.getScenario().getOidcPmsProp().get(POLICY_NAME).toString() : null;

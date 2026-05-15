@@ -33,7 +33,7 @@ public class CreateAndUploadExternalPacket extends BaseTestCaseUtil implements S
 		boolean genrateValidateToken = false;
 		String uin=null;
 		String valid = "valid";
-		
+
 		if (step.getParameters().isEmpty() && !step.getScenario().getGeneratedResidentData().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			assertTrue(false, "process paramter is  missing in step: " + step.getName());
@@ -43,7 +43,7 @@ public class CreateAndUploadExternalPacket extends BaseTestCaseUtil implements S
 				String[] parts = source.split("@");
 				source = parts[0];
 				valid = parts[1];
-				
+
 			}
 			if (step.getParameters().size() > 1) {
 				process = step.getParameters().get(1);
@@ -67,18 +67,18 @@ public class CreateAndUploadExternalPacket extends BaseTestCaseUtil implements S
 				}
 				step.getScenario().getResidentTemplatePaths().put(personaPath, null);
 			}
-			
+
 			if (!step.getParameters().isEmpty() && step.getParameters().size() > 3) {
 				genrateValidateToken = Boolean.parseBoolean(step.getParameters().get(3));
 			}
-			
+
 			if (!step.getParameters().isEmpty() && step.getParameters().size() > 4) {
 				uin = step.getScenario().getVariables().get(step.getParameters().get(4));
 			}
 
 			String rid = packetUtility.createUploadPacket(step.getScenario().getResidentTemplatePaths().keySet(),
 					source, process, genrateValidateToken, uin, step.getScenario().getCurrentStep(), step ,valid);
-			
+
 			if (valid.equalsIgnoreCase("invalid")) {
 			    Reporter.log("<b style=\"background-color: #0A0;\">Marking test case as passed. As " + rid + "</b>");
 			} else if (rid == null || rid.isEmpty()) {

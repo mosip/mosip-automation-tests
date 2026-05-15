@@ -22,15 +22,15 @@ public class PreRegister extends BaseTestCaseUtil implements StepInterface {
 	public void run() throws RigInternalError {
 		Boolean isForChildPacket = false;
 		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1
-				&& !step.getParameters().get(0).startsWith("$$")) { // used for child packet processing
+				&& !step.getParameters().get(0).startsWith("$$")) { 
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
 			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty())
 				step.getScenario().setPrid_updateResident(
 						packetUtility.preReg(step.getScenario().getGeneratedResidentData().get(0),
 								step.getScenario().getCurrentStep(), step));
 		} else {
-			if (step.getParameters().size() == 1 && step.getParameters().get(0).startsWith("$$")) { // "$$prid=
-																									// e2e_preRegister($$personaFilePath)"
+			if (step.getParameters().size() == 1 && step.getParameters().get(0).startsWith("$$")) { 
+
 				String personaFilePath = step.getParameters().get(0);
 				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
 				String prid = packetUtility.preReg(personaFilePath, step.getScenario().getCurrentStep(), step);

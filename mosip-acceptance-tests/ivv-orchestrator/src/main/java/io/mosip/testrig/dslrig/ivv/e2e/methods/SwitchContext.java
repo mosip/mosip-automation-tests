@@ -38,7 +38,7 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 		String invalidOfficerIDFlag = "";
 		String signature = "valid";
 		String flow = "";
-		
+
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.warn("SwitchContext Arugemnt is  Missing : Please pass the argument from DSL sheet");
 		} else {
@@ -49,7 +49,7 @@ public class SwitchContext extends BaseTestCaseUtil implements StepInterface {
 					map = step.getScenario().getVariables();
 				}
 
-				if (step.getParameters().size() > 2) // true/false (want to generate privatekey)
+				if (step.getParameters().size() > 2) 
 					generatePrivateKey = Boolean.parseBoolean(step.getParameters().get(2));
 				if (map != null)
 					packetUtility.createContexts("", contextKeyValue, map, generatePrivateKey, null,

@@ -260,7 +260,7 @@ public class Orchestrator {
 												scenario.getResidentPathGuardianRid() == null ? null
 														: new LinkedHashMap<>(scenario.getResidentPathGuardianRid()));
 										scenarioCopy.setId(scenarioId + "_" + i);
-										// Deep copy steps
+
 										List<Scenario.Step> copiedSteps = new ArrayList<>();
 										for (Scenario.Step step : scenario.getSteps()) {
 											copiedSteps.add(deepCopyStep(step, scenarioCopy));
@@ -311,7 +311,7 @@ public class Orchestrator {
 		        StepInterface st = getInstanceOf(step);
 		        if (st.hasError()) {
 		            beforeSuiteFailed = true;
-		            disableAllRetries = true;   // 🔴 CRITICAL
+		            disableAllRetries = true;   
 		            logger.error("Before Suite FAILED. Disabling all retries.");
 		            break;
 		        }
@@ -323,14 +323,14 @@ public class Orchestrator {
 	private void run(int i, Scenario scenario, HashMap<String, String> configs, HashMap<String, String> globals,
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
 			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-		// 🔴 If Before Suite failed, skip everything except AFTER_SUITE
+
 		if ((beforeSuiteFailed || disableAllRetries) && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
 		    updateRunStatistics(scenario);
 		    throw new SkipException(
 		        "Skipping scenario " + scenario.getId() + " because Before Suite failed."
 		    );
 		}
-		// Capture the start time of the scenario execution
+
 		long startTime = System.nanoTime();
 		BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
 				String.valueOf(startTime));
@@ -357,11 +357,11 @@ public class Orchestrator {
 
 		if (!scenario.getId().equalsIgnoreCase("0")) {
 
-			// AFTER_SUITE scenario execution kicked-off before all execution
-			if (scenario.getId().equalsIgnoreCase("AFTER_SUITE")) // || scenariosExeuted)
+
+			if (scenario.getId().equalsIgnoreCase("AFTER_SUITE")) 
 			{
-				// Wait till all scenarios are executed
-				while (counterLock.get() < totalScenario - 1) // executed excluding after suite
+
+				while (counterLock.get() < totalScenario - 1) 
 				{
 					long currentTime = System.currentTimeMillis();
 					if (currentTime - suiteStartTime >= suiteMaxTimeInMillis) {
@@ -371,16 +371,16 @@ public class Orchestrator {
 
 					logger.info(" Thread ID: " + Thread.currentThread().getId() + " inside scenariosExecuted "
 							+ counterLock.get() + "- " + scenario.getId());
-					Thread.sleep(10000); // Sleep for 10 sec
+					Thread.sleep(10000); 
 				}
 				startTime = System.nanoTime();
 				BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
 						String.valueOf(startTime));
 			} else {
 
-				// Wait for before suite executed
+
 				while (beforeSuiteExeuted == false) {
-					Thread.sleep(10000); // Sleep for 10 sec
+					Thread.sleep(10000); 
 
 					logger.info(" Thread ID: " + Thread.currentThread().getId()
 							+ " inside beforeSuiteExecuted == false " + counterLock.get() + "- " + scenario.getId());
@@ -389,13 +389,13 @@ public class Orchestrator {
 				BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
 						String.valueOf(startTime));
 
-				// Check if the beforeSuite is successful. If not skip the scenario execution
+
 				if (beforeSuiteFailed == true) {
 					updateRunStatistics(scenario);
 					throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
 							+ " Skipping scenarios execution - " + scenario.getId()));
 				}
-				
+
 
 			}
 		}
@@ -420,7 +420,7 @@ public class Orchestrator {
 		message = "Scenario_" + scenario.getId() + ": " + scenario.getDescription();
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 
-		// Check whether the scenario is in the defined skipped list
+
 		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
@@ -453,7 +453,7 @@ public class Orchestrator {
 				"<div class='box black-bg left-aligned' style='max-width: 100%; word-wrap: break-word;'><b><u>Scenario_"
 						+ scenario.getId() + ": " + scenario.getDescription() + "</u></b></div>");
 
-		// Prepare a base store (used to reset state between retry attempts)
+
 		Store store = new Store();
 		store.setConfigs(configs);
 		store.setGlobals(globals);
@@ -475,14 +475,14 @@ public class Orchestrator {
 		Exception finalException = null;
 
 		for (int attempt = 1; attempt <= maxAttempts && !scenarioSucceeded; attempt++) {
-			// Determine whether this attempt will be retried on failure
+
 			boolean willRetry =
 			        !disableAllRetries
 			        && !"sanity".equalsIgnoreCase(BaseTestCase.testLevel)
 			        && (attempt < maxAttempts)
 			        && (totalFailedScenarios.get() < MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY);
 
-			// Reset store to initial values before each attempt
+
 			store = new Store();
 			store.setConfigs(configs);
 			store.setGlobals(globals);
@@ -504,7 +504,7 @@ public class Orchestrator {
 							+ step.getVariant() + "]";
 					logger.info(identifier);
 
-					extentTest.info(identifier + " - running"); //
+					extentTest.info(identifier + " - running"); 
 					extentTest.info("parameters: " + step.getParameters().toString());
 					StepInterface st = getInstanceOf(step);
 					st.setExtentInstance(extentTest);
@@ -522,7 +522,7 @@ public class Orchestrator {
 
 					String stepParams[] = getStepDetails("S_" + step.getScenario().getId() + stepAction);
 					if (stepParams == null && step.getScenario().getId().contains("_")) {
-						// Try with the base scenario ID (before the underscore)
+
 						String baseScenarioId = step.getScenario().getId().split("_")[0];
 						stepParams = getStepDetails("S_" + baseScenarioId + stepAction);
 					}
@@ -547,7 +547,7 @@ public class Orchestrator {
 
 					}
 
-					// loopWindow handling
+
 					if (step.getName().contains("loopWindow")) {
 
 						if (step.getParameters().get(0).contains("START")) {
@@ -566,7 +566,7 @@ public class Orchestrator {
 						}
 					}
 
-					// Execute step
+
 					st.run();
 					st.assertHttpStatus();
 					if (st.hasError()) {
@@ -599,11 +599,11 @@ public class Orchestrator {
 						}
 					}
 					store = st.getState();
-					// If no error, mark step passed
+
 					extentTest.pass(identifier + " - passed");
 				}
 
-				// If we reach here without exception, scenario passed for this attempt
+
 				scenarioSucceeded = true;
 			} catch (SkipException e) {
 				extentTest.skip(identifier + " - skipped");
@@ -614,7 +614,7 @@ public class Orchestrator {
 			} catch (FeatureNotSupportedError e) {
 				logger.warn(e.getMessage());
 				Reporter.log(e.getMessage());
-				// Feature not supported - treat as not fatal and don't retry
+
 				scenarioSucceeded = true;
 			} catch (Exception e) {
 				finalException = e;
@@ -622,12 +622,11 @@ public class Orchestrator {
 						+ e.getMessage();
 				logger.error(failMessage, e);
 
-				// HTML red text in TestNG report
+
 				String redFailMessage = "<span style='color:red; font-weight:bold;'>" + failMessage + "</span>";
 				Reporter.log(redFailMessage);
 
 
-				// ✅ Check global threshold first
 				if (totalFailedScenarios.get() >= MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY) {
 					String thresholdMessage = "Global retry threshold (" + MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY
 							+ ") reached. Marking scenario " + scenario.getId() + " as failed.";
@@ -637,7 +636,7 @@ public class Orchestrator {
 					Reporter.log("<span style='color:red; font-weight:bold;'>" + thresholdMessage + "</span>");
 					updateRunStatistics(scenario);
 
-					// Explicitly fail (so TestNG marks it as FAILED, not SKIPPED)
+
 					throw new RuntimeException(thresholdMessage);
 				}
 				if (beforeSuiteFailed || disableAllRetries) {
@@ -645,7 +644,7 @@ public class Orchestrator {
 				    updateRunStatistics(scenario);
 				    throw new RuntimeException("Before Suite failed. Aborting scenario execution.");
 				}
-				// ✅ If this was not the last retry
+
 				if (attempt < maxAttempts) {
 					String humanRetryMessage = ordinalWord(attempt) + " try for scenario " + scenario.getId()
 							+ " failed; trying for " + ordinalWord(attempt + 1) + " time.";
@@ -656,11 +655,11 @@ public class Orchestrator {
 
 					logger.info(humanRetryMessage);
 					Thread.sleep(2000);
-					continue; // retry next attempt
+					continue; 
 				}
-				// ✅ Final failure (after last attempt)
+
 				else {
-					// Increment total failure counter
+
 					totalFailedScenarios.incrementAndGet();
 					String finalFail = "<span style='color:red; font-weight:bold;'>Scenario failed after " + maxAttempts
 							+ " attempts: " + e.getMessage() + "</span>";
@@ -707,22 +706,12 @@ public class Orchestrator {
 			InvocationTargetException, NoSuchMethodException, SecurityException {
 		String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
 				+ step.getName().substring(1);
-		// Load the class
+
 		Class<?> clazz = Class.forName(className);
-		// Use the new approach to create an instance
+
 		return (StepInterface) clazz.getDeclaredConstructor().newInstance();
 	}
 
-	/*
-	 * @SuppressWarnings("deprecation") public StepInterface
-	 * getInstanceOf(Scenario.Step step) throws ClassNotFoundException,
-	 * NoSuchMethodException, InvocationTargetException, InstantiationException,
-	 * IllegalAccessException { String className = getPackage(step) + "." +
-	 * step.getName().substring(0, 1).toUpperCase() + step.getName().substring(1);
-	 * // Load the class Class<?> clazz = Class.forName(className); // Retrieve the
-	 * bean from the Spring application context return (StepInterface)
-	 * context.getBean(clazz); }
-	 */
 
 	private void configToSystemProperties() {
 		Set<String> keys = this.properties.stringPropertyNames();
@@ -738,9 +727,9 @@ public class Orchestrator {
 
 	public static String getScenarioSheet() throws RigInternalError {
 		String scenarioSheet = null;
-		// Use external Scenario sheet
+
 		if (dslConfigManager.useExternalScenarioSheet()) {
-			// Check first for the JSON file
+
 			scenarioSheet = dslConfigManager.getmountPathForScenario() + "/scenarios/" + "scenarios-"
 					+ BaseTestCase.testLevel + "-" + BaseTestCase.environment + ".json";
 			Path path = Paths.get(scenarioSheet);
@@ -751,7 +740,7 @@ public class Orchestrator {
 			scenarioSheet = JsonToCsvConverter(scenarioSheet);
 			if (scenarioSheet.isEmpty())
 				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
-		} else { // Use the scenario sheet bundled with jar
+		} else { 
 			scenarioSheet = TestRunner.getGlobalResourcePath() + "/config/scenarios.json";
 			logger.info("Scenario sheet path is: " + scenarioSheet);
 			Path path = Paths.get(scenarioSheet);
@@ -782,18 +771,18 @@ public class Orchestrator {
 			headerList.add("group_name");
 			headerList.add("description");
 
-			// Add steps to the header list
+
 			for (int i = 0; i < maxSteps; i++) {
 				headerList.add("step" + i);
 			}
 
-			// Write header line
+
 			for (String string : headerList) {
 				fileWriter.write(string + ",");
 			}
 			fileWriter.write("\r\n");
 
-			// Write scenarios
+
 			for (JsonNode jsonNode : rootNode) {
 
 				List<String> stepList = new ArrayList<>();
@@ -833,12 +822,12 @@ public class Orchestrator {
 			}
 			fileWriter.close();
 		} catch (Exception e) {
-			// Log the error
+
 			return "";
 		}
 		if (dslConfigManager.IsDebugEnabled()) {
 			String keyValues = "";
-			// Iterate through the map and print its contents
+
 			for (Map.Entry<String, String[]> entry : uniqueStepsMap.entrySet()) {
 				keyValues += entry.getKey();
 				String[] values = entry.getValue();
@@ -857,10 +846,10 @@ public class Orchestrator {
 	private static void addUniqueStepDetails(String stepInput, String description) {
 		if (stepInput.isEmpty() || description.isEmpty())
 			return;
-		// Find the index of the first "(" character
+
 		int indexOfOpenParenthesis = stepInput.indexOf("(");
 		if (indexOfOpenParenthesis != -1) {
-			// Extract the substring "e2e_" up to the first "("
+
 			String step = stepInput.substring(stepInput.indexOf("e2e_"), indexOfOpenParenthesis);
 			if (uniqueStepsMap.get(step) == null) {
 				String[] descAndExample = new String[2];
@@ -877,9 +866,9 @@ public class Orchestrator {
 		if (stepInput == null || stepInput.isEmpty()) {
 			return;
 		}
-		// Remove parts enclosed in /*...*/
+
 		String processedStepInput = stepInput.replaceAll("/\\*.*?\\*/", "");
-		// Replace ( with [ and ) with ]
+
 		processedStepInput = processedStepInput.replace('(', '[').replace(')', ']');
 		processedStepInput = trimSpaceWithinSquareBrackets(processedStepInput);
 
@@ -896,18 +885,18 @@ public class Orchestrator {
 	}
 
 	private static String trimSpaceWithinSquareBrackets(String stringToTrim) {
-		// Find the part within square brackets
+
 		int openBracketIndex = stringToTrim.indexOf('[');
 		int closeBracketIndex = stringToTrim.lastIndexOf(']');
 
 		if (openBracketIndex != -1 && closeBracketIndex != -1 && openBracketIndex < closeBracketIndex) {
-			// Extract the content within the square brackets
+
 			String withinBrackets = stringToTrim.substring(openBracketIndex + 1, closeBracketIndex);
 
-			// Remove spaces within the square brackets
+
 			withinBrackets = withinBrackets.replaceAll("\\s+", "");
 
-			// Reconstruct the stepAction without spaces within brackets
+
 			stringToTrim = stringToTrim.substring(0, openBracketIndex + 1) + withinBrackets
 					+ stringToTrim.substring(closeBracketIndex);
 		}

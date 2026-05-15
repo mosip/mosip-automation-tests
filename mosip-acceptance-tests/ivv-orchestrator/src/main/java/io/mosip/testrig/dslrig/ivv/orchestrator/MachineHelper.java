@@ -29,8 +29,8 @@ public class MachineHelper extends BaseTestCaseUtil {
 	public Logger logger = Logger.getLogger(MachineHelper.class);
 	private final String CreateMachine = "ivv_masterdata/Machine/CreateMachine.yml";
 	private final String UpdateMachineStatus = "ivv_masterdata/UpdateMachineStatus/UpdateMachineStatus.yml";
-	
-	
+
+
 	private final String CreateMachineSpecification = "ivv_masterdata/MachineSpecification/CreateMachineSpecification.yml";
 	private final String CreateMachineType = "ivv_masterdata/MachineType/CreateMachineType.yml";
 	private final String UpdateMachineTypeStatus = "ivv_masterdata/UpdateMachineTypeStatus/UpdateMachineTypeStatus.yml";
@@ -66,14 +66,14 @@ public class MachineHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "description");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					BaseTestCase.languageCode,"langCode");
-			
+
 			testPost.setInput(input);
-			
+
 			String output = testPost.getOutput();
-			
+
 			output = JsonPrecondtion.parseAndReturnJsonContent(output,
 					BaseTestCase.languageCode,"langCode");
-			
+
 			testPost.setOutput(output);
 
 			String code = null;
@@ -84,8 +84,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 				logger.info(jsonResp.getJSONObject("response"));
 				code = jsonResp.getJSONObject("response").getString("code");
-				// if (step.getOutVarName() != null)
-				// step.getScenario().getVariables().put(step.getOutVarName(), code);
+
 
 			}
 			logger.info("code -"+ code);
@@ -98,7 +97,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 		}
 
 	}
-	
+
 	public String createPublicKey() throws RigInternalError {
 	    try {
 	        Object[] testObjPost = sp.getYmlTestData(CreatePublicKey);
@@ -119,7 +118,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 	        throw new RigInternalError(e.getMessage());
 	    }
 	}
-	
+
 	public Map<String, String> getIdAndRegCenterIdByPublicKey(String targetPublicKey) throws JSONException {
 		KernelAuthentication kernelAuthLib = new KernelAuthentication();
 		String token = kernelAuthLib.getTokenByRole(GlobalConstants.ADMIN);
@@ -142,7 +141,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				return result;
 			}
 		}
-		return null; // or throw an exception if not found
+		return null; 
 	}
 
 
@@ -168,8 +167,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 				logger.info(jsonResp.getJSONObject("response"));
 				status = jsonResp.getJSONObject("response").getString("status");
-				// if (step.getOutVarName() != null)
-				// step.getScenario().getVariables().put(step.getOutVarName(), code);
+
 
 			}logger.info("status -"+ status);
 			return status;
@@ -197,16 +195,16 @@ public class MachineHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, getDateTime(), "name");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					BaseTestCase.languageCode,"langCode");
-			
+
 			testPost.setInput(input);
 
 			String output = testPost.getOutput();
-			
+
 			output = JsonPrecondtion.parseAndReturnJsonContent(output,
 					BaseTestCase.languageCode,"langCode");
-			
+
 			testPost.setOutput(output);
-			
+
 			String id = null;
 			simplepost.test(testPost);
 			Response response = simplepost.response;
@@ -215,8 +213,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 				logger.info(jsonResp.getJSONObject("response"));
 				id = jsonResp.getJSONObject("response").getString("id");
-				// if (step.getOutVarName() != null)
-				// step.getScenario().getVariables().put(step.getOutVarName(), code);
+
 
 			}logger.info("id -"+ id);
 			return id;
@@ -251,8 +248,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 				logger.info(jsonResp.getJSONObject("response"));
 				status = jsonResp.getJSONObject("response").getString("status");
-				// if (step.getOutVarName() != null)
-				// step.getScenario().getVariables().put(step.getOutVarName(), code);
+
 
 			}logger.info("status -"+ status);
 			return status;
@@ -268,7 +264,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 			String id =null;
 			HashMap<String, String> machineDetailsmap=new HashMap<String, String>();
 			Object[] testObjPost=simplepost.getYmlTestData(CreateMachine);
-		
+
 			TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
 
 			String input=testPost.getInput();
@@ -280,19 +276,19 @@ public class MachineHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("zoneCode"), "zoneCode");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					BaseTestCase.languageCode,"langCode");
-			
+
 			map.put("machineSpecId", machineSpecId);
 			testPost.setInput(input);
-			
-			
+
+
 			String output = testPost.getOutput();
-			
+
 			output = JsonPrecondtion.parseAndReturnJsonContent(output,
 					BaseTestCase.languageCode,"langCode");
-			
+
 			testPost.setOutput(output);
-			
-			
+
+
 				simplepost.test(testPost);
 				Response response= simplepost.response;
 
@@ -307,7 +303,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 					 machineDetailsmap.put("machineName", name);
 					 machineDetailsmap.put("publicKey",BaseTestCase.publickey.replace("\"","" ));
 					 machineDetailsmap.put("signPublicKey",BaseTestCase.publickey.replace("\"","" ));
-					
+
 				}logger.info("id -"+ id);
 				return machineDetailsmap;
 			} catch (Exception e) {
@@ -315,10 +311,10 @@ public class MachineHelper extends BaseTestCaseUtil {
 				throw new RigInternalError(e.getMessage());
 
 			}
-		
+
 
 	}
-	
+
 
 	public String activateMachine(String machineId, String activecheck) throws RigInternalError {
 		try {
@@ -342,7 +338,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
 				logger.info(jsonResp.getJSONObject("response"));
 				status = jsonResp.getJSONObject("response").getString("status");
-				
+
 			}logger.info("status -"+ status);
 			return status;
 
@@ -363,7 +359,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 			String input=testdto.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					BaseTestCase.languageCode,"langCode");
-			
+
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					map.get("machineSpecId"), "machineSpecId");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, map.get("machineid"), "id");
@@ -377,14 +373,14 @@ public class MachineHelper extends BaseTestCaseUtil {
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("publicKey"), "publicKey");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,  map.get("signPublicKey"), "signPublicKey");
 			testdto.setInput(input);
-			
+
 			String output = testdto.getOutput();
-			
+
 			output = JsonPrecondtion.parseAndReturnJsonContent(output,
 					BaseTestCase.languageCode,"langCode");
-			
+
 			testdto.setOutput(output);
-			
+
 			simpleput.test(testdto);
 				Response response= simpleput.response;
 
@@ -392,7 +388,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				{
 					JSONObject jsonResp = new JSONObject(response.getBody().asString());
 					logger.info( jsonResp.getJSONObject("response"));
-					
+
 				}logger.info("id -"+ id);
 				return map;
 			} catch (Exception e) {
@@ -400,7 +396,7 @@ public class MachineHelper extends BaseTestCaseUtil {
 				throw new RigInternalError(e.getMessage());
 
 			}
-		
+
 
 	}
 
@@ -429,5 +425,5 @@ public class MachineHelper extends BaseTestCaseUtil {
 		}
 
 	}
-	
+
 }

@@ -53,7 +53,7 @@ public class GenerateVIDWithoutOTP extends BaseTestCaseUtil implements StepInter
 
 		}
 		if (step.getParameters().size() == 2 && step.getParameters().get(1).startsWith("$$")) {
-			uins = step.getParameters().get(1); // "$$vidwithoutotp=e2e_GenerateVID(Perpetual,$$uin)"
+			uins = step.getParameters().get(1); 
 			if (uins.startsWith("$$")) {
 				uins = step.getScenario().getVariables().get(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));

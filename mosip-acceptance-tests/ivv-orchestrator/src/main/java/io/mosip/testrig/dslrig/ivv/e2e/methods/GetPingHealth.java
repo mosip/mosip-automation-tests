@@ -27,8 +27,8 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 	private static final AtomicReference<TargetEnvPingHealthState> targetEnvPingHealthState = new AtomicReference<>(
 			TargetEnvPingHealthState.PENDING);
 	private static final Object targetEnvlock = new Object();
-	// Counter to track active parallel scenarios running
-	// We need to track this to avoid parallel calls
+
+
 	private static final AtomicInteger targetEnvActiveThreads = new AtomicInteger(0);
 
 	public enum PacketCreatorPingHealthState {
@@ -92,7 +92,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 					executePacketCreatorPingHealthCheck();
 					packetCreatorPingHealthState.set(PacketCreatorPingHealthState.COMPLETED);
 				} finally {
-					packetCreatorlock.notifyAll(); // Ensure all waiting threads are notified
+					packetCreatorlock.notifyAll(); 
 				}
 			}
 		}
@@ -120,7 +120,7 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 					executeTargetEnvPingHealthCheck();
 					targetEnvPingHealthState.set(TargetEnvPingHealthState.COMPLETED);
 				} finally {
-					targetEnvlock.notifyAll(); // Ensure all waiting threads are notified
+					targetEnvlock.notifyAll(); 
 				}
 			}
 		}
@@ -183,8 +183,8 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 		} else {
 			logger.error("RESPONSE=" + res.toString());
 			this.hasError = true;
-			targetEnvPingHealthState.set(TargetEnvPingHealthState.PENDING); // Got error, so next thread has to perform
-																			// health check
+			targetEnvPingHealthState.set(TargetEnvPingHealthState.PENDING); 
+
 			throw new SkipException("Health check status" + res.toString());
 		}
 		Reporter.log("Target env status is up and healthy<br>");
@@ -192,13 +192,13 @@ public class GetPingHealth extends BaseTestCaseUtil implements StepInterface {
 
 	private void executePacketCreatorPingHealthCheck() throws Exception {
 
-		// Check packet creator up or not
+
 		String packetcreatorUri = baseUrl + "/actuator/health";
 		String serviceStatus = checkActuatorNoAuth(packetcreatorUri);
 		if (!serviceStatus.equalsIgnoreCase("UP")) {
 			this.hasError = true;
-			packetCreatorPingHealthState.set(PacketCreatorPingHealthState.PENDING); // Got error, so next thread has to
-																					// perform health check
+			packetCreatorPingHealthState.set(PacketCreatorPingHealthState.PENDING); 
+
 			throw new SkipException("Packet creator Not responding");
 		} else {
 			Reporter.log("Packet creator status is up and healthy<br>");

@@ -70,7 +70,7 @@ public class BioDelegatedAuthentication extends BaseTestCaseUtil implements Step
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else if (step.getParameters().size() == 4 || step.getParameters().size() == 5) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+		} else if (step.getParameters().size() == 4 || step.getParameters().size() == 5) { 
 			uins = step.getParameters().get(1);
 			String _personaFilePath = step.getParameters().get(3);
 			if (uins.startsWith("$$") && _personaFilePath.startsWith("$$")) {
@@ -87,7 +87,7 @@ public class BioDelegatedAuthentication extends BaseTestCaseUtil implements Step
 			vids = step.getParameters().get(1);
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
-		} else if (step.getParameters().size() == 4 || step.getParameters().size() == 5) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+		} else if (step.getParameters().size() == 4 || step.getParameters().size() == 5) { 
 			vids = step.getParameters().get(2);
 			String _personaFilePath = step.getParameters().get(3);
 			if (vids.startsWith("$$") && _personaFilePath.startsWith("$$")) {
@@ -189,7 +189,7 @@ public class BioDelegatedAuthentication extends BaseTestCaseUtil implements Step
 				if (casesListUIN != null) {
 					for (Object object : casesListUIN) {
 						TestCaseDTO test = (TestCaseDTO) object;
-						// Replace $clientId$ with actual clientId in input and endpoint
+
 						if (clientId != null) {
 							if (test.getEndPoint() != null) {
 								test.setEndPoint(test.getEndPoint().replace("$clientId$", clientId));

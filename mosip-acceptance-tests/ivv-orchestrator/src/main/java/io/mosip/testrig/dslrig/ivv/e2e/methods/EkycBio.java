@@ -67,7 +67,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else if (step.getParameters().size() == 4) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+		} else if (step.getParameters().size() == 4) { 
 			uins = step.getParameters().get(1);
 			String _personaFilePath = step.getParameters().get(3);
 			if (uins.startsWith("$$") && _personaFilePath.startsWith("$$")) {
@@ -84,7 +84,7 @@ public class EkycBio extends BaseTestCaseUtil implements StepInterface {
 			vids = step.getParameters().get(1);
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
-		} else if (step.getParameters().size() == 4) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+		} else if (step.getParameters().size() == 4) { 
 			vids = step.getParameters().get(2);
 			String _personaFilePath = step.getParameters().get(3);
 			if (vids.startsWith("$$") && _personaFilePath.startsWith("$$")) {

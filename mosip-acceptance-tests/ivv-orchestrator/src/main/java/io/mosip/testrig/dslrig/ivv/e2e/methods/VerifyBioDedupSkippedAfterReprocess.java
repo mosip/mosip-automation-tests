@@ -17,15 +17,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-/**
- * After mock ABIS keeps a packet waiting longer than the reprocessor interval, registration
- * records a reprocess using one of several transaction shapes (varies by MOSIP / env):
- * {@code PACKET_REPROCESS}+{@code REPROCESS}, {@code WORKFLOW_RESUME}+{@code REPROCESS}, or
- * {@code BIOGRAPHIC_VERIFICATION}+{@code REPROCESS} — the same marker {@code CheckRIDStage}
- * uses for scenario 246 step 9. This step finds the latest such marker, then checks for an
- * explicit biometric dedupe skip or a second {@code BIOGRAPHIC_VERIFICATION} /
- * {@code IN_PROGRESS} cycle after that point.
- */
+
 public class VerifyBioDedupSkippedAfterReprocess extends BaseTestCaseUtil implements StepInterface {
 
 	public static Logger logger = Logger.getLogger(VerifyBioDedupSkippedAfterReprocess.class);
@@ -164,11 +156,7 @@ public class VerifyBioDedupSkippedAfterReprocess extends BaseTestCaseUtil implem
 		}
 	}
 
-	/**
-	 * Latest index of a registration-processor "reprocess" marker. Not all deployments emit
-	 * {@code PACKET_REPROCESS}; some only log {@code WORKFLOW_RESUME} or {@code BIOGRAPHIC_VERIFICATION}
-	 * with {@code REPROCESS} (the latter matches {@code e2e_CheckRIDStage(..., BIOGRAPHIC_VERIFICATION, REPROCESS)}).
-	 */
+
 	private static int lastIndexOfReprocessMarker(List<JSONObject> ordered) {
 		int max = -1;
 		for (int i = 0; i < ordered.size(); i++) {

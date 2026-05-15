@@ -10,7 +10,7 @@ public class Root{
 	 public String html;
 	 public String subject;
 	 public Date date;
-	// @JsonProperty("to") 
+
 	 public To to;
 	 public From from;
 	 public Cc cc;

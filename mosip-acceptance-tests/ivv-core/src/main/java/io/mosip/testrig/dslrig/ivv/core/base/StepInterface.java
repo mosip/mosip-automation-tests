@@ -41,8 +41,4 @@ public interface StepInterface {
     void run() throws RigInternalError, FeatureNotSupportedError;
 
 
-
-   // RequestDataDTO prepare();
-    //ResponseDataDTO call(RequestDataDTO requestData);
-   // void process(ResponseDataDTO res);
 }

@@ -18,10 +18,8 @@ import org.slf4j.LoggerFactory;
 import com.sun.mail.imap.protocol.FLAGS;
 
 
-
-
 public class OTPReader {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(OTPReader.class);
 
     public static String readOTP(String recipient) {
@@ -37,7 +35,7 @@ public class OTPReader {
             while (emailFoundOrNot < 1) {
                 Session session = Session.getInstance(sysProps, null);
                 Store store = session.getStore();
-                //store.connect(BaseHelper.email_hostname, BaseHelper.email_username, BaseHelper.email_password);
+
                 store.connect("outlook.office365.com", 993, System.getProperty("ivv.email.server.user"), System.getProperty("ivv.email.server.pass"));
                 Thread.sleep(1000);
                 emailInbox = store.getFolder("Inbox");

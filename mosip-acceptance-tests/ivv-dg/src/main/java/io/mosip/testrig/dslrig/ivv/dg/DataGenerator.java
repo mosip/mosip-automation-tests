@@ -9,47 +9,6 @@ import io.mosip.testrig.dslrig.ivv.dg.exceptions.PersonaNotFoundException;
 
 public class DataGenerator implements DataGeneratorInterface {
 
-//    @Override
-//    public ArrayList<Scenario> getScenarios() {
-//        return this.generatedScenarios;
-//    }
-//
-//    @Override
-//    public HashMap<String, String> getConfigs() {
-//        return this.configs;
-//    }
-//
-//    @Override
-//    public HashMap<String, String> getGlobals() {
-//        return this.globals;
-//    }
-//
-//    public Person getPerson() {
-//        Parser parser = new Parser(this.user_dir, this.config_file);
-//        ArrayList<Persona> ps = addDataToPersonas(parser.getPersonas());
-//        if(ps.size()>0 && ps.get(0).getPersons().size()>0){
-//            return ps.get(0).getPersons().get(0);
-//        }
-//        return null;
-//    }
-//
-//    public RegistrationUser getRegistrationUser() {
-//        Parser parser = new Parser(this.user_dir, this.config_file);
-//        ArrayList<RegistrationUser> ps = addDataToRCUsers(parser.getRCUsers());
-//        if(ps.size()>0){
-//            return ps.get(0);
-//        }
-//        return null;
-//    }
-
-//    public Partner getPartner() {
-//        Parser parser = new Parser(this.user_dir, this.config_file);
-//        ArrayList<Partner> ps = addDataToPartners(parser.getPartners());
-//        if(ps.size()>0){
-//            return ps.get(0);
-//        }
-//        return null;
-//    }
 
     public ArrayList<Scenario> prepareScenarios(ArrayList<Scenario> scenarios, ArrayList<Persona> personas) {
         ArrayList<Scenario> generatedScenarios = new ArrayList<>();

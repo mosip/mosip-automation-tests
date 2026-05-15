@@ -33,25 +33,25 @@ public final class PersonaDataManager {
 	    }
 
 	    try {
-	        // resolve a cache manager
+
 	        CachingProvider cachingProvider = Caching.getCachingProvider();
 	        cacheManager = cachingProvider.getCacheManager();
 
-	        // configure the cache
+
 	        cacheConfig = new MutableConfiguration<String, Object>()
 	            .setTypes(String.class, Object.class)
 	            .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_DAY))
 	            .setStatisticsEnabled(true);
 
-	        // create the cache
+
 	        if (personaDataCollection == null) {
 	            personaDataCollection = new Hashtable<String, Cache<String, Object>>();
 	        }
 	        bInit = true;
 	    } catch (Exception e) {
-	        // Log the exception
+
 	        logger.error("Error during initialization: " + e.getMessage(), e);
-	        // You might also want to throw or handle the exception depending on your use case
+
 	    }
 	}
 

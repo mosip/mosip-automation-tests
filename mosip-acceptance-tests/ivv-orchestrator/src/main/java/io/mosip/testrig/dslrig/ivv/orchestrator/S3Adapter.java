@@ -58,21 +58,21 @@ public class S3Adapter {
 			retry = 0;
 		} catch (Exception e) {
 			if (retry >= maxRetry) {
-				// reset the connection and retry count
+
 				retry = 0;
 				connection = null;
-//                LOGGER.error(SESSIONID, REGISTRATIONID,"Maximum retry limit exceeded. Could not obtain connection for "+ bucketName +". Retry count :" + retry, ExceptionUtils.getStackTrace(e));
-//                throw new ObjectStoreAdapterException(OBJECT_STORE_NOT_ACCESSIBLE.getErrorCode(), OBJECT_STORE_NOT_ACCESSIBLE.getErrorMessage(), e);
+
+
 			} else {
 				connection = null;
 				retry = retry + 1;
-//                LOGGER.error(SESSIONID, REGISTRATIONID,"Exception occured while obtaining connection for "+ bucketName +". Will try again. Retry count : " + retry, ExceptionUtils.getStackTrace(e));
+
 				getConnection(bucketName);
 			}
 		}
 		return connection;
 	}
-	
+
 	public boolean putObject(String account, final String container, String source, String process, String objectName, File file) {
 		String finalObjectName = null;
 		String bucketName = null;
@@ -100,11 +100,11 @@ public class S3Adapter {
 		}
 
 	private boolean doesBucketExists(String bucketName) {
-		// use account as bucket name and bucket name is present in existing bucket list
+
 		if (useAccountAsBucketname && existingBuckets.contains(bucketName))
 			return true;
-		// use account as bucket name and bucket name is not present in existing bucket
-		// list
+
+
 		else if (useAccountAsBucketname && !existingBuckets.contains(bucketName)) {
 			boolean doesBucketExistsInObjectStore = connection.doesBucketExistV2(bucketName);
 			if (doesBucketExistsInObjectStore)
@@ -113,7 +113,7 @@ public class S3Adapter {
 		} else
 			return connection.doesBucketExistV2(bucketName);
 	}
-	
+
 	public static String getName(String container, String source, String process, String objectName) {
 		String finalObjectName = "";
 		if (StringUtils.isNotEmpty(container))
@@ -127,7 +127,7 @@ public class S3Adapter {
 
 		return finalObjectName;
 	}
-	
+
 	public static String getName(String source, String process, String objectName) {
 		String finalObjectName = "";
 		if (StringUtils.isNotEmpty(source))

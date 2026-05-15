@@ -23,13 +23,13 @@ public class GenerateAuthCertifcates extends BaseTestCaseUtil implements StepInt
 
 	@Override
 	public void run() throws RigInternalError {
-		// AuthPartnerProcessor.startProcess();
+
 		PartnerRegistration.deleteCertificates();
 		CertificateGenerationUtil.getThumbprints();
 		AdminTestUtil.createAndPublishPolicy();
 
 		PartnerRegistration.generateAndGetPartnerKeyUrl();
-		// Genrating Kyc Certificate
+
 		AdminTestUtil.createAndPublishPolicyForKyc();
 		kycPartnerKeyUrl = PartnerRegistration.generateAndGetEkycPartnerKeyUrl();
 

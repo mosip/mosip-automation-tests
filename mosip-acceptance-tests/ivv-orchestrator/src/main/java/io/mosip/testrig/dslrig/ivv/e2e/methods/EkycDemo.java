@@ -154,7 +154,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 				case E2EConstants.DEMOYMLPHONE:
 					demoFieldValueKey = E2EConstants.DEMOPHONE;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
@@ -226,7 +226,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 				case E2EConstants.DEMOGENDER:
 					demoFieldValueKey = E2EConstants.DEMOGENDER;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					JSONArray genArray = new JSONArray();
 					JSONObject genderObj = new JSONObject();
 					genderObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -312,7 +312,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 				case E2EConstants.DEMODOB:
 					demoFieldValueKey = E2EConstants.DEMODOB;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
@@ -324,7 +324,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 				case E2EConstants.DEMOEMAIL:
 					demoFieldValueKey = E2EConstants.DEMOEMAIL;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
@@ -336,7 +336,7 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 				case E2EConstants.DEMOYMLPHONE:
 					demoFieldValueKey = E2EConstants.DEMOPHONE;
 					demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
-							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); // array fill all the values
+							E2EConstants.DEMOFETCH + "." + demoFieldValueKey); 
 					if (demoValue == null) {
 						this.hasError = true;
 						throw new RigInternalError(
