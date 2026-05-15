@@ -211,4 +211,25 @@ public class dslConfigManager extends ConfigManager {
 	public static String getInternalApiLoggingForContextProps() {
 		return isInternalApiLoggingForReport() ? "yes" : "no";
 	}
+
+	/**
+	 * When {@code true}, after {@link EmailableReport} writes the HTML file, {@link ReportTreeViewEnhancer} replaces it
+	 * in the same path with the tree-view layout. Disabled with {@code enhanceReportTreeView=no} in {@code dsl.properties}
+	 * or {@code -Ddsl.report.treeview.enabled=false}.
+	 */
+	public static boolean isEnhanceReportTreeViewEnabled() {
+		String jvm = System.getProperty("dsl.report.treeview.enabled");
+		if (jvm != null && !jvm.isBlank()) {
+			return !"false".equalsIgnoreCase(jvm.trim());
+		}
+		try {
+			String v = ConfigManager.getproperty("enhanceReportTreeView");
+			if (v == null || v.isBlank()) {
+				return true;
+			}
+			return !"no".equalsIgnoreCase(v.trim());
+		} catch (Exception e) {
+			return true;
+		}
+	}
 }

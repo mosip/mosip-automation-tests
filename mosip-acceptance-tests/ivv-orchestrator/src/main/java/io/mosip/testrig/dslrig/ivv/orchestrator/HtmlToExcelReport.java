@@ -44,7 +44,10 @@ public class HtmlToExcelReport {
                 }
             } else {
                 Elements cols = row.select("td");
-                if (cols.size() == 3) {
+                if (cols.size() == 2) {
+                    String id = cols.get(0).text().trim();
+                    scenarios.put(id, new Scenario("", currentStatus));
+                } else if (cols.size() == 3) {
                     String id = cols.get(0).text().trim();
                     String desc = cols.get(1).text().trim();
                     scenarios.put(id, new Scenario(desc, currentStatus));
@@ -101,7 +104,7 @@ public class HtmlToExcelReport {
 
             Row header = comparison.createRow(0);
 
-            String[] baseHeaders = { "Scenario ID", "Description", "BASE_LINE Status" };
+            String[] baseHeaders = { "Scenario ID", "BASE_LINE Status" };
 
             int colIndex = 0;
             for (String h : baseHeaders) {
@@ -134,26 +137,16 @@ public class HtmlToExcelReport {
 
                 row.createCell(0).setCellValue(id);
 
-                String description = baseline.containsKey(id)
-                        ? baseline.get(id).description
-                        : inputMap.values().stream()
-                                .filter(m -> m.containsKey(id))
-                                .map(m -> m.get(id).description)
-                                .findFirst()
-                                .orElse("");
-
-                row.createCell(1).setCellValue(description);
-
                 // Baseline status
                 String baselineStatus = baseline.containsKey(id)
                         ? baseline.get(id).status
                         : "Not Found";
 
-                Cell baseCell = row.createCell(2);
+                Cell baseCell = row.createCell(1);
                 baseCell.setCellValue(baselineStatus);
                 applyStyle(baseCell, baselineStatus, passStyle, failStyle, skipStyle, ignoreStyle, knownStyle);
 
-                int dynamicCol = 3;
+                int dynamicCol = 2;
 
                 for (String label : labels) {
                     Map<String, Scenario> input = inputMap.get(label);
