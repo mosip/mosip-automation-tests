@@ -128,7 +128,7 @@ public class preRegController {
 			@RequestParam(name = "preregId", required = false) String preregId,
 			@PathVariable("contextKey") String contextKey) {
 
-		// 28602756053278
+
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;
@@ -160,27 +160,7 @@ public class preRegController {
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "PRE_REGISTER_GET_APPLICATIONS_BOOKED_FAIL", null, ex, ex.getMessage());
 		}
  	}
-	
-	/*
-	 * @Operation(summary = "Requesting the OTP")
-	 * 
-	 * @ApiResponses(value = { @ApiResponse(responseCode = "200", description =
-	 * "OTP requested successfully") })
-	 * 
-	 * @PostMapping(value = "/requestotp/{to}/{contextKey}") public @ResponseBody
-	 * String requestOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-	 * 
-	 * @PathVariable("to") String to, @PathVariable("contextKey") String contextKey)
-	 * {
-	 * 
-	 * try { if (personaConfigPath != null && !personaConfigPath.equals("")) {
-	 * DataProviderConstants.RESOURCE = personaConfigPath; } return
-	 * packetSyncService.requestOtp(preRegisterRequestDto.getPersonaFilePath(), to,
-	 * contextKey);
-	 * 
-	 * } catch (Exception ex) { logger.error("requestOtp", ex); } return "{Failed}";
-	 * }
-	 */
+
 
 	@Operation(summary = "Verifying the OTP")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OTP verified successfully") })
@@ -200,9 +180,7 @@ public class preRegController {
 		}
  	}
 
-	/*
-	 * Book first nn th available slot
-	 */
+
 	@Operation(summary = "Booking the Appointment for a given pre-registration-Id")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Appointment booked successfully") })
 	@PostMapping(value = "/bookappointment/{preregid}/{nthSlot}/{contextKey}")
@@ -221,9 +199,6 @@ public class preRegController {
 		}
  	}
 
-	/*
-	 * Book first nn th available slot
-	 */
 
 	@Operation(summary = "Book n'th Available slot for a given pre-registraion-Id")
 	@ApiResponses(value = {
@@ -280,9 +255,7 @@ public class preRegController {
 		}
  	}
 
-	/*
-	 * Try to book a specified slot
-	 */
+
 	@Operation(summary = "Book n'th slot for a given pre-registraion-Id. If bookOnHoliday -> true ? then dont skip holidays")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully booked n'th slot for a given pre-registration id") })
@@ -350,7 +323,7 @@ public class preRegController {
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "UPDATE_PREREG_STATUS_FAIL", null, ex, ex.getMessage());
 		}
  	}
-	
+
 	@Operation(summary = "Uploading the document for a given pre-registration-Id")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Document uploaded successfully") })
 	@PostMapping(value = "/documents/{preregid}/{contextKey}")

@@ -10,6 +10,6 @@ public class ServerSetupDto {
 	int nMachines;
 	int nRegCenterTypes;
 	int nRegCenters;
-	
-	
+
+
 }

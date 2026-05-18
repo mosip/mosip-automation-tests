@@ -51,10 +51,7 @@ public class PacketController {
 		this.packetMakerService = packetMakerService;
 	}
 
-	/*
-	 * Create a packet from Resident data for the target context requestDto may
-	 * contain PersonaRequestType.PR_Options
-	 */
+
 	@Operation(summary = "Create a packet")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Packet created successfully") })
 	@PostMapping(value = "/packet/create/{contextKey}")
@@ -68,10 +65,10 @@ public class PacketController {
 
 			return packetMakerService.createPacketFromTemplate(requestDto.getPersonaFilePath().get(0),
 					requestDto.getPersonaFilePath().get(1), contextKey, requestDto.getAdditionalInfoReqId());
-			// return packetSyncService.createPackets(requestDto.,process,null, contextKey);
+
 
 		} catch (ServiceException se) {
-            throw se; // let global exception handler process it
+            throw se; 
         } catch (Exception ex) {
             logger.error("createPacket", ex);
             throw new ServiceException(
@@ -82,33 +79,6 @@ public class PacketController {
         }
 	}
 
-	/*
-	 * @Operation(summary = "Pack the packet")
-	 * 
-	 * @ApiResponses(value = { @ApiResponse(responseCode = "200", description =
-	 * "Packet packed successfully") })
-	 * 
-	 * @PostMapping(value = "/packet/pack/{contextKey}") public @ResponseBody String
-	 * packPacket(@RequestBody PreRegisterRequestDto requestDto,
-	 * 
-	 * @PathVariable("contextKey") String contextKey
-	 * // @RequestParam(name="isValidChecksum",required = false) Boolean isValidcs )
-	 * {
-	 * 
-	 * try { if (personaConfigPath != null && !personaConfigPath.equals("")) {
-	 * DataProviderConstants.RESOURCE = personaConfigPath; } boolean isValidChecksum
-	 * = true;
-	 * 
-	 * if(isValidcs != null) isValidChecksum = isValidcs;
-	 * 
-	 * return
-	 * packetMakerService.packPacketContainer(requestDto.getPersonaFilePath().get(0)
-	 * , null, null, contextKey, isValidChecksum); // return
-	 * packetSyncService.createPackets(requestDto.,process,null, contextKey);
-	 * 
-	 * } catch (Exception ex) { logger.error("createPackets", ex); } return
-	 * "{\"Failed\"}"; }
-	 */
 
 	@Operation(summary = "Create the packet template for synchronization and upload")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "CBEFF template created successfully") })
@@ -162,7 +132,7 @@ public class PacketController {
             );
         }
 	}
-	
+
 	@Operation(summary = "Make the packet and sync it")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrived the packet and synced") })
@@ -191,7 +161,7 @@ public class PacketController {
             );
         }
 	}
-	
+
 	@Operation(summary = "Create the packet for the context")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully created the packet") })
 	@PostMapping(value = "/packetcreator/{contextKey}")
@@ -231,7 +201,7 @@ public class PacketController {
                     ex.getMessage()
             );
         }
-		
+
 	}
 
 	@Operation(summary = "Synchronize the packet")
@@ -267,8 +237,8 @@ public class PacketController {
 		} catch (ServiceException se) {
             throw se;
         } catch (Exception e) {
-            // We need to explicitly catch the exception to handle negative scenarios ,
-            // where packet sync is expected to fail
+
+
             logger.error("packetsync", e);
             throw new ServiceException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
@@ -277,7 +247,7 @@ public class PacketController {
             );
         }
 	}
-	
+
 	@Operation(summary = "Sync and upload the packet")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully registered for pre-registration") })
@@ -318,7 +288,7 @@ public class PacketController {
             );
         }
 	}
-	
+
 	@Operation(summary = "Reprocess the packet")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully Reprocessed the packet") })
 	@PostMapping(value = "/packet/reprocess/{contextKey}")
@@ -338,7 +308,7 @@ public class PacketController {
             );
         }
 	}
-	
+
 	@Operation(summary = "Create the external packet and upload")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "External packet and upload successfully") })
 	@PostMapping(value = "/packetmanager/createPacket/{process}/{rid}/{introducerInfoToken}/{contextKey}")
@@ -392,7 +362,7 @@ public class PacketController {
             );
         }
 	}
-	
+
 	@Operation(summary = "delete the packet template and resident data")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully synced the packet") })
 	@DeleteMapping(value = "/delete/packetdata/{contextKey}")

@@ -10,7 +10,7 @@ import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 
 @Component
 public class SchemaManagerService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(SchemaManagerService.class);
 
     public String modifySchema(int version, String id,String contextKey){
@@ -18,19 +18,19 @@ public class SchemaManagerService {
         JSONObject wrapper;
         JSONArray schema;
         try{
-            
+
             wrapper = new JSONObject(getSchema(contextKey));
             schema = wrapper.getJSONArray("schema");
             return MosipMasterData.postSchema(id, version, schema,contextKey);
 
-            
+
         }
         catch(Exception e){
 
             logger.error("modifySchema", e);
             return "{\"Failed\"}";
         }
-        
+
     }
 
     public String getSchema(String contextKey){

@@ -18,21 +18,21 @@ public class TestcaseExecutionService {
 
 	@Value("${mosip.test.testcase.propertypath:../deploy/testcases.properties}")
 	private String propertyPath;
-	   
+
 	 private static final Logger logger = LoggerFactory.getLogger(TestcaseExecutionService.class);
-		
+
 	public String execute(String testcaseId, boolean bSync) {
 		String result = "Success";
 		Properties props = new Properties();
-		
+
 		logger.info("execute Testcase:"+ testcaseId );
-		
+
 		try(InputStream input = new FileInputStream(propertyPath)){
 			props.load( input);
 			if(props.containsKey(testcaseId)) {
 				String testcaseFilePath = props.get(testcaseId).toString();
 				Path filePath  = Path.of(testcaseFilePath);
-				
+
 				ProcessBuilder pb = new ProcessBuilder("cmd", "/c", filePath.getFileName().toString());
 				File dir = filePath.getParent().toFile();
 				pb.directory(dir);

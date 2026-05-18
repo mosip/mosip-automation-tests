@@ -82,16 +82,10 @@ public class CryptoCoreUtil {
 		byte[] encryptedKey = copyOfRange(requestData, 0, keyDemiliterIndex);
 		try {
 			encryptedData = copyOfRange(requestData, keyDemiliterIndex + keySplitterLength, cipherKeyandDataLength);
-			// byte[] dataThumbprint = Arrays.copyOfRange(encryptedKey, 0,
-			// THUMBPRINT_LENGTH);
-			encryptedSymmetricKey = Arrays.copyOfRange(encryptedKey, THUMBPRINT_LENGTH, encryptedKey.length);
-			// byte[] certThumbprint =
-			// getCertificateThumbprint(privateKey.getCertificate());
 
-			/*
-			 * if (!Arrays.equals(dataThumbprint, certThumbprint)) { throw new
-			 * Exception("Error in generating Certificate Thumbprint."); }
-			 */
+
+			encryptedSymmetricKey = Arrays.copyOfRange(encryptedKey, THUMBPRINT_LENGTH, encryptedKey.length);
+
 
 			byte[] decryptedSymmetricKey = asymmetricDecrypt(privateKey.getPrivateKey(),
 					((RSAPrivateKey) privateKey.getPrivateKey()).getModulus(), encryptedSymmetricKey);
@@ -119,19 +113,7 @@ public class CryptoCoreUtil {
 		return keyDemiliterIndex;
 	}
 
-	/**
-	 * 
-	 * @param privateKey
-	 * @param keyModulus
-	 * @param data
-	 * @return
-	 * @throws IllegalBlockSizeException
-	 * @throws BadPaddingException
-	 * @throws NoSuchAlgorithmException
-	 * @throws NoSuchPaddingException
-	 * @throws InvalidAlgorithmParameterException
-	 * @throws InvalidKeyException
-	 */
+
 	private static byte[] asymmetricDecrypt(PrivateKey privateKey, BigInteger keyModulus, byte[] data)
 			throws IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidAlgorithmParameterException, InvalidKeyException {
@@ -158,7 +140,7 @@ public class CryptoCoreUtil {
 		byte[] output = null;
 		try {
 			Cipher cipher = Cipher.getInstance(
-					//"AES/ECB/PKCS5Padding");"AES/GCM/PKCS5Padding"
+
 					"AES/GCM/NoPadding");
 			byte[] randomIV = Arrays.copyOfRange(data, data.length - cipher.getBlockSize(), data.length);
 			SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");

@@ -9,5 +9,5 @@ public class webSubEventModel {
 		private String topic;
 		private String publishedOn;
 		private Event event;
-	
+
 }

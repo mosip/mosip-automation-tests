@@ -167,7 +167,7 @@ public class ContextUtils {
 		}
 		return null;
 	}
-	
+
 	public void generateKeyAndUpdateMachineDetail(Properties contextProperties, String contextKey) {
 
 	    String machineId = contextProperties.getProperty("mosip.test.regclient.machineid");
@@ -177,7 +177,7 @@ public class ContextUtils {
 	                "MACHINE_ID_MISSING"
 	        );
 	    }
-	    
+
 		if (!CONTEXT_NAME_PATTERN.matcher(machineId).matches()) {
 			throw new ServiceException(HttpStatus.BAD_REQUEST, "INVALID_MACHINE_ID");
 		}
@@ -265,7 +265,6 @@ public class ContextUtils {
 	        );
 	    }
 	}
-
 
 
 	private static void createKeyFile(final String fileName, final byte[] key) {

@@ -10,6 +10,6 @@ public class BioExceptionDto {
 
 	String personaFilePath;
 	List<BioModality> exceptions;	
-	
+
 
 }

@@ -40,32 +40,32 @@ public class SchemaUtil {
 
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
-   
+
     @Autowired
     private ContextUtils contextUtils;
-   
+
     public String getAndSaveSchema(String version, String workFolder, String contextKey) throws Exception{
-        
+
     	if(contextKey != null && !contextKey.equals("")) {
-    		
+
     		Properties props = contextUtils.loadServerContext(contextKey);
     		props.forEach((k,v)->{
     			if(k.toString().equals("mosip.test.baseurl")) {
     				baseUrl = v.toString().trim();
     			}
-    			
+
     		});
     	}
         Path schemaFileLocation = Path.of(workFolder, "v"+version+".json");
         if (schemaFileLocation.toFile().exists()){
             return readSchemaAsString(schemaFileLocation.toFile().getAbsolutePath());
         }
-        
+
         JSONObject queryParams = new JSONObject();
         queryParams.put(SCHEMA_VERSION_QUERY_PARAM, Double.valueOf(version));
         schemaUrl = schemaUrl.trim();
         JSONObject response = apiRequestUtil.get(baseUrl, baseUrl+schemaUrl, queryParams, new JSONObject(),contextKey);
-        
+
         try(FileOutputStream fos = new FileOutputStream(schemaFileLocation.toString())){
                 String schemaData = response.getString("schemaJson");
                 fos.write(schemaData.getBytes());

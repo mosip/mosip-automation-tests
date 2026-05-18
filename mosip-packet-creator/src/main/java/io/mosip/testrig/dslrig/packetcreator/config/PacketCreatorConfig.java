@@ -31,8 +31,8 @@ public class PacketCreatorConfig {
 	@Bean
 	@DependsOn("storageProvider")
 	public JobScheduler jobScheduler(StorageProvider storageProvider, ApplicationContext applicationContext, Environment env) {
-		// Make dashboard optional to avoid Address already in use errors when the default
-		// JobRunr dashboard port is occupied. Enable by setting 'jobrunr.dashboard.enabled=true'
+
+
 		var builder = JobRunr.configure()
 			.useStorageProvider(storageProvider)
 			.useJobActivator(applicationContext::getBean)

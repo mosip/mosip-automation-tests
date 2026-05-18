@@ -113,7 +113,7 @@ public class CertificateService {
 		String file_path = VariableManager.getVariableValue(contextKey, "certificatePath").toString() + "CA/"
 				+ rootAlias + ".p12";
 
-		// load root cert
+
 		try (FileInputStream fIn = new FileInputStream(file_path);) {
 			KeyStore keyStore = KeyStore.getInstance("PKCS12");
 
@@ -127,7 +127,7 @@ public class CertificateService {
 			return "rootKeyStore failure";
 		}
 
-		// generate new keyPair
+
 		KeyPairGenerator kpg;
 		try {
 			kpg = KeyPairGenerator.getInstance("RSA");
@@ -144,7 +144,7 @@ public class CertificateService {
 		String certificateString;
 		Certificate certificate;
 
-		// create new certificate
+
 		try {
 			certificate = CertificateGenerator.createIntCertificate(publicKey, rootPrivateKey, rootCertificate, issuer,
 					alias, validYears);
@@ -154,7 +154,7 @@ public class CertificateService {
 		}
 		file_path = VariableManager.getVariableValue(contextKey, "certificatePath").toString() + "CA/" + alias + ".p12";
 
-		// store new certificate
+
 		try (FileOutputStream fOut = new FileOutputStream(file_path);) {
 			KeyStore keyStore = KeyStore.getInstance("PKCS12");
 			keyStore.load(null, null);
@@ -178,7 +178,7 @@ public class CertificateService {
 		X509Certificate rootCertificate;
 		String file_path = VariableManager.getVariableValue(contextKey, "certificatePath").toString() + "CA/"
 				+ rootAlias + ".p12";
-		// load signing cert
+
 		try (FileInputStream fIn = new FileInputStream(file_path);) {
 			KeyStore keyStore = KeyStore.getInstance("PKCS12");
 
@@ -192,7 +192,7 @@ public class CertificateService {
 			return "rootKeyStore failure";
 		}
 
-		// generate new keyPair
+
 		KeyPairGenerator kpg;
 		try {
 			kpg = KeyPairGenerator.getInstance("RSA");
@@ -209,7 +209,7 @@ public class CertificateService {
 		String certificateString;
 		Certificate certificate;
 
-		// create new certificate
+
 		try {
 			certificate = CertificateGenerator.createPartnerCertificate(publicKey, rootPrivateKey, rootCertificate,
 					issuer, alias, validYears);
@@ -219,7 +219,7 @@ public class CertificateService {
 		}
 		file_path = VariableManager.getVariableValue(contextKey, "certificatePath").toString() + "partner/" + alias
 				+ ".p12";
-		// store new certificate
+
 		try (FileOutputStream fOut = new FileOutputStream(file_path);) {
 			KeyStore keyStore = KeyStore.getInstance("PKCS12");
 			keyStore.load(null, null);

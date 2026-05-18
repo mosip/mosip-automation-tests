@@ -28,7 +28,7 @@ public class PacketJobService {
 
 	@Autowired
 	private ZipUtils zipUtils;
-	
+
 	public PacketJobService(@Lazy PacketSyncService packetSyncService, @Lazy PacketMakerService packetMakerService) {
 		this.packetSyncService = packetSyncService;
 		this.packetMakerService = packetMakerService;

@@ -7,4 +7,3 @@ public class DecryptResponseDto {
 
 	private String data;
 }
-

@@ -5,16 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-//import io.kubernetes.client.util.ClientBuilder;
 
-// import io.kubernetes.client.util.KubeConfig;
-
-// import io.kubernetes.client.openapi.ApiClient;
-// import io.kubernetes.client.openapi.ApiException;
-// import io.kubernetes.client.openapi.Configuration;
-// import io.kubernetes.client.openapi.apis.CoreV1Api;
-// import io.kubernetes.client.openapi.models.V1Pod;
-// import io.kubernetes.client.openapi.models.V1PodList;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,12 +63,11 @@ public class CommandsService {
 		Properties props = contextUtils.loadServerContext(contextKey);
 		baseUrl = props.getProperty("urlBase");
 		String eSignetbaseurl = props.getProperty("eSignetbaseurl");
-		// v1/keymanager/decrypt
-		/// v1/keymanager/encrypt
+
 
 		File file = new File(pinglistfile);
-		// FileReader fr=new FileReader(file);
-		// BufferedReader br=new BufferedReader(fr);
+
+
 		JSONObject retJson = new JSONObject();
 		String line;
 		try (FileReader fr = new FileReader(file); BufferedReader br = new BufferedReader(fr)) {
@@ -93,13 +83,13 @@ public class CommandsService {
 					continue;
 
 				boolean bcheck = false;
-				// enhanced to support module
+
 				String controllerPath = line.trim();
 				String modName = null;
 				String[] parts = controllerPath.split("=");
 				if (parts.length > 1) {
 
-					// Perform the health check only if esignet is deployed
+
 					if (parts[1].contains("esignet") && !eSignetDeployed.equalsIgnoreCase("true"))
 						continue;
 
@@ -135,7 +125,7 @@ public class CommandsService {
             throw se;
         } catch (Exception ex) {
             logger.error("Command execution failed", ex);
-            // Use error-key based ServiceException constructor with cause
+
             throw new ServiceException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "CHECK_CONTEXT_FAIL",
@@ -150,12 +140,12 @@ public class CommandsService {
 
 	public String writeToFile(String contextKey, Properties requestData, long offset) throws IOException {
 
-		// take file name
+
 		String filePath = requestData.getProperty("filePath");
 		String base64data = requestData.getProperty("base64data");
 		byte[] data = Base64.decode(base64data.getBytes());
 		File myFile = new File(filePath);
-		// Create the accessor with read-write access.
+
 
 		try (RandomAccessFile accessor = new RandomAccessFile(myFile, "rws");) {
 			accessor.seek(offset);
@@ -213,7 +203,7 @@ public class CommandsService {
 		}
 		String fileName = UUID.randomUUID().toString() + fileExtension;
 		Path targetLocation = Path.of(uploadPath + "/" + fileName);
-//		Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
 		CommonUtil.copyMultipartFileWithBuffer(file, targetLocation);
 		return targetLocation.toString();
 	}

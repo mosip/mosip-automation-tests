@@ -39,7 +39,7 @@ public class ZipUtils {
 
 					zos.putNextEntry(new ZipEntry(targetFile));
 					try (InputStream bis = Files.newInputStream(file)) {
-						byte[] buffer = new byte[32768];  // Increased buffer size
+						byte[] buffer = new byte[32768];  
 						int bytesRead;
 						while ((bytesRead = bis.read(buffer)) != -1) {
 							zos.write(buffer, 0, bytesRead);
@@ -51,7 +51,7 @@ public class ZipUtils {
 			});
 		} catch (IOException ex) {
 			logger.error("Error during zip", ex);
-			throw ex;  // Rethrow exception for better error handling
+			throw ex;  
 		}
 	}
 
@@ -63,11 +63,11 @@ public class ZipUtils {
 			while (zipEntry != null) {
 				Path file = Path.of(targetDirectory, zipEntry.getName());
 
-				// Check if the directory structure needs to be created
+
 				Files.createDirectories(file.getParent());
 
 				try (OutputStream os = Files.newOutputStream(file);
-					 BufferedOutputStream bos = new BufferedOutputStream(os, 32768)) { // Increased buffer size
+					 BufferedOutputStream bos = new BufferedOutputStream(os, 32768)) { 
 					byte[] buffer = new byte[32768];
 					int len;
 					while ((len = zipInputStream.read(buffer)) > 0) {
