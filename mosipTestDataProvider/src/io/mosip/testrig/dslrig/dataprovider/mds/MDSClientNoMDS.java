@@ -29,7 +29,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 
 	Hashtable<String,MDSDataModel> profileData;
 	MDSDataModel current;
-	
+
 	public MDSClientNoMDS() {
 		profileData = new Hashtable<String,MDSDataModel>();
 	}
@@ -37,14 +37,14 @@ public class MDSClientNoMDS implements MDSClientInterface {
 	public void createProfile(String profilePath, String profile, ResidentModel resident,String contextKey,String purpose) throws Exception {
 
 		MDSDataModel data = new MDSDataModel();
-		
+
 		ISOConverter convert = new ISOConverter();
 		try {
 			byte[] face = resident.getBiometric().getRawFaceData();
 			data.setFaceISO((convert.convertFace(face,null)));
 			IrisDataModel iris = resident.getBiometric().getIris();
 			if(iris != null) {
-				
+
 				if(iris.getRawLeft() != null)
 					data.setIrisLeftISO (convert.convertIris(iris.getRawLeft(), null, "Left"));
 				if(iris.getRawRight() != null)
@@ -54,7 +54,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 			byte [][] fingersISO = new byte[10][];
 			for(int i=0; i < 10; i++) {
 				String fingerName = DataProviderConstants.displayFingerName[i];
-				//String outFileName = DataProviderConstants.MDSProfileFingerNames[i];
+
 				if(fingerData[i] != null) {
 					fingersISO[i]=convert.convertFinger(fingerData[i], null , fingerName,purpose);
 				}
@@ -64,37 +64,37 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
-		
-	
+
+
 	}
 
 	@Override
 	public void removeProfile(String profilePath, String profile,int port,String contextKey) {
 
 		profileData.remove(profile);
-		
+
 	}
 
 	@Override
 	public void setProfile(String profile,int port,String contextKey) {
-	
+
 		current = profileData.get(profile);
 	}
 
 	@Override
 	public List<MDSDevice> getRegDeviceInfo(String type,String contextKey) {
-		// TODO Auto-generated method stub
-		//get configured Center ID  the devices belonging to that center
+
+
 		String centerId = VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"centerId").toString();
-		
+
 		List<MosipDeviceModel> deviceModels = MosipDataSetup.getDevices(centerId,contextKey);
 		List<MDSDevice> lstRet = new ArrayList<MDSDevice>();
-		
+
 		for(MosipDeviceModel dm: deviceModels) {
 			MDSDevice mdsDev = new MDSDevice();
 			if(dm.getIsActive() != null && dm.getIsActive().equals("true") ) {
 				mdsDev.setDeviceId( dm.getId());
-				
+
 				lstRet.add(mdsDev);
 			}
 		}
@@ -106,22 +106,22 @@ public class MDSClientNoMDS implements MDSClientInterface {
 			String bioSubType, int reqScore, String deviceSubId,int port,String contextKey,List<String> bioException) {
 
 		List<String> lstSubtype = null;
-		
+
 		if(bioSubType != null)
-			lstSubtype = Arrays.asList(bioSubType);//.split("\\s*,\\s*"));
+			lstSubtype = Arrays.asList(bioSubType);
 		if(rCaptureModel == null)
 			rCaptureModel = new MDSRCaptureModel();
 		List<MDSDeviceCaptureModel> lstBiometrics  = rCaptureModel.getLstBiometrics().get(bioType);
 
-		
+
 		MDSDeviceCaptureModel model = new MDSDeviceCaptureModel();
 		model.setBioType(bioType);
-		
+
 		if(bioType.equals("Face")) {
 			model.setBioSubType(bioSubType);
 			model.setBioValue( Base64.getUrlEncoder().encodeToString(current.getFaceISO())); 
 			lstBiometrics.add(model);
-			
+
 		}
 		else
 		if(bioType.equals("Iris")) {
@@ -129,13 +129,13 @@ public class MDSClientNoMDS implements MDSClientInterface {
 				model = new MDSDeviceCaptureModel();
 				model.setBioType(bioType);
 				model.setBioSubType(s);
-				
+
 				if(s.contains("Left")) 
 					model.setBioValue( Base64.getUrlEncoder().encodeToString(current.getIrisLeftISO())); 
 				else
 				if(s.contains("Right")) 
 					model.setBioValue( Base64.getUrlEncoder().encodeToString(current.getIrisRightISO())); 
-				
+
 				lstBiometrics.add(model);			
 			}
 		}
@@ -151,7 +151,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		}
 		return rCaptureModel;
 	}
-	
+
 	private void captureFingersModality(
 			String deviceSubId, String[] bioSubType, 
 			String[] bioException,List<String> list) {
@@ -159,7 +159,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		List<String> segmentsToCapture = null;
 
 		switch (deviceSubId) {
-		case "1": // left
+		case "1": 
 			segmentsToCapture = getSegmentsToCapture(
 					Arrays.asList("Left IndexFinger", "Left MiddleFinger", "Left RingFinger", "Left LittleFinger"),
 					bioSubType == null ? null : Arrays.asList(bioSubType),
@@ -167,14 +167,14 @@ public class MDSClientNoMDS implements MDSClientInterface {
 
 			break;
 
-		case "2": // right
+		case "2": 
 			segmentsToCapture = getSegmentsToCapture(
 					Arrays.asList("Right IndexFinger", "Right MiddleFinger", "Right RingFinger", "Right LittleFinger"),
 					bioSubType == null ? null : Arrays.asList(bioSubType),
 					bioException == null ? null : Arrays.asList(bioException));
 			break;
 
-		case "3": // thumbs
+		case "3": 
 			segmentsToCapture = getSegmentsToCapture(Arrays.asList("Left Thumb", "Right Thumb"),
 					bioSubType == null ? null : Arrays.asList(bioSubType),
 					bioException == null ? null : Arrays.asList(bioException));
@@ -185,21 +185,14 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		}
 
 		if (segmentsToCapture == null || segmentsToCapture.isEmpty()) {
-		    // Throw exception
+
 		}
 
 		if (bioSubType != null && segmentsToCapture!= null && segmentsToCapture.size() == 2 * bioSubType.length) {
-			// TODO - validate requested Score, if deviceSubId is 3 then take the average of
+
 
 			for (String segment : segmentsToCapture) {
-				/*
-				BioMetricsDataDto bioMetricsData = oB.readValue(
-						Base64.getDecoder()
-								.decode(new String(ComonUtil.read(System.getProperty("user.dir")
-										+ "/files/MockMDS/registration/" + segment + ".txt")))),
-						BioMetricsDataDto.class);
-				list.add(bioMetricsData);
-				*/
+
 			}
 		}
 
@@ -211,9 +204,9 @@ public class MDSClientNoMDS implements MDSClientInterface {
 		if(exceptions != null) {
 			localCopy.removeAll(exceptions);
 		}
-		
+
 		List<String> segmentsToCapture = new ArrayList<>();
-		
+
 		if(bioSubTypes == null || bioSubTypes.isEmpty()) {
 			segmentsToCapture.addAll(localCopy);			
 			return segmentsToCapture;
@@ -231,7 +224,7 @@ public class MDSClientNoMDS implements MDSClientInterface {
 					segmentsToCapture.add(randSubType);
 				}
 				else {
-					//Throw exception
+
 				}
 			}
 		}
@@ -239,14 +232,14 @@ public class MDSClientNoMDS implements MDSClientInterface {
 	}
 	@Override
 	public List<MDSDevice> getRegDeviceInfo(String type) {
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 	@Override
 	public void updateProfile(String profilePath, String profile, ResidentModel resident, String contextKey,
 			String purpose) throws Exception {
-		// TODO Auto-generated method stub
-		
+
+
 	}
 
 }	

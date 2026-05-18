@@ -38,11 +38,11 @@ public class StateModel  implements Serializable{
 	private String countryCode;
 	@JsonProperty("Subdivision_Code")
 	private String subDivisionCode;
-	
+
 	@JsonProperty("Subdivion_Type")
 	private String subDivisionType;
-	
-	
+
+
 	public String getName() {
 		return name;
 	}
@@ -57,7 +57,7 @@ public class StateModel  implements Serializable{
 	}
 	@JsonProperty("Subdivision_Name")
 	private String name;
-	
+
 	private String iso2;
-	
+
 }

@@ -48,7 +48,7 @@ public class MosipDocCategoryModel  implements Serializable{
 		this.name = name;
 	}
 	public String toJSONString() {
-		
+
 		ObjectMapper Obj = new ObjectMapper();
 		String jsonStr ="";
 		try {

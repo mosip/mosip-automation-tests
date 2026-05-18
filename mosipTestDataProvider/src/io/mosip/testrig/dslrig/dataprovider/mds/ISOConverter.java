@@ -29,7 +29,7 @@ public class ISOConverter {
 
 	private static final Logger logger = LoggerFactory.getLogger(ISOConverter.class);
 
-	/* ================= FINGER POSITION MAP ================= */
+
 	static Map<String, Integer> mapFingerPos = new HashMap<>();
 	static {
 		mapFingerPos.put("Right Thumb", FingerPosition.RIGHT_THUMB);
@@ -44,7 +44,7 @@ public class ISOConverter {
 		mapFingerPos.put("Left LittleFinger", FingerPosition.LEFT_LITTLE_FINGER);
 	}
 
-	/* ================= DETERMINISTIC RANDOM ================= */
+
 	private static SecureRandom seededRandom(byte[] input) throws Exception {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] seed = md.digest(input);
@@ -53,7 +53,7 @@ public class ISOConverter {
 		return random;
 	}
 
-	/* ================= DETERMINISTIC IMAGE MUTATION ================= */
+
 	private static byte[] deterministicMutate(byte[] input) throws Exception {
 		BufferedImage img = ImageIO.read(new ByteArrayInputStream(input));
 		if (img == null) {
@@ -70,7 +70,7 @@ public class ISOConverter {
 		return baos.toByteArray();
 	}
 
-	/* ================= FINGER ================= */
+
 	public byte[] convertFinger(byte[] inStream, String outFile, String biometricSubType, String purpose)
 			throws Exception {
 
@@ -98,7 +98,7 @@ public class ISOConverter {
 		return iso;
 	}
 
-	/* ================= IRIS ================= */
+
 	public byte[] convertIris(byte[] inStream, String outFile, String biometricSubType) throws Exception {
 
 		logger.info("IRIS INPUT SHA-256: {}", DigestUtils.sha256Hex(inStream));
@@ -125,7 +125,7 @@ public class ISOConverter {
 		return iso;
 	}
 
-	/* ================= FACE ================= */
+
 	public byte[] convertFace(byte[] inStream, String outFile) throws Exception {
 
 		logger.info("FACE INPUT SHA-256: {}", DigestUtils.sha256Hex(inStream));
@@ -152,7 +152,7 @@ public class ISOConverter {
 		return iso;
 	}
 
-	/* ================= FINGER ISO ================= */
+
 	public static byte[] convertFingerImageToISO(ConvertRequestDto dto) throws Exception {
 
 		BufferedImage img = CommonUtil.getBufferedImage(dto);
@@ -169,7 +169,7 @@ public class ISOConverter {
 				null);
 	}
 
-	/* ================= IRIS ISO ================= */
+
 	public static byte[] convertIrisImageToISO(ConvertRequestDto dto) throws Exception {
 
 		BufferedImage img = CommonUtil.getBufferedImage(dto);
@@ -186,7 +186,7 @@ public class ISOConverter {
 				dto.getInputBytes(), img.getWidth(), img.getHeight());
 	}
 
-	/* ================= FACE ISO ================= */
+
 	public static byte[] convertFaceImageToISO(ConvertRequestDto dto) throws Exception {
 
 		BufferedImage img = CommonUtil.getBufferedImage(dto);
@@ -206,7 +206,7 @@ public class ISOConverter {
 						ImageColourSpace.BIT_24_RGB, null, null);
 	}
 
-	/* ================= HELPERS ================= */
+
 	private static int getEyeLabel(String biometricSubType) {
 		if (Objects.isNull(biometricSubType)) {
 			return EyeLabel.UNSPECIFIED;

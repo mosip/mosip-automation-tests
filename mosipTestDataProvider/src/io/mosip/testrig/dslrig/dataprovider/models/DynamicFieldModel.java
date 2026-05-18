@@ -9,9 +9,7 @@ import lombok.Data;
 @Data
 public class DynamicFieldModel  implements Serializable{
 
-	/*
-	 * In 1.1.6 active is changed to isActive
-	 */
+
 	 private static final long serialVersionUID = 1L;
 	String id;
 	String name;
@@ -26,6 +24,6 @@ public class DynamicFieldModel  implements Serializable{
 	Boolean isActive;
 
 	List<DynamicFieldValueModel> fieldVal;
-	
-	
+
+
 }

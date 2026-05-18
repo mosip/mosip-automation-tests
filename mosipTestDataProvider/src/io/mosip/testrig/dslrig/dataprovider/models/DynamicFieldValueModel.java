@@ -33,5 +33,5 @@ public class DynamicFieldValueModel  implements Serializable {
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
-	
+
 }

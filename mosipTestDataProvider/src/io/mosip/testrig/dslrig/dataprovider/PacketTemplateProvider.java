@@ -59,9 +59,6 @@ import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.Translator;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
-/*
- * Generate Packet structure for a given Resident record
- */
 
 @SuppressWarnings("unchecked")
 public class PacketTemplateProvider {
@@ -71,7 +68,7 @@ public class PacketTemplateProvider {
 	public static String RID_FOLDER = "rid_id";
 	public static String RID_EVIDENCE = "rid_evidence";
 	public static String RID_OPTIONAL = "rid_optional";
-	// String constants
+
 	private static final String ID_JSON = "/ID.json";
 	private static final String PACKET_META_INFO_JSON = "/packet_meta_info.json";
 	private static final String EVIDENCE = "evidence";
@@ -120,7 +117,7 @@ public class PacketTemplateProvider {
 		return contextSchemaDetail;
 	}
 
-	// generate un encrypted template
+
 	public String generate(String source, String process, ResidentModel resident, String packetFilePath,
 			String preregId, String machineId, String centerId, String contextKey, Properties props,
 			JSONObject preregResponse, String purpose, String qualityScore, boolean genarateValidCbeff)
@@ -190,13 +187,11 @@ public class PacketTemplateProvider {
 				contextSchemaDetail);
 		CommonUtil.write(Paths.get(ridFolder + PACKET_META_INFO_JSON), metadataJson.getBytes());
 
-		// Generate evidence json
 
 		String evidenceJson = generateEvidenceJson(resident, fileInfo, contextKey, props, contextSchemaDetail);
 		CommonUtil.write(Paths.get(rid_evidence_folder + ID_JSON), evidenceJson.getBytes());
 		CommonUtil.write(Paths.get(rid_evidence_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
 
-		// copy the dummy jsons to optional also
 
 		CommonUtil.write(Paths.get(rid_optional_folder + ID_JSON), evidenceJson.getBytes());
 		CommonUtil.write(Paths.get(rid_optional_folder + PACKET_META_INFO_JSON), metadataJson.getBytes());
@@ -225,16 +220,16 @@ public class PacketTemplateProvider {
 		requestNode.put("source", source);
 		requestNode.put("schemaVersion", contextSchemaDetail.getSchemaVersion());
 
-		// Parsing String output of generateFieldsNode() into a JSONObject
+
 		JSONObject fieldsString = generateCRVSIDJson(resident, contextKey, props, contextSchemaDetail, validateToken,
 				uin);
 		requestNode.put("fields", fieldsString);
 
-		// Assuming generateMetaInfoNode() returns a JSONObject
+
 		requestNode.put("metaInfo", generateMetaInfoJson(resident, process, RID, machineId, centerId, contextKey,
 				contextSchemaDetail));
 
-		// Creating audits array
+
 		JSONArray auditsArray = new JSONArray();
 		auditsArray.put(generateAuditNode(RID));
 		requestNode.put("audits", auditsArray);
@@ -280,11 +275,11 @@ public class PacketTemplateProvider {
 				}
 			}
 		}
-		// if the json is not under the identity element put inside identity
+
 		if (!json.has("identity")) {
 			JSONObject identityWrapper = new JSONObject();
 			identityWrapper.put("identity", json.toMap());
-			json = identityWrapper; // Reassign the updated JSON
+			json = identityWrapper; 
 		}
 		return json;
 	}
@@ -390,7 +385,7 @@ public class PacketTemplateProvider {
 
 							String outFile = fileInfo.get(RID_EVIDENCE)[0] + "/" + fileInfo.get(RID_EVIDENCE)[1];
 							try {
-								// Files.copy(Paths.get(docFile), Paths.get(outFile));
+
 								CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
 								RestClient.logInfo(contextKey,
 										"contextkey" + contextKey + "Index= " + index + " File info= " + fileInfo
@@ -552,7 +547,7 @@ public class PacketTemplateProvider {
 	}
 
 	JSONObject constructBioException(ResidentModel resident, JSONObject identity, List<MosipIDSchema> mosipIDSchema) {
-		// update biometric exceptions
+
 
 		List<BioModality> exceptionAttrib = resident.getBioExceptions();
 		if (exceptionAttrib != null) {
@@ -576,7 +571,7 @@ public class PacketTemplateProvider {
 	}
 
 	JSONObject constructBioException(ResidentModel resident, JSONObject identity) {
-		// update biometric exceptions
+
 		List<BioModality> exceptionAttrib = resident.getBioExceptions();
 		if (exceptionAttrib != null) {
 			JSONObject exceptionBiometrics = new JSONObject();
@@ -611,7 +606,7 @@ public class PacketTemplateProvider {
 		if (thirdLang != null && !thirdLang.equals(""))
 			thirdValue = Translator.translate(thirdLang, primValue, contextKey);
 
-		// array
+
 		JSONArray ar = new JSONArray();
 		JSONObject o = new JSONObject();
 		o.put(LANGUAGE, primLang);
@@ -658,7 +653,7 @@ public class PacketTemplateProvider {
 		if (thirdLang != null && !thirdLang.equals(""))
 			thirdValue = Translator.translate(thirdLang, primValue, contextKey);
 
-		// array
+
 		JSONArray ar = new JSONArray();
 		JSONObject o = new JSONObject();
 		o.put(LANGUAGE, primLang);
@@ -721,7 +716,7 @@ public class PacketTemplateProvider {
 			} else {
 			try(FileOutputStream fos = new FileOutputStream(outFile)){
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
-				// PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+
 				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
 				writer.print(cbeff);
 				writer.close();
@@ -744,7 +739,7 @@ public class PacketTemplateProvider {
 			} else {
 				try(FileOutputStream fos = new FileOutputStream(outFile)){
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
-				// PrintWriter writer = new PrintWriter(new FileOutputStream(outFile));
+
 				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
 				writer.print(cbeff);
 				writer.close();
@@ -760,7 +755,7 @@ public class PacketTemplateProvider {
 		return true;
 	}
 
-	// check the dynamic field logic and change here
+
 	public static boolean processGender(MosipIDSchema s, ResidentModel resident, JSONObject identity,
 			Hashtable<String, List<MosipGenderModel>> genderTypesLang,
 			Hashtable<String, List<DynamicFieldModel>> dynaFields, String contextKey) {
@@ -779,7 +774,7 @@ public class PacketTemplateProvider {
 			String primVal = "";
 			String secVal = "";
 
-			// context should set Male/Female code values
+
 			Object obj = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, resGen.name());
 			if (obj != null) {
 				genderCode = obj.toString();
@@ -827,7 +822,7 @@ public class PacketTemplateProvider {
 				processed = true;
 
 			}
-			//
+
 
 		}
 		return processed;
@@ -859,7 +854,7 @@ public class PacketTemplateProvider {
 			if (index > -1)
 				addr = addressLines[index];
 			if (addr == null) {
-				addr = "#%d, %d Street, %d block";// + schemaItem.getId();
+				addr = "#%d, %d Street, %d block";
 				addr = String.format(addr, (100 + rand.nextInt(999)), (1 + rand.nextInt(99)), (1 + rand.nextInt(10)));
 
 				if (resident.getSecondaryLanguage() != null)
@@ -1023,7 +1018,7 @@ public class PacketTemplateProvider {
 
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			RestClient.logInfo(contextKey, s.toJSONString());
-			// if not reqd field , skip it
+
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
 
@@ -1219,14 +1214,14 @@ public class PacketTemplateProvider {
 
 						String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + v[2];
 						try {
-							// Implement excetpions by parsing 'Miss' list
+
 							List<String> missAttribs = resident.getMissAttributes();
 							List<String> bioAttrib = s.getBioAttributes();
 							if (missAttribs != null && !missAttribs.isEmpty()) {
 								bioAttrib.removeAll(missAttribs);
 								resident.getBiometric().setCbeff(null);
 							}
-								
+
 
 							boolean bret = generateCBEFF(resident.getGuardian(), bioAttrib, outFile, contextKey,
 									purpose, qualityScore, missAttribs, genarateValidCbeff, process);
@@ -1293,8 +1288,8 @@ public class PacketTemplateProvider {
 							identity.put(s.getId(), o);
 							String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
 							try {
-								//								Files.copy(Paths.get(docFile), Paths.get(outFile));
-								if(!VariableManager.getVariableValue(contextKey, "skipApplicantDocumentsFlag").toString().contentEquals("skipApplicantDocuments"))  // Applican documents missing in packet
+
+								if(!VariableManager.getVariableValue(contextKey, "skipApplicantDocumentsFlag").toString().contentEquals("skipApplicantDocuments"))  
 									CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
 							} catch (Exception e) {
 								logger.error(GENERATEIDJSONV2, e);
@@ -1390,7 +1385,7 @@ public class PacketTemplateProvider {
 
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			RestClient.logInfo(contextKey, s.toJSONString());
-			// if not reqd field , skip it
+
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
 
@@ -1661,7 +1656,7 @@ public class PacketTemplateProvider {
 			}
 		}
 
-		// ✅ Convert array to string before putting into metaInfo
+
 		metaInfo.put("metaData", metaDataArray.toString());
 
 		metaInfo.put("registrationId", RegistrationId != null ? RegistrationId : JSONObject.NULL);
@@ -1676,7 +1671,7 @@ public class PacketTemplateProvider {
 	private static JSONObject generateAuditNode(String RID) {
 		JSONObject auditNode = new JSONObject();
 		auditNode.put("uuid", UUID.randomUUID().toString());
-		auditNode.put("createdAt", CommonUtil.getUTCDateTime(null)); // Dynamically fetch the current timestamp
+		auditNode.put("createdAt", CommonUtil.getUTCDateTime(null)); 
 		auditNode.put("eventId", "REG-EVT-066");
 		auditNode.put("eventName", "PACKET_CREATION_SUCCESS");
 		auditNode.put("eventType", "USER");

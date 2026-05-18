@@ -85,4 +85,3 @@ String data=uploadCACertificate("certificateData", "partnerDomain","contextKey")
         logger.info(data);
     }
 }
-

@@ -20,14 +20,14 @@ public class AppointmentModel implements Serializable{
 	List<CenterDetailsModel> availableDates;
 
 	public String toJSONString() {
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 
 		String jsonStr ="";
 		try {
 				jsonStr = mapper.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
-				
+
 			logger.error(e.getMessage());
 		}	
 		return jsonStr;

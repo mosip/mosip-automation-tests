@@ -14,25 +14,24 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class PolicyManagement {
 	private static final Logger logger = LoggerFactory.getLogger(PolicyManagement.class);
-    
+
 
     public static Object getCache(String key,String contextKey) {
 		try {
 		return VariableManager.getVariableValue(contextKey,key);
 		}catch(Exception e) {
-			
+
 		}
 		return null;
 	}
 	public static void setCache(String key, Object value,String contextKey) {
-		
+
 		VariableManager.setVariableValue(contextKey,key,  value);
 	}
 
     public static String createNewPolicyGroup(String groupname, String policydesc,String contextKey){
 
-		//System.out.println(VariableManager.getVariableValue(VariableManager.NS_POLICIES,"policymanagement").toString());
-        //System.out.print(VariableManager.getVariableValue("urlBase").toString());
+
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 		VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"policymanagement").toString() + "group/new";
 
@@ -65,7 +64,7 @@ public class PolicyManagement {
 		String groupID = "{\"groupName Does not exist\"}";
 		try {
 			JSONArray resp = RestClient.getJsonArray(url, new JSONObject(), new JSONObject(),contextKey);
-			
+
 			for(int i=0; i<resp.length(); i++){
 				JSONObject policyElement = resp.getJSONObject(i);
 				JSONObject policyGroup = (JSONObject) policyElement.get("policyGroup");
@@ -74,15 +73,15 @@ public class PolicyManagement {
 					groupID = (String) policyGroup.get("id");
 				}
 			}
-			
+
 			return groupID;
 
 		} catch (Exception e) {
-			//TODO: handle exception
+
 			logger.error(e.getMessage());
 			return "{\"post failed\"}";
 		}
-		
+
 	}
 
 
@@ -112,9 +111,9 @@ public class PolicyManagement {
 
 			JSONObject resp = RestClient.post(url, newPolicyUnderGroup,contextKey);
 			return resp.toString();
-			
+
 		} catch (Exception e) {
-			//TODO: handle exception
+
 			logger.error(e.getMessage());
 			return "{\"post failed\"}";
 		}
@@ -129,9 +128,9 @@ public class PolicyManagement {
 		try {
 			JSONObject resp = RestClient.post(url, new JSONObject(),contextKey);
 			return resp.toString();
-			
+
 		} catch (Exception e) {
-			//TODO: handle exception
+
 			logger.error(e.getMessage());
 			return "{\"post failed\"}";
 		}
@@ -139,8 +138,7 @@ public class PolicyManagement {
 	}
 
 	public static void main(String[] args) {
-		
-		// String resp = getPolicyGroupIDByName("policyGroupBanking");
-		
+
+
 	}
 }

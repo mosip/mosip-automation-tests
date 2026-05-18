@@ -41,11 +41,11 @@ public class Location  implements Serializable{
 		private String state;
 		private String city;
 		private String zipcode;
-		
+
 		public Location() {
 			addressLine1 = country = state = city = zipcode = "";
 		}
-		//Assume from English
+
 		public Location translateTo(String langIsoCode, String contextKey) {
 			Location l = new Location();
 			l.addressLine1 = Translator.translate(langIsoCode, addressLine1, contextKey);
@@ -53,7 +53,7 @@ public class Location  implements Serializable{
 			l.state = Translator.translate(langIsoCode, state, contextKey);
 			l.city = Translator.translate(langIsoCode, city, contextKey);
 			l.zipcode = Translator.translate(langIsoCode, zipcode, contextKey);
-			
+
 			return l;
 		}
 

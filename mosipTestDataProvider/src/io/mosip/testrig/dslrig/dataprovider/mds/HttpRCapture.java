@@ -10,8 +10,6 @@ import io.mosip.testrig.dslrig.dataprovider.db.DBDataSource;
 public class HttpRCapture extends HttpEntityEnclosingRequestBase{
 private static final Logger logger = LoggerFactory.getLogger(HttpRCapture.class);
 
-//HttpRequestBase 
-
 
 	    String METHOD_NAME ;
 
@@ -38,4 +36,3 @@ private static final Logger logger = LoggerFactory.getLogger(HttpRCapture.class)
 	        return METHOD_NAME;
 	    }
 }
-

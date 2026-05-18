@@ -37,14 +37,14 @@ public class CSVHelper {
 
 		open();
 
-		// get line count
+
 		recCount = 0;
 		while (csvReader.readNext() != null) {
 			recCount++;
 		}
 		csvReader.close();
 	}
-	
+
 	public void open() throws FileNotFoundException, UnsupportedEncodingException {
 		try {
 			fis= new FileInputStream(fileName);
@@ -57,7 +57,7 @@ public class CSVHelper {
 		}
 	}
 
-	// pass an array of record numbers to read
+
 	List<String[]> readRecords(int[] recnos) throws IOException {
 
 		List<String[]> outList = new ArrayList<String[]>();
@@ -119,14 +119,14 @@ public class CSVHelper {
 			List<String[]> recs = helper.readRecords(new int[] { 0, 15, 10, 20, 12 });
 			for (String[] r : recs) {
 
-				
+
 			}
 			helper.close();
 
 			helper = new CSVHelper(VariableManager.getVariableValue("contextKey", "mountPath").toString()
 					+ VariableManager.getVariableValue("contextKey", "mosip.test.persona.namesdatapath").toString()
 					+ "/ara/boy_names.csv");
-			
+
 			helper.open();
 			recs = helper.readRecords(new int[] { 1, 15, 10, 20, 12 });
 			for (String[] r : recs) {
@@ -140,4 +140,3 @@ public class CSVHelper {
 
 	}
 }
-

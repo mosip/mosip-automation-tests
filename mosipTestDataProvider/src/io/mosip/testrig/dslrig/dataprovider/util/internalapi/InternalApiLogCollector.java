@@ -9,17 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * In-memory store of outbound API exchanges, keyed by Packet Creator / Data
- * Provider context id.
- * <p>
- * <strong>Cleanup contract:</strong> Callers that own a context should invoke
- * {@link #drain(String)} or {@link #clear(String)} when logs are no longer
- * needed so memory is reclaimed immediately. In addition, each context bucket is
- * dropped automatically if it has had no activity (no new {@link #record} and no
- * {@link #snapshot} read) for 12 hours, so long-running suites do not retain
- * stale context keys indefinitely.
- */
+
 public final class InternalApiLogCollector {
 
 	private static final int CONTEXT_TTL_HOURS = 12;
@@ -46,10 +36,7 @@ public final class InternalApiLogCollector {
 		}
 	}
 
-	/**
-	 * Removes context buckets whose last activity is older than 12 hours. Scans
-	 * are throttled to roughly once per minute.
-	 */
+
 	private static void maybeExpireStaleContexts() {
 		long now = System.currentTimeMillis();
 		if (now - lastCleanupMillis < CLEANUP_INTERVAL_MILLIS) {
@@ -73,7 +60,7 @@ public final class InternalApiLogCollector {
 		return SEQ.getAndIncrement();
 	}
 
-	/** Bucket for outbound calls where no MOSIP context namespace exists (e.g. JVM-wide flag only). */
+
 	public static final String GLOBAL_LOG_KEY = "_dslrig_internal_api_global_";
 
 	public static void record(String contextKey, InternalApiLogExchange exchange) {
@@ -87,9 +74,7 @@ public final class InternalApiLogCollector {
 		bucket.entries.add(exchange);
 	}
 
-	/**
-	 * Snapshot of exchanges for a context (for reporting without removing).
-	 */
+
 	public static List<InternalApiLogExchange> snapshot(String contextKey) {
 		maybeExpireStaleContexts();
 		if (contextKey == null || contextKey.isBlank()) {
@@ -105,9 +90,7 @@ public final class InternalApiLogCollector {
 		}
 	}
 
-	/**
-	 * Remove and return all exchanges for the context.
-	 */
+
 	public static List<InternalApiLogExchange> drain(String contextKey) {
 		maybeExpireStaleContexts();
 		String key = contextKey == null || contextKey.isBlank() ? GLOBAL_LOG_KEY : contextKey;

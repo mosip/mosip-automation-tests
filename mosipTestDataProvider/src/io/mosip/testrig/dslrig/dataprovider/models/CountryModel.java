@@ -78,11 +78,11 @@ public class CountryModel  implements Serializable {
 	private	String  phonecode;
 	private String	capital;
 	private	String  currency;
-	
+
 	@JsonProperty("native")
 	private	String  nativeLanguage;
-	
+
 	private	String  emoji;
 	private	String  emojiU;
-	
+
 }

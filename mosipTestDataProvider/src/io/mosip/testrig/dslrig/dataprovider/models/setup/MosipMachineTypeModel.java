@@ -11,12 +11,12 @@ import lombok.Data;
 public class MosipMachineTypeModel implements Serializable {
 
 	 private static final long serialVersionUID = 1L;
-	 
+
 	 String		code;
 	 String		description;
 	 boolean 	isActive;
 	 boolean	isDeleted;
 	 String  	langCode;
 	 String	 	name;
- 
+
 }

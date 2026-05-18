@@ -6,7 +6,7 @@ public class CountryLookup  implements Serializable{
 	 private static final long serialVersionUID = 1L;
 	private String iso2;
 	public CountryLookup() {
-		
+
 	}
 	public String getIso2() {
 		return iso2;

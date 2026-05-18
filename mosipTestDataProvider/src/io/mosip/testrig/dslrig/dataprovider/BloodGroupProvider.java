@@ -11,17 +11,15 @@ import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldValueModel;
 
 public class BloodGroupProvider {
 	private static SecureRandom  rand = new SecureRandom ();
-	
-	//static String [] bloodGroups = { "A+","A-","B+","B-","O+","O-","AB+","AB-"};
-	
-	//generate language specific blood group data
+
+
 	public static Hashtable<String,List<DynamicFieldValueModel>> generate(int count, Hashtable<String, List<DynamicFieldModel>> dynaFields) {
-		
+
 		Hashtable<String,List<DynamicFieldValueModel>> tblBG = new Hashtable<String,List<DynamicFieldValueModel>>();
-		
+
 		Iterator<String> keyLangs = dynaFields.keys().asIterator();
 		while(keyLangs.hasNext()) {
-			
+
 			DynamicFieldModel bgModel = null;
 			List<DynamicFieldValueModel> bgs =null;
 			String key = keyLangs.next();
@@ -30,12 +28,12 @@ public class BloodGroupProvider {
 					bgModel = fm;
 					break;
 				}
-					
+
 			}
 			if(bgModel !=null && bgModel.getFieldVal().size()>=count) {
 				bgs = new ArrayList<DynamicFieldValueModel>();
 				for( int i=0; i < count; i++) {
-					
+
 					int idx = rand.nextInt(bgModel.getFieldVal().size());
 					bgs.add( bgModel.getFieldVal().get(idx));
 				}

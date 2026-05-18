@@ -24,7 +24,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 
 public class LocationProvider {
 	private static SecureRandom rand = new SecureRandom();
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LocationProvider.class);
 
 	public static ApplicationConfigIdSchema generate( String langCode, int count,String contextKey) {
@@ -37,9 +37,9 @@ public class LocationProvider {
 		}
 		return ret;
 	}
-	//modified version to get Location details as per configured Masterdata 
+
 	public static Hashtable<String,List<MosipLocationModel>> generate_old(int count, String country,String contextKey) {
-		
+
 		Hashtable<String,List<MosipLocationModel>> tbl = new Hashtable<String,List<MosipLocationModel>>();
 
 		HashMap<String,LocationHierarchyModel[]> locHi = MosipMasterData.getAllLocationHierarchies(contextKey);
@@ -50,7 +50,7 @@ public class LocationProvider {
 			int nLoop = 0;
 			LocationHierarchyModel[] locHierachies =null;
 			List<MosipLocationModel> rootlist = null;
-		
+
 			locHierachies = locHi.get(langcode);
 			if(country != null) {
 				for(LocationHierarchyModel m: locHierachies) {
@@ -67,7 +67,7 @@ public class LocationProvider {
 					rootlist = MosipMasterData.getLocationsByLevel(locHierachies[nLoop].getHierarchyLevelName(),contextKey);
 				nLoop++;
 			}while(nLoop < locHierachies.length  && (rootlist == null || rootlist.isEmpty() ));
-			
+
 			if(rootlist != null && ! rootlist.isEmpty()) {
 				MosipLocationModel rootLoc =null;
 				List<MosipLocationModel> list =null;
@@ -81,25 +81,25 @@ public class LocationProvider {
 
 				}
 				if(rootLoc != null) {
-					
+
 					for(int i=1; i < locHierachies.length; i++) {
 						list = MosipMasterData.getImmedeateChildren(rootLoc.getCode(), langcode ,contextKey );
-				
+
 						if(list != null && !list.isEmpty()) {
 							int pos = 0;
 							rootLoc = list.get(pos);
 							locations.add( rootLoc );
 						}
-			
+
 					}
 				}
 			}
 		});
-		
+
 		return tbl;
 	}
 	public static List<Location> generateFromFile(String countryIsoCode,int count,String contextKey) {
-		
+
 		List<Location> locations = new ArrayList<Location>();
 		CountryModel country;
 		try {
@@ -107,16 +107,16 @@ public class LocationProvider {
 			List<StateModel> states =StateProvider.load(country.getIso2());
 			List<CityModel> cities = CityProvider.load(countryIsoCode,contextKey);
 
-	
+
 			int [] zipcode = CommonUtil.generateRandomNumbers(count, 99999, 1111);
-					
+
 			for(int i=0; i < count; i++) {
-			
+
 				Location location = new Location();
 				location.setCountry(country.getName());
 				int index =  rand.nextInt( states.size());
 				location.setState(states.get(index).getName() );
-			
+
 				index =  rand.nextInt( cities.size());
 				location.setCity( cities.get(index).getName());
 				location.setZipcode(String.format("%05d",zipcode[i]));
@@ -125,7 +125,7 @@ public class LocationProvider {
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
-		
+
 		return locations;
 	}
 }

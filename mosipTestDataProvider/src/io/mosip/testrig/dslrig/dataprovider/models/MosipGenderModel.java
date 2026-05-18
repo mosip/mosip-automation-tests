@@ -14,5 +14,5 @@ public class MosipGenderModel  implements Serializable {
 	Boolean isActive;
 	String langCode;
 	String value;
-	
+
 }

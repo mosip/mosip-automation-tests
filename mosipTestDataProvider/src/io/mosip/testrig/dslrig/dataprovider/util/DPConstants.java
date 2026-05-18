@@ -16,5 +16,5 @@ public class DPConstants {
 	public static String LOCATION="location";
 	public static String PHONE="phone";
 	public static String EMAIL="email";
-	
+
 }

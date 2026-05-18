@@ -2,21 +2,21 @@ package io.mosip.testrig.dslrig.dataprovider;
 
 import java.io.BufferedReader;
 import java.io.File;
-//import java.io.FileInputStream;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-//import java.io.InputStream;
+
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-//import java.net.URL;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-//import java.time.LocalDateTime;
-//import java.time.ZoneId;
+
+
 import java.util.ArrayList;
-//import java.util.Arrays;
+
 import java.util.Base64;
 import java.util.Hashtable;
 import java.util.List;
@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jamesmurty.utils.XMLBuilder;
-//import java.util.Date;
+
 
 import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
@@ -42,7 +42,7 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 public class BiometricFingerPrintProvider {
 	private static final Logger logger = LoggerFactory.getLogger(BiometricFingerPrintProvider.class);
 
-	// String constants
+
 	private static final String XMLNS = "xmlns";
 	private static final String VERSION = "Version";
 	private static final String MAJOR = "Major";
@@ -119,7 +119,7 @@ public class BiometricFingerPrintProvider {
 				.e(BIRINFO).e(INTEGRITY).t(FALSE).up().up();
 		builder.getDocument().setXmlStandalone(true);
 
-		// Step 1: convert finger print
+
 		String[] fingerPrint = biometricDataModel.getFingerPrint();
 		for (int i = 0; i < fingerPrint.length; i++) {
 			String strFinger = fingerPrint[i];
@@ -128,13 +128,13 @@ public class BiometricFingerPrintProvider {
 			builder = builder.importXMLBuilder(fbuilder);
 		}
 
-		// Step 2: Add Face
+
 		if (biometricDataModel.getEncodedPhoto() != null) {
 			String faceXml = buildBirFace(biometricDataModel.getEncodedPhoto());
 			builder = builder.importXMLBuilder(XMLBuilder.parse(faceXml));
 		}
 
-		// Step 3: Add IRIS
+
 		IrisDataModel irisInfo = biometricDataModel.getIris();
 		if (irisInfo != null) {
 			String irisXml = buildBirIris(irisInfo.getLeft(), "Left");
@@ -183,10 +183,7 @@ public class BiometricFingerPrintProvider {
 						byte[] fdata = CommonUtil.read(f.getAbsolutePath());
 						fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
 
-						// fingerPrints[index]= Hex.encodeHexString( fdata ) ;
-						// fingerPrints[index]= fingerPrints[index].toUpperCase();
 
-						// delete file
 						index++;
 
 					}
@@ -197,7 +194,7 @@ public class BiometricFingerPrintProvider {
 					logger.error(e.getMessage());
 				}
 			} else {
-				// reach cached finger prints from folder
+
 				String dirPath = System.getProperty("java.io.tmpdir") + VariableManager
 						.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
 				Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
@@ -231,7 +228,6 @@ public class BiometricFingerPrintProvider {
 		return data;
 	}
 
-	// generate using Anguli
 
 	static Hashtable<Integer, List<File>> generateFingerprint(String outDir, int nFingerPrints,
 			int nImpressionsPerPrints, int nThreads, FPClassDistribution classDist) {
@@ -247,7 +243,7 @@ public class BiometricFingerPrintProvider {
 		pb.redirectErrorStream(true);
 
 		try {
-			Process proc = pb.start(); // rt.exec(commands);
+			Process proc = pb.start(); 
 			try (BufferedReader processOutput = new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
 				String s;
 
@@ -258,7 +254,7 @@ public class BiometricFingerPrintProvider {
 				if (exitCode != 0) {
 					logger.warn("Anguli exited with code {}", exitCode);
 				}
-				// read from outdir
+
 				for (int i = 1; i <= nImpressionsPerPrints; i++) {
 
 					List<File> lst = CommonUtil.listFiles(outDir + String.format("/Impression_%d/fp_1/", i));
@@ -277,7 +273,7 @@ public class BiometricFingerPrintProvider {
 		return tblFiles;
 	}
 
-	// Left Eye, Right Eye
+
 	static List<IrisDataModel> generateIris(int count, String contextKey) throws IOException {
 
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();

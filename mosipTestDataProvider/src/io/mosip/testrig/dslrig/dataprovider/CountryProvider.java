@@ -111,20 +111,16 @@ public class CountryProvider extends LocationProviderBase {
 
 	public void generate(String isoCode) {
 		try {
-			// String strData = client.get("/countries/"+ isoCode, null);
-			// India?excludeKeys=emoji,continent,shape"
-			// String strData = client.get("/"+ isoCode
-			// +"?excludeKeys=emoji,continent,shape", null);
+
+
 			String strData = client.get("/Continentscountriescities_Country", null);
 
-			// + "Continentscountriescities_Subdivisions_States_Provinces";
 
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode actualObj = objectMapper.readTree(strData);
 
 			JsonNode values = actualObj.get("results");
 
-			// countryDetail = objectMapper.readValue(strData, CountryModel.class);
 
 			List<CountryModel> countries = objectMapper.readValue(values.toString(),
 					objectMapper.getTypeFactory().constructCollectionType(List.class, CountryModel.class));
@@ -147,20 +143,10 @@ public class CountryProvider extends LocationProviderBase {
 		CountryProvider c = new CountryProvider();
 		StateProvider s = new StateProvider();
 		CityProvider city = new CityProvider();
-		// try {
-		// c.dump();
-		// s.dump();
+
+
 		city.dump("contextKey");
 
-		// } catch (IOException e) {
-		// logger.error(e.getMessage());
-		// }
-		/*
-		 * c.load("IN"); CountryModel cm = c.getDetail();
-		 * logger.info(cm.getObjectId() + " name:"+ cm.getName());
-		 * 
-		 * StateProvider stateProvider = new StateProvider(); stateProvider.load(cm);
-		 * List<StateModel> states = stateProvider.getDetail(); states.forEach((s) ->{
-		 */
+
 	}
 }

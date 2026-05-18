@@ -46,15 +46,15 @@ public final class VariableManager {
 		synchronized (VariableManager.class) {
 			if (bInit)
 				return;
-			// resolve a cache manager
+
 			CachingProvider cachingProvider = Caching.getCachingProvider();
 			cacheManager = cachingProvider.getCacheManager();
-			// configure the cache
+
 			cacheConfig = new MutableConfiguration<String, Object>()
 					.setTypes(String.class, Object.class)
 					.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_DAY))
 					.setStatisticsEnabled(true);
-			// create the cache
+
 			if (varNameSpaces == null) {
 				varNameSpaces = new Hashtable<String, Cache<String, Object>>();
 				Cache<String, Object> cache = cacheManager.createCache(NS_DEFAULT, cacheConfig);
@@ -138,7 +138,7 @@ public final class VariableManager {
 			if (ht != null) {
 				ret = ht.get(varName);
 				if (ret == null && contextKey.equalsIgnoreCase(NS_DEFAULT)) {
-					// Cache expired, reloading the default namespace
+
 					loadNamespaceFromPropertyFile(CONFIG_PATH + "default.properties", NS_DEFAULT);
 					ht = varNameSpaces.get(contextKey);
 					ret = ht.get(varName);
@@ -223,19 +223,19 @@ public final class VariableManager {
 
 	public static void testJCache() {
 
-		// resolve a cache manager
+
 		CachingProvider cachingProvider = Caching.getCachingProvider();
 		CacheManager cacheManager = cachingProvider.getCacheManager();
 
-		// configure the cache
+
 		MutableConfiguration<String, Object> config = new MutableConfiguration<String, Object>()
 				.setTypes(String.class, Object.class)
 				.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_HOUR)).setStatisticsEnabled(true);
 
-		// create the cache
+
 		Cache<String, Object> cache = cacheManager.createCache("simpleCache", config);
 
-		// cache operations
+
 		String key = "key";
 		Integer value1 = 1;
 		cache.put("key", value1);

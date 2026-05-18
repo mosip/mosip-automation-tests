@@ -22,7 +22,7 @@ public final class ErrorCodes {
 
     private static void loadProperties() {
         try {
-            // 1️⃣ Try to load from external config folder first
+
             File externalFile = new File("config/error-codes.properties");
             if (externalFile.exists()) {
                 try (InputStream in = new FileInputStream(externalFile)) {
@@ -32,7 +32,7 @@ public final class ErrorCodes {
                 }
             }
 
-            // 2️⃣ Load from classpath (inside JAR)
+
             try (InputStream in = ErrorCodes.class.getResourceAsStream("/error-codes.properties")) {
                 if (in != null) {
                     props.load(in);
@@ -47,18 +47,12 @@ public final class ErrorCodes {
         }
     }
 
-    /**
-     * Returns the error code itself (simple).
-     * Example: MACHINE_NOT_FOUND → "MACHINE_NOT_FOUND"
-     */
+
     public static String code(String key) {
         return key;
     }
 
-    /**
-     * Returns the formatted error message from properties.
-     * Example: MACHINE_NOT_FOUND = Machine not found for id: {0}
-     */
+
     public static String message(String key, Object... args) {
         String template = props.getProperty(key, key);
         try {

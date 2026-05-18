@@ -11,7 +11,7 @@ import lombok.Data;
 public class MosipMachineModel implements Serializable{
 
 	 private static final long serialVersionUID = 1L;
-	 
+
 	String id;
 	String	ipAddress;
     Boolean isActive;
@@ -29,4 +29,3 @@ public class MosipMachineModel implements Serializable{
     	return isActive;
     }
 }
-

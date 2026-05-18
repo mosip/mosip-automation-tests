@@ -400,8 +400,7 @@ public class MosipDataSetup {
 	}
 
 	public static List<MosipDeviceModel> getDevices(String centerId, String contextKey) {
-		// GET
-		// /v1/masterdata/devices/mappeddevices/1001?direction=DESC&orderBy=createdDateTime&pageNumber=0&pageSize=100
+
 
 		List<MosipDeviceModel> devices = null;
 		String url = VariableManager.getVariableValue(contextKey, "urlBase").toString()
@@ -461,7 +460,7 @@ public class MosipDataSetup {
 			JSONArray arr = new JSONArray();
 			for (String s : duplicateBdbs) {
 				JSONObject ref = new JSONObject();
-				// ref.put("referenceId", CommonUtil.getSHA(bdbString));
+
 				ref.put("referenceId", CommonUtil.getSHAFromBytes(valBytes));
 				arr.put(ref);
 			}
@@ -499,12 +498,10 @@ public class MosipDataSetup {
 		req.put("source", "REGISTRATION_CLIENT");
 		req.put("supervisorStatus", "APPROVED");
 
-		// To do -- We need to mark supervisor status as approved or rejected
-		// conditionally
+
 		VariableManager.setVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS", "APPROVED");
 
-		// Need to review these two below tags once the conclusion happens what tags
-		// will be set on the packet
+
 		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger",
 				"MOSIP-FINGER01-2345678901");
 		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face",

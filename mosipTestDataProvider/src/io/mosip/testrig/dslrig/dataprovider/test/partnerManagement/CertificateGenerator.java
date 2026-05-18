@@ -36,7 +36,7 @@ import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.X509Principal;
 import org.bouncycastle.jce.interfaces.PKCS12BagAttributeCarrier;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-// import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
+
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -56,12 +56,12 @@ public class CertificateGenerator {
 	static X509V3CertificateGenerator v3CertGen = new X509V3CertificateGenerator();
 	static X509V1CertificateGenerator v1CertGen = new X509V1CertificateGenerator();
 	static String KEY_ALGORITHM = "RSA";
-	static String ENCRYPTION_TYPE = "SHA256WITHRSA"; // "SHA1WithRSAEncryption";
+	static String ENCRYPTION_TYPE = "SHA256WITHRSA"; 
 
 	KeyStore store;
 	String passwd;
 	String storeFileName;
-	// KeyPairGenerator kpg;
+
 
 	public CertificateGenerator(String storeName, String passwd)
 			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
@@ -70,9 +70,6 @@ public class CertificateGenerator {
 		store = KeyStore.getInstance("PKCS12");
 		store.load(null, passwd.toCharArray());
 
-		// kpg = KeyPairGenerator.getInstance("RSA");
-
-		// kpg.initialize(2048);
 
 	}
 
@@ -96,10 +93,7 @@ public class CertificateGenerator {
 
 		PKCS12BagAttributeCarrier bagAttr = (PKCS12BagAttributeCarrier) cert;
 
-		//
-		// this is actually optional - but if you want to have control
-		// over setting the friendly name this is the way to do it...
-		//
+
 		bagAttr.setBagAttribute(
 				PKCSObjectIdentifiers.pkcs_9_at_friendlyName,
 				new DERBMPString(alias));
@@ -122,13 +116,6 @@ public class CertificateGenerator {
 				subject,
 				publicKey);
 
-		// X509v1CertificateBuilder certificateBuilder = new
-		// JcaX509v1CertificateBuilder(issuer, BigInteger.valueOf(1),
-		// new Date(System.currentTimeMillis() - 1000L * 60 * 60 * 24 * 1),
-		// new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 365 *
-		// validYears)),
-		// subject,
-		// publicKey);
 
 		JcaX509ExtensionUtils extensionUtils = new JcaX509ExtensionUtils();
 		certificateBuilder.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
@@ -173,8 +160,6 @@ public class CertificateGenerator {
 				extensionUtils.createSubjectKeyIdentifier(p10.getSubjectPublicKeyInfo()));
 		certificateBuilder.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
 
-		// certificateBuilder.addExtension(Extension.subjectAlternativeName, false, new
-		// DERBMPString(alias));
 
 		X509CertificateHolder certificateHolder = certificateBuilder.build(contentSigner);
 		X509Certificate certificate = new JcaX509CertificateConverter().setProvider("BC")
@@ -182,15 +167,6 @@ public class CertificateGenerator {
 
 		certificate.verify(rootCertificate.getPublicKey(), "BC");
 
-		// PKCS12BagAttributeCarrier bagAttr = (PKCS12BagAttributeCarrier)certificate;
-
-		// //
-		// // this is actually optional - but if you want to have control
-		// // over setting the friendly name this is the way to do it...
-		// //
-		// bagAttr.setBagAttribute(
-		// PKCSObjectIdentifiers.pkcs_9_at_friendlyName,
-		// new DERBMPString(alias));
 
 		return certificate;
 
@@ -225,8 +201,7 @@ public class CertificateGenerator {
 				extensionUtils.createAuthorityKeyIdentifier(rootCertificate));
 		certificateBuilder.addExtension(Extension.subjectKeyIdentifier, false,
 				extensionUtils.createSubjectKeyIdentifier(p10.getSubjectPublicKeyInfo()));
-		// certificateBuilder.addExtension(Extension.subjectAlternativeName, false, new
-		// DERBMPString(alias));
+
 
 		X509CertificateHolder certificateHolder = certificateBuilder.build(contentSigner);
 		X509Certificate certificate = new JcaX509CertificateConverter().setProvider("BC")
@@ -264,9 +239,7 @@ public class CertificateGenerator {
 		v3CertGen.setPublicKey(pubKey);
 		v3CertGen.setSignatureAlgorithm(ENCRYPTION_TYPE);
 
-		//
-		// extensions
-		//
+
 		JcaX509ExtensionUtils r = new JcaX509ExtensionUtils();
 
 		v3CertGen.addExtension(
@@ -292,10 +265,7 @@ public class CertificateGenerator {
 
 		PKCS12BagAttributeCarrier bagAttr = (PKCS12BagAttributeCarrier) cert;
 
-		//
-		// this is actually optional - but if you want to have control
-		// over setting the friendly name this is the way to do it...
-		//
+
 		bagAttr.setBagAttribute(
 				PKCSObjectIdentifiers.pkcs_9_at_friendlyName,
 				new DERBMPString(alias));
@@ -396,16 +366,12 @@ public class CertificateGenerator {
 			e.printStackTrace();
 		}
 	}
-	// public KeyPair getNewKeyPair() {
-	// KeyPair keyPair;
-	// keyPair = kpg.generateKeyPair();
-	// return keyPair;
-	// }
+
 
 	public static String exportPublicKeyPem(Certificate cert) throws IOException, CertificateEncodingException {
 
 		StringWriter writer = new StringWriter();
-		// PemWriter pemWriter = new PemWriter(writer);
+
 		JcaPEMWriter pemWriter = new JcaPEMWriter(writer);
 
 		pemWriter.writeObject(cert);
@@ -413,7 +379,6 @@ public class CertificateGenerator {
 		pemWriter.close();
 		String strCert = writer.toString();
 
-		// // System.out.println(strCert);
 
 		strCert = strCert.replace("\r\n", "\n");
 
@@ -430,17 +395,9 @@ public class CertificateGenerator {
 		pemWriter.close();
 		String strCert = writer.toString();
 
-		// System.out.println(strCert);
 
 		strCert = strCert.replace("\r\n", "\n");
-		// System.out.println(strCert);
 
-		// StringWriter certificateOut = new StringWriter();
-		// cert
-		// certificateOut.write("-----BEGIN CERTIFICATE-----".getBytes());
-		// certificateOut.write(Base64.encode(certificate.getEncoded()));
-		// certificateOut.write("-----END CERTIFICATE-----".getBytes());
-		// certificateOut.close();
 
 		return strCert;
 
@@ -481,26 +438,9 @@ public class CertificateGenerator {
 
 				3);
 
-		// KeyStore store = KeyStore.getInstance("PKCS12");
-
-		// store.load(null, null);
-		// store.setKeyEntry("Root CA", caPrivKey, null, new Certificate[] {chain[2] });
-		// store.setKeyEntry("Inter CA", intPrivKey, null, new Certificate[]
-		// {chain[1],chain[2] });
-
-		// store.setKeyEntry("ABC Company", privKey, null, chain);
-
-		// FileOutputStream fOut = new FileOutputStream("id.p12");
-
-		// store.store(fOut, "abc123".toCharArray());
 
 		String s;
-		// s = exportPublicKeyPemOld(chain[0]);
-		// System.out.println(s);
-		// s = exportPublicKeyPemOld(chain[1]);
-		// System.out.println(s);
-		// s = exportPublicKeyPemOld(chain[2]);
-		// System.out.println(s);
+
 
 		X509Certificate c = createRootCertificate(caPubKey, caPrivKey,
 				"OU = Bouncy Primary Certificate,O = The Legion of the Bouncy Castle,C = AU",
@@ -514,13 +454,6 @@ public class CertificateGenerator {
 				"C=IN, O=ABC Bank,L=Bangalore,CN=ABC Bank, OU=Account Opening,E=bank@efg.com",
 				"Partner Org", 3);
 
-		// byte[] a = c.getEncoded();
-		// System.out.println(a.length);
-
-		// s = exportPublicKeyPem(c);
-		// System.out.println(s);
-		// s = exportPublicKeyPemOld(chain[2]);
-		// System.out.println(s);
 
 		s = exportPublicKeyPem(c1);
 		System.out.println(s);

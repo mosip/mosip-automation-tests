@@ -14,9 +14,8 @@ public class MosipPreRegLoginConfig implements Serializable {
 	 private String optional_languages;
 	 private String min_languages_count;
 	 private String mandatory_languages;
-	 
-	private String	preregistration_documentupload_allowed_file_type;
-	
 
-		
+	private String	preregistration_documentupload_allowed_file_type;
+
+
 }

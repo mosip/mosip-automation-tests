@@ -19,5 +19,5 @@ public class ApplicationConfigSchemaItem implements Serializable{
 	 String fieldType;
 	 String	type;
 	 Boolean required;
-	 
+
 }

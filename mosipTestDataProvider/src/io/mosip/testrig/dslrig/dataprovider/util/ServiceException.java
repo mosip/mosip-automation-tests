@@ -3,11 +3,7 @@ package io.mosip.testrig.dslrig.dataprovider.util;
 import org.springframework.http.HttpStatus;
 import io.mosip.testrig.apirig.utils.ErrorCodes;
 
-/**
- * Application-level runtime exception.
- * - Internal errors use ErrorCodes
- * - External (MOSIP) errors use raw message + code
- */
+
 public class ServiceException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

@@ -2,10 +2,7 @@ package io.mosip.testrig.dslrig.dataprovider.util.internalapi;
 
 import java.time.Instant;
 
-/**
- * Records outbound HTTP that does not go through Rest Assured (Apache HttpClient,
- * {@link java.net.HttpURLConnection}, etc.).
- */
+
 public final class InternalApiManualRecorder {
 
 	private InternalApiManualRecorder() {

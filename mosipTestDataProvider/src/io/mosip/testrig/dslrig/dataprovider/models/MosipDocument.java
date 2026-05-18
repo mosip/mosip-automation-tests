@@ -18,12 +18,12 @@ public class MosipDocument  implements Serializable{
 	String docCategoryCode;
 	String docCategoryName;
 	String docCategoryLang;
-	
+
 	List<MosipDocTypeModel> type;
 	List<String> docs;
-	
+
 	public String toJSONString() {
-		
+
 		ObjectMapper Obj = new ObjectMapper();
 		String jsonStr ="";
 		try {

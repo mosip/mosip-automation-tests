@@ -19,11 +19,11 @@ public class MosipDocTypeModel  implements Serializable{
 	String langCode;
 	String name;
 	String updatedBy;
-	
+
 	String createdDateTime;
 	String updatedDateTime;
 	String deletedDateTime;
-	
+
 	String docTypeCode;
 	String docCategoryCode;
 	String docTypeName;
@@ -45,9 +45,8 @@ public class MosipDocTypeModel  implements Serializable{
 	public void setDocTypeName(String docTypeName) {
 		this.docTypeName = docTypeName;
 	}
-	
-	
-	
+
+
 	public String getCreatedDateTime() {
 		return createdDateTime;
 	}
@@ -73,8 +72,8 @@ public class MosipDocTypeModel  implements Serializable{
 		this.description = description;
 	}
 	String description;
-	
-	
+
+
 	public String getCode() {
 		return code;
 	}
@@ -118,7 +117,7 @@ public class MosipDocTypeModel  implements Serializable{
 		this.updatedBy = updatedBy;
 	}
 	public String toJSONString() {
-		
+
 		ObjectMapper Obj = new ObjectMapper();
 		String jsonStr ="";
 		try {

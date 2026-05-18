@@ -15,15 +15,15 @@ public class MosipBiometricAttributeModel implements Serializable{
 
 	 private static final long serialVersionUID = 1L;
 	 private String biometricTypeCode;
-		
+
 	 private String code;
 	 private String description;
 	 private Boolean isActive;
 	 private String langCode;
 	 private String name;
-	 
+
 	 public String toJSONString() {
-			
+
 			ObjectMapper Obj = new ObjectMapper();
 			String jsonStr ="";
 			try {

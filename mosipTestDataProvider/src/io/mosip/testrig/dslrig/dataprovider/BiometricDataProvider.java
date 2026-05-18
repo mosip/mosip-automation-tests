@@ -69,7 +69,7 @@ public class BiometricDataProvider {
 	public static HashMap<String, Integer> portmap = new HashMap<>();
 	private static final Logger logger = LoggerFactory.getLogger(BiometricDataProvider.class);
 
-	// String constants
+
 	private static final String XMLNS = "xmlns";
 	private static final String XMLNS_URL = "http://standards.iso.org/iso-iec/19785/-3/ed-2/";
 	private static final String MAJOR = "Major";
@@ -207,8 +207,8 @@ public class BiometricDataProvider {
 					.a("key", PAYLOAD).t(payload).up().e(ENTRY).a("key", SPEC_VERSION).t("0.9.5").up().up();
 
 		}
-		// VariableManager.setVariableValue(contextKey, "EXCEPTION_BIOMETRICS",
-		// "exception");
+
+
 		return builder.asString(null);
 	}
 
@@ -247,14 +247,6 @@ public class BiometricDataProvider {
 				mdsprofilePath = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsprofilepath")
 						.toString();
 
-				/*
-				 * String certsDir = System.getenv(AUTHCERTSPATH) == null ?
-				 * VariableManager.getVariableValue(contextKey, AUTHCERTSPATH).toString() :
-				 * System.getenv(AUTHCERTSPATH);
-				 * 
-				 * if (certsDir == null || certsDir.length() == 0) { certsDir =
-				 * System.getProperty("java.io.tmpdir") + File.separator + "AUTHCERTS"; }
-				 */
 
 				Path p12path = null;
 				boolean invalidCertFlag = Boolean
@@ -291,12 +283,7 @@ public class BiometricDataProvider {
 					logger.error("Unable to find the port " + contextKey + " port number is: " + port);
 					return null;
 				}
-				// Need to check with Anusha is this below line correct wrt multi run of
-				// scenarios for each env.
-				// port =
-				// CentralizedMockSBI.startSBI(VariableManager.getVariableValue(contextKey,
-				// "db-server").toString(), "Registration", "Biometric Device",
-				// p12path.toString());
+
 
 				portmap.put("port_" + contextKey, port);
 
@@ -326,15 +313,14 @@ public class BiometricDataProvider {
 				mds.setProfile(profileName, port, contextKey);
 			}
 
-			// Change mockmds quality score
 
 			HashMap<String, Integer> portAsPerKey = BiometricDataProvider.portmap;
 			RegistrationSteps steps = new RegistrationSteps();
 			steps.setMDSscore(portAsPerKey.get("port_" + contextKey), "Biometric Device", qualityScore, contextKey);
 			RestClient.logInfo(contextKey, "mds score is changed to : " + qualityScore);
 			biodata = resident.getBiometric();
-			// This condition will address those scenarios where we are not passing any
-			// biometrics
+
+
 			if (biodata.getFaceHash() == null && biodata.getFingerHash() == null && biodata.getIris() == null)
 				return new MDSRCaptureModel();
 			} catch (Throwable t) {
@@ -343,13 +329,13 @@ public class BiometricDataProvider {
 				return null;
 			}
 
-			// Get Exceptions modalities abd add them to list of string
+
 			if (bioExceptions != null && !bioExceptions.isEmpty()) {
 				for (int modalityCount = 0; modalityCount < bioExceptions.size(); modalityCount++)
 					bioexceptionlist.add(bioExceptions.get(modalityCount).getSubType().toString());
 			}
 
-			// Step 1 : Face get capture
+
 			try {
 				if ((filteredAttribs != null && filteredAttribs.contains("face")) && biodata.getRawFaceData() != null) {
 
@@ -367,7 +353,7 @@ public class BiometricDataProvider {
 				return null;
 			}
 
-			// Step 2 : IRIS get capture
+
 			try {
 				if (biodata.getIris() != null) {
 					List<BioModality> irisExceptions = null;
@@ -460,7 +446,7 @@ public class BiometricDataProvider {
 				List<MDSDeviceCaptureModel> lstFingers = capture.getLstBiometrics()
 						.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
 				if (filteredAttribs != null) {
-					// schemaNames
+
 					String attr = null;
 
 					for (MDSDeviceCaptureModel mdc : lstFingers) {
@@ -496,7 +482,7 @@ public class BiometricDataProvider {
 			}
 
 			try {
-				// Step 4 : Exception photo face capture
+
 				if (bioExceptions != null && !bioExceptions.isEmpty()) {
 
 					List<MDSDevice> exceptionfaceDevices = mds
@@ -506,7 +492,7 @@ public class BiometricDataProvider {
 						capture = mds.captureFromRegDevice(exceptionDevice, capture,
 								DataProviderConstants.MDS_DEVICE_TYPE_FACE, null, 60,
 								exceptionDevice.getDeviceSubId().get(0), port, contextKey, bioexceptionlist);
-						// rename the key with exception_photo
+
 					} catch (Throwable t) {
 						logger.error("Exception photo capture failure" + contextKey, t);
 						t.getStackTrace();
@@ -566,7 +552,7 @@ public class BiometricDataProvider {
 
 		List<String> bioSubType = new ArrayList<>();
 
-		// Step 1: convert finger print
+
 		try {
 			List<MDSDeviceCaptureModel> lstFingerData = capture.getLstBiometrics()
 					.get(DataProviderConstants.MDS_DEVICE_TYPE_FINGER);
@@ -582,7 +568,6 @@ public class BiometricDataProvider {
 			logger.error("xmlbuilderFinger failed" + e.getMessage());
 		}
 
-		// Step 2: Add Face
 
 		try {
 			if (bioFilter.contains("face")) {
@@ -601,7 +586,7 @@ public class BiometricDataProvider {
 			logger.error(e.getMessage());
 		}
 
-		// Step 3: Add IRIS
+
 		try {
 			if (bioFilter.contains(LEFTEYE) && bioFilter.contains(RIGHTEYE)) {
 
@@ -621,7 +606,6 @@ public class BiometricDataProvider {
 			logger.error(e.getMessage());
 		}
 
-		// Step 4: Add Face as an Exception photo
 
 		try {
 			if (exceptionlist != null && !exceptionlist.isEmpty()) {
@@ -637,7 +621,6 @@ public class BiometricDataProvider {
 			logger.error(e.getMessage());
 		}
 
-		// Print builder
 
 		if (mosipVersion != null && mosipVersion.startsWith("1.2") && !bioSubType.isEmpty()) {
 			builder.e(OTHERS).e("Key").t("CONFIGURED").up().e("Value")
@@ -779,14 +762,14 @@ public class BiometricDataProvider {
 	}
 
 	private static String getschemaName(String name) {
-		// First check if it falls in all modaities
+
 		for (int i = 0; i < 13; i++) {
 			String displayFingerName = DataProviderConstants.displayFullName[i];
 			if (displayFingerName.equalsIgnoreCase(name) == true)
 				return DataProviderConstants.schemaNames[i];
 		}
 
-		// Other wise just return
+
 		return name;
 	}
 
@@ -923,9 +906,7 @@ public class BiometricDataProvider {
 		return builder;
 	}
 
-	/*
-	 * Construct CBEFF format XML file from biometric data
-	 */
+
 	public static String toCBEFF(List<String> bioFilter, BiometricDataModel biometricDataModel, String toFile,
 			boolean genarateValidCbeff, String contextKey) throws Exception {
 		String retXml = "";
@@ -935,10 +916,10 @@ public class BiometricDataProvider {
 
 		builder.getDocument().setXmlStandalone(true);
 
-		// Step 1: convert finger print
+
 		String[] fingerPrint = biometricDataModel.getFingerPrint();
 
-		// get qualityScore
+
 		String qualityScore = null;
 		Hashtable<String, List<MDSDeviceCaptureModel>> capture = biometricDataModel.getCapture();
 		Enumeration<List<MDSDeviceCaptureModel>> elements = capture.elements();
@@ -965,7 +946,7 @@ public class BiometricDataProvider {
 
 		}
 
-		// Step 2: Add Face
+
 		if (bioFilter.contains("Face")) {
 			if (biometricDataModel.getEncodedPhoto() != null) {
 				String faceXml = buildBirFace(biometricDataModel.getEncodedPhoto(), null, null, qualityScore,
@@ -974,7 +955,7 @@ public class BiometricDataProvider {
 			}
 		}
 
-		// Step 3: Add IRIS
+
 		IrisDataModel irisInfo = biometricDataModel.getIris();
 		if (irisInfo != null) {
 			String irisXml = "";
@@ -1001,7 +982,7 @@ public class BiometricDataProvider {
 	}
 
 	public static Hashtable<Integer, List<File>> impressionCaptureList(String contextKey) {
-		// reach cached finger prints from folder
+
 		String dirPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
 		RestClient.logInfo(contextKey, DIRPATH + dirPath);
@@ -1021,10 +1002,7 @@ public class BiometricDataProvider {
 		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
-		// If the available impressions are less than scenario number, pick the random
-		// one
 
-		// otherwise pick the impression of same of scenario number
 		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
 		RestClient.logInfo(contextKey, "currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
@@ -1048,7 +1026,7 @@ public class BiometricDataProvider {
 			if (val != null)
 				bExternalSrc = Boolean.valueOf(val.toString());
 			if (bExternalSrc) {
-				// folder where all bio input available
+
 				String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "externalBiometricsource")
 						.toString();
 
@@ -1082,7 +1060,7 @@ public class BiometricDataProvider {
 					VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "enableAnguli").toString());
 			if (bAnguli) {
 
-				// else case
+
 				try {
 					tmpDir = Files.createTempDirectory("fps").toFile();
 					Hashtable<Integer, List<File>> prints = generateFingerprint(tmpDir.getAbsolutePath(), 10, 2, 4,
@@ -1103,7 +1081,7 @@ public class BiometricDataProvider {
 						fingerPrintRaw[index] = fdata;
 						fingerPrints[index] = Base64.getEncoder().encodeToString(fdata);
 
-						// delete file
+
 						try {
 							fingerPrintHash[index] = CommonUtil.getHexEncodedHash(fdata);
 
@@ -1123,7 +1101,7 @@ public class BiometricDataProvider {
 					logger.error(e.getMessage());
 				}
 			} else {
-				// reach cached finger prints from folder
+
 				String dirPath = System.getProperty("java.io.tmpdir") + VariableManager
 						.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
 				RestClient.logInfo(contextKey, DIRPATH + dirPath);
@@ -1132,11 +1110,11 @@ public class BiometricDataProvider {
 
 				File listDir[] = null;
 				if (dir.isDirectory()) {
-					// Use FileFilter to filter files
+
 					listDir = dir.listFiles(new FileFilter() {
 						@Override
 						public boolean accept(File file) {
-							// Check if it's a directory and starts with "Impression"
+
 							return file.isDirectory() && file.getName().startsWith("Impression");
 						}
 					});
@@ -1155,10 +1133,7 @@ public class BiometricDataProvider {
 				}
 				int currentScenarioNumber = Integer.valueOf(afterscenario);
 
-				// If the available impressions are less than scenario number, pick the random
-				// one
 
-				// otherwise pick the impression of same of scenario number
 				int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber
 						: randomNumber;
 				dirPath = FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber,
@@ -1208,7 +1183,7 @@ public class BiometricDataProvider {
 	public static BiometricDataModel updateFingerData(String contextKey) throws Exception {
 
 		BiometricDataModel data = new BiometricDataModel();
-		// reach cached finger prints from folder
+
 		String dirPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath").toString();
 		RestClient.logInfo(contextKey, DIRPATH + dirPath);
@@ -1217,11 +1192,11 @@ public class BiometricDataProvider {
 
 		File listDir[] = null;
 		if (dir.isDirectory()) {
-			// Use FileFilter to filter files
+
 			listDir = dir.listFiles(new FileFilter() {
 				@Override
 				public boolean accept(File file) {
-					// Check if it's a directory and starts with "Impression"
+
 					return file.isDirectory() && file.getName().startsWith("Impression");
 				}
 			});
@@ -1240,7 +1215,7 @@ public class BiometricDataProvider {
 		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
-		// Generate a random number that is not equal to currentScenarioNumber
+
 		randomNumber = (int) (Math.random() * (max - min)) + min;
 		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
@@ -1289,15 +1264,15 @@ public class BiometricDataProvider {
 	public static BiometricDataModel updateSelectedFingerData(ResidentModel model, String contextKey,
 			String fingerArgument) throws Exception {
 
-		// 🔴 Get existing biometric data
+
 		BiometricDataModel data = model.getBiometric();
 
-		// 🔴 IMPORTANT: Reuse existing arrays
+
 		String[] fingerPrints = data.getFingerPrint();
 		String[] fingerPrintHash = data.getFingerHash();
 		byte[][] fingerPrintRaw = data.getFingerRaw();
 
-		// Initialize if null (first time case)
+
 		if (fingerPrints == null)
 			fingerPrints = new String[10];
 		if (fingerPrintHash == null)
@@ -1343,12 +1318,12 @@ public class BiometricDataProvider {
 		List<File> firstSet = CommonUtil.listFiles(dirPath + "/fp/");
 		Collections.sort(firstSet, Comparator.comparing(File::getName));
 
-		// 🔴 Parse DSL argument
+
 		Set<Integer> indexesToUpdate = Arrays.stream(fingerArgument.split(",")).map(String::trim)
 				.map(String::toLowerCase).map(FINGER_INDEX_MAP::get).filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		// 🔴 Update ONLY selected fingers
+
 		for (Integer index : indexesToUpdate) {
 			if (index >= firstSet.size()) {
 				logger.warn("Fingerprint file not found for index {}", index);
@@ -1370,7 +1345,7 @@ public class BiometricDataProvider {
 			}
 		}
 
-		// 🔴 Set back updated arrays
+
 		data.setFingerPrint(fingerPrints);
 		data.setFingerHash(fingerPrintHash);
 		data.setFingerRaw(fingerPrintRaw);
@@ -1379,14 +1354,13 @@ public class BiometricDataProvider {
 		return data;
 	}
 
-	// generate using Anguli
 
 	static Hashtable<Integer, List<File>> generateFingerprint(String outDir, int nFingerPrints,
 			int nImpressionsPerPrints, int nThreads, FPClassDistribution classDist, String contextKey) {
 
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 
-		// C:\Mosip.io\gitrepos\biometric-data\anguli
+
 		String[] commands = { DataProviderConstants.ANGULI_PATH + "/Anguli.exe", "-outdir", outDir, "-numT",
 				String.format("%d", nThreads), "-num", String.format("%d", nFingerPrints), "-ni",
 				String.format("%d", nImpressionsPerPrints), "-cdist", classDist.name() };
@@ -1396,7 +1370,7 @@ public class BiometricDataProvider {
 		pb.redirectErrorStream(true);
 
 		try {
-			Process proc = pb.start(); // rt.exec(commands);
+			Process proc = pb.start(); 
 			try (BufferedReader processOutput = new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
 				String s;
 				while ((s = processOutput.readLine()) != null) {
@@ -1447,7 +1421,7 @@ public class BiometricDataProvider {
 		return m;
 	}
 
-	// Left Eye, Right Eye
+
 	static List<IrisDataModel> generateIris(int count, String contextKey) throws Exception {
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
 
@@ -1455,14 +1429,14 @@ public class BiometricDataProvider {
 
 		Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "enableExternalBiometricSource");
 		boolean bExternalSrc = false;
-		// BufferedImage img = null;
+
 
 		if (val != null)
 			bExternalSrc = Boolean.valueOf(val.toString());
 
 		if (bExternalSrc) {
 
-			// folder where all bio input available
+
 			String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "externalBiometricsource")
 					.toString();
 			String fPathL = bioSrc + "Left Iris.jp2";
@@ -1506,7 +1480,7 @@ public class BiometricDataProvider {
 			int[] index = CommonUtil.generateRandomNumbers(count, num, 1);
 			String leftbmp = null;
 			String rightbmp = null;
-			// reach cached finger prints from folder
+
 			RestClient.logInfo(contextKey, DIRPATH + srcPath);
 			Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 			File dir = new File(srcPath);
@@ -1525,9 +1499,7 @@ public class BiometricDataProvider {
 
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
-			// If the available impressions are less than scenario number, pick the random
-			// one
-			// otherwise pick the impression of same of scenario number
+
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 			srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey, currentScenarioNumber,
 					impressionToPick);
@@ -1536,7 +1508,7 @@ public class BiometricDataProvider {
 			logger.info(srcPath + "/iris/");
 
 			File[] listOfFiles = folder.listFiles();
-			// listOfFiles=getRandomIrisVariation(listOfFiles);
+
 
 			for (File file : listOfFiles) {
 				if (file.getName().contains("L")) {
@@ -1589,7 +1561,7 @@ public class BiometricDataProvider {
 		return retVal;
 	}
 
-	// Left Eye, Right Eye
+
 	static List<IrisDataModel> updateIris(String contextKey) throws Exception {
 
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
@@ -1598,7 +1570,7 @@ public class BiometricDataProvider {
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath").toString();
 		String leftbmp = null;
 		String rightbmp = null;
-		// reach cached finger prints from folder
+
 		RestClient.logInfo(contextKey, DIRPATH + srcPath);
 		File dir = new File(srcPath);
 
@@ -1615,7 +1587,7 @@ public class BiometricDataProvider {
 		}
 		int currentScenarioNumber = Integer.valueOf(afterscenario);
 
-		// Generate a random number that is not equal to currentScenarioNumber
+
 		randomNumber = (int) (Math.random() * (max - min)) + min;
 		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
@@ -1624,7 +1596,7 @@ public class BiometricDataProvider {
 		File folder = new File(srcPath + "/iris/");
 
 		File[] listOfFiles = folder.listFiles();
-		// listOfFiles=getRandomIrisVariation(listOfFiles);
+
 		for (File file : listOfFiles) {
 			if (file.getName().contains("L")) {
 				leftbmp = file.getName();
@@ -1680,7 +1652,7 @@ public class BiometricDataProvider {
 
 		List<IrisDataModel> retVal = new ArrayList<>();
 
-		// 🔴 Reuse existing iris data
+
 		IrisDataModel m = model.getBiometric().getIris();
 		if (m == null) {
 			m = new IrisDataModel();
@@ -1739,11 +1711,11 @@ public class BiometricDataProvider {
 		String fPathR = rightbmp == null ? null
 				: srcPath + "/iris/" + rightbmp;
 
-		// 🔴 Parse DSL argument (use IRIS naming)
+
 		Set<String> irisToUpdate = Arrays.stream(irisArgument.split(",")).map(String::trim).map(String::toLowerCase)
 				.collect(Collectors.toSet());
 
-		/* ========== LEFT IRIS ========== */
+
 		if (irisToUpdate.contains("leftiris") && fPathL != null && Files.exists(Paths.get(fPathL))) {
 
 			byte[] fldata = CommonUtil.read(fPathL);
@@ -1752,7 +1724,7 @@ public class BiometricDataProvider {
 			m.setRawLeft(fldata);
 		}
 
-		/* ========== RIGHT IRIS ========== */
+
 		if (irisToUpdate.contains("rightiris") && fPathR != null && Files.exists(Paths.get(fPathR))) {
 
 			byte[] frdata = CommonUtil.read(fPathR);
@@ -1795,7 +1767,7 @@ public class BiometricDataProvider {
 			}
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
-			// Generate a random number that is not equal to currentScenarioNumber
+
 			randomNumber = (int) (Math.random() * (max - min)) + min;
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
@@ -1881,11 +1853,11 @@ public class BiometricDataProvider {
 			return null;
 		}
 
-		// Maps to store matching left and right iris images
+
 		Map<String, File> leftIrisImages = new HashMap<>();
 		Map<String, File> rightIrisImages = new HashMap<>();
 
-		// Categorizing left and right images
+
 		for (File file : listOfFiles) {
 			String fileName = file.getName();
 			if (fileName.endsWith("_L.bmp")) {
@@ -1897,7 +1869,7 @@ public class BiometricDataProvider {
 			}
 		}
 
-		// Find common image names
+
 		List<String> commonNames = new ArrayList<>(leftIrisImages.keySet());
 		commonNames.retainAll(rightIrisImages.keySet());
 
@@ -1906,17 +1878,17 @@ public class BiometricDataProvider {
 			return null;
 		}
 
-		// Pick one random image pair
+
 		Random random = new Random();
 		String selectedName = commonNames.get(random.nextInt(commonNames.size()));
 
 		File selectedLeftImage = leftIrisImages.get(selectedName);
 		File selectedRightImage = rightIrisImages.get(selectedName);
 
-		// Store selected files in an array
+
 		File[] selectedImages = { selectedLeftImage, selectedRightImage };
 
-		// Print selected images
+
 		System.out.println("Selected Left Iris Image: " + selectedLeftImage.getAbsolutePath());
 		System.out.println("Selected Right Iris Image: " + selectedRightImage.getAbsolutePath());
 
@@ -1941,7 +1913,7 @@ public class BiometricDataProvider {
 					"Exception_Photo.iso not found in source folder: " + sourceFile);
 		}
 
-		// Create target folder if not exists
+
 		if (!Files.exists(targetDir)) {
 			Files.createDirectories(targetDir);
 		}
