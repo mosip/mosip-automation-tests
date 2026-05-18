@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class DocumentDto {
-	
+
 	private byte[] document;
 	private String value;
 	private String type;

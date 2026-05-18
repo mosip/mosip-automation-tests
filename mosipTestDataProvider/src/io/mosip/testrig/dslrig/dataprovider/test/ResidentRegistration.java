@@ -24,7 +24,7 @@ public class ResidentRegistration {
 			rid = response.get("registrationId").toString();
 			VariableManager.setVariableValue("RID", rid,contextKey);
 			retVal = response.toString();
-			
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -35,6 +35,6 @@ public class ResidentRegistration {
 		String RegID = VariableManager.getVariableValue(contextKey,"RID").toString();
 		String url = VariableManager.getVariableValue(contextKey,"packetUtilityBaseUrl") +
 				VariableManager.getVariableValue( contextKey,"makeandsyncpacket").toString();
-		
+
 	}
 }

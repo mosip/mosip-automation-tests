@@ -117,7 +117,7 @@ public class CommonUtil {
 		return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
 	}
 
-	// generate count no of random numbers in range 0 - (max-1)
+
 	public static int[] generateRandomNumbers(int count, int max, int min) {
 		int[] rand_nums = new int[count];
 
@@ -157,7 +157,7 @@ public class CommonUtil {
 			if (RestClient.isDebugEnabled(contextKey)) {
 				logger.info(randomStr);
 			}
-			// Generate all String that matches the given Regex.
+
 			boolean bFound = false;
 			do {
 				bFound = false;
@@ -198,7 +198,7 @@ public class CommonUtil {
 
 	public static void CopyRecursivly(Path sourceDirectory, Path targetDirectory) throws IOException {
 
-		// Traverse the file tree and copy each file/directory.
+
 		try (Stream<Path> paths = Files.walk(sourceDirectory)) {
 			paths.forEach(sourcePath -> {
 
@@ -294,12 +294,12 @@ public class CommonUtil {
 	public static void copyFileWithBuffer(Path source, Path destination) {
 		try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(source));
 				BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(destination))) {
-			byte[] buffer = new byte[8192]; // Adjust buffer size as needed
+			byte[] buffer = new byte[8192]; 
 			int bytesRead;
 			while ((bytesRead = in.read(buffer)) != -1) {
 				out.write(buffer, 0, bytesRead);
 			}
-			// Flush the buffered output stream
+
 			out.flush();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -309,14 +309,14 @@ public class CommonUtil {
 	public static void copyMultipartFileWithBuffer(MultipartFile sourceFile, Path destination) {
 		try (InputStream inputStream = sourceFile.getInputStream();
 				BufferedOutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(destination))) {
-			// Define buffer size
+
 			byte[] buffer = new byte[8192];
 			int bytesRead;
-			// Read from the input stream and write to the output stream with buffering
+
 			while ((bytesRead = inputStream.read(buffer)) != -1) {
 				outputStream.write(buffer, 0, bytesRead);
 			}
-			// Flush the buffered output stream
+
 			outputStream.flush();
 		} catch (IOException e) {
 			logger.error(e.getMessage());
@@ -350,7 +350,7 @@ public class CommonUtil {
 		String rex = regex5;
 		String contextKey = null;
 		String values = genStringAsperRegex(rex, contextKey);
-		Pattern p = Pattern.compile(rex);// . represents single character
+		Pattern p = Pattern.compile(rex);
 		Matcher m = p.matcher(values);
 		boolean b = m.matches();
 
@@ -368,34 +368,34 @@ public class CommonUtil {
         Path tempPath = normalizeAbsolute(Paths.get(folderPath));
         Path osTempRoot = getOsTempRoot();
         Path ctxTempRoot = getContextTempRoot(contextKey);
-        
-        // Normalize the roots as well to ensure consistent comparison
+
+
         Path normalizedOsTempRoot = osTempRoot != null ? normalizeAbsolute(osTempRoot) : null;
         Path normalizedCtxTempRoot = ctxTempRoot != null ? normalizeAbsolute(ctxTempRoot) : null;
-        
+
         boolean allowed = (normalizedOsTempRoot != null && tempPath.startsWith(normalizedOsTempRoot))
                 || (normalizedCtxTempRoot != null && tempPath.startsWith(normalizedCtxTempRoot));
-        
+
         if (!allowed) {
             logger.warn("Refusing to delete path outside allowed temp roots: {}", tempPath);
             return;
         }
-        
+
         if (Files.exists(tempPath)) {
             try (Stream<Path> paths = Files.walk(tempPath)) {
-                paths.sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
+                paths.sorted((p1, p2) -> p2.compareTo(p1)) 
                         .forEach(path -> {
                             try {
-                                // Re-validate each path before deletion
+
                                 Path normalizedPath = normalizeAbsolute(path);
                                 boolean pathAllowed = (normalizedOsTempRoot != null && normalizedPath.startsWith(normalizedOsTempRoot))
                                         || (normalizedCtxTempRoot != null && normalizedPath.startsWith(normalizedCtxTempRoot));
-                                
+
                                 if (!pathAllowed) {
                                     logger.warn("Skipping deletion of path outside allowed roots: {}", normalizedPath);
                                     return;
                                 }
-                                
+
                                 Files.delete(normalizedPath);
                                 logger.info("Deleted: {}", normalizedPath);
                             } catch (IOException e) {

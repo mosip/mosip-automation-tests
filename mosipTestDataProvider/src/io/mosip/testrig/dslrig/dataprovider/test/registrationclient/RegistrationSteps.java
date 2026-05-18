@@ -142,7 +142,7 @@ public class RegistrationSteps {
 
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode jsonNode = objectMapper.readTree(response.getBody().asString());
-			// Extract the errorInfo field
+
 			String errorInfo = jsonNode.get("errorInfo").asText();
 			assertEquals("Success", errorInfo);
 			logger.info("errorInfo: " + errorInfo);

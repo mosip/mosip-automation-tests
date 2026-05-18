@@ -75,5 +75,5 @@ public class MosipIndividualTypeModel  implements Serializable{
 	public void setDeletedDateTime(String deletedDateTime) {
 		this.deletedDateTime = deletedDateTime;
 	}
-	
+
 }

@@ -11,5 +11,5 @@ public enum Finger {
 	RightMiddle,
 	RightRing,
 	RightLittle
-	
+
 }

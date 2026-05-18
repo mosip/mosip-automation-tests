@@ -22,11 +22,7 @@ public final class FingerprintVariationGenerator {
 	private FingerprintVariationGenerator() {
 	}
 
-	/*
-	 * ========================================================= BACKWARD COMPATIBLE
-	 * ENTRY POINT (DO NOT CHANGE CALLERS)
-	 * =========================================================
-	 */
+
 	public static String fingerprintVariationGenerator(String contextKey, int currentScenarioNumber,
 			int impressionToPick) throws Exception {
 
@@ -49,10 +45,7 @@ public final class FingerprintVariationGenerator {
 		return outputDir;
 	}
 
-	/*
-	 * ========================================================= CORE NON-MATCHING
-	 * ENGINE =========================================================
-	 */
+
 	private static void generateNonMatchingFingerprint(Path input, String outputDir, String fpPath, String originalName)
 			throws Exception {
 
@@ -63,16 +56,16 @@ public final class FingerprintVariationGenerator {
 		SecureRandom r = SecureRandom.getInstanceStrong();
 		BufferedImage img = copy(base);
 
-		// 1️⃣ STRONG ROTATION (kills alignment)
+
 		rotate(img, r);
 
-		// 2️⃣ RIDGE ERASURE BANDS (kills minutiae continuity)
+
 		eraseBands(img, r);
 
-		// 3️⃣ LARGE BLOCK MASKING (kills core/delta)
+
 		maskBlocks(img, r);
 
-		// 4️⃣ LOCAL INVERSION (breaks ridge polarity)
+
 		localInvert(img, r);
 
 		String uniqueName = "NONMATCH_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + originalName;
@@ -86,14 +79,9 @@ public final class FingerprintVariationGenerator {
 		logger.info("[FP-NONMATCH] " + sha256(Files.readAllBytes(out)));
 	}
 
-	/*
-	 * ========================================================= DESTRUCTIVE
-	 * OPERATIONS (MATCH BREAKERS)
-	 * =========================================================
-	 */
 
 	private static void rotate(BufferedImage img, SecureRandom r) {
-		double angle = Math.toRadians(15 + r.nextInt(15)); // 15–30°
+		double angle = Math.toRadians(15 + r.nextInt(15)); 
 		BufferedImage out = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
 
 		Graphics2D g = out.createGraphics();
@@ -142,10 +130,6 @@ public final class FingerprintVariationGenerator {
 		}
 	}
 
-	/*
-	 * ========================================================= UTILITIES
-	 * =========================================================
-	 */
 
 	private static BufferedImage copy(BufferedImage img) {
 		BufferedImage c = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());

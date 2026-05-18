@@ -12,6 +12,6 @@ public class ContextSchemaDetail {
 	Double schemaVersion;
 	List<MosipIDSchema> schema ;
 	List<String> requiredAttribs;
-	
-	
+
+
 }

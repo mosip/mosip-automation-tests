@@ -19,9 +19,9 @@ public class MosipBiometricTypeModel implements Serializable {
 	 private Boolean isActive;
 	 private String langCode;
 	 private String name;
-	             
+
 	 public String toJSONString() {
-			
+
 			ObjectMapper Obj = new ObjectMapper();
 			String jsonStr ="";
 			try {

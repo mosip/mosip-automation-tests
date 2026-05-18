@@ -10,9 +10,7 @@ public class ApiError {
 
     public ApiError() {}
 
-    /**
-     * Constructor using errorKey (recommended).
-     */
+
     public ApiError(HttpStatus httpStatus, String message, String code, String path) { 
         this.message = message;
         this.code = code;
@@ -20,16 +18,12 @@ public class ApiError {
     }
 
 
-    /**
-     * Full manual constructor (rarely needed).
-     */
     public ApiError(int status, String error, String message, String code, String path, String timestamp) {
         this.message = message;
         this.code = code;
         this.path = path;
     }
 
-    // ===== Getters / Setters =====
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }

@@ -15,13 +15,13 @@ public class PartnerRequest {
 	private static final Logger logger = LoggerFactory.getLogger(PartnerRequest.class);
 
     public static String submitAPIKeyRequest(String partnerID, String policyName, String useCaseDesc,String contextKey){
-    	
+
 
         String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
         VariableManager.getVariableValue(contextKey,"partner").toString() +
         partnerID +
         VariableManager.getVariableValue(contextKey,"apiKeyRequest").toString();
-        
+
 
         JSONObject request = new JSONObject();
         request.put("policyName", policyName);
@@ -35,7 +35,7 @@ public class PartnerRequest {
 
         payload.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
 		payload.put("version", "v1.0");
-        
+
         JSONObject resp;
 
         try{
@@ -57,7 +57,7 @@ public class PartnerRequest {
 
         JSONObject request = new JSONObject();
         request.put("status", "Approved");
-        
+
 
         JSONObject payload = new JSONObject();
 
@@ -78,7 +78,7 @@ public class PartnerRequest {
             logger.error(ex.getMessage());
             return ex.getMessage();
         }
-        
+
 
     }
 
@@ -118,7 +118,6 @@ public class PartnerRequest {
         updateStatusReq.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
 		updateStatusReq.put("version", "v1.0");
 
-      
 
 		try {
 

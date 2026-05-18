@@ -23,14 +23,14 @@ public class StateProvider extends LocationProviderBase{
 	private static final Logger logger = LoggerFactory.getLogger(StateProvider.class);
 
 	List<StateModel> stateDetail;
-	
+
 	public List<StateModel> getDetail() {
 		return stateDetail;
 	}
 	public void dump() throws IOException {
 		String strData = client.get("/Continentscountriescities_Subdivisions_States_Provinces?limit=100000" , null);
 		ObjectMapper objectMapper = new ObjectMapper();
-		
+
 		JsonNode actualObj = objectMapper.readTree(strData);
 		JsonNode values = actualObj.get("results");
 
@@ -49,8 +49,8 @@ public class StateProvider extends LocationProviderBase{
 		ObjectMapper Obj = new ObjectMapper();
 		stateList.forEach( (countryCode, states) -> {
 			String path = "resource/locations/" + countryCode + "/states.json";
-			
-			
+
+
 			try {
 				FileWriter myWriter = new FileWriter(path );
 				myWriter.write( Obj.writeValueAsString(states));
@@ -58,16 +58,16 @@ public class StateProvider extends LocationProviderBase{
 			} catch (IOException e) {
 				logger.error(e.getMessage());
 			}
-		    
+
 		});
 	}
 	public static List<StateModel> load(String countryIsoCode) throws JsonParseException, JsonMappingException, IOException{
-	
+
 		String strJson = CommonUtil.readFromJSONFile("resource/locations/"+ countryIsoCode + "/states.json");
 		ObjectMapper objectMapper = new ObjectMapper();
 		return objectMapper.readValue(strJson.toString(), 
 				objectMapper.getTypeFactory().constructCollectionType(List.class, StateModel.class));
-	
+
 	}
 	public void generate(CountryModel country) {
 		try {
@@ -78,22 +78,22 @@ public class StateProvider extends LocationProviderBase{
 		            "        \"objectId\": \"" + country.getObjectId() + "\","+
 		            "    }" +
 		            "}";
-			
+
 			String where = URLEncoder.encode(condn, "utf-8");
-			
+
 			String strData = client.get("/Continentscountriescities_Subdivisions_States_Provinces?limit=10&where="+ where , null);
 			ObjectMapper objectMapper = new ObjectMapper();
-			
+
 			JsonNode actualObj = objectMapper.readTree(strData);
 			JsonNode values = actualObj.get("results");
 
 			stateDetail = objectMapper.readValue(values.toString(), 
 					objectMapper.getTypeFactory().constructCollectionType(List.class, StateModel.class));
-			
+
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
-		
+
 	}
 
 }

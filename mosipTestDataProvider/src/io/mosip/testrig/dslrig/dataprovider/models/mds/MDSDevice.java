@@ -26,17 +26,17 @@ public class MDSDevice {
 	String serviceVersion;
 	List<String> specVersion;
 	String callbackId;
-	
+
 
 	public String toJSONString() {
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 
 		String jsonStr ="";
 		try {
 				jsonStr = mapper.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
-				
+
 			logger.error(e.getMessage());
 		}	
 		return jsonStr;

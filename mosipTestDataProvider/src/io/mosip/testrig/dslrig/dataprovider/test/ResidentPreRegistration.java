@@ -38,7 +38,7 @@ public class ResidentPreRegistration {
 	public ResidentPreRegistration(ResidentModel m) {
 		person = m;
 	}
-	
+
 
 	@Given("^Adult \"(.*)\" from \"(.*)\"$")
 	public void createPersonaAdult(String gender, String country, String contextKey) throws Exception {
@@ -64,12 +64,6 @@ public class ResidentPreRegistration {
 
 	}
 
-//	@When("^request otp for his/her \"(phone|email)\"$")
-//	public void sendOtp(String to, String contextKey) {
-//
-//		sendOtpTo(to, contextKey);
-//
-//	}
 
 	public String sendOtpTo(ResidentModel resident, String to, String contextKey) {
 	    String emailTo = null;
@@ -81,7 +75,7 @@ public class ResidentPreRegistration {
 	        otpTarget = resident.getContact().getMobileNumber();
 	    }
 
-	    // Override to otp email
+
 	    String bRet = VariableManager.getVariableValue(contextKey, "usePreConfiguredOtp").toString();
 
 	    if (bRet.contains("false")) {
@@ -99,9 +93,9 @@ public class ResidentPreRegistration {
 	    String result = CreatePersona.sendOtpTo(otpTarget, resident.getPrimaryLanguage(), contextKey);
 	    logger.info(String.format("sendOtp Result %s {}", result));
 
-	    // Add the otpTarget to the response
+
 	    JSONObject jsonResult = new JSONObject(result);
-	    jsonResult.put("emailId", otpTarget);  // Add emailId or phone used
+	    jsonResult.put("emailId", otpTarget);  
 
 	    return jsonResult.toString();
 	}
@@ -114,7 +108,7 @@ public class ResidentPreRegistration {
 		String bRet = VariableManager.getVariableValue(contextKey, "usePreConfiguredOtp").toString();
 
 		if (bRet.contains("false")) {
-			// do a wait
+
 			Boolean bFound = false;
 			int nRepeat = 5;
 			while (!bFound && nRepeat >= 0) {
@@ -126,7 +120,7 @@ public class ResidentPreRegistration {
 				}
 
 				List<String> otps = ReadEmail.getOtps();
-				// get last one
+
 				otp = otps.get(otps.size() - 1);
 				nRepeat--;
 				if (otp != null)
@@ -150,7 +144,7 @@ public class ResidentPreRegistration {
 				Thread.currentThread().interrupt();
 			}
 			List<String> additionalInfoReqIds = ReadEmail.getadditionalInfoReqIds();
-			// get last one
+
 			additionalInfoReqId = additionalInfoReqIds.get(additionalInfoReqIds.size() - 1);
 			nRepeat--;
 			if (additionalInfoReqId != null)
@@ -180,7 +174,7 @@ public class ResidentPreRegistration {
 		if (emailTo != null && !emailTo.equals(""))
 			otpTarget = emailTo;
 
-		// Override to otp email
+
 		String bRet = VariableManager.getVariableValue(contextKey, "usePreConfiguredOtp").toString();
 
 		if (bRet.contains("false")) {
@@ -202,7 +196,6 @@ public class ResidentPreRegistration {
 
 	}
 
-	
 
 	@And("^book first available appointment$")
 	public void bookAppointment(String contextKey) throws JSONException {
@@ -226,6 +219,5 @@ public class ResidentPreRegistration {
 		}
 	}
 
-	
 
 }

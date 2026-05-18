@@ -8,10 +8,7 @@ import java.util.Locale;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipIDSchema;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
-/**
- * Expands shorthand tokens used in {@code Miss} lists (e.g. from e2e_getResidentData)
- * into concrete ID-schema attribute ids so omissions apply across MOSIP variants.
- */
+
 public final class DemographicMissFieldUtil {
 
 	private DemographicMissFieldUtil() {

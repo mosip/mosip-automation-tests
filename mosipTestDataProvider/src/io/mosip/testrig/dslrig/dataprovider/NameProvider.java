@@ -26,7 +26,7 @@ public class NameProvider {
 				+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/surnames.csv";
 		logger.info("resourceName surname : "+ resourceName_surname);
 		String resPath = String.format(resourceName_surname, lang);
-		
+
 		String[] values = new String[count];
 		int i = 0;
 		try {

@@ -17,17 +17,17 @@ public class ApplicationConfigIdSchema implements Serializable{
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationConfigIdSchema.class);
 	 private static final long serialVersionUID = 1L;
 	 List<MosipIDSchema>  locationHierarchy;
-	// List<ApplicationConfigSchemaItem> identity;
+
 	 List<Hashtable<String,MosipLocationModel>> tblLocations ;
-	 
+
 	 public String toJSONString() {
-			
+
 			ObjectMapper mapper = new ObjectMapper();
 			String jsonStr ="";
 			try {
 					jsonStr = mapper.writeValueAsString(this);
 			} catch (JsonProcessingException e) {
-					
+
 				logger.error(e.getMessage());
 			}	
 			return jsonStr;

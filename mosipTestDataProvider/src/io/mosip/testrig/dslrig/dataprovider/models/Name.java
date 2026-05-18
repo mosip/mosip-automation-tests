@@ -8,13 +8,13 @@ import lombok.Data;
 
 @Data
 public class Name  implements Serializable{
-	
+
 	 private static final long serialVersionUID = 1L;
 	private String firstName;		
 	private String midName;
 	private String surName;
 	private Gender gender;
-	
+
 	public Name translateTo(String langIsoCode,String contextKey) {
 		Name n = new Name();
 		n.firstName = Translator.translate(langIsoCode, firstName,contextKey);
@@ -23,12 +23,12 @@ public class Name  implements Serializable{
 		n.gender = gender;
 		return n;
 	}
-	
+
 	public Name() {
 		firstName = "";
 		midName = "";
 		surName = "";
 	}
-	
+
 
 }

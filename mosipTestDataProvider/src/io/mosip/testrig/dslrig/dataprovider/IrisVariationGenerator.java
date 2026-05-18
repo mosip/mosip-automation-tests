@@ -22,11 +22,7 @@ public final class IrisVariationGenerator {
 	private IrisVariationGenerator() {
 	}
 
-	/*
-	 * ========================================================= BACKWARD COMPATIBLE
-	 * ENTRY POINT (DO NOT CHANGE CALLERS)
-	 * =========================================================
-	 */
+
 	public static String irisVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick)
 			throws Exception {
 
@@ -49,10 +45,7 @@ public final class IrisVariationGenerator {
 		return outputDir;
 	}
 
-	/*
-	 * ========================================================= CORE NON-MATCHING
-	 * IRIS ENGINE =========================================================
-	 */
+
 	private static void generateNonMatchingIris(Path input, String outputDir, String irisPath, String originalName)
 			throws Exception {
 
@@ -63,19 +56,19 @@ public final class IrisVariationGenerator {
 		SecureRandom r = SecureRandom.getInstanceStrong();
 		BufferedImage img = copy(base);
 
-		// 1️⃣ STRONG ROTATION (breaks normalization)
+
 		rotate(img, r);
 
-		// 2️⃣ RADIAL BAND ERASURE (destroys iris rings)
+
 		eraseRadialBands(img, r);
 
-		// 3️⃣ SECTOR MASKING (removes texture wedges)
+
 		maskSectors(img, r);
 
-		// 4️⃣ PUPIL DEFORMATION (breaks inner boundary)
+
 		deformPupil(img, r);
 
-		// 5️⃣ LOCAL PHASE DESTRUCTION
+
 		localInvert(img, r);
 
 		String uniqueName = "NONMATCH_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + originalName;
@@ -89,14 +82,9 @@ public final class IrisVariationGenerator {
 		logger.info("[IRIS-NONMATCH] " + sha256(Files.readAllBytes(out)));
 	}
 
-	/*
-	 * ========================================================= DESTRUCTIVE
-	 * OPERATIONS (MATCH BREAKERS)
-	 * =========================================================
-	 */
 
 	private static void rotate(BufferedImage img, SecureRandom r) {
-		double angle = Math.toRadians(15 + r.nextInt(15)); // 15–30°
+		double angle = Math.toRadians(15 + r.nextInt(15)); 
 		BufferedImage out = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
 
 		Graphics2D g = out.createGraphics();
@@ -166,10 +154,6 @@ public final class IrisVariationGenerator {
 		}
 	}
 
-	/*
-	 * ========================================================= UTILITIES
-	 * =========================================================
-	 */
 
 	private static BufferedImage copy(BufferedImage img) {
 		BufferedImage c = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());

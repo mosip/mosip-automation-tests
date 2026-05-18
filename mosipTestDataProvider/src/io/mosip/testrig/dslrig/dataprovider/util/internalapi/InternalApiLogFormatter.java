@@ -5,18 +5,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * Pretty-prints collected exchanges: one section, one block per outbound call
- * with request and response together (execution order).
- */
+
 public final class InternalApiLogFormatter {
 
-	/**
-	 * Markers for {@link #format(List, boolean)} when {@code reportHints=true}. The
-	 * orchestrator replaces these with {@code <b>}/{@code </b>} after HTML-escaping
-	 * the log body so TestNG reports show bold labels without treating user JSON
-	 * as HTML.
-	 */
+
 	public static final String REPORT_HINT_BOLD_START = "[[DSL_B]]";
 	public static final String REPORT_HINT_BOLD_END = "[[DSL_E]]";
 
@@ -31,11 +23,7 @@ public final class InternalApiLogFormatter {
 		return format(exchanges, false);
 	}
 
-	/**
-	 * @param reportHints when true, wraps fixed section labels in
-	 *            {@link #REPORT_HINT_BOLD_START} / {@link #REPORT_HINT_BOLD_END} for
-	 *            downstream HTML rendering (see ivv-orchestrator report attachment).
-	 */
+
 	public static String format(List<InternalApiLogExchange> exchanges, boolean reportHints) {
 		if (exchanges == null || exchanges.isEmpty()) {
 			return "OUTBOUND INTERNAL API CALLS\n(no internal API calls recorded for this context)\n";

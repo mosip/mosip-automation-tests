@@ -8,9 +8,7 @@ import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
 
-/**
- * Captures Rest Assured outbound HTTP as {@link InternalApiLogExchange} entries.
- */
+
 public final class InternalApiRestAssuredFilter implements Filter {
 
 	private final String storageKey;
@@ -75,7 +73,7 @@ public final class InternalApiRestAssuredFilter implements Filter {
 				return "(x-www-form-urlencoded / form) " + req.getFormParams();
 			}
 		} catch (Exception ignored) {
-			// Rest Assured versions differ; form params may be unavailable for some specs.
+
 		}
 		try {
 			Object body = req.getBody();

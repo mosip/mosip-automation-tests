@@ -19,17 +19,17 @@ public class IrisDataModel implements Serializable{
 	 String rightHash;
 	 byte[] rawLeft;
 	 byte[] rawRight;
-	 
+
 	 public String toJSONString() {
-			
+
 			ObjectMapper mapper = new ObjectMapper();
-		//	mapper.getFactory().configure(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature(), true);
-			
+
+
 			String jsonStr ="";
 			try {
 					jsonStr = mapper.writeValueAsString(this);
 			} catch (JsonProcessingException e) {
-					
+
 				logger.error(e.getMessage());
 			}	
 			return jsonStr;

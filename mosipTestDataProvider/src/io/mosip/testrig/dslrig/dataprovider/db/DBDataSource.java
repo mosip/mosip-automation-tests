@@ -29,13 +29,13 @@ public class DBDataSource {
 	        try (Connection conn = getConnection()) {
 	            ResultSet tables = conn.getMetaData().getTables(null, null, "POSSIBLESQLTABLE", null);
 	            if (!tables.next()) {
-	                // create table
+
 	                Statement stmt = conn.createStatement();
 	                stmt.execute("CREATE TABLE possibleSqlTable(\n"
 	                        + "  letter VARCHAR(1) NOT NULL PRIMARY KEY\n"
 	                        + ", name VARCHAR(14)\n"
 	                        + ")");
-	                // insert data
+
 	                String[][] data = {{"A", "alpha-static"}, {"B", "beta-static"}, {"C", "charlie-static"}};
 	                PreparedStatement pstmt = conn.prepareStatement("INSERT INTO possibleSqlTable(letter,name) VALUES (?,?)");
 	                for (String[] row : data) {
@@ -72,5 +72,5 @@ public class DBDataSource {
 	        }
 	        return result;
 	    }
-	
+
 }

@@ -23,7 +23,6 @@ import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 
-
 public class PreRegistrationSteps {
 	private static final Logger logger = LoggerFactory.getLogger(PreRegistrationSteps.class);
 
@@ -31,7 +30,7 @@ public class PreRegistrationSteps {
 		for(int i=0; i < arr.length() ; i++)
 			if(arr.getJSONObject(i).getString("preRegistrationId").equals(preregId))
 				return arr.getJSONObject(i);
-		
+
 		return new JSONObject();
 	}
 	public static String getApplications(String status, String preregId,String contextKey) {
@@ -42,9 +41,9 @@ public class PreRegistrationSteps {
 		JSONArray newArray = new JSONArray();
 
 		try {
-		//	JSONObject resp = RestClient.getNoAuth (url, new JSONObject(),new JSONObject(),contextKey);
+
 			JSONObject resp = RestClient.getAdminPreReg (url, new JSONObject(),new JSONObject(),contextKey);
-			
+
 			String strCount = resp.getString("totalRecords");
 			int count =0;
 			if(strCount != null && !strCount.equals(""))
@@ -54,11 +53,11 @@ public class PreRegistrationSteps {
 					return resp.getJSONArray("basicDetails").toString();
 				return matchApplication(resp.getJSONArray("basicDetails"),preregId).toString();
 			}
-			
+
 			if(count > 0) {	
 				JSONArray arr = resp.getJSONArray("basicDetails");
-				
-				
+
+
 				for(int j=0; j < arr.length(); j++) {
 					if( arr.getJSONObject(j).has("statusCode")) {
 						String curstatus = arr.getJSONObject(j).getString("statusCode");
@@ -68,7 +67,7 @@ public class PreRegistrationSteps {
 					}
 				}
 			}
-			
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -76,12 +75,12 @@ public class PreRegistrationSteps {
 			return  newArray.toString();
 		return matchApplication(newArray,preregId).toString();
 	}
-	//"/preregistration/v1/applications";
+
 	public static String postApplication(ResidentModel resident, DataCallback cb,String contextKey) throws JSONException {
 		String result = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +
 		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "postapplication").toString().trim();
-		
+
 		JSONArray requiredFieldsArray=MosipMasterData.getUiSpecId(contextKey);
 		JSONObject identity = CreatePersona.createIdentity(resident,cb,contextKey);
 		JSONObject demoData = new JSONObject();
@@ -90,13 +89,13 @@ public class PreRegistrationSteps {
 		reqObject.put("demographicDetails", demoData);
 		reqObject.put("requiredFields", requiredFieldsArray);
 		JSONObject reqBody = CreatePersona.createRequestBody(reqObject,false);
-		reqObject.put("langCode",resident.getPrimaryLanguage());//resident.getPrimaryLanguare());
-		//RestClient client = annotation.getRestClient();
-		
+		reqObject.put("langCode",resident.getPrimaryLanguage());
+
+
 		try {
 			JSONObject resp = RestClient.postNoAuth (url, reqBody,"prereg",contextKey);
 			result = resp.get("preRegistrationId").toString();
-			
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -113,40 +112,40 @@ public class PreRegistrationSteps {
 		JSONObject reqObject = new JSONObject();
 		reqObject.put("demographicDetails", demoData);
 		JSONObject reqBody = CreatePersona.createRequestBody(reqObject,true);
-		reqObject.put("langCode","eng");//resident.getPrimaryLanguare());
-		//RestClient client = annotation.getRestClient();
-		
+		reqObject.put("langCode","eng");
+
+
 		try {
-			//JSONObject resp = RestClient.putNoAuth(url, reqBody,contextKey);
+
 			JSONObject resp = RestClient.putAdminPrereg(url, reqBody,contextKey);
 			result = resp.get("preRegistrationId").toString();
-			
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 		return  result;
-		
+
 	}
-	
+
 	public static AppointmentModel getAppointments(String contextKey) {
 		AppointmentModel appointmentSlot = new AppointmentModel();
 
 		String base = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
 		String api = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "appointmentslots").toString().trim();
-		
-		
+
+
 		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.prereg.centerid").toString().trim();
 		if(centerId.equalsIgnoreCase("automatic"))
 		centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString().trim();
-		
-		
+
+
 		String url =  base + api + centerId;
 		logger.info("BookAppointment:" + url);
 
 		try {
-			//JSONObject resp = RestClient.get(url, new JSONObject(), new JSONObject(),contextKey);
+
 			JSONObject resp = RestClient.getNoAuth(url, new JSONObject(), new JSONObject(),contextKey);
-			 //JSONObject resp = RestClient.getAdminPreReg(url, new JSONObject(), new JSONObject(),contextKey);
+
 			if(resp != null) {
 				ObjectMapper objectMapper = new ObjectMapper();
 				appointmentSlot = objectMapper.readValue(resp.toString(),  AppointmentModel.class);	
@@ -172,10 +171,10 @@ public class PreRegistrationSteps {
 		requestObject.put("time_slot_from",startTime);
 		requestObject.put("time_slot_to",toTime);
 		requestObject.put("pre_registration_id",preregId);
-		
+
 		try {
 			url = url + "/" + preregId;
-			//JSONObject resp = RestClient.putNoAuth(url, obj,contextKey); 
+
 			JSONObject resp = RestClient.putAdminPrereg(url, obj,contextKey); 
 			response = resp.toString();
 		} catch (Exception e) {
@@ -183,10 +182,10 @@ public class PreRegistrationSteps {
 			response = e.getMessage();
 		}
 		return response;
-			
+
 	}
 	public static String deleteApplication(String preregId,String contextKey) {
-	
+
 		String response = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
 		VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "deleteApplication").toString().trim();
@@ -196,7 +195,7 @@ public class PreRegistrationSteps {
 			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject(),contextKey);
 			response = resp.toString();
 		} catch (Exception e) {
-			
+
 			logger.error(e.getMessage());
 			response = e.getMessage();
 		}
@@ -204,51 +203,44 @@ public class PreRegistrationSteps {
 	}
 
 	public static String discardBooking(HashMap<String, String> map,String contextKey) {
-		
+
 	String response = "";
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
 		VariableManager.getVariableValue( VariableManager.NS_DEFAULT,"postappointment").toString().trim();
 		url = url + "?preRegistrationId=" + map.get("preRegistrationId");
 		try {
 			JSONObject resp = RestClient.deleteNoAuth(url, new JSONObject(),contextKey);
-			//JSONObject resp = RestClient.deleteNoAuthWithQueryParam(url, new JSONObject().put("map", map));
+
 			response = resp.toString();
 		} catch (Exception e) {
-			
+
 			logger.error(e.getMessage());
 			response = e.getMessage();
 		}
-		
+
 		return response;
 	}
-	
+
 	public static String updatePreRegAppointment(String prid,String contextKey) {
-		
+
 		String response = "";
 			String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+
 			VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "postappointment").toString().trim();
 		url = url + "/" + prid;
 			try {
 				JSONObject resp = RestClient.putPreRegStatus(url, new JSONObject(),contextKey);
-				//JSONObject resp = RestClient.deleteNoAuthWithQueryParam(url, new JSONObject().put("map", map));
+
 				response = resp.toString();
 			} catch (Exception e) {
-				
+
 				logger.error(e.getMessage());
 				response = e.getMessage();
 			}
-			
+
 			return response;
 		}
-		
-		
-		
-		
-	
-	
-	
-	
-	
+
+
 	public static String bookAppointment(String preRegId, String appointmentDate, String centerId, AppointmentTimeSlotModel slot, String contextKey) throws JSONException {
 
 		String result ="";
@@ -263,7 +255,7 @@ public class PreRegistrationSteps {
 			obj.put("version", "1.0");
 			obj.put("request", requestObject);
 			obj.put("requesttime", CommonUtil.getUTCDateTime(LocalDateTime.now()));
-			
+
 			requestObject.put("bookingRequest",bookingRequestObject);
 			booking.put("preRegistrationId", preRegId);
 			booking.put("appointment_date",appointmentDate);
@@ -276,16 +268,14 @@ public class PreRegistrationSteps {
 				JSONObject resp = RestClient.postNoAuth(url, obj,"prereg",contextKey);
 
 				if(resp != null) {
-					
+
 					resp.put("appointmentDate", appointmentDate);
 					result = resp.toString();
-				
-					//ObjectMapper objectMapper = new ObjectMapper();
-					//appointmentSlot = objectMapper.readValue(resp.toString(),  AppointmentModel.class);	
-				}
-			
 
-				
+
+				}
+
+
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}		
@@ -322,16 +312,14 @@ public class PreRegistrationSteps {
 	        throw new RuntimeException("Document upload failed", e);
 	    }
 	}
-		
-		
-	
+
+
 	public static void main(String[] args) throws JSONException {
 
-	
-				
+
 		String preRegID ="24728640730673";
 		Boolean bBooked = false;
-		//CreatePersona.sendOtpTo("sanath@mailinator.com");
+
 		CreatePersona.validateOTP("111111", "sanath@mailinator.com","contextKey");
 		AppointmentModel res = getAppointments("contextKey");
 		logger.info(res.getRegCenterId());

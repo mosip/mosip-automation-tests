@@ -15,20 +15,20 @@ public class DateOfBirthProvider {
 
 	byte bytes[] = new byte[20];
 
-	
+
 	public static String generateDob(int minAge, int maxAge) {
 
 	    Calendar today = Calendar.getInstance();
 
-	    // Latest allowed DOB (youngest person)
+
 	    Calendar latestDob = (Calendar) today.clone();
 	    latestDob.add(Calendar.YEAR, -minAge);
 
-	    // Earliest allowed DOB (oldest person)
+
 	    Calendar earliestDob = (Calendar) today.clone();
 	    earliestDob.add(Calendar.YEAR, -maxAge);
 
-	    // Safety: do not allow dates before 1870
+
 	    Calendar minAllowed = Calendar.getInstance();
 	    minAllowed.set(1870, Calendar.JANUARY, 1);
 	    if (earliestDob.before(minAllowed)) {
@@ -48,8 +48,6 @@ public class DateOfBirthProvider {
 	    return formatter.format(dob);
 	}
 
-
-	 
 
 	public static String generate(ResidentAttribute ageAttribute, String contextKey) {
 		String age = VariableManager.getVariableValue(contextKey, "ageCategory").toString();

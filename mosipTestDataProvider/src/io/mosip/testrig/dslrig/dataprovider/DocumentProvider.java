@@ -166,7 +166,6 @@ public class DocumentProvider {
 
         String date = licenseDate.toString();
 
-        /* Passport */
 
         String passportHtml =
                 parseTemplate("passport", photo, name, date, address, templateEngine);
@@ -179,7 +178,6 @@ public class DocumentProvider {
 
         updateVariable(contextKey, "Passport_", passportFile.getAbsolutePath());
 
-        /* Driving License */
 
         String dlHtml =
                 parseTemplate("driverlicense", photo, name, date, address, templateEngine);
@@ -192,7 +190,6 @@ public class DocumentProvider {
 
         updateVariable(contextKey, "DrivingLic_", dlFile.getAbsolutePath());
 
-        /* Map documents */
 
         List<MosipDocument> lstDocs = new ArrayList<>();
 
@@ -253,7 +250,7 @@ public class DocumentProvider {
             String contextKey,
             boolean generateLowQualityDocuments) throws Exception {
 
-        // Keep backward-compatible generation flow until low-quality rendering is implemented.
+
         return generateDocuments(res, contextKey);
     }
 }

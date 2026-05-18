@@ -15,18 +15,18 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 public class Translator {
 	private static final Logger logger = LoggerFactory.getLogger(Translator.class);
 	static String IDlookupFile;
-	
+
 	public static void main(String[] args) {
 	        String text = "Mohandas Karamchand Ghandhi";
-	        //Translated text: Hallo Welt!
+
 	        logger.info("Text:{}" , text , ",Translated text: {}" , translate( "heb", text,"contextKey"));
 	}
 
 	static String getLanguageID(String langIsoCode,String contextKey) {
-	
+
 		String v ="Any-Any";
 		IDlookupFile =System.getProperty("java.io.tmpdir")+VariableManager.getVariableValue(contextKey,"mosip.test.persona.datapath").toString()+"Address/lang-isocode-transid.csv";
-		
+
 		try {
 			CSVHelper csv = new CSVHelper(IDlookupFile);
 			String[] rec;
@@ -46,14 +46,14 @@ public class Translator {
 		VariableManager.setVariableValue(MosipMasterData.RUN_CONTEXT, IDlookupFile, v);
 		return v;
 	}
-	
+
 	public static Name translateName(String toLanguageIsoCode, Name name,String contextKey) {
 		Name langName = new Name();
 		String lang_from_to = getLanguageID(toLanguageIsoCode,contextKey);
-		
-			
+
+
 		Transliterator toTrans = Transliterator.getInstance(lang_from_to);
-		
+
 		if(name.getMidName() != null)
 			langName.setMidName(toTrans.transliterate(name.getMidName()));
 		if(name.getFirstName() != null)
@@ -61,15 +61,14 @@ public class Translator {
 		if(name.getSurName() != null)
 			langName.setSurName(toTrans.transliterate(name.getSurName()));
 		langName.setGender(name.getGender());
-		
+
 		return langName;
 	}
 	public static String translate(String toLanguageIsoCode, String text,String contextKey) {
-		
+
 		String lang_from_to = getLanguageID(toLanguageIsoCode,contextKey);
-		
+
 		Transliterator toTrans = Transliterator.getInstance(lang_from_to);
 		return toTrans.transliterate(text);
 	}
 }
-

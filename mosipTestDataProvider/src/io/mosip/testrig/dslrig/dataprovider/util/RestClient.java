@@ -25,7 +25,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
-//import org.json.JSONArray;
+
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
@@ -53,7 +53,7 @@ public class RestClient {
 	static Map<String, String> tokens = new HashMap<String, String>();
 	static String refreshToken;
 
-	// String constants
+
 	private static final String URLBASE = "urlBase";
 	private static final String ADMIN = "admin";
 	private static final String REGPROC = "regproc";
@@ -76,7 +76,7 @@ public class RestClient {
 	private static final String POST2SLACK = "post2slack";
 
 	static {
-		// RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
+
 
 	}
 
@@ -169,7 +169,7 @@ public class RestClient {
 		headers.put(header, value);
 	}
 
-	// method used with admin role
+
 	public static Response getAdmin(String url, JSONObject requestParams, JSONObject pathParam, String contextKey)
 			throws Exception {
 
@@ -243,7 +243,7 @@ public class RestClient {
 			logger.info(message);
 	}
 
-	// method used with admin role
+
 	public static JSONObject getAdminPreReg(String url, JSONObject requestParams, JSONObject pathParam,
 			String contextKey) throws Exception {
 
@@ -301,7 +301,7 @@ public class RestClient {
 		return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
 	}
 
-	// method used with system role
+
 	public static JSONObject get(String url, JSONObject requestParams, JSONObject pathParam, String contextKey)
 			throws Exception {
 
@@ -393,7 +393,7 @@ public class RestClient {
 		return response;
 	}
 
-	// method for GET request without authentication
+
 	public static JSONObject getWithoutAuth(String url, JSONObject requestParams, JSONObject pathParam,
 			String contextKey)
 			throws Exception {
@@ -440,7 +440,7 @@ public class RestClient {
 		return fullResp;
 	}
 
-	// method used with system role
+
 	public static JSONArray getDoc(String url, JSONObject requestParams, JSONObject pathParam, String contextKey)
 			throws Exception {
 
@@ -1039,12 +1039,12 @@ public class RestClient {
 			checkErrorResponse(response.getBody().asString(), url);
 			JSONObject jsonBody = new JSONObject(response.getBody().asString());
 
-			Object data = jsonBody.opt("response"); // corrected key
+			Object data = jsonBody.opt("response"); 
 
 			if (data instanceof JSONObject) {
 				return (JSONObject) data;
 			} else if (data instanceof JSONArray) {
-				// Wrap JSONArray in a JSONObject
+
 				JSONObject wrapper = new JSONObject();
 				wrapper.put("response", data);
 				return wrapper;
@@ -1124,7 +1124,7 @@ public class RestClient {
 	}
 
 	public static JSONObject putPreRegStatus(String url, JSONObject jsonRequest, String contextKey) throws Exception {
-		String role = PREREG;// //system
+		String role = PREREG;
 		if (!isValidToken(role, contextKey)) {
 			initToken(contextKey);
 		}
@@ -1537,7 +1537,7 @@ public class RestClient {
 
 	private static void checkErrorResponse(String response, String url) {
 
-		// NULL or empty response
+
 		if (response == null || response.trim().isEmpty()) {
 			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
 		}
@@ -1555,19 +1555,19 @@ public class RestClient {
 
 		}
 
-		// ---- NO errors key → SUCCESS ----
+
 		if (!json.has(errorKey)) {
 			return;
 		}
 
 		Object errObject = json.get(errorKey);
 
-		// ---- errors : null → SUCCESS ----
+
 		if (errObject == JSONObject.NULL) {
 			return;
 		}
 
-		// ---- errors : [] → SUCCESS ----
+
 		if (errObject instanceof JSONArray) {
 			JSONArray errors = (JSONArray) errObject;
 			if (errors.isEmpty()) {
@@ -1579,7 +1579,7 @@ public class RestClient {
 					err.optString("message", err.toString()));
 		}
 
-		// ---- errors : { } → ERROR ----
+
 		if (errObject instanceof JSONObject) {
 			JSONObject err = (JSONObject) errObject;
 			throw new ServiceException(HttpStatus.BAD_REQUEST, err.optString("errorCode", "UNKNOWN"), url, null,
@@ -1616,7 +1616,7 @@ public class RestClient {
 					builder.append(output);
 				}
 			} catch (Exception e) {
-				// TODO: handle exception
+
 			}
 		}
 		if (InternalApiLogging.isEnabled(null)) {

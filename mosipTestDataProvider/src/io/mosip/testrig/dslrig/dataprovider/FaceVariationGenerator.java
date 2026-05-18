@@ -19,11 +19,7 @@ public final class FaceVariationGenerator {
 	private FaceVariationGenerator() {
 	}
 
-	/*
-	 * ========================================================= BACKWARD COMPATIBLE
-	 * ENTRY POINT (DO NOT CHANGE CALLERS)
-	 * =========================================================
-	 */
+
 	public static String faceVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick)
 			throws Exception {
 
@@ -43,10 +39,7 @@ public final class FaceVariationGenerator {
 		return outputUniqueFaceDataPath;
 	}
 
-	/*
-	 * ========================================================= CORE NON-MATCHING
-	 * FACE ENGINE =========================================================
-	 */
+
 	private static void generateNonMatchingFace(String inputPath, String outputDir, String facePath,
 			String originalName) throws Exception {
 
@@ -57,19 +50,19 @@ public final class FaceVariationGenerator {
 		SecureRandom r = SecureRandom.getInstanceStrong();
 		BufferedImage img = copy(base);
 
-		// 1️⃣ STRONG ROTATION (breaks pose normalization)
+
 		rotate(img, r);
 
-		// 2️⃣ EYE OCCLUSION (kills embeddings)
+
 		occludeEyes(img, r);
 
-		// 3️⃣ NOSE BRIDGE BLOCKING
+
 		blockNose(img, r);
 
-		// 4️⃣ RANDOM LANDMARK MASKING
+
 		maskBlocks(img, r);
 
-		// 5️⃣ LOCAL FEATURE INVERSION
+
 		localInvert(img, r);
 
 		String uniqueName = "NONMATCH_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + originalName;
@@ -83,14 +76,9 @@ public final class FaceVariationGenerator {
 		logger.info("[FACE-NONMATCH] " + sha256(Files.readAllBytes(out)));
 	}
 
-	/*
-	 * ========================================================= DESTRUCTIVE
-	 * OPERATIONS (MATCH BREAKERS)
-	 * =========================================================
-	 */
 
 	private static void rotate(BufferedImage img, SecureRandom r) {
-		double angle = Math.toRadians(15 + r.nextInt(15)); // 15–30°
+		double angle = Math.toRadians(15 + r.nextInt(15)); 
 		BufferedImage out = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
 
 		Graphics2D g = out.createGraphics();
@@ -152,10 +140,6 @@ public final class FaceVariationGenerator {
 		}
 	}
 
-	/*
-	 * ========================================================= UTILITIES
-	 * =========================================================
-	 */
 
 	private static BufferedImage copy(BufferedImage img) {
 		BufferedImage c = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());

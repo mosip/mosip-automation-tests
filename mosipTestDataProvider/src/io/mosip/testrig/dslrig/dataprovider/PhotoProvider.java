@@ -63,10 +63,7 @@ public class PhotoProvider {
 			}
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
-			// If the available impressions are less than scenario number, pick the random
-			// one
 
-			// otherwise pick the impression of same of scenario number
 			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
 
 			dirPath = FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber,
@@ -85,7 +82,7 @@ public class PhotoProvider {
 				bExternalSrc = Boolean.valueOf(val.toString());
 
 			if (bExternalSrc) {
-				// folder where all bio input available
+
 				String bioSrc = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "externalBiometricsource")
 						.toString();
 				try (FileInputStream fos = new FileInputStream(bioSrc + "Face.jp2");
@@ -103,8 +100,8 @@ public class PhotoProvider {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
 			if (generateLargeFace) {
-				// Generate a much bigger face payload so packet upload path validates
-				// compression handling.
+
+
 				img = upscaleImage(img, 8);
 			}
 			if (generateObstructedFace) {
@@ -152,18 +149,18 @@ public class PhotoProvider {
 		int width = output.getWidth();
 		int height = output.getHeight();
 
-		// Mask-like obstruction over lower half of face
+
 		g2d.setColor(new Color(28, 28, 28, 235));
 		int maskY = (int) (height * 0.58);
 		g2d.fillRoundRect((int) (width * 0.16), maskY, (int) (width * 0.68), (int) (height * 0.28), 30, 30);
 
-		// Cap-like obstruction over forehead
+
 		g2d.setColor(new Color(18, 18, 18, 245));
 		g2d.fillRoundRect((int) (width * 0.12), (int) (height * 0.02), (int) (width * 0.76), (int) (height * 0.24), 26,
 				26);
 		g2d.fillRect((int) (width * 0.20), (int) (height * 0.21), (int) (width * 0.60), (int) (height * 0.06));
 
-		// Glare-like streak on one eye area
+
 		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.72f));
 		g2d.setColor(new Color(255, 255, 255));
 		g2d.fillOval((int) (width * 0.55), (int) (height * 0.28), (int) (width * 0.26), (int) (height * 0.12));
@@ -175,7 +172,7 @@ public class PhotoProvider {
 	}
 
 	static void splitImages(String contextKey) {
-		/// 125 x129
+
 		try {
 			final BufferedImage source = ImageIO
 					.read(new File(System.getProperty("java.io.tmpdir")
@@ -201,7 +198,6 @@ public class PhotoProvider {
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		// try (DataOutputStream dout = new DataOutputStream(baos)) {
 
 		try (BufferedOutputStream bos = new BufferedOutputStream(baos);
 				DataOutputStream dout = new DataOutputStream(bos)) {
@@ -274,7 +270,7 @@ public class PhotoProvider {
 
 		BufferedImage img;
 		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(faceFile));) {
-			// img = ImageIO.read(new File(faceFile));
+
 			img = ImageIO.read(bis);
 			ImageIO.write(img, "jpg", baos);
 			baos.flush();

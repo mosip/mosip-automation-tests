@@ -1,7 +1,5 @@
 package io.mosip.testrig.dslrig.dataprovider.models;
-/*
- * {"nativeName":"English","code":"eng","name":"English","family":"Indo-European","isActive":true}
- */
+
 
 import java.io.Serializable;
 
@@ -16,5 +14,5 @@ public class MosipLanguage  implements Serializable{
 	String family;
 	String iso2;
 	Boolean isActive;
-	
+
 }
