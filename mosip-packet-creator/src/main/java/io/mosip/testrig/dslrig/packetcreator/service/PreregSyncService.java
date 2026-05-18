@@ -1,7 +1,6 @@
 package io.mosip.testrig.dslrig.packetcreator.service;
 
 
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -31,20 +30,19 @@ public class PreregSyncService {
 
     @Value("${mosip.test.regclient.centerid}")
 	private String centerId;
-	
+
 	@Autowired
 	private APIRequestUtil apiUtil;
 
-	
+
     private LocalDateTime lastSyncTime;
 
     private String workDirectory;
 
     @Autowired
     private ContextUtils contextUtils;
-   
-    
-    
+
+
     @PostConstruct
     public void init() {
 		if (workDirectory != null) return;
@@ -87,24 +85,24 @@ public class PreregSyncService {
     }
 
     public String downloadPreregPacket(String preregId, String contextKey) throws Exception{
-    	
+
     	if(contextKey != null && !contextKey.equals("")) {
-    		
+
     		Properties props = contextUtils.loadServerContext(contextKey);
     		props.forEach((k,v)->{
     			if(k.toString().equals("mosip.test.baseurl")) {
     				baseUrl = v.toString().trim();
     			}
-    			
+
     		});
     	}
-    	//Fix:MOSIP-13932- Auth API signature changed
+
     	logger.info("Before getPreReg");
 		JSONObject preregResponse = apiUtil.getPreReg(baseUrl,baseUrl + syncapi+"/"+preregId, new JSONObject(), new JSONObject(),contextKey);
 		logger.info("Downloaded data for prereg id {} ", preregResponse.getString("pre-registration-id"));
 		Path temPath = Path.of(workDirectory, preregId+".zip");
 		byte[] bytes=Base64.getDecoder().decode(preregResponse.getString("zip-bytes"));
-		
+
 		Files.write(temPath, bytes ,StandardOpenOption.CREATE);
 
 		logger.info("Wrote prereg id {} to {} ", preregResponse.getString("pre-registration-id"), temPath.toString());

@@ -10,7 +10,7 @@ import io.mosip.testrig.dslrig.packetcreator.dto.SelfRegisterDto;
 
 @Component
 public class PartnerService {
-    
+
     private static Logger logger = LoggerFactory.getLogger(PartnerService.class);
 
     public String selfRegister(SelfRegisterDto selfRegister,String contextKey){
@@ -27,14 +27,14 @@ public class PartnerService {
         selfRegisterRequest.put("id", "string");
         selfRegisterRequest.put("metadata", new JSONObject());
         selfRegisterRequest.put("request", request);
-        
+
         return PartnerRequest.selfRegister(selfRegisterRequest,contextKey);
     }
 
     public String updatePartnerStatus(String contextKey,String partnerId, String status){
         return PartnerRequest.updatePartnerStatus(contextKey,partnerId, status);
     }
-    
+
     public String submitPartnerAPIKeyRequest(String partnerID, String policyName, String useCaseDesc,String contextKey){
         return PartnerRequest.submitAPIKeyRequest(partnerID, policyName, useCaseDesc,contextKey);
     }

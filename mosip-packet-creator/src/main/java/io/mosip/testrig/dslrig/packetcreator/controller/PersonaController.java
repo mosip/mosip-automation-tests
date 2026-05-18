@@ -60,7 +60,7 @@ public class PersonaController {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
-//			VariableManager.Init(contextKey);
+
 
 			return packetSyncService.updatePersonaData(personaRequestDto, contextKey);
 
@@ -75,7 +75,7 @@ public class PersonaController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Resident data is successfully updated") })
 	@PostMapping(value = "/updateresident/{contextKey}")
 	public @ResponseBody String updateResidentData(@RequestBody PersonaRequestDto personaRequestDto,
-			// @PathVariable("id") int id,
+
 			@RequestParam(name = "UIN", required = false) String uin,
 			@RequestParam(name = "RID", required = false) String rid, @PathVariable("contextKey") String contextKey) {
 
@@ -83,8 +83,8 @@ public class PersonaController {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
-			// String uin = "";
-			// String rid = "1234567890";
+
+
 			return packetSyncService.updateResidentData(personaRequestDto.getRequests(), uin, rid, contextKey);
 
 		} catch (Exception ex) {
@@ -100,7 +100,7 @@ public class PersonaController {
 			@ApiResponse(responseCode = "200", description = "Successfully updated the persona record") })
 	@PutMapping(value = "/persona/bioexceptions/{contextKey}")
 	public @ResponseBody String updatePersonaBioExceptions(@RequestBody BioExceptionDto personaBERequestDto,
-			// @PathVariable("id") String id,
+
 			@PathVariable("contextKey") String contextKey) {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
@@ -134,11 +134,7 @@ public class PersonaController {
 			RestClient.logInfo(contextKey, "personaAnguliPath =" + DataProviderConstants.ANGULI_PATH);
 
 			RestClient.logInfo(contextKey, "Resource Path=" + DataProviderConstants.RESOURCE);
-			// logger.info("DOC_Template Path="+
-			// VariableManager.getVariableValue(contextKey,"mosip.test.persona.documentsdatapath").toString());
 
-			// clear all tokens
-			// VariableManager.setVariableValue("urlSwitched", "true");
 
 			return packetSyncService.generateResidentData(residentRequestDto, contextKey).toString();
 
@@ -228,24 +224,5 @@ public class PersonaController {
 		}
 	}
 
-	/*
-	 * @Operation(summary = "Update the machine details")
-	 * 
-	 * @ApiResponses(value = {
-	 * 
-	 * @ApiResponse(responseCode = "200", description =
-	 * "Successfully updated the machine details") })
-	 * 
-	 * @PutMapping(value = "/updateMachine/{contextKey}") public @ResponseBody
-	 * String updateMachine(@RequestBody MosipMachineModel machine,
-	 * 
-	 * @PathVariable("contextKey") String contextKey) { try { if (personaConfigPath
-	 * != null && !personaConfigPath.equals("")) { DataProviderConstants.RESOURCE =
-	 * personaConfigPath; } return packetSyncService.updateMachine(machine,
-	 * contextKey);
-	 * 
-	 * } catch (Exception ex) { logger.error("updateMachine", ex); } return
-	 * "{Failed}"; }
-	 */
 
 }

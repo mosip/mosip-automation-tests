@@ -76,7 +76,7 @@ public class ResidentController {
 		}
 	}
 
-	// resident/v1/req/credential
+
 	@Operation(summary = "download card for the UIN")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully downloaded the card for the UIN") })
@@ -98,14 +98,6 @@ public class ResidentController {
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DOWNLOAD_CARD_FAIL", null, e, e.getMessage());
 		}
 
-		/*
-		 * { "id": "string", "request": { "additionalData": {}, "credentialType":
-		 * "string", "encrypt": true, "encryptionKey": "string", "individualId":
-		 * "string", "issuer": "string", "otp": "string", "recepiant": "string",
-		 * "sharableAttributes": [ "string" ], "transactionID": "string", "user":
-		 * "string" }, "requesttime": "string", "version": "string" }
-		 * 
-		 */
 
 	}
 
@@ -131,32 +123,6 @@ public class ResidentController {
 		return "{Failed}";
 	}
 
-	/*
-	 * @GetMapping(value =
-	 * "/resident/setThresholdValue/{qualityScore}/{contextKey}")
-	 * public @ResponseBody String setThresholdValue(@PathVariable("qualityScore")
-	 * String qualityScore,
-	 * 
-	 * @PathVariable("contextKey") String contextKey ) {
-	 * 
-	 * if (personaConfigPath != null && !personaConfigPath.equals("")) {
-	 * DataProviderConstants.RESOURCE = personaConfigPath; } try { HashMap<String,
-	 * Integer> port=BiometricDataProvider.portmap;
-	 * 
-	 * //client = new MDSClient(0); // //port --in MDS Admin api -- hit // {"type" :
-	 * "Biometric Device","qualityScore": "20", "fromIso" : false} // POST URI -
-	 * 127.0.0.1:4501/admin/score
-	 * 
-	 * RegistrationSteps steps = new RegistrationSteps(); //
-	 * steps.setMDSprofile(type, profile);
-	 * steps.setMDSscore(port.get("port_"+contextKey),"Biometric Device",
-	 * qualityScore, contextKey); // client.setProfile("Default"); //
-	 * client.setThresholdValue(qualityScore); return "qualityScore :" +
-	 * qualityScore + " is updated"; } catch (Exception e) {
-	 * logger.error("ThresholdValue", e); } return "{Failed}"; }
-	 * 
-	 * 
-	 */
 
 	@Operation(summary = "Get the stages with respect to the RID")
 	@ApiResponses(value = {

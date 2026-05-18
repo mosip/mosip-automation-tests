@@ -148,8 +148,8 @@ public class CryptoUtil {
 
 		encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
 		encryptObj.put("applicationId", encryptionAppId);
-		// encryptObj.put("data",
-		// org.apache.commons.codec.binary.Base64.encodeBase64String(data));
+
+
 		encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(data));
 		encryptObj.put("prependThumbprint", prependthumbprint);
 		encryptObj.put("referenceId", referenceId);
@@ -163,7 +163,7 @@ public class CryptoUtil {
 		wrapper.put("request", encryptObj);
 		logger.debug("Prepared encrypt request for referenceId={}, appId={}", referenceId, encryptionAppId);
 		JSONObject secretObject = apiUtil.post(baseUrl, baseUrl + encryptApi, wrapper, contextKey);
-		
+
 		byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
 		return mergeEncryptedData(encBytes,
 				org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),
@@ -177,23 +177,15 @@ public class CryptoUtil {
 			encData = encrypt(data, referenceId, contextKey);
 		} catch (Throwable e) {
 			logger.error("Encrypt Failing..", e);
-			// Retrying the encrypt on failure..
-			encData = encrypt(data, referenceId, contextKey); // Temperary solution need to check with Taheer
-																// java.lang.Exception:
-																// [{"errorCode":"KER-KMS-500","message":"could not
-																// execute statement; SQL [n/a]; constraint
-																// [uni_ident_const]; nested exception is
-																// org.hibernate.exception.ConstraintViolationException:
-																// could not execute statement"}]
+
+			encData = encrypt(data, referenceId, contextKey); 
+
 
 		}
-		/*
-		 * try(FileOutputStream fos = new FileOutputStream(packetLocation)){
-		 * fos.write(encData); fos.flush(); return true; }
-		 */
+
 		try (FileOutputStream fos = new FileOutputStream(packetLocation);
 				BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-			// Write the encrypted data
+
 			bos.write(encData);
 			bos.flush();
 			return true;
@@ -219,8 +211,8 @@ public class CryptoUtil {
 		}
 		encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
 		encryptObj.put("applicationId", encryptionAppId);
-		// encryptObj.put("data",
-		// org.apache.commons.codec.binary.Base64.encodeBase64String(data));
+
+
 		encryptObj.put("data", org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(data));
 		encryptObj.put("prependThumbprint", prependthumbprint);
 		encryptObj.put("referenceId", referenceId);
@@ -239,8 +231,7 @@ public class CryptoUtil {
 				org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),
 				org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("aad")));
 
-		// test(org.apache.commons.codec.binary.Base64.encodeBase64String(mergeddata),
-		// referenceId, encryptObj);
+
 		return mergeddata;
 	}
 
@@ -283,16 +274,10 @@ public class CryptoUtil {
 		byte[] encryptedKey = copyOfRange(requestData, 0, keyDemiliterIndex);
 		try {
 			encryptedData = copyOfRange(requestData, keyDemiliterIndex + keySplitterLength, cipherKeyandDataLength);
-			// byte[] dataThumbprint = Arrays.copyOfRange(encryptedKey, 0,
-			// THUMBPRINT_LENGTH);
-			encryptedSymmetricKey = Arrays.copyOfRange(encryptedKey, THUMBPRINT_LENGTH, encryptedKey.length);
-			// byte[] certThumbprint =
-			// getCertificateThumbprint(privateKey.getCertificate());
 
-			/*
-			 * if (!Arrays.equals(dataThumbprint, certThumbprint)) { throw new
-			 * Exception("Error in generating Certificate Thumbprint."); }
-			 */
+
+			encryptedSymmetricKey = Arrays.copyOfRange(encryptedKey, THUMBPRINT_LENGTH, encryptedKey.length);
+
 
 			byte[] decryptedSymmetricKey = asymmetricDecrypt(privateKey.getPrivateKey(),
 					((RSAPrivateKey) privateKey.getPrivateKey()).getModulus(), encryptedSymmetricKey);
@@ -303,19 +288,7 @@ public class CryptoUtil {
 		throw new Exception("Not able to decrypt the data.");
 	}
 
-	/**
-	 * 
-	 * @param privateKey
-	 * @param keyModulus
-	 * @param data
-	 * @return
-	 * @throws IllegalBlockSizeException
-	 * @throws BadPaddingException
-	 * @throws NoSuchAlgorithmException
-	 * @throws NoSuchPaddingException
-	 * @throws InvalidAlgorithmParameterException
-	 * @throws InvalidKeyException
-	 */
+
 	private static byte[] asymmetricDecrypt(PrivateKey privateKey, BigInteger keyModulus, byte[] data)
 			throws Exception {
 
@@ -359,44 +332,14 @@ public class CryptoUtil {
 	public PrivateKeyEntry loadP12() throws Exception {
 		KeyStore mosipKeyStore = KeyStore.getInstance("PKCS12");
 		InputStream in = getClass().getClassLoader().getResourceAsStream("partner.p12");
-		// subscriptionRequest.setSecret(websubSecret);
+
 
 		mosipKeyStore.load(in, p12Secret.toCharArray());
 		ProtectionParameter password = new PasswordProtection(p12Secret.toCharArray());
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) mosipKeyStore.getEntry("partner", password);
 		return privateKeyEntry;
 	}
-	/*
-	 * private void test(String requestBody, String refId,JSONObject encryptObj)
-	 * throws Exception { byte[] packet =
-	 * org.apache.commons.codec.binary.Base64.decodeBase64(requestBody); byte[]
-	 * nonce = Arrays.copyOfRange(packet, 0, GCM_NONCE_LENGTH); byte[] aad =
-	 * Arrays.copyOfRange(packet, GCM_NONCE_LENGTH, GCM_NONCE_LENGTH +
-	 * GCM_AAD_LENGTH); byte[] encryptedData = Arrays.copyOfRange(packet,
-	 * GCM_NONCE_LENGTH + GCM_AAD_LENGTH, packet.length);
-	 * 
-	 * JSONObject jsonObject = new JSONObject(); jsonObject.put("applicationId",
-	 * "REGISTRATION"); jsonObject.put("referenceId", refId); jsonObject.put("aad",
-	 * org.apache.commons.codec.binary.Base64.encodeBase64String(aad));
-	 * jsonObject.put("salt",
-	 * org.apache.commons.codec.binary.Base64.encodeBase64String(nonce));
-	 * jsonObject.put("data",
-	 * org.apache.commons.codec.binary.Base64.encodeBase64String(encryptedData));
-	 * jsonObject.put("timeStamp", encryptObj.get("timeStamp"));
-	 * 
-	 * JSONObject wrapper = new JSONObject(); wrapper.put("id",
-	 * "mosip.cryptomanager.decrypt"); wrapper.put("version", "1.0");
-	 * wrapper.put("requesttime", apiUtil.getUTCDateTime(null));
-	 * wrapper.put("request", jsonObject);
-	 * 
-	 * JSONObject secretObject =
-	 * apiUtil.post("https://qa2.mosip.net/v1/keymanager/decrypt", wrapper);
-	 * logger.info("decrypt respose >>>>>>>>>>>>>>>> {}", secretObject);
-	 * 
-	 * String plaindata = new
-	 * String(Base64.getDecoder().decode(secretObject.getString("data")));
-	 * logger.info("decrypt plaindata >>>>>>>>>>>>>>>> {}", plaindata); }
-	 */
+
 
 	public String getHash(byte[] data) throws Exception {
 		try {
@@ -474,15 +417,11 @@ public class CryptoUtil {
 		return kf.generatePrivate(keySpec);
 	}
 
-	/**
-	 * 
-	 * @param length in bytes
-	 * @return base64 value of the random byte
-	 */
+
 	private String getRandomBytes(int length) {
 		byte[] rand = new byte[length];
 		sr.nextBytes(rand);
-		// return org.apache.commons.codec.binary.Base64.encodeBase64String(rand);
+
 		return org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(rand);
 	}
 
@@ -513,14 +452,13 @@ public class CryptoUtil {
 
 		logger.info("Completed creating the Signing Key from Platform TPM");
 
-		// everytime this is called key never changes until unless either seed /
-		// template change.
+
 		signingPrimaryResponse = tpm.CreatePrimary(primaryHandle, dataToBeSealedWithAuth, template, NULL_VECTOR,
 				new TPMS_PCR_SELECTION[0]);
 		return signingPrimaryResponse;
 	}
 	private static Base64.Encoder urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
-	
+
 	public static String encodeToURLSafeBase64(byte[] data) {
 	    return urlSafeEncoder.encodeToString(data);
 	}

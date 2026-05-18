@@ -1,13 +1,11 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
 
-
 import java.util.List;
 
 import java.util.Map;
 
 import java.util.Properties;
-
 
 
 import org.slf4j.Logger;
@@ -39,7 +37,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
-
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
@@ -65,13 +62,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 
-
 @RestController
 
 @Tag(name = "ContextController", description = "REST APIs for context management")
 
 public class ContextController {
-
 
 
 	@Autowired
@@ -83,15 +78,12 @@ public class ContextController {
 	private String personaConfigPath;
 
 
-
 	@Autowired
 
 	CommandsService commandsService;
 
 
-
 	private static final Logger logger = LoggerFactory.getLogger(ContextController.class);
-
 
 
 	@Operation(summary = "Initialize the server context")
@@ -107,13 +99,11 @@ public class ContextController {
 	                                             @PathVariable("contextKey") String contextKey) {
 
 
-
 	    logger.info("-------------------- Scenario : " 
 
 	                + contextProperties.getProperty("scenario")
 
 	                + " --------------------");
-
 
 
 	    try {
@@ -125,9 +115,7 @@ public class ContextController {
 	        }
 
 
-
 	        String result = contextUtils.createUpdateServerContext(contextProperties, contextKey);
-
 
 
 	        return ResponseEntity.ok(
@@ -145,10 +133,9 @@ public class ContextController {
 	        );
 
 
-
 	    } catch (ServiceException se) {
 
-	        throw se; // let global exception handler process it
+	        throw se; 
 
 	    } catch (Exception ex) {
 
@@ -161,17 +148,10 @@ public class ContextController {
 	}
 
 
-
-
-
-
-
 	@GetMapping("/ping/{eSignetDeployed}/{contextKey}")
 
 
-
 	@Operation(summary = "Verify target environment", description = "Verify if the target environment (context) is available.", responses = {
-
 
 
 			@ApiResponse(responseCode = "200", description = "Target environment verified successfully") })
@@ -179,22 +159,18 @@ public class ContextController {
 	public @ResponseBody String checkContext(@RequestParam(name = "module", required = false) String module,
 
 
-
 			@PathVariable String eSignetDeployed, @PathVariable("contextKey") String contextKey) {
-
 
 
 		try {
 
 
-
 			return commandsService.checkContext(contextKey, module, eSignetDeployed);
-
 
 
 		} catch (ServiceException se) {
 
-            throw se; // let global exception handler process it
+            throw se; 
 
         } catch (Exception ex) {
 
@@ -205,7 +181,6 @@ public class ContextController {
         }
 
     }
-
 
 
     @Operation(summary = "Retrieve the server context")
@@ -226,7 +201,7 @@ public class ContextController {
 
         }  catch (ServiceException se) {
 
-            throw se; // let global exception handler process it
+            throw se; 
 
         } catch (Exception ex) {
 
@@ -239,7 +214,6 @@ public class ContextController {
         return bRet;
 
     }
-
 
 
     @Operation(summary = "Reset the server context data")
@@ -268,7 +242,7 @@ public class ContextController {
 
 		} catch (ServiceException se) {
 
-            throw se; // let global exception handler process it
+            throw se; 
 
         } catch (Exception ex) {
 
@@ -277,11 +251,9 @@ public class ContextController {
             throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "RESET_CONTEXT_FAIL", null, ex);
 
 
-
         }
 
     }
-
 
 
 	@Operation(summary = "Retrieve formatted internal (outbound) API log for a context", description = "Used by the DSL orchestrator to attach outbound MOSIP traffic to TestNG reports. "
@@ -307,4 +279,3 @@ public class ContextController {
 	}
 
 }
-

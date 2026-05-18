@@ -6,12 +6,12 @@ import lombok.Data;
 
 @Data
 public class Event {
-    private String id; //uuid
-    private String transactionId; //privided by the publisher.
+    private String id; 
+    private String transactionId; 
     Type type;
-    private String timestamp; //ISO format
-    private String dataShareUri; //URL
-   
+    private String timestamp; 
+    private String dataShareUri; 
+
 	private Map<String, Object> data;
 
 }

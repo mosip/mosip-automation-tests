@@ -24,10 +24,8 @@ public class MosipPacketCreatorApplication {
 
 	public static void main(String[] args) {
 		System.setProperty("spring.devtools.restart.enabled", "false");
-		// #security.ignored=/**
-		// System.setProperty("security.basic.enabled", "false");
-		// System.setProperty("management.security.enabled", "false");
-		// System.setProperty("security.ignored", "/**");
+
+
 		GitFolderDownloader.getProfileResourceFromGit();
 		context = SpringApplication.run(MosipPacketCreatorApplication.class, args);
 	}

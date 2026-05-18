@@ -34,8 +34,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @Tag(name = "CertificateController", description = "REST API for uploading certificates")
-//@RequestMapping("/")
-//@CrossOrigin("*")
+
+
 public class CertificateController {
 
 	@Value("${mosip.test.persona.configpath}")
@@ -46,70 +46,7 @@ public class CertificateController {
 
 	private static final Logger logger = LoggerFactory.getLogger(CertificateController.class);
 
-	/*
-	 * @Operation(summary = "Generating and uploading the root certificate")
-	 * 
-	 * @ApiResponses(value = {
-	 * 
-	 * @ApiResponse(responseCode = "200", description =
-	 * "Successfully updated the root certificate") })
-	 * 
-	 * @PutMapping(value = "/certificate/generate/root/{contextKey}")
-	 * public @ResponseBody String generateAndUploadRootCertificate(
-	 * 
-	 * @RequestParam(value = "issuer", defaultValue =
-	 * "C=AU, O=The Legion of the Bouncy Castle, OU=Bouncy Primary Certificate")
-	 * String issuer,
-	 * 
-	 * @RequestParam(value = "alias", defaultValue = "Root CA") String alias,
-	 * 
-	 * @RequestParam(value = "validYears", defaultValue = "3") int validYears,
-	 * 
-	 * @PathVariable("contextKey") String contextKey) {
-	 * 
-	 * try { if (personaConfigPath != null && !personaConfigPath.equals("")) {
-	 * DataProviderConstants.RESOURCE = personaConfigPath; } return
-	 * certificateService.generateAndUploadRootCertificate(issuer, alias,
-	 * validYears, contextKey); } catch (Exception ex) {
-	 * logger.error("generateAndUploadCACertificate", ex); }
-	 * 
-	 * return "failed";
-	 * 
-	 * }
-	 */
 
-	/*
-	 * @Operation(summary = "Generating and uploading the int certificate")
-	 * 
-	 * @ApiResponses(value = {
-	 * 
-	 * @ApiResponse(responseCode = "200", description =
-	 * "Successfully updated the int certificate") })
-	 * 
-	 * @PutMapping(value = "/certificate/generate/int/{contextKey}")
-	 * public @ResponseBody String generateAndUploadIntCertificate(
-	 * 
-	 * @RequestParam(value = "issuer", defaultValue =
-	 * "C=IN, O=EFG Company, OU=Certificate, E=abc@efg.com") String issuer,
-	 * 
-	 * @RequestParam(value = "alias", defaultValue = "Int CA") String alias,
-	 * 
-	 * @RequestParam(value = "validYears", defaultValue = "3") int validYears,
-	 * 
-	 * @RequestParam(value = "RootAlias", defaultValue = "Root CA") String
-	 * rootAlias,
-	 * 
-	 * @PathVariable("contextKey") String contextKey) {
-	 * 
-	 * try { if (personaConfigPath != null && !personaConfigPath.equals("")) {
-	 * DataProviderConstants.RESOURCE = personaConfigPath; } return
-	 * certificateService.generateAndUploadIntCertificate(issuer, alias, validYears,
-	 * rootAlias, contextKey); } catch (Exception ex) {
-	 * logger.error("generateAndUploadCACertificate", ex); }
-	 * 
-	 * return "failed"; }
-	 */
-	
 	@Operation(summary = "Upload a device PKCS#12 file")
     @PostMapping(value = "/uploadDeviceCert/{contextKey}")
     public @ResponseBody String uploadDeviceCert( @RequestBody String encodedDeviceCert,@PathVariable("contextKey") String contextKey) {
@@ -130,7 +67,7 @@ public class CertificateController {
             return "{\"error\":\"" + e.getMessage() + "\"}";
         }
     }
-    
+
 	@Operation(summary = "Clear the device certificate cache from mock mds")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Validation successful") })
 	@GetMapping(value = "/clearDeviceCertCache/{contextKey}")
@@ -155,40 +92,5 @@ public class CertificateController {
 		return "{\"Failed\"}";
 	}
 
-	/*
-	 * @Operation(summary = "Generating and uploading the partner certificate")
-	 * 
-	 * @ApiResponses(value = {
-	 * 
-	 * @ApiResponse(responseCode = "200", description =
-	 * "Successfully updated the partner certificate") })
-	 * 
-	 * @PutMapping(value = "/certificate/generate/partner/{contextKey}")
-	 * public @ResponseBody String generateAndUploadPartnerCertificate(
-	 * 
-	 * @RequestParam(value = "issuer", defaultValue =
-	 * "C=IN, O=ABC Bank,L=Bangalore,CN=ABC Bank, OU=Account Opening,E=bank@efg.com"
-	 * ) String issuer,
-	 * 
-	 * @RequestParam(value = "alias", defaultValue = "ABC Bank") String alias,
-	 * 
-	 * @RequestParam(value = "validYears", defaultValue = "3") int validYears,
-	 * 
-	 * @RequestParam(value = "RootAlias", defaultValue = "Int CA") String rootAlias,
-	 * 
-	 * @RequestParam(value = "PartnerID", defaultValue = "9876") String partnerID,
-	 * 
-	 * @PathVariable("contextKey") String contextKey) {
-	 * 
-	 * try { if (personaConfigPath != null && !personaConfigPath.equals("")) {
-	 * DataProviderConstants.RESOURCE = personaConfigPath; } return
-	 * certificateService.generateAndUploadPartnerCertificate(issuer, alias,
-	 * validYears, rootAlias, partnerID, contextKey); } catch (Exception ex) {
-	 * logger.error("generateAndUploadCACertificate", ex); }
-	 * 
-	 * return "failed";
-	 * 
-	 * }
-	 */
 
 }

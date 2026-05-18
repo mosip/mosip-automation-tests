@@ -9,7 +9,7 @@ import io.mosip.testrig.dslrig.dataprovider.preparation.PolicyManagement;
 
 @Component
 public class PolicyManagerService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(PolicyManagerService.class);
 
     public String createPolicyGroup(String name, String desc,String contextKey){
@@ -22,7 +22,7 @@ public class PolicyManagerService {
             logger.error("createPolicyGroupService", e);
             return "{\"Failed\"}";
         }
-        
+
     }
 
 
@@ -36,7 +36,7 @@ public class PolicyManagerService {
             logger.error("getPolicyaGroupIdService", e);
             return "{\"Failed\"}";
         }
-        
+
     }
 
     public String createPolicyUnderGroup(String groupname, String policyname, String policydesc, String policytype, JSONObject policyJson,String contextKey){
@@ -51,7 +51,7 @@ public class PolicyManagerService {
         }
     }
 
-   
+
     public String publishPolicy(String policyId, String policygroupId,String contextKey){
 
         try{

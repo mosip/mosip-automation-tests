@@ -17,16 +17,16 @@ public class SecurityConfiguration {
 	public HttpFirewall defaultHttpFirewall() {
 		return new DefaultHttpFirewall();
 	}
-	
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 		httpSecurity.httpBasic(httpEntry -> httpEntry.disable());
 		httpSecurity.csrf(httpEntry -> httpEntry.disable());
 		httpSecurity.authorizeHttpRequests(http -> http.anyRequest().permitAll());
-		
+
 		return httpSecurity.build();
 	}
-	
+
 	@Bean
 	public AuthenticationEntryPoint unauthorizedEntryPoint() {
 		return (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED);

@@ -14,19 +14,19 @@ public class GitFolderDownloader {
 
     private static final Logger logger = LoggerFactory.getLogger(GitFolderDownloader.class);
 
-    // Base URL to fetch ZIP from GitHub
+
     private static final String GITHUB_BASE_URL = "https://github.com/jayesh12234/mosip-automation-tests/archive/refs/heads/";
-    
-    // Default branch (can be changed dynamically)
+
+
     private static final String DEFAULT_BRANCH = "develop";
 
-    // Temporary directory for storing extracted profile resources
+
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator + "profile_resource";
 
-    // Base path for profile resources inside the repo
+
     private static final String PROFILE_RESOURCE_BASE = "mosip-packet-creator/src/main/resources/dockersupport/centralized/mosip-packet-creator/profile_resource/";
 
-    // Required folders (relative to profile_resource/)
+
     private static final String[] REQUIRED_FOLDERS = {
             "location_data",
             "names_data",
@@ -39,7 +39,7 @@ public class GitFolderDownloader {
             "iris_data"
     };
 
-  
+
 	public static void getProfileResourceFromGit() {
 		if (!System.getProperty("os.name").equalsIgnoreCase("Linux")) {
 			try {
@@ -53,7 +53,7 @@ public class GitFolderDownloader {
 				logger.info("✅ Download complete. Extracting required folders...");
 				extractRequiredFolders(zipFilePath);
 
-				Files.deleteIfExists(zipFilePath); // Cleanup ZIP file
+				Files.deleteIfExists(zipFilePath); 
 				logger.info("✅ Extraction complete. Required files are in: {}", TEMP_DIR);
 			} catch (Exception e) {
 				logger.error("❌ Error while processing Git folder download: ", e);
@@ -65,7 +65,7 @@ public class GitFolderDownloader {
         Path tempPath = Paths.get(TEMP_DIR);
         if (Files.exists(tempPath)) {
             try (Stream<Path> paths = Files.walk(tempPath)) {
-                paths.sorted((p1, p2) -> p2.compareTo(p1)) // Delete files first
+                paths.sorted((p1, p2) -> p2.compareTo(p1)) 
                 .forEach(path -> {
                     try {
                         Files.delete(path);
@@ -104,7 +104,7 @@ public class GitFolderDownloader {
     	        ZipEntry entry;
     	        while ((entry = zis.getNextEntry()) != null) {
     	            if (rootFolder == null) {
-    	                rootFolder = entry.getName().split("/")[0]; // Extract first folder name
+    	                rootFolder = entry.getName().split("/")[0]; 
     	                logger.info("📁 Detected root folder: {}", rootFolder);
     	            }
 
@@ -112,15 +112,15 @@ public class GitFolderDownloader {
     	                String requiredPath = rootFolder + "/" + PROFILE_RESOURCE_BASE + requiredSubPath;
 
     	                if (entry.getName().startsWith(requiredPath)) {
-    	                    
-    	                    // Compute the relative path correctly inside profile_resource
+
+
     	                    String relativePath = entry.getName().substring((rootFolder + "/" + PROFILE_RESOURCE_BASE).length()).replaceFirst("^/+", "");
 
-    	                    if (relativePath.isEmpty()) continue; // Skip if it's an empty directory
+    	                    if (relativePath.isEmpty()) continue; 
 
     	                    Path targetPath = tempDir.resolve(relativePath).normalize();
 
-    	                    // Ensure extraction stays inside TEMP_DIR
+
     	                    if (!targetPath.startsWith(tempDir)) {
     	                        throw new IOException("🚨 Security Warning! Attempted Zip Slip: " + entry.getName());
     	                    }
@@ -128,7 +128,7 @@ public class GitFolderDownloader {
     	                    if (entry.isDirectory()) {
     	                        Files.createDirectories(targetPath);
     	                    } else {
-    	                        Files.createDirectories(targetPath.getParent()); // Ensure parent folders exist
+    	                        Files.createDirectories(targetPath.getParent()); 
     	                        Files.copy(zis, targetPath, StandardCopyOption.REPLACE_EXISTING);
     	                    }
 

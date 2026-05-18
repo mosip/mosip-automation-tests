@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class ServerSetupService {
 
 	 private static final Logger logger = LoggerFactory.getLogger(ServerSetupService.class);
-		
+
 	 public String generate(String specs) {
 		 return specs;
 	 }

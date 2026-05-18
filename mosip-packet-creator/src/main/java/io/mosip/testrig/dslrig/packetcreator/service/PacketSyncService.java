@@ -82,7 +82,7 @@ public class PacketSyncService {
 	private static final Queue<SlotEntry> slotQueue = new ConcurrentLinkedQueue<>();
 	private static final long SLOT_EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000;
 
-	// String constants
+
 	private static final String STATUS = "status";
 	private static final String SUCCESS = "SUCCESS";
 	private static final String RESPONSE = "response";
@@ -92,7 +92,7 @@ public class PacketSyncService {
 	private static final String STATUS_SUCCESS = "{\"status\":\"Success\"}";
 	private static final String MODALITY = "Modality : ";
 	private static final String RESIDENTS_PREFIX = "residents_";
-	
+
 	@Autowired
 	private APIRequestUtil apiRequestUtil;
 
@@ -277,7 +277,7 @@ public class PacketSyncService {
 
 	public JSONObject makePacketAndSync(String preregId, String templateLocation, String personaPath, String contextKey,
 			String additionalInfoReqId) throws Exception {
-		// By default , get the rid from packet sync
+
 		return makePacketAndSync(preregId, templateLocation, personaPath, contextKey, additionalInfoReqId, true, true);
 	}
 
@@ -311,7 +311,7 @@ public class PacketSyncService {
 							idJsonPath.toFile().exists());
 
 			} else if (templateLocation != null) {
-				// get idJson From Template itself
+
 				idJsonPath = ContextUtils.idJsonPathFromTemplate(src, templateLocation);
 			} else {
 				idJsonPath = createIDJsonFromPersona(personaPath, contextKey);
@@ -382,7 +382,7 @@ public class PacketSyncService {
 				functionResponse.put(RESPONSE, nobj);
 				nobj.put(STATUS, SUCCESS);
 
-				// Get the rid from the packet template
+
 				nobj.put(REGISTRATIONID, packetMakerService.getNewRegId());
 				nobj.put("serverApiTrace", apiRequestUtil.consumeServerApiTrace(contextKey));
 				logger.info("Packet sync and upload completed at time: " + System.currentTimeMillis());
@@ -510,7 +510,7 @@ public class PacketSyncService {
 		byte[] fileBytes = CommonUtil.read(containerFile);
 
 		String checkSum = VariableManager.getVariableValue(contextKey, "invalidCheckSum").toString();
-		// Provide invalid checksum before the sync conditionally
+
 		if (checkSum.equalsIgnoreCase("invalidCheckSum"))
 			jsonObject.put("packetHashValue", "INVALID_CHECKSUM");
 		else
@@ -562,12 +562,11 @@ public class PacketSyncService {
 				}
 			});
 		}
-		// To do -- We need to mark supervisor status as approved or rejected
-		// conditionally
+
+
 		VariableManager.setVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS", "APPROVED");
 
-		// To do -- Need to review these two below tags once the conclusion happens what
-		// tags will be set on the packet
+
 		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger",
 				"MOSIP-FINGER01-2345678901");
 		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face",
@@ -592,7 +591,7 @@ public class PacketSyncService {
 		for (String path : personaFilePath) {
 			ResidentModel resident = ResidentModel.readPersona(path);
 			String response = PreRegistrationSteps.postApplication(resident, null, contextKey);
-			// preregid
+
 			saveRegIDMap(response, path);
 			builder.append(response);
 		}
@@ -708,13 +707,13 @@ public class PacketSyncService {
 		public final String date;
 		public final String regCenterId;
 		public final AppointmentTimeSlotModel slot;
-		public final long createdTime; // Add timestamp
+		public final long createdTime; 
 
 		public SlotEntry(String date, String regCenterId, AppointmentTimeSlotModel slot) {
 			this.date = date;
 			this.regCenterId = regCenterId;
 			this.slot = slot;
-			this.createdTime = System.currentTimeMillis(); // Capture creation time
+			this.createdTime = System.currentTimeMillis(); 
 		}
 
 		public boolean isExpired() {
@@ -990,7 +989,7 @@ public class PacketSyncService {
 				String value = updateAttrs.getProperty(key);
 				key = key.toLowerCase().trim();
 
-				// Check for document updates
+
 				MosipDocument doc = null;
 				for (MosipDocument md : persona.getDocuments()) {
 					if (md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
@@ -1090,12 +1089,12 @@ public class PacketSyncService {
 									+ persona.getName().getMidName() + " " + persona.getName().getSurName());
 
 							if (value == null || value.trim().isEmpty()) {
-								// keep old logic - generate a random name
+
 								names_primary = NameProvider.generateNames(persona.getGender(), primarylang, count,
 										eng_names, contextKey);
 								persona.setName(names_primary.get(0));
 							} else {
-								// set name equal to given value
+
 								Name newName = new Name();
 								newName.setFirstName(value);
 								persona.setName(newName);
@@ -1111,12 +1110,12 @@ public class PacketSyncService {
 											: null);
 
 							if (value == null || value.trim().isEmpty()) {
-								// keep old logic - generate secondary language name
+
 								names_sec = NameProvider.generateNames(persona.getGender(), secLang, count, eng_names,
 										contextKey);
 								persona.setName_seclang(names_sec.get(0));
 							} else {
-								// set secondary language name equal to value
+
 								Name newNameSec = new Name();
 								newNameSec.setFirstName(value);
 								persona.setName_seclang(newNameSec);
@@ -1350,8 +1349,8 @@ public class PacketSyncService {
 
 				Properties updateAttrs = req.getUpdateAttributeList();
 				if (updateAttrs != null) {
-					// 👇 This is the key change: call updatePersona and store returned old/new
-					// values
+
+
 					JSONObject updateResult = updatePersona(updateAttrs, persona, contextKey);
 					individualResponse.put("file", req.getPersonaFilePath());
 					individualResponse.put("updatedAttributes", updateResult);
@@ -1374,7 +1373,7 @@ public class PacketSyncService {
 
 		JSONObject finalResponse = new JSONObject();
 		finalResponse.put("result", responseList);
-		return finalResponse.toString(2); // Pretty print with indentation
+		return finalResponse.toString(2); 
 	}
 
 	public String updateResidentData(Hashtable<PersonaRequestType, Properties> hashtable, String uin, String rid,
@@ -1626,7 +1625,7 @@ public class PacketSyncService {
 
 	public String updatePreRegistrationStatus(String preregId, String statusCode, String contextKey) {
 		return MosipDataSetup.updatePreRegStatus(preregId, statusCode, contextKey);
-	
+
 	}
 
 	public String updatePreRegAppointment(String preregId, String contextKey) {
@@ -1664,30 +1663,30 @@ public class PacketSyncService {
 		String url = baseUrl + "registrationprocessor/v1/workflowmanager/workflowinstance";
 		ResidentModel resident = ResidentModel
 				.readPersona(VariableManager.getVariableValue(contextKey, "personaFilePath").toString());
-		// Outer JSON
+
 		JSONObject outerRequest = new JSONObject();
 		outerRequest.put("id", "mosip.registration.processor.workflow.instance");
 		outerRequest.put("requesttime", CommonUtil.getUTCDateTime(null));
 		outerRequest.put("version", "v1");
 
-		// Inner "request" JSON
+
 		JSONObject innerRequest = new JSONObject();
 		innerRequest.put(REGISTRATIONID, rid);
 		innerRequest.put("process", VariableManager.getVariableValue(contextKey, "process").toString());
 		innerRequest.put("source", VariableManager.getVariableValue(contextKey, "source").toString());
-		innerRequest.put("additionalInfoReqId", ""); // can be updated if needed
+		innerRequest.put("additionalInfoReqId", ""); 
 
-		// Notification info
+
 		JSONObject notificationInfo = new JSONObject();
 		notificationInfo.put("name", (resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
-				+ resident.getName().getSurName()));// Assuming ResidentModel has getName()
-		notificationInfo.put("phone", resident.getContact().getMobileNumber()); // Assuming ResidentModel has getPhone()
-		notificationInfo.put("email", resident.getContact().getEmailId()); // Assuming ResidentModel has getEmail()
+				+ resident.getName().getSurName()));
+		notificationInfo.put("phone", resident.getContact().getMobileNumber()); 
+		notificationInfo.put("email", resident.getContact().getEmailId()); 
 
 		innerRequest.put("notificationInfo", notificationInfo);
 		outerRequest.put("request", innerRequest);
 
-		// Call the API
+
 		JSONObject response = RestClient.post(url, outerRequest, "crvs", contextKey);
 
 		return response.toString();
