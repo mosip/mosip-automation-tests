@@ -9,7 +9,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
-public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterface { // $$additionalReqId=e2e_getAdditionalReqId(10)
+public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterface { 
 
 	static Logger logger = Logger.getLogger(GetAdditionalReqId.class);
 
@@ -34,14 +34,14 @@ public class GetAdditionalReqId extends BaseTestCaseUtil implements StepInterfac
 			additonalInfoRequestId = additonalInfoRequestId + "-BIOMETRIC_CORRECTION-1";
 			if (step.getOutVarName() != null)
 				step.getScenario().getVariables().put(step.getOutVarName(), additonalInfoRequestId);
-			
+
 			NotificationListener.markRequestRemove();
 			return;
 		}
 
 		this.hasError = true;
 		throw new RigInternalError("Failed to retrieve the value for addtionalInfoRequestId from email");
-		
+
 
 	}
 

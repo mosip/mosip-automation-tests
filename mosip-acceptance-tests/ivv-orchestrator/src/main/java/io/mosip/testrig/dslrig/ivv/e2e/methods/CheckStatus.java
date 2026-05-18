@@ -78,7 +78,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				int counter = 0;
 				String ridStatus = "under";
 				int maxLoop = Integer.parseInt(props.getProperty("loopCount"));
-				long startTime = System.currentTimeMillis(); // start time
+				long startTime = System.currentTimeMillis(); 
 				while (counter < maxLoop) {
 				    counter++;
 				    logger.info("Waiting for " + Long.parseLong(waitTime) / 1000 + " sec to get packet processed");
@@ -90,7 +90,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				        break;
 				    }
 				}
-				long endTime = System.currentTimeMillis(); // end time
+				long endTime = System.currentTimeMillis(); 
 				long totalTime = endTime - startTime;
 				long timeInMinutes = totalTime / 60000;
 				long timeInSeconds = (totalTime % 60000) / 1000;

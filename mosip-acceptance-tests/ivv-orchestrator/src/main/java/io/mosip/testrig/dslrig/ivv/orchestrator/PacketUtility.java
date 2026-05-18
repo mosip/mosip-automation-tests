@@ -73,7 +73,7 @@ import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.restassured.path.json.JsonPath;
-//import io.mosip.testrig.apirig.testscripts.BioAuthOld;
+
 import io.restassured.response.Response;
 
 public class PacketUtility extends BaseTestCaseUtil {
@@ -86,7 +86,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			logger.setLevel(Level.ERROR);
 	}
 
-	// String constants
+
 	private static final String SKIPGAURDIAN = "SkipGaurdian";
 	private static final String GENDER = "Gender";
 	private static final String FINGER = "Finger";
@@ -162,7 +162,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		residentAttrib.put(GENDER, gender);
 		residentAttrib.put("Iris", true);
-		// added for face biometric related issue
+
 		residentAttrib.put(FINGER, true);
 		residentAttrib.put("Face", true);
 
@@ -279,7 +279,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} while (count < maxRetryCount);
 		return resp;
 	}
-	
+
 	public String createUploadPacket(Set<String> resPath, String source, String process, boolean genrateValidateToken, String uin, HashMap<String, String> contextKey,
 			Scenario.Step step ,String valid) throws RigInternalError {
 		JSONObject jsonReq = new JSONObject();
@@ -312,10 +312,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return id;
 		}
 	}
-	
+
 	public String syncAndTriggerPacket( String rid, HashMap<String, String> contextKey, Scenario.Step step) throws RigInternalError {
 	    JSONObject jsonReq = new JSONObject();
-	 
+
 	    String url = baseUrl + props.getProperty("getSyncExternalPacketUrl") + rid;
 	    Response templateResponse = postRequest(url, jsonReq.toString(), "SYNC-PACKET", step);
 	    return templateResponse.getBody().asString();
@@ -394,7 +394,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			this.hasError = true;
 			throw new RigInternalError("Expectations :  Empty response");
 		} else {
-			// Reporter.log(response);
+
 
 			GlobalMethods.ReportRequestAndResponse("", "", "", "", response.toString());
 			logger.info(response);
@@ -407,7 +407,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			Reporter.log("STATUS_NOT_UPDATED_SUCESSFULLY");
 			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
 		} else {
-			// Reporter.log(response);
+
 			GlobalMethods.ReportRequestAndResponse("", "", "", "", response.toString());
 			logger.info(response);
 		}
@@ -431,10 +431,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		appointmentDate = jsonObject.getString("appointmentDate");
 		step.getScenario().getVidPersonaProp().put("appointmentDate", appointmentDate);
 
-		// JSONObject responseObject = response.getJSONObject("response");
-		// JSONArray data = responseObject.getJSONArray("locations");
 
-		// appointmentDate =response.getBody().
 		return response.getBody().asString();
 	}
 
@@ -505,7 +502,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		map.put("UIN", uin);
 		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
 				"link Resident data with UIN", step);
-//		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
+
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to add UIN in resident data");
@@ -655,7 +652,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonwrapper.put(REQUESTS, jsonReq);
 		String url = baseUrl + props.getProperty(UPDATERESIDENTURL);
 		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
-//		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
+
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
@@ -669,7 +666,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync, String invalidMachineFlag)
 			throws RigInternalError {
 
-		String url = baseUrl + "/packet/sync/01/" + true; // 01 -- to generate wrong hash
+		String url = baseUrl + "/packet/sync/01/" + true; 
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
 				getRidFromSync, true, invalidMachineFlag);
 	}
@@ -678,7 +675,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus, Scenario.Step step,
 			boolean getRidFromSync, String invalidMachineFlag) throws RigInternalError {
 
-		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; // 0 -- to skip prereg
+		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; 
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
 				getRidFromSync, true,invalidMachineFlag);
 
@@ -688,7 +685,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			String additionalInfoReqId, HashMap<String, String> contextKey, String responseStatus, Scenario.Step step,
 			boolean getRidFromSync, String invalidMachineFlag) throws RigInternalError {
 
-		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; // 0 -- to skip prereg
+		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; 
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
 				getRidFromSync, false,invalidMachineFlag);
 
@@ -699,9 +696,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 			boolean genarateValidCbeff,String invalidMachineFlag) throws RigInternalError {
 		String rid = null;
 		if (genarateValidCbeff)
-			url += "/1"; // 1 --- to generateValid Cbeff
+			url += "/1"; 
 		else
-			url += "/0"; // 0 --- to generateInValid Cbeff
+			url += "/0"; 
 		JSONObject jsonReq = new JSONObject();
 		JSONArray arr = new JSONArray();
 		arr.put(0, packetPath);
@@ -715,7 +712,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		do {
 	  		count++;
 			Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
-			
+
 			if (invalidMachineFlag.contentEquals("invalidMachine") && response.getBody().asString().toLowerCase().contains("failed to sign data")) {
 				return "";
 			}
@@ -825,10 +822,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (status != null && !status.isBlank()) {
 			jsonReq.put("machineStatus", status);
 		}
-		/*
-		 * if (mosipVersion != null && !mosipVersion.isEmpty()) {
-		 * jsonReq.put("mosip.version", mosipVersion); }
-		 */
+
 		Response response = postRequest(url, jsonReq.toString(), SETCONTEXT, step);
 		GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
@@ -844,7 +838,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			Boolean generatePrivateKey, String status, String envbaseUrl, Scenario.Step step, boolean invalidCertFlag,
 			String consent, boolean changeSupervisorNameToDiffCase, String invalidEncryptedHashFlag,
 			String invalidCheckSum , String invalidIdSchemaFlag ,String skipBiometricClassification,String skipApplicantDocuments, String invalidDateFlag, String invalidOfficerIDFlag, String flow, String Signature) throws RigInternalError {
-		String url = this.baseUrl + "/context/server"; // this.baseUrl + "/context/server/" + key?contextKey=Ckey
+		String url = this.baseUrl + "/context/server"; 
 		logger.info("packet utility base url : " + url);
 
 		String centerId = CENTERID + map.get("appendedkey");
@@ -864,10 +858,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} else {
 			jsonReq.put(SCENARIO, step.getScenario().getId() + ":" + step.getScenario().getDescription());
 		}
-		
-		//Add age category from actuator
+
+
 		jsonReq.put("ageCategory", MasterDataUtil.getValueFromRegprocActuator("/mosip/mosip-config/registration-processor-default.properties", "mosip.regproc.packet.classifier.tagging.agegroup.ranges"));
-		// id json mapping
+
 		jsonReq.put("IDSchemaVersion", getValueFromIdJson("IDSchemaVersion"));
 		jsonReq.put("uin", getValueFromIdJson("uin"));
 		jsonReq.put("name", getValueFromIdJson("name"));
@@ -910,20 +904,16 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("Female", "FLE");
 		jsonReq.put("Other", "OTH");
 		jsonReq.put("generatePrivateKey", generatePrivateKey);
-		
+
 		jsonReq.put("langCode", BaseTestCase.languageCode);
 
 		jsonReq.put("validUIN", (map.get("$$uin") != null) ? map.get("$$uin") : "createnew");
 
 		if (status != null && !status.isBlank())
 			jsonReq.put("machineStatus", status);
-		/*
-		 * if (mosipVersion != null && !mosipVersion.isEmpty())
-		 * 
-		 * jsonReq.put("mosip.version", mosipVersion);
-		 */
 
-		if (!negative.contains("@@")) // This is to null supervisor,operator details
+
+		if (!negative.contains("@@")) 
 		{
 			jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORID,
 					(map.get(USERID) != null) ? map.get(USERID) : E2EConstants.SUPERVISOR_ID);
@@ -939,9 +929,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 					(map.get(USERPASSWORD) != null) ? map.get(USERPASSWORD) : E2EConstants.USER_PASSWD);
 			jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP,
 					(map.get(USERPASSWORD) != null) ? map.get(USERPASSWORD) : E2EConstants.USER_PASSWD);
-		} else if (negative.contains("@@")) { // to verify permutation and combination for metadata operationdata
+		} else if (negative.contains("@@")) { 
 			String supervOpertoDetails[] = negative.split("@@");
-			// For supervisorid
+
 			if (supervOpertoDetails[0].equalsIgnoreCase("null")) {
 			} else if (supervOpertoDetails[0].equalsIgnoreCase(VALID))
 				jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORID,
@@ -949,8 +939,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 			else if (supervOpertoDetails[0].equalsIgnoreCase(INVALID))
 				jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORID, supervOpertoDetails[0]);
 
-			// For supervisorpwd
-			if (supervOpertoDetails[1].equalsIgnoreCase("null")) // Don't add to the map
+
+			if (supervOpertoDetails[1].equalsIgnoreCase("null")) 
 			{
 			} else if (supervOpertoDetails[1].equalsIgnoreCase(VALID))
 				jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP,
@@ -958,8 +948,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 			else if (supervOpertoDetails[1].equalsIgnoreCase(INVALID))
 				jsonReq.put(MOSIP_TEST_REGCLIENT_supervisorP, supervOpertoDetails[1]);
 
-			// For operatorid
-			if (supervOpertoDetails[2].equalsIgnoreCase("null")) // Don't add to the map
+
+			if (supervOpertoDetails[2].equalsIgnoreCase("null")) 
 			{
 			} else if (supervOpertoDetails[2].equalsIgnoreCase(VALID))
 				jsonReq.put(MOSIP_TEST_REGCLIENT_USERID,
@@ -967,8 +957,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 			else if (supervOpertoDetails[2].equalsIgnoreCase(INVALID))
 				jsonReq.put(MOSIP_TEST_REGCLIENT_USERID, supervOpertoDetails[2]);
 
-			// For operatorpwd
-			if (supervOpertoDetails[3].equalsIgnoreCase("null")) // Don't add to the map
+
+			if (supervOpertoDetails[3].equalsIgnoreCase("null")) 
 			{
 			} else if (supervOpertoDetails[3].equalsIgnoreCase(VALID))
 				jsonReq.put(MOSIP_TEST_REGCLIENT_PASSWORD,
@@ -976,18 +966,18 @@ public class PacketUtility extends BaseTestCaseUtil {
 			else if (supervOpertoDetails[3].equalsIgnoreCase(INVALID))
 				jsonReq.put(MOSIP_TEST_REGCLIENT_PASSWORD, supervOpertoDetails[3]);
 
-			// For officerBiometricFileName
+
 			if (supervOpertoDetails.length > 4) {
 				if (supervOpertoDetails[4].equalsIgnoreCase("null")) {
-				} // Don't add to the map
+				} 
 				else
 					jsonReq.put("mosip.test.regclient.officerBiometricFileName", supervOpertoDetails[4]);
 			}
 
-			// For supervisorBiometricFileName
+
 			if (supervOpertoDetails.length > 5) {
 				if (supervOpertoDetails[5].equalsIgnoreCase("null")) {
-				} // Don't add to the map
+				} 
 				else
 					jsonReq.put("mosip.test.regclient.supervisorBiometricFileName", supervOpertoDetails[5]);
 			}
@@ -1020,7 +1010,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
-	// get value specific to key from actuator
+
 	private String getValueFromIdJson(String key) {
 		String value = AdminTestUtil.getValueFromAuthActuator("json-property", key);
 		String result = value.replaceAll("\\[|\\]", "").replaceAll("\"", "");
@@ -1035,10 +1025,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 				mergedJSON.put(crunchifyKey, json2.get(crunchifyKey));
 			}
 		} catch (JSONException e) {
-			// RunttimeException: Constructs a new runtime exception with the specified
-			// detail message.
-			// The cause is not initialized, and may subsequently be initialized by a call
-			// to initCause.
+
+
 			this.hasError = true;
 			throw new RuntimeException("JSON Exception" + e);
 		}
@@ -1074,8 +1062,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReqInner.put("testPersonaPath", testPersona);
 		if (attributeList != null && !(attributeList.isEmpty()))
 			jsonReqInner.put("regenAttributeList", attributeList);
-		
-	    // Handle the special case for "updateLargeDocInPersona"
+
+
 	    if (step.getParameters().size() > 2 && step.getParameters().get(2).equalsIgnoreCase("updateLargeDocInPersona")) {
 	        String docPathValue = "yourDocPathValue"; 
 	        String poaValue = String.format("{\"typeCode\": \"RNC\",\"docPath\": \"%s\"}", docPathValue);
@@ -1111,7 +1099,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 						                	    : arr[1].trim())));
 
 				}
-				// Pass phone and email as empty
+
 				else {
 					String key = arr[0].trim();
 					updateAttribute.put(key, "");
@@ -1128,7 +1116,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		try {
 		    JsonPath jsonPath = response.jsonPath();
 
-		    // Case: Full JSON with result list
+
 		    if (jsonPath.get("result") != null) {
 		        List<Map<String, Object>> results = jsonPath.getList("result");
 
@@ -1142,14 +1130,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 		            throw new RigInternalError("One or more result entries failed for attributes: " + attributeList);
 		        }
 		    }
-		    // Case: Only a basic success string/object
+
 		    else if (!(body.contains("success"))) {
 		        this.hasError = true;
 		        throw new RigInternalError("Response does not contain success status for attributes: " + attributeList);
 		    }
 
 		} catch (Exception e) {
-		    // Fallback: last chance check if response body contains word "success"
+
 			if (!(body.contains("success"))) {
 		        this.hasError = true;
 		        throw new RigInternalError("Failed to parse success from response for attributes: " + attributeList);
@@ -1165,10 +1153,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		JSONObject jsonObject = new JSONObject();
 
-		// Create exceptions array
+
 		JSONArray exceptionsArray = new JSONArray();
 
-		// Finger:Left IndexFinger@@Finger:Right IndexFinger@@Iris:Left
 
 		String[] modalitytye = null;
 		for (String s : exceptionatt) {
@@ -1184,15 +1171,15 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		}
 
-		// Add exceptions array and personaFilePath to the JSON object
+
 		jsonObject.put("exceptions", exceptionsArray);
 		jsonObject.put(PERSONAFILEPATH, resFilePath);
 
-		// Print JSON object
+
 		logger.info(jsonObject.toString());
 
 		Response response = putRequestWithBody(url, jsonObject.toString(), step);
-//		GlobalMethods.ReportRequestAndResponse("", "", url, jsonObject.toString(), response.getBody().asString());
+
 		if (!(response.getStatusCode() == 200)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update bio exception  from packet utility");
@@ -1226,7 +1213,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		return response.getBody().asString();
 	}
-	
+
 	public void bioAuth(String modility, String bioValue, String uin, Properties deviceProps, TestCaseDTO test,
 			BioAuth bioAuth, Scenario.Step step) throws RigInternalError {
 		if (test.getTestCaseName().contains("EKYC")) {
@@ -1242,8 +1229,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 		}
-		
-//		test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
+
+
 		String input = test.getInput();
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, INDIVIDUALID);
 		logger.info("After UIN: "+ input);
@@ -1326,7 +1313,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		}
 	}
-	
+
 	private String getAuthTransactionId(String oidcTransactionId) {
 	    final String transactionId = oidcTransactionId.replaceAll("_|-", "");
 	    String lengthOfTransactionId =  EsignetUtil.getValueFromEsignetActuator("/mosip/mosip-config/esignet-default.properties", "mosip.esignet.auth-txn-id-length");
@@ -1459,7 +1446,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + props.getProperty("mockAbis");
 		Response response = postRequestWithQueryParamAndBody(url, jsonreq.toString(), contextKey, "Mockabis Expectaion",
 				step);
-//		GlobalMethods.ReportRequestAndResponse("", "", url, jsonreq.toString(), response.getBody().asString());
+
 		logger.info("****" + response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
@@ -1467,7 +1454,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 	}
 
-	//// Activate/DeActivate machine--- start
+
 	public Boolean activateDeActiveMachine(String jsonInput, String machineSpecId, String machineid, String zoneCode,
 			String token, String status, Scenario.Step step) throws RigInternalError {
 
@@ -1562,7 +1549,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return patchResponse;
 	}
 
-	/* Remap User--- start */
+
 	public Boolean remapUser(String jsonInput, String token, String value, String regCenterId, String zoneCode,
 			Scenario.Step step) throws RigInternalError {
 		regCenterId = !regCenterId.equals("0") ? regCenterId
@@ -1573,7 +1560,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return updatedRegCenter.equals(regCenterId) ? true : false;
 	}
 
-	/**** Remap Device ****/
+
 	public Boolean remapDevice(String jsonInput, String token, String value, String regCenterId, String zoneCode,
 			Scenario.Step step) throws RigInternalError {
 		regCenterId = !regCenterId.equals("0") ? regCenterId
@@ -1590,7 +1577,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 				.equals(regCenterId) ? true : false;
 	}
 
-	/* Remap Machine--- start */
+
 	public String remapMachine(String jsonInput, String token, String regCenterId, String zoneCode)
 			throws RigInternalError {
 		regCenterId = !regCenterId.equals("0") ? regCenterId
@@ -1702,14 +1689,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonOutterReq.put("id", STRING);
 		jsonOutterReq.put(METADATA, new JSONObject());
 		JSONObject jsonInnerReq = new JSONObject();
-		jsonInnerReq.put("status", status); // status can be Active and De-Active
+		jsonInnerReq.put("status", status); 
 		jsonOutterReq.put(REQUEST, jsonInnerReq);
 		jsonOutterReq.put(REQUESTTIME, getCurrentDateAndTimeForAPI());
 		jsonOutterReq.put(VERSION, STRING);
 		return jsonOutterReq;
 	}
 
-	// Activate/DeActivate RegCenter--- start
+
 	public Boolean activateDeActiveRegCenter(String jsonInput, String id, String locationCode, String zoneCode,
 			String token, String status, Scenario.Step step) throws RigInternalError {
 		JSONObject jsonPutReq = regCenterPutrequestBuilder(jsonInput, id, locationCode, zoneCode, status, step);
@@ -1773,7 +1760,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		return jsonOutterReq;
 	}
 
-	// Activate/DeActivate RegCenter--- end
 
 	private String updateToRemapMachine(JSONObject jsonPutReq, String token, Scenario.Step step)
 			throws RigInternalError {
@@ -1898,22 +1884,22 @@ public class PacketUtility extends BaseTestCaseUtil {
 	public static String signJWKKey(String clientId, RSAKey jwkKey) {
 		String tempUrl = EsignetUtil.getValueFromEsignetWellKnownEndPoint("token_endpoint", ConfigManager.getEsignetBaseUrl());;
 		String clientAssertionToken = "";
-		// Create RSA-signer with the private key
+
 		JWSSigner signer;
 
 		try {
 			signer = new RSASSASigner(jwkKey);
 
-			// Prepare JWT with claims set
-			JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(clientId)//
-					.audience(tempUrl)//
-					.issuer(clientId)//
+
+			JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(clientId)
+					.audience(tempUrl)
+					.issuer(clientId)
 					.issueTime(new Date()).expirationTime(new Date(new Date().getTime() + 180 * 1000)).jwtID(clientId).build();
 
 			SignedJWT signedJWT = new SignedJWT(
 					new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(jwkKey.getKeyID()).build(), claimsSet);
 
-			// Compute the RSA signature
+
 			signedJWT.sign(signer);
 			clientAssertionToken = signedJWT.serialize();
 		} catch (Exception e) {
@@ -1928,7 +1914,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String[] numbers = sequence.split(",");
 		int commonDifference = Integer.parseInt(numbers[1]) - Integer.parseInt(numbers[0]);
 
-		// Convert wait time from regproc actuator in seconds
 
 		int waitFromActuator = commonDifference * 60;
 		return waitFromActuator;
@@ -1940,7 +1925,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 				outputStream.flush();
 				outputStream.close();
 			} catch (IOException e) {
-				// Handle the exception
+
 			}
 		}
 	}
@@ -1950,7 +1935,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			try {
 				fileReader.close();
 			} catch (IOException e) {
-				// Handle the exception
+
 			}
 		}
 	}
@@ -1960,7 +1945,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			try {
 				inputStream.close();
 			} catch (IOException e) {
-				// Handle the exception
+
 			}
 		}
 	}
@@ -1970,11 +1955,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 			try {
 				zipInputStream.close();
 			} catch (IOException e) {
-				// Handle the exception
+
 			}
 		}
 	}
-	
+
 	static String convertNanosToTime(long nanoseconds) {
 		long totalSeconds = nanoseconds / 1_000_000_000;
 		long seconds = totalSeconds % 60;
@@ -1983,7 +1968,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		long hours = totalMinutes / 60;
 		return String.format("%02d:%02d:%02d", hours, Math.abs(minutes), Math.abs(seconds));
 	}
-	
+
 	public static String getAdjustedUTCDate(String offsetValue) {
 
         ZonedDateTime utcDate = ZonedDateTime.now(ZoneOffset.UTC);
@@ -1992,7 +1977,7 @@ public class PacketUtility extends BaseTestCaseUtil {
             throw new IllegalArgumentException("Offset value cannot be empty");
         }
 
-        // Example: +1y / -2m / +10d
+
         char sign = offsetValue.charAt(0);
         char unit = offsetValue.charAt(offsetValue.length() - 1);
 
@@ -2000,7 +1985,7 @@ public class PacketUtility extends BaseTestCaseUtil {
                 offsetValue.substring(1, offsetValue.length() - 1)
         );
 
-        // Apply negative if needed
+
         if (sign == '-') {
             value = -value;
         }
@@ -2046,17 +2031,17 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String schemaFile = schemaJsonData;
 
-		// Retrieve data from persona file
+
 		String demoResponse = null;
 		String addressResponse = null;
-		
+
 		try {
-			// Fetch demo data from persona file
+
 			List<String> demoFetchList = new ArrayList<>();
 			demoFetchList.add(E2EConstants.DEMOFETCH);
 			demoResponse = retrieveBiometric(personeFilePath, demoFetchList, step);
-			
-			// Fetch address data from persona file
+
+
 			List<String> addressFetchList = new ArrayList<>();
 			addressFetchList.add(E2EConstants.DEMOADDRESSFETCH);
 			addressResponse = retrieveBiometric(personeFilePath, addressFetchList, step);
@@ -2103,7 +2088,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			handleArray.put("handles");
 
 			List<String> selectedHandles = new ArrayList<>();
-			// requiredPropsArray.put("functionalId");
+
 			for (int i = 0, size = requiredPropsArray.length(); i < size; i++) {
 				String eachRequiredProp = requiredPropsArray.getString(i);
 
@@ -2120,13 +2105,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 					randomValue = phoneSchemaRegex;
 				}
 
-				// Processing for TaggedListType
+
 				if (eachPropDataJson.has("$ref")
 						&& eachPropDataJson.get("$ref").toString().contains("TaggedListType")) {
 					JSONArray eachPropDataArrayForHandles = new JSONArray();
 					JSONObject eachValueJsonForHandles = new JSONObject();
 				String taggedValue = null;
-				
+
 				if (eachRequiredProp.equals(emailResult)) {
 					taggedValue = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, null);
 					selectedHandles.add(emailResult);
@@ -2140,7 +2125,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 					taggedValue = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, null);
 					selectedHandles.add(eachRequiredProp);
 				}
-				
+
 				eachValueJsonForHandles.put("value", taggedValue != null ? taggedValue : "");
 				eachValueJsonForHandles.put("tags", handleArray);
 				eachPropDataArrayForHandles.put(eachValueJsonForHandles);
@@ -2158,15 +2143,15 @@ public class PacketUtility extends BaseTestCaseUtil {
 								&& !BaseTestCase.getLanguageList().get(j).isEmpty()) {
 							JSONObject eachValueJson = new JSONObject();
 							eachValueJson.put("language", BaseTestCase.getLanguageList().get(j));
-							
-							// Extract actual data from persona file
+
+
 							String valueFromPersona = getValueFromPersona(demoResponse, addressResponse, eachRequiredProp, 
 									BaseTestCase.getLanguageList().get(j));
-							
+
 							if (valueFromPersona != null) {
 								eachValueJson.put(GlobalConstants.VALUE, valueFromPersona);
 							} else {
-								// No fallback generation - persona file should contain all required data
+
 								logger.warn("No persona data found for field: " + eachRequiredProp);
 								eachValueJson.put(GlobalConstants.VALUE, "");
 							}
@@ -2235,17 +2220,17 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	private static String getValueFromPersona(String demoResponse, String addressResponse, String fieldName, String language) {
 		String value = null;
-		
+
 		try {
-			// Try to extract from demo response
+
 			if (demoResponse != null) {
 				if (fieldName.contains("name") || fieldName.equalsIgnoreCase("fullName")) {
-					// Combine firstName + midName + lastName for full name
+
 					try {
 						String firstName = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".firstName");
 						String midName = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".midName");
 						String lastName = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".lastName");
-						
+
 						if (firstName != null && !firstName.isEmpty()) {
 							value = firstName;
 							if (midName != null && !midName.isEmpty()) {
@@ -2289,13 +2274,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 						logger.warn("Error extracting dob: " + e.getMessage());
 					}
 				} else if (fieldName.contains("city")) {
-					// Try nested location structure first
+
 					try {
 						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".location.City.name");
 					} catch (Exception e) {
 						logger.warn("Error extracting city from nested structure: " + e.getMessage());
 					}
-					// Fallback to simple path
+
 					if (value == null) {
 						try {
 							value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".city");
@@ -2304,13 +2289,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 						}
 					}
 				} else if (fieldName.contains("zone")) {
-					// Try nested location structure first
+
 					try {
 						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".location.Zone.name");
 					} catch (Exception e) {
 						logger.warn("Error extracting zone from nested structure: " + e.getMessage());
 					}
-					// Fallback to simple path
+
 					if (value == null) {
 						try {
 							value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".zone");
@@ -2319,7 +2304,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 						}
 					}
 				} else if (fieldName.contains("postalCode") || fieldName.contains("postal")) {
-					// Direct JSONObject parsing for postalCode with proper error handling
+
 					try {
 						JSONObject demoObj = new JSONObject(demoResponse);
 						JSONObject demoData = demoObj.optJSONObject("demodata");
@@ -2335,7 +2320,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 					} catch (Exception e) {
 						logger.warn("Error extracting postalCode from nested structure: " + e.getMessage());
 					}
-					// Fallback to simple path if nested not found
+
 					if (value == null) {
 						try {
 							JSONObject demoObj = new JSONObject(demoResponse);
@@ -2348,13 +2333,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 						}
 					}
 				} else if (fieldName.contains("region")) {
-					// Try nested location structure first
+
 					try {
 						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".location.Region.name");
 					} catch (Exception e) {
 						logger.warn("Error extracting region from nested structure: " + e.getMessage());
 					}
-					// Fallback to simple path
+
 					if (value == null) {
 						try {
 							value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".region");
@@ -2363,13 +2348,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 						}
 					}
 				} else if (fieldName.contains("province")) {
-					// Extract province from nested location structure
+
 					try {
 						value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".location.Province.name");
 					} catch (Exception e) {
 						logger.warn("Error extracting province from nested structure: " + e.getMessage());
 					}
-					// Fallback to simple path
+
 					if (value == null) {
 						try {
 							value = JsonPrecondtion.getValueFromJson(demoResponse, E2EConstants.DEMOFETCH + ".province");
@@ -2379,8 +2364,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 					}
 				}
 			}
-			
-			// Try to extract address lines from address response
+
+
 			if (value == null && addressResponse != null) {
 				if (fieldName.contains("address1") || fieldName.contains("addressLine1")) {
 					try {
@@ -2405,7 +2390,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} catch (Exception e) {
 			logger.error("Error extracting value from persona for field: " + fieldName + ", " + e.getMessage());
 		}
-		
+
 		return value;
 	}
 

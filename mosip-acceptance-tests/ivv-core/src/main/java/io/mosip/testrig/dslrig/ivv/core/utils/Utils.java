@@ -59,16 +59,7 @@ public class Utils {
 	}
 
 	public static void setupLogger(String path) {
-		/*
-		 * LogManager.getLogManager().reset(); logger.setLevel(Level.ALL);
-		 * 
-		 * ConsoleHandler ch = new ConsoleHandler(); ch.setFormatter(new
-		 * CustomizedLogFormatter()); ch.setLevel(Level.ALL); auditLog.addHandler(ch);
-		 * try { FileHandler fh = new FileHandler(path, true); fh.setFormatter(new
-		 * CustomizedLogFormatter()); fh.setLevel(Level.ALL); auditLog.addHandler(fh); }
-		 * catch (IOException e) { auditLog.log(Level.SEVERE, "File logger not working",
-		 * e); }
-		 */
+
 	}
 
 	private static void deleteIt(File file) {
@@ -122,40 +113,40 @@ public class Utils {
 		String returnString = null;
 
 		switch (Integer.parseInt(statusCode)) {
-		case 200: // Successful or OK
+		case 200: 
 			returnString = "OK, The request has succeeded";
 			break;
-		case 201: // Created
+		case 201: 
 			returnString = "Created! The request has been fulfilled and resulted in a new resource being created";
 			break;
-		case 204: // Created
+		case 204: 
 			returnString = "No Content! The server has fulfilled the request but does not need to return an entity-body, and might want to return updated metainformation";
 			break;
-		case 304: // Created
+		case 304: 
 			returnString = "Not Modified!";
 			break;
-		case 400: // Bad Request
+		case 400: 
 			returnString = "Bad Request! The request could not be understood by the server due to malformed syntax";
 			break;
-		case 401: // Unauthorized
+		case 401: 
 			returnString = "Unauthorized! The request requires user authentication";
 			break;
-		case 403: // Forbidden
+		case 403: 
 			returnString = "Forbidden! The server understood the request, but is refusing to fulfill it";
 			break;
-		case 404: // Not found
+		case 404: 
 			returnString = "Not Found! The server has not found anything matching the Request-URI";
 			break;
-		case 405: // Method not allowed
+		case 405: 
 			returnString = "Method not allowed! The method specified in the Request-Line is not allowed for the resource identified by the Request-URI.";
 			break;
-		case 409: // Conflict
+		case 409: 
 			returnString = "Conflict! The request could not be completed due to a conflict with the current state of the resource.";
 			break;
-		case 500: // Internal Server ErrorPolicy
+		case 500: 
 			returnString = "Internal Server ErrorPolicy! The server encountered an unexpected condition which prevented it from fulfilling the request";
 			break;
-		case 503: // Service Unavailable
+		case 503: 
 			returnString = "Service Unavailable! The server is currently unable to handle the request due to a temporary overloading or maintenance of the server";
 			break;
 		}
@@ -227,7 +218,7 @@ public class Utils {
 		CsvSchema csvSchema = CsvSchema.builder().setUseHeader(true).build();
 		CsvMapper csvMapper = new CsvMapper();
 		try {
-			// Read data from CSV file
+
 			List<Object> readAll = csvMapper.readerFor(Map.class).with(csvSchema).readValues(input).readAll();
 			ObjectMapper mapper = new ObjectMapper();
 			json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(readAll);
@@ -245,7 +236,7 @@ public class Utils {
 		CsvSchema csvSchema = CsvSchema.builder().setUseHeader(true).build();
 		CsvMapper csvMapper = new CsvMapper();
 		try {
-			// Read data from CSV file
+
 			List<Object> readAll = csvMapper.readerFor(Map.class).with(csvSchema).readValues(input).readAll();
 			list = (ArrayList) readAll;
 		} catch (JsonProcessingException e) {

@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Person extends PersonaDef {
-    /* required */
+
     private HashMap<String, IDObjectField> idObject = new HashMap<String, IDObjectField>();
     private String id;
     private String userid;
@@ -24,31 +24,30 @@ public class Person extends PersonaDef {
     private String primaryLang;
     private String secondaryLang;
 
-    //adding field as an variants
+
     private String date;
     private String fullName;
 
 
-    /* pre-reg store */
     private String preRegistrationId = "";
     private String preRegistrationCenterId = "";
     private String preRegistrationStatusCode = "";
     private BookingSlot slot = new BookingSlot();
     private BookingSlot prevSlot = new BookingSlot();
 
-    /* reg store */
+
     private String registrationId = "";
 
-    /* system info */
+
     private String macAddress = "";
 
-    /* IDA fields */
+
     private String staticToken = "";
     private String authenticationOTP = "";
     private JSONObject authenticationJSON = new JSONObject();
     private ArrayList<String> authParams = new ArrayList<String>();
 
-    // required in create pre-registration api
+
     private String dateOfBirth = "";
     private String addressLine1 = "";
     private String addressLine2 = "";

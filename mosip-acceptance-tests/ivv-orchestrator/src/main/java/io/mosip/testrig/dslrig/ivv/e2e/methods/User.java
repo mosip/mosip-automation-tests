@@ -83,7 +83,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				uin = step.getScenario().getVariables().get(uin);
 				map.put("uin", uin);
 			}
-			// here holding activate deeacrivate flag
+
 			id = step.getParameters().get(2);
 			if (id.startsWith("$$")) {
 				map2 = step.getScenario().getVariables();
@@ -95,7 +95,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 		BaseTestCase.dslUser = user;
 		if(pwd!=null)
 		BaseTestCase.dslUserPwd = pwd;
-		
+
 		switch (calltype) {
 		case "DELETE_CENTERMAPPING":
 
@@ -147,7 +147,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			step.getScenario().getVariables().putAll(userdetails);
 
 			break;
-			
+
 		case "ADD_User_External_Packet":
 			HashMap<String, String> userdetails2 = new HashMap<String, String>();
 			try {
@@ -181,20 +181,20 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			}
 			step.getScenario().getVariables().putAll(userdetails2);
 			break;
-			
+
 		case "DELETE_User":
 			KeycloakUserManager.removeUser(user);
 
 			break;
-			
+
 		case "UPDATE_UIN":
 			HashMap<String, List<String>> attrmap1 = new HashMap<String, List<String>>();
 			List<String> list1 = new ArrayList<String>();
 			String val1 = map.get("uin") != null ? map.get("uin") : "11000000";
 			list1.add(val1);
 			attrmap1.put("individualId", list1);
-			// Utilizing the remove user functionality to update the attribute
-			// "individualId" with UIN
+
+
 			KeycloakUserManager.removeUser(user);
 			KeycloakUserManager.createUsers(user, pwd,  attrmap1);
 			zone = userHelper.getZoneOfUser(user);

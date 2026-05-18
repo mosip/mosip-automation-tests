@@ -32,7 +32,7 @@ public class StepParser {
 		for (int i = 0; i < str_split.length; i++) {
 			String func = str_split[i];
 			if (i == 0) {
-//                System.out.println(func);
+
 				String name_variant = Utils.regex("(\\w*)\\(", func);
 				String[] nv_split = name_variant.split("\\_");
 				if (nv_split.length < 2) {
@@ -45,11 +45,11 @@ public class StepParser {
 				} else {
 					step.setVariant("DEFAULT");
 				}
-				// Pre-process the step to remove in-line comments of the step parameters..
+
 
 			   input = str_split[i].replaceAll("/\\*.*?\\*/", "");
-				// String[] param_array = Pattern.compile("," ).split(Utils.regex("\\((.*?)\\)",
-				// str_split[i]).replaceAll("\\s+",""));
+
+
 				String[] param_array = Pattern.compile(",").split(Utils.regex("\\((.*?)\\)", input));
 				for (int z = 0; z < param_array.length; z++) {
 					if (param_array[z] != null && !param_array[z].isEmpty()) {

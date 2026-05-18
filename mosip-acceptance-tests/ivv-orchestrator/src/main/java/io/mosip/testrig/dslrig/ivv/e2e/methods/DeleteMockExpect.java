@@ -24,8 +24,8 @@ public class DeleteMockExpect extends BaseTestCaseUtil implements StepInterface 
 			modalityHashValue = step.getScenario().getVariables().get(step.getParameters().get(0));
 		}
 		String url = null;
-	
-		
+
+
 		if(String.valueOf(modalityHashValue).equals("null") || String.valueOf(modalityHashValue).isEmpty()) {
 			url = baseUrl + props.getProperty("deleteMockExpectation");
 			Response response = deleteRequest(url, "deleteMockExpectation", step);
@@ -38,5 +38,5 @@ public class DeleteMockExpect extends BaseTestCaseUtil implements StepInterface 
 			}
 		}
 		}
-		
+
 	}

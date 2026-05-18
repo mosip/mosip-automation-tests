@@ -51,7 +51,7 @@ public class UserHelper extends BaseTestCaseUtil {
 		else
 			logger.setLevel(Level.ERROR);
 	}
-	
+
 	public void deleteCenterMapping(String user) throws RigInternalError {
 		try {
 
@@ -73,18 +73,15 @@ public class UserHelper extends BaseTestCaseUtil {
 				logger.info( jsonResp.getJSONObject("response"));}
 
 		} catch (Exception e) {
-			//throw new RigInternalError(e.getMessage());
+
 
 		}
 
 	}
 
 
-
 	public void deleteZoneMapping(String user,String zone) throws RigInternalError {
 		try {
-
-			//		https://api-internal.dev3.mosip.net/v1/masterdata/zones/zonename?userID=globaladmin&langCode=eng
 
 
 			Object[] testObjPutDcom=DeleteWithParam.getYmlTestData(DeleteZoneMapping);
@@ -105,7 +102,7 @@ public class UserHelper extends BaseTestCaseUtil {
 				logger.info( jsonResp.getJSONObject("response"));}
 
 		} catch (Exception e) {
-			//throw new RigInternalError(e.getMessage());
+
 
 		}
 
@@ -249,8 +246,6 @@ public class UserHelper extends BaseTestCaseUtil {
 			simplepost.test(testPutDcom);
 
 
-
-
 			Response response= simplepost.response;
 
 			if (response!= null)
@@ -309,7 +304,6 @@ public class UserHelper extends BaseTestCaseUtil {
 	}
 
 
-
 	public String getLeafZones() throws RigInternalError {
 
 		try {	String lastSyncTime =null;
@@ -330,7 +324,7 @@ public class UserHelper extends BaseTestCaseUtil {
 				JSONObject locationObject = responseArray.getJSONObject(0);
 				locationCode = locationObject.getString("code");
 
-				// Traverse on the "code" field
+
 				logger.info("Location Code: " + locationCode);
 				return locationCode;
 			} else {
@@ -367,7 +361,7 @@ public class UserHelper extends BaseTestCaseUtil {
 		{
 			logger.info(response.getBody().asString());
 			JSONObject jsonObject = new JSONObject(response.getBody().asString());
-			
+
 			if (jsonObject.getJSONArray("errors").length() == 0) {
 			    JSONObject res = jsonObject.optJSONObject("response");
 
@@ -392,7 +386,7 @@ public class UserHelper extends BaseTestCaseUtil {
 
 
 	}
-	
+
 	public String createBlocklistedWord(String word, String langCode, Scenario.Step step) throws RigInternalError {
 	    KernelAuthentication kernelAuthLib = new KernelAuthentication();
 	    String token = kernelAuthLib.getTokenByRole("admin");

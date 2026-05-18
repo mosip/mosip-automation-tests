@@ -61,7 +61,6 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 
 			}
 
-			// Get Miss attrobutes list
 
 			if (step.getParameters().size() > 3) {
 				for (int idx = 3; idx < step.getParameters().size(); idx++) {
@@ -110,7 +109,7 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 
 		String missFields = missFieldJoiner.length() > 0 ? missFieldJoiner.toString() : null;
 
-		// Generate Resident for all ages
+
 		cleanData();
 		Response response = packetUtility.generateResident(ageCategory, bSkipGuardian, missFields, documentCategory,
 				lowQualityDocument, genderAndBioFlag, step);

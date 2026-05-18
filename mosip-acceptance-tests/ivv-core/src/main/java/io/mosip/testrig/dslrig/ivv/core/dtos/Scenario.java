@@ -19,7 +19,7 @@ public class Scenario {
     private ArrayList<String> tags = new ArrayList();
     private String personaClass, groupName;
     private ArrayList<Step.modules> modules = new ArrayList();
-    
+
     private HashMap<String,String> variables = new HashMap<String,String>();
     private Map<String, Object> objectVariables = new HashMap<String, Object>();
 
@@ -35,7 +35,7 @@ public class Scenario {
     private  String rid_updateResident=null;
     private  String uin_updateResident=null;
     private  String prid_updateResident=null;
-   // private  List<String> resDataPathList= new LinkedList();
+
 
     private  HashMap<String, String> ridPersonaPath=new LinkedHashMap<String, String>();
 
@@ -43,14 +43,14 @@ public class Scenario {
     private  Properties vidPersonaProp=new Properties();
 
     private  Properties oidcPmsProp=new Properties();
-    
+
     private  Properties appointmentDate=new Properties();
-	
+
     private  HashMap<String, String> residentPathGuardianRid = null;
-	
-  //  private  HashMap<String, String> contextKey=new HashMap<String, String>();
+
+
     private  HashMap<String, String> currentStep=new HashMap<String, String>();
-	
+
     private  Properties uinPersonaProp=new Properties();
     private  Properties handlePersonaProp=new Properties();
     private  Properties oidcClientProp=new Properties();
@@ -63,21 +63,19 @@ public class Scenario {
         public enum modules {
         	e2e,pr, rc, rp, ia, kr, mt
         }
-        private String name = ""; // needs to be passed
-        private String variant = "DEFAULT"; // default
+        private String name = ""; 
+        private String variant = "DEFAULT"; 
         private modules module;
         private ArrayList<Assert> asserts;
         private ArrayList<Error> errors;
-        private int AssertionPolicy = 0; // default
-        private boolean FailExpected = false; //default
+        private int AssertionPolicy = 0; 
+        private boolean FailExpected = false; 
         private ArrayList<String> parameters;
         private ArrayList<Integer> index;
         private String outVarName=null;
         private Scenario scenario=null;
 
-        
-        
-        
+
         public static class Error{
             public String code;
         }
@@ -107,7 +105,7 @@ public class Scenario {
     private ArrayList<Partner> partners;
     private Person user;
     private List<Step> steps = new ArrayList<Step>();
-    private boolean continueOnFailure = false; // default
-    private boolean isFailureExpected = false; // default
+    private boolean continueOnFailure = false; 
+    private boolean isFailureExpected = false; 
 
 }

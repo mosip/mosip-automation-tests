@@ -143,11 +143,8 @@ public class GlobalConstants {
 	public static final String USER_NAME ="userName";
 	public static final String TOKEN = "token";
 	public static final String SECRETKEY = "secretKey";
-	
-	
-	
-	
-	
+
+
 	public static final String POST_REQ_URL = "******Post request Json to EndPointUrl: ";
 	public static final String TEST_FULLNAME = "TEST_FULLNAME";
 	public static final String ENCODEDHASH = "encodedHash";

@@ -23,7 +23,7 @@ public class MultiProductRemap extends BaseTestCaseUtil implements StepInterface
 	KernelAuthentication kernelAuthLib = new KernelAuthentication();
 	private static final Logger logger = Logger.getLogger(MultiProductRemap.class);
 	String GETREQBODYDEVICEPATH = "src/main/resources/kernel/Device/Search.json";
-	
+
 	static {
 		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);

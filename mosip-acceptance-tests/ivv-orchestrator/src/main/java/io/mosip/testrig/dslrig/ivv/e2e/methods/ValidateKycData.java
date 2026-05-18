@@ -3,7 +3,6 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import static org.testng.Assert.assertTrue;
 
 
-
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.Reporter;
@@ -40,7 +39,7 @@ public class ValidateKycData  extends BaseTestCaseUtil implements StepInterface 
 			}else {
 				throw new RigInternalError(data+" Data is not there in a decryptEkycData");
 			}
-			
+
 		} catch (Exception e) {
 			this.hasError = true;
 			logger.error(e.getMessage());
@@ -51,9 +50,3 @@ public class ValidateKycData  extends BaseTestCaseUtil implements StepInterface 
 	}
 
 }
-
-
-
-
-
-

@@ -49,7 +49,7 @@ public class RidSyncRejected extends BaseTestCaseUtil implements StepInterface {
 				step.getScenario().getRidPersonaPath().remove(packetPath);
 			}
 			storeProp(step.getScenario().getPridsAndRids());
-		} else if (step.getParameters().size() > 1) { // "$$rid=e2e_ridsync(NEW,$$zipPacketPath)"
+		} else if (step.getParameters().size() > 1) { 
 			process = step.getParameters().get(0);
 			String _zipPacketPath = step.getParameters().get(1);
 			if (step.getParameters().size() == 3) {

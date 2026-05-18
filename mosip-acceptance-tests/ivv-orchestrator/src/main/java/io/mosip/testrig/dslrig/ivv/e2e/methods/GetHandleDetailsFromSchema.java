@@ -33,7 +33,7 @@ public class GetHandleDetailsFromSchema extends BaseTestCaseUtil implements Step
 	@Override
 	public void run() throws RigInternalError {
 		Map<String, JSONObject> selectedHandles = new LinkedHashMap<>();
-		
+
 	    KernelAuthentication kernelAuthLib = new KernelAuthentication();
 	    String token = kernelAuthLib.getTokenByRole(GlobalConstants.ADMIN);
 	    String url = AdminTestUtil.getSchemaURL();
@@ -62,11 +62,11 @@ public class GetHandleDetailsFromSchema extends BaseTestCaseUtil implements Step
 	            }
 
 	            JSONObject eachPropDataJson = (JSONObject) identityPropsJson.get(eachRequiredProp);
-	            
+
 	            if(eachPropDataJson.optBoolean("handle", false)){
             		selectedHandles.put(eachRequiredProp, eachPropDataJson);
             	}
-	            
+
 	        }
 	    } catch (Exception e) {
 	        logger.error(e.getMessage());
@@ -75,5 +75,5 @@ public class GetHandleDetailsFromSchema extends BaseTestCaseUtil implements Step
 			if (step.getOutVarName() != null)
 				step.getScenario().getObjectVariables().put(step.getOutVarName(), selectedHandles);
 		}
-	
+
 }

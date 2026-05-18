@@ -20,14 +20,14 @@ public class UploadDocuments extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		Boolean isForChildPacket = false;
-		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { 
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
 			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty()
 					&& step.getScenario().getPrid_updateResident() != null)
 				packetUtility.uploadDocuments(step.getScenario().getGeneratedResidentData().get(0),
 						step.getScenario().getPrid_updateResident(), step.getScenario().getCurrentStep(), step);
 		} else {
-			if (!step.getParameters().isEmpty() && step.getParameters().size() > 1) { // "$$var=e2e_uploadDocuments($$personaFilePath,$$prid)"
+			if (!step.getParameters().isEmpty() && step.getParameters().size() > 1) { 
 				String personaFilePath = step.getParameters().get(0);
 				String prid = step.getParameters().get(1);
 				if (personaFilePath.startsWith("$$") && prid.startsWith("$$")) {

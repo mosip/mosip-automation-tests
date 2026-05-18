@@ -66,10 +66,10 @@ public class CheckForBDBAbsence extends BaseTestCaseUtil implements StepInterfac
 				String bioData = responseArray.getJSONObject(0).getString("value");
 				Base64.Decoder decoder = Base64.getUrlDecoder();
 
-				// Decode the base64 encoded string.
+
 				byte[] decodedBytes = decoder.decode(bioData);
 
-				// Convert the decoded bytes to a string.
+
 				decodedString = new String(decodedBytes);
 				logger.info(decodedString);
 				BIR bir = null;
@@ -103,7 +103,7 @@ public class CheckForBDBAbsence extends BaseTestCaseUtil implements StepInterfac
 				}
 				for (String str : modalityArray) {
 					if (missBDBInCbeff.toString().contains(str) == false) {
-						// BDB for the given modality is present
+
 						this.hasError = true;
 						throw new RigInternalError("BDB for the given modality " + str + " is present");
 					}

@@ -103,7 +103,7 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 		} else
 			uinList = new ArrayList<>(step.getScenario().getUinPersonaProp().stringPropertyNames());
 
-		// Fetching VID
+
 		if (step.getParameters().size() == 6 && step.getParameters().get(1).startsWith("$$")) {
 			vids = step.getParameters().get(4);
 			if (vids.startsWith("$$")) {
@@ -234,7 +234,7 @@ public class EsignetAuthentication extends BaseTestCaseUtil implements StepInter
 		}
 		for (String vid : vidList) {
 			input = testForOtp.getInput();
-			
+
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, transactionId2, "transactionId");
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, vid, "individualId");

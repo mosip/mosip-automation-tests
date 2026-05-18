@@ -37,7 +37,7 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 				waitTime = TIME_IN_MILLISEC * 30;
 
 			} else if ("PACKET_UPLOAD_WAIT_TIME".equalsIgnoreCase(param)) {
-				// Handle nextPacketUploadWaitTime
+
 				if (nextPacketUploadWaitTime == null || nextPacketUploadWaitTime.isBlank()) {
 					logger.info("Next Packet Upload Wait Time missing : Taking default Time as 15 Min");
 					waitTime = TIME_IN_MILLISEC * 60 * 15;
@@ -46,7 +46,7 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 				}
 
 			} else if ("UIN_WAIT_TIME".equalsIgnoreCase(param)) {
-				// Handle uinWaitTime
+
 				if (uinWaitTime == null || uinWaitTime.isBlank()) {
 					logger.info("UIN Wait Time missing : Taking default Time as 90 Sec");
 					waitTime = TIME_IN_MILLISEC * 90;
@@ -56,7 +56,7 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 				}
 
 			} else {
-				// param is numeric → wait that many seconds
+
 				waitTime = TIME_IN_MILLISEC * Integer.parseInt(param);
 			}
 

@@ -39,8 +39,7 @@ public class TestRunner {
 		BaseTestCase.ApplnURI = System.getProperty("env.endpoint");
 		BaseTestCase.testLevel = System.getProperty("env.testLevel");
 
-		// Initializing or setting up execution
-//		ConfigManager.init();
+
 		String timeStamp = String.valueOf(Calendar.getInstance().getTimeInMillis());
 		dslConfigManager.init();
 		AdminTestUtil.init();
@@ -48,19 +47,19 @@ public class TestRunner {
 		KeycloakUserManager.removeUser();
 		KeycloakUserManager.createUsers();
 		KeycloakUserManager.closeKeycloakInstance();
-		
+
 		if (dslConfigManager.IsDebugEnabled())
 			LOGGER.setLevel(Level.ALL);
 		else
 			LOGGER.setLevel(Level.ERROR);
-		
+
 		setLogLevels();
 		BaseTestCase.initialize();
-		
+
 		BaseTestCase.languageList = BaseTestCase.getLanguageList();
 		BaseTestCase.languageCode = BaseTestCase.languageList.get(0);
 		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
-		
+
 		OTPListener mockSMTPListener = new OTPListener();
 		mockSMTPListener.run();
 		startTestRunner();
@@ -91,16 +90,16 @@ public class TestRunner {
 		runner.setOutputDirectory("testng-report");
 		System.getProperties().setProperty("emailable.report2.name", "DSL-" + BaseTestCase.environment + "-"
 				+ BaseTestCase.testLevel + "-run-" + System.currentTimeMillis() + "-report.html");
-		
-		//EXTENT REPORT
+
+
 		System.getProperties().setProperty("emailable.report3.name", "DSL-" + BaseTestCase.environment + "-"
 				+ "EXTENT" + "-run-" + System.currentTimeMillis() + "-report.html");
 		runner.run();
-		
+
 		OTPListener mockSMTPListener = new OTPListener();
 		mockSMTPListener.bTerminate = true;
 		System.exit(0);
-		
+
 	}
 
 	public static String checkRunType() {
@@ -169,12 +168,12 @@ public class TestRunner {
 		} catch (Exception e) {
 			LOGGER.error("Exception occured in extracting resource: " + e.getMessage());
 		}
-		
+
 		finally {
 			closeZipInputStream(zip);
 		}
 	}
-	
+
 	public static void closeZipInputStream(ZipInputStream zipInputStream) {
 	    if (zipInputStream != null) {
 	        try {
@@ -183,8 +182,8 @@ public class TestRunner {
 	        }
 	    }
 	}
-	
-	
+
+
 	public static String getLocalResourcePath() {
 		if (checkRunType().equalsIgnoreCase("JAR")) {
 			return new File(jarUrl).getParentFile().getAbsolutePath() +"/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName;
@@ -250,7 +249,7 @@ public class TestRunner {
 		}
 		return "Global Resource File Path Not Found";
 	}
-	
+
 	private static void setLogLevels(){
 		AdminTestUtil.setLogLevel();
 		OutputValidationUtil.setLogLevel();
@@ -258,6 +257,6 @@ public class TestRunner {
 		KeyCloakUserAndAPIKeyGeneration.setLogLevel();
 		MispPartnerAndLicenseKeyGeneration.setLogLevel();
 	}
-	
+
 
 }

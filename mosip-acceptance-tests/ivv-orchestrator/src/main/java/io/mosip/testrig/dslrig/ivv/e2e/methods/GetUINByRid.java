@@ -67,7 +67,7 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 					step.getScenario().getVariables().put(step.getOutVarName(), uin);
 
 				else if (isForChildPacket && !StringUtils.isEmpty(uin) && !(uin.trim().contains("errorCode")))
-					step.getScenario().setUin_updateResident(uin); // used for child packet processing
+					step.getScenario().setUin_updateResident(uin); 
 				else if (!StringUtils.isEmpty(uin) && !(uin.trim().contains("errorCode"))) {
 					step.getScenario().getUinReqIds().put(uin, null);
 					if (!step.getScenario().getUinPersonaProp().containsKey(uin))

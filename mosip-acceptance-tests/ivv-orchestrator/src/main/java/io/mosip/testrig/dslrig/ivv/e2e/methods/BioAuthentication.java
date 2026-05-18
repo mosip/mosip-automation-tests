@@ -51,7 +51,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 		List<String> uinList = null;
 		List<String> vidList = null;
 		String  SceanrioFlow= "POSTIVE";
-		
+
 		if (step.getParameters() == null || step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
 			this.hasError = true;
@@ -71,7 +71,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else if (step.getParameters().size() == 4 || step.getParameters().size() == 5) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+		} else if (step.getParameters().size() == 4 || step.getParameters().size() == 5) { 
 			uins = step.getParameters().get(1);
 			String _personaFilePath = step.getParameters().get(3);
 			if (uins.startsWith("$$") && _personaFilePath.startsWith("$$")) {
@@ -88,7 +88,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			vids = step.getParameters().get(1);
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
-		} else if (step.getParameters().size() == 4 || step.getParameters().size() == 5) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+		} else if (step.getParameters().size() == 4 || step.getParameters().size() == 5) { 
 			vids = step.getParameters().get(2);
 			String _personaFilePath = step.getParameters().get(3);
 			if (vids.startsWith("$$") && _personaFilePath.startsWith("$$")) {
@@ -100,7 +100,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			}
 		}else
 			vidList = new ArrayList<>(step.getScenario().getVidPersonaProp().stringPropertyNames());
-		if (step.getParameters().size() == 5) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+		if (step.getParameters().size() == 5) { 
 			 SceanrioFlow= step.getParameters().get(4);
 			}
 		for (String uin : uinList) {
@@ -206,7 +206,7 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 				testObj=bioAuth.getYmlTestData(BIOMETRIC_FACE_NEGATIVE);
 			else
 				testObj=bioAuth.getYmlTestData(BIOMETRIC_FACE);
-			
+
 			TestCaseDTO test = (TestCaseDTO) testObj[0];
 			String input = test.getInput();
 			String personFilePathvalue = null;

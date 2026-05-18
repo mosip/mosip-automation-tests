@@ -23,7 +23,7 @@ public class UploadPacketWithInvalidHash extends BaseTestCaseUtil implements Ste
 		Boolean isForChildPacket = false;
 		boolean getRidFromSync = true;
 		String invalidMachineFlag = "";
-		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { 
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
 			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty()
 					&& step.getScenario().getTemplatPath_updateResident() != null) {
@@ -32,8 +32,8 @@ public class UploadPacketWithInvalidHash extends BaseTestCaseUtil implements Ste
 						step.getScenario().getGeneratedResidentData().get(0), null, step.getScenario().getCurrentStep(),
 						"success", step, getRidFromSync, invalidMachineFlag));
 			}
-		} else if (step.getParameters().isEmpty()) { // parent or resident processing
-														// e2e_generateAndUploadPacketSkippingPrereg()
+		} else if (step.getParameters().isEmpty()) { 
+
 			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
 				String rid = packetUtility.generateAndUploadPacketWrongHash(
 						step.getScenario().getResidentTemplatePaths().get(resDataPath), resDataPath, null,
@@ -55,9 +55,9 @@ public class UploadPacketWithInvalidHash extends BaseTestCaseUtil implements Ste
 					_additionalInfoReqId = step.getScenario().getVariables().get(_additionalInfoReqId);
 			}
 
-			if (residentPath.startsWith("$$") && templatePath.startsWith("$$")) { // "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath)"
-																					// --->now
-																					// "$$rid=e2e_generateAndUploadPacketSkippingPrereg($$personaFilePath,$$templatePath,$$additionalInfoReqId)"
+			if (residentPath.startsWith("$$") && templatePath.startsWith("$$")) { 
+
+
 				residentPath = step.getScenario().getVariables().get(residentPath);
 				templatePath = step.getScenario().getVariables().get(templatePath);
 				String rid = packetUtility.generateAndUploadPacketWrongHash(templatePath, residentPath,

@@ -45,7 +45,7 @@ public class UploadDeviceCertificate extends BaseTestCaseUtil implements StepInt
 				String encodedBytes = Base64.getEncoder().encodeToString(fileBytes);
 				response = postRequest(url, encodedBytes, "UPLOAD_DEVICE_CERT", step);
 
-				// Log the response
+
 				if (response != null) {
 					logger.info("Response Status: " + response.getStatusCode());
 					logger.info("Response Body: " + response.getBody().asString());

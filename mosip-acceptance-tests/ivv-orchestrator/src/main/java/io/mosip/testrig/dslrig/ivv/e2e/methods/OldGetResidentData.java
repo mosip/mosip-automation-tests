@@ -21,7 +21,7 @@ import io.restassured.response.Response;
 public class OldGetResidentData extends BaseTestCaseUtil implements StepInterface {
 	private static final String check_status_YML = "preReg/getResident/getResident.yml";
 	static Logger logger = Logger.getLogger(OldGetResidentData.class);
-	
+
 	static {
 		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -43,7 +43,7 @@ public class OldGetResidentData extends BaseTestCaseUtil implements StepInterfac
 			TestCaseDTO testCaseDTO = (TestCaseDTO) test;
 			Reporter.log("<b><u>" + testCaseDTO.getTestCaseName() + "</u></b>");
 			Reporter.log("<pre> <b>Get Resident: </b> <br/>" + testCaseDTO.getInput() + "</pre>");
-			// generateResidentDataUsingPOST
+
 			Response apiResponse = RestClient.postRequest(baseUrl + testCaseDTO.getEndPoint(), testCaseDTO.getInput(),
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
 			Reporter.log("<b><u>Actual Response Content: </u></b>(EndPointUrl: " + baseUrl + testCaseDTO.getEndPoint()

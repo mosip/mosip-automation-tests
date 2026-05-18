@@ -59,7 +59,7 @@ public class EkycBioWithVid extends BaseTestCaseUtil implements StepInterface {
 			vids = step.getParameters().get(1);
 			if (!StringUtils.isBlank(vids))
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
-		} else if (step.getParameters().size() > 2) { // "e2e_EkycBio(faceDevice,$$vid,$$personaFilePath)"
+		} else if (step.getParameters().size() > 2) { 
 			vids = step.getParameters().get(1);
 			_personFilePath = step.getParameters().get(2);
 			if (vids.startsWith("$$") && _personFilePath.startsWith("$$")) {

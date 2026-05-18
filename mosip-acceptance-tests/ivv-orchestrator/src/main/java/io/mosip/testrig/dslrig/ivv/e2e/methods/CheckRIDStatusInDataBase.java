@@ -43,7 +43,7 @@ public class CheckRIDStatusInDataBase extends BaseTestCaseUtil implements StepIn
 		}
 		checkStatus(Status,rid);
 	}
-	
+
 	public void checkStatus(String ridStatusParam, String Rid)
 			throws RigInternalError {
 		String waitTime = props.getProperty("waitTime");
@@ -76,7 +76,7 @@ public class CheckRIDStatusInDataBase extends BaseTestCaseUtil implements StepIn
 
 				ridStatusMap.put(Rid, ridStatus);
 
-			
+
 			if (ridStatusMap.size() == 1) {
 				if (!ridStatusMap.entrySet().iterator().next().getValue().contains(ridStatusParam)) {
 					this.hasError = true;

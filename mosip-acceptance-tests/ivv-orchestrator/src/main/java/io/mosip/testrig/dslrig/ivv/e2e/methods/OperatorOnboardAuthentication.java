@@ -61,7 +61,7 @@ public class OperatorOnboardAuthentication extends BaseTestCaseUtil implements S
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
-		} else if (step.getParameters().size() == 3) { // e2e_bioAuthentication(faceDevice,$$uin,$$personaFilePath)
+		} else if (step.getParameters().size() == 3) { 
 			uins = step.getParameters().get(1);
 			String _personaFilePath = step.getParameters().get(2);
 			if (uins.startsWith("$$") && _personaFilePath.startsWith("$$")) {

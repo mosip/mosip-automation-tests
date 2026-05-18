@@ -104,7 +104,6 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			}
 		}
 
-		// Auth Code API Call
 
 		String inputForAuthorization = testAuthorization.getInput();
 
@@ -123,7 +122,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 				Response response = authorizationCode.response;
 				if (response != null) {
-					JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
+					JSONObject jsonResp = new JSONObject(response.getBody().asString()); 
 					code = jsonResp.getJSONObject("response").getString("code");
 					redirectUri = jsonResp.getJSONObject("response").getString("redirectUri");
 					step.getScenario().getOidcClientProp().put("code", code);
@@ -151,7 +150,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 
 				Response response = authorizationCode.response;
 				if (response != null) {
-					JSONObject jsonResp = new JSONObject(response.getBody().asString()); // "$$transactionId=e2e_OAuthDetailsRequest($$clientId)"
+					JSONObject jsonResp = new JSONObject(response.getBody().asString()); 
 					code = jsonResp.getJSONObject("response").getString("code");
 					redirectUri = jsonResp.getJSONObject("response").getString("redirectUri");
 					step.getScenario().getOidcClientProp().put("code", code);
@@ -174,7 +173,7 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 		String oidcJwkKey = (String) step.getScenario().getOidcPmsProp().get("oidcJwkKey" + step.getScenario().getId());
 
 		String oidcJWKKeyString = oidcJwkKey;
-		// String oidcJWKKeyString = props.getProperty("privateKey");
+
 		logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
 		RSAKey oidcJWKKey1;
 		try {
@@ -203,7 +202,6 @@ public class UserInfo extends BaseTestCaseUtil implements StepInterface {
 			logger.info(jsonResp.toString());
 		}
 
-		// User Info API CALL //
 
 		String inputForGetUserInfo = testGetUserInfo.getInput();
 

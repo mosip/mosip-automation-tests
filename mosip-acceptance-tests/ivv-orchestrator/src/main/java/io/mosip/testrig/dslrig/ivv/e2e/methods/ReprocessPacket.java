@@ -24,7 +24,7 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 		else
 			logger.setLevel(Level.ERROR);
 	}
-	
+
 	@Override
 	public void run() throws RigInternalError {
 	    String rid = null;
@@ -32,7 +32,7 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	    if (step.getParameters().size() >= 1) {
 	        rid = step.getScenario().getVariables().get(step.getParameters().get(0));
 	    }
-	    
+
 	    JSONObject jsonReq = new JSONObject();
 	    jsonReq.put("rid", rid);
 	    jsonReq.put("workflowInstanceId", getWorkflowInstanceId(rid));
@@ -42,23 +42,23 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	    String responseBody = response.getBody().asString();
 	    logger.info("Response Body: " + responseBody);
 
-	    // Validate the expected response format
+
 	    JSONObject res = new JSONObject(responseBody);
-	    
+
 	    if (!res.has("status")) {
 	        logger.error("RESPONSE ERROR: 'status' field is missing in response: " + responseBody);
 	        throw new RuntimeException("ERROR: Expected 'status' field is missing in the response.");
 	    }
 
 	    String expectedStatusMessage = "Packet with registrationId '" + rid + "' has been forwarded to next stage";
-	    String actualStatusMessage = res.getString("status").replace("\"", ""); // Remove escaped quotes if present
+	    String actualStatusMessage = res.getString("status").replace("\"", ""); 
 
 	    if (!actualStatusMessage.equals(expectedStatusMessage)) {
 	        logger.error("ERROR: Expected status message not found. Actual: " + actualStatusMessage);
 	        throw new RuntimeException("ERROR: Expected status message not received. Actual: " + actualStatusMessage);
 	    }
 	}
-	
+
 	public static String  getWorkflowInstanceId(String RID) {
 		String sqlQuery = "SELECT * FROM regprc.registration where reg_id='"+RID+"'";
 

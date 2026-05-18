@@ -32,7 +32,7 @@ public class DeleteHoliday extends BaseTestCaseUtil implements StepInterface {
 						GlobalConstants.AUTHORIZATION, "admin", null);
 				 if (response != null) {
 			            String body = response.getBody().asString();
-			            System.out.println("Raw Response: " + body);  // For debugging
+			            System.out.println("Raw Response: " + body);  
 
 			            if (body != null && !body.trim().isEmpty() && body.trim().startsWith("{")) {
 			                JSONObject jsonResp = new JSONObject(body);

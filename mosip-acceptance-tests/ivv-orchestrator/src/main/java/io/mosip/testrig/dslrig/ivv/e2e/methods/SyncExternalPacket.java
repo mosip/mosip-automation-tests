@@ -27,7 +27,7 @@ public class SyncExternalPacket extends BaseTestCaseUtil implements StepInterfac
 	@Override
 	public void run() throws RigInternalError {
 		String rid=null;
-		
+
 		if (step.getParameters().isEmpty() && !step.getScenario().getGeneratedResidentData().isEmpty()) {
 			logger.error("Parameter is  missing from DSL step");
 			assertTrue(false, "process paramter is  missing in step: " + step.getName());
@@ -48,9 +48,7 @@ public class SyncExternalPacket extends BaseTestCaseUtil implements StepInterfac
 	            throw new RuntimeException("workflowInstanceId is missing in the response.");
 	        }
 
-			
-			
-			
+
 		}
 
 	}

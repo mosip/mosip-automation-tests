@@ -39,7 +39,7 @@ public class UpdateIdentityWithArrayHandles extends BaseTestCaseUtil implements 
 		TestCaseDTO test = (TestCaseDTO) testObj[0];
 
 		if (!step.getParameters().isEmpty()) {
-			
+
 			if (step.getParameters().get(0).startsWith("$$")) {
 				uin = step.getScenario().getVariables().get(step.getParameters().get(0));
 			}
@@ -50,7 +50,7 @@ public class UpdateIdentityWithArrayHandles extends BaseTestCaseUtil implements 
 			if (step.getParameters().get(1).startsWith("$$")) {
 				personaFilePath =step.getScenario().getVariables().get(step.getParameters().get(1));
 			}
-			
+
 			logger.info(uin);
 		}
 

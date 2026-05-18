@@ -20,7 +20,7 @@ import io.restassured.response.Response;
 
 public class CenterHelper extends BaseTestCaseUtil {
 	public static Logger logger = Logger.getLogger(CenterHelper.class);
-	
+
 
 	private static final String CreateRegistrationCenter = "ivv_masterdata/RegistrationCenter/CreateRegistrationCenter.yml";
 	private static final String UpdateRegCentStatus = "ivv_masterdata/UpdateRegCentStatus/UpdateRegCentStatus.yml";
@@ -28,25 +28,25 @@ public class CenterHelper extends BaseTestCaseUtil {
 	private static final String UpdateRegistrationCenterLang = "ivv_masterdata/UpdateRegistrationCenterLang/UpdateRegistrationCenterLang.yml";
 	private static final String DecommissionRegCenter = "ivv_masterdata/DecommissionRegCenter/DecommissionRegCenter.yml";
 	private static final String GetLocationCodeHoliday = "ivv_masterdata/GetLocationCodeHoliday/GetLocationCodeHoliday.yml";
-	
+
 	private static final String GetPostalCode = "ivv_masterdata/GetPostalCode/GetPostalCode.yml";
 
 	private static final String GetPostalCodeKey = "ivv_masterdata/GetThirdLevelPostalCodeKey/GetPostalCodeKey.yml";
-	
+
 	SimplePost simplepost=new SimplePost() ;
 	PatchWithPathParam patchwithpathparam=new PatchWithPathParam();
 	SimplePut simpleput=new SimplePut();
 	PutWithPathParam putwithpathparam=new PutWithPathParam();
 	GetWithParam getWithParam=new GetWithParam();
 	GetWithQueryParam getWithQueryParam=new GetWithQueryParam();
-	
+
 	static {
 		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
 	}
-	
+
 	public CenterHelper() {
 		  super();
 	}
@@ -56,7 +56,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 			Object[] testObjPut=simpleput.getYmlTestData(UpdateRegistrationCenterNonLanguage);
 
 			TestCaseDTO testPut=(TestCaseDTO)testObjPut[0];
-			
+
 			String input=testPut.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					centerId, "id");
@@ -64,10 +64,10 @@ public class CenterHelper extends BaseTestCaseUtil {
 					zone,"zoneCode");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					BaseTestCase.languageCode,"langCode");
-			
+
 			testPut.setInput(input);
 
-			
+
 			String output=testPut.getOutput();
 			output = JsonPrecondtion.parseAndReturnJsonContent(output,
 					zone,"zoneCode");
@@ -89,7 +89,6 @@ public class CenterHelper extends BaseTestCaseUtil {
 		}
 
 	}
-
 
 
 	public void centerDcom(String id) throws RigInternalError {
@@ -124,7 +123,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 			Object[] testObjPatch=patchwithpathparam.getYmlTestData(UpdateRegCentStatus);
 
 			TestCaseDTO testPatch=(TestCaseDTO)testObjPatch[0];
-			
+
 			String input=testPatch.getInput();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					id, "id");
@@ -157,36 +156,32 @@ public class CenterHelper extends BaseTestCaseUtil {
 			AdminTestUtil.currentTestCaseName = testPost.getTestCaseName();
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					"DSL"+BaseTestCase.generateRandomAlphaNumericString(7), "name");
-			
+
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					"DSL"+BaseTestCase.generateRandomAlphaNumericString(7), "addressLine1");
-			
+
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					zone,"zoneCode");
-			
+
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					BaseTestCase.languageCode,"langCode");
-			
+
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					holidayLocationCode,"holidayLocationCode");
-			
+
 			input = JsonPrecondtion.parseAndReturnJsonContent(input,
 					locationCode,"locationCode");
-//			
-//			   "holidayLocationCode":"RSK",
-//		
-//			   "locationCode":"10114",
-//			
-			
+
+
 			testPost.setInput(input);
-			
+
 			String output=testPost.getOutput();
 			output = JsonPrecondtion.parseAndReturnJsonContent(output,
 					zone,"zoneCode");
 			output = JsonPrecondtion.parseAndReturnJsonContent(output,
 					BaseTestCase.languageCode,"langCode");
 			testPost.setOutput(output);
-			
+
 			simplepost.test(testPost);
 			Response response= simplepost.response;
 
@@ -196,7 +191,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 				logger.info( jsonResp.getJSONObject("response"));
 				String name = jsonResp.getJSONObject("response").getString("name"); 
 				 id = jsonResp.getJSONObject("response").getString("id"); 
-			
+
 			}
 			logger.info("id="+id);
 			return id;
@@ -207,7 +202,6 @@ public class CenterHelper extends BaseTestCaseUtil {
 		}
 
 	}
-
 
 
 	public String getLocationCodeHoliday() throws RigInternalError {
@@ -228,7 +222,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 				JSONObject locationObject = responseArray.getJSONObject(0);
 				locationCode = locationObject.getString("locationCode");
 
-				// Traverse on the "code" field
+
 				logger.info("Location Code: " + locationCode);
 				return locationCode;
 			} else {
@@ -249,14 +243,13 @@ public class CenterHelper extends BaseTestCaseUtil {
 	}
 
 
-
 	public String getPostalCode(String pc) throws RigInternalError {
 
 		try {	String lastSyncTime =null;
 		Object[] testObjPost=getWithParam.getYmlTestData(GetPostalCode);
 
 		TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
-		//String langCode=BaseTestCase.languageCode;
+
 		testPost.setEndPoint(testPost.getEndPoint().replace("postalcode", pc));
 		getWithParam.test(testPost);
 		Response response= getWithParam.response;
@@ -270,7 +263,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 				JSONObject locationObject = responseArray.getJSONObject(0);
 				locationCode = locationObject.getString("code");
 
-				// Traverse on the "code" field
+
 				logger.info("Location Code: " + locationCode);
 				return locationCode;
 			} else {
@@ -296,7 +289,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 		Object[] testObjPost=getWithParam.getYmlTestData(GetPostalCodeKey);
 
 		TestCaseDTO testPost=(TestCaseDTO)testObjPost[0];
-		//String langCode=BaseTestCase.languageCode;
+
 		testPost.setEndPoint(testPost.getEndPoint().replace("langcode", BaseTestCase.languageCode));
 		getWithParam.test(testPost);
 		Response response= getWithParam.response;
@@ -310,7 +303,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 				JSONObject locationObject = responseArray.getJSONObject(responseArray.length()-1);
 				postalCode = locationObject.getString("hierarchyLevelName");
 
-				// Traverse on the "code" field
+
 				logger.info("Location Code: " + postalCode);
 				return postalCode;
 			} else {
@@ -330,7 +323,4 @@ public class CenterHelper extends BaseTestCaseUtil {
 	}
 
 
-
-	
-	
 }

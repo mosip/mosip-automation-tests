@@ -21,14 +21,14 @@ public class UpdateResidentWithUIN extends BaseTestCaseUtil implements StepInter
 	@Override
 	public void run() throws RigInternalError {
 		Boolean isForChildPacket = false;
-		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { // used for child packet processing
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { 
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
 			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty()
 					&& step.getScenario().getUin_updateResident() != null)
 				packetUtility.updateResidentUIN(step.getScenario().getGeneratedResidentData().get(0),
 						step.getScenario().getUin_updateResident(), step);
 		} else {
-			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { // "e2e_updateResidentWithUIN($$personaFilePath,$$uin)"
+			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) { 
 				String personaFilePath = step.getParameters().get(0);
 				String _uin = step.getParameters().get(1);
 				if (personaFilePath.startsWith("$$") && _uin.startsWith("$$")) {

@@ -120,7 +120,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 					} else if (!step.getParameters().get(i).equals("0")) {
 						individualIdAuth = step.getParameters().get(i);
 						uinList = new ArrayList<>();
-						uinList.add(individualIdAuth);// uin actual value
+						uinList.add(individualIdAuth);
 					} else {
 						individualIdAuth = step.getScenario().getUinPersonaProp().stringPropertyNames().iterator()
 								.next();
@@ -136,7 +136,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 						vidList = new ArrayList<>();
 						vidList.add(vids);
 					} else if (!step.getParameters().get(i).equals("0")) {
-						vids = step.getParameters().get(i); // vid actual value
+						vids = step.getParameters().get(i); 
 					} else {
 						vids = step.getScenario().getVidPersonaProp().stringPropertyNames().iterator().next();
 					}
@@ -194,7 +194,6 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 
 			}
 
-			// For VID
 
 			for (String vid : vidList) {
 
@@ -258,15 +257,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, individualIdAuth, "sendOtp.individualId");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otp");
 
-		//		input = JsonPrecondtion.parseAndReturnJsonContent(input, individualType,
-		//				"individualIdType");
 
-		/*
-		 * input = JsonPrecondtion.parseAndReturnJsonContent(input, individualIdAuth,
-		 * "sendOtp.individualId"); input =
-		 * JsonPrecondtion.parseAndReturnJsonContent(input, individualType,
-		 * "sendOtp.individualIdType");
-		 */
 		input = input.replace("$PartnerKey$", partnerKeyUrl);
 		test.setInput(input);
 		return test;
@@ -291,8 +282,6 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 		}
 		demoResponse = packetUtility.retrieveBiometric(personFilePathvalue, demoFetchList, step);
 
-		// testInput.setEndPoint(testInput.getEndPoint().replace("$PartnerKey$",
-		// partnerKeyUrl));
 
 		String demoFieldValueKey = null;
 		String demoValue = null;
@@ -327,7 +316,7 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, demoField, "identityRequest.key");
 			input = JsonPrecondtion.parseAndReturnJsonContent(input, demoValue, "identityRequest.value");
-			// testInput=filterOutTestCase(testObj,testFilterKey);
+
 			testInput.setInput(input);
 		}
 		return testInput;
@@ -430,8 +419,6 @@ public class MultiFactorAuthentication extends BaseTestCaseUtil implements StepI
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, uin, "sendOtp.individualId");
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, emailId, "otpChannel");
 
-		//		 input = JsonPrecondtion.parseAndReturnJsonContent(input,
-		//		  deviceProps.getProperty("individualIdType"), "individualIdType");
 
 		input = JsonPrecondtion.parseAndReturnJsonContent(input, bioValue, "identityRequest.bioValue");
 

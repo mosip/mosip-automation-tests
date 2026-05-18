@@ -41,7 +41,7 @@ public class UpdateResidentWithGuardianSkippingPreReg extends BaseTestCaseUtil i
 				Reporter.log("<b><u>Checking Status Of Created Guardians</u></b>");
 				CheckStatus checkStatus = new CheckStatus();
 				checkStatus.tempPridAndRid = step.getScenario().getResidentPathGuardianRid();
-				// checkStatus.checkStatus("processed");
+
 			}
 		}
 	}

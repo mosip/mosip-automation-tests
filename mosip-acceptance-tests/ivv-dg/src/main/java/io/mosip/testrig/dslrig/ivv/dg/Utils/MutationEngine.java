@@ -105,19 +105,14 @@ public class MutationEngine {
 
     private String generatePhone(){
     	generator.nextBytes(bytes);
-        int first_digit = generator.nextInt((9 - 6) + 1) + 6; //add 1 so there is no 0 to begin
-        int second_digit = generator.nextInt(8); //randomize to 8 becuase 0 counts as a number in the generator
+        int first_digit = generator.nextInt((9 - 6) + 1) + 6; 
+        int second_digit = generator.nextInt(8); 
         int third_digit = generator.nextInt(8);
 
-        // Sequence two of phone number
-        // the plus 100 is so there will always be a 3 digit number
-        // randomize to 643 because 0 starts the first placement so if i randomized up to 642 it would only go up yo 641 plus 100
-        // and i used 643 so when it adds 100 it will not succeed 742
+
         int set1 = generator.nextInt(643) + 100;
 
-        //Sequence 3 of numebr
-        // add 1000 so there will always be 4 numbers
-        //8999 so it wont succed 9999 when the 1000 is added
+
         int set2 = generator.nextInt(8999) + 1000;
 
         return first_digit+""+second_digit+""+third_digit+""+set1+""+set2;

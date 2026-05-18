@@ -144,12 +144,12 @@ public class BaseStep {
     }
 
 	public void process(ResponseDataDTO res) {
-		// TODO Auto-generated method stub
-		
+
+
 	}
 
 	public RequestDataDTO prepare() {
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 

@@ -51,7 +51,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 		Object[] casesListVID = null;
 		String res ="";
 		KeyMgrUtil keyMgrUtil = new KeyMgrUtil(); 
-		
+
 
 		if (step.getParameters().isEmpty() || step.getParameters().size() < 1) {
 			logger.error("Parameter is  missing from DSL step");
@@ -120,7 +120,7 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 			test.setEndPoint(test.getEndPoint().replace("$PartnerKey$", partnerKeyUrl));
 			test.setEndPoint(test.getEndPoint().replace("$PartnerName$", partnerId));
 			test.setEndPoint(test.getEndPoint().replace("uinnumber", uin));
-			
+
 
 			if (casesListUIN != null) {
 				for (Object object : casesListUIN) {

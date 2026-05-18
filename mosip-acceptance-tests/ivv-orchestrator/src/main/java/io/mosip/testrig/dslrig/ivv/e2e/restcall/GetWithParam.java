@@ -49,19 +49,13 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 			logger.setLevel(Level.ERROR);
 	}
 
-	/**
-	 * get current testcaseName
-	 */
+
 	@Override
 	public String getTestName() {
 		return testCaseName;
 	}
 
-	/**
-	 * Data provider class provides test case list
-	 * 
-	 * @return object of data provider
-	 */
+
 	@DataProvider(name = "testcaselist")
 	public Object[] getTestCaseList(ITestContext context) {
 		String ymlFile = context.getCurrentXmlTest().getLocalParameters().get("ymlFile");
@@ -70,24 +64,15 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 		return getYmlTestData(ymlFile);
 	}
 
-	/**
-	 * Test method for OTP Generation execution
-	 * 
-	 * @param objTestParameters
-	 * @param testScenario
-	 * @param testcaseName
-	 * @throws AuthenticationTestException
-	 * @throws AdminTestException
-	 * @throws SecurityXSSException 
-	 */
+
 	@Test(dataProvider = "testcaselist")
 	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
-//		testCaseName = isTestCaseValidForExecution(testCaseDTO);
+
 		if (HealthChecker.signalTerminateExecution) {
 			throw new SkipException(GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
 		}
-		
+
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
 			if (!BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
 					&& !BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
@@ -141,15 +126,11 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 				ouputValid = new HashMap<>();
 				ouputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
 			} 
-		
+
 		}
 	}
 
-	/**
-	 * The method ser current test name to result
-	 * 
-	 * @param result
-	 */
+
 	@AfterMethod(alwaysRun = true)
 	public void setResultTestName(ITestResult result) {
 		try {

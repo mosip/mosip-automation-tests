@@ -36,7 +36,7 @@ public class GetHandlesByUIN extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		step.getScenario().getHandlePersonaProp().clear();
-		
+
 		Map<String, String> handleValueMap = new HashMap<>();
 		String uin = null;
 		List<String> selectedHandles = new ArrayList<>();
@@ -63,8 +63,8 @@ public class GetHandlesByUIN extends BaseTestCaseUtil implements StepInterface {
 					throw new RigInternalError("Failed to extract Email From UIN: " + step.getName());
 				}
 				JSONObject identityData = responseData.getJSONObject("identity");
-				
-			// Extract selectedHandles from response
+
+
 			if (identityData.has("selectedHandles")) {
 				org.json.JSONArray selectedHandlesArray = identityData.getJSONArray("selectedHandles");
 				for (int i = 0; i < selectedHandlesArray.length(); i++) {

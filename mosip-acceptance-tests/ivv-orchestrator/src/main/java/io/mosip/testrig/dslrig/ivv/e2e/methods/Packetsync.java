@@ -23,7 +23,7 @@ public class Packetsync extends BaseTestCaseUtil implements StepInterface {
 	public void run() throws RigInternalError {
 		NotificationListener.markRequestStart();
 		boolean expectedToPass = true;
-		if (!step.getParameters().isEmpty() && step.getParameters().size() >= 1) { // "$$var=e2e_packetsync($$zipPacketPath)"
+		if (!step.getParameters().isEmpty() && step.getParameters().size() >= 1) { 
 			String _zipPacketPath = step.getParameters().get(0);
 			if (step.getParameters().size() == 2) {
 				expectedToPass = Boolean.parseBoolean(step.getParameters().get(1));

@@ -67,4 +67,3 @@ public class VerifyNotification extends BaseTestCaseUtil implements StepInterfac
 	}
 
 }
-

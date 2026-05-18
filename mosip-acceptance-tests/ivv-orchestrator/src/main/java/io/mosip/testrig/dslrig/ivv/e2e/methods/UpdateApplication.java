@@ -11,7 +11,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 public class UpdateApplication extends BaseTestCaseUtil implements StepInterface {
 	static Logger logger = Logger.getLogger(UpdateApplication.class);
-	
+
 	static {
 		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);

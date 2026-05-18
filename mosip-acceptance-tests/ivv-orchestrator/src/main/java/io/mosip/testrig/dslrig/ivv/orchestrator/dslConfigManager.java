@@ -22,20 +22,20 @@ public class dslConfigManager extends ConfigManager {
 
 	public static void init() {
 		Map<String, Object> moduleSpecificPropertiesMap = new HashMap<>();
-		// Load scope specific properties
+
 		try {
 			String path = TestRunner.getGlobalResourcePath() + "/config/dsl.properties";
 			Properties props = getproperties(path);
-			// Convert Properties to Map and add to moduleSpecificPropertiesMap
+
 			for (String key : props.stringPropertyNames()) {
-                  
+
 				String value = System.getenv(key) == null ? props.getProperty(key) : System.getenv(key);
 				moduleSpecificPropertiesMap.put(key, value);
 			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
-		// Add module specific properties as well.
+
 		init(moduleSpecificPropertiesMap);
 	}
 
@@ -46,23 +46,23 @@ public class dslConfigManager extends ConfigManager {
 	public static String getThreadCount() {
 		return ConfigManager.getproperty("threadCount");
 	}
-	
+
 	public static int getMaxSuiteTime() {
 		try {
 		    return Integer.parseInt(ConfigManager.getproperty("maxSuiteTime"));
 		} catch (NumberFormatException e) {
-		    return 2; // or default value
+		    return 2; 
 		}
 	}
-	
+
 	public static String getUinWaitTime() {
 		return ConfigManager.getproperty("uinWaitTime");
 	}
-	
+
 	public static String checkNotification() {
 		return ConfigManager.getproperty("checkNotification");
 	}
-	
+
 	public static String getNextPacketUploadWaitTime() {
 		return ConfigManager.getproperty("nextPacketUploadWaitTime");
 	}
@@ -74,7 +74,7 @@ public class dslConfigManager extends ConfigManager {
 	public static String getpacketUtilityBaseUrl() {
 		return ConfigManager.getproperty("packetUtilityBaseUrl");
 	}
-	
+
 	public static String getEsignetMockBaseURL() { 
 		return getproperty("esignetMockBaseURL");
 	}
@@ -91,7 +91,7 @@ public class dslConfigManager extends ConfigManager {
 		}
 		return false;
 	}
-	
+
 	public static synchronized boolean isInTobeBugList(String scenario) {
 	    Map<String, String> skipMap = loadTestcaseToBeSkippedMap();
 	    return skipMap.containsKey(scenario);
@@ -101,7 +101,7 @@ public class dslConfigManager extends ConfigManager {
 	    Map<String, String> skipMap = loadTestcaseToBeSkippedMap();
 	    return skipMap.getOrDefault(scenario, "");
 	}
-	
+
 	public static Map<String, String> loadTestcaseToBeSkippedMap() {
 	    Map<String, String> testcaseToBeSkippedMap = new HashMap<>();
 
@@ -132,9 +132,8 @@ public class dslConfigManager extends ConfigManager {
 	}
 
 
-
 	public static synchronized boolean isInTobeExecuteList(String stringToFind) {
-		// If there are no specific execution list is provided , execute all scenarios
+
 		String toExecuteList = ConfigManager.getproperty("scenariosToExecute");
 		if (toExecuteList != null && toExecuteList.isEmpty())
 			return true;
@@ -161,9 +160,9 @@ public class dslConfigManager extends ConfigManager {
 		}
 		return false;
 	}
-	
+
 	public static synchronized boolean isInTobeGroupExecuteList(String stringToFind) {
-		// If there are no specific execution list is provided , execute all scenarios
+
 		String toExecuteList = ConfigManager.getproperty("scenariosFlowToExecute");
 		if (toExecuteList != null && toExecuteList.isEmpty())
 			return true;
@@ -183,18 +182,14 @@ public class dslConfigManager extends ConfigManager {
 		Properties properties = new Properties();
 		for (Map.Entry<String, Object> entry : propertiesMap.entrySet()) {
 			String key = entry.getKey();
-			String value = entry.getValue().toString(); // Convert the value to a String
+			String value = entry.getValue().toString(); 
 			properties.setProperty(key, value);
 		}
 
 		return properties;
 	}
 
-	/**
-	 * When true, the IVV orchestrator pulls outbound Packet Creator API traces after
-	 * each scenario and attaches them to the TestNG report (requires the same flag /
-	 * context variables on Packet Creator so calls are captured).
-	 */
+
 	public static boolean isInternalApiLoggingForReport() {
 		if (Boolean.parseBoolean(System.getProperty("dslrig.internal.api.logging", "false"))) {
 			return true;
@@ -207,16 +202,12 @@ public class dslConfigManager extends ConfigManager {
 		}
 	}
 
-	/** Value stored on Packet Creator context so {@link io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogging} enables capture. */
+
 	public static String getInternalApiLoggingForContextProps() {
 		return isInternalApiLoggingForReport() ? "yes" : "no";
 	}
 
-	/**
-	 * When {@code true}, after {@link EmailableReport} writes the HTML file, {@link ReportTreeViewEnhancer} replaces it
-	 * in the same path with the tree-view layout. Disabled with {@code enhanceReportTreeView=no} in {@code dsl.properties}
-	 * or {@code -Ddsl.report.treeview.enabled=false}.
-	 */
+
 	public static boolean isEnhanceReportTreeViewEnabled() {
 		String jvm = System.getProperty("dsl.report.treeview.enabled");
 		if (jvm != null && !jvm.isBlank()) {

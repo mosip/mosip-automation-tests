@@ -18,11 +18,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-/**
- * Java port of {@code enhance_test_report.py}: turns a flat TestNG-style DSL HTML report into the
- * same tree-view layout (sidebar nav, theme, filters, styled blocks). Styles ship in
- * {@code /config/head-template.html} on the classpath (alongside {@code dsl.properties}).
- */
+
 public final class ReportTreeViewEnhancer {
 
     private static final String REPORT_THEME_SCRIPT =
@@ -58,7 +54,7 @@ public final class ReportTreeViewEnhancer {
                     + "if(!show){var det=li.querySelector('details.tree-steps-details');if(det)det.open=false;}"
                     + "li.style.display=show?'':'none';});});})();</script>";
 
-    /** Scrolls the main panel (not the window) so summary metrics are visible on open and for in-report anchors. */
+
     private static final String REPORT_MAIN_SCROLL_SCRIPT =
             "<script>(function(){function m(){return document.querySelector('.report-main')}"
                     + "function s(el,sm){var p=m();if(!p||!el)return;"
@@ -85,17 +81,14 @@ public final class ReportTreeViewEnhancer {
     private static final Pattern SUMMARY_TABLE =
             Pattern.compile("<table\\b[^>]*\\bid\\s*=\\s*['\"]summary['\"][^>]*>(.*?)</table>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-    /**
-     * Bug / time column may contain HTML (e.g. Jira link for known issues). A naive {@code [^<]*} misses those rows,
-     * under-counting them in the sidebar and filter chips vs the summary table.
-     */
+
     private static final Pattern SCENARIO_ROW_TWO_COL =
             Pattern.compile(
                     "<tr class=\"([^\"]+)\"><td><a href=\"#(m\\d+)\">([^<]+)</a></td>"
                             + "<td[^>]*\\bclass=['\"]bug-column['\"][^>]*>(.*?)</td></tr>",
                     Pattern.DOTALL);
 
-    /** Legacy {@link io.mosip.testrig.dslrig.ivv.orchestrator.EmailableReport} HTML with a scenario description column. */
+
     private static final Pattern SCENARIO_ROW_THREE_COL =
             Pattern.compile(
                     "<tr class=\"([^\"]+)\"><td><a href=\"#(m\\d+)\">([^<]+)</a></td>"
@@ -104,14 +97,14 @@ public final class ReportTreeViewEnhancer {
 
     private static final Pattern H3_ANCHOR = Pattern.compile("<h3[^>]*\\bid=['\"](m\\d+)['\"][^>]*>", Pattern.CASE_INSENSITIVE);
 
-    /** Visible layout is HTML; original step text is preserved in {@code .step-capture-raw} for sidebar parsing. */
+
     private static final Pattern STEP_CARD =
             Pattern.compile(
                     "<div class=['\"]step-capture-card['\"]\\s+id=['\"](m\\d+-s\\d+)['\"][^>]*>[\\s\\S]*?"
                             + "<textarea[^>]*\\bstep-capture-raw\\b[^>]*name=['\"]headers['\"][^>]*>([^<]*)</textarea>\\s*</div>",
                     Pattern.CASE_INSENSITIVE);
 
-    /** Legacy EmailableReport block from {@link Orchestrator} before tree-view wrapping. */
+
     private static final Pattern STEP_CAPTURE_LEGACY_BLOCK =
             Pattern.compile(
                     "<div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='3' readonly='true'>(.*?)</textarea></div>",
@@ -131,7 +124,7 @@ public final class ReportTreeViewEnhancer {
                     "<b\\s+style=\"background-color:\\s*(#[0-9a-fA-F]{3,8});?\">\\s*(Marking\\s+test\\s+case[^<]*?)</b>",
                     Pattern.CASE_INSENSITIVE);
 
-    /** Matches reporter output from {@code GlobalMethods.ReportRequestAndResponse}; tolerant of tag case. */
+
     private static final Pattern HTTP_REQ =
             Pattern.compile(
                     "(?i)<b><u>Request:\\s*</u></b>(\\(End Point URL:[^<]*?\\)\\s*)<pre><div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray");
@@ -164,13 +157,13 @@ public final class ReportTreeViewEnhancer {
     private static final Pattern STEP_CAPTURE_DIV =
             Pattern.compile("<div class=['\"]step-capture-card['\"]>", Pattern.CASE_INSENSITIVE);
 
-    /** Wrapped scenario markup (must not match stylesheet tokens alone). */
+
     private static final Pattern SCENARIO_DETAIL_SECTION_OPEN =
             Pattern.compile(
                     "<section\\s+[^>]*\\bclass\\s*=\\s*['\"][^'\"]*\\bscenario-detail-card\\b",
                     Pattern.CASE_INSENSITIVE);
 
-    /** Decorative chrome that rendered as visible "Scenariom0" text when stylesheet rules were absent. */
+
     private static final Pattern SCENARIO_DETAIL_CARD_CHROME =
             Pattern.compile(
                     "<div\\s+class\\s*=\\s*['\"]scenario-detail-card__chrome['\"][^>]*>[\\s\\S]*?</div>\\s*</div>\\s*",
@@ -180,15 +173,7 @@ public final class ReportTreeViewEnhancer {
 
     private ReportTreeViewEnhancer() {}
 
-    /**
-     * Reads {@code reportFile}, applies {@link #enhance(String)}, and replaces the file atomically via a temp file in
-     * the same directory. If the content already contains the tree-view shell, returns {@code true} without changes.
-     * On any failure the original file is left unchanged.
-     *
-     * @param reportFile path to the HTML produced by the DSL {@code EmailableReport} reporter
-     * @param log caller logger (log4j), must not be null
-     * @return {@code true} when the on-disk file is tree-view HTML after this method returns
-     */
+
     public static boolean enhanceReportFileInPlace(File reportFile, Logger log) {
         Objects.requireNonNull(log, "log");
         if (reportFile == null) {
@@ -220,7 +205,7 @@ public final class ReportTreeViewEnhancer {
                         try {
                             Files.deleteIfExists(tmp);
                         } catch (IOException ignored) {
-                            // best effort
+
                         }
                         throw e;
                     }
@@ -244,7 +229,7 @@ public final class ReportTreeViewEnhancer {
                 try {
                     Files.deleteIfExists(tmp);
                 } catch (IOException ignored) {
-                    // best effort cleanup of partial temp file
+
                 }
                 throw e;
             }
@@ -258,7 +243,7 @@ public final class ReportTreeViewEnhancer {
         }
     }
 
-    /** Same behavior as {@code enhance_test_report.transform(html)}. */
+
     public static String enhance(String html) throws IOException {
         if (html != null && html.contains("report-shell")) {
             return patchExistingTreeViewReport(html);
@@ -315,7 +300,7 @@ public final class ReportTreeViewEnhancer {
         return stripScenarioDetailCardChrome(out);
     }
 
-    /** Re-applies small fixes to HTML that was already transformed to tree-view. */
+
     private static String patchExistingTreeViewReport(String html) {
         String out = ensureReportExecSummaryAnchor(html);
         out =
@@ -331,7 +316,7 @@ public final class ReportTreeViewEnhancer {
         return stripScenarioDetailCardChrome(out);
     }
 
-    /** Removes legacy scenario card chrome from tree-view HTML (already-enhanced reports). */
+
     private static String stripScenarioDetailCardChrome(String html) {
         if (html == null || html.isEmpty() || !html.contains("scenario-detail-card__chrome")) {
             return html;
@@ -340,7 +325,7 @@ public final class ReportTreeViewEnhancer {
         return out.replace("<motion class=\"scenario-detail-card__inner\">", "<div class=\"scenario-detail-card__inner\">");
     }
 
-    /** CLI: {@code java report.treeview.ReportTreeViewEnhancer input.html [output.html]} */
+
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
             System.err.println(
@@ -413,7 +398,7 @@ public final class ReportTreeViewEnhancer {
                 .replace("\"", "&quot;");
     }
 
-    /** Minimal escapes so step text can live inside a {@code <textarea>} without breaking HTML. */
+
     private static String escapeForTextareaText(String s) {
         if (s == null || s.isEmpty()) {
             return "";
@@ -421,7 +406,7 @@ public final class ReportTreeViewEnhancer {
         return s.replace("&", "&amp;").replace("<", "&lt;");
     }
 
-    /** Reverse {@link #escapeForTextareaText} after reading hidden {@code .step-capture-raw} from the report file. */
+
     private static String decodeMinimalHtmlEntities(String s) {
         if (s == null || s.isEmpty()) {
             return "";
@@ -429,7 +414,7 @@ public final class ReportTreeViewEnhancer {
         return s.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&");
     }
 
-    /** Replace the first literal occurrence of {@code from} (Java has no {@code replace(s,r,count)}). */
+
     private static String replaceFirstLiteral(String s, String from, String to) {
         int i = s.indexOf(from);
         if (i < 0) {
@@ -481,10 +466,7 @@ public final class ReportTreeViewEnhancer {
         return "unknown";
     }
 
-    /**
-     * Short labels for sidebar filters and row badges (uppercased in CSS). Plain text so the outline matches the
-     * light report reference; execution-summary legend in the main panel still uses icons from the HTML reporter.
-     */
+
     private static String scenarioStatusLabel(String status) {
         return switch (status) {
             case "pass" -> "Passed";
@@ -514,7 +496,7 @@ public final class ReportTreeViewEnhancer {
         sb.append(
                 "<button type=\"button\" class=\"tree-filter-chip is-active\" data-tree-filter=\"all\" aria-pressed=\"true\">All<span class=\"tree-filter-chip-n\" aria-hidden=\"true\">(");
         sb.append(nAll).append(")</span></button>");
-        // Same order as suite summary: Passed → Ignored → Known issues → Skipped → Failed
+
         List<String> filterOrder = List.of("pass", "ignore", "known", "skip", "fail", "unknown");
         for (String key : filterOrder) {
             int cnt = counts.getOrDefault(key, 0);
@@ -533,7 +515,7 @@ public final class ReportTreeViewEnhancer {
         return sb.toString();
     }
 
-    /** Sidebar: visually separate suite setup / teardown rows from regular scenarios. */
+
     private static String suiteLifecycleTreeClass(String scenarioName) {
         if (scenarioName == null) {
             return "";
@@ -675,7 +657,7 @@ public final class ReportTreeViewEnhancer {
         return rows;
     }
 
-    /** @return [name, description, parameters] */
+
     private static String[] parseStepCaptureFields(String raw) {
         String name = "Step";
         List<String> descParts = new ArrayList<>();
@@ -735,7 +717,7 @@ public final class ReportTreeViewEnhancer {
         return new String[] {name, desc, params};
     }
 
-    /** @return [label, desc] for sidebar step list */
+
     private static String[] parseStepCaptureText(String raw) {
         String[] f = parseStepCaptureFields(raw);
         return new String[] {f[0], f[1]};
@@ -751,10 +733,7 @@ public final class ReportTreeViewEnhancer {
         return html;
     }
 
-    /**
-     * Wraps each scenario block ({@code h3.scenario-anchor} + {@code table.result} + {@code p.totop}) in a card
-     * {@code section.scenario-detail-card} so the main panel shows clear boundaries between scenarios.
-     */
+
     private static String wrapScenarioDetailCards(String html) {
         if (html == null || html.isEmpty() || SCENARIO_DETAIL_SECTION_OPEN.matcher(html).find()) {
             return html;
@@ -903,10 +882,7 @@ public final class ReportTreeViewEnhancer {
         return false;
     }
 
-    /**
-     * @param innerStart first index inside the outer {@code <table>} (after its opening {@code >})
-     * @return start index of the matching {@code </table>} for that outer table, or {@code -1}
-     */
+
     private static int findClosingTableStartIndex(String html, int innerStart) {
         int depth = 1;
         int pos = innerStart;
@@ -1034,7 +1010,7 @@ public final class ReportTreeViewEnhancer {
         return reflowExecLegendCell(html);
     }
 
-    /** Ensures the dashboard "Summary of Test Results" block can be scrolled to from the sidebar. */
+
     private static String ensureReportExecSummaryAnchor(String html) {
         if (html == null || html.isEmpty()) {
             return html;
@@ -1137,10 +1113,7 @@ public final class ReportTreeViewEnhancer {
         b.append("</span></p>");
     }
 
-    /**
-     * Orange banner + inline rows (label : value), with hidden textarea so {@link #STEP_CARD} can still read
-     * the original text for the scenario step outline.
-     */
+
     private static String buildStepCaptureCardMarkup(String rawContent) {
         String[] f = parseStepCaptureFields(rawContent);
         String name = f[0];
@@ -1226,7 +1199,7 @@ public final class ReportTreeViewEnhancer {
                 "<div class='http-field http-body-field'><textarea class='http-ta http-body-ta' style='border:solid 1px black; width: 100%; "
                         + "box-sizing: border-box;' name='message' rows='6' readonly='true'>";
         html = html.replace(msgOld, msgNew);
-        /* Alternate spacing from some code paths / older reports */
+
         html =
                 html.replace(
                         "<div style='width:100%; overflow: hidden;'><textarea style='border:solid 1px black; width: 100%; "
@@ -1242,7 +1215,7 @@ public final class ReportTreeViewEnhancer {
         final String desc;
         final String timing;
         final String status;
-        /** Filled by {@link #attachStepsToRows}; null before attachment. */
+
         List<StepEntry> steps;
 
         ScenarioRow(String clazz, String anchor, String name, String desc, String timing, String status) {
