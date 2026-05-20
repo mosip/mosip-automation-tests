@@ -188,6 +188,7 @@ public class CenterHelper extends BaseTestCaseUtil {
 			if (response!= null)
 			{
 				JSONObject jsonResp = new JSONObject(response.getBody().asString());
+				assertMosipResponseOk(jsonResp, "centerCreate");
 				logger.info( jsonResp.getJSONObject("response"));
 				String name = jsonResp.getJSONObject("response").getString("name"); 
 				 id = jsonResp.getJSONObject("response").getString("id"); 

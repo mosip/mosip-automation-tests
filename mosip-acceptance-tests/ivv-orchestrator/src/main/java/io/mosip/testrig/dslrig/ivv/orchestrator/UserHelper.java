@@ -175,6 +175,9 @@ public class UserHelper extends BaseTestCaseUtil {
 
 	public void activateZoneMapping(String user, String flag) throws RigInternalError {
 
+		if (flag == null || flag.isBlank()) {
+			throw new RigInternalError("Zone mapping activation flag is missing for user: " + user);
+		}
 
 		try {
 			Object[] testObjPutDcom=patchWithPathParam.getYmlTestData(UpdateZoneUserStatus);
@@ -203,6 +206,9 @@ public class UserHelper extends BaseTestCaseUtil {
 
 	public void activateCenterMapping(String user, String flag) throws RigInternalError {
 
+		if (flag == null || flag.isBlank()) {
+			throw new RigInternalError("Center mapping activation flag is missing for user: " + user);
+		}
 
 		try {
 			Object[] testObjPutDcom=patchWithPathParam.getYmlTestData(UpdateUserCenterMappingStatus);

@@ -1,0 +1,100 @@
+{
+  "patterns": [
+    {
+      "actionPattern": "^e2e_getPingHealth\\((\\w+)\\)$",
+      "gherkin": "the {1} component performs a health check",
+      "firstKeyword": "Given",
+      "targetenvKeyword": "And the targetenv performs a health check of required server components to run end-to-end scenarios"
+    },
+    {
+      "actionPattern": "^\\$\\$(\\w+)=e2e_ReadPreReq\\((\\d+).*\\)$",
+      "gherkin": "I read the pre-requisite data at index {2}",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^e2e_setContext\\(env_context,\\$\\$(\\w+),false.*\\)$",
+      "gherkin": "I set the context for scenario execution with the environment context and pre-requisite details without generating a private key",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^e2e_setContext\\(env_context,\\$\\$(\\w+),true.*\\)$",
+      "gherkin": "I set the context for scenario execution with the environment context and pre-requisite details and generate a private key",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^\\$\\$(\\w+)=e2e_getResidentData\\(adult.*,false.*,Male.*\\)$",
+      "gherkin": "I generate persona data for 1 resident with persona type adult, guardian flag false, and gender Male",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^\\$\\$(\\w+)=e2e_getResidentData\\(adult.*,false.*,Female.*\\)$",
+      "gherkin": "I generate persona data for 1 resident with persona type adult, guardian flag false, and gender Female",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^\\$\\$(\\w+)=e2e_getPacketTemplate\\(NEW.*,\\$\\$(\\w+)\\)$",
+      "gherkin": "I generate a packet template for a new packet type with the generated persona data",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^\\$\\$(\\w+)=e2e_sendOtp\\(\\$\\$(\\w+)\\)$",
+      "gherkin": "I send OTP for the generated persona data",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^e2e_validateOtp\\(\\$\\$(\\w+),\\$\\$(\\w+)\\)$",
+      "gherkin": "I validate the OTP for the generated persona data",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^\\$\\$(\\w+)=e2e_preRegister\\(\\$\\$(\\w+)\\)$",
+      "gherkin": "I generate a pre-registration packet with the generated persona data",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^e2e_uploadDocuments\\(\\$\\$(\\w+),\\$\\$(\\w+)\\)$",
+      "gherkin": "I upload mandatory documents for pre-registration with the generated persona data and PRID",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^e2e_updatePreRegStatus\\(0.*,\\$\\$(\\w+),valid.*\\)$",
+      "gherkin": "I update the pre-registration status with status code 0 for the PRID and scenario without pending appointment",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^e2e_bookAppointment\\(false.*,\\$\\$(\\w+),1.*\\)$",
+      "gherkin": "I book an appointment for the pre-registration with holiday booking flag false, PRID, and slot number 1",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^\\$\\$(\\w+)=e2e_generateAndUploadPacket\\(\\$\\$(\\w+),\\$\\$(\\w+)\\)$",
+      "gherkin": "I generate and upload the packet with the pre-registration and template file path",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^e2e_checkStatus\\(PROCESSED.*,\\$\\$(\\w+)\\)$",
+      "gherkin": "I check the RID status against the packet processing status PROCESSED",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^\\$\\$(\\w+)=e2e_getUINByRid\\(\\$\\$(\\w+)\\)$",
+      "gherkin": "I get the UIN for the given RID",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^e2e_CheckRIDStage\\(\\$\\$(\\w+),PRINT_SERVICE,PROCESSED\\)$",
+      "gherkin": "I check the RID stage and stage status with RID, stage PRINT_SERVICE, and stage status PROCESSED",
+      "keyword": "Then"
+    },
+    {
+      "actionPattern": "^e2e_wait\\((\\d+)\\)$",
+      "gherkin": "I wait for {1} seconds to allow backend processing to complete",
+      "keyword": "And"
+    },
+    {
+      "actionPattern": "^e2e_DeletePacketData\\(\\)$",
+      "gherkin": "I delete temporary packet persona and template files from disk",
+      "keyword": "And"
+    }
+  ]
+}

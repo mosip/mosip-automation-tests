@@ -46,6 +46,10 @@ public class TestResources {
 			File source = new File(TestResources.getGlobalResourcePaths().replace("MosipTestResource/MosipTemporaryTestResource", "") + resPath);
 
 			File destination = new File(TestResources.getGlobalResourcePaths());
+			File destChild = new File(destination, resPath.startsWith("/") ? resPath.substring(1) : resPath);
+			if (destChild.exists()) {
+				FileUtils.deleteDirectory(destChild);
+			}
 
 			FileUtils.copyDirectoryToDirectory(source, destination);
 			logger.info("source file path :" +source);

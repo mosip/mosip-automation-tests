@@ -72,17 +72,18 @@ public final class Scenario0ParallelRunner {
 			logger.info("Scenario 0 parallel setup: running steps 0-1 sequentially");
 			store = stepRangeExecutor.execute(masterScenario, store, 0, 1, willRetry);
 
-			logger.info("Scenario 0 parallel setup: phase 1 — tracks 1, 2a, 3a in parallel");
+			logger.info("Scenario 0 parallel setup: phase 1 — tracks 1 and 2a in parallel");
 			List<CompletableFuture<Map<String, String>>> phase1Futures = new ArrayList<>();
 			phase1Futures.add(runTrack(executor, "track1", masterScenario, TRACK1_FROM, TRACK1_TO, store, willRetry,
 					stepRangeExecutor, scenarioCopier));
 			phase1Futures.add(runTrack(executor, "track2a", masterScenario, TRACK2A_FROM, TRACK2A_TO, store, willRetry,
 					stepRangeExecutor, scenarioCopier));
-			phase1Futures.add(runTrack(executor, "track3a", masterScenario, TRACK3A_FROM, TRACK3A_TO, store, willRetry,
-					stepRangeExecutor, scenarioCopier));
 			for (CompletableFuture<Map<String, String>> future : phase1Futures) {
 				mergeVariables(masterScenario, future.join());
 			}
+
+			logger.info("Scenario 0 parallel setup: phase 1b — track 3a sequential (user3 + center3; avoids masterdata API races)");
+			store = stepRangeExecutor.execute(masterScenario, store, TRACK3A_FROM, TRACK3A_TO, willRetry);
 
 			logger.info("Scenario 0 parallel setup: phase 2 — ReadPreReq(1) and setContext(details1)");
 			store = stepRangeExecutor.execute(masterScenario, store, PHASE2_FROM, PHASE2_TO, willRetry);
@@ -145,7 +146,12 @@ public final class Scenario0ParallelRunner {
 						+ ")");
 				return new HashMap<>(trackScenario.getVariables());
 			} catch (Exception e) {
-				throw new RuntimeException(trackName + " failed: " + e.getMessage(), e);
+				Throwable root = e;
+				while (root.getCause() != null) {
+					root = root.getCause();
+				}
+				throw new RuntimeException(trackName + " failed (steps " + fromStep + "-" + toStep + "): "
+						+ root.getMessage(), e);
 			}
 		}, executor);
 	}

@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -437,7 +438,7 @@ public class Orchestrator {
 
 			if (scenario.getId().equalsIgnoreCase("AFTER_SUITE")) 
 			{
-
+				int waitPolls = 0;
 				while (completedScenarioCount.get() < executableScenarioCount) 
 				{
 					long currentTime = System.currentTimeMillis();
@@ -451,6 +452,11 @@ public class Orchestrator {
 							+ " AFTER_SUITE waiting for scenarios to finish: " + completedScenarioCount.get() + "/"
 							+ executableScenarioCount + " (beforeSuiteComplete="
 							+ beforeSuiteSetupComplete + ")");
+					waitPolls++;
+					if (waitPolls % 15 == 0) {
+						logger.warn("AFTER_SUITE still waiting — another scenario is likely blocked on packet-creator "
+								+ "(e.g. getUinbyRid / ID repository). Check TestNG worker thread logs for the last step.");
+					}
 					Thread.sleep(SUITE_COORDINATION_POLL_MS);
 				}
 				startTime = System.nanoTime();
@@ -691,11 +697,20 @@ public class Orchestrator {
 				Reporter.log(e.getMessage());
 
 				scenarioSucceeded = true;
-			} catch (Exception e) {
-				finalException = e;
+			} catch (Error e) {
+				finalException = new Exception(e);
 				String failMessage = "Attempt " + attempt + " failed for scenario " + scenario.getId() + " : "
 						+ e.getMessage();
 				logger.error(failMessage, e);
+				Reporter.log("<span style='color:red; font-weight:bold;'>" + failMessage + "</span>");
+				updateRunStatistics(scenario);
+				throw new RuntimeException(failMessage, e);
+			} catch (Exception e) {
+				finalException = e;
+				Throwable root = rootCause(e);
+				String failMessage = "Attempt " + attempt + " failed for scenario " + scenario.getId() + " : "
+						+ (root != null ? root.getMessage() : e.getMessage());
+				logger.error(failMessage, root != null ? root : e);
 
 
 				String redFailMessage = "<span style='color:red; font-weight:bold;'>" + failMessage + "</span>";
@@ -785,12 +800,20 @@ public class Orchestrator {
 	public StepInterface getInstanceOf(Scenario.Step step)
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {
-		String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
-				+ step.getName().substring(1);
+		Class<?> clazz = StepClassResolver.resolve(getPackage(step), step.getName());
 
-		Class<?> clazz = Class.forName(className);
-
-		return (StepInterface) clazz.getDeclaredConstructor().newInstance();
+		try {
+			return (StepInterface) clazz.getDeclaredConstructor().newInstance();
+		} catch (InvocationTargetException e) {
+			Throwable cause = e.getCause();
+			if (cause instanceof Error) {
+				throw (Error) cause;
+			}
+			if (cause instanceof Exception) {
+				throw (RuntimeException) cause;
+			}
+			throw e;
+		}
 	}
 
 
@@ -801,6 +824,14 @@ public class Orchestrator {
 		}
 	}
 
+	private static Throwable rootCause(Throwable t) {
+		Throwable current = t;
+		while (current.getCause() != null && current.getCause() != current) {
+			current = current.getCause();
+		}
+		return current;
+	}
+
 	private static Boolean matchTags(String systemTags, ArrayList<String> scenarioTags) {
 		List<String> sys = Arrays.asList(systemTags.split(","));
 		return CollectionUtils.containsAny(sys, scenarioTags);
@@ -808,6 +839,17 @@ public class Orchestrator {
 
 	public static String getScenarioSheet() throws RigInternalError {
 		String scenarioSheet = null;
+
+		if (dslConfigManager.useGherkinScenarios()) {
+			try {
+				scenarioSheet = resolveGherkinFeatureFilePath();
+				logger.info("Scenario sheet (Gherkin): " + scenarioSheet);
+			} catch (IOException e) {
+				throw new RigInternalError("Gherkin feature file not found: " + e.getMessage());
+			}
+			registerGherkinStepDetails(scenarioSheet);
+			return scenarioSheet;
+		}
 
 		if (dslConfigManager.useExternalScenarioSheet()) {
 
@@ -821,19 +863,54 @@ public class Orchestrator {
 			scenarioSheet = JsonToCsvConverter(scenarioSheet);
 			if (scenarioSheet.isEmpty())
 				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
-		} else { 
-			scenarioSheet = TestRunner.getGlobalResourcePath() + "/config/scenarios.json";
-			logger.info("Scenario sheet path is: " + scenarioSheet);
-			Path path = Paths.get(scenarioSheet);
-			if (!Files.exists(path)) {
-				logger.info("Scenario sheet path is: " + path);
-				throw new RigInternalError("ScenarioSheet missing");
-			}
-			scenarioSheet = JsonToCsvConverter(scenarioSheet);
-			if (scenarioSheet.isEmpty())
-				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
+		} else {
+			throw new RigInternalError(
+					"Bundled scenarios.json is no longer supported. Set useGherkinScenarios=yes and maintain config/"
+							+ io.mosip.testrig.dslrig.ivv.parser.gherkin.GherkinFeatureParser.MASTER_FEATURE_FILE);
 		}
 		return scenarioSheet;
+	}
+
+	/** Registers step metadata used by reports; also invoked when loading Gherkin feature files. */
+	public static void registerStepDetails(String stepInput, String scenarioNumber, String description) {
+		addAllStepDetails(stepInput, scenarioNumber, description);
+		addUniqueStepDetails(stepInput, description);
+	}
+
+	private static String resolveGherkinFeatureFilePath() throws IOException {
+		return io.mosip.testrig.dslrig.ivv.parser.gherkin.GherkinFeatureParser
+				.resolveFeatureFile(resolveGherkinFeaturesDirectory()).getAbsolutePath();
+	}
+
+	private static void registerGherkinStepDetails(String featureFilePath) {
+		try {
+			new io.mosip.testrig.dslrig.ivv.parser.gherkin.GherkinFeatureParser()
+					.forEachStep(new File(featureFilePath),
+							(dsl, scenarioId, gherkinText) -> registerStepDetails(dsl, scenarioId, gherkinText));
+		} catch (IOException e) {
+			logger.warn("Could not register Gherkin step details for reports: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Resolves the Gherkin scenarios directory ({@code config/}). Prefers compiled classpath
+	 * {@code classes/config} over a stale copy under MosipTemporaryTestResource from an earlier run.
+	 */
+	private static String resolveGherkinFeaturesDirectory() {
+		String subPath = dslConfigManager.getGherkinFeaturesPath();
+		String globalRoot = TestRunner.getGlobalResourcePath();
+		String[] candidates = {
+				TestRunner.getExternalResourcePath() + "/" + subPath,
+				globalRoot.replace("/" + TestResources.resourceFolderName, "") + "/" + subPath,
+				globalRoot + "/" + subPath
+		};
+		for (String candidate : candidates) {
+			if (Files.exists(Paths.get(candidate))) {
+				logger.info("Using Gherkin scenarios path: " + candidate);
+				return candidate;
+			}
+		}
+		return globalRoot + "/" + subPath;
 	}
 
 	public static String JsonToCsvConverter(String jsonFilePath) {

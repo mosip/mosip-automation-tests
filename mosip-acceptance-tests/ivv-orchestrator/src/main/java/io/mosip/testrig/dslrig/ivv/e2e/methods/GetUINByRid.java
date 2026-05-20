@@ -6,7 +6,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -14,11 +13,10 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PersonaDataManager;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
+public class GetUinbyRid extends BaseTestCaseUtil implements StepInterface {
 
 	private String getIdentityUrl = "/resident/uin/";
-	static Logger logger = Logger.getLogger(GetUINByRid.class);
-	KernelAuthentication kauth = new KernelAuthentication();
+	static Logger logger = Logger.getLogger(GetUinbyRid.class);
 	Boolean isForChildPacket = false;
 
 	static {
@@ -39,7 +37,11 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 				getIdentity(rid);
 			}
 		} else if (!step.getParameters().isEmpty() && step.getParameters().get(0).startsWith("$$")) {
-			String rid = step.getScenario().getVariables().get(step.getParameters().get(0));
+			String ridKey = step.getParameters().get(0);
+			String rid = step.getScenario().getVariables().get(ridKey);
+			if (rid == null || rid.isBlank()) {
+				throw new RigInternalError("RID variable " + ridKey + " is not set");
+			}
 			HashMap<String, String> ridMap = new HashMap<>();
 			ridMap.put("0", rid);
 			getIdentity(ridMap);
@@ -50,37 +52,72 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 	public void getIdentity(HashMap<String, String> rids) throws RigInternalError {
 		step.getScenario().getUinReqIds().clear();
 		step.getScenario().getUinPersonaProp().clear();
-		for (String rid : rids.values()) {
-			if (rid != null) {
-				long startTime = System.currentTimeMillis();
-				logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
-				Response response = getRequest(baseUrl + getIdentityUrl + rid, "Get uin by rid: " + rid, step);
-				long stopTime = System.currentTimeMillis();
-				long elapsedTime = stopTime - startTime;
-				logger.info(
-						"Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime + " MilliSec");
-				logger.info("Response from get Identity for RID: " + rid + " " + response.asString());
-
-				String uin = response.asString();
-
-				if (step.getOutVarName() != null && !StringUtils.isEmpty(uin) && !(uin.trim().contains("errorCode")))
-					step.getScenario().getVariables().put(step.getOutVarName(), uin);
-
-				else if (isForChildPacket && !StringUtils.isEmpty(uin) && !(uin.trim().contains("errorCode")))
-					step.getScenario().setUin_updateResident(uin); 
-				else if (!StringUtils.isEmpty(uin) && !(uin.trim().contains("errorCode"))) {
-					step.getScenario().getUinReqIds().put(uin, null);
-					if (!step.getScenario().getUinPersonaProp().containsKey(uin))
-						step.getScenario().getUinPersonaProp().put(uin,
-								step.getScenario().getRidPersonaPath().get(rid));
-				} else {
-					logger.error("Issue while fetching identity for RID: " + rid + " Response: " + response.toString());
-					this.hasError = true;
-					throw new RigInternalError("Not able to Fetch identity for RID: " + rid);
-				}
-				PersonaDataManager.setVariableValue(step.getScenario().getId(), "UIN", uin);
-			}
+		long waitMs = Long.parseLong(props.getProperty("waitTime", "5000"));
+		int maxLoop = Integer.parseInt(props.getProperty("loopCount", "80"));
+		String uinWaitOverride = dslConfigManager.getUinWaitTime();
+		if (uinWaitOverride != null && !uinWaitOverride.isBlank()) {
+			maxLoop = Math.max(1, (int) ((Long.parseLong(uinWaitOverride) + waitMs - 1) / waitMs));
 		}
+
+		for (String rid : rids.values()) {
+			if (rid == null || rid.isBlank()) {
+				continue;
+			}
+			long startTime = System.currentTimeMillis();
+			logger.info(this.getClass().getSimpleName() + " starts at..." + startTime + " MilliSec");
+			String uin = null;
+			Response response = null;
+			for (int attempt = 1; attempt <= maxLoop; attempt++) {
+				response = getRequest(baseUrl + getIdentityUrl + rid, "Get uin by rid: " + rid, step);
+				uin = response != null ? response.asString() : null;
+				if (isValidUinResponse(uin)) {
+					logger.info("UIN retrieved for RID " + rid + " on attempt " + attempt);
+					break;
+				}
+				logger.info("UIN not ready for RID " + rid + " (attempt " + attempt + "/" + maxLoop + "), waiting "
+						+ (waitMs / 1000) + "s");
+				try {
+					Thread.sleep(waitMs);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					throw new RigInternalError("Interrupted while waiting for UIN for RID: " + rid);
+				}
+			}
+			long stopTime = System.currentTimeMillis();
+			logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + (stopTime - startTime)
+					+ " MilliSec");
+			if (response != null) {
+				logger.info("Response from get Identity for RID: " + rid + " " + response.asString());
+			}
+
+			if (!isValidUinResponse(uin)) {
+				logger.error("Issue while fetching identity for RID: " + rid + " Response: "
+						+ (response != null ? response.toString() : "null"));
+				this.hasError = true;
+				throw new RigInternalError(
+						"Not able to fetch UIN for RID: " + rid + " after " + maxLoop + " attempts (packet may be PROCESSED before ID repo has UIN)");
+			}
+
+			if (step.getOutVarName() != null) {
+				step.getScenario().getVariables().put(step.getOutVarName(), uin);
+			} else if (isForChildPacket) {
+				step.getScenario().setUin_updateResident(uin);
+			} else {
+				step.getScenario().getUinReqIds().put(uin, null);
+				if (!step.getScenario().getUinPersonaProp().containsKey(uin)) {
+					step.getScenario().getUinPersonaProp().put(uin, step.getScenario().getRidPersonaPath().get(rid));
+				}
+			}
+			PersonaDataManager.setVariableValue(step.getScenario().getId(), "UIN", uin);
+		}
+	}
+
+	private static boolean isValidUinResponse(String uin) {
+		if (StringUtils.isEmpty(uin)) {
+			return false;
+		}
+		String trimmed = uin.trim();
+		return !trimmed.contains("errorCode") && !trimmed.startsWith("{") && !trimmed.startsWith("[");
 	}
 
 }

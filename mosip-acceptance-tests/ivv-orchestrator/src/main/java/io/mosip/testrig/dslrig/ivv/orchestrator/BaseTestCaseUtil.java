@@ -40,11 +40,13 @@ import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
+import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 public class BaseTestCaseUtil extends BaseStep {
 	private static final Logger logger = LoggerFactory.getLogger(BaseTestCaseUtil.class);
@@ -61,6 +63,16 @@ public class BaseTestCaseUtil extends BaseStep {
 	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = 10_000;
 
 	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
+
+	/** Prevents orchestrator threads hanging forever on packet-creator / resident/* calls. */
+	private static final int PACKET_CREATOR_CONNECT_MS = 15_000;
+
+	private static final int PACKET_CREATOR_SOCKET_MS = 120_000;
+
+	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
+			.httpClient(HttpClientConfig.httpClientConfig()
+					.setParam("http.connection.timeout", PACKET_CREATOR_CONNECT_MS)
+					.setParam("http.socket.timeout", PACKET_CREATOR_SOCKET_MS));
 
 	public static PacketUtility packetUtility = new PacketUtility();
 	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
@@ -166,6 +178,19 @@ public class BaseTestCaseUtil extends BaseStep {
 		return System.getProperty("env.user") + "_S" + scenarioId + "_context";
 	}
 
+	private static boolean isPacketCreatorUrl(String url) {
+		String pcBase = dslConfigManager.getpacketUtilityBaseUrl();
+		return pcBase != null && !pcBase.isEmpty() && url != null && url.startsWith(pcBase);
+	}
+
+	private static RequestSpecification givenHttpClient(String url) {
+		RequestSpecification spec = given();
+		if (isPacketCreatorUrl(url)) {
+			spec = spec.config(PACKET_CREATOR_HTTP_CONFIG);
+		}
+		return spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON);
+	}
 
 	public static void appendOutboundInternalApiLogsAfterPacketCreatorCall(Scenario.Step step, String resolvedUrl) {
 		if (!dslConfigManager.isInternalApiLoggingForReport() || step == null || resolvedUrl == null) {
@@ -227,12 +252,9 @@ public class BaseTestCaseUtil extends BaseStep {
 		url = addContextToUrl(url, step);
 		Response getResponse = null;
 		if (dslConfigManager.IsDebugEnabled()) {
-			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract()
-					.response();
+			getResponse = givenHttpClient(url).log().all().when().get(url).then().log().all().extract().response();
 		} else {
-			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON).when().get(url).then().extract().response();
+			getResponse = givenHttpClient(url).when().get(url).then().extract().response();
 		}
 		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
 				getResponse.getBody().asString(),true);
@@ -245,12 +267,9 @@ public class BaseTestCaseUtil extends BaseStep {
 		Response getResponse = null;
 
 		if (dslConfigManager.IsDebugEnabled()) {
-			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract()
-					.response();
+			getResponse = givenHttpClient(url).log().all().when().get(url).then().log().all().extract().response();
 		} else {
-			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON).when().get(url).then().extract().response();
+			getResponse = givenHttpClient(url).when().get(url).then().extract().response();
 		}
 		return getResponse;
 	}
@@ -580,6 +599,25 @@ public class BaseTestCaseUtil extends BaseStep {
 		} catch (Exception e) {
 			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
 			return regProcWaitInterval;
+		}
+	}
+
+	/** Fail fast when MOSIP returns {@code errors} or a null {@code response} body. */
+	protected static void assertMosipResponseOk(JSONObject jsonResp, String operation) throws RigInternalError {
+		if (jsonResp == null) {
+			throw new RigInternalError(operation + " failed: empty response body");
+		}
+		if (jsonResp.has("errors") && !jsonResp.isNull("errors")) {
+			Object errors = jsonResp.get("errors");
+			if (errors instanceof JSONArray && ((JSONArray) errors).length() > 0) {
+				throw new RigInternalError(operation + " failed: " + errors);
+			}
+			if (!(errors instanceof JSONArray)) {
+				throw new RigInternalError(operation + " failed: response has errors");
+			}
+		}
+		if (!jsonResp.has("response") || jsonResp.isNull("response")) {
+			throw new RigInternalError(operation + " failed: response object is null");
 		}
 	}
 
