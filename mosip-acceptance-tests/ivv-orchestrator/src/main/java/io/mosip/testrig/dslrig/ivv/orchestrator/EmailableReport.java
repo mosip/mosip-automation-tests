@@ -300,6 +300,8 @@ public class EmailableReport implements IReporter {
 		writer.print(
 				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) { width:74%; vertical-align:top; text-align:left; }");
 		writer.print(
+				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2), .dsl-scenario-summary-wrap #summary.scenario-table td.scenario-desc-col, .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) * { white-space:normal !important; overflow:visible !important; text-overflow:clip !important; word-break:break-word !important; overflow-wrap:anywhere !important; }");
+		writer.print(
 				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(3), .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(3) { width:14%; min-width:150px; text-align:center; vertical-align:top; overflow:visible; white-space:nowrap; }");
 		writer.print(
 				".dsl-scenario-summary-wrap #summary thead th { background:#d6dfe8 !important; color:#1a1a1a !important; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; text-align:center !important; border-color:#d1d1d1 !important; }");

@@ -1,11 +1,11 @@
-# MOSIP DSL scenarios — readable English Gherkin steps (parameters in plain language)
+# MOSIP DSL scenarios ? readable English Gherkin steps (parameters in plain language)
 Feature: MOSIP DSL end-to-end acceptance tests
 
   @scenario_0
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Before Suite setup
+  Scenario: Before Suite setup
     Given I user where user action is ADD_User, and master user is dsl-0, and password is Techno@123
     And I user where user action is ADD_User, and user index is 0, and password is Techno@123
     And I user where user action is ADD_User, and user index is 1, and password is Techno@123 and store result in $$user1
@@ -13,7 +13,6 @@ Feature: MOSIP DSL end-to-end acceptance tests
     And I machine where argument 1 is CREATE, and argument 2 is $$center1, and center index is 1 and store result in $$details1
     And I user where user action is DELETE_CENTERMAPPING, and user index is 1, and password is Techno@123, and password or details is $$details1 and store result in $$details1
     And I user where user action is CREATE_ZONESEARCH, and user index or master user is $$details1 and store result in $$details1
-    And I wait where argument 1 is 10
     And I user where user action is DELETE_ZONEMAPPING, and user index or master user is $$details1
     And I user where user action is CREATE_ZONEMAPPING, and user index or master user is $$details1
     And I user where user action is ACTIVATE_ZONEMAPPING, and user index or master user is $$details1, and zone mapping activation flag is T
@@ -24,11 +23,9 @@ Feature: MOSIP DSL end-to-end acceptance tests
     And I center where argument 1 is CREATE, and argument 2 is $$user2, and center index is 2, and center active flag is T and store result in $$center2
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is true
-    And I wait where argument 1 is 60
     And I machine where argument 1 is CREATE, and argument 2 is $$center2, and center index is 2 and store result in $$details2
     And I user where user action is DELETE_CENTERMAPPING, and user index is 2, and password is Techno@123, and password or details is $$details2 and store result in $$details2
     And I user where user action is CREATE_ZONESEARCH, and user index or master user is $$details2 and store result in $$details2
-    And I wait where argument 1 is 10
     And I user where user action is DELETE_ZONEMAPPING, and user index or master user is $$details2
     And I user where user action is CREATE_ZONEMAPPING, and user index or master user is $$details2
     And I user where user action is ACTIVATE_ZONEMAPPING, and user index or master user is $$details2, and zone mapping activation flag is T
@@ -41,7 +38,6 @@ Feature: MOSIP DSL end-to-end acceptance tests
     And I machine where argument 1 is CREATE, and argument 2 is $$center3, and center index is 3 and store result in $$details3
     And I user where user action is DELETE_CENTERMAPPING, and user index is 3, and password is Techno@123, and password or details is $$details3 and store result in $$details3
     And I user where user action is CREATE_ZONESEARCH, and user index or master user is $$details3 and store result in $$details3
-    And I wait where argument 1 is 10
     And I user where user action is DELETE_ZONEMAPPING, and user index or master user is $$details3
     And I user where user action is CREATE_ZONEMAPPING, and user index or master user is $$details3
     And I user where user action is ACTIVATE_ZONEMAPPING, and user index or master user is $$details3, and zone mapping activation flag is T
@@ -60,7 +56,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
-  Scenario: ResidentMaleAdult - Resident booked pre-registration with support documents walks into registrati...
+  Scenario: Resident booked pre-registration with support documents walks into registration center completes the process and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -85,7 +81,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center completes the process and gets UIN card
+  Scenario: Resident walks into registration center completes the process and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -106,7 +102,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates biometrics and downloads UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -141,7 +137,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center wants to get UIN without ...
+  Scenario: Resident Minor Child walks into registration center wants to get UIN without Guardian Details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -157,7 +153,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center gets UIN with Guardian RI...
+  Scenario: Resident Minor Child walks into registration center gets UIN with Guardian RID details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -186,7 +182,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New_Exception
-  Scenario: ResidentMaleAdult - A differently abled resident with exception in left and right index finger wa...
+  Scenario: A differently abled resident with exception in left and right index finger walks into registration center completes the process and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -207,7 +203,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walks into registration center completes the pro...
+  Scenario: A differently abled resident walks into registration center completes the process and gets UIN card. Later update his iris and downloads UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -239,7 +235,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center wants to register his child with his ...
+  Scenario: Resident walks into registration center wants to register his child with his RID. But the child packet goes on hold as his packet got rejected
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -261,7 +257,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN again
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -284,7 +280,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN again with biometric exception
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -308,7 +304,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center gives demo details of already registe...
+  Scenario: Resident walks into registration center gives demo details of already registered another resident but different biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -337,7 +333,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center and tries to register again by provid...
+  Scenario: Resident walks into registration center and tries to register again by providing different demo details but same biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -361,7 +357,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center and tries to retrieve UIN without pro...
+  Scenario: Resident walks into registration center and tries to retrieve UIN without providing biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -379,7 +375,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates his demo details in registration center and post successful processing downloads the EUIN using resident Portal
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -411,7 +407,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A non registered Resident walks into registration center without UIN and trie...
+  Scenario: A non registered Resident walks into registration center without UIN and tries to retrieve the UIN
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -429,7 +425,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center and completes the process and gets UI...
+  Scenario: Resident walks into registration center and completes the process and gets UIN card without providing documents
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -445,7 +441,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center tries to get UIN without providing bi...
+  Scenario: Resident walks into registration center tries to get UIN without providing biometric
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -461,7 +457,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center tries to get Lost UIN without providi...
+  Scenario: Resident walks into registration center tries to get Lost UIN without providing biometric
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -486,7 +482,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Non-resident walks into registration center and completes the process gets UI...
+  Scenario: Non-resident walks into registration center and completes the process gets UIN for him
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -506,7 +502,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Postive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center with his child and completes the proc...
+  Scenario: Resident walks into registration center with his child and completes the process gets UIN cards for both
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -531,7 +527,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident booked pre-registration with support documents. walk-ins to registra...
+  Scenario: Resident booked pre-registration with support documents. walk-ins to registration center completes the process and gets UIN card. Later performs bio authentication with face
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -564,7 +560,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walks in to registration center completes the pr...
+  Scenario: A differently abled resident walks in to registration center completes the process and gets UIN card. Later performs biometric authentication using left little finger
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -594,7 +590,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs biometric authentication using right finger both using UIN and VID. Also performs eSignet biometric authentication using right finger both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -622,7 +618,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates both finger face biometrics and does eKYC using face biometric
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -658,7 +654,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates iris biometric and does eKYC using face biometric both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -693,7 +689,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates left index biometrics and does eKYC using face biometric
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -728,7 +724,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his phone number and does EKYC with OTP both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -760,7 +756,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his phone number address and performs OTP authentication both using UIN and VID. Also performs eSignet OTP authentication using right finger both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -796,7 +792,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs multi factor authentication using face biometrics phone number and OTP both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -819,7 +815,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs multi factor authentication using face biometrics date of birth and OTP both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -842,7 +838,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates his address and performs demographic authentication to download EUIN
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -874,7 +870,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his email and perform OTP authentication both using UIN and VID. Also performs eSignet OTP authentication using right finger both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -911,7 +907,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident child walks into registration center completes the process and gets ...
+  Scenario: Resident child walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his name and perform demographic authentication both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -954,7 +950,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates left index biometrics and perform biometric authentication with face both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -990,7 +986,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walksin to registration center and completes the...
+  Scenario: A differently abled resident walksin to registration center and completes the process and gets UIN card. Later perform EKYC Bio both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1013,7 +1009,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card after previous UIN application is rejected with different center
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1049,7 +1045,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident booked pre-registration with support documents. walks into registrat...
+  Scenario: Resident booked pre-registration with support documents. walks into registration center tries to get UIN after previous UIN application is in progress with different center
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 2 and store result in $$details2
     And I set context where argument 1 is env_context, and argument 2 is $$details2, and generate private key is false
@@ -1081,7 +1077,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration same center where his previous application g...
+  Scenario: Resident walks into registration same center where his previous application got rejected and completes the process and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1103,7 +1099,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later gets eKYC done both using UIN VID and face auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1126,7 +1122,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later gets eKYC done both using UIN VID and right ring finger auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1149,7 +1145,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later gets eKYC done both using UIN VID and right iris auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1172,7 +1168,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walks into registration center completes the pro...
+  Scenario: A differently abled resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later gets eKYC done both using UIN VID and face auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1197,7 +1193,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates temporary VID. Later gets eKYC done both using UIN VID and face auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1220,7 +1216,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates temporary VID. Later gets eKYC done both using UIN VID and left ring finger auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1243,7 +1239,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates temporary VID. Later gets eKYC done both using UIN VID and left iris auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1266,7 +1262,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walks into registration center completes the pro...
+  Scenario: A differently abled resident walks into registration center completes the process and gets UIN card and generates temporary VID. Later gets eKYC done both using UIN VID and face auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1289,7 +1285,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. When the packet is created and uploaded with supervisor and operator biometrics
     Given I get ping health where argument 1 is packetcreator
     And I wait where argument 1 is 35
     And I user where user action is ADD_User, and user index is 75, and password is Techno@123 and store result in $$user75
@@ -1336,7 +1332,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process but while the p...
+  Scenario: Resident walks into registration center completes the process but while the packet getting uploaded packet got Corrupted
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1356,7 +1352,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center to get UIN card. Later tr...
+  Scenario: Resident Minor Child walks into registration center to get UIN card. Later tries to get another UIN by providing different Guardian
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1393,7 +1389,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center to get UIN card. Later tr...
+  Scenario: Resident Minor Child walks into registration center to get UIN card. Later tries to get another UIN by providing same Guardian
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1422,7 +1418,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Resident lost UIN and walks in to registration center to retrieve the UIN
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1450,7 +1446,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process but due to low ...
+  Scenario: Resident walks into registration center completes the process but due to low biometric image quality correction flow is initiated. Resident provides biometrics with good quality and gets the UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1480,7 +1476,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process but while the p...
+  Scenario: Resident walks into registration center completes the process but while the packet getting created packet has invalid hash
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where context key value is qa4_context, and argument 2 is $$details1, and generate private key is false
@@ -1497,7 +1493,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center with his child and completes the proc...
+  Scenario: Resident walks into registration center with his child and completes the process. But Guardian packet rejected hence introducer RID is not valid in infant packet
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1524,7 +1520,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident booked pre-registration without documents trying to update prereg st...
+  Scenario: Resident booked pre-registration without documents trying to update prereg status
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1541,7 +1537,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process but supervisor ...
+  Scenario: Resident walks into registration center completes the process but supervisor rejects packet during packet processing
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1559,7 +1555,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into get UIN card and different resident tries to get UIN both...
+  Scenario: Resident walks into get UIN card and different resident tries to get UIN both resident having same demo and different biometric details
     Given I get ping health where argument 1 is packetcreator
     And I delete mock expect
     And I read pre req where pre requisite data index is 1 and store result in $$details1
@@ -1583,7 +1579,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process but the packet ...
+  Scenario: Resident walks into registration center completes the process but the packet goes for manual adjudication as biometric matches with other resident
     Given I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
     And I get resident data where persona type is adult, and guardian flag is false, and argument 3 is Male and store result in $$personaFilePath
@@ -1605,7 +1601,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN with different name
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1629,7 +1625,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN with same demo details and same biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1651,7 +1647,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN by providing different demo details and same biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1676,7 +1672,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But packet get...
+  Scenario: Resident walks into registration center completes the process. But packet gets uploaded without supervisor Id  without supervisor Password and valid operator details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 2 and store result in $$details2
     And I set context where argument 1 is env_context, and argument 2 is $$details2, and generate private key is false, and argument 4 is null, and argument 5 is /*SUPERVISORID_ID*/null, and password is null/*SUPERVISORID_PASSWORD*/@@valid/*REGCLIENT_USER_ID*/@@valid
@@ -1692,7 +1688,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But packet get...
+  Scenario: Resident walks into registration center completes the process. But packet gets uploaded with invalid supervisor Id  invalid supervisor Password and valid operator details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 2 and store result in $$details2
     And I set context where argument 1 is env_context, and argument 2 is $$details2, and argument 3 is false, and argument 4 is null, and argument 5 is invalid, and password is valid@@valid@@valid
@@ -1708,7 +1704,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But packet get...
+  Scenario: Resident walks into registration center completes the process. But packet gets uploaded with valid supervisor Id invalid supervisor Password and valid operator details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 3 and store result in $$details3
     And I set context where argument 1 is env_context, and argument 2 is $$details3, and generate private key is false, and put scenario details in context is null, and supervisor id is valid, and password is invalid/*SUPERVISOR_PASSWORD*/@@valid/*REGCLIENT_USER_ID*/@@valid
@@ -1724,7 +1720,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But packet get...
+  Scenario: Resident walks into registration center completes the process. But packet gets uploaded with null operator Id  null operator password and valid operator details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 2 and store result in $$details2
     And I set context where argument 1 is env_context, and argument 2 is $$details2, and generate private key is false, and put scenario details in context is null, and supervisor id is valid, and password is valid/*SUPERVISOR_PASSWORD*/@@null/*REGCLIENT_USER_ID*/@@null
@@ -1740,7 +1736,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But packet get...
+  Scenario: Resident walks into registration center completes the process. But packet gets uploaded with Invalid operator Id  Valid operator password and valid operator details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 3 and store result in $$details3
     And I set context where argument 1 is env_context, and argument 2 is $$details3, and generate private key is false, and put scenario details in context is null, and supervisor id is valid, and password is valid/*SUPERVISOR_PASSWORD*/@@invalid/*REGCLIENT_USER_ID*/@@valid
@@ -1756,7 +1752,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But packet get...
+  Scenario: Resident walks into registration center completes the process. But packet gets uploaded with Valid operator Id  invalid operator password and valid supervisor details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 2 and store result in $$details2
     And I set context where argument 1 is env_context, and argument 2 is $$details2, and argument 3 is false, and argument 4 is null, and argument 5 is valid, and password is valid@@valid@@invalid
@@ -1772,7 +1768,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But packet get...
+  Scenario: Resident walks into registration center completes the process. But packet gets uploaded with supervisor and operator cbeff file and without password auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 2 and store result in $$details2
     And I set context where argument 1 is env_context, and argument 2 is $$details2, and generate private key is false
@@ -1799,7 +1795,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But packet get...
+  Scenario: Resident walks into registration center completes the process. But packet gets uploaded without supervisor and operator cbeff file and without password auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 2 and store result in $$details2
     And I set context where argument 1 is env_context, and argument 2 is $$details2, and generate private key is false
@@ -1826,7 +1822,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. When the packet is created and uploaded with supervisor biometric and without operator biometrics
     Given I get ping health where argument 1 is packetcreator
     And I wait where argument 1 is 45
     And I user where user action is ADD_User, and user index is 76, and password is Techno@123 and store result in $$user76
@@ -1873,7 +1869,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident booked pre-registration with support documents. Later cancels booked...
+  Scenario: Resident booked pre-registration with support documents. Later cancels booked appointment and changes the slot. walk-ins to registration center completes the process and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1900,7 +1896,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident attempts to obtain UIN but Packet Creation Date is past date and get...
+  Scenario: Resident attempts to obtain UIN but Packet Creation Date is past date and gets the UIN successfully
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and argument 4 is invalidCreationDate=-1y
@@ -1915,7 +1911,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident booked pre-registration with support documents and already used the ...
+  Scenario: Resident booked pre-registration with support documents and already used the appoinment. walks in to registration center with consumed PRID to get the UIN
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -1943,7 +1939,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Check Syncdata response with upper key index and user with valid roles
+  Scenario: Check Syncdata response with upper key index and user with valid roles
     Given I get ping health where argument 1 is packetcreator
     And I user where user action is ADD_User, and user index is 52, and password is Techno@123 and store result in $$user52
     And I center where argument 1 is CREATE, and argument 2 is $$user52, and center index is 52, and center active flag is T and store result in $$center52
@@ -1973,7 +1969,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Update machine from centerA to centerB and verify syncdata client settings wi...
+  Scenario: Update machine from centerA to centerB and verify syncdata client settings with centerA
     Given I get ping health where argument 1 is packetcreator
     And I wait where argument 1 is 30
     And I user where user action is ADD_User, and user index is 53, and password is Techno@123 and store result in $$user53
@@ -2017,7 +2013,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Inactive machine and verify syncdata client settings calls
+  Scenario: Inactive machine and verify syncdata client settings calls
     Given I get ping health where argument 1 is packetcreator
     And I wait where argument 1 is 40
     And I user where user action is ADD_User, and user index is 54, and password is Techno@123 and store result in $$user54
@@ -2049,7 +2045,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Decomission machine and verify syncdata client settings calls
+  Scenario: Decomission machine and verify syncdata client settings calls
     Given I get ping health where argument 1 is packetcreator
     And I wait where argument 1 is 50
     And I user where user action is ADD_User, and user index is 55, and password is Techno@123 and store result in $$user55
@@ -2076,7 +2072,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Decommission center and verify USER_DETAILS syncdata calls 
+  Scenario: Decommission center and verify USER_DETAILS syncdata calls
     Given I get ping health where argument 1 is packetcreator
     And I wait where argument 1 is 60
     And I user where user action is ADD_User, and user index is 56, and password is Techno@123 and store result in $$user56
@@ -2104,7 +2100,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Deactivate center and verify CLIENT_SETTINGS syncdata client settings calls 
+  Scenario: Deactivate center and verify CLIENT_SETTINGS syncdata client settings calls
     Given I get ping health where argument 1 is packetcreator
     And I wait where argument 1 is 70
     And I user where user action is ADD_User, and user index is 57, and password is Techno@123 and store result in $$user57
@@ -2135,7 +2131,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process but packet gets...
+  Scenario: Resident walks into registration center completes the process but packet gets reprocessed before Abis returns for success check
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2157,7 +2153,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process but packet gets...
+  Scenario: Resident walks into registration center completes the process but packet gets reprocessed before Abis returns for fail check
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2180,7 +2176,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process with biometric ...
+  Scenario: Resident walks into registration center completes the process with biometric exception for iris and gets UIN card. Later updates Biometric data for face and iris and performs authentication with face biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2218,7 +2214,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. When the packet is created and uploaded with operator and without supervisor biometrics
     Given I get ping health where argument 1 is packetcreator
     And I wait where argument 1 is 55
     And I user where user action is ADD_User, and user index is 77, and password is Techno@123 and store result in $$user77
@@ -2265,7 +2261,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process but the device ...
+  Scenario: Resident walks into registration center completes the process but the device certificate got expired before uploading the packet
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and invalid device certificate is true
@@ -2280,7 +2276,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But due to low...
+  Scenario: Resident walks into registration center completes the process. But due to low biometric image quality.. correction flow is initiated. Resident provides biometrics with good quality but invalid correction request ID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2302,7 +2298,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But due to low...
+  Scenario: Resident walks into registration center completes the process. But due to low biometric image quality. correction flow is initiated. Resident provides biometrics with good quality but biometrics matches with other resident biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2327,7 +2323,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But due to low...
+  Scenario: Resident walks into registration center completes the process. But due to low biometric image quality. correction flow is initiated. Resident provides biometrics with good quality but multiple correction packets with same correction Request ID. Only first correction packet will be processed and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2357,30 +2353,11 @@ Feature: MOSIP DSL end-to-end acceptance tests
     Then I check ridstage where argument 1 is $$rid3, and argument 2 is SECUREZONE_NOTIFICATION, and argument 3 is REJECTED
     And I delete packet data
 
-  @scenario_#88
-  @Negative_Test
-  @persona_ResidentMaleAdult
-  @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But due to low...
-    Given I get ping health where argument 1 is packetcreator
-    And I read pre req where pre requisite data index is 1 and store result in $$details1
-    And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
-    And I get ping health where argument 1 is targetenv
-    And I get resident data where persona type is adult, and guardian flag is false, and argument 3 is Male and store result in $$personaFilePath
-    And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is email=additionalReqId_88, and persona file is $$personaFilePath
-    And I get packet template where packet type is NEW, and argument 2 is $$personaFilePath, and biometric quality score is 15 and store result in $$templatePath
-    And I packetcreator where packet type is NEW, and argument 2 is $$templatePath and store result in $$zipPacketPath
-    And I ridsync where packet type is NEW, and argument 2 is $$zipPacketPath and store result in $$rid
-    And I packetsync where argument 1 is $$zipPacketPath
-    And I check status where packet status is PROCESSED, and argument 2 is $$rid
-    Then I check ridstage where argument 1 is $$rid, and argument 2 is PRINT_SERVICE, and argument 3 is PROCESSED
-    And I delete packet data
-
   @scenario_89
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But due to low...
+  Scenario: Resident walks into registration center completes the process. But due to low biometric image quality. correction flow is initiated. Resident provides biometrics but still quality is not good. After max number of corrections (correction packets)the original packet gets rejected
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2413,7 +2390,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But due to low...
+  Scenario: Resident walks into registration center completes the process. But due to low biometric image quality. correction flow is initiated. Resident provides biometrics with good quality but by then packet kicks-in for the original packet
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2442,7 +2419,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process. But due to low...
+  Scenario: Resident walks into registration center completes the process. But due to low biometric image quality. correction flow is initiated. Resident provides biometrics with good quality but by the time correction packet timeout happens. So the original packet gets rejected
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2471,7 +2448,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center wants to get UIN Guardian...
+  Scenario: Resident Minor Child walks into registration center wants to get UIN Guardian Details. Later again tries to get another UIN
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2501,7 +2478,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Inji - Resident walks into registration center completes the process with low...
+  Scenario: Inji - Resident walks into registration center completes the process with low(30KB) face image size and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2524,7 +2501,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Inji - Resident walks into registration center completes the process with hig...
+  Scenario: Inji - Resident walks into registration center completes the process with high(276KB) face image size and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2547,7 +2524,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Two resident walks into registration center tries to get UIN with different d...
+  Scenario: Two resident walks into registration center tries to get UIN with different demographic details and same biometrics except one finger
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2577,7 +2554,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Two resident walks into registration center tries to get UIN with same demogr...
+  Scenario: Two resident walks into registration center tries to get UIN with same demographic details and same biometrics except one finger
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2612,7 +2589,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process with only face ...
+  Scenario: Resident walks into registration center completes the process with only face biometrics and without exception
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2628,7 +2605,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process without biometr...
+  Scenario: Resident walks into registration center completes the process without biometrics and exception
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2643,7 +2620,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center gets UIN with parent RID ...
+  Scenario: Resident Minor Child walks into registration center gets UIN with parent RID details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2671,7 +2648,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center tries to get UIN with par...
+  Scenario: Resident Minor Child walks into registration center tries to get UIN with parent RID details without biometrics and without Exception
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2696,7 +2673,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center tries to get UIN with par...
+  Scenario: Resident Minor Child walks into registration center tries to get UIN with parent RID details with only face biometrics and without Exception
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2721,7 +2698,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
-  Scenario: ResidentMaleAdult - Resident Infant walks into registration center gets UIN with parent RID details
+  Scenario: Resident Infant walks into registration center gets UIN with parent RID details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2750,7 +2727,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
-  Scenario: ResidentMaleAdult - Resident Infant walks into registration center tries to get UIN with parent R...
+  Scenario: Resident Infant walks into registration center tries to get UIN with parent RID details without biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2774,7 +2751,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center completes the process and...
+  Scenario: Resident Minor Child walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs biometric demographic OTP authentication both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2813,7 +2790,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center completes the process and...
+  Scenario: Resident Minor Child walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs biometric demographic authentication both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2845,7 +2822,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor Child walks into registration center tries get Lost UIN
+  Scenario: Resident Minor Child walks into registration center tries get Lost UIN
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2881,7 +2858,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center tries get Lost UIN but Biometric did ...
+  Scenario: Resident walks into registration center tries get Lost UIN but Biometric did not match
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2906,7 +2883,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident Minor Child walks  into registration center tries get UIN when the p...
+  Scenario: Resident Minor Child walks  into registration center tries get UIN when the parent packet is in the queue for manual verification reject child packet only when parent packet is rejected
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2934,7 +2911,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident Infant tries to get UIN without Introducer
+  Scenario: Resident Infant tries to get UIN without Introducer
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2950,7 +2927,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication using name both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -2976,7 +2953,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident Minor walks into registration center completes the process and gets ...
+  Scenario: Resident Minor walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs eKYC demographic authentication using name both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3008,7 +2985,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident Infant walks into registration center completes the process and gets...
+  Scenario: Resident Infant walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication using name both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3042,7 +3019,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center gets the lost UIN updates his demo gr...
+  Scenario: Resident walks into registration center gets the lost UIN updates his demo graphic details Later performs demo Auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3083,7 +3060,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center gets the lost UIN updates his Biometr...
+  Scenario: Resident walks into registration center gets the lost UIN updates his Biometric data Later performs Bio Auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3116,7 +3093,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
-  Scenario: ResidentMaleAdult - Resident Infant walks into registration center gets the UIN with Preregistrat...
+  Scenario: Resident Infant walks into registration center gets the UIN with Preregistration with Gaurdian details and later performs demo auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3155,7 +3132,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center gets the UIN but during packet genera...
+  Scenario: Resident walks into registration center gets the UIN but during packet generation CBEFF is invalid
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3171,7 +3148,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center tries to update the UIN with invalid UIN
+  Scenario: Resident walks into registration center tries to update the UIN with invalid UIN
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3189,7 +3166,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident Infant walks into registration center gets the UIN with finger and e...
+  Scenario: Resident Infant walks into registration center gets the UIN with finger and eye exception
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3209,7 +3186,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Minor_Exc
-  Scenario: ResidentMaleAdult - Resident Minor walks into registration center gets the UIN with parent and ch...
+  Scenario: Resident Minor walks into registration center gets the UIN with parent and child exception mark
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3240,7 +3217,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Minor_Exc
-  Scenario: ResidentMaleAdult - Resident Minor walks into registration center gets the UIN with few exceptions
+  Scenario: Resident Minor walks into registration center gets the UIN with few exceptions
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3270,7 +3247,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center gets the UIN  with All finger and eye...
+  Scenario: Resident walks into registration center gets the UIN  with All finger and eye exception mark walk-ins to reg-client to get UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3291,7 +3268,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor walks into registration center gets the UIN with all finger an...
+  Scenario: Resident Minor walks into registration center gets the UIN with all finger and eye exception mark
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3321,7 +3298,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant_Exc
-  Scenario: ResidentMaleAdult - Resident Infant walks into registration center gets the UIN with introducer e...
+  Scenario: Resident Infant walks into registration center gets the UIN with introducer exception mark
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3352,7 +3329,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
-  Scenario: ResidentMaleAdult - Resident walks into registration center updates biometrics with all exception...
+  Scenario: Resident walks into registration center updates biometrics with all exceptions and then downloads the UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3379,7 +3356,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
-  Scenario: ResidentMaleAdult - Resident walks into registration center updates biometrics with finger and ey...
+  Scenario: Resident walks into registration center updates biometrics with finger and eye exception and then downloads the UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3406,7 +3383,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor walks into registration center updates demo details and biomet...
+  Scenario: Resident Minor walks into registration center updates demo details and biometrics with all exceptions and then downloads the UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3444,7 +3421,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor walks into registration center updates demo and biometrics wit...
+  Scenario: Resident Minor walks into registration center updates demo and biometrics with few exceptions and then downloads the UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3482,7 +3459,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
-  Scenario: ResidentMaleAdult - Resident walks into registration center updates demo and biometrics with fing...
+  Scenario: Resident walks into registration center updates demo and biometrics with finger and eye exception and then performs demo and bio auth without exception finger
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3516,7 +3493,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
-  Scenario: ResidentMaleAdult - Resident walks into registration center updates demo and biometrics with all ...
+  Scenario: Resident walks into registration center updates demo and biometrics with all exception and then performs demo and bio auth with face
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3553,7 +3530,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Resident lost UIN and walks into registration center and updates his phone number and address and then retrieves the UIN
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3582,7 +3559,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_NA
-  Scenario: ResidentFemaleAdult - Resident walks into registration center tries to register with predefined blo...
+  Scenario: Resident walks into registration center tries to register with predefined blocklisted word in her name
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3600,7 +3577,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New_Exception
-  Scenario: ResidentMaleAdult - A differently abled resident with exception in left eye walks into registrati...
+  Scenario: A differently abled resident with exception in left eye walks into registration center completes the process and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3621,7 +3598,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor Child with age less than 1 year walks into registration center...
+  Scenario: Resident Minor Child with age less than 1 year walks into registration center gets UIN with parent RID details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3650,7 +3627,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
-  Scenario: ResidentMaleAdult - Resident Infant with age less than 1 year walks into registration center gets...
+  Scenario: Resident Infant with age less than 1 year walks into registration center gets UIN with parent RID details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3680,7 +3657,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_NonResidentMaleAdult
   @group_Adult_New
-  Scenario: NonResidentMaleAdult - NonResident adult whose phone number is 11 digts walk-ins to registration cen...
+  Scenario: NonResident adult whose phone number is 11 digts walk-ins to registration center gets UIN
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3700,7 +3677,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
-  Scenario: ResidentMaleAdult - Resident adult without phone number and email walks into registration center ...
+  Scenario: Resident adult without phone number and email walks into registration center and tries to get UIN
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3717,7 +3694,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New_Exception
-  Scenario: ResidentMaleAdult - A differently abled resident with exception in left index finger walks into r...
+  Scenario: A differently abled resident with exception in left index finger walks into registration center completes the process and gets UIN card. Later updates all biometrics and using uin check for absence of exception marked modality
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3745,7 +3722,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
-  Scenario: ResidentMaleAdult - Resident walks into registration center and gets UIN. Later updates exception...
+  Scenario: Resident walks into registration center and gets UIN. Later updates exception for Left Thumb and using UIN check if all modalities are present
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3771,7 +3748,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New_Exception
-  Scenario: ResidentMaleAdult - A differently abled resident walks into registration center completes the pro...
+  Scenario: A differently abled resident walks into registration center completes the process and gets UIN card . Later updates all biometrics and using uin check for the absence of exception marked modality
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3799,7 +3776,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card . Using rid check the presence of all the modalities
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3819,7 +3796,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process by providing th...
+  Scenario: Resident walks into registration center completes the process by providing the consent and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and argument 3 is false/GENERATE_PRIVATE_KEY/, and put scenario details in context is null, and consent flag is yes
@@ -3838,7 +3815,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process by not providin...
+  Scenario: Resident walks into registration center completes the process by not providing the consent
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and put scenario details in context is null, and consent flag is no
@@ -3853,7 +3830,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates dob with invalid format
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3877,7 +3854,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Machine got unmapped from the center before generating the offline packet
+  Scenario: Machine got unmapped from the center before generating the offline packet
     Given I user where user action is ADD_User, and user index is 6, and password is Techno@123 and store result in $$user6
     And I center where argument 1 is CREATE, and argument 2 is $$user6, and center index is 6, and center active flag is T and store result in $$center6
     And I machine where argument 1 is CREATE, and argument 2 is $$center6, and center index is 6 and store result in $$details6
@@ -3906,7 +3883,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - An offline packet is generated and machine got unmapped from the center befor...
+  Scenario: An offline packet is generated and machine got unmapped from the center before packet is uploaded
     Given I user where user action is ADD_User, and user index is 7, and password is Techno@123 and store result in $$user7
     And I center where argument 1 is CREATE, and argument 2 is $$user7, and center index is 7, and center active flag is T and store result in $$center7
     And I machine where argument 1 is CREATE, and argument 2 is $$center7, and center index is 7 and store result in $$details7
@@ -3935,7 +3912,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New_Exception
-  Scenario: ResidentMaleAdult - A differently abled resident with exception in left and right index finger wa...
+  Scenario: A differently abled resident with exception in left and right index finger walks into registration center completes the process reviewer authentication happens and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and put scenario details in context is null, and consent flag is null, and switch case for supervisor name is false
@@ -3956,7 +3933,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_SeniorNonResidentMale
   @group_Senior_New
-  Scenario: SeniorNonResidentMale - Senior Non Resident walks into registration center completes the process and ...
+  Scenario: Senior Non Resident walks into registration center completes the process and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3975,7 +3952,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_SeniorResidentMale
   @group_Senior_New
-  Scenario: SeniorResidentMale - Senior Resident walks into registration center completes the process and gets...
+  Scenario: Senior Resident walks into registration center completes the process and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -3994,7 +3971,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
-  Scenario: ResidentMaleAdult - Resident walks into registration center provides future date as DOB and tries...
+  Scenario: Resident walks into registration center provides future date as DOB and tries to get uin
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4011,7 +3988,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
-  Scenario: ResidentMaleAdult - Resident Infant walks into registration center gets UIN with parent RID detai...
+  Scenario: Resident Infant walks into registration center gets UIN with parent RID details . Another infant tries to get UIN with the same demographics and parent details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4044,7 +4021,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center completes the process but while the p...
+  Scenario: Resident walks into registration center completes the process but while the packet getting created packet has invalid encrypted hash
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and put scenario details in context is null, and consent flag is null, and switch case for supervisor name is null, and argument 7 is invalidEncryptedHash
@@ -4059,7 +4036,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center and tries to complete the process. Bu...
+  Scenario: Resident walks into registration center and tries to complete the process. But during packet sync the checksum is invalid
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and put scenario details in context is null, and consent flag is null, and switch case for supervisor name is null, and upload packet invalid encrypted hash flag is null, and argument 8 is invalidCheckSum
@@ -4075,7 +4052,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
-  Scenario: ResidentMaleAdult - Resident walks into registration center gets UIN card . Another resident trie...
+  Scenario: Resident walks into registration center gets UIN card . Another resident tries to get UIN with the same demographics and exception marked for all modalities except face
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4103,7 +4080,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into center to get UIN but supervisor rejects the packet . Sam...
+  Scenario: Resident walks into center to get UIN but supervisor rejects the packet . Same resident tries to get Uin again
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4128,7 +4105,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into center to get Uin but packet is created with invalid hash...
+  Scenario: Resident walks into center to get Uin but packet is created with invalid hash. Same resident tries to get Uin by providing all details again
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4151,7 +4128,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Packet is created and uploaded with inactive center
+  Scenario: Packet is created and uploaded with inactive center
     Given I user where user action is ADD_User, and user index is 156, and password is Techno@123 and store result in $$user156
     And I center where argument 1 is CREATE, and argument 2 is $$user156, and center index is 156, and center active flag is T and store result in $$center156
     And I machine where argument 1 is CREATE, and argument 2 is $$center156, and center index is 156 and store result in $$details156
@@ -4183,7 +4160,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walk into registration center on a holiday completes the process and...
+  Scenario: Resident walk into registration center on a holiday completes the process and tries to get UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and argument 4 is invalidCreationDate=-1d
@@ -4201,7 +4178,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Packet is created and uploaded with inactive machine
+  Scenario: Packet is created and uploaded with inactive machine
     Given I user where user action is ADD_User, and user index is 8, and password is Techno@123 and store result in $$user8
     And I center where argument 1 is CREATE, and argument 2 is $$user8, and center index is 8, and center active flag is T and store result in $$center8
     And I machine where argument 1 is CREATE, and argument 2 is $$center8, and center index is 8 and store result in $$details8
@@ -4232,7 +4209,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center completes the process tries to get ui...
+  Scenario: Resident walks into registration center completes the process tries to get uin with invalid ID Schema version
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and invalid schema version is invalidIdSchema
@@ -4247,7 +4224,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID by phone number. Later gets eKYC done both using UIN VID and face auth
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4270,7 +4247,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID through phone number. Later performs biometric authentication using right finger both using UIN and VID. Also performs eSignet biometric authentication using right finger both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4299,7 +4276,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Packet is created and uploaded with invalid machine
+  Scenario: Packet is created and uploaded with invalid machine
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I update machine in prereq data where argument 1 is $$details1
@@ -4314,7 +4291,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Upload the resident packet again which has been uplodaded and processed already 
+  Scenario: Upload the resident packet again which has been uplodaded and processed already
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4338,7 +4315,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Skip biometric classification for resident if individual biometric parameter ...
+  Scenario: Skip biometric classification for resident if individual biometric parameter is missing from id json
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and skip bio classification flag is skipBiometricClassification
@@ -4358,7 +4335,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Applicant documents are missing in the packet 
+  Scenario: Applicant documents are missing in the packet
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and skip applicant documents flag is skipApplicantDocuments
@@ -4374,7 +4351,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A non registered resident walks into registration center without UIN and trie...
+  Scenario: A non registered resident walks into registration center without UIN and tries to retrieve the UIN.  Now new Resident tries to get UIN with the same demographic details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4398,7 +4375,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication with age less than actual age both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4421,7 +4398,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication with exact dob both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4444,7 +4421,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident attempts to obtain UIN but Packet Creation Date is Null 
+  Scenario: Resident attempts to obtain UIN but Packet Creation Date is Null
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and invalid packet creation date is invalidCreationDate
@@ -4460,7 +4437,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - ResidentA and ResidentB got their UINs and  ResidentB is trying to update Res...
+  Scenario: ResidentA and ResidentB got their UINs and  ResidentB is trying to update ResidentA UIN with his biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4493,7 +4470,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult -  ResidentA and ResidentB got their UINs and  ResidentB is trying to update Re...
+  Scenario: ResidentA and ResidentB got their UINs and  ResidentB is trying to update ResidentA UIN with  his (Resident-B) IRIS biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4526,7 +4503,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Minor Resident A and Adult Resident B got their UINs and  Resident B is tryin...
+  Scenario: Minor Resident A and Adult Resident B got their UINs and  Resident B is trying to update Resident A UIN with his biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4569,7 +4546,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
-  Scenario: ResidentMaleAdult -  Infant Resident A and Adult Resident B got their UINs and  Resident B is try...
+  Scenario: Infant Resident A and Adult Resident B got their UINs and  Resident B is trying to update Resident A UIN with his biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4613,7 +4590,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center completes the process tries to get UI...
+  Scenario: Resident walks into registration center completes the process tries to get UIN card with invalid Officer ID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and invalid packet creation date is invalidOfficerID
@@ -4632,7 +4609,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Generate packet with size greater than 2MB
+  Scenario: Generate packet with size greater than 2MB
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4648,7 +4625,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Generate UIN1 by creating RID1 with Iris exceptions in Profile1 then update U...
+  Scenario: Generate UIN1 by creating RID1 with Iris exceptions in Profile1 then update UIN1 with Profile1 by capturing all biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4675,7 +4652,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Generate UIN1 by creating RID1 with all finger exceptions in Profile1 then up...
+  Scenario: Generate UIN1 by creating RID1 with all finger exceptions in Profile1 then update UIN1 with Profile1 by capturing all biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4703,7 +4680,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center and Generates UIN1 by creating RID1 w...
+  Scenario: Resident walks into registration center and Generates UIN1 by creating RID1 with Profile1 then updates UIN1 with Profile1 by capturing all biometric with Abis false
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4728,7 +4705,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - ResidentA get uin and ResidentB marking FPs and Iris as exception got their U...
+  Scenario: ResidentA get uin and ResidentB marking FPs and Iris as exception got their UINs and  ResidentA is trying to update ResidentB with his biometric
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4763,7 +4740,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident goes to reg-center and gets UIN same person goes to center and updat...
+  Scenario: Resident goes to reg-center and gets UIN same person goes to center and updates his biometrics again he visits the reg-center and updates biometric for his UIN and updates biometrics successfully
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4797,7 +4774,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident goes to reg-center and gets UIN same person goes to center and updat...
+  Scenario: Resident goes to reg-center and gets UIN same person goes to center and updates his biometrics for 2 consecutive times at the reg-center and updates his/her biometrics successfully resident 2 goes to center and generates UIN later resident 2 tries to update his biometrics with resident 1 biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4844,7 +4821,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into reg-center and generates UIN1 same person tried to get UI...
+  Scenario: Resident walks into reg-center and generates UIN1 same person tried to get UIN2 and UIN3 (based on MV decision) resident tries to update UIN1 with biometrics and uploads packet and updates successfully
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4885,7 +4862,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into reg-center and generated UIN1 same person tried to get UI...
+  Scenario: Resident walks into reg-center and generated UIN1 same person tried to get UIN 2 and failed to UIN as per MV decision resident tries to update biometrics with UIN1 and updates successfully
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4916,7 +4893,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walks into registration center completes the pro...
+  Scenario: A differently abled resident walks into registration center completes the process with IRIS as exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4943,7 +4920,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walks into registration center completes the pro...
+  Scenario: A differently abled resident walks into registration center completes the process with Fingerprints as exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4970,7 +4947,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walks into registration center completes the pro...
+  Scenario: A differently abled resident walks into registration center completes the process with IRIS and Finger as exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -4997,7 +4974,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walks into registration center completes the pro...
+  Scenario: A differently abled resident walks into registration center completes the process with out any exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5022,7 +4999,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walks into registration center completes the pro...
+  Scenario: A differently abled resident walks into registration center completes the process with both thumbs as exception and gets UIN card Later performs biometric authentication using IRIS Face Fingerprint that are exception and with fingerprints that are not marked as exception
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5050,7 +5027,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - User creates UIN through reg center then deactivates it in IDRepo then create...
+  Scenario: User creates UIN through reg center then deactivates it in IDRepo then create an update packet to see if it is rejected at packet validator stage
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5079,7 +5056,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - User creates UIN through reg center then deactivates it in IDRepo then reproc...
+  Scenario: User creates UIN through reg center then deactivates it in IDRepo then reprocess the packet to see if it is rejected at packet validator stage
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5104,7 +5081,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident created Infant packet and got UIN and later updated the UIN to a Min...
+  Scenario: Resident created Infant packet and got UIN and later updated the UIN to a Minor then do bio authentication
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5144,7 +5121,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident created Infant packet and got UIN and later updated the UIN to a adu...
+  Scenario: Resident created Infant packet and got UIN and later updated the UIN to a adult then do bio authentication
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5184,7 +5161,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: ResidentMaleAdult - Resident Minor walks into registration center gets UIN with Guardian RID deta...
+  Scenario: Resident Minor walks into registration center gets UIN with Guardian RID details later updated the UIN to a adult then do bio authentication
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5225,7 +5202,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
-  Scenario: ResidentFemaleAdult - Infant external packet creation and process with out introducerInfoToken
+  Scenario: Infant external packet creation and process with out introducerInfoToken
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 4 and store result in $$details4
     And I set context where argument 1 is env_context, and argument 2 is $$details4, and generate private key is false, and packet type is EXTERNAL
@@ -5244,7 +5221,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Postive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates name with VID and perform biometric authentiction with name both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5272,7 +5249,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walk-ins to registration center create a packet empty signature
+  Scenario: Resident walk-ins to registration center create a packet empty signature
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and argument 4 is 0, and argument 5 is emptySignature
@@ -5288,7 +5265,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center completes the process with invalid si...
+  Scenario: Resident walks into registration center completes the process with invalid signature and try to gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I user where user action is ADD_User, and user index is 5, and password is Techno@123 and store result in $$user5
     And I center where argument 1 is CREATE, and argument 2 is $$user5, and center index is 5, and center active flag is T and store result in $$center5
@@ -5303,7 +5280,8 @@ Feature: MOSIP DSL end-to-end acceptance tests
     And I user where user action is ACTIVATE_CENTERMAPPING, and user index or master user is $$details5, and user center mapping flag is T
     And I write pre req where argument 1 is $$details5, and pre requisite data index is 5
     And I read pre req where pre requisite data index is 5 and store result in $$details5
-    And I set context where argument 1 is env_context, and argument 2 is $$details5, and generate private key is true, and argument 4 is 0, and argument 5 is invalidSignature
+    And I read pre req where pre requisite data index is 1 and store result in $$details1
+    And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is true, and argument 4 is 0, and argument 5 is invalidSignature
     And I get ping health where argument 1 is targetenv
     And I get resident data where persona type is adult, and argument 2 is false, and argument 3 is Female and store result in $$personaFilePath
     And I get packet template where packet type is NEW, and argument 2 is $$personaFilePath and store result in $$templatePath
@@ -5316,7 +5294,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_External_New
-  Scenario: ResidentFemaleAdult - Infant external packet creation and process with introducerInfoToken
+  Scenario: Infant external packet creation and process with introducerInfoToken
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 4 and store result in $$details4
     And I set context where argument 1 is env_context, and argument 2 is $$details4, and generate private key is false, and packet type is EXTERNAL
@@ -5335,7 +5313,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card later we perform crvs external packet death flow
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5363,7 +5341,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
-  Scenario: ResidentFemaleAdult - Adult external packet creation and process with out introducerInfoToken
+  Scenario: Adult external packet creation and process with out introducerInfoToken
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 4 and store result in $$details4
     And I set context where argument 1 is env_context, and argument 2 is $$details4, and generate private key is false, and packet type is EXTERNAL
@@ -5378,7 +5356,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
-  Scenario: ResidentFemaleAdult - Minor external packet creation and process with out introducerInfoToken
+  Scenario: Minor external packet creation and process with out introducerInfoToken
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 4 and store result in $$details4
     And I set context where argument 1 is env_context, and argument 2 is $$details4, and generate private key is false, and packet type is EXTERNAL
@@ -5393,7 +5371,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
-  Scenario: ResidentFemaleAdult - Creation and processing of an external infant packet without an introducerInf...
+  Scenario: Creation and processing of an external infant packet without an introducerInfoToken and with an invalid source and packet type
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 4 and store result in $$details4
     And I set context where argument 1 is env_context, and argument 2 is $$details4, and generate private key is false, and packet type is EXTERNAL
@@ -5406,7 +5384,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
-  Scenario: ResidentFemaleAdult - Infant external packet creation with DOB as future dates and process with out...
+  Scenario: Infant external packet creation with DOB as future dates and process with out introducerInfoToken
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 4 and store result in $$details4
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and packet type is EXTERNAL
@@ -5422,7 +5400,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
-  Scenario: ResidentFemaleAdult - Infant external packet creation without necessary data and process with out i...
+  Scenario: Infant external packet creation without necessary data and process with out introducerInfoToken
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 4 and store result in $$details4
     And I set context where argument 1 is env_context, and argument 2 is $$details4, and generate private key is false, and packet type is EXTERNAL
@@ -5438,7 +5416,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center completes the process with inactive u...
+  Scenario: Resident walks into registration center completes the process with inactive user and try to gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I user where user action is ADD_User, and user index is 5, and password is Techno@123 and store result in $$user5
     And I center where argument 1 is CREATE, and argument 2 is $$user5, and center index is 5, and center active flag is T and store result in $$center5
@@ -5467,7 +5445,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center with his child and completes the proc...
+  Scenario: Resident walks into registration center with his child and completes the process. But Adult and Child packet uploaded at same time in Child packet adult RID is captured as introducer but Introducer packet is Rejected
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5490,35 +5468,11 @@ Feature: MOSIP DSL end-to-end acceptance tests
     Then I check ridstage where argument 1 is $$parentRid, and argument 2 is VALIDATE_PACKET, and argument 3 is REJECTED
     And I delete packet data
 
-  @scenario_#207
-  @Positive_Test
-  @persona_ResidentMaleAdult
-  @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
-    Given I get ping health where argument 1 is packetcreator
-    And I read pre req where pre requisite data index is 1 and store result in $$details1
-    And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
-    And I get ping health where argument 1 is targetenv
-    And I get resident data where persona type is adult, and guardian flag is false, and argument 3 is Male and store result in $$personaFilePath
-    And I get packet template where packet type is NEW, and argument 2 is $$personaFilePath and store result in $$templatePath
-    And I generate and upload packet skipping prereg where argument 1 is $$personaFilePath, and argument 2 is $$templatePath and store result in $$rid
-    And I check status where packet status is PROCESSED, and argument 2 is $$rid
-    And I get uinby rid where argument 1 is $$rid and store result in $$uin
-    And I get email by uin where argument 1 is $$uin and store result in $$email
-    And I verify notification where argument 1 is UIN Generated, and argument 2 is $$email
-    And I wait where argument 1 is 90
-    And I generate vid where argument 1 is Perpetual, and argument 2 is $$uin, and argument 3 is $$email and store result in $$vid
-    And I verify notification where argument 1 is Successful Generation of VID, and argument 2 is $$email
-    And I update identity with array handles where argument 1 is $$uin
-    And I get handles by uin where argument 1 is $$uin and store result in $$handles
-    And I demo authentication where argument 1 is name, and argument 2 is $$uin, and argument 3 is $$personaFilePath, and argument 4 is $$vid, and argument 5 is 0, and argument 6 is $$handles
-    And I delete packet data
-
   @scenario_208
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Adult resident walks into registration center completes the process and gets ...
+  Scenario: Adult resident walks into registration center completes the process and gets UIN card later we perform crvs external packet death flow without the token
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5546,7 +5500,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Infant external packet creation and process with introducerInfoToken and gets...
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet death flow
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 4 and store result in $$details4
     And I set context where argument 1 is env_context, and argument 2 is $$details4, and generate private key is false, and packet type is EXTERNAL
@@ -5570,7 +5524,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident Infant walks into registration center gets UIN with parent RID detai...
+  Scenario: Resident Infant walks into registration center gets UIN with parent RID details and later we perform crvs external packet death flow
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5603,7 +5557,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card later we perform crvs external packet death flow with invalid source and process
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5626,7 +5580,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates face and finger with VID and perform biometric authentiction with face both using UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5656,7 +5610,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_Update
-  Scenario: ResidentFemaleAdult - Resident walks into reg-center and uploads a packet and tries to update the n...
+  Scenario: Resident walks into reg-center and uploads a packet and tries to update the name using mixed cases.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5680,7 +5634,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - A differently abled resident walk-ins to registration center completes the pr...
+  Scenario: A differently abled resident walk-ins to registration center completes the process and gets UIN card. Later performs biometric delegated  authentication using face modality with UIN and VID
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5705,7 +5659,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: ResidentMaleAdult - Resident walks into reg-center and uploads a packet and tries to update the d...
+  Scenario: Resident walks into reg-center and uploads a packet and tries to update the date of birth as empty.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5721,7 +5675,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into the registration center accompanied by a non-registered p...
+  Scenario: Resident walks into the registration center accompanied by a non-registered person and tries to update UIN biometrics using the non-registered person?s biometrics.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5748,7 +5702,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident A and Resident B successfully obtain their UINs. Resident A attempts...
+  Scenario: Resident A and Resident B successfully obtain their UINs. Resident A attempts to update biometrics for UIN1 by capturing right-hand fingerprints from Resident A (Profile-1) and left-hand fingerprints from Resident B (Profile-2) resulting in bio-dedupe detection and manual adjudication.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5790,7 +5744,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
-  Scenario: ResidentMaleAdult - Resident updates UIN biometrics by capturing left-hand fingerprints and irise...
+  Scenario: Resident updates UIN biometrics by capturing left-hand fingerprints and irises while marking right-hand fingerprints as valid exceptions.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5817,7 +5771,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
-  Scenario: ResidentMaleAdult - Resident walks into the registration center and performs a biometric update f...
+  Scenario: Resident walks into the registration center and performs a biometric update for the UIN by capturing iris and face while marking all fingerprints as valid exceptions.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5844,7 +5798,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - An infant resident is registered and issued a UIN then later updates to adult...
+  Scenario: An infant resident is registered and issued a UIN then later updates to adult using biometrics of another registered resident.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5887,7 +5841,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident 1 generates a UIN and updates biometrics twice successfully Resident...
+  Scenario: Resident 1 generates a UIN and updates biometrics twice successfully Resident 2 generates a UIN and attempts to update biometrics using Resident 1?s biometrics resulting in packet rejection
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5932,7 +5886,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident generates UIN ABIS response is delayed and first UIN biometric is up...
+  Scenario: Resident generates UIN ABIS response is delayed and first UIN biometric is updated successfully during packet reprocessing
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5964,7 +5918,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process with invalid ty...
+  Scenario: Resident walks into registration center completes the process with invalid type of packet and gets error at upload stage
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -5981,7 +5935,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident registration where the officer is inactive during packet creation bu...
+  Scenario: Resident registration where the officer is inactive during packet creation but is activated before packet upload allowing successful processing and UIN generation.
     Given I get ping health where argument 1 is packetcreator
     And I user where user action is ADD_User, and user index is 219, and password is Techno@123 and store result in $$user219
     And I center where argument 1 is CREATE, and user details is $$user219, and center index is 219, and center active flag is T and store result in $$center219
@@ -6013,7 +5967,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: ResidentMaleAdult - Resident walks into registration center uploads packet and gets UIN. Resident...
+  Scenario: Resident walks into registration center uploads packet and gets UIN. Resident then performs multiple sequential updates name DOB gender and email address.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6068,7 +6022,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process  gets UIN card ...
+  Scenario: Resident walks into registration center completes the process  gets UIN card . Resident then updates name and gets updated UIN try to authenticate with old name
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6100,7 +6054,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into the registration center completes the process with gender...
+  Scenario: Resident walks into the registration center completes the process with gender marked as Other and gets the UIN card.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6120,7 +6074,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into the registration center completes the process with empty ...
+  Scenario: Resident walks into the registration center completes the process with empty email id failed gets the UIN card.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6137,7 +6091,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into the registration center completes the process with gender...
+  Scenario: Resident walks into the registration center completes the process with gender marked as invalid and failed to gets the UIN card.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6154,7 +6108,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: ResidentMaleAdult - The resident walks into the registration center uploads the packet and gets t...
+  Scenario: The resident walks into the registration center uploads the packet and gets the UIN. Later the resident updates the iris face and fingerprints and each update packet is processed successfully.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6189,7 +6143,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident updates only one fingerprint that was previously marked exception an...
+  Scenario: Resident updates only one fingerprint that was previously marked exception and performs bio authentication
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6220,7 +6174,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident updates only one iris that was previously marked exception and perfo...
+  Scenario: Resident updates only one iris that was previously marked exception and performs bio authentication.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6251,7 +6205,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident enters DOB as 29-Feb in non-leap year and registration is rejected
+  Scenario: Resident enters DOB as 29-Feb in non-leap year and registration is rejected
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6268,7 +6222,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident enters an invalid email address missing the required symbol and regi...
+  Scenario: Resident enters an invalid email address missing the required symbol and registration is rejected
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6285,7 +6239,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident attempts to obtain UIN but Packet Creation Date is Future date and g...
+  Scenario: Resident attempts to obtain UIN but Packet Creation Date is Future date and gets the error that packet creation date cannot be in future.
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and argument 4 is invalidCreationDate=+1y
@@ -6301,7 +6255,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident booked pre-registration with support documents later changes the app...
+  Scenario: Resident booked pre-registration with support documents later changes the appointment slot. walk-ins to registration center completes the process and gets UIN card
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6327,7 +6281,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident walks into registration center completes the process and gets UIN ca...
+  Scenario: Resident walks into registration center completes the process and gets UIN card with handle. Later updates his name and handle and perform demographic authentication both using UIN and handle
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6351,7 +6305,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: ResidentFemaleAdult - Resident walks into registration center completes the process tries to get ui...
+  Scenario: Resident walks into registration center completes the process tries to get uin with old ID Schema version
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false, and invalid schema version is oldIdSchema
@@ -6366,7 +6320,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
-  Scenario: ResidentMaleAdult - Twin infants with similar demographics walk into registration center and use ...
+  Scenario: Twin infants with similar demographics walk into registration center and use same parent RID details for enrollment
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6397,7 +6351,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
-  Scenario: ResidentMaleAdult - Identical twins with similar facial features walk into registration center an...
+  Scenario: Identical twins with similar facial features walk into registration center and use same parent RID details while changing dob name gender and emailid
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6429,7 +6383,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Adult
-  Scenario: ResidentMaleAdult - Resident walks to the center and creates a packet with a large face image size
+  Scenario: Resident walks to the center and creates a packet with a large face image size
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6444,7 +6398,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Adult
-  Scenario: ResidentMaleAdult - Resident walks to the center and creates a packet with face obstruction image...
+  Scenario: Resident walks to the center and creates a packet with face obstruction image (mask cap and glare)
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6459,7 +6413,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
-  Scenario: ResidentMaleAdult - Resident uploads only low-quality document and packet gets rejected during QC
+  Scenario: Resident uploads only low-quality document and packet gets rejected during QC
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6480,7 +6434,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: ResidentMaleAdult - Resident gets UIN updates iris and face biometrics authenticates successfully...
+  Scenario: Resident gets UIN updates iris and face biometrics authenticates successfully with new biometrics and fails with old biometrics
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6517,7 +6471,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: ResidentMaleAdult - Resident gets UIN updates demographic details authenticates successfully with...
+  Scenario: Resident gets UIN updates demographic details authenticates successfully with new details and fails with old details
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6551,7 +6505,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Mock ABIS holds the packet in queue longer than the reprocessor interval (del...
+  Scenario: Mock ABIS holds the packet in queue longer than the reprocessor interval (delay from actuator) reprocessor runs while ABIS is still pending then bio dedupe completes. Asserts BIOGRAPHIC_VERIFICATION REPROCESS and post-reprocess outcome explicit biometric dedupe skip when regproc records it otherwise a second bio dedupe cycle (pass strictSkip as second arg to require skip-only).
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6575,7 +6529,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Resident creates a Lost packet that gets rejected then reuses the same biomet...
+  Scenario: Resident creates a Lost packet that gets rejected then reuses the same biometrics from the rejected Lost flow packet to create a new packet which gets processed successfully
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6601,7 +6555,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Create a new registration packet and process it then create a Lost packet for...
+  Scenario: Create a new registration packet and process it then create a Lost packet for the same persona UIN with same biometrics and verify packet upload transaction and processing
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6624,7 +6578,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Registration packet is built without required name demographic fields in iden...
+  Scenario: Registration packet is built without required name demographic fields in identity JSON; processing fails at packet validation
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1
     And I set context where argument 1 is env_context, and argument 2 is $$details1, and generate private key is false
@@ -6640,7 +6594,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: ResidentMaleAdult - Test suite run Pre-Requisite data tear down
+  Scenario: Test suite run Pre-Requisite data tear down
     Given I skip
     Given I get ping health where argument 1 is packetcreator
     And I read pre req where pre requisite data index is 1 and store result in $$details1

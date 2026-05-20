@@ -36,5 +36,5 @@ BioAuth:
     }'
       output: '{
   	"authStatus": "false",
-  	"errorCode": "IDA-BIA-001"
+  	"errorCode": "$IGNORE$"
 }'

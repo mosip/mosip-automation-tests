@@ -67,10 +67,7 @@ public class TestResources {
 
 
 	public static String checkRunType() {
-		if (TestResources.class.getResource("TestResources.class").getPath().toString().contains(".jar"))
-			return "JAR";
-		else
-			return "IDE";
+		return TestRunner.checkRunType();
 	}
 
 	public static void removeOldMosipTempTestResource() {

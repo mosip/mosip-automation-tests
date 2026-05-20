@@ -127,19 +127,21 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 					test.setInput(input);
 					try {
 						otpauth.test(test);
-					} catch (AuthenticationTestException e) {
+						Response response = otpauth.response;
+						JSONObject resJsonObject = new JSONObject(response.getBody().asString()).getJSONObject("response");
+						res = keyMgrUtil.ekycDataDecryption(resJsonObject, kycPartnerId);
+					} catch (AuthenticationTestException | AdminTestException | SecurityXSSException e) {
 						this.hasError = true;
 						logger.error(e.getMessage());
 						throw new RigInternalError("EkycOtp Auth failed ");
-					} catch (AdminTestException e) {
+					} catch (Exception e) {
 						this.hasError = true;
 						logger.error(e.getMessage());
-						throw new RigInternalError("EkycOtp Auth failed");
-					} catch (SecurityXSSException e) {
-						this.hasError = true;
-						logger.error(e.getMessage());
-						throw new RigInternalError("EkycOtp Auth failed");
+						throw new RigInternalError("EkycOtp Auth failed ");
 					}
+				}
+				if (step.getOutVarName() != null && res != null && !res.isBlank()) {
+					step.getScenario().getVariables().put(step.getOutVarName(), res);
 				}
 			}
 
@@ -184,7 +186,9 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 						throw new RigInternalError("EkycOtp Auth failed ");
 					}
 				}
-				step.getScenario().getVariables().put(step.getOutVarName(), res);
+				if (step.getOutVarName() != null && res != null && !res.isBlank()) {
+					step.getScenario().getVariables().put(step.getOutVarName(), res);
+				}
 			}
 
 		}

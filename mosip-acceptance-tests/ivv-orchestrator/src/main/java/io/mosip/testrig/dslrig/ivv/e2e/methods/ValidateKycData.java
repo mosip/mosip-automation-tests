@@ -40,11 +40,15 @@ public class ValidateKycData  extends BaseTestCaseUtil implements StepInterface 
 				throw new RigInternalError(data+" Data is not there in a decryptEkycData");
 			}
 
+		} catch (RigInternalError e) {
+			this.hasError = true;
+			logger.error(e.getMessage());
+			throw e;
 		} catch (Exception e) {
 			this.hasError = true;
 			logger.error(e.getMessage());
-
-
+			throw new RigInternalError(
+					"Failed to validate kyc data for field " + data + ": " + e.getMessage());
 		}
 
 	}

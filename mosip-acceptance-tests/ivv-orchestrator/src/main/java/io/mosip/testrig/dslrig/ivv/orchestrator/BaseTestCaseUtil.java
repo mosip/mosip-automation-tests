@@ -86,6 +86,28 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static String partnerId = null;
 	public static String kycPartnerId = null;
 	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
+
+	/** In-memory key used by {@link io.mosip.testrig.dslrig.ivv.e2e.methods.WritePreReq} / ReadPreReq. */
+	public static String prereqStoragePath(String index) {
+		return TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
+				+ index + ".properties";
+	}
+
+	public static boolean hasPrereqData(String index) {
+		if (index == null || index.isBlank()) {
+			return false;
+		}
+		synchronized (prereqDataSet) {
+			return prereqDataSet.containsKey(prereqStoragePath(index));
+		}
+	}
+
+	public static String prereqDataSummary() {
+		synchronized (prereqDataSet) {
+			return prereqDataSet.isEmpty() ? "(none)" : String.join(", ", prereqDataSet.keySet());
+		}
+	}
+
 	public static String extentReportName="";
     public static long exectionStartTime = 0;
     public static long exectionEndTime = 0;

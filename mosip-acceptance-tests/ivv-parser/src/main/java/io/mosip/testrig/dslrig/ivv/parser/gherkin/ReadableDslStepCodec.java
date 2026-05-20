@@ -62,6 +62,11 @@ public final class ReadableDslStepCodec {
             throw new IllegalArgumentException("Empty Gherkin step");
         }
         String text = gherkinBody.trim();
+        Matcher executeAction = Pattern.compile("^execute action \"(.+)\"$", Pattern.CASE_INSENSITIVE)
+                .matcher(text);
+        if (executeAction.matches()) {
+            text = executeAction.group(1).trim();
+        }
         if (text.startsWith("e2e_") || text.contains("=e2e_")) {
             return text;
         }
@@ -254,7 +259,8 @@ public final class ReadableDslStepCodec {
     }
 
     private static boolean isAtAtSplitContinuation(ParamToken current, ParamToken next) {
-        if (next.rawValue.startsWith("@@")) {
+        if (next.rawValue.startsWith("@@")
+                && (next.label == null || next.label.equalsIgnoreCase("PASSWORD"))) {
             return true;
         }
         if (next.label != null && next.label.equalsIgnoreCase("PASSWORD")) {

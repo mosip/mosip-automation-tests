@@ -20,6 +20,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -104,6 +106,7 @@ public class Orchestrator {
 
 	@BeforeSuite
 	public void beforeSuite() {
+		TestRunner.initializeResourcePaths();
 
 		beforeSuiteFailed = false;
 		beforeSuiteSetupComplete = false;
@@ -321,6 +324,27 @@ public class Orchestrator {
 			beforeSuiteExeuted = true;
 			logger.info("Scenario 0 not in this run; skipping before-suite gate.");
 		}
+		filteredScenarios.sort((a, b) -> {
+			if (a.getId().equalsIgnoreCase("0")) {
+				return -1;
+			}
+			if (b.getId().equalsIgnoreCase("0")) {
+				return 1;
+			}
+			if (a.getId().equalsIgnoreCase("AFTER_SUITE")) {
+				return 1;
+			}
+			if (b.getId().equalsIgnoreCase("AFTER_SUITE")) {
+				return -1;
+			}
+			return 0;
+		});
+		suiteRequiresScenario0 = filteredScenarios.stream().anyMatch(s -> s.getId().equalsIgnoreCase("0"));
+		if (!suiteRequiresScenario0) {
+			beforeSuiteSetupComplete = true;
+			beforeSuiteExeuted = true;
+			logger.info("Scenario 0 not in this run; skipping before-suite gate.");
+		}
 		totalScenario = filteredScenarios.size();
 		executableScenarioCount = (int) filteredScenarios.stream()
 				.filter(s -> !s.getId().equalsIgnoreCase("AFTER_SUITE")).count();
@@ -445,6 +469,8 @@ public class Orchestrator {
 					if (currentTime - suiteStartTime >= suiteMaxTimeInMillis) {
 						logger.error("Exhausted the maximum suite execution time while waiting for scenarios to finish "
 								+ "(completed " + completedScenarioCount.get() + "/" + executableScenarioCount + ")");
+						logger.error("Exhausted the maximum suite execution time while waiting for scenarios to finish "
+								+ "(completed " + completedScenarioCount.get() + "/" + executableScenarioCount + ")");
 						break;
 					}
 
@@ -462,6 +488,7 @@ public class Orchestrator {
 				startTime = System.nanoTime();
 				BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
 						String.valueOf(startTime));
+
 			}
 		}
 
@@ -471,11 +498,20 @@ public class Orchestrator {
 		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
+		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && beforeSuiteFailed) {
+			String skipMsg = "Skipping AFTER_SUITE teardown because Scenario 0 (before suite) failed — "
+					+ "WritePreReq(1/2/3) data was never stored. Fix Scenario 0 (track2b steps 17-25 for index 2) first.";
+			logger.error(skipMsg);
+			extentTest.skip(skipMsg);
+			updateRunStatistics(scenario);
+			throw new SkipException(skipMsg);
+		}
 		if (testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression")) {
 			logger.info("Running Scenario #" + scenario.getId());
 		} else if (matchTags("Negative_Test", scenario.getTags()) && testLevel.equalsIgnoreCase("smoke")) {
 			extentTest.skip(
 					"S-" + scenario.getId() + "Ignoring scenario since it is classified as a negative test case.");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException(
@@ -490,12 +526,14 @@ public class Orchestrator {
 			extentTest.skip("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 			failBeforeSuiteIfScenario0Skipped(scenario);
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 		}
 		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform known issue");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
@@ -504,6 +542,7 @@ public class Orchestrator {
 			extentTest.skip("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
 			failBeforeSuiteIfScenario0Skipped(scenario);
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
@@ -511,6 +550,7 @@ public class Orchestrator {
 		if (System.currentTimeMillis() - suiteStartTime >= suiteMaxTimeInMillis && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
 			extentTest.skip("S-" + scenario.getId()
 					+ ": Skipping scenarios execution As Exhausted the maximum suite execution time.Hence, terminating the execution");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
@@ -563,6 +603,15 @@ public class Orchestrator {
 			int jumpBackIndex = 0;
 			int iterationCount = 0;
 			try {
+				if (scenario.getId().equalsIgnoreCase("0")) {
+					logger.info("Scenario 0: using parallel phased execution for before-suite setup");
+					store = Scenario0ParallelRunner.run(scenario, store, willRetry,
+							(sc, st, from, to, retry) -> executeScenarioStepsRange(sc, st, extentTest, properties,
+									from, to, retry),
+							this::copyScenarioForParallelTrack);
+					scenarioSucceeded = true;
+					continue;
+				}
 				if (scenario.getId().equalsIgnoreCase("0")) {
 					logger.info("Scenario 0: using parallel phased execution for before-suite setup");
 					store = Scenario0ParallelRunner.run(scenario, store, willRetry,
@@ -685,6 +734,9 @@ public class Orchestrator {
 				scenarioSucceeded = true;
 			} catch (SkipException e) {
 				extentTest.skip(identifier + " - skipped");
+				if (scenario.getId().equalsIgnoreCase("0")) {
+					signalBeforeSuiteComplete(false);
+				}
 				if (scenario.getId().equalsIgnoreCase("0")) {
 					signalBeforeSuiteComplete(false);
 				}
