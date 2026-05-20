@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,15 +68,25 @@ public class Orchestrator {
 	public static ExtentReports extent;
 	private Properties properties;
 
-	public static Boolean beforeSuiteFailed = false;
+	public static volatile boolean beforeSuiteFailed = false;
+	/** True once Scenario 0 (before suite) has finished — pass or fail. */
+	public static volatile boolean beforeSuiteSetupComplete = false;
+	/** @deprecated Use {@link #beforeSuiteSetupComplete}. */
+	@Deprecated
 	public static Boolean beforeSuiteExeuted = false;
 	public static final Object lock = new Object();
 	public static long suiteStartTime = 0;
-	public static long suiteMaxTimeInMillis = 3600000 * dslConfigManager.getMaxSuiteTime(); 
+	public static long suiteMaxTimeInMillis = 3600000L * dslConfigManager.getMaxSuiteTime();
 	static AtomicInteger counterLock = new AtomicInteger(0);
 	private static AtomicInteger totalFailedScenarios = new AtomicInteger(0);
 	private static final int MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY = 20;
 	public static volatile boolean disableAllRetries = false;
+	private static final long SUITE_COORDINATION_POLL_MS = 2000L;
+	private static CountDownLatch beforeSuiteLatch = new CountDownLatch(1);
+	private static volatile boolean suiteRequiresScenario0 = true;
+	/** Scenarios finished (pass, fail, or skip), excluding AFTER_SUITE. */
+	private static final AtomicInteger completedScenarioCount = new AtomicInteger(0);
+	private static volatile int executableScenarioCount = 0;
 
 	private HashMap<String, String> packages = new HashMap<String, String>() {
 		{
@@ -91,6 +103,14 @@ public class Orchestrator {
 
 	@BeforeSuite
 	public void beforeSuite() {
+
+		beforeSuiteFailed = false;
+		beforeSuiteSetupComplete = false;
+		beforeSuiteExeuted = false;
+		beforeSuiteLatch = new CountDownLatch(1);
+		suiteRequiresScenario0 = true;
+		completedScenarioCount.set(0);
+		executableScenarioCount = 0;
 
 		suiteStartTime = System.currentTimeMillis();
 		BaseTestCaseUtil.exectionStartTime = suiteStartTime;
@@ -279,7 +299,30 @@ public class Orchestrator {
 				}
 			}
 		}
+		filteredScenarios.sort((a, b) -> {
+			if (a.getId().equalsIgnoreCase("0")) {
+				return -1;
+			}
+			if (b.getId().equalsIgnoreCase("0")) {
+				return 1;
+			}
+			if (a.getId().equalsIgnoreCase("AFTER_SUITE")) {
+				return 1;
+			}
+			if (b.getId().equalsIgnoreCase("AFTER_SUITE")) {
+				return -1;
+			}
+			return 0;
+		});
+		suiteRequiresScenario0 = filteredScenarios.stream().anyMatch(s -> s.getId().equalsIgnoreCase("0"));
+		if (!suiteRequiresScenario0) {
+			beforeSuiteSetupComplete = true;
+			beforeSuiteExeuted = true;
+			logger.info("Scenario 0 not in this run; skipping before-suite gate.");
+		}
 		totalScenario = filteredScenarios.size();
+		executableScenarioCount = (int) filteredScenarios.stream()
+				.filter(s -> !s.getId().equalsIgnoreCase("AFTER_SUITE")).count();
 		Object[][] dataArray = new Object[filteredScenarios.size()][5];
 		for (int i = 0; i < filteredScenarios.size(); i++) {
 			dataArray[i][0] = i;
@@ -298,25 +341,57 @@ public class Orchestrator {
 
 	}
 
-	private synchronized void updateRunStatistics(Scenario scenario) throws ClassNotFoundException,
-			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-		logger.info("Updating statistics for scenario: " + scenario.getId() + " -- updating the executed count to: "
-				+ counterLock.getAndIncrement());
+	private synchronized void updateRunStatistics(Scenario scenario) {
+		int executed = counterLock.getAndIncrement();
+		if (!scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
+			completedScenarioCount.incrementAndGet();
+		}
+		logger.info("Updating statistics for scenario: " + scenario.getId() + " -- executed count: " + executed
+				+ ", completed (excl. AFTER_SUITE): " + completedScenarioCount.get() + "/"
+				+ executableScenarioCount);
 
 		long endTime = System.nanoTime();
 		BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_endTime",
 				String.valueOf(endTime));
+	}
 
-		  for (Scenario.Step step : scenario.getSteps()) {
-		        StepInterface st = getInstanceOf(step);
-		        if (st.hasError()) {
-		            beforeSuiteFailed = true;
-		            disableAllRetries = true;   
-		            logger.error("Before Suite FAILED. Disabling all retries.");
-		            break;
-		        }
-		    }
-		    beforeSuiteExeuted = true;
+	private synchronized void signalBeforeSuiteComplete(boolean passed) {
+		if (beforeSuiteSetupComplete) {
+			return;
+		}
+		beforeSuiteSetupComplete = true;
+		beforeSuiteExeuted = true;
+		beforeSuiteFailed = !passed;
+		if (!passed) {
+			disableAllRetries = true;
+			logger.error("Scenario 0 (before suite) FAILED. All other scenarios will be skipped.");
+		} else {
+			logger.info("Scenario 0 (before suite) PASSED. Other scenarios may proceed.");
+		}
+		beforeSuiteLatch.countDown();
+	}
+
+	private void failBeforeSuiteIfScenario0Skipped(Scenario scenario) {
+		if (scenario.getId().equalsIgnoreCase("0")) {
+			signalBeforeSuiteComplete(false);
+		}
+	}
+
+	private void awaitBeforeSuiteSetup(Scenario scenario) throws InterruptedException {
+		if (!suiteRequiresScenario0 || scenario.getId().equalsIgnoreCase("0")) {
+			return;
+		}
+		logger.info("Scenario " + scenario.getId() + " waiting for Scenario 0 (before suite) to complete...");
+		long remainingMs = suiteMaxTimeInMillis - (System.currentTimeMillis() - suiteStartTime);
+		if (remainingMs <= 0) {
+			beforeSuiteFailed = true;
+			return;
+		}
+		boolean completed = beforeSuiteLatch.await(remainingMs, TimeUnit.MILLISECONDS);
+		if (!completed) {
+			logger.error("Timed out waiting for Scenario 0 (before suite) to complete.");
+			beforeSuiteFailed = true;
+		}
 	}
 
 	@Test(dataProvider = "ScenarioDataProvider")
@@ -324,11 +399,13 @@ public class Orchestrator {
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
 			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 
-		if ((beforeSuiteFailed || disableAllRetries) && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
-		    updateRunStatistics(scenario);
-		    throw new SkipException(
-		        "Skipping scenario " + scenario.getId() + " because Before Suite failed."
-		    );
+		awaitBeforeSuiteSetup(scenario);
+
+		if (beforeSuiteFailed && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")
+				&& !scenario.getId().equalsIgnoreCase("0")) {
+			updateRunStatistics(scenario);
+			throw new SkipException("Skipping scenario " + scenario.getId()
+					+ " because Scenario 0 (before suite) failed.");
 		}
 
 		long startTime = System.nanoTime();
@@ -361,49 +438,30 @@ public class Orchestrator {
 			if (scenario.getId().equalsIgnoreCase("AFTER_SUITE")) 
 			{
 
-				while (counterLock.get() < totalScenario - 1) 
+				while (completedScenarioCount.get() < executableScenarioCount) 
 				{
 					long currentTime = System.currentTimeMillis();
 					if (currentTime - suiteStartTime >= suiteMaxTimeInMillis) {
-						logger.error("Exhausted the maximum suite execution time.Hence, terminating the execution");
+						logger.error("Exhausted the maximum suite execution time while waiting for scenarios to finish "
+								+ "(completed " + completedScenarioCount.get() + "/" + executableScenarioCount + ")");
 						break;
 					}
 
-					logger.info(" Thread ID: " + Thread.currentThread().getId() + " inside scenariosExecuted "
-							+ counterLock.get() + "- " + scenario.getId());
-					Thread.sleep(10000); 
-				}
-				startTime = System.nanoTime();
-				BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
-						String.valueOf(startTime));
-			} else {
-
-
-				while (beforeSuiteExeuted == false) {
-					Thread.sleep(10000); 
-
 					logger.info(" Thread ID: " + Thread.currentThread().getId()
-							+ " inside beforeSuiteExecuted == false " + counterLock.get() + "- " + scenario.getId());
+							+ " AFTER_SUITE waiting for scenarios to finish: " + completedScenarioCount.get() + "/"
+							+ executableScenarioCount + " (beforeSuiteComplete="
+							+ beforeSuiteSetupComplete + ")");
+					Thread.sleep(SUITE_COORDINATION_POLL_MS);
 				}
 				startTime = System.nanoTime();
 				BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
 						String.valueOf(startTime));
-
-
-				if (beforeSuiteFailed == true) {
-					updateRunStatistics(scenario);
-					throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
-							+ " Skipping scenarios execution - " + scenario.getId()));
-				}
-
-
 			}
 		}
 
 		logger.info(" Thread ID: " + Thread.currentThread().getId() + " scenario :- " + counterLock.get()
 				+ scenario.getId());
 
-		extent.flush();
 		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
@@ -412,6 +470,7 @@ public class Orchestrator {
 		} else if (matchTags("Negative_Test", scenario.getTags()) && testLevel.equalsIgnoreCase("smoke")) {
 			extentTest.skip(
 					"S-" + scenario.getId() + "Ignoring scenario since it is classified as a negative test case.");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException(
 					"S-" + scenario.getId() + "Ignoring scenario since it is classified as a negative test case.");
@@ -424,18 +483,21 @@ public class Orchestrator {
 		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 		}
 		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform known issue");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
 		}
 		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
@@ -443,6 +505,7 @@ public class Orchestrator {
 		if (System.currentTimeMillis() - suiteStartTime >= suiteMaxTimeInMillis && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
 			extentTest.skip("S-" + scenario.getId()
 					+ ": Skipping scenarios execution As Exhausted the maximum suite execution time.Hence, terminating the execution");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
 					+ " Skipping scenarios execution As Exhausted the maximum suite execution time.Hence, terminating the execution- "
@@ -494,6 +557,15 @@ public class Orchestrator {
 			int jumpBackIndex = 0;
 			int iterationCount = 0;
 			try {
+				if (scenario.getId().equalsIgnoreCase("0")) {
+					logger.info("Scenario 0: using parallel phased execution for before-suite setup");
+					store = Scenario0ParallelRunner.run(scenario, store, willRetry,
+							(sc, st, from, to, retry) -> executeScenarioStepsRange(sc, st, extentTest, properties,
+									from, to, retry),
+							this::copyScenarioForParallelTrack);
+					scenarioSucceeded = true;
+					continue;
+				}
 				for (int stepIndex = 0; stepIndex < scenario.getSteps().size(); stepIndex++) {
 					Scenario.Step step = scenario.getSteps().get(stepIndex);
 
@@ -607,6 +679,9 @@ public class Orchestrator {
 				scenarioSucceeded = true;
 			} catch (SkipException e) {
 				extentTest.skip(identifier + " - skipped");
+				if (scenario.getId().equalsIgnoreCase("0")) {
+					signalBeforeSuiteComplete(false);
+				}
 				updateRunStatistics(scenario);
 				logger.error(e.getMessage());
 				Reporter.log(e.getMessage());
@@ -666,6 +741,9 @@ public class Orchestrator {
 
 					extentTest.fail("Scenario failed after " + maxAttempts + " attempts: " + e.getMessage());
 					Reporter.log(finalFail);
+					if (scenario.getId().equalsIgnoreCase("0")) {
+						signalBeforeSuiteComplete(false);
+					}
 					updateRunStatistics(scenario);
 
 					if (e instanceof RuntimeException)
@@ -674,6 +752,9 @@ public class Orchestrator {
 						throw new RuntimeException(e);
 				}
 			}
+		}
+		if (scenario.getId().equalsIgnoreCase("0")) {
+			signalBeforeSuiteComplete(scenarioSucceeded);
 		}
 		updateRunStatistics(scenario);
 
@@ -901,6 +982,159 @@ public class Orchestrator {
 					+ stringToTrim.substring(closeBracketIndex);
 		}
 		return stringToTrim;
+	}
+
+	private Store executeScenarioStepsRange(Scenario scenario, Store store, ExtentTest extentTest,
+			Properties properties, int fromStepIndex, int toStepIndex, boolean willRetry) throws Exception {
+		String identifier = "";
+		int jumpBackIndex = 0;
+		int iterationCount = 0;
+		for (int stepIndex = fromStepIndex; stepIndex <= toStepIndex && stepIndex < scenario.getSteps().size();
+				stepIndex++) {
+			Scenario.Step step = scenario.getSteps().get(stepIndex);
+
+			identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters()
+					+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule() + "] [variant: "
+					+ step.getVariant() + "]";
+			logger.info(identifier);
+
+			extentTest.info(identifier + " - running");
+			extentTest.info("parameters: " + step.getParameters().toString());
+			StepInterface st = getInstanceOf(step);
+			st.setExtentInstance(extentTest);
+			st.setSystemProperties(properties);
+			st.setState(store);
+			st.setStep(step);
+			st.setup();
+			st.validateStep();
+
+			String stepAction = "e2e_" + step.getName() + step.getParameters();
+			stepAction = trimSpaceWithinSquareBrackets(stepAction);
+
+			if (step.getOutVarName() != null) {
+				stepAction = step.getOutVarName() + "=" + stepAction;
+			}
+
+			String stepParams[] = getStepDetails("S_" + step.getScenario().getId() + stepAction);
+			if (stepParams == null && step.getScenario().getId().contains("_")) {
+				String baseScenarioId = step.getScenario().getId().split("_")[0];
+				stepParams = getStepDetails("S_" + baseScenarioId + stepAction);
+			}
+
+			if (!step.getName().contains("loopWindow")) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(
+						"<div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='3' readonly='true'>");
+				sb.append("Step Name: " + step.getName() + "\n");
+				if (stepParams != null) {
+					sb.append("Step Description: " + stepParams[0] + "\n");
+					sb.append("Step Parameters: " + stepParams[1]);
+				} else {
+					sb.append("Step Description: [ERROR: stepParams is null]\n");
+					sb.append("Step Parameters: [ERROR: stepParams is null]");
+				}
+				sb.append("</textarea></div>");
+				Reporter.log(sb.toString());
+			}
+
+			if (step.getName().contains("loopWindow")) {
+				if (step.getParameters().get(0).contains("START")) {
+					jumpBackIndex = stepIndex + 1;
+					iterationCount = 1;
+				} else if (step.getParameters().size() > 1 && step.getParameters().get(0).contains("END")) {
+					int loopCount = Integer.parseInt(step.getParameters().get(1));
+					if (iterationCount < loopCount) {
+						stepIndex = jumpBackIndex - 1;
+						iterationCount++;
+						logger.info("Repeating loop, iteration: " + iterationCount + " of " + loopCount);
+						continue;
+					} else {
+						logger.info("Loop completed after " + iterationCount + " iterations.");
+					}
+				}
+			}
+
+			st.run();
+			st.assertHttpStatus();
+			if (st.hasError()) {
+				if (willRetry) {
+					extentTest.warning(identifier + " - failed (will retry)");
+				} else {
+					extentTest.fail(identifier + " - failed");
+				}
+				throw new RuntimeException("Step reported error");
+			}
+			if (st.getErrorsForAssert().size() > 0) {
+				st.errorHandler();
+				if (st.hasError()) {
+					if (willRetry) {
+						extentTest.warning(identifier + " - failed after errorHandler (will retry)");
+					} else {
+						extentTest.fail(identifier + " - failed after errorHandler");
+					}
+					throw new RuntimeException("Step reported error after errorHandler");
+				}
+			} else {
+				st.assertNoError();
+				if (st.hasError()) {
+					if (willRetry) {
+						extentTest.warning(identifier + " - failed after assertNoError (will retry)");
+					} else {
+						extentTest.fail(identifier + " - failed after assertNoError");
+					}
+					throw new RuntimeException("Step reported error after assertNoError");
+				}
+			}
+			store = st.getState();
+			extentTest.pass(identifier + " - passed");
+		}
+		return store;
+	}
+
+	private Scenario copyScenarioForParallelTrack(Scenario source) {
+		Scenario copy = new Scenario();
+		copy.setId(source.getId());
+		copy.setDescription(source.getDescription());
+		copy.setTags(new ArrayList<>(source.getTags()));
+		copy.setPersonaClass(source.getPersonaClass());
+		copy.setGroupName(source.getGroupName());
+		copy.setModules(new ArrayList<>(source.getModules()));
+		copy.setVariables(new HashMap<>(source.getVariables()));
+		copy.setObjectVariables(new HashMap<>(source.getObjectVariables()));
+		copy.setResidentTemplatePaths(new LinkedHashMap<>(source.getResidentTemplatePaths()));
+		copy.setResidentPathsPrid(new LinkedHashMap<>(source.getResidentPathsPrid()));
+		copy.setTemplatePacketPath(new LinkedHashMap<>(source.getTemplatePacketPath()));
+		copy.setManualVerificationRid(new LinkedHashMap<>(source.getManualVerificationRid()));
+		copy.setResidentPersonaIdPro((Properties) source.getResidentPersonaIdPro().clone());
+		copy.setPridsAndRids(new LinkedHashMap<>(source.getPridsAndRids()));
+		copy.setUinReqIds(new LinkedHashMap<>(source.getUinReqIds()));
+		copy.setGeneratedResidentData(new ArrayList<>(source.getGeneratedResidentData()));
+		copy.setTemplatPath_updateResident(source.getTemplatPath_updateResident());
+		copy.setRid_updateResident(source.getRid_updateResident());
+		copy.setUin_updateResident(source.getUin_updateResident());
+		copy.setPrid_updateResident(source.getPrid_updateResident());
+		copy.setRidPersonaPath(new LinkedHashMap<>(source.getRidPersonaPath()));
+		copy.setVidPersonaProp((Properties) source.getVidPersonaProp().clone());
+		copy.setOidcPmsProp((Properties) source.getOidcPmsProp().clone());
+		copy.setAppointmentDate((Properties) source.getAppointmentDate().clone());
+		copy.setResidentPathGuardianRid(source.getResidentPathGuardianRid() == null ? null
+				: new LinkedHashMap<>(source.getResidentPathGuardianRid()));
+		copy.setCurrentStep(new HashMap<>(source.getCurrentStep()));
+		copy.setUinPersonaProp((Properties) source.getUinPersonaProp().clone());
+		copy.setHandlePersonaProp((Properties) source.getHandlePersonaProp().clone());
+		copy.setOidcClientProp((Properties) source.getOidcClientProp().clone());
+		copy.setPrid(source.getPrid());
+		copy.setStatusCode(source.getStatusCode());
+		copy.setPersona(source.getPersona());
+		copy.setRegistrationUsers(source.getRegistrationUsers());
+		copy.setPartners(source.getPartners());
+		copy.setUser(source.getUser());
+		ArrayList<Scenario.Step> steps = new ArrayList<>();
+		for (Scenario.Step step : source.getSteps()) {
+			steps.add(deepCopyStep(step, copy));
+		}
+		copy.setSteps(steps);
+		return copy;
 	}
 
 	private static Scenario.Step deepCopyStep(Scenario.Step original, Scenario scenarioCopy) {

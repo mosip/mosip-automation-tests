@@ -1,5 +1,7 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
+import java.util.HashMap;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
@@ -34,9 +36,16 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 				+ appendedkey + ".properties");
 		logger.info("ReadPreReq :" + path);
 		try {
-
+			HashMap<String, String> prereq;
+			synchronized (prereqDataSet) {
+				prereq = prereqDataSet.get(path);
+			}
+			if (prereq == null) {
+				throw new RigInternalError("PreRequisite Data is not set properly — missing entry for " + path
+						+ " (ensure WritePreReq completed first)");
+			}
 			if (step.getOutVarName() != null) {
-				step.getScenario().getVariables().putAll(prereqDataSet.get(path));
+				step.getScenario().getVariables().putAll(prereq);
 			}
 			Reporter.log("Loaded the prereq data for executing the scenario<br>");
 

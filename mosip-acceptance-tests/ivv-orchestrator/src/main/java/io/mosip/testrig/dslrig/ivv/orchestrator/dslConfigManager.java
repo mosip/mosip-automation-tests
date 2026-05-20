@@ -223,4 +223,26 @@ public class dslConfigManager extends ConfigManager {
 			return true;
 		}
 	}
+
+
+	/** Max chars kept in each report textarea; 0 disables truncation. */
+	public static int getReportPayloadMaxChars() {
+		String jvm = System.getProperty("dsl.report.payload.max.chars");
+		if (jvm != null && !jvm.isBlank()) {
+			try {
+				return Math.max(0, Integer.parseInt(jvm.trim()));
+			} catch (NumberFormatException ignored) {
+				return 8192;
+			}
+		}
+		try {
+			String v = ConfigManager.getproperty("reportPayloadMaxChars");
+			if (v == null || v.isBlank()) {
+				return 8192;
+			}
+			return Math.max(0, Integer.parseInt(v.trim()));
+		} catch (Exception e) {
+			return 8192;
+		}
+	}
 }

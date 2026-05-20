@@ -100,10 +100,17 @@ public final class ReportTreeViewEnhancer {
 
     private static final Pattern STEP_CARD =
             Pattern.compile(
-                    "<div class=['\"]step-capture-card['\"]\\s+id=['\"](m\\d+-s\\d+)['\"][^>]*>[\\s\\S]*?"
-                            + "<textarea[^>]*\\bstep-capture-raw\\b[^>]*name=['\"]headers['\"][^>]*>([^<]*)</textarea>\\s*</div>",
-                    Pattern.CASE_INSENSITIVE);
+                    "<div class=['\"]step-capture-card['\"]\\s+id=['\"](m\\d+-s\\d+)['\"][^>]*>.*?<div class=['\"]step-capture-panel['\"]>(.*?)</div>"
+                            + "\\s*(?:<textarea[^>]*\\bstep-capture-raw\\b[^>]*>([^<]*)</textarea>\\s*)?</div>",
+                    Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
+    private static final Pattern STEP_CAPTURE_LINE =
+            Pattern.compile(
+                    "<span class=['\"]step-capture-label['\"]>([^<]*)</span>\\s*:\\s*<span class=['\"]step-capture-value[^'\"]*['\"]>([^<]*)</span>",
+                    Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+    private static final Pattern TEXTAREA_BODY =
+            Pattern.compile("(<textarea\\b[^>]*>)([\\s\\S]*?)(</textarea>)", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern STEP_CAPTURE_LEGACY_BLOCK =
             Pattern.compile(
@@ -189,7 +196,7 @@ public final class ReportTreeViewEnhancer {
         try {
             String html = Files.readString(target, StandardCharsets.UTF_8);
             if (html.contains("report-shell")) {
-                String patched = patchExistingTreeViewReport(html);
+                String patched = applyReportPayloadLimits(patchExistingTreeViewReport(html));
                 if (!patched.equals(html)) {
                     Path parent = target.getParent();
                     if (parent == null) {
@@ -246,7 +253,7 @@ public final class ReportTreeViewEnhancer {
 
     public static String enhance(String html) throws IOException {
         if (html != null && html.contains("report-shell")) {
-            return patchExistingTreeViewReport(html);
+            return applyReportPayloadLimits(patchExistingTreeViewReport(html));
         }
         String title = resolveTitle(html);
         if (!title.toLowerCase().contains("tree view")) {
@@ -297,7 +304,40 @@ public final class ReportTreeViewEnhancer {
             }
         }
         out = wrapScenarioDetailCards(out);
-        return stripScenarioDetailCardChrome(out);
+        out = stripScenarioDetailCardChrome(out);
+        return applyReportPayloadLimits(out);
+    }
+
+
+    private static String applyReportPayloadLimits(String html) {
+        if (html == null || html.isEmpty()) {
+            return html;
+        }
+        html = html.replaceAll("<textarea[^>]*\\bstep-capture-raw\\b[^>]*>[\\s\\S]*?</textarea>\\s*", "");
+        int maxChars = dslConfigManager.getReportPayloadMaxChars();
+        if (maxChars <= 0) {
+            return html;
+        }
+        return truncateLargeTextareaContent(html, maxChars);
+    }
+
+
+    static String truncateLargeTextareaContent(String html, int maxChars) {
+        Matcher m = TEXTAREA_BODY.matcher(html);
+        StringBuffer sb = new StringBuffer(html.length());
+        String note =
+                "\n\n… [truncated for report load time — see test run logs for full payload]";
+        while (m.find()) {
+            String body = m.group(2);
+            if (body.length() <= maxChars) {
+                m.appendReplacement(sb, Matcher.quoteReplacement(m.group(0)));
+                continue;
+            }
+            String trimmed = body.substring(0, maxChars) + note;
+            m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + trimmed + m.group(3)));
+        }
+        m.appendTail(sb);
+        return sb.toString();
     }
 
 
@@ -648,7 +688,12 @@ public final class ReportTreeViewEnhancer {
                 if (!sid.startsWith(r.anchor + "-")) {
                     continue;
                 }
-                String raw = decodeMinimalHtmlEntities(sm.group(2) == null ? "" : sm.group(2));
+                String raw = sm.group(3);
+                if (raw == null || raw.isBlank()) {
+                    raw = parseStepCapturePanelHtml(sm.group(2) == null ? "" : sm.group(2));
+                } else {
+                    raw = decodeMinimalHtmlEntities(raw);
+                }
                 String[] parsed = parseStepCaptureText(raw);
                 stepsOut.add(new StepEntry(sid, parsed[0], parsed[1]));
             }
@@ -721,6 +766,28 @@ public final class ReportTreeViewEnhancer {
     private static String[] parseStepCaptureText(String raw) {
         String[] f = parseStepCaptureFields(raw);
         return new String[] {f[0], f[1]};
+    }
+
+
+    private static String parseStepCapturePanelHtml(String panelHtml) {
+        String name = "Step";
+        List<String> descParts = new ArrayList<>();
+        Matcher lm = STEP_CAPTURE_LINE.matcher(panelHtml);
+        while (lm.find()) {
+            String label = lm.group(1).trim().toLowerCase();
+            String value = lm.group(2).trim();
+            if (label.contains("name")) {
+                name = value;
+            } else if (label.contains("description")) {
+                descParts.add(value);
+            }
+        }
+        StringBuilder raw = new StringBuilder();
+        raw.append("Step Name: ").append(name);
+        if (!descParts.isEmpty()) {
+            raw.append("\nStep Description: ").append(String.join(" ", descParts));
+        }
+        return raw.toString();
     }
 
     private static String annotateReportBody(String html) {
@@ -1119,7 +1186,6 @@ public final class ReportTreeViewEnhancer {
         String name = f[0];
         String desc = f[1];
         String params = f[2];
-        String safeRaw = escapeForTextareaText(rawContent);
         StringBuilder b = new StringBuilder();
         b.append("<div class='step-capture-card'>");
         b.append("<div class='step-capture-banner'>STEP · <strong>")
@@ -1129,12 +1195,7 @@ public final class ReportTreeViewEnhancer {
         appendStepCaptureLine(b, "Step name", name, false);
         appendStepCaptureLine(b, "Step description", desc, false);
         appendStepCaptureLine(b, "Step parameters", params, true);
-        b.append("</div>");
-        b.append(
-                "<textarea class='step-capture-raw' name='headers' rows='1' readonly tabindex='-1' "
-                        + "aria-hidden='true'>");
-        b.append(safeRaw);
-        b.append("</textarea></div>");
+        b.append("</div></div>");
         return b.toString();
     }
 

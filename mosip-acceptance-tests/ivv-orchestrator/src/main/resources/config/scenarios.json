@@ -1,4 +1,4 @@
-[
+﻿[
 	{
 		"Scenario": "0",
 		"Tag": "Positive_Test",
@@ -207,7 +207,7 @@
 			"Description": "Removes registration center mapping from the user and stores output for later steps",
 			"Input Parameters": "user action and user index and password and center machine details",
 			"Return Value": "User center and machine details",
-			"Action": "$$details1=e2e_User(DELETE_CENTERMAPPING,3/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details3)"
+			"Action": "$$details3=e2e_User(DELETE_CENTERMAPPING,3/*USER_INDEX*/@@Techno@123/*PASSWORD*/,$$details3)"
 		},
 		"Step-34": {
 			"Description": "Creates user through zone search and mapping workflow and stores output for later steps",
