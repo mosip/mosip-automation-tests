@@ -85,11 +85,17 @@ public class TestRunner {
 			homeDir = new File(TestResources.getResourcePath().replace("/MosipTestResource/MosipTemporaryTestResource", "") + "testngFile");
 			LOGGER.info("IDE Home Dir=" + homeDir);
 		} else {
-			homeDir = new File(System.getProperty("user.dir") + "/"+TestResources.resourceTestFolderName + "/" + TestResources.resourceFolderName +"/testngFile");
+			homeDir = new File(getGlobalResourcePath() + "/testngFile");
 			LOGGER.info("Jar Home Dir=" + homeDir);
 		}
 
-		for (File file : homeDir.listFiles()) {
+		File[] suiteFiles = homeDir.listFiles();
+		if (suiteFiles == null || suiteFiles.length == 0) {
+			throw new IllegalStateException(
+					"No TestNG suite files under " + homeDir.getAbsolutePath()
+							+ ". Ensure the image JAR contains testngFile/ and startup completed extractResourceFromJar.");
+		}
+		for (File file : suiteFiles) {
 			if (file.getName().toLowerCase() != null) {
 				suitefiles.add(file.getAbsolutePath());
 			}

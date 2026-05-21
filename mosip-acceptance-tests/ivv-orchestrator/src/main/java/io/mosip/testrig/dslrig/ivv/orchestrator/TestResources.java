@@ -44,6 +44,12 @@ public class TestResources {
 	public static void copyTestResource(String resPath) {
 		try {
 			File source = new File(TestResources.getGlobalResourcePaths().replace("MosipTestResource/MosipTemporaryTestResource", "") + resPath);
+			if (!source.isDirectory()) {
+				// JAR runs already unpack into MosipTemporaryTestResource via extractResourceFromJar.
+				// Deleting destChild here would remove those files when source is only on the classpath.
+				logger.info("Skipping copyTestResource; source not on disk: " + source.getAbsolutePath());
+				return;
+			}
 
 			File destination = new File(TestResources.getGlobalResourcePaths());
 			File destChild = new File(destination, resPath.startsWith("/") ? resPath.substring(1) : resPath);
