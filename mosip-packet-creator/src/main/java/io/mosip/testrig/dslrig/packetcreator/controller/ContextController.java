@@ -53,6 +53,8 @@ import io.mosip.testrig.dslrig.packetcreator.service.CommandsService;
 
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
 
+import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
+
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -64,7 +66,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 
-@Tag(name = "ContextController", description = "REST APIs for context management")
+@OpenApiDocumentation.StandardErrorResponses
+
+@Tag(name = "ContextController", description = "Initialize MOSIP test context variables, verify environment, reset data, and export internal API logs.")
 
 public class ContextController {
 

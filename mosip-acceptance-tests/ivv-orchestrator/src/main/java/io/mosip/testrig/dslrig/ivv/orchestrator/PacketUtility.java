@@ -1331,6 +1331,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList, Scenario.Step step)
 			throws RigInternalError {
+		resFilePath = resolveScenarioVariable(step, resFilePath);
 		String url = baseUrl + props.getProperty("getPersonaData");
 		JSONObject jsonReqInner = new JSONObject();
 		if (retriveAttributeList != null && !(retriveAttributeList.isEmpty()))

@@ -27,12 +27,14 @@ import io.mosip.testrig.dslrig.packetcreator.dto.MockABISExpectationsDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.PersonaRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.UpdatePersonaDto;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
+import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@OpenApiDocumentation.StandardErrorResponses
 @Tag(name = "PersonaController", description = "REST APIs for Persona management")
 public class PersonaController {
 

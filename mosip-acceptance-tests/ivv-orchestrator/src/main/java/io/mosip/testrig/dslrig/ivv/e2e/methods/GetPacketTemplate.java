@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
@@ -50,16 +51,26 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 					personaPath = step.getScenario().getVariables().get(personaId);
 					step.getScenario().getResidentTemplatePaths().clear();
 				} else {
-					personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
-					for (String id : personaIdValue.stringPropertyNames()) {
-						String value = personaIdValue.get(id).toString();
-						if (step.getScenario().getResidentPersonaIdPro().get(value) == null) {
-							this.hasError = true;
-							throw new RigInternalError("Persona id : [" + value + "] is not present is the system");
+					String variableKey = "$$" + toDslVariableName(personaId);
+					if (step.getScenario().getVariables().containsKey(variableKey)) {
+						personaPath = step.getScenario().getVariables().get(variableKey);
+						step.getScenario().getResidentTemplatePaths().clear();
+					} else {
+						personaIdValue = PacketUtility.getParamsFromArg(personaId, "@@");
+						for (String id : personaIdValue.stringPropertyNames()) {
+							String value = personaIdValue.get(id).toString();
+							if (step.getScenario().getResidentPersonaIdPro().get(value) == null) {
+								this.hasError = true;
+								throw new RigInternalError(
+										"Persona id : [" + value + "] is not present is the system");
+							}
+							personaPath = step.getScenario().getResidentPersonaIdPro().get(value).toString();
 						}
-						personaPath = step.getScenario().getResidentPersonaIdPro().get(value).toString();
 					}
-
+				}
+				if (personaPath == null || personaPath.isBlank()) {
+					this.hasError = true;
+					throw new RigInternalError("Persona file path is not set for parameter: [" + personaId + "]");
 				}
 				step.getScenario().getResidentTemplatePaths().put(personaPath, null);
 			}
@@ -89,6 +100,24 @@ public class GetPacketTemplate extends BaseTestCaseUtil implements StepInterface
 			}
 		}
 
+	}
+
+	private static String toDslVariableName(String displayName) {
+		String[] words = displayName.trim().split("\\s+");
+		if (words.length == 0) {
+			return displayName;
+		}
+		StringBuilder sb = new StringBuilder(words[0].toLowerCase(Locale.ROOT));
+		for (int i = 1; i < words.length; i++) {
+			String w = words[i];
+			if (!w.isEmpty()) {
+				sb.append(Character.toUpperCase(w.charAt(0)));
+				if (w.length() > 1) {
+					sb.append(w.substring(1).toLowerCase(Locale.ROOT));
+				}
+			}
+		}
+		return sb.toString();
 	}
 
 }

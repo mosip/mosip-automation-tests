@@ -69,13 +69,12 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 		if (step.getParameters().size() == 2) {
 			uins = step.getParameters().get(1);
 			if (!StringUtils.isBlank(uins))
-				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
+				uinList = new ArrayList<>(Arrays.asList(resolveScenarioVariable(uins).split("@@")));
 		} else if (step.getParameters().size() > 2) {
 			uins = step.getParameters().get(1);
-			_personFilePath = step.getParameters().get(2);
-			if (uins.startsWith("$$") && _personFilePath.startsWith("$$")) {
-				uins = step.getScenario().getVariables().get(uins);
-				_personFilePath = step.getScenario().getVariables().get(_personFilePath);
+			_personFilePath = resolveScenarioVariable(step.getParameters().get(2));
+			if (!StringUtils.isBlank(uins)) {
+				uins = resolveScenarioVariable(uins);
 				uinList = new ArrayList<>(Arrays.asList(uins.split("@@")));
 			}
 		} else
@@ -84,13 +83,11 @@ public class EkycDemo extends BaseTestCaseUtil implements StepInterface {
 		if (step.getParameters().size() == 2) {
 			vids = step.getParameters().get(1);
 			if (!StringUtils.isBlank(vids))
-				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
+				vidList = new ArrayList<>(Arrays.asList(resolveScenarioVariable(vids).split("@@")));
 		} else if (step.getParameters().size() > 2) {
 			vids = step.getParameters().get(3);
-			_personFilePath = step.getParameters().get(2);
-			if (vids.startsWith("$$") && _personFilePath.startsWith("$$")) {
-				vids = step.getScenario().getVariables().get(vids);
-				_personFilePath = step.getScenario().getVariables().get(_personFilePath);
+			if (!StringUtils.isBlank(vids)) {
+				vids = resolveScenarioVariable(vids);
 				vidList = new ArrayList<>(Arrays.asList(vids.split("@@")));
 			}
 		} else

@@ -49,9 +49,9 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 				step.getScenario().getRidPersonaPath().remove(packetPath);
 			}
 			storeProp(step.getScenario().getPridsAndRids());
-		} else if (step.getParameters().size() > 1) { 
+		} else if (step.getParameters().size() > 1) {
 			process = step.getParameters().get(0);
-			String _zipPacketPath = step.getParameters().get(1);
+			String _zipPacketPath = resolveZipPacketPath(step.getParameters().get(1));
 			if (step.getParameters().size() == 3) {
 				_additionalInfo = step.getParameters().get(2);
 				if (_additionalInfo.startsWith("$$")) {
@@ -61,11 +61,9 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 				_additionalInfo = null;
 			}
 
-			if (_zipPacketPath.startsWith("$$")) {
-				_zipPacketPath = step.getScenario().getVariables().get(_zipPacketPath);
-				String _rid = ridsync(_zipPacketPath, E2EConstants.APPROVED_SUPERVISOR_STATUS, process);
-				if (step.getOutVarName() != null)
-					step.getScenario().getVariables().put(step.getOutVarName(), _rid);
+			String _rid = ridsync(_zipPacketPath, E2EConstants.APPROVED_SUPERVISOR_STATUS, process);
+			if (step.getOutVarName() != null) {
+				step.getScenario().getVariables().put(step.getOutVarName(), _rid);
 			}
 		}
 
@@ -85,7 +83,27 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 
 	}
 
-	private JSONObject buildRequest(String containerPath, String supervisorStatus, String process) {
+	private String resolveZipPacketPath(String zipPacketPathParam) throws RigInternalError {
+		if (zipPacketPathParam == null || zipPacketPathParam.isBlank()) {
+			throw new RigInternalError("packet zip path parameter is missing in step: " + step.getName());
+		}
+		if (zipPacketPathParam.startsWith("$$")) {
+			String resolved = step.getScenario().getVariables().get(zipPacketPathParam);
+			if (resolved == null || resolved.isBlank()) {
+				throw new RigInternalError("Variable " + zipPacketPathParam
+						+ " is not set. Run packetcreator (or a step that stores the packet zip path) before ridsync.");
+			}
+			return resolved;
+		}
+		return zipPacketPathParam;
+	}
+
+	private JSONObject buildRequest(String containerPath, String supervisorStatus, String process)
+			throws RigInternalError {
+		if (containerPath == null || containerPath.isBlank()) {
+			throw new RigInternalError(
+					"containerPath is required for ridsync but was empty. Ensure $$zipPacketPath is set by packetcreator.");
+		}
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("containerPath", containerPath);
 		jsonReq.put("email", "email");
@@ -94,8 +112,9 @@ public class Ridsync extends BaseTestCaseUtil implements StepInterface {
 		jsonReq.put("process", process);
 		jsonReq.put("supervisorComment", "supervisorComment");
 		jsonReq.put("supervisorStatus", supervisorStatus);
-		jsonReq.put("supervisorStatus", supervisorStatus);
-		jsonReq.put("additionalInfoReqId", _additionalInfo);
+		if (_additionalInfo != null && !_additionalInfo.isBlank()) {
+			jsonReq.put("additionalInfoReqId", _additionalInfo);
+		}
 
 		return jsonReq;
 	}

@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -622,6 +623,50 @@ public class BaseTestCaseUtil extends BaseStep {
 			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
 			return regProcWaitInterval;
 		}
+	}
+
+	protected String resolveScenarioVariable(String value) throws RigInternalError {
+		return resolveScenarioVariable(step, value);
+	}
+
+	protected static String resolveScenarioVariable(Scenario.Step step, String value) throws RigInternalError {
+		if (org.apache.commons.lang.StringUtils.isBlank(value)) {
+			return value;
+		}
+		String normalized = value.trim().replaceAll("/\\*[^*]*\\*/", "").trim();
+		if (normalized.startsWith("$$")) {
+			String resolved = step.getScenario().getVariables().get(normalized);
+			if (resolved != null && !resolved.isBlank()) {
+				return resolved;
+			}
+			throw new RigInternalError("Scenario variable is not set or empty: " + normalized);
+		}
+		String variableKey = "$$" + toDslVariableName(normalized);
+		if (step.getScenario().getVariables().containsKey(variableKey)) {
+			String resolved = step.getScenario().getVariables().get(variableKey);
+			if (resolved != null && !resolved.isBlank()) {
+				return resolved;
+			}
+		}
+		return normalized;
+	}
+
+	private static String toDslVariableName(String displayName) {
+		String[] words = displayName.trim().split("\\s+");
+		if (words.length == 0) {
+			return displayName;
+		}
+		StringBuilder sb = new StringBuilder(words[0].toLowerCase(Locale.ROOT));
+		for (int i = 1; i < words.length; i++) {
+			String w = words[i];
+			if (!w.isEmpty()) {
+				sb.append(Character.toUpperCase(w.charAt(0)));
+				if (w.length() > 1) {
+					sb.append(w.substring(1).toLowerCase(Locale.ROOT));
+				}
+			}
+		}
+		return sb.toString();
 	}
 
 	/** Fail fast when MOSIP returns {@code errors} or a null {@code response} body. */

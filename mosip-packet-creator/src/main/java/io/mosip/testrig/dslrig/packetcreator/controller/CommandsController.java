@@ -17,14 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 import io.mosip.testrig.apirig.utils.ErrorCodes;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.packetcreator.service.CommandsService;
+import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
-
-@Tag(name = "CommandsController", description = "REST APIs for Command Center,x Kubernetes Control")
+@OpenApiDocumentation.StandardErrorResponses
+@Tag(name = "CommandsController", description = "File write utilities and registration-machine private key generation for DSL scenarios.")
 public class CommandsController {
 	private static final Logger logger = LoggerFactory.getLogger(CommandsController.class);
 
