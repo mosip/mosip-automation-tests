@@ -43,29 +43,27 @@ public class GenerateAndUploadPacketSkippingPreregWithInvalidCbeff extends BaseT
 			}
 
 		} else {
-			String residentPath = step.getParameters().get(0);
-			String templatePath = step.getParameters().get(1);
-
 			if (step.getParameters().size() == 3) {
 				getRidFromSync = Boolean.parseBoolean(step.getParameters().get(2));
-
 			}
 
 			String _additionalInfoReqId = null;
 			if (step.getParameters().size() > 3) {
 				_additionalInfoReqId = step.getParameters().get(3);
-				if (!_additionalInfoReqId.isEmpty() && _additionalInfoReqId.startsWith("$$"))
-					_additionalInfoReqId = step.getScenario().getVariables().get(_additionalInfoReqId);
+				if (!_additionalInfoReqId.isEmpty() && _additionalInfoReqId.startsWith("$$")) {
+					_additionalInfoReqId = resolveScenarioVariable(step, _additionalInfoReqId);
+				}
 			}
 
-			if (residentPath.startsWith("$$") && templatePath.startsWith("$$")) {
-				residentPath = step.getScenario().getVariables().get(residentPath);
-				templatePath = step.getScenario().getVariables().get(templatePath);
-				String rid = packetUtility.generateAndUploadWithInvalidCbeffPacketSkippingPrereg(templatePath,
-						residentPath, _additionalInfoReqId, step.getScenario().getCurrentStep(), "success", step,
-						getRidFromSync, invalidMachineFlag);
-				if (step.getOutVarName() != null)
-					step.getScenario().getVariables().put(step.getOutVarName(), rid);
+			String[] paths = resolvePersonaAndTemplatePaths(step);
+			String rid = packetUtility.generateAndUploadWithInvalidCbeffPacketSkippingPrereg(paths[1], paths[0],
+					_additionalInfoReqId, step.getScenario().getCurrentStep(), "success", step, getRidFromSync,
+					invalidMachineFlag);
+			if (rid == null || rid.isBlank()) {
+				throw new RigInternalError("Unable to generate and upload packet; registration ID was not returned");
+			}
+			if (step.getOutVarName() != null) {
+				step.getScenario().getVariables().put(step.getOutVarName(), rid);
 			}
 		}
 	}

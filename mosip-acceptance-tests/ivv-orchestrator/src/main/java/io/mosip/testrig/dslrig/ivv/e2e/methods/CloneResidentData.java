@@ -1,10 +1,5 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -41,28 +36,15 @@ public class CloneResidentData extends BaseTestCaseUtil implements StepInterface
 			throw new RigInternalError("Unable to resolve resident data path in step: " + step.getName());
 		}
 
-		Path source = Path.of(personaFilePath);
-		if (!Files.exists(source)) {
+		String clonedPath = packetUtility.cloneResidentData(personaFilePath, step);
+		if (clonedPath == null || clonedPath.isBlank()) {
 			this.hasError = true;
-			throw new RigInternalError("Resident data file does not exist: " + personaFilePath);
-		}
-
-		String fileName = source.getFileName().toString();
-		int dotIndex = fileName.lastIndexOf('.');
-		String base = dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
-		String ext = dotIndex > 0 ? fileName.substring(dotIndex) : "";
-		Path target = source.resolveSibling(base + "_oldbio" + ext);
-
-		try {
-			Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
-			this.hasError = true;
-			throw new RigInternalError("Failed to clone resident data file: " + e.getMessage());
+			throw new RigInternalError("Clone resident data returned empty path for: " + personaFilePath);
 		}
 
 		if (step.getOutVarName() != null) {
-			step.getScenario().getVariables().put(step.getOutVarName(), target.toString());
+			step.getScenario().getVariables().put(step.getOutVarName(), clonedPath);
 		}
-		logger.info("Cloned resident data path: " + target);
+		logger.info("Cloned resident data path: " + clonedPath);
 	}
 }

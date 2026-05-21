@@ -446,7 +446,7 @@ Given I get ping health where component is packetcreator
 And I read pre req where pre requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and password is false@@false@@false and store result in persona file path
+And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and password is false/*FINGER_BIOMETRIC_FLAG*/@@false/*IRIS_BIOMETRIC_FLAG*/@@false and store result in persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is REREGISTER, and registration id is the saved registration ID
@@ -2139,7 +2139,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender is Male and store result in persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
-And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger, and persona path is the saved persona file path, and modality hash map is modality hash value, and delay seconds is -1, and password is Success
+And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is -1, and mock ABIS status is Success
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is PROCESSED, and registration id is the saved registration ID
 And I get uin by rid where source registration id is the saved registration ID and store result in UIN
@@ -2161,7 +2161,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender is Male and store result in persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
-And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger, and password is Left LittleFinger, and hash modality keys is false, and persona path is Right IndexFinger, and password is Left LittleFinger, and delay seconds is the saved persona file path, and mock abis status is modality hash value, and delay from actuator is delay, and parameter 10 is 10, and password is Error
+And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay from actuator is delay, and mock ABIS status is 10@@Error
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 Then I check ridstage where registration id is the saved registration ID, and rid stage is BIOGRAPHIC_VERIFICATION, and stage status is REPROCESS
 Then I delete mock expect where modality hash value is the saved modality hash value
@@ -2312,7 +2312,7 @@ And I get additional req id where email prefix is additionalReqId_86 and store r
 And I get resident data where persona type is adult, and guardian flag is false, and gender is Male and store result in persona file path1
 And I get packet template where packet type is BIOMETRIC_CORRECTION, and persona file path is persona file path1 and store result in template path1
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path1 and store result in modality hash value
-And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger, and duplicate flag is true, and hash modality keys is Right IndexFinger, and persona path is persona file path1, and modality hash map is modality hash value, and delay seconds is -1, and password is Duplicate
+And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and duplicate match flag is true, and hash modality keys is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path1, and modality hash map is the saved modality hash value, and delay seconds is -1, and mock ABIS status is Duplicate
 And I packetcreator where packet type is BIOMETRIC_CORRECTION, and template path is template path1, and additional info request id is additional req id and store result in zip packet path1
 And I ridsync where packet type is BIOMETRIC_CORRECTION, and packet zip path is zip packet path1, and additional info request id is additional req id and store result in rid1
 And I packetsync where packet zip path is zip packet path1
@@ -2594,7 +2594,7 @@ Given I get ping health where component is packetcreator
 And I read pre req where pre requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and password is false/*IRIS_BIOMETRIC_FLAG*/@@false@@true and store result in persona file path
+And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and password is false/*FINGER_BIOMETRIC_FLAG*/@@false/*IRIS_BIOMETRIC_FLAG*/@@true and store result in persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is PROCESSED, and registration id is the saved registration ID
@@ -2610,7 +2610,7 @@ Given I get ping health where component is packetcreator
 And I read pre req where pre requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and generate private key is false, and gender is Male, and password is false/*FINGER_BIOMETRIC_FLAG*/@@false/*IRIS_BIOMETRIC_FLAG*/@@false and store result in persona file path
+And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and password is false@@false@@false and store result in persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 Then I check ridstage where registration id is the saved registration ID, and rid stage is VALIDATE_PACKET, and stage status is FAILED
@@ -2686,7 +2686,7 @@ And I get uin by rid where source registration id is the saved parent registrati
 And I get email by uin where resident uin is the saved parent UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I update resident with uin where persona file path is the saved parent persona file path, and uin is the saved parent UIN
-And I get resident data where persona type is minor, and guardian flag is true, and gender is Male, and password is false/*FINGER_BIOMETRIC_FLAG*/@@false/*IRIS_BIOMETRIC_FLAG*/@@true and store result in child persona file path
+And I get resident data where persona type is minor, and guardian flag is true, and gender is Male, and password is false/*FINGER_BIOMETRIC_FLAG*/@@false/*IRIS_BIOMETRIC_FLAG*/@@true/*FACE_BIOMETRIC_FLAG*/ and store result in child persona file path
 And I update resident with guardian skipping pre reg where guardian persona file path is the saved parent persona file path, and child persona file path is the saved child persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved child persona file path and store result in child packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved child persona file path, and packet template path is the saved child packet template path and store result in child registration ID
@@ -2892,7 +2892,7 @@ And I get resident data where persona type is minor, and guardian flag is true, 
 And I get resident data where persona type is adult, and guardian flag is false, and gender is Male and store result in parent persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved parent persona file path and store result in parent packet template path
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and persona path is the saved parent persona file path and store result in modality hash value
-And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger, and duplicate flag is true, and hash modality keys is Right IndexFinger, and persona path is the saved parent persona file path, and modality hash map is modality hash value, and delay seconds is -1, and password is Duplicate
+And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and duplicate match flag is true, and hash modality keys is Right IndexFinger@@Left LittleFinger, and persona path is the saved parent persona file path, and modality hash map is the saved modality hash value, and delay seconds is -1, and mock ABIS status is Duplicate
 And I packetcreator where packet type is NEW, and template path is the saved parent packet template path and store result in parent zip packet path
 And I ridsync where packet type is NEW, and packet zip path is parent zip packet path and store result in parent registration ID
 And I update resident with rid where persona file path is the saved parent persona file path, and registration id is the saved parent registration ID
@@ -4693,7 +4693,7 @@ And I get uin by rid where source registration id is rid1 and store result in ui
 And I get email by uin where resident uin is uin1 and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
-And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger, and duplicate flag is false, and hash modality keys is Right IndexFinger, and persona path is the saved persona file path, and modality hash map is modality hash value, and delay seconds is -1, and password is Duplicate
+And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is -1, and mock ABIS status is Duplicate
 And I update demo or bio details where bio type is face, and password is finger@@iris, and update attributes is 0, and update attributes is 0, and persona to update is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and uin is uin1
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
@@ -5899,7 +5899,7 @@ And I get email by uin where resident uin is the saved UIN and store result in e
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in template path2
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
-And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger, and persona path is the saved persona file path, and modality hash map is modality hash value, and delay from actuator is delay, and mock ABIS status is 10, and password is Error
+And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay from actuator is delay, and mock ABIS status is 10@@Error
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is template path2 and store result in second registration ID
 And I update demo or bio details where bio type is finger, and miss fields is 0, and update attributes is 0, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and uin is the saved UIN
@@ -6387,9 +6387,9 @@ Given I get ping health where component is packetcreator
 And I read pre req where pre requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and large face is true and store result in resident data
-And I get packet template where packet type is NEW, and persona file path is resident data and store result in template
-And I generate and upload packet skipping prereg where persona file path is resident data, and packet template path is template and store result in registration ID
+And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and large face is true and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is PROCESSED, and registration id is the saved registration ID
 And I delete packet data
 
@@ -6402,9 +6402,9 @@ Given I get ping health where component is packetcreator
 And I read pre req where pre requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and large face is false, and obstructed face is true and store result in resident data
-And I get packet template where packet type is NEW, and persona file path is resident data and store result in template
-And I generate and upload packet skipping prereg where persona file path is resident data, and packet template path is template and store result in registration ID
+And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and large face is false, and obstructed face is true and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is PROCESSED, and registration id is the saved registration ID
 And I delete packet data
 
@@ -6439,6 +6439,7 @@ And I read pre req where pre requisite data index is 1 and store result in envir
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender is Male and store result in persona file path
+And I clone resident data where parameter 1 is the saved persona file path and store result in old bio persona file path
 And I skip
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
@@ -6447,7 +6448,6 @@ And I get uin by rid where source registration id is the saved registration ID a
 And I get email by uin where resident uin is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I wait where wait seconds is UIN_WAIT_TIME
-And I clone resident data where parameter 1 is the saved persona file path and store result in old bio persona file path
 And I update demo or bio details where bio type is iris, and password is face, and miss fields is 0, and update attributes is 0, and parameter 5 is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and uin is the saved UIN
 And I update resident with uin where persona file path is old bio persona file path, and uin is the saved UIN
@@ -6476,6 +6476,7 @@ And I read pre req where pre requisite data index is 1 and store result in envir
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender is Male and store result in persona file path
+And I clone resident data where parameter 1 is the saved persona file path and store result in old demo persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is PROCESSED, and registration id is the saved registration ID
@@ -6483,7 +6484,6 @@ And I get uin by rid where source registration id is the saved registration ID a
 And I get email by uin where resident uin is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I wait where wait seconds is UIN_WAIT_TIME
-And I clone resident data where parameter 1 is the saved persona file path and store result in old demo persona file path
 And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and uin is the saved UIN
 And I update resident with uin where persona file path is old demo persona file path, and uin is the saved UIN
@@ -6512,7 +6512,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender is Male and store result in persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
-And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger, and password is Left LittleFinger, and duplicate flag is true, and persona path is Right IndexFinger, and password is Left LittleFinger, and delay seconds is the saved persona file path, and mock abis status is modality hash value, and delay from actuator is delay, and parameter 10 is 10, and password is Error
+And I configure mock abis where check persona presence is -1, and modality subtypes is Right IndexFinger@@Left LittleFinger, and duplicate match flag is true, and hash modality keys is Right IndexFinger@@Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay from actuator is delay, and mock ABIS status is 10@@Error
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 Then I check ridstage where registration id is the saved registration ID, and rid stage is BIOGRAPHIC_VERIFICATION, and stage status is REPROCESS
 Then I verify bio dedup skipped after reprocess where registration id is the saved registration ID

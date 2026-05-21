@@ -35,6 +35,7 @@
   "e2e_downloadCard": ["credential request ID"],
   "e2e_CheckTags": ["registration ID"],
   "e2e_clonePersonaAndUpdate": ["persona file path", "name fields to trim"],
+  "e2e_cloneResidentData": ["persona file path"],
   "e2e_bioAuthentication": ["device info file", "UIN", "VID", "persona file path", "scenario flow"],
   "e2e_ekycOtp": ["UIN ID type", "UIN", "VID ID type", "VID", "email"],
   "e2e_ekycBio": ["device info file", "UIN", "VID", "persona file path", "scenario flow"],

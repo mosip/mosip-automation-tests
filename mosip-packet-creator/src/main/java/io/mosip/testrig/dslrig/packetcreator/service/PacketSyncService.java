@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -272,6 +273,29 @@ public class PacketSyncService {
 		response.put(STATUS, SUCCESS);
 		response.put(RESPONSE, outIds);
 		logger.info("Persona generated at time: " + System.currentTimeMillis());
+		return response.toString();
+	}
+
+	public String cloneResidentData(String personaFilePath, String contextKey) throws IOException {
+		if (personaFilePath == null || personaFilePath.isBlank()) {
+			throw new IOException("personaFilePath is required");
+		}
+		Path source = Path.of(personaFilePath);
+		if (!Files.exists(source)) {
+			throw new IOException("Resident data file does not exist: " + personaFilePath);
+		}
+		String fileName = source.getFileName().toString();
+		int dotIndex = fileName.lastIndexOf('.');
+		String base = dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
+		String ext = dotIndex > 0 ? fileName.substring(dotIndex) : "";
+		Path target = source.resolveSibling(base + "_oldbio" + ext);
+		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+		RestClient.logInfo(contextKey, "Cloned resident data from " + source + " to " + target);
+		JSONObject cloned = new JSONObject();
+		cloned.put("path", target.toString());
+		JSONObject response = new JSONObject();
+		response.put(STATUS, SUCCESS);
+		response.put(RESPONSE, cloned);
 		return response.toString();
 	}
 

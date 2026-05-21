@@ -647,8 +647,43 @@ public class BaseTestCaseUtil extends BaseStep {
 			if (resolved != null && !resolved.isBlank()) {
 				return resolved;
 			}
+			throw new RigInternalError("Scenario variable is not set or empty: " + variableKey);
 		}
 		return normalized;
+	}
+
+	/**
+	 * Resolves persona and packet template path parameters and fails fast when a Gherkin
+	 * shorthand (e.g. {@code template}) was not translated to a {@code $$} variable in DSL.
+	 */
+	protected static String[] resolvePersonaAndTemplatePaths(Scenario.Step step) throws RigInternalError {
+		String residentParam = step.getParameters().get(0);
+		String templateParam = step.getParameters().get(1);
+		String residentPath = resolveScenarioVariable(step, residentParam);
+		String templatePath = resolveScenarioVariable(step, templateParam);
+		assertResolvedScenarioFilePath(step, residentParam, residentPath, "Persona file path");
+		assertResolvedScenarioFilePath(step, templateParam, templatePath, "Packet template path");
+		return new String[] { residentPath, templatePath };
+	}
+
+	protected static void assertResolvedScenarioFilePath(Scenario.Step step, String param, String resolved,
+			String label) throws RigInternalError {
+		String normalized = param == null ? "" : param.trim().replaceAll("/\\*[^*]*\\*/", "").trim();
+		if (resolved == null || resolved.isBlank()) {
+			throw new RigInternalError(label + " is not set or empty: " + normalized);
+		}
+		if (!normalized.startsWith("$$") && resolved.equals(normalized)) {
+			String variableKey = "$$" + toDslVariableName(normalized);
+			if (step.getScenario().getVariables().containsKey(variableKey)) {
+				throw new RigInternalError(label + " must reference scenario variable " + variableKey
+						+ " in DSL (got unresolved literal [" + normalized + "])");
+			}
+			throw new RigInternalError(label + " is not a valid file path; unresolved reference [" + normalized
+					+ "]. Use 'the saved packet template path' or $$templatePath in Gherkin.");
+		}
+		if (!resolved.contains("/") && !resolved.contains("\\")) {
+			throw new RigInternalError(label + " is not a valid file path: [" + resolved + "]");
+		}
 	}
 
 	private static String toDslVariableName(String displayName) {

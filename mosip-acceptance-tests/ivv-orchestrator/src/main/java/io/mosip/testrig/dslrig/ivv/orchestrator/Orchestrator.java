@@ -917,8 +917,9 @@ public class Orchestrator {
 				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
 		} else {
 			throw new RigInternalError(
-					"Bundled scenarios.json is no longer supported. Set useGherkinScenarios=yes and maintain config/"
-							+ io.mosip.testrig.dslrig.ivv.parser.gherkin.GherkinFeatureParser.MASTER_FEATURE_FILE);
+					"Bundled scenarios.json is no longer supported. Maintain config/"
+							+ io.mosip.testrig.dslrig.ivv.parser.gherkin.GherkinFeatureParser.MASTER_FEATURE_FILE
+							+ " or set useExternalScenarioSheet=yes with an external scenarios JSON file.");
 		}
 		return scenarioSheet;
 	}

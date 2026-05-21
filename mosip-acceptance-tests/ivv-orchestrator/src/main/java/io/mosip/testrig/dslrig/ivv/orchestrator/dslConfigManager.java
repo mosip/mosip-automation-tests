@@ -73,9 +73,13 @@ public class dslConfigManager extends ConfigManager {
 
 	public static Boolean useGherkinScenarios() {
 		try {
-			return ConfigManager.getproperty("useGherkinScenarios").equalsIgnoreCase("yes");
+			String value = ConfigManager.getproperty("useGherkinScenarios");
+			if (value == null || value.trim().isEmpty()) {
+				return true;
+			}
+			return !value.equalsIgnoreCase("no");
 		} catch (Exception e) {
-			return false;
+			return true;
 		}
 	}
 
@@ -85,7 +89,7 @@ public class dslConfigManager extends ConfigManager {
 		return GHERKIN_FEATURES_DIR;
 	}
 
-	/** When {@code useGherkinScenarios=yes}, scenarios load from {@code config/scenarios.feature} only. */
+	/** Scenarios load from {@code config/scenarios.feature} by default; set {@code useGherkinScenarios=no} for external JSON. */
 	public static String getpacketUtilityBaseUrl() {
 		return ConfigManager.getproperty("packetUtilityBaseUrl");
 	}
