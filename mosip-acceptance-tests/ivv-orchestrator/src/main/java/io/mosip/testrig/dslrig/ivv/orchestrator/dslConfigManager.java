@@ -79,15 +79,10 @@ public class dslConfigManager extends ConfigManager {
 		}
 	}
 
+	private static final String GHERKIN_FEATURES_DIR = "config";
+
 	public static String getGherkinFeaturesPath() {
-		try {
-			String path = ConfigManager.getproperty("gherkinFeaturesPath");
-			if (path != null && !path.isBlank()) {
-				return path.trim();
-			}
-		} catch (Exception ignored) {
-		}
-		return "config";
+		return GHERKIN_FEATURES_DIR;
 	}
 
 	/** When {@code useGherkinScenarios=yes}, scenarios load from {@code config/scenarios.feature} only. */
@@ -225,23 +220,6 @@ public class dslConfigManager extends ConfigManager {
 
 	public static String getInternalApiLoggingForContextProps() {
 		return isInternalApiLoggingForReport() ? "yes" : "no";
-	}
-
-
-	public static boolean isEnhanceReportTreeViewEnabled() {
-		String jvm = System.getProperty("dsl.report.treeview.enabled");
-		if (jvm != null && !jvm.isBlank()) {
-			return !"false".equalsIgnoreCase(jvm.trim());
-		}
-		try {
-			String v = ConfigManager.getproperty("enhanceReportTreeView");
-			if (v == null || v.isBlank()) {
-				return true;
-			}
-			return !"no".equalsIgnoreCase(v.trim());
-		} catch (Exception e) {
-			return true;
-		}
 	}
 
 

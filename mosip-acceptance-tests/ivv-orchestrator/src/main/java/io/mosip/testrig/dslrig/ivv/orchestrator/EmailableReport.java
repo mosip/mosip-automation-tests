@@ -94,12 +94,12 @@ public class EmailableReport implements IReporter {
 		writer.close();
 
 		File primaryReportFile = new File(outputDirectory, fileName).getAbsoluteFile();
-		applyTreeViewEnhancementIfConfigured(primaryReportFile, "primary emailable report");
+		applyTreeViewEnhancement(primaryReportFile, "primary emailable report");
 
 		String failedReportName = generateFailedAndSkippedReport(outputDirectory);
 
 		File failedDigestReportFile = new File(outputDirectory, failedReportName).getAbsoluteFile();
-		applyTreeViewEnhancementIfConfigured(failedDigestReportFile, "failed and skipped digest report");
+		applyTreeViewEnhancement(failedDigestReportFile, "failed and skipped digest report");
 
 		int totalTestCases = totalPassedTests + totalSkippedTests + totalIgnoredTests + totalKnownIssuesTests
 				+ totalFailedTests;
@@ -175,11 +175,7 @@ public class EmailableReport implements IReporter {
 		}
 	}
 
-	private void applyTreeViewEnhancementIfConfigured(File reportFile, String reportLabel) {
-		if (!dslConfigManager.isEnhanceReportTreeViewEnabled()) {
-			REPORT_TREE_LOG.info("DSL report tree-view enhancement is disabled; skipping " + reportLabel + ".");
-			return;
-		}
+	private void applyTreeViewEnhancement(File reportFile, String reportLabel) {
 		if (reportFile == null) {
 			REPORT_TREE_LOG.warn("DSL report tree-view: no file for " + reportLabel + "; skip.");
 			return;

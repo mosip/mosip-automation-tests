@@ -128,7 +128,7 @@ By following these steps, you can seamlessly set up and work with the project in
 ![](docs/configmaps2.png)
 ![](docs/configmaps3.png)
 1. To run particular scenario `scenariosToExecute=2` update scenario number for execution and keep this empty to run entire full suite
-1.Scenario sheet gets picked internally placed at this path `https://github.com/mosip/mosip-automation-tests/blob/release-1.2.1.0/mosip-acceptance-tests/ivv-orchestrator/src/main/resources/config/scenarios.json`
+1.Scenarios are defined in Gherkin at `mosip-acceptance-tests/ivv-orchestrator/src/main/resources/config/scenarios.feature` (`useGherkinScenarios=yes` in `dsl.properties`).
 1. Report gets generated on minio in the mentioned S3 bucket folder in configmaps. For example pick similar to below two reports one is testng report other is extent report.
   -DSL-api-internal.released-full-run-1755444787997-report_T-204_P-168_KI-26_I-9_S-0_F-1
   -ExtentReport-DSL-api-internal.released-full-run-1749647484903-report_T-204_P-168_KI-26_I-9_S-0_F-1
