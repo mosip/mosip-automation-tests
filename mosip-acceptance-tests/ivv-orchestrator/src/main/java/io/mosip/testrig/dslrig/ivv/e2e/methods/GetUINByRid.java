@@ -13,10 +13,10 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.PersonaDataManager;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
-public class GetUinbyRid extends BaseTestCaseUtil implements StepInterface {
+public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 
 	private String getIdentityUrl = "/resident/uin/";
-	static Logger logger = Logger.getLogger(GetUinbyRid.class);
+	static Logger logger = Logger.getLogger(GetUINByRid.class);
 	Boolean isForChildPacket = false;
 
 	static {
