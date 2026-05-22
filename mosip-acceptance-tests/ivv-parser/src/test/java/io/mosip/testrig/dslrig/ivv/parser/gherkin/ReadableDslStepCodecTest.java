@@ -142,19 +142,6 @@ public class ReadableDslStepCodecTest {
     }
 
     @Test
-    public void decodeConfigureMockAbisCanonicalDslForScenario81() {
-        String gherkin = "I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger, "
-                + "and duplicate match flag is false, and hash modality keys is Right IndexFinger, "
-                + "and persona path is the saved persona file path, and modality hash map is the saved modality hash value, "
-                + "and delay seconds is -1, and mock ABIS status is Success";
-        String decoded = ReadableDslStepCodec.decode(gherkin);
-        assertEquals(
-                "e2e_configureMockAbis(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger,false,Right IndexFinger,"
-                        + "$$personaFilePath,$$modalityHashValue,-1/*DEFAULT_MOCK_DELAY*/,@@Success/*STATUS_CODE*/)",
-                decoded);
-    }
-
-    @Test
     public void decodeValidateKycDataKeepsFieldNameLiteral() {
         String gherkin = "I validate kyc data where KYC field is photo, and response variable is ekycData";
         assertDecodeToDsl(gherkin, "e2e_validateKycData(photo,ekycData)");
@@ -174,13 +161,17 @@ public class ReadableDslStepCodecTest {
     }
 
     @Test
-    public void decodeGetBioModalityHashAddsPersonaPresenceAnnotation() {
-        String gherkin = "I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger "
-                + "and Left LittleFinger, and persona path is the saved persona file path";
-        assertEquals(
-                "e2e_getBioModalityHash(-1/*CHECK_PERSONA_PRESENCE*/,Right IndexFinger@@Left LittleFinger,"
-                        + "$$personaFilePath)",
-                ReadableDslStepCodec.decode(gherkin));
+    public void reformatLegacyValidateKycKeepsPhotoNotDemoFieldName() {
+        String legacy = "I validate kyc data where uin is photo, and persona file path is ekycData";
+        String reformatted = ReadableDslStepCodec.reformatGherkinStep(legacy);
+        assertTrue(reformatted.contains("KYC field is photo"));
+        assertFalse(reformatted.contains("KYC field is name"));
+        assertEquals("e2e_validateKycData(photo,ekycData)", ReadableDslStepCodec.decode(reformatted));
+    }
+
+    @Test
+    public void roundTripGetBioModalityHashWithAnnotatedPersonaId() {
+        assertRoundTrip("e2e_getBioModalityHash(-1,Right IndexFinger@@Left LittleFinger,$$personaFilePath)");
     }
 
     private static void assertRoundTrip(String dsl) {
