@@ -176,16 +176,8 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			}
 
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue != null) {
-				String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
-
-				byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
-				bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
-
-				if (bioValue == null || bioValue.length() < 100) {
-					this.hasError = true;
-					throw new RigInternalError(
-							"Not able to get the bio value for field " + modalityToLog + " from persona");
-				}
+				String bioValue = resolveBioValueForAuth(bioResponse, modalityKeyTogetBioValue, modalityToLog,
+						personFilePathvalue);
 				if (idType.contains("UIN") || idType.contains("uin")) {
 					casesListUIN = bioAuth.getYmlTestData(fileName);
 				}
@@ -281,16 +273,8 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 			}
 
 			if (bioResponse != null && !bioResponse.isEmpty() && modalityKeyTogetBioValue != null) {
-				String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKeyTogetBioValue);
-
-				byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
-				bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
-
-				if (bioValue == null || bioValue.length() < 100) {
-					this.hasError = true;
-					throw new RigInternalError(
-							"Not able to get the bio value for field " + modalityToLog + " from persona");
-				}
+				String bioValue = resolveBioValueForAuth(bioResponse, modalityKeyTogetBioValue, modalityToLog,
+						personFilePathvalue);
 				if (idType.contains("VID") || idType.contains("vid")) {
 					casesListVID = bioAuth.getYmlTestData(fileName);
 				}
@@ -303,6 +287,31 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 				}
 			}
 		}
+	}
+
+	private String resolveBioValueForAuth(String bioResponse, String modalityKey, String modalityToLog,
+			String personaPath) throws RigInternalError {
+		String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKey);
+		if (bioValue == null || bioValue.isBlank() || "null".equalsIgnoreCase(bioValue.trim())) {
+			this.hasError = true;
+			throw new RigInternalError("Not able to get the bio value for field " + modalityToLog
+					+ " from persona " + personaPath
+					+ ". Packet creator returned null (MDS capture missing on persona; re-run packet creation or delete stale persona file).");
+		}
+		try {
+			byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue.trim());
+			bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
+		} catch (IllegalArgumentException e) {
+			this.hasError = true;
+			throw new RigInternalError("Invalid biometric data for field " + modalityToLog + " from persona "
+					+ personaPath + ": " + e.getMessage());
+		}
+		if (bioValue.length() < 100) {
+			this.hasError = true;
+			throw new RigInternalError(
+					"Not able to get the bio value for field " + modalityToLog + " from persona " + personaPath);
+		}
+		return bioValue;
 	}
 
 }

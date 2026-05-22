@@ -462,27 +462,15 @@ public class Orchestrator {
 
 			if (scenario.getId().equalsIgnoreCase("AFTER_SUITE")) 
 			{
-				int waitPolls = 0;
 				while (completedScenarioCount.get() < executableScenarioCount) 
 				{
 					long currentTime = System.currentTimeMillis();
 					if (currentTime - suiteStartTime >= suiteMaxTimeInMillis) {
 						logger.error("Exhausted the maximum suite execution time while waiting for scenarios to finish "
 								+ "(completed " + completedScenarioCount.get() + "/" + executableScenarioCount + ")");
-						logger.error("Exhausted the maximum suite execution time while waiting for scenarios to finish "
-								+ "(completed " + completedScenarioCount.get() + "/" + executableScenarioCount + ")");
 						break;
 					}
 
-					logger.info(" Thread ID: " + Thread.currentThread().getId()
-							+ " AFTER_SUITE waiting for scenarios to finish: " + completedScenarioCount.get() + "/"
-							+ executableScenarioCount + " (beforeSuiteComplete="
-							+ beforeSuiteSetupComplete + ")");
-					waitPolls++;
-					if (waitPolls % 15 == 0) {
-						logger.warn("AFTER_SUITE still waiting — another scenario is likely blocked on packet-creator "
-								+ "(e.g. getUinbyRid / ID repository). Check TestNG worker thread logs for the last step.");
-					}
 					Thread.sleep(SUITE_COORDINATION_POLL_MS);
 				}
 				startTime = System.nanoTime();

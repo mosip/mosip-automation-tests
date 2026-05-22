@@ -5755,7 +5755,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
-And I update bio exception in persona where persona file path is the saved persona file path, and biometric exception modalities is Finger:Right Thumb and Finger:Right IndexFinger and Finger:Right MiddleFinger and Finger:Right RingFinger and Finger:Right LittleFinger and 
+And I update bio exception in persona where persona file path is the saved persona file path, and biometric exception modalities is Finger:Right Thumb and Finger:Right IndexFinger and Finger:Right MiddleFinger and Finger:Right RingFinger and Finger:Right LittleFinger
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID

@@ -68,12 +68,8 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 				}
 			}
 		} else if (step.getParameters().size() >= 6) {
-
-			personaPath = step.getParameters().get(4);
-			if (personaPath.startsWith("$$")) {
-				personaPath = step.getScenario().getVariables().get(personaPath);
-				isFound = true;
-			}
+			personaPath = resolveScenarioVariable(step.getParameters().get(4));
+			isFound = referencesScenarioVariable(step.getParameters().get(5));
 		} else {
 			this.hasError = true;
 			throw new RigInternalError(
@@ -113,28 +109,29 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 
 	private JSONArray buildMockRequest(String personaPath, boolean duplicate, List<String> hashModality,
 			List<String> modalitysubTypeList, String personaId, long delaySec, String statusCode,
-			String failureReason) {
+			String failureReason) throws RigInternalError {
 		Map<String, String> modalityHashValueMap = new HashMap<>();
 		if (isFound) {
 			modalityHashValueMap.clear();
-			String _hashValue = step.getParameters().get(5);
-			if (_hashValue.startsWith("$$"))
-				_hashValue = step.getScenario().getVariables().get(_hashValue);
-			logger.info(_hashValue);
-			String[] keyValue = _hashValue.split(",");
-			if (keyValue != null) {
-				for (String s : keyValue) {
-					String[] arr = s.split("=");
-					if (arr.length > 1) {
-						String key = (arr[0].trim().startsWith("{")) ? arr[0].trim().substring(1) : arr[0].trim();
-						String value = (arr[1].trim().endsWith("}"))
-								? arr[1].trim().substring(0, arr[1].trim().length() - 1)
-								: arr[1].trim();
-						modalityHashValueMap.put(key, value);
+			String hashValue = resolveScenarioVariable(step.getParameters().get(5));
+			logger.info(hashValue);
+			if (!StringUtils.isBlank(hashValue)) {
+				for (String entry : hashValue.split(",")) {
+					String[] keyAndValue = entry.split("=", 2);
+					if (keyAndValue.length < 2) {
+						continue;
 					}
+					String key = keyAndValue[0].trim();
+					String value = keyAndValue[1].trim();
+					if (key.length() > 0 && key.charAt(0) == '{') {
+						key = key.substring(1);
+					}
+					if (value.length() > 0 && value.charAt(value.length() - 1) == '}') {
+						value = value.substring(0, value.length() - 1);
+					}
+					modalityHashValueMap.put(key, value);
 				}
 			}
-
 		} else {
 			modalityHashValueMap.clear();
 			modalityHashValueMap = hashtable.get(personaId);
@@ -164,5 +161,4 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 		outterReq.put(jsonOutterReq);
 		return outterReq;
 	}
-
 }

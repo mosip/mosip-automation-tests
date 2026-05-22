@@ -314,7 +314,7 @@ public final class ReadableDslStepCodec {
         return label.contains("path") || label.endsWith(" id") || label.contains(" id")
                 || label.contains("uin") || label.contains("email") || label.contains("details")
                 || label.contains("template") || label.contains("zip") || label.contains("persona")
-                || label.contains("req id");
+                || label.contains("hash") || label.contains("req id");
     }
 
     /** Multi-word lowercase phrase used as a shorthand variable reference in Gherkin. */

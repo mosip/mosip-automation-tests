@@ -629,6 +629,21 @@ public class BaseTestCaseUtil extends BaseStep {
 		return resolveScenarioVariable(step, value);
 	}
 
+	protected boolean referencesScenarioVariable(String value) {
+		return referencesScenarioVariable(step, value);
+	}
+
+	protected static boolean referencesScenarioVariable(Scenario.Step step, String value) {
+		if (org.apache.commons.lang.StringUtils.isBlank(value)) {
+			return false;
+		}
+		String normalized = value.trim().replaceAll("/\\*[^*]*\\*/", "").trim();
+		if (normalized.startsWith("$$")) {
+			return true;
+		}
+		return step.getScenario().getVariables().containsKey("$$" + toDslVariableName(normalized));
+	}
+
 	protected static String resolveScenarioVariable(Scenario.Step step, String value) throws RigInternalError {
 		if (org.apache.commons.lang.StringUtils.isBlank(value)) {
 			return value;
