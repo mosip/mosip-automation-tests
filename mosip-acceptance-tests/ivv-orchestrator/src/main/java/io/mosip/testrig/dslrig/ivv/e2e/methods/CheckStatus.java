@@ -48,6 +48,11 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			_ridStatusParam = resolveScenarioVariable(step, step.getParameters().get(0));
 			tempPridAndRid = new HashMap<>();
 			tempPridAndRid.put("rid", resolveScenarioVariable(step, step.getParameters().get(1)));
+			if (step.getParameters().size() == 3) {
+				throw new RigInternalError(
+						"CheckStatus expects 2 parameters (status, rid) or 4 (status, rid, rid2, any|all); got 3 in step: "
+								+ step.getName());
+			}
 			if (step.getParameters().size() > 3) {
 				tempPridAndRid.put("rid2", resolveScenarioVariable(step, step.getParameters().get(2)));
 				_expectedRidProcessed = resolveScenarioVariable(step, step.getParameters().get(3));

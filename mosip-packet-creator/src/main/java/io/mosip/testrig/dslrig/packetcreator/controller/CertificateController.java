@@ -36,6 +36,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 		""")
 public class CertificateController {
 
+	private static final int MAX_DEVICE_CERT_BYTES = 10 * 1024 * 1024;
+
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
@@ -50,10 +52,9 @@ public class CertificateController {
 					Decodes a **Base64-encoded PKCS#12** (`.p12`) payload and writes it for the given context.
 
 					**What happens**
-					1. Resolves `{db-server}` from context variables for `contextKey`.
-					2. Creates `{java.io.tmpdir}/{db-server}/` if missing.
-					3. Saves the file as **device-dsk-partner.p12**.
-					4. Returns a plain-text message with the absolute path on success.
+					1. Resolves context configuration for `contextKey`.
+					2. Decodes and stores the partner device PKCS#12 for mock SBI use.
+					3. Returns a plain-text success message.
 
 					**When to use:** Before mock SBI / device auth flows that require a partner device key on the test runner.
 					""")
@@ -66,10 +67,36 @@ public class CertificateController {
 			@Parameter(description = OpenApiConstants.CONTEXT_KEY_DESC, required = true, example = OpenApiConstants.CONTEXT_KEY_EXAMPLE)
 			@PathVariable("contextKey") String contextKey) {
 		try {
-			byte[] fileBytes = Base64.getDecoder().decode(encodedDeviceCert);
-			String tempDir = System.getProperty("java.io.tmpdir") + File.separator
-					+ VariableManager.getVariableValue(contextKey, "db-server");
-			File file = new File(tempDir, "device-dsk-partner.p12");
+			if (encodedDeviceCert == null || encodedDeviceCert.isBlank()) {
+				return "{\"error\":\"Device certificate payload is required\"}";
+			}
+			String payload = encodedDeviceCert.trim();
+			if (payload.length() >= 2 && payload.startsWith("\"") && payload.endsWith("\"")) {
+				payload = payload.substring(1, payload.length() - 1);
+			}
+			byte[] fileBytes;
+			try {
+				fileBytes = Base64.getDecoder().decode(payload);
+			} catch (IllegalArgumentException e) {
+				return "{\"error\":\"Invalid Base64-encoded device certificate\"}";
+			}
+			if (fileBytes.length == 0) {
+				return "{\"error\":\"Decoded device certificate is empty\"}";
+			}
+			if (fileBytes.length > MAX_DEVICE_CERT_BYTES) {
+				return "{\"error\":\"Device certificate exceeds maximum allowed size\"}";
+			}
+			Object dbServerValue = VariableManager.getVariableValue(contextKey, "db-server");
+			String dbServer = dbServerValue != null ? dbServerValue.toString().trim() : "";
+			if (dbServer.isEmpty() || dbServer.contains("..") || dbServer.contains("/") || dbServer.contains("\\")) {
+				return "{\"error\":\"Invalid db-server context value\"}";
+			}
+			Path baseDir = Paths.get(System.getProperty("java.io.tmpdir")).normalize().toAbsolutePath();
+			Path targetDir = baseDir.resolve(dbServer).normalize();
+			if (!targetDir.startsWith(baseDir)) {
+				return "{\"error\":\"Invalid db-server context value\"}";
+			}
+			File file = targetDir.resolve("device-dsk-partner.p12").toFile();
 			if (!file.getParentFile().exists()) {
 				file.getParentFile().mkdirs();
 			}

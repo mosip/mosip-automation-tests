@@ -37,6 +37,7 @@ public class TestRunner {
 	private static volatile String cachedExternalResourcePath;
 	private static volatile String cachedGlobalResourcePath;
 	private static volatile String cachedLocalResourcePath;
+	private static volatile boolean resourcePathsInitialized;
 
 	public static void main(String[] args) {
 		initializeResourcePaths();
@@ -186,19 +187,20 @@ public class TestRunner {
 	 * before parallel scenarios start.
 	 */
 	public static synchronized void initializeResourcePaths() {
-		if (cachedExternalResourcePath != null) {
+		if (resourcePathsInitialized) {
 			return;
 		}
 		cachedRunType = resolveRunType();
 		cachedExternalResourcePath = resolveExternalResourcePath(cachedRunType);
 		cachedGlobalResourcePath = resolveGlobalResourcePath(cachedRunType, cachedExternalResourcePath);
 		cachedLocalResourcePath = resolveLocalResourcePath(cachedRunType, cachedExternalResourcePath);
+		resourcePathsInitialized = true;
 		LOGGER.info("Resource paths initialized: runType=" + cachedRunType + ", external="
 				+ cachedExternalResourcePath + ", global=" + cachedGlobalResourcePath);
 	}
 
 	private static void ensureResourcePathsInitialized() {
-		if (cachedExternalResourcePath == null) {
+		if (!resourcePathsInitialized) {
 			initializeResourcePaths();
 		}
 	}

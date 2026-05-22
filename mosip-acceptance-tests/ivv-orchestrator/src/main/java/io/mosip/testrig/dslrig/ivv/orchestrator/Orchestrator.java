@@ -849,8 +849,11 @@ public class Orchestrator {
 			if (cause instanceof Error) {
 				throw (Error) cause;
 			}
-			if (cause instanceof Exception) {
+			if (cause instanceof RuntimeException) {
 				throw (RuntimeException) cause;
+			}
+			if (cause instanceof Exception) {
+				throw new RuntimeException(cause);
 			}
 			throw e;
 		}

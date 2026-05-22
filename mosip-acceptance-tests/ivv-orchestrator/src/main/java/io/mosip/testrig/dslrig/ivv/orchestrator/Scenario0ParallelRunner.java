@@ -10,6 +10,8 @@ import java.util.List;
 
 import java.util.Map;
 
+import java.util.Properties;
+
 import java.util.concurrent.CompletableFuture;
 
 import java.util.concurrent.ExecutorService;
@@ -23,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 
+
+import io.mosip.testrig.dslrig.ivv.core.dtos.Persona;
 
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 
@@ -296,18 +300,44 @@ public final class Scenario0ParallelRunner {
 
 		Store copy = new Store();
 
-		copy.setConfigs(source.getConfigs());
-
-		copy.setGlobals(source.getGlobals());
-
-		copy.setPersona(source.getPersona());
-
-		copy.setRegistrationUsers(source.getRegistrationUsers());
-
-		copy.setPartners(source.getPartners());
-
-		copy.setProperties(source.getProperties());
-
+		if (source.getConfigs() != null) {
+			copy.setConfigs(new HashMap<>(source.getConfigs()));
+		}
+		if (source.getGlobals() != null) {
+			copy.setGlobals(new HashMap<>(source.getGlobals()));
+		}
+		if (source.getProperties() != null) {
+			copy.setProperties((Properties) source.getProperties().clone());
+		}
+		if (source.getPersona() != null) {
+			Persona srcPersona = source.getPersona();
+			Persona personaCopy = new Persona();
+			personaCopy.setId(srcPersona.getId());
+			personaCopy.setGroupName(srcPersona.getGroupName());
+			personaCopy.setPersonaClass(srcPersona.getPersonaClass());
+			if (srcPersona.getPersons() != null) {
+				personaCopy.setPersons(new ArrayList<>(srcPersona.getPersons()));
+			}
+			copy.setPersona(personaCopy);
+		}
+		if (source.getRegistrationUsers() != null) {
+			copy.setRegistrationUsers(new ArrayList<>(source.getRegistrationUsers()));
+		}
+		if (source.getPartners() != null) {
+			copy.setPartners(new ArrayList<>(source.getPartners()));
+		}
+		if (source.getHttpData() != null) {
+			Store.HTTPDataObject httpCopy = copy.new HTTPDataObject();
+			httpCopy.setCookie(source.getHttpData().getCookie());
+			copy.setHttpData(httpCopy);
+		}
+		copy.setRegApplicationContext(source.getRegApplicationContext());
+		copy.setRegLocalContext(source.getRegLocalContext());
+		copy.setRegistrationDto(source.getRegistrationDto());
+		copy.setCurrentPerson(source.getCurrentPerson());
+		copy.setCurrentIntroducer(source.getCurrentIntroducer());
+		copy.setCurrentRegistrationUSer(source.getCurrentRegistrationUSer());
+		copy.setCurrentPartner(source.getCurrentPartner());
 		return copy;
 
 	}

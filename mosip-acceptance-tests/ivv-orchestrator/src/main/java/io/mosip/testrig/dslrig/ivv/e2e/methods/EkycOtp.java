@@ -140,8 +140,8 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 						throw new RigInternalError("EkycOtp Auth failed ");
 					}
 				}
-				if (step.getOutVarName() != null && res != null && !res.isBlank()) {
-					step.getScenario().getVariables().put(step.getOutVarName(), res);
+				if (step.getOutVarName() != null) {
+					step.getScenario().getVariables().put(step.getOutVarName(), res != null ? res : "");
 				}
 			}
 
@@ -186,8 +186,8 @@ public class EkycOtp extends BaseTestCaseUtil implements StepInterface {
 						throw new RigInternalError("EkycOtp Auth failed ");
 					}
 				}
-				if (step.getOutVarName() != null && res != null && !res.isBlank()) {
-					step.getScenario().getVariables().put(step.getOutVarName(), res);
+				if (step.getOutVarName() != null) {
+					step.getScenario().getVariables().put(step.getOutVarName(), res != null ? res : "");
 				}
 			}
 

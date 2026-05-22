@@ -57,6 +57,8 @@ public class RidSyncRejected extends BaseTestCaseUtil implements StepInterface {
 				if (_additionalInfo.startsWith("$$")) {
 					_additionalInfo = step.getScenario().getVariables().get(_additionalInfo);
 				}
+			} else {
+				_additionalInfo = null;
 			}
 			String _rid = ridsync(_zipPacketPath, E2EConstants.REJECTED_SUPERVISOR_STATUS, process);
 			if (step.getOutVarName() != null) {

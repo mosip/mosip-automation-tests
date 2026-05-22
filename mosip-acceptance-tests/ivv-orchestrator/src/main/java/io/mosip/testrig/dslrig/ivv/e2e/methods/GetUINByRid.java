@@ -52,11 +52,28 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 	public void getIdentity(HashMap<String, String> rids) throws RigInternalError {
 		step.getScenario().getUinReqIds().clear();
 		step.getScenario().getUinPersonaProp().clear();
-		long waitMs = Long.parseLong(props.getProperty("waitTime", "5000"));
-		int maxLoop = Integer.parseInt(props.getProperty("loopCount", "80"));
-		String uinWaitOverride = dslConfigManager.getUinWaitTime();
-		if (uinWaitOverride != null && !uinWaitOverride.isBlank()) {
-			maxLoop = Math.max(1, (int) ((Long.parseLong(uinWaitOverride) + waitMs - 1) / waitMs));
+		long waitMs;
+		int maxLoop;
+		try {
+			waitMs = Long.parseLong(props.getProperty("waitTime", "5000"));
+			maxLoop = Integer.parseInt(props.getProperty("loopCount", "80"));
+			if (waitMs <= 0) {
+				throw new NumberFormatException("waitTime must be positive");
+			}
+			if (maxLoop <= 0) {
+				throw new NumberFormatException("loopCount must be positive");
+			}
+			String uinWaitOverride = dslConfigManager.getUinWaitTime();
+			if (uinWaitOverride != null && !uinWaitOverride.isBlank()) {
+				long uinWaitMs = Long.parseLong(uinWaitOverride.trim());
+				if (uinWaitMs <= 0) {
+					throw new NumberFormatException("uinWaitTime must be positive");
+				}
+				maxLoop = Math.max(1, (int) ((uinWaitMs + waitMs - 1) / waitMs));
+			}
+		} catch (NumberFormatException e) {
+			throw new RigInternalError("Invalid UIN polling configuration (waitTime, loopCount, or uinWaitTime): "
+					+ e.getMessage());
 		}
 
 		for (String rid : rids.values()) {

@@ -47,7 +47,7 @@ public final class OpenApiConstants {
 			Send as `application/json` with a quoted string value, for example:
 			`"MIIKpAIBAzCCCl4GCSqGSIb3DQEHAaCCCk0EggpJ..."`
 
-			The service decodes the string, creates `{java.io.tmpdir}/{db-server}/` if needed, and writes **device-dsk-partner.p12**.
+			The service decodes the string and stores the certificate for the given context for use in mock SBI / device auth flows.
 			""";
 
 	public static final String PERSONA_PATH_BODY_DESC = """

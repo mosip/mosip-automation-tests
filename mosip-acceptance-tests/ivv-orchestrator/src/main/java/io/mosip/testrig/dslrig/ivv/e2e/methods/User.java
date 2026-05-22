@@ -67,7 +67,7 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				}
 			}
 			if (user.contains("@@")) {
-				String userDetails[] = user.split("@@", 2);
+				String userDetails[] = user.split("@@");
 				indexOfUser = userDetails[0];
 				user = userDetails[0];
 				if (user.contains("dsl-0"))
