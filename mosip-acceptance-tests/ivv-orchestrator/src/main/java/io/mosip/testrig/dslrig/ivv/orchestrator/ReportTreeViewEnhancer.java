@@ -3,6 +3,8 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -178,6 +180,25 @@ public final class ReportTreeViewEnhancer {
 
     private static volatile String headTemplate;
 
+    private static final String TEXTAREA_TRUNCATE_NOTE =
+            "\n\n… [truncated for report load time — see test run logs for full payload]";
+
+    /** Max chars per textarea when preparing / enhancing the tree-view report. */
+    private static final int REPORT_TEXTAREA_MAX_CHARS = 8192;
+
+    /** Stream-shrink pass runs when the on-disk report is at least this large. */
+    private static final int REPORT_STREAM_TRUNCATE_MIN_BYTES = 8 * 1024 * 1024;
+
+    /** Skip tree-view enhancement above this in-memory size (plain HTML kept). */
+    private static final int REPORT_TREE_VIEW_MAX_ENHANCE_INPUT_CHARS = 80_000_000;
+
+    private enum TextareaScanState {
+        NORMAL,
+        TEXTAREA_TAG,
+        TEXTAREA_BODY,
+        TEXTAREA_SKIP
+    }
+
     private ReportTreeViewEnhancer() {}
 
 
@@ -194,7 +215,18 @@ public final class ReportTreeViewEnhancer {
         Path target = reportFile.toPath().toAbsolutePath().normalize();
         log.info("ReportTreeViewEnhancer: detected report file for enhancement at " + target);
         try {
+            streamPrepareReportIfLarge(target, log);
             String html = Files.readString(target, StandardCharsets.UTF_8);
+            html = applyReportPayloadLimits(html);
+            if (html.length() > REPORT_TREE_VIEW_MAX_ENHANCE_INPUT_CHARS) {
+                log.warn(
+                        "ReportTreeViewEnhancer: report still too large for tree-view enhancement ("
+                                + html.length()
+                                + " chars > limit "
+                                + REPORT_TREE_VIEW_MAX_ENHANCE_INPUT_CHARS
+                                + "); leaving plain HTML.");
+                return true;
+            }
             if (html.contains("report-shell")) {
                 String patched = applyReportPayloadLimits(patchExistingTreeViewReport(html));
                 if (!patched.equals(html)) {
@@ -244,6 +276,12 @@ public final class ReportTreeViewEnhancer {
                     "ReportTreeViewEnhancer: enhanced report written in place; previous plain HTML removed/replaced: "
                             + target);
             return true;
+        } catch (OutOfMemoryError oom) {
+            log.error(
+                    "ReportTreeViewEnhancer: out of memory during enhancement; leaving existing report unchanged: "
+                            + target,
+                    oom);
+            return false;
         } catch (Exception e) {
             log.error("ReportTreeViewEnhancer: enhancement failed; leaving existing report unchanged: " + target, e);
             return false;
@@ -251,9 +289,142 @@ public final class ReportTreeViewEnhancer {
     }
 
 
+    private static void streamPrepareReportIfLarge(Path target, Logger log) throws IOException {
+        long size = Files.size(target);
+        if (size < REPORT_STREAM_TRUNCATE_MIN_BYTES) {
+            return;
+        }
+        int maxChars = REPORT_TEXTAREA_MAX_CHARS;
+        Path parent = target.getParent();
+        if (parent == null) {
+            log.warn("ReportTreeViewEnhancer: cannot stream-shrink report without parent directory: " + target);
+            return;
+        }
+        log.info(
+                "ReportTreeViewEnhancer: streaming textarea shrink for large report ("
+                        + size
+                        + " bytes, max "
+                        + maxChars
+                        + " chars per textarea).");
+        Path tmp = Files.createTempFile(parent, "report-slim-", ".html");
+        try {
+            streamTruncateTextareas(target, tmp, maxChars);
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
+            log.info("ReportTreeViewEnhancer: shrunk report to " + Files.size(target) + " bytes.");
+        } catch (IOException e) {
+            try {
+                Files.deleteIfExists(tmp);
+            } catch (IOException ignored) {
+
+            }
+            throw e;
+        }
+    }
+
+
+    static void streamTruncateTextareas(Path in, Path out, int maxChars) throws IOException {
+        if (maxChars <= 0) {
+            Files.copy(in, out, StandardCopyOption.REPLACE_EXISTING);
+            return;
+        }
+        try (Reader reader = Files.newBufferedReader(in, StandardCharsets.UTF_8);
+                Writer writer = Files.newBufferedWriter(out, StandardCharsets.UTF_8)) {
+            TextareaScanState state = TextareaScanState.NORMAL;
+            StringBuilder tag = new StringBuilder(128);
+            StringBuilder closeProbe = new StringBuilder(12);
+            int bodyWritten = 0;
+            boolean truncateNoteWritten = false;
+            int ch;
+            while ((ch = reader.read()) != -1) {
+                char c = (char) ch;
+                switch (state) {
+                    case NORMAL -> {
+                        if (c == '<') {
+                            tag.setLength(0);
+                            tag.append(c);
+                            state = TextareaScanState.TEXTAREA_TAG;
+                        } else {
+                            writer.write(c);
+                        }
+                    }
+                    case TEXTAREA_TAG -> {
+                        tag.append(c);
+                        if (c == '>') {
+                            String tagText = tag.toString();
+                            String tagLower = tagText.toLowerCase();
+                            if (tagLower.startsWith("<textarea") && tagLower.contains("step-capture-raw")) {
+                                state = TextareaScanState.TEXTAREA_SKIP;
+                                closeProbe.setLength(0);
+                            } else if (tagLower.startsWith("<textarea")) {
+                                writer.write(tagText);
+                                state = TextareaScanState.TEXTAREA_BODY;
+                                bodyWritten = 0;
+                                truncateNoteWritten = false;
+                            } else {
+                                writer.write(tagText);
+                                state = TextareaScanState.NORMAL;
+                            }
+                            tag.setLength(0);
+                        } else if (tag.length() > 512) {
+                            writer.write(tag.toString());
+                            tag.setLength(0);
+                            state = TextareaScanState.NORMAL;
+                        }
+                    }
+                    case TEXTAREA_BODY -> {
+                        if (bodyWritten < maxChars) {
+                            writer.write(c);
+                            bodyWritten++;
+                        } else {
+                            if (!truncateNoteWritten) {
+                                writer.write(TEXTAREA_TRUNCATE_NOTE);
+                                truncateNoteWritten = true;
+                            }
+                            state = TextareaScanState.TEXTAREA_SKIP;
+                            closeProbe.setLength(0);
+                            closeProbe.append(Character.toLowerCase(c));
+                            if (endsWithTextareaClose(closeProbe)) {
+                                writer.write("</textarea>");
+                                state = TextareaScanState.NORMAL;
+                                closeProbe.setLength(0);
+                            }
+                        }
+                    }
+                    case TEXTAREA_SKIP -> {
+                        closeProbe.append(Character.toLowerCase(c));
+                        if (closeProbe.length() > 12) {
+                            closeProbe.delete(0, closeProbe.length() - 12);
+                        }
+                        if (endsWithTextareaClose(closeProbe)) {
+                            writer.write("</textarea>");
+                            state = TextareaScanState.NORMAL;
+                            closeProbe.setLength(0);
+                        }
+                    }
+                    default -> {
+                        writer.write(c);
+                        state = TextareaScanState.NORMAL;
+                    }
+                }
+            }
+            if (state == TextareaScanState.TEXTAREA_TAG && tag.length() > 0) {
+                writer.write(tag.toString());
+            }
+        }
+    }
+
+
+    private static boolean endsWithTextareaClose(CharSequence probe) {
+        return probe.length() >= 11 && probe.toString().endsWith("</textarea>");
+    }
+
+
     public static String enhance(String html) throws IOException {
+        if (html != null) {
+            html = applyReportPayloadLimits(html);
+        }
         if (html != null && html.contains("report-shell")) {
-            return applyReportPayloadLimits(patchExistingTreeViewReport(html));
+            return patchExistingTreeViewReport(html);
         }
         String title = resolveTitle(html);
         if (!title.toLowerCase().contains("tree view")) {
@@ -305,7 +476,7 @@ public final class ReportTreeViewEnhancer {
         }
         out = wrapScenarioDetailCards(out);
         out = stripScenarioDetailCardChrome(out);
-        return applyReportPayloadLimits(out);
+        return out;
     }
 
 
@@ -314,26 +485,20 @@ public final class ReportTreeViewEnhancer {
             return html;
         }
         html = html.replaceAll("<textarea[^>]*\\bstep-capture-raw\\b[^>]*>[\\s\\S]*?</textarea>\\s*", "");
-        int maxChars = dslConfigManager.getReportPayloadMaxChars();
-        if (maxChars <= 0) {
-            return html;
-        }
-        return truncateLargeTextareaContent(html, maxChars);
+        return truncateLargeTextareaContent(html, REPORT_TEXTAREA_MAX_CHARS);
     }
 
 
     static String truncateLargeTextareaContent(String html, int maxChars) {
         Matcher m = TEXTAREA_BODY.matcher(html);
         StringBuffer sb = new StringBuffer(html.length());
-        String note =
-                "\n\n… [truncated for report load time — see test run logs for full payload]";
         while (m.find()) {
             String body = m.group(2);
             if (body.length() <= maxChars) {
                 m.appendReplacement(sb, Matcher.quoteReplacement(m.group(0)));
                 continue;
             }
-            String trimmed = body.substring(0, maxChars) + note;
+            String trimmed = body.substring(0, maxChars) + TEXTAREA_TRUNCATE_NOTE;
             m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + trimmed + m.group(3)));
         }
         m.appendTail(sb);
@@ -460,7 +625,12 @@ public final class ReportTreeViewEnhancer {
         if (i < 0) {
             return s;
         }
-        return s.substring(0, i) + to + s.substring(i + from.length());
+        int fromLen = from.length();
+        StringBuilder sb = new StringBuilder(s.length() - fromLen + to.length());
+        sb.append(s, 0, i);
+        sb.append(to);
+        sb.append(s, i + fromLen, s.length());
+        return sb.toString();
     }
 
     private static String extractSummaryTable(String html) {
