@@ -6439,8 +6439,6 @@ And I read pre req where pre-requisite data index is 1 and store result in envir
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I clone resident data where persona file path is the saved persona file path and store result in old bio persona file path
-And I skip
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
@@ -6448,6 +6446,7 @@ And I get uin by rid where source registration ID is the saved registration ID a
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I wait where wait seconds is UIN_WAIT_TIME
+And I clone resident data where persona file path is the saved persona file path and store result in old bio persona file path
 And I update demo or bio details where bio type is iris and face, and miss fields is 0, and update attributes is 0, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I update resident with uin where persona file path is old bio persona file path, and UIN is the saved UIN

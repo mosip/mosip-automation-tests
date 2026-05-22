@@ -1238,7 +1238,7 @@ public class PacketSyncService {
 									else if (cm.getBioSubType().equals("Right"))
 										irisvalue.setRight(cm.getBioValue());
 								}
-								val = irisvalue;
+								val = irisvalue == null ? null : new JSONObject(irisvalue.toJSONString());
 							}
 
 							putNullableProperty(retProp, key, val);

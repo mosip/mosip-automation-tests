@@ -9,6 +9,7 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.auth.testscripts.BioAuth;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -291,20 +292,26 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 
 	private String resolveBioValueForAuth(String bioResponse, String modalityKey, String modalityToLog,
 			String personaPath) throws RigInternalError {
-		String bioValue = JsonPrecondtion.getValueFromJson(bioResponse, modalityKey);
+		String bioValue = extractBioValueFromPersonaResponse(bioResponse, modalityKey);
 		if (bioValue == null || bioValue.isBlank() || "null".equalsIgnoreCase(bioValue.trim())) {
 			this.hasError = true;
 			throw new RigInternalError("Not able to get the bio value for field " + modalityToLog
-					+ " from persona " + personaPath
-					+ ". Packet creator returned null (MDS capture missing on persona; re-run packet creation or delete stale persona file).");
+					+ " (key " + modalityKey + ") from persona " + personaPath
+					+ ". Packet creator returned null or missing MDS capture (for old-bio persona, clone after the first NEW packet is processed).");
 		}
+		bioValue = bioValue.trim().replaceAll("\\s+", "");
 		try {
-			byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue.trim());
+			byte[] decodedBioMetricValue = Base64.getUrlDecoder().decode(bioValue);
 			bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
 		} catch (IllegalArgumentException e) {
-			this.hasError = true;
-			throw new RigInternalError("Invalid biometric data for field " + modalityToLog + " from persona "
-					+ personaPath + ": " + e.getMessage());
+			try {
+				byte[] decodedBioMetricValue = Base64.getDecoder().decode(bioValue);
+				bioValue = Base64.getEncoder().encodeToString(decodedBioMetricValue);
+			} catch (IllegalArgumentException e2) {
+				this.hasError = true;
+				throw new RigInternalError("Invalid biometric data for field " + modalityToLog + " from persona "
+						+ personaPath + ": " + e.getMessage());
+			}
 		}
 		if (bioValue.length() < 100) {
 			this.hasError = true;
@@ -312,6 +319,73 @@ public class BioAuthentication extends BaseTestCaseUtil implements StepInterface
 					"Not able to get the bio value for field " + modalityToLog + " from persona " + personaPath);
 		}
 		return bioValue;
+	}
+
+	/**
+	 * Reads a biometric attribute from packet-creator persona JSON (e.g. {@code face_encrypted},
+	 * {@code iris_encrypted.left}). Uses {@link JSONObject} for null-safe parsing; supports dotted
+	 * paths; falls back to {@link JsonPrecondtion} for legacy responses.
+	 */
+	private String extractBioValueFromPersonaResponse(String bioResponse, String modalityKey) {
+		if (bioResponse == null || bioResponse.isBlank() || modalityKey == null || modalityKey.isBlank()) {
+			return null;
+		}
+		String trimmed = bioResponse.trim();
+		try {
+			String nested = getNestedJsonString(new JSONObject(trimmed), modalityKey);
+			if (isUsableBioValue(nested)) {
+				return nested;
+			}
+		} catch (org.json.JSONException ignored) {
+			// fall through to JsonPrecondtion
+		}
+		String fromPrecond = JsonPrecondtion.getValueFromJson(trimmed, modalityKey);
+		return isUsableBioValue(fromPrecond) ? fromPrecond : null;
+	}
+
+	private static boolean isUsableBioValue(String value) {
+		if (value == null || value.isBlank() || "null".equalsIgnoreCase(value.trim())) {
+			return false;
+		}
+		String t = value.trim();
+		return !t.startsWith("{") && !t.startsWith("[");
+	}
+
+	private static String getNestedJsonString(JSONObject json, String path) {
+		if (json == null || path == null || path.isBlank()) {
+			return null;
+		}
+		int dot = path.indexOf('.');
+		if (dot < 0) {
+			if (!json.has(path) || json.isNull(path)) {
+				return null;
+			}
+			return valueAsBioString(json.get(path));
+		}
+		String parentKey = path.substring(0, dot);
+		String childPath = path.substring(dot + 1);
+		if (!json.has(parentKey) || json.isNull(parentKey)) {
+			return null;
+		}
+		Object parent = json.get(parentKey);
+		if (parent instanceof JSONObject) {
+			return getNestedJsonString((JSONObject) parent, childPath);
+		}
+		if (parent instanceof String) {
+			try {
+				return getNestedJsonString(new JSONObject((String) parent), childPath);
+			} catch (org.json.JSONException e) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	private static String valueAsBioString(Object raw) {
+		if (raw == null || raw == JSONObject.NULL) {
+			return null;
+		}
+		return raw instanceof String ? (String) raw : raw.toString();
 	}
 
 }
