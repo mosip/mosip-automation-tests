@@ -59,6 +59,11 @@ public class dslConfigManager extends ConfigManager {
 		return ConfigManager.getproperty("uinWaitTime");
 	}
 
+	/** Used when env actuator is unreachable (e.g. transient DNS failure). Override with {@code -Denv.langcode}. */
+	public static String getDefaultLanguageCode() {
+		return ConfigManager.getproperty("defaultLanguageCode");
+	}
+
 	public static String checkNotification() {
 		return ConfigManager.getproperty("checkNotification");
 	}

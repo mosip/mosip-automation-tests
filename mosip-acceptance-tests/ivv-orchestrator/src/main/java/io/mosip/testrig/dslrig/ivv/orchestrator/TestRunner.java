@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -64,15 +65,77 @@ public class TestRunner {
 			LOGGER.setLevel(Level.ERROR);
 
 		setLogLevels();
-		BaseTestCase.initialize();
-
-		BaseTestCase.languageList = BaseTestCase.getLanguageList();
-		BaseTestCase.languageCode = BaseTestCase.languageList.get(0);
-		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
+		initializeLanguagesWithRetry();
 
 		OTPListener mockSMTPListener = new OTPListener();
 		mockSMTPListener.run();
 		startTestRunner();
+	}
+
+	/**
+	 * Loads languages from the env actuator. Retries on transient DNS/network failures
+	 * (e.g. {@code UnknownHostException} for {@code api-internal.*.mosip.net}) instead of
+	 * failing with {@link IndexOutOfBoundsException} on an empty list.
+	 */
+	private static void initializeLanguagesWithRetry() {
+		final int maxAttempts = Integer.parseInt(
+				System.getProperty("env.languageLoadAttempts", "3"));
+		final long baseDelayMs = Long.parseLong(
+				System.getProperty("env.languageLoadRetryMs", "3000"));
+
+		for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+			if (attempt > 1) {
+				LOGGER.warn("Retrying env actuator / language load (attempt " + attempt + "/" + maxAttempts
+						+ "), endpoint=" + BaseTestCase.ApplnURI);
+				sleepQuietly(baseDelayMs * attempt);
+				BaseTestCase.initialize();
+			} else {
+				BaseTestCase.initialize();
+			}
+			List<String> languages = BaseTestCase.getLanguageList();
+			if (languages != null && !languages.isEmpty()) {
+				BaseTestCase.languageList = languages;
+				BaseTestCase.languageCode = languages.get(0);
+				LOGGER.info("Current running language: " + BaseTestCase.languageCode);
+				return;
+			}
+		}
+
+		String fallback = resolveFallbackLanguageCode();
+		if (fallback != null && !fallback.isBlank()) {
+			BaseTestCase.languageList = new ArrayList<>(Collections.singletonList(fallback));
+			BaseTestCase.languageCode = fallback;
+			LOGGER.warn("Env actuator returned no languages; using fallback language code '" + fallback
+					+ "'. Check VPN/DNS for " + BaseTestCase.ApplnURI
+					+ " or set -Denv.langcode=eng in your run command.");
+			return;
+		}
+
+		throw new IllegalStateException(
+				"Could not load mandatory languages from " + BaseTestCase.ApplnURI
+						+ " (masterdata actuator/env). Often caused by intermittent UnknownHostException. "
+						+ "Retry the run, verify network/VPN, or pass -Denv.langcode=eng (or set "
+						+ "defaultLanguageCode in config/dsl.properties).");
+	}
+
+	private static String resolveFallbackLanguageCode() {
+		String fromJvm = System.getProperty("env.langcode");
+		if (fromJvm != null && !fromJvm.isBlank()) {
+			return fromJvm.trim();
+		}
+		String fromConfig = dslConfigManager.getDefaultLanguageCode();
+		if (fromConfig != null && !fromConfig.isBlank()) {
+			return fromConfig.trim();
+		}
+		return null;
+	}
+
+	private static void sleepQuietly(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	public static void startTestRunner() {

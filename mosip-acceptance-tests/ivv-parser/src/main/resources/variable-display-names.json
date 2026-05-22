@@ -35,5 +35,6 @@
   "$$clientId": "OIDC client ID",
   "$$zipPacketPath": "packet zip path",
   "$$hashValue": "biometric hash value",
-  "$$additionalInfoReqId": "additional info request ID"
+  "$$additionalReqId": "additional req id",
+  "$$additionalReqId2": "additional req id2"
 }

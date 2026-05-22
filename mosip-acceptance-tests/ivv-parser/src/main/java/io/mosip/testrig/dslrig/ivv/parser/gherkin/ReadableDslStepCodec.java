@@ -9,8 +9,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Encodes DSL {@code e2e_*} actions into readable Cucumber English and decodes them back.
- * Format: {@code I <action phrase> where <label> is <value>, ...}
+ * Generic encode/decode between DSL {@code e2e_*(arg1,arg2)} and readable Gherkin.
+ * <ul>
+ *   <li>One {@code , and }-separated clause per comma-separated DSL argument.</li>
+ *   <li>Lists inside one argument use {@code and} in English and {@code @@} in DSL ({@link DslListSeparator}).</li>
+ *   <li>Parameter labels come from {@code step-parameter-labels.json} only.</li>
+ * </ul>
  */
 public final class ReadableDslStepCodec {
 
@@ -19,16 +23,11 @@ public final class ReadableDslStepCodec {
     private static final Pattern EMBEDDED_DSL = Pattern.compile("(?:([\\w$]+)=)?(e2e_\\w+\\([^)]*\\))");
     private static final Pattern ENGLISH_STEP = Pattern.compile("^I (.+?) where (.+)$", Pattern.CASE_INSENSITIVE);
     private static final Pattern ENGLISH_STEP_NO_ARGS = Pattern.compile("^I (.+)$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern INLINE_LABEL = Pattern.compile("/\\*([^*]*)\\*/");
 
-    /**
-     * Standalone words uppercased in {@code e2e_*} names (e.g. {@code by uin} → {@code ByUIN}).
-     * Do not include {@code rid} — phrases like {@code uinby rid} must stay {@code getUinbyRid};
-     * {@link io.mosip.testrig.dslrig.ivv.orchestrator.StepClassResolver} maps all case variants.
-     */
     private static final Set<String> DSL_ACRONYMS = Set.of(
             "uin", "vid", "prid", "otp", "oidc", "oauth", "abis", "ekyc");
 
-    /** Scenario output variables that are not prefixed with {@code $$} in DSL. */
     private static final Set<String> PLAIN_OUTPUT_VARS = Set.of("ekycData");
 
     private static final Map<String, String> KNOWN_METHOD_PHRASES = Map.of(
@@ -54,17 +53,11 @@ public final class ReadableDslStepCodec {
         String outVar = m.group(1);
         String method = m.group(2);
         String args = m.group(3);
-        List<ParamToken> params = splitParams(args, method);
-        if ("e2e_configureMockAbis".equalsIgnoreCase(method)) {
-            params = normalizeConfigureMockAbisTokensForGherkin(params);
-        }
-        if ("e2e_getResidentData".equals(method)) {
-            params = expandGetResidentDataBioFlagsForGherkin(params);
-        }
+        List<ParamToken> params = splitParams(args);
         List<String> clauses = new ArrayList<>();
         for (int i = 0; i < params.size(); i++) {
             ParamToken p = params.get(i);
-            String label = resolveLabel(method, i, params, p);
+            String label = resolveLabel(method, i, params.size(), p);
             String displayValue = formatValueForGherkin(label, p.rawValue.trim());
             clauses.add(label + " is " + displayValue);
         }
@@ -125,121 +118,25 @@ public final class ReadableDslStepCodec {
             phrase = noArgs.group(1).trim();
         }
         String method = toMethodName(phrase);
-        List<ParamToken> params = wherePart.isEmpty() ? new ArrayList<>() : parseWhereClauses(wherePart);
-        if ("e2e_getResidentData".equalsIgnoreCase(method)) {
-            params = normalizeGetResidentDataGherkinLabels(params);
-        }
-        params = collapseAtAtPasswordParams(params, method);
-        if ("e2e_getResidentData".equalsIgnoreCase(method)) {
-            params = mergeGetResidentDataGenderAndBioFlags(params);
-        }
+        List<ParamToken> params = wherePart.isEmpty() ? new ArrayList<>() : parseWhereClauses(wherePart, method);
+        params = mergeLegacySpilloverClauses(params, method);
         StringBuilder args = new StringBuilder();
         for (int i = 0; i < params.size(); i++) {
             if (i > 0) {
                 args.append(',');
             }
-            args.append(formatParamForDsl(method, i, params.get(i)));
+            args.append(DslParameterAnnotations.formatArgument(method, i, params.get(i).rawValue));
         }
         String dsl = method + "(" + args + ")";
         return outVar != null ? outVar + dsl : dsl;
     }
 
-    private static String formatParamForDsl(String method, int index, ParamToken p) {
-        String value = p.rawValue.trim();
-        if ("e2e_configureMockAbis".equalsIgnoreCase(method) && index == 7 && !value.contains("@@")
-                && isConfigureMockAbisStatusOnlyValue(value)) {
-            value = "@@" + value;
-        }
-        if ("e2e_getResidentData".equalsIgnoreCase(method) && value.contains("@@")) {
-            String labeled = formatGetResidentDataBioParamForDsl(value);
-            if (labeled != null) {
-                return labeled;
-            }
-        }
-        if (p.label != null && !p.label.isBlank()) {
-            return value + "/*" + p.label + "*/";
-        }
-        return value;
-    }
-
-    /**
-     * {@code generate private key is false} in readable Gherkin is a mistaken label for guardian flag
-     * on {@code e2e_getResidentData} (not {@code e2e_setContext}).
-     */
-    private static List<ParamToken> normalizeGetResidentDataGherkinLabels(List<ParamToken> params) {
-        List<ParamToken> normalized = new ArrayList<>();
-        for (ParamToken p : params) {
-            if (p.label != null && p.label.equalsIgnoreCase("GENERATE_PRIVATE_KEY")) {
-                normalized.add(new ParamToken(p.rawValue, "GUARDIAN_FLAG"));
-            } else {
-                normalized.add(p);
-            }
-        }
-        return normalized;
-    }
-
-    /**
-     * Ensures {@code gender is Male} and {@code password is false@@false@@true} (or split bio fields)
-     * become one {@code Male@@false@@false@@true} argument even if {@link #collapseAtAtPasswordParams}
-     * did not merge them.
-     */
-    private static List<ParamToken> mergeGetResidentDataGenderAndBioFlags(List<ParamToken> params) {
-        List<ParamToken> result = new ArrayList<>();
-        for (int i = 0; i < params.size(); i++) {
-            ParamToken current = params.get(i);
-            if (i + 1 < params.size() && current.label != null
-                    && current.label.equalsIgnoreCase("GENDER")) {
-                ParamToken next = params.get(i + 1);
-                String nextClean = next.rawValue.replaceAll("/\\*.*?\\*/", "").trim();
-                if (next.label != null && isGetResidentDataBioLabel(next.label)
-                        && isLikelyPartialBioFlagsOnly(nextClean)) {
-                    String merged = current.rawValue.replaceAll("/\\*.*?\\*/", "").trim()
-                            + "@@" + atAtContinuationValue(new ParamToken(nextClean, next.label));
-                    result.add(new ParamToken(merged, "GENDER"));
-                    i++;
-                    continue;
-                }
-            }
-            result.add(current);
-        }
-        return result;
-    }
-
-    /** Bio tail without leading gender (e.g. {@code false@@false@@true}). */
-    private static boolean isLikelyPartialBioFlagsOnly(String value) {
-        String clean = value.replaceAll("/\\*.*?\\*/", "").trim();
-        if (!clean.contains("@@")) {
-            return clean.matches("(?i)true|false");
-        }
-        String[] parts = clean.split("@@", -1);
-        if (parts.length < 1 || parts.length > 3) {
-            return false;
-        }
-        for (String part : parts) {
-            if (!part.trim().matches("(?i)true|false")) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /** Formats {@code Male@@false@@false@@false} with per-segment GENDER/FINGER/IRIS/FACE labels. */
-    private static String formatGetResidentDataBioParamForDsl(String value) {
-        String clean = value.replaceAll("/\\*.*?\\*/", "").trim();
-        String[] parts = clean.split("@@", -1);
-        if (parts.length >= 4 && isLikelyGenderBioFlags(parts)) {
-            return parts[0] + "/*GENDER*/@@" + parts[1] + "/*FINGER_BIOMETRIC_FLAG*/@@" + parts[2]
-                    + "/*IRIS_BIOMETRIC_FLAG*/@@" + parts[3] + "/*FACE_BIOMETRIC_FLAG*/";
-        }
-        return null;
-    }
-
-    /** Reformats a Gherkin step line preserving parameter labels from the original text. */
+    /** Reformats a Gherkin step: decode → canonical DSL → encode (fixes legacy split clauses). */
     public static String reformatGherkinStep(String gherkinBody) {
         return encode(decode(gherkinBody));
     }
 
-    private static List<ParamToken> parseWhereClauses(String wherePart) {
+    private static List<ParamToken> parseWhereClauses(String wherePart, String method) {
         List<ParamToken> result = new ArrayList<>();
         String[] parts = wherePart.split(", and ");
         for (String part : parts) {
@@ -247,30 +144,78 @@ public final class ReadableDslStepCodec {
             if (part.startsWith("and ")) {
                 part = part.substring(4).trim();
             }
-            int isIdx = part.toLowerCase().lastIndexOf(" is ");
+            int isIdx = part.toLowerCase(Locale.ROOT).lastIndexOf(" is ");
             if (isIdx < 0) {
                 throw new IllegalArgumentException("Invalid parameter clause: " + part);
             }
             String labelEnglish = part.substring(0, isIdx).trim();
-            String value = resolveParamValue(part.substring(isIdx + 4).trim(), labelEnglish);
+            String rawValue = part.substring(isIdx + 4).trim();
+            int index = result.size();
+            String value = resolveParamValue(rawValue, labelEnglish,
+                    rawValue.toLowerCase(Locale.ROOT).startsWith("the saved "), method, index);
             result.add(new ParamToken(value, toLabelConstant(labelEnglish)));
         }
         return result;
     }
 
+    /**
+     * Older feature lines split one {@code @@} argument into an extra {@code password is ...} clause.
+     * Rejoin for any method except {@code e2e_User} (which legitimately uses user + password args).
+     */
+    private static List<ParamToken> mergeLegacySpilloverClauses(List<ParamToken> params, String method) {
+        if ("e2e_User".equalsIgnoreCase(method) || params.size() < 2) {
+            return params;
+        }
+        List<ParamToken> merged = new ArrayList<>();
+        for (int i = 0; i < params.size(); i++) {
+            ParamToken current = params.get(i);
+            while (i + 1 < params.size() && isLegacySpilloverContinuation(current, params.get(i + 1))) {
+                String tail = params.get(i + 1).rawValue;
+                if (tail.startsWith("@@")) {
+                    tail = tail.substring(2);
+                }
+                current = new ParamToken(
+                        DslListSeparator.stripInlineLabels(current.rawValue) + "@@"
+                                + DslListSeparator.stripInlineLabels(tail),
+                        current.label);
+                i++;
+            }
+            merged.add(current);
+        }
+        return merged;
+    }
+
+    private static boolean isLegacySpilloverContinuation(ParamToken current, ParamToken next) {
+        if (next.label == null) {
+            return next.rawValue.startsWith("@@");
+        }
+        String nextLabel = next.label.toUpperCase(Locale.ROOT);
+        if (!"PASSWORD".equals(nextLabel)) {
+            return false;
+        }
+        if (current.label != null && current.label.toUpperCase(Locale.ROOT).contains("PASSWORD")) {
+            return false;
+        }
+        return true;
+    }
+
     private static String toLabelConstant(String englishLabel) {
-        return englishLabel.trim().replace(' ', '_').toUpperCase();
+        return englishLabel.trim().replace(' ', '_').toUpperCase(Locale.ROOT);
     }
 
     private static String humanizeLabel(String label) {
         return label.replace('_', ' ').toLowerCase(Locale.ROOT);
     }
 
-    private static String resolveLabel(String method, int index, List<ParamToken> params, ParamToken p) {
+    private static String resolveLabel(String method, int index, int paramCount, ParamToken p) {
         if (p.label != null && !isGenericLabel(p.label)) {
             return humanizeLabel(p.label);
         }
-        return fallbackLabel(method, index, params);
+        String configured = StepParameterLabels.labelFor(method, index, paramCount);
+        if (configured != null) {
+            return configured;
+        }
+        return "parameter " + (index + 1);
     }
 
     private static boolean isGenericLabel(String label) {
@@ -282,66 +227,103 @@ public final class ReadableDslStepCodec {
     }
 
     private static String formatValueForGherkin(String label, String rawValue) {
-        String trimmed = rawValue.trim();
+        String trimmed = DslListSeparator.stripInlineLabels(rawValue.trim());
         if (trimmed.startsWith("$$")) {
             return "the saved " + VariableDisplayNames.toDisplay(trimmed);
         }
-        String displayValue = VariableDisplayNames.replaceDslVarsInText(trimmed);
+        String displayValue = VariableDisplayNames.replaceDslVarsInText(DslListSeparator.toDisplay(trimmed));
+        displayValue = DslParameterAnnotations.toGherkinDisplay(label, displayValue);
         if (displayValue.equalsIgnoreCase(label)) {
             return "the saved " + label;
         }
         return displayValue;
     }
 
-    private static String resolveParamValue(String value) {
-        return resolveParamValue(value, null);
-    }
-
-    private static String resolveParamValue(String value, String labelEnglish) {
+    private static String resolveParamValue(String value, String labelEnglish, boolean fromSavedReference,
+            String method, int index) {
         String trimmed = value.trim();
         if (trimmed.startsWith("the saved ")) {
             trimmed = trimmed.substring("the saved ".length()).trim();
+            fromSavedReference = true;
+        }
+        if (method != null && DslParameterAnnotations.isLiteralArgument(method, index)) {
+            if (trimmed.startsWith("$$")) {
+                return trimmed.substring(2);
+            }
+            if (fromSavedReference) {
+                return toScenarioVariable(trimmed);
+            }
+            return trimmed;
         }
         if (trimmed.startsWith("$$")) {
             return trimmed;
         }
-        String dsl = VariableDisplayNames.toDsl(trimmed);
-        if (dsl.startsWith("$$")) {
-            return dsl;
+        String mapped = VariableDisplayNames.toDsl(trimmed);
+        if (mapped.startsWith("$$")) {
+            return mapped;
         }
-        // Round-tripped scenario scratch vars (e.g. center77, user76, details77) are not in
-        // variable-display-names.json but must stay $$-prefixed in DSL.
+        if (fromSavedReference) {
+            return toScenarioVariable(trimmed);
+        }
         if (looksLikeBareScenarioVariable(trimmed)) {
             return "$$" + trimmed;
         }
-        // Display-style scratch vars from Gherkin (e.g. persona file path1, template path1).
-        if (looksLikeDisplayScenarioVariable(trimmed)) {
-            return "$$" + toDslVariableName(trimmed);
+        if (isLiteralParameterValue(trimmed)) {
+            return trimmed;
         }
-        // Single-word path shorthands (e.g. "template" for packet template path) from store-result names.
-        if (labelEnglish != null && isPathParameterLabel(labelEnglish) && trimmed.matches("^[a-z][a-z0-9]*$")) {
-            return "$$" + toDslVariableName(trimmed);
+        if (isScenarioVariableParameterLabel(labelEnglish)) {
+            if (looksLikeDisplayNameReference(trimmed) || trimmed.matches("^[a-z][a-z0-9]*$")) {
+                return toScenarioVariable(trimmed);
+            }
         }
-        return dsl;
+        return trimmed;
     }
 
-    private static boolean isPathParameterLabel(String labelEnglish) {
-        String label = labelEnglish.toLowerCase(Locale.ROOT);
-        return label.contains("file path") || label.contains("template path") || label.contains("persona path")
-                || label.contains("zip path");
+    /** Maps a Gherkin display name or known alias to a {@code $$} scenario variable (camelCase). */
+    private static String toScenarioVariable(String displayOrDslName) {
+        String mapped = VariableDisplayNames.toDsl(displayOrDslName);
+        if (mapped.startsWith("$$")) {
+            return mapped;
+        }
+        return "$$" + toDslVariableName(displayOrDslName);
     }
 
-    /** Matches unmapped scenario variables such as {@code center77}, {@code rid1}, {@code uin1}. */
-    private static boolean looksLikeBareScenarioVariable(String value) {
-        return value != null && value.matches("^[a-z][a-zA-Z0-9]*\\d+$");
+    private static boolean isLiteralParameterValue(String trimmed) {
+        if (trimmed.matches("^-?\\d+$")) {
+            return true;
+        }
+        if (trimmed.contains("@@") || trimmed.contains("@")) {
+            return true;
+        }
+        return trimmed.matches("^[A-Z][A-Z0-9_]*$");
     }
 
     /**
-     * Matches readable multi-word scenario variables (e.g. {@code persona file path1}) that are
-     * stored as {@code $$personaFilePath1} but referenced without the {@code $$} prefix in Gherkin.
+     * Parameter labels that carry scenario variables (paths, IDs, stored outputs), not step literals
+     * such as packet type or status codes.
      */
-    private static boolean looksLikeDisplayScenarioVariable(String value) {
-        return value != null && value.contains(" ") && value.matches("^[a-z][a-z0-9 ]+\\d*$");
+    private static boolean isScenarioVariableParameterLabel(String labelEnglish) {
+        if (labelEnglish == null) {
+            return false;
+        }
+        String label = labelEnglish.toLowerCase(Locale.ROOT);
+        if (label.contains("type") || label.contains("status") || label.contains("flag")
+                || label.contains("component") || label.contains("action") || label.contains("mode")) {
+            return false;
+        }
+        return label.contains("path") || label.endsWith(" id") || label.contains(" id")
+                || label.contains("uin") || label.contains("email") || label.contains("details")
+                || label.contains("template") || label.contains("zip") || label.contains("persona")
+                || label.contains("req id");
+    }
+
+    /** Multi-word lowercase phrase used as a shorthand variable reference in Gherkin. */
+    private static boolean looksLikeDisplayNameReference(String trimmed) {
+        return trimmed.matches("^[a-z][a-z0-9 ]+$") && trimmed.contains(" ");
+    }
+
+    private static boolean looksLikeBareScenarioVariable(String value) {
+        return value != null && value.matches("^[a-z][a-zA-Z0-9]*\\d+$");
     }
 
     private static String toDslVariableName(String displayName) {
@@ -362,19 +344,6 @@ public final class ReadableDslStepCodec {
         return sb.toString();
     }
 
-    private static String fallbackLabel(String method, int index, List<ParamToken> params) {
-        int labelIndex = index;
-        if ("e2e_getResidentData".equals(method) && !params.isEmpty()
-                && !params.get(0).rawValue.trim().matches("\\d+")) {
-            labelIndex = index + 1;
-        }
-        String configured = StepParameterLabels.labelFor(method, labelIndex);
-        if (configured != null) {
-            return configured;
-        }
-        return "parameter " + (index + 1);
-    }
-
     private static boolean isPlainOutputVar(String name) {
         if (name == null) {
             return false;
@@ -387,7 +356,6 @@ public final class ReadableDslStepCodec {
         return false;
     }
 
-    /** Pulls {@code [var=]e2e_*()} from nested {@code execute action "..."} wrappers. */
     private static String extractEmbeddedDslAction(String text) {
         if (text == null || text.isBlank()) {
             return null;
@@ -435,10 +403,9 @@ public final class ReadableDslStepCodec {
         sb.append(words[0]);
         for (int i = 1; i < words.length; i++) {
             String w = words[i];
-            if (w.isEmpty()) {
-                continue;
+            if (!w.isEmpty()) {
+                sb.append(capitalizeWordForMethod(w));
             }
-            sb.append(capitalizeWordForMethod(w));
         }
         return sb.toString();
     }
@@ -452,10 +419,6 @@ public final class ReadableDslStepCodec {
     }
 
     static List<ParamToken> splitParams(String args) {
-        return splitParams(args, null);
-    }
-
-    static List<ParamToken> splitParams(String args, String method) {
         List<ParamToken> tokens = new ArrayList<>();
         if (args == null || args.isBlank()) {
             return tokens;
@@ -480,297 +443,7 @@ public final class ReadableDslStepCodec {
         if (current.length() > 0) {
             addParamToken(tokens, current.toString());
         }
-        return expandAtAtPasswordTokens(tokens, method);
-    }
-
-    /**
-     * Inverse of {@link #expandAtAtPasswordTokens}: rejoins values split for readable Gherkin
-     * (e.g. {@code user index is 1} + {@code password is Techno@123} → {@code 1@@Techno@123}).
-     */
-    private static List<ParamToken> collapseAtAtPasswordParams(List<ParamToken> params, String method) {
-        List<ParamToken> collapsed = new ArrayList<>();
-        for (int i = 0; i < params.size(); i++) {
-            ParamToken current = params.get(i);
-            while (i + 1 < params.size() && isAtAtSplitContinuation(current, params.get(i + 1), method)) {
-                current = mergeAtAtContinuation(current, params.get(i + 1), method);
-                i++;
-            }
-            collapsed.add(current);
-        }
-        return collapsed;
-    }
-
-    private static boolean isAtAtSplitContinuation(ParamToken current, ParamToken next, String method) {
-        if ("e2e_setContext".equalsIgnoreCase(method) && isSetContextCredentialContinuation(current, next)) {
-            return true;
-        }
-        if ("e2e_getResidentData".equalsIgnoreCase(method) && isGetResidentDataGenderBioContinuation(current, next)) {
-            return true;
-        }
-        if (next.rawValue.startsWith("@@")
-                && (next.label == null || next.label.equalsIgnoreCase("PASSWORD"))) {
-            if ("e2e_configureMockAbis".equalsIgnoreCase(method)) {
-                return isMockAbisStatusLeadParam(current)
-                        || isConfigureMockAbisErrorCodeContinuation(current, next);
-            }
-            return true;
-        }
-        if (next.label != null && next.label.equalsIgnoreCase("PASSWORD")) {
-            if ("e2e_updateDemoOrBioDetails".equalsIgnoreCase(method)
-                    && (isBioTypeLeadParam(current) || isUpdateAttributesLeadParam(current))) {
-                return true;
-            }
-            if ("e2e_getBioModalityHash".equalsIgnoreCase(method) && isModalitySubtypesLeadParam(current)) {
-                return true;
-            }
-            if ("e2e_configureMockAbis".equalsIgnoreCase(method)
-                    && (isConfigureMockAbisFingerprintContinuation(current, next)
-                            || isConfigureMockAbisErrorCodeContinuation(current, next))) {
-                return true;
-            }
-            if ("e2e_UpdateBioExceptionInPersona".equalsIgnoreCase(method)
-                    && isBiometricExceptionModalitiesLeadParam(current)) {
-                return true;
-            }
-            return isUserCredentialLeadParam(current) || isMockAbisStatusLeadParam(current);
-        }
-        return false;
-    }
-
-    /** {@code Right IndexFinger@@Left LittleFinger} is one modality-subtypes argument in readable Gherkin. */
-    private static boolean isModalitySubtypesLeadParam(ParamToken current) {
-        if (current.label == null) {
-            return false;
-        }
-        String label = current.label.toUpperCase(Locale.ROOT);
-        return label.contains("MODALITY") && label.contains("SUBTYPE");
-    }
-
-    /** {@code Right IndexFinger@@Left LittleFinger} is one hash-modality-keys argument in readable Gherkin. */
-    private static boolean isHashModalityKeysLeadParam(ParamToken current) {
-        if (current.label == null) {
-            return false;
-        }
-        String label = current.label.toUpperCase(Locale.ROOT);
-        return label.contains("HASH") && label.contains("MODALITY");
-    }
-
-    /** Merges split fingerprint subtypes (including mislabeled {@code persona path} fields). */
-    private static boolean isConfigureMockAbisFingerprintContinuation(ParamToken current, ParamToken next) {
-        if (next.label == null || !next.label.equalsIgnoreCase("PASSWORD")) {
-            return false;
-        }
-        if (!next.rawValue.contains("Finger")) {
-            return false;
-        }
-        if (isModalitySubtypesLeadParam(current) || isHashModalityKeysLeadParam(current)) {
-            return true;
-        }
-        if (current.label != null) {
-            String label = current.label.toUpperCase(Locale.ROOT);
-            return label.contains("PERSONA") && label.contains("PATH");
-        }
-        return false;
-    }
-
-    /** {@code @@Success} parsed in DSL must not become a generic {@code password} field in Gherkin. */
-    private static List<ParamToken> normalizeConfigureMockAbisTokensForGherkin(List<ParamToken> params) {
-        List<ParamToken> normalized = new ArrayList<>();
-        for (ParamToken p : params) {
-            if (p.label != null && p.label.equalsIgnoreCase("PASSWORD") && p.rawValue.startsWith("@@")) {
-                String status = p.rawValue.substring(2).replaceAll("/\\*.*?\\*/", "").trim();
-                if (isConfigureMockAbisStatusOnlyValue(status)) {
-                    normalized.add(new ParamToken(p.rawValue, "MOCK_ABIS_STATUS"));
-                    continue;
-                }
-            }
-            normalized.add(p);
-        }
-        return normalized;
-    }
-
-    private static boolean isConfigureMockAbisStatusOnlyValue(String value) {
-        String v = value.trim();
-        return v.equalsIgnoreCase("Success") || v.equalsIgnoreCase("Error")
-                || v.equalsIgnoreCase("Duplicate");
-    }
-
-    /** {@code 10@@Error} is one mock-ABIS status argument; do not merge {@code -1} with {@code Success}. */
-    private static boolean isConfigureMockAbisErrorCodeContinuation(ParamToken current, ParamToken next) {
-        if (next.label == null || !next.label.equalsIgnoreCase("PASSWORD")) {
-            return false;
-        }
-        String status = next.rawValue.trim();
-        if (!status.equalsIgnoreCase("Error") && !status.equalsIgnoreCase("Success")
-                && !status.equalsIgnoreCase("Duplicate")) {
-            return false;
-        }
-        return current.rawValue.trim().matches("[1-9]\\d*");
-    }
-
-    private static boolean isBioTypeLeadParam(ParamToken current) {
-        if (current.label == null) {
-            return false;
-        }
-        String label = current.label.toUpperCase(Locale.ROOT);
-        return label.contains("BIO");
-    }
-
-    /** {@code addressLine1=bnglr@@phoneNumber=3938333736} is one update-attributes argument in readable Gherkin. */
-    private static boolean isUpdateAttributesLeadParam(ParamToken current) {
-        if (current.label == null) {
-            return false;
-        }
-        String label = current.label.toUpperCase(Locale.ROOT);
-        return label.contains("UPDATE") && label.contains("ATTRIBUTE");
-    }
-
-    /** {@code Finger:Left Thumb@@Finger:Left IndexFinger} is one biometric-exception-modality argument in readable Gherkin. */
-    private static boolean isBiometricExceptionModalitiesLeadParam(ParamToken current) {
-        if (current.label == null) {
-            return false;
-        }
-        String label = current.label.toUpperCase(Locale.ROOT);
-        return label.contains("BIOMETRIC") && label.contains("EXCEPTION");
-    }
-
-    /**
-     * {@code e2e_setContext} 5th argument is {@code supervisor@@password@@regclient@@regclientPw@@operatorCbeff@@supervisorCbeff};
-     * do not split the leading {@code null@@} into separate Gherkin fields.
-     */
-    private static boolean isSetContextCredentialContinuation(ParamToken current, ParamToken next) {
-        if (next.label == null || !next.label.equalsIgnoreCase("PASSWORD")) {
-            return false;
-        }
-        if (current.label == null) {
-            return false;
-        }
-        String label = current.label.toUpperCase(Locale.ROOT);
-        return label.contains("NEGATIVE") || label.contains("SIGNATURE")
-                || label.contains("REGISTRATION_STATUS") || label.contains("PUT_SCENARIO");
-    }
-
-    /**
-     * {@code Male@@false@@false@@true} is one gender/biometric-flags argument in readable Gherkin
-     * (written as {@code gender is Male} plus {@code password is false@@false@@true}, or as separate
-     * finger/iris/face flag fields).
-     */
-    private static boolean isGetResidentDataGenderBioContinuation(ParamToken current, ParamToken next) {
-        if (current.label == null || next.label == null) {
-            return false;
-        }
-        if (!isGetResidentDataBioLabel(current.label) || !isGetResidentDataBioLabel(next.label)) {
-            return false;
-        }
-        String cur = current.label.toUpperCase(Locale.ROOT);
-        return !cur.contains("PERSONA") && !cur.contains("GUARDIAN") && !cur.contains("RESIDENT");
-    }
-
-    private static boolean isGetResidentDataBioLabel(String label) {
-        String u = label.toUpperCase(Locale.ROOT);
-        return u.equals("GENDER")
-                || u.equals("PASSWORD")
-                || u.contains("FINGER")
-                || u.contains("IRIS")
-                || u.contains("FACE")
-                || (u.contains("BIOMETRIC") && u.contains("FLAG"));
-    }
-
-    /** {@code userIndex@@password} is a single DSL argument split for readable Gherkin. */
-    private static boolean isUserCredentialLeadParam(ParamToken current) {
-        if (current.label == null) {
-            return false;
-        }
-        String label = current.label.toUpperCase(Locale.ROOT);
-        return label.contains("USER");
-    }
-
-    /** {@code statusCode@@failureReason} is a single mock ABIS status argument split for Gherkin. */
-    private static boolean isMockAbisStatusLeadParam(ParamToken current) {
-        if (current.label == null) {
-            return false;
-        }
-        String label = current.label.toUpperCase(Locale.ROOT);
-        if (label.contains("DELAY")) {
-            return false;
-        }
-        return label.contains("MOCK_ABIS")
-                || label.contains("STATUS_CODE")
-                || label.endsWith("_STATUS");
-    }
-
-    private static String atAtContinuationValue(ParamToken next) {
-        return next.rawValue.startsWith("@@") ? next.rawValue.substring(2) : next.rawValue;
-    }
-
-    private static ParamToken mergeAtAtContinuation(ParamToken current, ParamToken next, String method) {
-        if ("e2e_setContext".equalsIgnoreCase(method) && isSetContextCredentialContinuation(current, next)
-                && "null".equalsIgnoreCase(current.rawValue.trim()) && next.rawValue.startsWith("null@@")) {
-            // When the password field already holds the full credential bundle (6 {@code @@} segments),
-            // a separate leading {@code null} negative-flag field is spurious. Otherwise rejoin the
-            // segment that {@link #expandAtAtPasswordTokens} peeled into the negative-flag field.
-            if (next.rawValue.split("@@", -1).length >= 6) {
-                return new ParamToken(next.rawValue, current.label);
-            }
-            return new ParamToken(current.rawValue + "@@" + next.rawValue, current.label);
-        }
-        String tail = atAtContinuationValue(next);
-        return new ParamToken(current.rawValue + "@@" + tail, current.label);
-    }
-
-    /**
-     * Readable Gherkin for {@code Male@@false@@false@@true}: {@code gender is Male} and
-     * {@code password is false@@false@@true} (decoded back into one DSL argument).
-     */
-    private static List<ParamToken> expandGetResidentDataBioFlagsForGherkin(List<ParamToken> tokens) {
-        List<ParamToken> result = new ArrayList<>();
-        for (ParamToken token : tokens) {
-            String value = token.rawValue.replaceAll("/\\*.*?\\*/", "").trim();
-            if (value.contains("@@")) {
-                String[] parts = value.split("@@", -1);
-                if (parts.length >= 4 && isLikelyGenderBioFlags(parts)) {
-                    String genderLabel = token.label != null && !isGenericLabel(token.label)
-                            ? token.label : "GENDER";
-                    result.add(new ParamToken(parts[0], genderLabel));
-                    result.add(new ParamToken(parts[1] + "@@" + parts[2] + "@@" + parts[3], "PASSWORD"));
-                    continue;
-                }
-            }
-            result.add(token);
-        }
-        return result;
-    }
-
-    private static boolean isLikelyGenderBioFlags(String[] parts) {
-        return parts[0].matches("(?i)Male|Female|Any")
-                && parts[1].matches("(?i)true|false")
-                && parts[2].matches("(?i)true|false")
-                && parts[3].matches("(?i)true|false");
-    }
-
-    /** Splits segments joined with {@code @@} in DSL into separate readable Gherkin parameters. */
-    private static List<ParamToken> expandAtAtPasswordTokens(List<ParamToken> tokens, String method) {
-        if ("e2e_updateDemoOrBioDetails".equalsIgnoreCase(method)
-                || "e2e_getBioModalityHash".equalsIgnoreCase(method)
-                || "e2e_configureMockAbis".equalsIgnoreCase(method)
-                || "e2e_setContext".equalsIgnoreCase(method)
-                || "e2e_UpdateBioExceptionInPersona".equalsIgnoreCase(method)
-                || "e2e_getResidentData".equalsIgnoreCase(method)) {
-            return tokens;
-        }
-        List<ParamToken> expanded = new ArrayList<>();
-        for (ParamToken token : tokens) {
-            if (token.rawValue.contains("@@")) {
-                String[] parts = token.rawValue.split("@@", 2);
-                addParamToken(expanded, parts[0]);
-                if (parts.length > 1) {
-                    expanded.add(new ParamToken(parts[1].trim(), "PASSWORD"));
-                }
-            } else {
-                expanded.add(token);
-            }
-        }
-        return expanded;
+        return tokens;
     }
 
     private static void addParamToken(List<ParamToken> tokens, String piece) {
@@ -778,17 +451,16 @@ public final class ReadableDslStepCodec {
         if (piece.isEmpty()) {
             return;
         }
-        if (piece.startsWith("@@")) {
-            Matcher pm = Pattern.compile("^@@(.+?)(?:/\\*([^*]+)\\*/)?$").matcher(piece);
-            if (pm.matches()) {
-                String label = pm.group(2) != null ? pm.group(2).trim() : "PASSWORD";
-                tokens.add(new ParamToken("@@" + pm.group(1).trim(), label));
-                return;
+        Matcher cm = INLINE_LABEL.matcher(piece);
+        if (cm.find()) {
+            String value = piece.replaceAll("/\\*[^*]*\\*/", "").trim();
+            String label = null;
+            Matcher single = Pattern.compile("^(.*)/\\*([^*]+)\\*/$").matcher(piece.trim());
+            if (single.matches()) {
+                value = single.group(1).trim();
+                label = single.group(2).trim();
             }
-        }
-        Matcher cm = Pattern.compile("^(.*)/\\*([^*]+)\\*/$").matcher(piece);
-        if (cm.matches()) {
-            tokens.add(new ParamToken(cm.group(1).trim(), cm.group(2).trim()));
+            tokens.add(new ParamToken(value, label));
         } else {
             tokens.add(new ParamToken(piece, null));
         }
