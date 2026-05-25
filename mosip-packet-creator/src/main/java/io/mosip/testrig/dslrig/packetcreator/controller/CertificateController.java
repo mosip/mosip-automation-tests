@@ -104,10 +104,10 @@ public class CertificateController {
 			try (FileOutputStream fos = new FileOutputStream(file)) {
 				fos.write(fileBytes);
 			}
-			return "File uploaded successfully and saved as " + file.getAbsolutePath();
+			return "{\"status\":\"File uploaded successfully\"}";
 		} catch (IOException e) {
 			logger.error("Error uploading device certificate", e);
-			return "{\"error\":\"" + e.getMessage() + "\"}";
+			return "{\"error\":\"Failed to save device certificate\"}";
 		}
 	}
 

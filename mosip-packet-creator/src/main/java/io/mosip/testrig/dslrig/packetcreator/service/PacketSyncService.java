@@ -74,6 +74,7 @@ import io.mosip.testrig.dslrig.packetcreator.dto.PersonaRequestType;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncReqResponseDTO;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncRequestData;
 import io.mosip.testrig.dslrig.packetcreator.dto.UpdatePersonaDto;
+import io.mosip.testrig.dslrig.packetcreator.util.PersonaPathValidator;
 
 @Service
 public class PacketSyncService {
@@ -111,6 +112,9 @@ public class PacketSyncService {
 
 	@Autowired
 	private ContextUtils contextUtils;
+
+	@Autowired
+	private PersonaPathValidator personaPathValidator;
 
 	@Value("${mosip.test.primary.langcode}")
 	private String primaryLangCode;
@@ -277,18 +281,13 @@ public class PacketSyncService {
 	}
 
 	public String cloneResidentData(String personaFilePath, String contextKey) throws IOException {
-		if (personaFilePath == null || personaFilePath.isBlank()) {
-			throw new IOException("personaFilePath is required");
-		}
-		Path source = Path.of(personaFilePath);
-		if (!Files.exists(source)) {
-			throw new IOException("Resident data file does not exist: " + personaFilePath);
-		}
+		Path source = personaPathValidator.validatePersonaFile(personaFilePath, contextKey);
 		String fileName = source.getFileName().toString();
 		int dotIndex = fileName.lastIndexOf('.');
 		String base = dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
 		String ext = dotIndex > 0 ? fileName.substring(dotIndex) : "";
-		Path target = source.resolveSibling(base + "_oldbio" + ext);
+		Path target = personaPathValidator.validateSiblingPath(source,
+				source.resolveSibling(base + "_oldbio" + ext), contextKey);
 		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 		RestClient.logInfo(contextKey, "Cloned resident data from " + source + " to " + target);
 		JSONObject cloned = new JSONObject();

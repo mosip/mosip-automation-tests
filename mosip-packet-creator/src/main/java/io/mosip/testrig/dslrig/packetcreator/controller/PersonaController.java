@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -122,14 +124,16 @@ public class PersonaController {
 	@Operation(summary = "Clone resident persona JSON to a sibling backup file")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully cloned the resident persona file") })
-	@PostMapping(value = "/persona/clone/{contextKey}")
-	public @ResponseBody String cloneResidentData(@RequestBody ClonePersonaDto cloneRequest,
+	@PostMapping(value = "/persona/clone/{contextKey}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> cloneResidentData(@RequestBody ClonePersonaDto cloneRequest,
 			@PathVariable("contextKey") String contextKey) {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
-			return packetSyncService.cloneResidentData(cloneRequest.getPersonaFilePath(), contextKey);
+			String personaFilePath = cloneRequest.getPersonaFilePath();
+			String body = packetSyncService.cloneResidentData(personaFilePath, contextKey);
+			return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
 		} catch (Exception ex) {
 			logger.error("cloneResidentData", ex);
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "CLONE_RESIDENT_DATA_FAIL", null, ex,
