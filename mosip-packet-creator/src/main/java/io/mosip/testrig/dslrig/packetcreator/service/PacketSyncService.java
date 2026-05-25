@@ -61,7 +61,6 @@ import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
 import io.mosip.testrig.dslrig.dataprovider.test.ResidentPreRegistration;
 import io.mosip.testrig.dslrig.dataprovider.test.prereg.PreRegistrationSteps;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
-import io.mosip.testrig.dslrig.dataprovider.util.PersonaFileCache;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.ResidentAttribute;
@@ -264,7 +263,6 @@ public class PacketSyncService {
 				r.setPath(tempPath.toString());
 				String jsonStr = r.toJSONString();
 				CommonUtil.write(tempPath, jsonStr.getBytes());
-				PersonaFileCache.put(r);
 				JSONObject id = new JSONObject();
 				id.put("id", r.getId());
 				id.put("path", tempPath.toFile().getAbsolutePath());
@@ -286,8 +284,6 @@ public class PacketSyncService {
 		Path source = personaPathValidator.validatePersonaFile(personaFilePath, contextKey);
 		Path target = personaPathValidator.buildCloneTargetPath(source, contextKey);
 		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-		PersonaFileCache.invalidate(source.toString());
-		PersonaFileCache.invalidate(target.toString());
 		RestClient.logInfo(contextKey, "Cloned resident data from " + source + " to " + target);
 		JSONObject cloned = new JSONObject();
 		cloned.put("path", target.toString());
