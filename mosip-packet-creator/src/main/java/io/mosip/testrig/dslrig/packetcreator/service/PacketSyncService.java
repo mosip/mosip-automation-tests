@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -73,6 +74,7 @@ import io.mosip.testrig.dslrig.packetcreator.dto.PersonaRequestType;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncReqResponseDTO;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncRequestData;
 import io.mosip.testrig.dslrig.packetcreator.dto.UpdatePersonaDto;
+import io.mosip.testrig.dslrig.packetcreator.util.PersonaPathValidator;
 
 @Service
 public class PacketSyncService {
@@ -110,6 +112,9 @@ public class PacketSyncService {
 
 	@Autowired
 	private ContextUtils contextUtils;
+
+	@Autowired
+	private PersonaPathValidator personaPathValidator;
 
 	@Value("${mosip.test.primary.langcode}")
 	private String primaryLangCode;
@@ -272,6 +277,19 @@ public class PacketSyncService {
 		response.put(STATUS, SUCCESS);
 		response.put(RESPONSE, outIds);
 		logger.info("Persona generated at time: " + System.currentTimeMillis());
+		return response.toString();
+	}
+
+	public String cloneResidentData(String personaFilePath, String contextKey) throws IOException {
+		Path source = personaPathValidator.validatePersonaFile(personaFilePath, contextKey);
+		Path target = personaPathValidator.buildCloneTargetPath(source, contextKey);
+		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+		RestClient.logInfo(contextKey, "Cloned resident data from " + source + " to " + target);
+		JSONObject cloned = new JSONObject();
+		cloned.put("path", target.toString());
+		JSONObject response = new JSONObject();
+		response.put(STATUS, SUCCESS);
+		response.put(RESPONSE, cloned);
 		return response.toString();
 	}
 
@@ -1214,7 +1232,7 @@ public class PacketSyncService {
 									else if (cm.getBioSubType().equals("Right"))
 										irisvalue.setRight(cm.getBioValue());
 								}
-								val = irisvalue;
+								val = irisvalue == null ? null : new JSONObject(irisvalue.toJSONString());
 							}
 
 							putNullableProperty(retProp, key, val);

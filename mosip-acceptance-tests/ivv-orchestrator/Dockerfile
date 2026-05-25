@@ -40,7 +40,8 @@ USER ${container_user_uid}:${container_user_gid}
 
 COPY --chown=${container_user_uid}:${container_user} --chmod=771 ./entrypoint.sh ${work_dir}/entrypoint.sh
 COPY --chown=${container_user}:${container_user} ./build_files/ ${work_dir}
-COPY --chown=${container_user}:${container_user} ./scenarios /tmp/scenarios
+# Gherkin scenarios ship in build_files/config/ (scenarios.feature). Optional external JSON
+# sheets are mounted at runtime via mountPathForScenario; no ./scenarios dir in the image.
 
 # set working directory
 WORKDIR ${work_dir}

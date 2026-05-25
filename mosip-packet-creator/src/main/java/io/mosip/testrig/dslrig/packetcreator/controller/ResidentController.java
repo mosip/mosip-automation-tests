@@ -18,13 +18,15 @@ import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.ReadEmail;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.packetcreator.service.ResidentService;
+import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@Tag(name = "ResidentController", description = "REST APIs for Resident services")
+@Tag(name = "ResidentController", description = "Resident service helpers: RID status, UIN lookup, card download, processing stages.")
+@OpenApiDocumentation.StandardErrorResponses
 public class ResidentController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ResidentController.class);
@@ -77,9 +79,12 @@ public class ResidentController {
 	}
 
 
-	@Operation(summary = "download card for the UIN")
+	@Operation(
+			summary = "Download card for a UIN",
+			description = "Calls resident service to download the physical/digital card PDF for the given UIN using the persona file at the path in the request body.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Successfully downloaded the card for the UIN") })
+			@ApiResponse(responseCode = "200", description = "Download result or file path as JSON/plain string") })
+	@OpenApiDocumentation.PersonaPathRequestBody
 	@PostMapping(value = "/resident/card/{uin}/{contextKey}")
 	public @ResponseBody String downloadCard(@RequestBody String personaPath, @PathVariable("uin") String uin,
 			@PathVariable("contextKey") String contextKey) {

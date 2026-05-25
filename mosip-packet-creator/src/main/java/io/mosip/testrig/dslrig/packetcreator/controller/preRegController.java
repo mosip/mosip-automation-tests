@@ -23,6 +23,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.packetcreator.dto.AppointmentDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.PreRegisterRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
+import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,7 +31,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RequestMapping(value = "/prereg")
 @RestController
-@Tag(name = "preRegController", description = "REST APIs for Pre Registration")
+@OpenApiDocumentation.StandardErrorResponses
+@Tag(name = "preRegController", description = "Pre-registration OTP, applications, appointments, and document upload for DSL tests.")
 public class preRegController {
 
 	@Value("${mosip.test.persona.configpath}")

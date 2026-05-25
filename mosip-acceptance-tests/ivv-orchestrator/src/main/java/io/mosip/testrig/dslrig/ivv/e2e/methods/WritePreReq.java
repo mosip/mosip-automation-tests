@@ -7,7 +7,6 @@ import java.util.Properties;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
-import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -43,6 +42,10 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 			appendedkey = step.getParameters().get(1);
 			map.put("appendedkey", appendedkey);
 		}
+		if (appendedkey == null || appendedkey.isBlank()) {
+			throw new RigInternalError(
+					"WritePreReq requires PRE_REQUISITE_DATA_INDEX as second parameter (e.g. e2e_WritePreReq($$details2,2))");
+		}
 		Properties props = new Properties();
 		Properties kernelprops = dslConfigManager.getConfigProperties();
 		try {
@@ -53,8 +56,8 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 				} else if (entry.getValue() != null)
 					props.setProperty(entry.getKey(), entry.getValue());
 			}
-			String path = (TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
-					+ appendedkey + ".properties");
+			String path = prereqStoragePath(appendedkey);
+			logger.info("WritePreReq index=" + appendedkey + " path=" + path + " variableCount=" + map.size());
 			HashMap<String, String> propertiesMap = new HashMap<String, String>();
 			for (Entry<Object, Object> entry : props.entrySet()) {
 				propertiesMap.put((String) entry.getKey(), (String) entry.getValue());

@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 
-import org.jobrunr.scheduling.cron.Cron;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,28 +14,29 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
 import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
-import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
-import io.mosip.testrig.dslrig.packetcreator.dto.PreRegisterRequestDto;
+import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiConstants;
+import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.mosip.testrig.dslrig.packetcreator.service.CertificateService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@Tag(name = "CertificateController", description = "REST API for uploading certificates")
+@Tag(name = "CertificateController", description = """
+		REST APIs for mock-SBI device certificates used during biometric capture in DSL tests.
 
-
+		Upload partner device PKCS#12 files and refresh in-memory certificate caches on the mock MDS side.
+		""")
 public class CertificateController {
+
+	private static final int MAX_DEVICE_CERT_BYTES = 10 * 1024 * 1024;
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
@@ -46,32 +46,89 @@ public class CertificateController {
 
 	private static final Logger logger = LoggerFactory.getLogger(CertificateController.class);
 
+	@Operation(
+			summary = "Upload a device PKCS#12 certificate",
+			description = """
+					Decodes a **Base64-encoded PKCS#12** (`.p12`) payload and writes it for the given context.
 
-	@Operation(summary = "Upload a device PKCS#12 file")
-    @PostMapping(value = "/uploadDeviceCert/{contextKey}")
-    public @ResponseBody String uploadDeviceCert( @RequestBody String encodedDeviceCert,@PathVariable("contextKey") String contextKey) {
-        try {
-            byte[] fileBytes = Base64.getDecoder().decode(encodedDeviceCert);
-            String tempDir = System.getProperty("java.io.tmpdir") + File.separator + VariableManager.getVariableValue(contextKey, "db-server");
-            File file = new File(tempDir, "device-dsk-partner.p12");
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
+					**What happens**
+					1. Resolves context configuration for `contextKey`.
+					2. Decodes and stores the partner device PKCS#12 for mock SBI use.
+					3. Returns a plain-text success message.
 
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                fos.write(fileBytes);
-            }
-            return "File uploaded successfully and saved as " + file.getAbsolutePath();
-        } catch (IOException e) {
-            logger.error("Error uploading device certificate", e);
-            return "{\"error\":\"" + e.getMessage() + "\"}";
-        }
-    }
+					**When to use:** Before mock SBI / device auth flows that require a partner device key on the test runner.
+					""")
+	@OpenApiDocumentation.Base64P12RequestBody
+	@OpenApiDocumentation.UploadDeviceCertResponses
+	@OpenApiDocumentation.StandardErrorResponses
+	@PostMapping(value = "/uploadDeviceCert/{contextKey}")
+	public @ResponseBody String uploadDeviceCert(
+			@RequestBody String encodedDeviceCert,
+			@Parameter(description = OpenApiConstants.CONTEXT_KEY_DESC, required = true, example = OpenApiConstants.CONTEXT_KEY_EXAMPLE)
+			@PathVariable("contextKey") String contextKey) {
+		try {
+			if (encodedDeviceCert == null || encodedDeviceCert.isBlank()) {
+				return "{\"error\":\"Device certificate payload is required\"}";
+			}
+			String payload = encodedDeviceCert.trim();
+			if (payload.length() >= 2 && payload.startsWith("\"") && payload.endsWith("\"")) {
+				payload = payload.substring(1, payload.length() - 1);
+			}
+			byte[] fileBytes;
+			try {
+				fileBytes = Base64.getDecoder().decode(payload);
+			} catch (IllegalArgumentException e) {
+				return "{\"error\":\"Invalid Base64-encoded device certificate\"}";
+			}
+			if (fileBytes.length == 0) {
+				return "{\"error\":\"Decoded device certificate is empty\"}";
+			}
+			if (fileBytes.length > MAX_DEVICE_CERT_BYTES) {
+				return "{\"error\":\"Device certificate exceeds maximum allowed size\"}";
+			}
+			Object dbServerValue = VariableManager.getVariableValue(contextKey, "db-server");
+			String dbServer = dbServerValue != null ? dbServerValue.toString().trim() : "";
+			if (dbServer.isEmpty() || dbServer.contains("..") || dbServer.contains("/") || dbServer.contains("\\")) {
+				return "{\"error\":\"Invalid db-server context value\"}";
+			}
+			Path baseDir = Paths.get(System.getProperty("java.io.tmpdir")).normalize().toAbsolutePath();
+			Path targetDir = baseDir.resolve(dbServer).normalize();
+			if (!targetDir.startsWith(baseDir)) {
+				return "{\"error\":\"Invalid db-server context value\"}";
+			}
+			File file = targetDir.resolve("device-dsk-partner.p12").toFile();
+			if (!file.getParentFile().exists()) {
+				file.getParentFile().mkdirs();
+			}
 
-	@Operation(summary = "Clear the device certificate cache from mock mds")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Validation successful") })
+			try (FileOutputStream fos = new FileOutputStream(file)) {
+				fos.write(fileBytes);
+			}
+			return "{\"status\":\"File uploaded successfully\"}";
+		} catch (IOException e) {
+			logger.error("Error uploading device certificate", e);
+			return "{\"error\":\"Failed to save device certificate\"}";
+		}
+	}
+
+	@Operation(
+			summary = "Clear device certificate cache (mock MDS)",
+			description = """
+					Evicts cached device keys from **SBIDeviceHelper** for the AUTHCERTS path of this context.
+
+					**What happens**
+					1. Resolves `AUTHCERTS` from environment variable or context variable.
+					2. Falls back to `{java.io.tmpdir}/AUTHCERTS` if unset.
+					3. Builds path `DSL-IDA-{db-server}` under the certs directory and calls `evictKeys`.
+
+					**Response body:** JSON string `{"Success"}` or `{"Failed"}` (HTTP 200 in both cases).
+					""")
+	@OpenApiDocumentation.ClearDeviceCertCacheResponses
+	@OpenApiDocumentation.StandardErrorResponses
 	@GetMapping(value = "/clearDeviceCertCache/{contextKey}")
-	public @ResponseBody String clearDeviceCertCache(@PathVariable("contextKey") String contextKey) {
+	public @ResponseBody String clearDeviceCertCache(
+			@Parameter(description = OpenApiConstants.CONTEXT_KEY_DESC, required = true, example = OpenApiConstants.CONTEXT_KEY_EXAMPLE)
+			@PathVariable("contextKey") String contextKey) {
 		try {
 			Path p12path = null;
 			String certsDir = System.getenv(BiometricDataProvider.AUTHCERTSPATH) == null
@@ -91,6 +148,5 @@ public class CertificateController {
 		}
 		return "{\"Failed\"}";
 	}
-
 
 }

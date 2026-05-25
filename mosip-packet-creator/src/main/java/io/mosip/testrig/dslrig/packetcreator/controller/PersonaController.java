@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,16 +25,19 @@ import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.dto.BioExceptionDto;
+import io.mosip.testrig.dslrig.packetcreator.dto.ClonePersonaDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.MockABISExpectationsDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.PersonaRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.UpdatePersonaDto;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
+import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@OpenApiDocumentation.StandardErrorResponses
 @Tag(name = "PersonaController", description = "REST APIs for Persona management")
 public class PersonaController {
 
@@ -114,6 +119,26 @@ public class PersonaController {
 					ex.getMessage());
 		}
 
+	}
+
+	@Operation(summary = "Clone resident persona JSON to a sibling backup file")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successfully cloned the resident persona file") })
+	@PostMapping(value = "/persona/clone/{contextKey}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> cloneResidentData(@RequestBody ClonePersonaDto cloneRequest,
+			@PathVariable("contextKey") String contextKey) {
+		try {
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.RESOURCE = personaConfigPath;
+			}
+			String personaFilePath = cloneRequest.getPersonaFilePath();
+			String body = packetSyncService.cloneResidentData(personaFilePath, contextKey);
+			return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
+		} catch (Exception ex) {
+			logger.error("cloneResidentData", ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "CLONE_RESIDENT_DATA_FAIL", null, ex,
+					ex.getMessage());
+		}
 	}
 
 	@Operation(summary = "Generate the resident data")

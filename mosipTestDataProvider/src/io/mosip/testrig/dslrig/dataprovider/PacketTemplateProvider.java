@@ -698,7 +698,8 @@ public class PacketTemplateProvider {
 			cbeff = resident.getBiometric().getCbeff();
 
 		if (bMDS) {
-			if (cbeff == null) {
+			// Regenerate MDS capture when missing even if CBEFF was cached (face_encrypted needs capture).
+			if (cbeff == null || resident.getBiometric().getCapture() == null) {
 				MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(resident, contextKey, purpose,
 						qualityScore, process);
 

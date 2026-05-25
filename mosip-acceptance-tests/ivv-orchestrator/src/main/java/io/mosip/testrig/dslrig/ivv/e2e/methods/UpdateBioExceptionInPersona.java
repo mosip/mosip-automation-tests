@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -29,19 +30,47 @@ public class UpdateBioExceptionInPersona extends BaseTestCaseUtil implements Ste
 			this.hasError = true;
 			throw new RigInternalError("bioType paramter is  missing in step: " + step.getName());
 		}
-		if (!step.getParameters().isEmpty()) { 
-			String personaFilePath = step.getParameters().get(0);
+		if (step.getParameters().size() < 2) {
+			logger.error("Biometric exception modalities parameter is missing from DSL step");
+			this.hasError = true;
+			throw new RigInternalError("biometric exception modalities paramter is  missing in step: " + step.getName());
+		}
 
-			if (step.getParameters().size() <= 2) {
-				String[] str = step.getParameters().get(1).split("@@");
-				for (String s : str)
-					exceptionArray.add(s);
-			}
+		String personaFilePath = step.getParameters().get(0);
+		String modalitiesArg = joinBioExceptionModalities(step.getParameters());
+		logger.info("UpdateBioExceptionInPersona personaFilePath=" + personaFilePath
+				+ ", rawParameters=" + step.getParameters()
+				+ ", mergedModalities=" + modalitiesArg);
 
-			if (personaFilePath.startsWith("$$")) {
-				personaFilePath = step.getScenario().getVariables().get(personaFilePath);
-				packetUtility.updateBioException(personaFilePath, exceptionArray, step);
+		if (modalitiesArg != null && !modalitiesArg.isBlank()) {
+			String[] str = modalitiesArg.split("@@");
+			for (String s : str) {
+				String trimmed = s.trim();
+				if (!trimmed.isEmpty()) {
+					exceptionArray.add(trimmed);
+				}
 			}
 		}
+		logger.info("UpdateBioExceptionInPersona parsed exception modalities (" + exceptionArray.size() + "): "
+				+ exceptionArray);
+
+		if (personaFilePath.startsWith("$$")) {
+			personaFilePath = step.getScenario().getVariables().get(personaFilePath);
+			packetUtility.updateBioException(personaFilePath, exceptionArray, step);
+		}
+	}
+
+	/**
+	 * Merges biometric exception modalities from the second DSL argument onward. Legacy steps
+	 * incorrectly split modalities on commas (e.g. {@code Finger:Left Thumb,Finger:Left IndexFinger@@...}).
+	 */
+	static String joinBioExceptionModalities(List<String> parameters) {
+		if (parameters == null || parameters.size() < 2) {
+			return "";
+		}
+		return parameters.subList(1, parameters.size()).stream()
+				.map(String::trim)
+				.filter(s -> !s.isEmpty())
+				.collect(Collectors.joining("@@"));
 	}
 }

@@ -69,12 +69,20 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 					_additionalInfoReqId = step.getScenario().getVariables().get(_additionalInfoReqId);
 			}
 
-			if (_templatePath.startsWith("$$")) {
-				_templatePath = step.getScenario().getVariables().get(_templatePath);
-				String _idJosn = _templatePath + "/REGISTRATION_CLIENT/" + process + "/rid_id/" + "ID.json";
-				String _packetPath = createPacket(_idJosn, _templatePath, _additionalInfoReqId);
-				if (step.getOutVarName() != null)
-					step.getScenario().getVariables().put(step.getOutVarName(), _packetPath);
+			_templatePath = resolveScenarioVariable(_templatePath);
+			if (_templatePath == null || _templatePath.isBlank()) {
+				this.hasError = true;
+				throw new RigInternalError("Template path variable is not set for packetcreator step: "
+						+ step.getName());
+			}
+			String _idJosn = _templatePath + "/REGISTRATION_CLIENT/" + process + "/rid_id/" + "ID.json";
+			String _packetPath = createPacket(_idJosn, _templatePath, _additionalInfoReqId);
+			if (_packetPath == null || _packetPath.isBlank()) {
+				this.hasError = true;
+				throw new RigInternalError("packetcreator did not return a packet zip path");
+			}
+			if (step.getOutVarName() != null) {
+				step.getScenario().getVariables().put(step.getOutVarName(), _packetPath);
 			}
 		}
 

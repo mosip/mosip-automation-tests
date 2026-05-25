@@ -55,8 +55,17 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 			calltype = step.getParameters().get(0);
 
 		}
+		int detailsParamIndex = 2;
 		if (step.getParameters().size() >= 2) {
 			user = step.getParameters().get(1);
+			if (!user.contains("@@") && step.getParameters().size() >= 3 && usesCombinedUserPassword(calltype)) {
+				String passwordParam = step.getParameters().get(2);
+				if (passwordParam != null && !passwordParam.startsWith("$$")) {
+					String pwdPart = passwordParam.startsWith("@@") ? passwordParam.substring(2) : passwordParam;
+					user = user + "@@" + pwdPart;
+					detailsParamIndex = 3;
+				}
+			}
 			if (user.contains("@@")) {
 				String userDetails[] = user.split("@@");
 				indexOfUser = userDetails[0];
@@ -66,8 +75,11 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 				else
 					user = dslConfigManager.getUserAdminName().substring(0,
 							dslConfigManager.getUserAdminName().length() - 1) + user;
-				pwd = userDetails[1];
-				if (userDetails.length == 3) {
+				pwd = userDetails.length > 1 ? userDetails[1] : null;
+				if (pwd == null || pwd.isBlank()) {
+					pwd = dslConfigManager.getproperty("admin_password");
+				}
+				if (userDetails.length > 2) {
 					zone = userDetails[2];
 				}
 			}
@@ -77,14 +89,15 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 
 			}
 		}
-		if (step.getParameters().size() >= 3) {
-			if (step.getParameters().get(2).contains("$$uin")) {
-				uin = step.getParameters().get(2).toString();
+		if (step.getParameters().size() > detailsParamIndex) {
+			String detailsParam = step.getParameters().get(detailsParamIndex);
+			if (detailsParam.contains("$$uin")) {
+				uin = detailsParam;
 				uin = step.getScenario().getVariables().get(uin);
 				map.put("uin", uin);
 			}
 
-			id = step.getParameters().get(2);
+			id = detailsParam;
 			if (id.startsWith("$$")) {
 				map2 = step.getScenario().getVariables();
 				map.putAll(map2);
@@ -227,4 +240,16 @@ public class User extends BaseTestCaseUtil implements StepInterface {
 
 	}
 
+	/** DSL actions whose 2nd argument is {@code userIndex@@password}, not a flag or center index. */
+	private static boolean usesCombinedUserPassword(String calltype) {
+		return "ADD_User".equals(calltype) || "ADD_User_External_Packet".equals(calltype)
+				|| "UPDATE_UIN".equals(calltype) || "ADD_WOREMOVE_User".equals(calltype)
+				|| "DELETE_CENTERMAPPING".equals(calltype);
+	}
+
+	/**
+	 * Legacy JSON {@code e2e_User(ADD_User, masterdata-0@@pwd)}: {@code admin_userName} without last char + user token
+	 * (e.g. {@code solid0} + {@code masterdata-0} → {@code solidmasterdata-0}). Gherkin {@code dsl-0} is the same token.
+	 * Numeric tokens ({@code 0@@}, {@code 1@@}) use the suffix as-is ({@code solid0}, {@code solid1}).
+	 */
 }

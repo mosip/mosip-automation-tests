@@ -44,29 +44,20 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			if (tempPridAndRid == null)
 				tempPridAndRid = step.getScenario().getPridsAndRids();
 			checkStatus(_ridStatusParam, _expectedRidProcessed, step);
-		} else {
-			if (step.getParameters().size() >= 2) {
-				_ridStatusParam = step.getParameters().get(0);
-				String _rid = step.getParameters().get(1);
-				if (_rid.startsWith("$$")) {
-					_rid = step.getScenario().getVariables().get(_rid);
-					if (_rid == null)
-						logger.info("RID is null");
-					if (tempPridAndRid == null) {
-						tempPridAndRid = new HashMap<>();
-						tempPridAndRid.put("rid", _rid);
-						if (step.getParameters().size() > 3) {
-							String _rid2 = step.getParameters().get(2);
-							_expectedRidProcessed = step.getParameters().get(3);
-							if (_rid2.startsWith("$$")) {
-								_rid2 = step.getScenario().getVariables().get(_rid2);
-								tempPridAndRid.put("rid2", _rid2);
-							}
-						}
-						checkStatus(_ridStatusParam, _expectedRidProcessed, step);
-					}
-				}
+		} else if (step.getParameters().size() >= 2) {
+			_ridStatusParam = resolveScenarioVariable(step, step.getParameters().get(0));
+			tempPridAndRid = new HashMap<>();
+			tempPridAndRid.put("rid", resolveScenarioVariable(step, step.getParameters().get(1)));
+			if (step.getParameters().size() == 3) {
+				throw new RigInternalError(
+						"CheckStatus expects 2 parameters (status, rid) or 4 (status, rid, rid2, any|all); got 3 in step: "
+								+ step.getName());
 			}
+			if (step.getParameters().size() > 3) {
+				tempPridAndRid.put("rid2", resolveScenarioVariable(step, step.getParameters().get(2)));
+				_expectedRidProcessed = resolveScenarioVariable(step, step.getParameters().get(3));
+			}
+			checkStatus(_ridStatusParam, _expectedRidProcessed, step);
 		}
 	}
 

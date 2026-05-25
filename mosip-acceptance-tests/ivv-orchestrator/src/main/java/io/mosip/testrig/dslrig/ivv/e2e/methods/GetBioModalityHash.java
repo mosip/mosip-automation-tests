@@ -54,10 +54,7 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 				}
 			}
 		} else if (!step.getParameters().isEmpty() && step.getParameters().size() == 3) {
-			personaPath = step.getParameters().get(2);
-			if (personaPath.startsWith("$$")) {
-				personaPath = step.getScenario().getVariables().get(personaPath);
-			}
+			personaPath = resolveScenarioVariable(step.getParameters().get(2));
 		} else {
 			this.hasError = true;
 			throw new RigInternalError("missing input param [personaid,List<String> modalitySubType]");

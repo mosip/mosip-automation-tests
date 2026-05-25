@@ -237,6 +237,36 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	}
 
+	public String cloneResidentData(String personaFilePath, Scenario.Step step) throws RigInternalError {
+		String cloneUrl = props.getProperty("cloneResidentDataUrl");
+		if (cloneUrl == null || cloneUrl.isBlank()) {
+			this.hasError = true;
+			throw new RigInternalError(
+					"cloneResidentDataUrl is not configured; redeploy orchestrator with cloneResidentDataUrl=/persona/clone");
+		}
+		String url = baseUrl + cloneUrl;
+		JSONObject jsonReq = new JSONObject();
+		jsonReq.put(PERSONAFILEPATH, personaFilePath);
+		Response response = postRequest(url, jsonReq.toString(), "CLONE_RESIDENT_DATA", step);
+		String responseBody = response.getBody().asString();
+		if (response.getStatusCode() != 200) {
+			this.hasError = true;
+			throw new RigInternalError("Clone resident data failed (HTTP " + response.getStatusCode() + "): "
+					+ responseBody + ". Ensure packet-creator exposes POST /persona/clone.");
+		}
+		JSONObject jsonObject = new JSONObject(responseBody);
+		if (!jsonObject.optString("status", "").equalsIgnoreCase("success")) {
+			this.hasError = true;
+			throw new RigInternalError(responseBody);
+		}
+		JSONObject resp = jsonObject.optJSONObject("response");
+		if (resp == null || !resp.has("path")) {
+			this.hasError = true;
+			throw new RigInternalError("Clone resident data response missing path: " + response.getBody().asString());
+		}
+		return resp.getString("path");
+	}
+
 	public JSONArray getTemplate(Set<String> resPath, String process, HashMap<String, String> contextKey,
 			Scenario.Step step, String qualityScore, boolean genarateValidCbeff) throws RigInternalError {
 		JSONObject jsonReq = new JSONObject();
@@ -1331,6 +1361,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String retrieveBiometric(String resFilePath, List<String> retriveAttributeList, Scenario.Step step)
 			throws RigInternalError {
+		resFilePath = resolveScenarioVariable(step, resFilePath);
 		String url = baseUrl + props.getProperty("getPersonaData");
 		JSONObject jsonReqInner = new JSONObject();
 		if (retriveAttributeList != null && !(retriveAttributeList.isEmpty()))

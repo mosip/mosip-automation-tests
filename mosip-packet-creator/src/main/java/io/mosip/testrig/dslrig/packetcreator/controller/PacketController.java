@@ -30,13 +30,17 @@ import io.mosip.testrig.dslrig.packetcreator.dto.SyncRidDto;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketMakerService;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
+import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@Tag(name = "PacketController", description = "REST APIs for Packet processing")
+@Tag(name = "PacketController", description = "Create registration packets, CBEFF templates, sync/upload to Registration Processor, and reprocess flows.")
+@OpenApiDocumentation.StandardErrorResponses
 public class PacketController {
 
     private static final Logger logger = LoggerFactory.getLogger(PacketController.class);
@@ -52,8 +56,12 @@ public class PacketController {
 	}
 
 
-	@Operation(summary = "Create a packet")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Packet created successfully") })
+	@Operation(
+			summary = "Create a packet from persona template",
+			description = "Builds an encrypted registration packet using template path (index 0) and persona path (index 1) from the request body. Returns RID or status JSON as plain text.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Packet created; body is RID or JSON status string",
+					content = @Content(schema = @Schema(type = "string", example = "10001100790000120240101120000001"))) })
 	@PostMapping(value = "/packet/create/{contextKey}")
 	public @ResponseBody String createPacket(@RequestBody PreRegisterRequestDto requestDto,
 			@PathVariable("contextKey") String contextKey) {

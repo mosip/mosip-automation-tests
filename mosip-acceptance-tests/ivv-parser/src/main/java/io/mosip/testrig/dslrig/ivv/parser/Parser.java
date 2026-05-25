@@ -33,6 +33,7 @@ import io.mosip.testrig.dslrig.ivv.core.dtos.RegistrationUser;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
+import io.mosip.testrig.dslrig.ivv.parser.gherkin.GherkinFeatureParser;
 import io.mosip.testrig.dslrig.ivv.parser.Utils.StepParser;
 
 public class Parser implements ParserInterface {
@@ -262,6 +263,14 @@ public class Parser implements ParserInterface {
 
     public ArrayList<Scenario> getScenarios() throws RigInternalError {
         validateScenarioFiles();
+        if (isGherkinFeatureFile(inputDTO.getScenarioSheet())) {
+            try {
+                java.io.File featureFile = GherkinFeatureParser.resolveFeatureFile(inputDTO.getScenarioSheet());
+                return new GherkinFeatureParser().parseScenarios(featureFile);
+            } catch (java.io.IOException e) {
+                throw new RigInternalError(e.getMessage());
+            }
+        }
         ArrayList data = Utils.csvToList(inputDTO.getScenarioSheet());
         ArrayList<Scenario> scenario_array = new ArrayList();
         ObjectMapper oMapper = new ObjectMapper();
@@ -428,6 +437,10 @@ public class Parser implements ParserInterface {
         if (inputDTO.getScenarioSheet() == null || inputDTO.getScenarioSheet().isEmpty()){
             throw new RigInternalError("Scenario sheet path is empty");
         }
+    }
+
+    private static boolean isGherkinFeatureFile(String path) {
+        return path != null && path.toLowerCase().endsWith(".feature");
     }
 
     private void validateGlobalsFiles() throws RigInternalError {

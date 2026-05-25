@@ -594,6 +594,14 @@
     font-size: 12px;
     line-height: 1.4;
   }
+  .report-sidebar .scenario-description,
+  .report-sidebar .scenario-description * {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
   
   .report-main {
     flex: 1 1 0%;
@@ -1117,6 +1125,16 @@
     vertical-align: top !important;
     word-break: normal !important;
     overflow-wrap: break-word !important;
+  }
+  #summary tbody td:nth-child(2),
+  #summary tbody td.scenario-desc-col,
+  #summary tbody td:nth-child(2) *,
+  #summary tbody td.scenario-desc-col * {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
   }
   .scenario-table th:nth-child(3),
   .scenario-table td:nth-child(3),

@@ -2,10 +2,14 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -26,9 +30,17 @@ import io.mosip.testrig.apirig.testrunner.OTPListener;
 
 public class TestRunner {
 	private static final Logger LOGGER = Logger.getLogger(TestRunner.class);
-	public static String jarUrl = TestRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+	public static String jarUrl = resolveJarUrl();
+
+	/** Resolved once on the main thread; safe for parallel TestNG workers (ReadPreReq, etc.). */
+	private static volatile String cachedRunType;
+	private static volatile String cachedExternalResourcePath;
+	private static volatile String cachedGlobalResourcePath;
+	private static volatile String cachedLocalResourcePath;
+	private static volatile boolean resourcePathsInitialized;
 
 	public static void main(String[] args) {
+		initializeResourcePaths();
 		removeOldMosipTestTestResource();
 		if (checkRunType().equalsIgnoreCase("JAR")) {
 			extractResourceFromJar();
@@ -54,15 +66,77 @@ public class TestRunner {
 			LOGGER.setLevel(Level.ERROR);
 
 		setLogLevels();
-		BaseTestCase.initialize();
-
-		BaseTestCase.languageList = BaseTestCase.getLanguageList();
-		BaseTestCase.languageCode = BaseTestCase.languageList.get(0);
-		LOGGER.info("Current running language: " + BaseTestCase.languageCode);
+		initializeLanguagesWithRetry();
 
 		OTPListener mockSMTPListener = new OTPListener();
 		mockSMTPListener.run();
 		startTestRunner();
+	}
+
+	/**
+	 * Loads languages from the env actuator. Retries on transient DNS/network failures
+	 * (e.g. {@code UnknownHostException} for {@code api-internal.*.mosip.net}) instead of
+	 * failing with {@link IndexOutOfBoundsException} on an empty list.
+	 */
+	private static void initializeLanguagesWithRetry() {
+		final int maxAttempts = Integer.parseInt(
+				System.getProperty("env.languageLoadAttempts", "3"));
+		final long baseDelayMs = Long.parseLong(
+				System.getProperty("env.languageLoadRetryMs", "3000"));
+
+		for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+			if (attempt > 1) {
+				LOGGER.warn("Retrying env actuator / language load (attempt " + attempt + "/" + maxAttempts
+						+ "), endpoint=" + BaseTestCase.ApplnURI);
+				sleepQuietly(baseDelayMs * attempt);
+				BaseTestCase.initialize();
+			} else {
+				BaseTestCase.initialize();
+			}
+			List<String> languages = BaseTestCase.getLanguageList();
+			if (languages != null && !languages.isEmpty()) {
+				BaseTestCase.languageList = languages;
+				BaseTestCase.languageCode = languages.get(0);
+				LOGGER.info("Current running language: " + BaseTestCase.languageCode);
+				return;
+			}
+		}
+
+		String fallback = resolveFallbackLanguageCode();
+		if (fallback != null && !fallback.isBlank()) {
+			BaseTestCase.languageList = new ArrayList<>(Collections.singletonList(fallback));
+			BaseTestCase.languageCode = fallback;
+			LOGGER.warn("Env actuator returned no languages; using fallback language code '" + fallback
+					+ "'. Check VPN/DNS for " + BaseTestCase.ApplnURI
+					+ " or set -Denv.langcode=eng in your run command.");
+			return;
+		}
+
+		throw new IllegalStateException(
+				"Could not load mandatory languages from " + BaseTestCase.ApplnURI
+						+ " (masterdata actuator/env). Often caused by intermittent UnknownHostException. "
+						+ "Retry the run, verify network/VPN, or pass -Denv.langcode=eng (or set "
+						+ "defaultLanguageCode in config/dsl.properties).");
+	}
+
+	private static String resolveFallbackLanguageCode() {
+		String fromJvm = System.getProperty("env.langcode");
+		if (fromJvm != null && !fromJvm.isBlank()) {
+			return fromJvm.trim();
+		}
+		String fromConfig = dslConfigManager.getDefaultLanguageCode();
+		if (fromConfig != null && !fromConfig.isBlank()) {
+			return fromConfig.trim();
+		}
+		return null;
+	}
+
+	private static void sleepQuietly(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	public static void startTestRunner() {
@@ -75,11 +149,17 @@ public class TestRunner {
 			homeDir = new File(TestResources.getResourcePath().replace("/MosipTestResource/MosipTemporaryTestResource", "") + "testngFile");
 			LOGGER.info("IDE Home Dir=" + homeDir);
 		} else {
-			homeDir = new File(System.getProperty("user.dir") + "/"+TestResources.resourceTestFolderName + "/" + TestResources.resourceFolderName +"/testngFile");
+			homeDir = new File(getGlobalResourcePath() + "/testngFile");
 			LOGGER.info("Jar Home Dir=" + homeDir);
 		}
 
-		for (File file : homeDir.listFiles()) {
+		File[] suiteFiles = homeDir.listFiles();
+		if (suiteFiles == null || suiteFiles.length == 0) {
+			throw new IllegalStateException(
+					"No TestNG suite files under " + homeDir.getAbsolutePath()
+							+ ". Ensure the image JAR contains testngFile/ and startup completed extractResourceFromJar.");
+		}
+		for (File file : suiteFiles) {
 			if (file.getName().toLowerCase() != null) {
 				suitefiles.add(file.getAbsolutePath());
 			}
@@ -102,11 +182,139 @@ public class TestRunner {
 
 	}
 
-	public static String checkRunType() {
-		if (TestRunner.class.getResource("TestRunner.class").getPath().toString().contains(".jar"))
+	/**
+	 * Resolves IDE/JAR resource paths once. Call from {@code main} and {@code @BeforeSuite}
+	 * before parallel scenarios start.
+	 */
+	public static synchronized void initializeResourcePaths() {
+		if (resourcePathsInitialized) {
+			return;
+		}
+		cachedRunType = resolveRunType();
+		cachedExternalResourcePath = resolveExternalResourcePath(cachedRunType);
+		cachedGlobalResourcePath = resolveGlobalResourcePath(cachedRunType, cachedExternalResourcePath);
+		cachedLocalResourcePath = resolveLocalResourcePath(cachedRunType, cachedExternalResourcePath);
+		resourcePathsInitialized = true;
+		LOGGER.info("Resource paths initialized: runType=" + cachedRunType + ", external="
+				+ cachedExternalResourcePath + ", global=" + cachedGlobalResourcePath);
+	}
+
+	private static void ensureResourcePathsInitialized() {
+		if (!resourcePathsInitialized) {
+			initializeResourcePaths();
+		}
+	}
+
+	private static String resolveJarUrl() {
+		try {
+			CodeSource src = TestRunner.class.getProtectionDomain().getCodeSource();
+			if (src != null && src.getLocation() != null) {
+				return src.getLocation().getPath();
+			}
+		} catch (Exception e) {
+			LOGGER.warn("Could not resolve jar URL from code source: " + e.getMessage());
+		}
+		return "";
+	}
+
+	private static String resolveRunType() {
+		if (jarUrl != null && jarUrl.toLowerCase().endsWith(".jar")) {
 			return "JAR";
-		else
-			return "IDE";
+		}
+		URL selfResource = TestRunner.class.getResource("TestRunner.class");
+		if (selfResource != null && selfResource.getPath().contains(".jar")) {
+			return "JAR";
+		}
+		return "IDE";
+	}
+
+	private static String resolveExternalResourcePath(String runType) {
+		if ("JAR".equalsIgnoreCase(runType)) {
+			return new File(jarUrl).getParentFile().getAbsolutePath();
+		}
+		return resolveClasspathRoot();
+	}
+
+	private static String resolveGlobalResourcePath(String runType, String externalPath) {
+		if ("JAR".equalsIgnoreCase(runType)) {
+			return externalPath + "/" + TestResources.resourceTestFolderName + "/"
+					+ TestResources.resourceFolderName;
+		}
+		return externalPath + "/" + TestResources.resourceTestFolderName + "/"
+				+ TestResources.resourceFolderName;
+	}
+
+	private static String resolveLocalResourcePath(String runType, String externalPath) {
+		if ("JAR".equalsIgnoreCase(runType)) {
+			return externalPath + "/" + TestResources.resourceTestFolderName + "/"
+					+ TestResources.resourceFolderName;
+		}
+		return resolveClasspathRoot();
+	}
+
+	/**
+	 * Classpath root for IDE runs. {@code ClassLoader.getResource("")} and
+	 * {@code Class.getResource("*.class")} are often null under JDK 21 @argfile /
+	 * parallel TestNG, which caused NPEs in ReadPreReq during full-suite runs.
+	 */
+	private static String resolveClasspathRoot() {
+		ClassLoader loader = TestRunner.class.getClassLoader();
+		if (loader != null) {
+			URL root = loader.getResource("");
+			if (root != null) {
+				return normalizeClasspathRoot(root);
+			}
+		}
+		URL config = TestRunner.class.getResource("/config/config.properties");
+		if (config != null) {
+			try {
+				Path configPath = Paths.get(config.toURI());
+				Path classesRoot = configPath.getParent().getParent();
+				return classesRoot.toAbsolutePath().toString();
+			} catch (URISyntaxException e) {
+				LOGGER.warn("Could not derive classpath root from config.properties: " + e.getMessage());
+			}
+		}
+		String userDir = System.getProperty("user.dir");
+		String[] relativeCandidates = { "target/classes",
+				"mosip-acceptance-tests/ivv-orchestrator/target/classes",
+				"ivv-orchestrator/target/classes" };
+		for (String relative : relativeCandidates) {
+			File candidate = new File(userDir, relative);
+			if (new File(candidate, "config/config.properties").isFile()) {
+				return candidate.getAbsolutePath();
+			}
+		}
+		if (new File(userDir, "config/config.properties").isFile()) {
+			return userDir;
+		}
+		throw new IllegalStateException(
+				"Cannot resolve classpath root for IDE run (user.dir=" + userDir
+						+ "). Run from ivv-orchestrator after 'mvn compile', or set user.dir to the module directory.");
+	}
+
+	private static String normalizeClasspathRoot(URL url) {
+		try {
+			if ("file".equals(url.getProtocol())) {
+				String path = Paths.get(url.toURI()).toAbsolutePath().toString();
+				if (path.contains("test-classes")) {
+					path = path.replace("test-classes", "classes");
+				}
+				return path;
+			}
+		} catch (URISyntaxException e) {
+			LOGGER.warn("Could not parse classpath root URL " + url + ": " + e.getMessage());
+		}
+		String path = new File(url.getPath()).getAbsolutePath();
+		if (path.contains("test-classes")) {
+			path = path.replace("test-classes", "classes");
+		}
+		return path;
+	}
+
+	public static String checkRunType() {
+		ensureResourcePathsInitialized();
+		return cachedRunType;
 	}
 
 	public static void removeOldMosipTestTestResource() {
@@ -185,28 +393,14 @@ public class TestRunner {
 
 
 	public static String getLocalResourcePath() {
-		if (checkRunType().equalsIgnoreCase("JAR")) {
-			return new File(jarUrl).getParentFile().getAbsolutePath() +"/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName;
-		} else if (checkRunType().equalsIgnoreCase("IDE")) {
-			String path = new File(TestRunner.class.getClassLoader().getResource("").getPath()).getAbsolutePath();
-			if (path.contains("test-classes"))
-				path = path.replace("test-classes", "classes");
-			return path;
-		}
-		return "Global Resource File Path Not Found";
+		ensureResourcePathsInitialized();
+		return cachedLocalResourcePath;
 	}
 
 
 	public static String getGlobalResourcePath() {
-		if (checkRunType().equalsIgnoreCase("JAR")) {
-			return new File(jarUrl).getParentFile().getAbsolutePath() +"/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName;
-		} else if (checkRunType().equalsIgnoreCase("IDE")) {
-			String path = new File(TestRunner.class.getClassLoader().getResource("").getPath()).getAbsolutePath()+"/"+TestResources.resourceTestFolderName+  "/"+TestResources.resourceFolderName;
-			if (path.contains("test-classes"))
-				path = path.replace("test-classes", "classes");
-			return path;
-		}
-		return "Global Resource File Path Not Found";
+		ensureResourcePathsInitialized();
+		return cachedGlobalResourcePath;
 	}
 
 	private static boolean copyFilesFromJarToOutsideResource(String path) {
@@ -238,16 +432,8 @@ public class TestRunner {
 	}
 
 	public static String getExternalResourcePath() {
-		if (checkRunType().equalsIgnoreCase("JAR")) {
-			return new File(jarUrl).getParentFile().getAbsolutePath();
-		} else if (checkRunType().equalsIgnoreCase("IDE")) {
-			String path = new File(TestRunner.class.getClassLoader().getResource("").getPath()).getAbsolutePath()
-					.toString();
-			if (path.contains("test-classes"))
-				path = path.replace("test-classes", "classes");
-			return path;
-		}
-		return "Global Resource File Path Not Found";
+		ensureResourcePathsInitialized();
+		return cachedExternalResourcePath;
 	}
 
 	private static void setLogLevels(){

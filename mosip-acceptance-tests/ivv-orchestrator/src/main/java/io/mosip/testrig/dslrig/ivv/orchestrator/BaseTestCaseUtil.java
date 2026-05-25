@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -40,11 +41,13 @@ import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
+import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 public class BaseTestCaseUtil extends BaseStep {
 	private static final Logger logger = LoggerFactory.getLogger(BaseTestCaseUtil.class);
@@ -62,6 +65,16 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
 
+	/** Prevents orchestrator threads hanging forever on packet-creator / resident/* calls. */
+	private static final int PACKET_CREATOR_CONNECT_MS = 15_000;
+
+	private static final int PACKET_CREATOR_SOCKET_MS = 120_000;
+
+	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
+			.httpClient(HttpClientConfig.httpClientConfig()
+					.setParam("http.connection.timeout", PACKET_CREATOR_CONNECT_MS)
+					.setParam("http.socket.timeout", PACKET_CREATOR_SOCKET_MS));
+
 	public static PacketUtility packetUtility = new PacketUtility();
 	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
 
@@ -74,6 +87,28 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static String partnerId = null;
 	public static String kycPartnerId = null;
 	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
+
+	/** In-memory key used by {@link io.mosip.testrig.dslrig.ivv.e2e.methods.WritePreReq} / ReadPreReq. */
+	public static String prereqStoragePath(String index) {
+		return TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
+				+ index + ".properties";
+	}
+
+	public static boolean hasPrereqData(String index) {
+		if (index == null || index.isBlank()) {
+			return false;
+		}
+		synchronized (prereqDataSet) {
+			return prereqDataSet.containsKey(prereqStoragePath(index));
+		}
+	}
+
+	public static String prereqDataSummary() {
+		synchronized (prereqDataSet) {
+			return prereqDataSet.isEmpty() ? "(none)" : String.join(", ", prereqDataSet.keySet());
+		}
+	}
+
 	public static String extentReportName="";
     public static long exectionStartTime = 0;
     public static long exectionEndTime = 0;
@@ -166,6 +201,19 @@ public class BaseTestCaseUtil extends BaseStep {
 		return System.getProperty("env.user") + "_S" + scenarioId + "_context";
 	}
 
+	private static boolean isPacketCreatorUrl(String url) {
+		String pcBase = dslConfigManager.getpacketUtilityBaseUrl();
+		return pcBase != null && !pcBase.isEmpty() && url != null && url.startsWith(pcBase);
+	}
+
+	private static RequestSpecification givenHttpClient(String url) {
+		RequestSpecification spec = given();
+		if (isPacketCreatorUrl(url)) {
+			spec = spec.config(PACKET_CREATOR_HTTP_CONFIG);
+		}
+		return spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON);
+	}
 
 	public static void appendOutboundInternalApiLogsAfterPacketCreatorCall(Scenario.Step step, String resolvedUrl) {
 		if (!dslConfigManager.isInternalApiLoggingForReport() || step == null || resolvedUrl == null) {
@@ -227,12 +275,9 @@ public class BaseTestCaseUtil extends BaseStep {
 		url = addContextToUrl(url, step);
 		Response getResponse = null;
 		if (dslConfigManager.IsDebugEnabled()) {
-			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract()
-					.response();
+			getResponse = givenHttpClient(url).log().all().when().get(url).then().log().all().extract().response();
 		} else {
-			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON).when().get(url).then().extract().response();
+			getResponse = givenHttpClient(url).when().get(url).then().extract().response();
 		}
 		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
 				getResponse.getBody().asString(),true);
@@ -245,12 +290,9 @@ public class BaseTestCaseUtil extends BaseStep {
 		Response getResponse = null;
 
 		if (dslConfigManager.IsDebugEnabled()) {
-			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON).log().all().when().get(url).then().log().all().extract()
-					.response();
+			getResponse = givenHttpClient(url).log().all().when().get(url).then().log().all().extract().response();
 		} else {
-			getResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON).when().get(url).then().extract().response();
+			getResponse = givenHttpClient(url).when().get(url).then().extract().response();
 		}
 		return getResponse;
 	}
@@ -580,6 +622,119 @@ public class BaseTestCaseUtil extends BaseStep {
 		} catch (Exception e) {
 			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
 			return regProcWaitInterval;
+		}
+	}
+
+	protected String resolveScenarioVariable(String value) throws RigInternalError {
+		return resolveScenarioVariable(step, value);
+	}
+
+	protected boolean referencesScenarioVariable(String value) {
+		return referencesScenarioVariable(step, value);
+	}
+
+	protected static boolean referencesScenarioVariable(Scenario.Step step, String value) {
+		if (org.apache.commons.lang.StringUtils.isBlank(value)) {
+			return false;
+		}
+		String normalized = value.trim().replaceAll("/\\*[^*]*\\*/", "").trim();
+		if (normalized.startsWith("$$")) {
+			return true;
+		}
+		return step.getScenario().getVariables().containsKey("$$" + toDslVariableName(normalized));
+	}
+
+	protected static String resolveScenarioVariable(Scenario.Step step, String value) throws RigInternalError {
+		if (org.apache.commons.lang.StringUtils.isBlank(value)) {
+			return value;
+		}
+		String normalized = value.trim().replaceAll("/\\*[^*]*\\*/", "").trim();
+		if (normalized.startsWith("$$")) {
+			String resolved = step.getScenario().getVariables().get(normalized);
+			if (resolved != null && !resolved.isBlank()) {
+				return resolved;
+			}
+			throw new RigInternalError("Scenario variable is not set or empty: " + normalized);
+		}
+		String variableKey = "$$" + toDslVariableName(normalized);
+		if (step.getScenario().getVariables().containsKey(variableKey)) {
+			String resolved = step.getScenario().getVariables().get(variableKey);
+			if (resolved != null && !resolved.isBlank()) {
+				return resolved;
+			}
+			throw new RigInternalError("Scenario variable is not set or empty: " + variableKey);
+		}
+		return normalized;
+	}
+
+	/**
+	 * Resolves persona and packet template path parameters and fails fast when a Gherkin
+	 * shorthand (e.g. {@code template}) was not translated to a {@code $$} variable in DSL.
+	 */
+	protected static String[] resolvePersonaAndTemplatePaths(Scenario.Step step) throws RigInternalError {
+		String residentParam = step.getParameters().get(0);
+		String templateParam = step.getParameters().get(1);
+		String residentPath = resolveScenarioVariable(step, residentParam);
+		String templatePath = resolveScenarioVariable(step, templateParam);
+		assertResolvedScenarioFilePath(step, residentParam, residentPath, "Persona file path");
+		assertResolvedScenarioFilePath(step, templateParam, templatePath, "Packet template path");
+		return new String[] { residentPath, templatePath };
+	}
+
+	protected static void assertResolvedScenarioFilePath(Scenario.Step step, String param, String resolved,
+			String label) throws RigInternalError {
+		String normalized = param == null ? "" : param.trim().replaceAll("/\\*[^*]*\\*/", "").trim();
+		if (resolved == null || resolved.isBlank()) {
+			throw new RigInternalError(label + " is not set or empty: " + normalized);
+		}
+		if (!normalized.startsWith("$$") && resolved.equals(normalized)) {
+			String variableKey = "$$" + toDslVariableName(normalized);
+			if (step.getScenario().getVariables().containsKey(variableKey)) {
+				throw new RigInternalError(label + " must reference scenario variable " + variableKey
+						+ " in DSL (got unresolved literal [" + normalized + "])");
+			}
+			throw new RigInternalError(label + " is not a valid file path; unresolved reference [" + normalized
+					+ "]. Use 'the saved packet template path' or $$templatePath in Gherkin.");
+		}
+		if (!resolved.contains("/") && !resolved.contains("\\")) {
+			throw new RigInternalError(label + " is not a valid file path: [" + resolved + "]");
+		}
+	}
+
+	private static String toDslVariableName(String displayName) {
+		String[] words = displayName.trim().split("\\s+");
+		if (words.length == 0) {
+			return displayName;
+		}
+		StringBuilder sb = new StringBuilder(words[0].toLowerCase(Locale.ROOT));
+		for (int i = 1; i < words.length; i++) {
+			String w = words[i];
+			if (!w.isEmpty()) {
+				sb.append(Character.toUpperCase(w.charAt(0)));
+				if (w.length() > 1) {
+					sb.append(w.substring(1).toLowerCase(Locale.ROOT));
+				}
+			}
+		}
+		return sb.toString();
+	}
+
+	/** Fail fast when MOSIP returns {@code errors} or a null {@code response} body. */
+	protected static void assertMosipResponseOk(JSONObject jsonResp, String operation) throws RigInternalError {
+		if (jsonResp == null) {
+			throw new RigInternalError(operation + " failed: empty response body");
+		}
+		if (jsonResp.has("errors") && !jsonResp.isNull("errors")) {
+			Object errors = jsonResp.get("errors");
+			if (errors instanceof JSONArray && ((JSONArray) errors).length() > 0) {
+				throw new RigInternalError(operation + " failed: " + errors);
+			}
+			if (!(errors instanceof JSONArray)) {
+				throw new RigInternalError(operation + " failed: response has errors");
+			}
+		}
+		if (!jsonResp.has("response") || jsonResp.isNull("response")) {
+			throw new RigInternalError(operation + " failed: response object is null");
 		}
 	}
 

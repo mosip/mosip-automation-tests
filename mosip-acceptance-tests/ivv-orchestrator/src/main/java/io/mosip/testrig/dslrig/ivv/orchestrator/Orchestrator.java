@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -103,6 +106,7 @@ public class Orchestrator {
 
 	@BeforeSuite
 	public void beforeSuite() {
+		TestRunner.initializeResourcePaths();
 
 		beforeSuiteFailed = false;
 		beforeSuiteSetupComplete = false;
@@ -320,6 +324,27 @@ public class Orchestrator {
 			beforeSuiteExeuted = true;
 			logger.info("Scenario 0 not in this run; skipping before-suite gate.");
 		}
+		filteredScenarios.sort((a, b) -> {
+			if (a.getId().equalsIgnoreCase("0")) {
+				return -1;
+			}
+			if (b.getId().equalsIgnoreCase("0")) {
+				return 1;
+			}
+			if (a.getId().equalsIgnoreCase("AFTER_SUITE")) {
+				return 1;
+			}
+			if (b.getId().equalsIgnoreCase("AFTER_SUITE")) {
+				return -1;
+			}
+			return 0;
+		});
+		suiteRequiresScenario0 = filteredScenarios.stream().anyMatch(s -> s.getId().equalsIgnoreCase("0"));
+		if (!suiteRequiresScenario0) {
+			beforeSuiteSetupComplete = true;
+			beforeSuiteExeuted = true;
+			logger.info("Scenario 0 not in this run; skipping before-suite gate.");
+		}
 		totalScenario = filteredScenarios.size();
 		executableScenarioCount = (int) filteredScenarios.stream()
 				.filter(s -> !s.getId().equalsIgnoreCase("AFTER_SUITE")).count();
@@ -437,7 +462,6 @@ public class Orchestrator {
 
 			if (scenario.getId().equalsIgnoreCase("AFTER_SUITE")) 
 			{
-
 				while (completedScenarioCount.get() < executableScenarioCount) 
 				{
 					long currentTime = System.currentTimeMillis();
@@ -447,15 +471,12 @@ public class Orchestrator {
 						break;
 					}
 
-					logger.info(" Thread ID: " + Thread.currentThread().getId()
-							+ " AFTER_SUITE waiting for scenarios to finish: " + completedScenarioCount.get() + "/"
-							+ executableScenarioCount + " (beforeSuiteComplete="
-							+ beforeSuiteSetupComplete + ")");
 					Thread.sleep(SUITE_COORDINATION_POLL_MS);
 				}
 				startTime = System.nanoTime();
 				BaseTestCaseUtil.sceanrioExecutionStatistics.put("Scenario_" + scenario.getId() + "_startTime",
 						String.valueOf(startTime));
+
 			}
 		}
 
@@ -465,11 +486,20 @@ public class Orchestrator {
 		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
+		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && beforeSuiteFailed) {
+			String skipMsg = "Skipping AFTER_SUITE teardown because Scenario 0 (before suite) failed — "
+					+ "WritePreReq(1/2/3) data was never stored. Fix Scenario 0 (track2b steps 17-25 for index 2) first.";
+			logger.error(skipMsg);
+			extentTest.skip(skipMsg);
+			updateRunStatistics(scenario);
+			throw new SkipException(skipMsg);
+		}
 		if (testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression")) {
 			logger.info("Running Scenario #" + scenario.getId());
 		} else if (matchTags("Negative_Test", scenario.getTags()) && testLevel.equalsIgnoreCase("smoke")) {
 			extentTest.skip(
 					"S-" + scenario.getId() + "Ignoring scenario since it is classified as a negative test case.");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException(
@@ -484,12 +514,14 @@ public class Orchestrator {
 			extentTest.skip("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 			failBeforeSuiteIfScenario0Skipped(scenario);
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 		}
 		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
 			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform known issue");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
@@ -498,6 +530,7 @@ public class Orchestrator {
 			extentTest.skip("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
 			failBeforeSuiteIfScenario0Skipped(scenario);
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
@@ -505,6 +538,7 @@ public class Orchestrator {
 		if (System.currentTimeMillis() - suiteStartTime >= suiteMaxTimeInMillis && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
 			extentTest.skip("S-" + scenario.getId()
 					+ ": Skipping scenarios execution As Exhausted the maximum suite execution time.Hence, terminating the execution");
+			failBeforeSuiteIfScenario0Skipped(scenario);
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException((" Thread ID: " + Thread.currentThread().getId()
@@ -557,6 +591,15 @@ public class Orchestrator {
 			int jumpBackIndex = 0;
 			int iterationCount = 0;
 			try {
+				if (scenario.getId().equalsIgnoreCase("0")) {
+					logger.info("Scenario 0: using parallel phased execution for before-suite setup");
+					store = Scenario0ParallelRunner.run(scenario, store, willRetry,
+							(sc, st, from, to, retry) -> executeScenarioStepsRange(sc, st, extentTest, properties,
+									from, to, retry),
+							this::copyScenarioForParallelTrack);
+					scenarioSucceeded = true;
+					continue;
+				}
 				if (scenario.getId().equalsIgnoreCase("0")) {
 					logger.info("Scenario 0: using parallel phased execution for before-suite setup");
 					store = Scenario0ParallelRunner.run(scenario, store, willRetry,
@@ -682,6 +725,9 @@ public class Orchestrator {
 				if (scenario.getId().equalsIgnoreCase("0")) {
 					signalBeforeSuiteComplete(false);
 				}
+				if (scenario.getId().equalsIgnoreCase("0")) {
+					signalBeforeSuiteComplete(false);
+				}
 				updateRunStatistics(scenario);
 				logger.error(e.getMessage());
 				Reporter.log(e.getMessage());
@@ -691,11 +737,20 @@ public class Orchestrator {
 				Reporter.log(e.getMessage());
 
 				scenarioSucceeded = true;
-			} catch (Exception e) {
-				finalException = e;
+			} catch (Error e) {
+				finalException = new Exception(e);
 				String failMessage = "Attempt " + attempt + " failed for scenario " + scenario.getId() + " : "
 						+ e.getMessage();
 				logger.error(failMessage, e);
+				Reporter.log("<span style='color:red; font-weight:bold;'>" + failMessage + "</span>");
+				updateRunStatistics(scenario);
+				throw new RuntimeException(failMessage, e);
+			} catch (Exception e) {
+				finalException = e;
+				Throwable root = rootCause(e);
+				String failMessage = "Attempt " + attempt + " failed for scenario " + scenario.getId() + " : "
+						+ (root != null ? root.getMessage() : e.getMessage());
+				logger.error(failMessage, root != null ? root : e);
 
 
 				String redFailMessage = "<span style='color:red; font-weight:bold;'>" + failMessage + "</span>";
@@ -785,12 +840,23 @@ public class Orchestrator {
 	public StepInterface getInstanceOf(Scenario.Step step)
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {
-		String className = getPackage(step) + "." + step.getName().substring(0, 1).toUpperCase()
-				+ step.getName().substring(1);
+		Class<?> clazz = StepClassResolver.resolve(getPackage(step), step.getName());
 
-		Class<?> clazz = Class.forName(className);
-
-		return (StepInterface) clazz.getDeclaredConstructor().newInstance();
+		try {
+			return (StepInterface) clazz.getDeclaredConstructor().newInstance();
+		} catch (InvocationTargetException e) {
+			Throwable cause = e.getCause();
+			if (cause instanceof Error) {
+				throw (Error) cause;
+			}
+			if (cause instanceof RuntimeException) {
+				throw (RuntimeException) cause;
+			}
+			if (cause instanceof Exception) {
+				throw new RuntimeException(cause);
+			}
+			throw e;
+		}
 	}
 
 
@@ -801,6 +867,14 @@ public class Orchestrator {
 		}
 	}
 
+	private static Throwable rootCause(Throwable t) {
+		Throwable current = t;
+		while (current.getCause() != null && current.getCause() != current) {
+			current = current.getCause();
+		}
+		return current;
+	}
+
 	private static Boolean matchTags(String systemTags, ArrayList<String> scenarioTags) {
 		List<String> sys = Arrays.asList(systemTags.split(","));
 		return CollectionUtils.containsAny(sys, scenarioTags);
@@ -808,6 +882,17 @@ public class Orchestrator {
 
 	public static String getScenarioSheet() throws RigInternalError {
 		String scenarioSheet = null;
+
+		if (dslConfigManager.useGherkinScenarios()) {
+			try {
+				scenarioSheet = resolveGherkinFeatureFilePath();
+				logger.info("Scenario sheet (Gherkin): " + scenarioSheet);
+			} catch (IOException e) {
+				throw new RigInternalError("Gherkin feature file not found: " + e.getMessage());
+			}
+			registerGherkinStepDetails(scenarioSheet);
+			return scenarioSheet;
+		}
 
 		if (dslConfigManager.useExternalScenarioSheet()) {
 
@@ -821,19 +906,55 @@ public class Orchestrator {
 			scenarioSheet = JsonToCsvConverter(scenarioSheet);
 			if (scenarioSheet.isEmpty())
 				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
-		} else { 
-			scenarioSheet = TestRunner.getGlobalResourcePath() + "/config/scenarios.json";
-			logger.info("Scenario sheet path is: " + scenarioSheet);
-			Path path = Paths.get(scenarioSheet);
-			if (!Files.exists(path)) {
-				logger.info("Scenario sheet path is: " + path);
-				throw new RigInternalError("ScenarioSheet missing");
-			}
-			scenarioSheet = JsonToCsvConverter(scenarioSheet);
-			if (scenarioSheet.isEmpty())
-				throw new RigInternalError("Failed to generate CSV from JSON file, for internal processing");
+		} else {
+			throw new RigInternalError(
+					"Bundled scenarios.json is no longer supported. Maintain config/"
+							+ io.mosip.testrig.dslrig.ivv.parser.gherkin.GherkinFeatureParser.MASTER_FEATURE_FILE
+							+ " or set useExternalScenarioSheet=yes with an external scenarios JSON file.");
 		}
 		return scenarioSheet;
+	}
+
+	/** Registers step metadata used by reports; also invoked when loading Gherkin feature files. */
+	public static void registerStepDetails(String stepInput, String scenarioNumber, String description) {
+		addAllStepDetails(stepInput, scenarioNumber, description);
+		addUniqueStepDetails(stepInput, description);
+	}
+
+	private static String resolveGherkinFeatureFilePath() throws IOException {
+		return io.mosip.testrig.dslrig.ivv.parser.gherkin.GherkinFeatureParser
+				.resolveFeatureFile(resolveGherkinFeaturesDirectory()).getAbsolutePath();
+	}
+
+	private static void registerGherkinStepDetails(String featureFilePath) {
+		try {
+			new io.mosip.testrig.dslrig.ivv.parser.gherkin.GherkinFeatureParser()
+					.forEachStep(new File(featureFilePath),
+							(dsl, scenarioId, gherkinText) -> registerStepDetails(dsl, scenarioId, gherkinText));
+		} catch (IOException e) {
+			logger.warn("Could not register Gherkin step details for reports: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Resolves the Gherkin scenarios directory ({@code config/}). Prefers compiled classpath
+	 * {@code classes/config} over a stale copy under MosipTemporaryTestResource from an earlier run.
+	 */
+	private static String resolveGherkinFeaturesDirectory() {
+		String subPath = dslConfigManager.getGherkinFeaturesPath();
+		String globalRoot = TestRunner.getGlobalResourcePath();
+		String[] candidates = {
+				TestRunner.getExternalResourcePath() + "/" + subPath,
+				globalRoot.replace("/" + TestResources.resourceFolderName, "") + "/" + subPath,
+				globalRoot + "/" + subPath
+		};
+		for (String candidate : candidates) {
+			if (Files.exists(Paths.get(candidate))) {
+				logger.info("Using Gherkin scenarios path: " + candidate);
+				return candidate;
+			}
+		}
+		return globalRoot + "/" + subPath;
 	}
 
 	public static String JsonToCsvConverter(String jsonFilePath) {

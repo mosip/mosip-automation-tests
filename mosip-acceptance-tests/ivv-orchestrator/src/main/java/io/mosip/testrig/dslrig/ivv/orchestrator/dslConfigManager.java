@@ -59,6 +59,11 @@ public class dslConfigManager extends ConfigManager {
 		return ConfigManager.getproperty("uinWaitTime");
 	}
 
+	/** Used when env actuator is unreachable (e.g. transient DNS failure). Override with {@code -Denv.langcode}. */
+	public static String getDefaultLanguageCode() {
+		return ConfigManager.getproperty("defaultLanguageCode");
+	}
+
 	public static String checkNotification() {
 		return ConfigManager.getproperty("checkNotification");
 	}
@@ -71,6 +76,25 @@ public class dslConfigManager extends ConfigManager {
 		return ConfigManager.getproperty("useExternalScenarioSheet").equalsIgnoreCase("yes");
 	}
 
+	public static Boolean useGherkinScenarios() {
+		try {
+			String value = ConfigManager.getproperty("useGherkinScenarios");
+			if (value == null || value.trim().isEmpty()) {
+				return true;
+			}
+			return !value.equalsIgnoreCase("no");
+		} catch (Exception e) {
+			return true;
+		}
+	}
+
+	private static final String GHERKIN_FEATURES_DIR = "config";
+
+	public static String getGherkinFeaturesPath() {
+		return GHERKIN_FEATURES_DIR;
+	}
+
+	/** Scenarios load from {@code config/scenarios.feature} by default; set {@code useGherkinScenarios=no} for external JSON. */
 	public static String getpacketUtilityBaseUrl() {
 		return ConfigManager.getproperty("packetUtilityBaseUrl");
 	}
@@ -205,23 +229,6 @@ public class dslConfigManager extends ConfigManager {
 
 	public static String getInternalApiLoggingForContextProps() {
 		return isInternalApiLoggingForReport() ? "yes" : "no";
-	}
-
-
-	public static boolean isEnhanceReportTreeViewEnabled() {
-		String jvm = System.getProperty("dsl.report.treeview.enabled");
-		if (jvm != null && !jvm.isBlank()) {
-			return !"false".equalsIgnoreCase(jvm.trim());
-		}
-		try {
-			String v = ConfigManager.getproperty("enhanceReportTreeView");
-			if (v == null || v.isBlank()) {
-				return true;
-			}
-			return !"no".equalsIgnoreCase(v.trim());
-		} catch (Exception e) {
-			return true;
-		}
 	}
 
 

@@ -94,12 +94,12 @@ public class EmailableReport implements IReporter {
 		writer.close();
 
 		File primaryReportFile = new File(outputDirectory, fileName).getAbsoluteFile();
-		applyTreeViewEnhancementIfConfigured(primaryReportFile, "primary emailable report");
+		applyTreeViewEnhancement(primaryReportFile, "primary emailable report");
 
 		String failedReportName = generateFailedAndSkippedReport(outputDirectory);
 
 		File failedDigestReportFile = new File(outputDirectory, failedReportName).getAbsoluteFile();
-		applyTreeViewEnhancementIfConfigured(failedDigestReportFile, "failed and skipped digest report");
+		applyTreeViewEnhancement(failedDigestReportFile, "failed and skipped digest report");
 
 		int totalTestCases = totalPassedTests + totalSkippedTests + totalIgnoredTests + totalKnownIssuesTests
 				+ totalFailedTests;
@@ -175,11 +175,7 @@ public class EmailableReport implements IReporter {
 		}
 	}
 
-	private void applyTreeViewEnhancementIfConfigured(File reportFile, String reportLabel) {
-		if (!dslConfigManager.isEnhanceReportTreeViewEnabled()) {
-			REPORT_TREE_LOG.info("DSL report tree-view enhancement is disabled; skipping " + reportLabel + ".");
-			return;
-		}
+	private void applyTreeViewEnhancement(File reportFile, String reportLabel) {
 		if (reportFile == null) {
 			REPORT_TREE_LOG.warn("DSL report tree-view: no file for " + reportLabel + "; skip.");
 			return;
@@ -299,6 +295,8 @@ public class EmailableReport implements IReporter {
 				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(2) { width:74%; vertical-align:top; text-align:center; }");
 		writer.print(
 				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) { width:74%; vertical-align:top; text-align:left; }");
+		writer.print(
+				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2), .dsl-scenario-summary-wrap #summary.scenario-table td.scenario-desc-col, .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) * { white-space:normal !important; overflow:visible !important; text-overflow:clip !important; word-break:break-word !important; overflow-wrap:anywhere !important; }");
 		writer.print(
 				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(3), .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(3) { width:14%; min-width:150px; text-align:center; vertical-align:top; overflow:visible; white-space:nowrap; }");
 		writer.print(
