@@ -1,0 +1,56 @@
+# Reference configuration (runtime uses log-capture.properties / helm env vars).
+# Targets use Rancher namespace + deployment names: namespace:workload
+logCapture:
+  enabled: true
+  namespace: mosip
+  captureMode: execution-window
+  localLogPath: reports/logs
+  uploadToS3: true
+  s3:
+    enabled: true
+    provider: minio
+    bucketName: dsl-reports
+    reportFolder: execution-logs
+    uploadCombinedLog: true
+    uploadServiceWiseLogs: true
+    compressBeforeUpload: true
+  targets:
+    # regproc namespace (registration processor)
+    - regproc:regproc-camel
+    - regproc:regproc-group1
+    - regproc:regproc-group2
+    - regproc:regproc-group3
+    - regproc:regproc-group4
+    - regproc:regproc-group5
+    - regproc:regproc-group6
+    - regproc:regproc-group7
+    - regproc:regproc-landingzone
+    - regproc:regproc-notifier
+    - regproc:regproc-pktserver
+    - regproc:regproc-reprocess
+    - regproc:regproc-status
+    - regproc:regproc-trans
+    - regproc:regproc-workflow
+    # packetmanager namespace
+    - packetmanager:packetmanager
+    # abis namespace
+    - abis:mock-abis
+    - abis:mock-mv
+    # mosip namespace (platform services)
+    - mosip:resident-service
+    - mosip:id-repository
+    - mosip:keycloak
+    - mosip:mock-smtp
+    - mosip:kafka
+  excludeServices:
+    - nginx
+    - monitoring
+    - istio
+    - prometheus
+    - istio-proxy
+  logLevels:
+    - INFO
+    - WARN
+    - ERROR
+  generateCombinedLog: true
+  generateFailureSummary: true

@@ -59,6 +59,7 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
+import io.mosip.testrig.dslrig.ivv.orchestrator.logcapture.ExecutionLogService;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
 
 public class Orchestrator {
@@ -119,6 +120,7 @@ public class Orchestrator {
 		suiteStartTime = System.currentTimeMillis();
 		BaseTestCaseUtil.exectionStartTime = suiteStartTime;
 		logger.info("Suite start time is: " + BaseTestCaseUtil.exectionStartTime);
+		ExecutionLogService.markExecutionStart();
 		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
 		Utils.setupLogger(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
 				+ this.properties.getProperty("ivv._path.auditlog"));
@@ -157,9 +159,13 @@ public class Orchestrator {
 
 	@AfterSuite
 	public void afterSuite() {
-		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
-		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
-		extent.flush();
+		try {
+			BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
+			logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
+			extent.flush();
+		} finally {
+			ExecutionLogService.finalizeCaptureAndUpload();
+		}
 	}
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
