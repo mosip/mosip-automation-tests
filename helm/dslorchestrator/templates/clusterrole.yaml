@@ -1,10 +1,23 @@
 ---
+{{- if .Values.rbac.create }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ template "dslorchestrator.serviceAccountName" . }}-{{ .Release.Namespace }}
-  namespace: {{ .Release.Namespace }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
 rules:
+  # Existing: pod metadata for image hash script / health checks
   - apiGroups: [""]
     resources: ["pods"]
-    verbs: ["get","patch","list","watch"]
+    verbs: ["get", "patch", "list", "watch"]
+  # DSL log capture: kubectl logs deployment/<name> -n <namespace>
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
+    verbs: ["get", "list", "watch"]
+{{- end }}

@@ -351,6 +351,7 @@ volumePermissions:
     ##
 
 ## Specifies whether RBAC resources should be created
+## ClusterRole includes pods/log + apps/deployments for DSL logCapture (kubectl logs across namespaces).
 ##
 rbac:
   create: true
