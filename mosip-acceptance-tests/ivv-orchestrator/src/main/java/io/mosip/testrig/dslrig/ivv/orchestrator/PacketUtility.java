@@ -62,7 +62,6 @@ import io.mosip.testrig.apirig.masterdata.utils.MasterDataUtil;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.ConfigManager;
-import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import io.mosip.testrig.apirig.utils.RestClient;
@@ -414,7 +413,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			throws RigInternalError {
 		String url = baseUrl + props.getProperty("updatePreRegStatus") + prid + "?statusCode=" + status;
 		Response response = putRequestWithQueryParam(url, map, "UpdatePreRegStatus", step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, "", response.toString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, "", response.toString());
 		return (response.getBody().asString());
 
 	}
@@ -426,7 +425,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		} else {
 
 
-			GlobalMethods.ReportRequestAndResponse("", "", "", "", response.toString());
+			DslReportLogUtil.reportRequestAndResponse("", "", "", "", response.toString());
 			logger.info(response);
 		}
 	}
@@ -438,7 +437,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			throw new RigInternalError("Unable to updatePreRegStatus from packet utility");
 		} else {
 
-			GlobalMethods.ReportRequestAndResponse("", "", "", "", response.toString());
+			DslReportLogUtil.reportRequestAndResponse("", "", "", "", response.toString());
 			logger.info(response);
 		}
 	}
@@ -448,7 +447,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = baseUrl + "/prereg/appointment/" + prid + "/" + nthSlot + "/" + bookOnHolidays;
 		JSONObject jsonReq = new JSONObject();
 		Response response = postRequest(url, jsonReq.toString(), "BookAppointment", step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("appointment booked successfully")) {
 			this.hasError = true;
 			logger.info("bookAppointment Response is:" + response + " url: " + url);
@@ -479,7 +478,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (!(response.getBody().asString().toLowerCase().contains("failed"))) {
 			JSONObject jsonResp = new JSONObject(response.getBody().asString());
 			rid = jsonResp.getJSONObject(RESPONSE).getString("registrationId");
-			GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
+			DslReportLogUtil.reportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		}
 		if (!response.getBody().asString().toLowerCase().contains(responseStatus)) {
 			this.hasError = true;
@@ -505,7 +504,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
 				"link Resident data with RID", step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to add Resident RID in resident data");
@@ -576,7 +575,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			}
 			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
 			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid, step);
-			GlobalMethods.ReportRequestAndResponse("", "", identityUrl + rid, "", response.getBody().asString());
+			DslReportLogUtil.reportRequestAndResponse("", "", identityUrl + rid, "", response.getBody().asString());
 			String uin = response.asString();
 			updateResidentUIN(step.getScenario().getGeneratedResidentData().get(0), uin, step);
 		}
@@ -589,7 +588,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PR_RESIDENTLIST, residentAttrib);
 		jsonwrapper.put(REQUESTS, jsonReq);
 		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + rid + " And linked to child </u></b>");
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
@@ -612,7 +611,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
 		Reporter.log("<b><u>Generated GuardianPacket with Rid: " + step.getScenario().getRid_updateResident()
 				+ " And linked to child </u></b>");
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
@@ -658,7 +657,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PR_RESIDENTLIST, residentAttrib);
 		jsonwrapper.put(REQUESTS, jsonReq);
 		Response response = postRequest(url, jsonwrapper.toString(), "Update Resident Guardian", step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update Resident Guardian from packet utility");
@@ -785,7 +784,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(MOSIP_TEST_REGCLIENT_SUPERVISORID, E2EConstants.SUPERVISOR_ID);
 		jsonReq.put(PREREG_PRECONFIGUREDOTP, E2EConstants.PRECONFIGURED_OTP);
 		Response response = postRequest(url, jsonReq.toString(), SETCONTEXT, step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
 			this.hasError = true;
 			throw new RigInternalError("Unable to set context from packet utility");
@@ -854,7 +853,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 
 		Response response = postRequest(url, jsonReq.toString(), SETCONTEXT, step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, jsonReq.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains("true")) {
 			this.hasError = true;
 			throw new RigInternalError(response.getBody().asString());
@@ -1401,7 +1400,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			getResponse = given().relaxedHTTPSValidation().accept("*/*").contentType("application/json").when()
 					.body(body).get(url).then().extract().response();
 		}
-		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, body,
+		DslReportLogUtil.reportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, body,
 				getResponse.getBody().asString(), true);
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return getResponse;
@@ -1500,7 +1499,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token,
 				"Update machine detail with status[isActive=" + status + "]", step);
 
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonPutReq.toString(), puttResponse.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, jsonPutReq.toString(), puttResponse.getBody().asString());
 
 		if (puttResponse.getBody().asString().toLowerCase().contains(ERRORCODE)) {
 			logger.error("unable to update machine detail");
@@ -1526,7 +1525,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 					.accept("*/*").when().cookie(AUTHORIZATION, token).put(url).then().extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse("", "", url, body, puttResponse.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, body, puttResponse.getBody().asString());
 
 
 		return puttResponse;
@@ -1543,7 +1542,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 					.accept("*/*").when().cookie(AUTHORIZATION, token).post(url).then().extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse("", "", url, body, posttResponse.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, body, posttResponse.getBody().asString());
 
 
 		return posttResponse;
@@ -1559,7 +1558,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			puttResponse = given().relaxedHTTPSValidation().body(body).contentType(MediaType.APPLICATION_JSON)
 					.accept("*/*").when().cookie(AUTHORIZATION, token).patch(url).then().extract().response();
 		}
-		GlobalMethods.ReportRequestAndResponse("", "", url, body, puttResponse.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, body, puttResponse.getBody().asString());
 		return puttResponse;
 	}
 
@@ -1576,7 +1575,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 					.contentType(MediaType.APPLICATION_JSON).cookie(AUTHORIZATION, token).accept("*/*").when()
 					.patch(url).then().extract().response();
 		}
-		GlobalMethods.ReportRequestAndResponse("", "", url, "", patchResponse.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, "", patchResponse.getBody().asString());
 		return patchResponse;
 	}
 
@@ -1602,7 +1601,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		JSONObject jsonPutReq = requestBuilderDeviceRemap(jsonInput, zoneCode, regCenterId);
 		Response response = putReqestWithCookiesAndBody(PUTUSERURL, JSONValue.toJSONString(jsonPutReq), token,
 				"Remap device to different registration center", step);
-		GlobalMethods.ReportRequestAndResponse("", "", PUTUSERURL, "", response.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", PUTUSERURL, "", response.getBody().asString());
 
 		return JsonPrecondtion.getValueFromJson(response.getBody().asString(), "response.regCenterId")
 				.equals(regCenterId) ? true : false;
@@ -1616,7 +1615,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = System.getProperty(ENV_ENDPOINT) + props.getProperty("getRegistrationCenter") + regCenterId
 				+ "/eng";
 		Response getResponse = getRequestWithCookiesAndPathParam(url, token, "Get zoneCode by regCenterId");
-		GlobalMethods.ReportRequestAndResponse("", "", url, "", getResponse.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, "", getResponse.getBody().asString());
 
 		if (getResponse.getBody().asString().toLowerCase().contains(ERRORCODE)) {
 			logger.error("zoneCode not found for  :[" + regCenterId + "]");
@@ -1735,7 +1734,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token,
 				"Update RegCenter details with status[isActive=]" + status, step);
 
-		GlobalMethods.ReportRequestAndResponse("", "", url, "", puttResponse.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, "", puttResponse.getBody().asString());
 
 		if (puttResponse.getBody().asString().toLowerCase().contains(ERRORCODE)) {
 			logger.error("unable to update RegCenter detail");
@@ -1797,7 +1796,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = System.getProperty(ENV_ENDPOINT) + props.getProperty("putMachineToRemap");
 		Response puttResponse = putReqestWithCookiesAndBody(url, jsonPutReq.toString(), token, "Update machine detail",
 				step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, jsonPutReq.toString(), puttResponse.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, jsonPutReq.toString(), puttResponse.getBody().asString());
 
 		if (puttResponse.getBody().asString().toLowerCase().contains(ERRORCODE)) {
 			logger.error("unable to update machine detail");
@@ -1811,7 +1810,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	private String updateToRemapUser(String url, String token, Scenario.Step step) throws RigInternalError {
 		Response puttResponse = putReqestWithCookiesAndNoBody(url, token, "Update user detail", step);
-		GlobalMethods.ReportRequestAndResponse("", "", url, "", puttResponse.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, "", puttResponse.getBody().asString());
 
 		if (puttResponse.getBody().asString().toLowerCase().contains(ERRORCODE)) {
 			logger.error("unable to update user detail");
@@ -1832,7 +1831,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 			puttResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON).accept("*/*").when()
 					.cookie(AUTHORIZATION, token).put(url).then().extract().response();
 		}
-		GlobalMethods.ReportRequestAndResponse("", "", url, "", puttResponse.getBody().asString());
+		DslReportLogUtil.reportRequestAndResponse("", "", url, "", puttResponse.getBody().asString());
 
 
 		return puttResponse;

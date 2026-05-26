@@ -9,7 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import io.mosip.testrig.apirig.utils.GetCredentialTableStackTrace;
-import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.dslrig.ivv.orchestrator.DslReportLogUtil;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
@@ -72,7 +72,7 @@ public class CheckRIDStatus extends BaseTestCaseUtil implements StepInterface {
 					logger.info("Response from check RID status : " + Rid + " => " + ridStatus);
 				}
 				ridStatusMap.put(Rid, ridStatus);
-				GlobalMethods.ReportRequestAndResponse(null, null, null, null, "Final RID Status : " + ridStatus, true);
+				DslReportLogUtil.reportRequestAndResponse(null, null, null, null, "Final RID Status : " + ridStatus, true);
 
 			if (ridStatusMap.size() == 1) {
 				if (!ridStatusMap.entrySet().iterator().next().getValue().contains(ridStatusParam)) {

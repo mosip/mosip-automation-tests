@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import io.mosip.testrig.apirig.utils.FileUtil;
 import io.mosip.testrig.apirig.utils.RestClient;
-import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.dslrig.ivv.orchestrator.DslReportLogUtil;
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -52,7 +52,7 @@ public class GetIdentityByRid extends BaseTestCaseUtil implements StepInterface 
 				logger.info(
 						"Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime + " MilliSec");
 				logger.info("Response from get Identity for RID: " + rid + " " + response.asString());
-				GlobalMethods.ReportRequestAndResponse("", "", BaseTestCase.ApplnURI + getIdentityUrl + rid, "",
+				DslReportLogUtil.reportRequestAndResponse("", "", BaseTestCase.ApplnURI + getIdentityUrl + rid, "",
 						response.getBody().asString());
 				String url = BaseTestCase.ApplnURI + getIdentityUrl + rid;
 				JSONObject res = new JSONObject(response.asString());

@@ -36,7 +36,7 @@ import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
-import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.dslrig.ivv.orchestrator.util.SensitiveLogMasker;
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
@@ -247,7 +247,7 @@ public class BaseTestCaseUtil extends BaseStep {
 			if (r.getStatusCode() == 200 && (body.isBlank() || body.contains("no internal API calls recorded"))) {
 				return;
 			}
-			String escaped = org.testng.internal.Utils.escapeHtml(body);
+			String escaped = org.testng.internal.Utils.escapeHtml(SensitiveLogMasker.mask(body));
 
 			escaped = escaped.replace("[[DSL_B]]", "<b>").replace("[[DSL_E]]", "</b>");
 			StringBuilder block = new StringBuilder(512 + escaped.length());
@@ -279,7 +279,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		} else {
 			getResponse = givenHttpClient(url).when().get(url).then().extract().response();
 		}
-		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
+		DslReportLogUtil.reportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
 				getResponse.getBody().asString(),true);
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return getResponse;
@@ -310,7 +310,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
+		DslReportLogUtil.reportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
 				getResponse.getBody().asString());
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return getResponse;
@@ -321,7 +321,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		Response apiResponse = RestClient.postRequest(url, body, MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);
-		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
+		DslReportLogUtil.reportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
 				apiResponse.getBody().asString(),true);
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return apiResponse;
@@ -338,7 +338,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.accept("*/*").when().put(url).then().extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, body,
+		DslReportLogUtil.reportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, body,
 				puttResponse.asString(),true);
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 
@@ -356,7 +356,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.accept("*/*").when().put(url).then().extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, body,
+		DslReportLogUtil.reportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, body,
 				puttResponse.getBody().asString());
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return puttResponse;
@@ -375,7 +375,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.accept(MediaType.APPLICATION_JSON).when().put(url).then().extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, putResponse.getHeaders().asList().toString(), url, null,
+		DslReportLogUtil.reportRequestAndResponse(null, putResponse.getHeaders().asList().toString(), url, null,
 				putResponse.getBody().asString());
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return putResponse;
@@ -394,7 +394,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.accept(MediaType.APPLICATION_JSON).when().delete(url).then().extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
+		DslReportLogUtil.reportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
 				deleteResponse.getBody().asString());
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 
@@ -413,7 +413,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.accept(MediaType.APPLICATION_JSON).when().delete(url).then().extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
+		DslReportLogUtil.reportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
 				deleteResponse.getBody().asString());
 
 		return deleteResponse;
@@ -432,7 +432,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
+		DslReportLogUtil.reportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
 				deleteResponse.getBody().asString());
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 
@@ -444,7 +444,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		url = addContextToUrl(url, step);
 		Response apiResponse = RestClient.putRequestWithQueryParamAndBody(url, body, map, MediaType.APPLICATION_JSON,
 				"*/*");
-		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
+		DslReportLogUtil.reportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
 				apiResponse.getBody().asString());
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return apiResponse;
@@ -456,7 +456,7 @@ public class BaseTestCaseUtil extends BaseStep {
 		Response apiResponse = RestClient.postRequestWithQueryParamAndBody(url, body, map, MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_JSON);
 
-		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
+		DslReportLogUtil.reportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
 				apiResponse.asString(),true);
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return apiResponse;
@@ -474,7 +474,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
+		DslReportLogUtil.reportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
 				apiResponse.getBody().asString());
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 
@@ -493,7 +493,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.accept("*/*").when().cookie("Authorization", token).post(url).then().extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, postResponse.getHeaders().asList().toString(), url, body,
+		DslReportLogUtil.reportRequestAndResponse(null, postResponse.getHeaders().asList().toString(), url, body,
 				postResponse.getBody().asString());
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 
@@ -513,7 +513,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, null,
+		DslReportLogUtil.reportRequestAndResponse(null, puttResponse.getHeaders().asList().toString(), url, null,
 				puttResponse.getBody().asString());
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return puttResponse;
@@ -531,7 +531,7 @@ public class BaseTestCaseUtil extends BaseStep {
 					.extract().response();
 		}
 
-		GlobalMethods.ReportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
+		DslReportLogUtil.reportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
 				getResponse.asString(),true);
 		return getResponse;
 	}
@@ -553,11 +553,11 @@ public class BaseTestCaseUtil extends BaseStep {
 		KernelAuthentication auth = new KernelAuthentication();
 		token = auth.getTokenByRole(role);
 		logger.info(GlobalConstants.GET_REQ_STRING + url);
-		GlobalMethods.reportRequest(null, jsonInput, url);
+		DslReportLogUtil.reportRequest(null, jsonInput, url);
 		try {
 			response = RestClient.patchRequestWithCookieAndQueryParm(url, map, MediaType.APPLICATION_JSON,
 					MediaType.APPLICATION_JSON, cookieName, token);
-			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+			DslReportLogUtil.reportResponse(response.getHeaders().asList().toString(), url, response);
 			return response;
 		} catch (Exception e) {
 			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e.getMessage());
@@ -603,7 +603,7 @@ public class BaseTestCaseUtil extends BaseStep {
 				Response response = null;
 				JSONObject responseJson = null;
 				response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
-				GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+				DslReportLogUtil.reportResponse(response.getHeaders().asList().toString(), url, response);
 
 				responseJson = new JSONObject(response.getBody().asString());
 				regProcActuatorResponseArray = responseJson.getJSONArray("propertySources");

@@ -4,7 +4,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
-import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.dslrig.ivv.orchestrator.DslReportLogUtil;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -30,7 +30,7 @@ public class DeletePacketData extends BaseTestCaseUtil implements StepInterface 
 		String responseStr = response.getBody().asString();
 
 		if (responseStr.contains("successfully")) {
-			GlobalMethods.reportRequest("Delete Packet Data", responseStr);
+			DslReportLogUtil.reportRequest("Delete Packet Data", responseStr);
 			Reporter.log("<b style=\"background-color: #0A0;\">Marking test case as passed. As " + responseStr
 					+ "</b><br>\n");
 		} else {
