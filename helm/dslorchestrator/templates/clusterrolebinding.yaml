@@ -1,4 +1,3 @@
-{{- if .Values.rbac.create }}
 kind: ClusterRoleBinding
 apiVersion: {{ include "common.capabilities.rbac.apiVersion" . }}
 metadata:
@@ -18,4 +17,3 @@ subjects:
   - kind: ServiceAccount
     name: {{ template "dslorchestrator.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
-{{- end }}

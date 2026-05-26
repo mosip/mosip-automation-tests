@@ -39,6 +39,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 
+import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
+
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogCollector;
@@ -234,13 +236,9 @@ public class ContextController {
 
 			ContextUtils.clearPacketGenFolders(contextKey);
 
+			RestClient.clearRunScopedCache(contextKey);
+
 			VariableManager.deleteNameSpace(contextKey);
-
-			if (urlBase != null) {
-
-				VariableManager.deleteNameSpace(urlBase.toString() + "run_context");
-
-			}
 
 			return "true";
 

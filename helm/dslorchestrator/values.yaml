@@ -218,7 +218,6 @@ extraEnvVarsCM:
   - keycloak-host
   - db
   - dslorchestrator
-  - log-capture
   - config-server-share
   - artifactory-share
 ## Secret with extra environment variables
@@ -351,7 +350,6 @@ volumePermissions:
     ##
 
 ## Specifies whether RBAC resources should be created
-## ClusterRole includes pods/log + apps/deployments for DSL logCapture (kubectl logs across namespaces).
 ##
 rbac:
   create: true
@@ -498,22 +496,6 @@ dslorchestrator:
       servicesNotDeployed: ""
       scenariosToSkip: ""
       scenariosToExecute: ""
-    log-capture:
-      logCapture.enabled: "true"
-      logCapture.namespace: "mosip"
-      logCapture.captureMode: "execution-window"
-      logCapture.localLogPath: "reports/logs"
-      logCapture.uploadToS3: "true"
-      logCapture.s3.enabled: "true"
-      logCapture.s3.reportFolder: "execution-logs"
-      logCapture.s3.uploadCombinedLog: "true"
-      logCapture.s3.uploadServiceWiseLogs: "true"
-      logCapture.s3.compressBeforeUpload: "true"
-      logCapture.generateCombinedLog: "true"
-      logCapture.generateFailureSummary: "true"
-      logCapture.targets: "regproc:regproc-camel,regproc:regproc-group1,regproc:regproc-group2,regproc:regproc-group3,regproc:regproc-group4,regproc:regproc-group5,regproc:regproc-group6,regproc:regproc-group7,regproc:regproc-landingzone,regproc:regproc-notifier,regproc:regproc-pktserver,regproc:regproc-reprocess,regproc:regproc-status,regproc:regproc-trans,regproc:regproc-workflow,packetmanager:packetmanager,abis:mock-abis,abis:mock-mv,mosip:resident-service,mosip:id-repository,mosip:keycloak,mosip:mock-smtp,mosip:kafka"
-      logCapture.excludeServices: "nginx,monitoring,istio,prometheus,istio-proxy"
-      logCapture.logLevels: "INFO,WARN,ERROR"
     scripts:
       fetch_docker_image_hash_ids.sh: |
         #!/bin/bash

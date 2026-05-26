@@ -31,8 +31,6 @@ import org.testng.xml.XmlSuite;
 import io.mosip.testrig.apirig.utils.S3Adapter;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
-import io.mosip.testrig.dslrig.ivv.orchestrator.logcapture.ExecutionLogContext;
-import io.mosip.testrig.dslrig.ivv.orchestrator.logcapture.ExecutionLogService;
 
 
 public class EmailableReport implements IReporter {
@@ -80,7 +78,6 @@ public class EmailableReport implements IReporter {
 
 	@Override
 	public void generateReport(List<XmlSuite> xmlSuites, List<ISuite> suites, String outputDirectory) {
-		ExecutionLogService.finalizeCaptureAndUpload();
 		try {
 			writer = createWriter(outputDirectory);
 		} catch (IOException e) {
@@ -508,8 +505,6 @@ public class EmailableReport implements IReporter {
 			writer.print("<td colspan='4'>" + dockerImage + "</td>");
 			writer.print("</tr>");
 
-			writeExecutionLogArchiveRow();
-
 			writer.print("<tr><td colspan='7' class=\"exec-separator\" style='background:#AED6F1; height:2px; padding:0;'></td></tr>");
 			writer.print("<tr id=\"report-exec-summary\">");
 			writer.print("<td colspan='7' class=\"exec-section-title section-title\" style='background:#D6EAF8; font-size:13px; font-weight:700; "
@@ -594,39 +589,6 @@ public class EmailableReport implements IReporter {
 		}
 
 		writer.print("</table>");
-	}
-
-	private void writeExecutionLogArchiveRow() {
-		if (!ExecutionLogService.isEnabled()) {
-			return;
-		}
-		ExecutionLogContext ctx = ExecutionLogContext.getLatest();
-		if (ctx == null) {
-			ctx = ExecutionLogContext.empty();
-		}
-		writer.print("<tr class=\"exec-kv-row\">");
-		writer.print("<td colspan='3'><b>📦 Execution Logs (K8s)</b></td>");
-		writer.print("<td colspan='4'>");
-		if (ctx.getErrorMessage() != null) {
-			writer.print(Utils.escapeHtml("Log archival failed: " + ctx.getErrorMessage()));
-		} else if (ctx.hasDownloadLink()) {
-			writer.print("<a href='" + Utils.escapeHtml(ctx.getDownloadUrl()) + "' target='_blank' "
-					+ "style='color:#2E86C1;text-decoration:none;font-weight:bold;'>Download logs archive (MinIO/S3)</a>");
-			if (ctx.getExecutionFolderName() != null) {
-				writer.print("<br/><span style='font-size:11px;color:#555;'>Folder: "
-						+ Utils.escapeHtml(ctx.getExecutionFolderName()) + "</span>");
-			}
-			if (!ctx.getFailedServices().isEmpty()) {
-				writer.print("<br/><span style='font-size:11px;color:#7f1d1d;'>Services with errors: "
-						+ Utils.escapeHtml(String.join(", ", ctx.getFailedServices())) + "</span>");
-			}
-		} else if (ctx.getLocalArchivePath() != null) {
-			writer.print(Utils.escapeHtml("Local archive: " + ctx.getLocalArchivePath()));
-		} else {
-			writer.print("No log archive produced (check kubectl RBAC and logCapture config).");
-		}
-		writer.print("</td>");
-		writer.print("</tr>");
 	}
 
 

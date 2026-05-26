@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.SlackIt;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -111,7 +112,12 @@ public class APIRequestUtil {
 
     public void clearToken() {
     	tokens.clear();
+    }
 
+    public void clearRunScopedCache(String contextKey) {
+    	tokens.clear();
+    	MosipDataSetup.clearRunCache(contextKey);
+    	RestClient.clearRunScopedCache(contextKey);
     }
 
     public void resetServerApiTrace(String contextKey) {
@@ -125,12 +131,13 @@ public class APIRequestUtil {
         if (contextKey == null || contextKey.isBlank()) {
             return new JSONArray();
         }
-        Object traceObj = VariableManager.getVariableValue(contextKey, SERVER_API_TRACE_KEY);
+        Object traceObj = MosipDataSetup.fromCacheValue(
+                VariableManager.getVariableValue(contextKey, SERVER_API_TRACE_KEY));
         if (traceObj instanceof JSONArray) {
             return new JSONArray(((JSONArray) traceObj).toString());
         }
-        if (traceObj instanceof String && !((String) traceObj).isBlank()) {
-            return new JSONArray((String) traceObj);
+        if (traceObj instanceof String stored && !stored.isBlank()) {
+            return new JSONArray(stored);
         }
         return new JSONArray();
     }
@@ -189,7 +196,8 @@ public class APIRequestUtil {
             entry.put("statusCode", response == null ? JSONObject.NULL : response.getStatusCode());
             entry.put("response", response == null ? JSONObject.NULL : trimTraceString(response.getBody().asString()));
             trace.put(entry);
-            VariableManager.setVariableValue(contextKey, SERVER_API_TRACE_KEY, limitTraceEntries(trace));
+            VariableManager.setVariableValue(contextKey, SERVER_API_TRACE_KEY,
+                    MosipDataSetup.toCacheValue(limitTraceEntries(trace)));
         } catch (Exception ex) {
             logger.warn("Failed to record server API trace", ex);
         }
@@ -429,10 +437,53 @@ public class APIRequestUtil {
 
     			return false;
     	}
-    	String token= tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system");
-    	return  !(null == token);
+    	String urlBase = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
+    	String tokenKey = urlBase + "system";
+    	String token = tokens.get(tokenKey);
+    	if (token == null || token.isEmpty()) {
+    		token = getRunCachedInternalAuthToken(contextKey);
+    		if (token != null && !token.isEmpty()) {
+    			tokens.put(tokenKey, token);
+    		}
+    	}
+    	return token != null && !token.isEmpty();
+    }
 
+    private JSONObject buildInternalUseridPwdRequest(String contextKey) {
+    	JSONObject nestedRequest = new JSONObject();
+    	nestedRequest.put("userName", VariableManager.getVariableValue(contextKey,"admin_userName").toString());
+    	nestedRequest.put("password", VariableManager.getVariableValue(contextKey,"admin_password").toString());
+    	nestedRequest.put("appId", VariableManager.getVariableValue(contextKey,"mosip_admin_app_id").toString());
+    	nestedRequest.put("clientId", VariableManager.getVariableValue(contextKey,"mosip_admin_client_id").toString());
+    	nestedRequest.put("clientSecret", VariableManager.getVariableValue(contextKey,"mosip_admin_client_secret").toString());
+    	return nestedRequest;
+    }
 
+    private String getRunCachedInternalAuthToken(String contextKey) {
+    	JSONObject nestedRequest = buildInternalUseridPwdRequest(contextKey);
+    	String cacheKey = MosipDataSetup.authCacheKey(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
+    			credFingerprint(nestedRequest));
+    	Object cached = MosipDataSetup.getCache(cacheKey, MosipDataSetup.getRunContextNamespace(contextKey));
+    	return cached instanceof String ? (String) cached : null;
+    }
+
+    private void cacheInternalAuthToken(String contextKey, JSONObject nestedRequest, String token) {
+    	if (token == null || token.isEmpty()) {
+    		return;
+    	}
+    	String cacheKey = MosipDataSetup.authCacheKey(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
+    			credFingerprint(nestedRequest));
+    	MosipDataSetup.setCache(cacheKey, token, MosipDataSetup.getRunContextNamespace(contextKey));
+    }
+
+    private static String credFingerprint(JSONObject nestedRequest) {
+    	StringBuilder sb = new StringBuilder();
+    	for (String key : new String[] { "userName", "password", "appId", "clientId", "clientSecret" }) {
+    		if (nestedRequest.has(key) && !nestedRequest.isNull(key)) {
+    			sb.append(key).append('=').append(nestedRequest.get(key)).append(';');
+    		}
+    	}
+    	return Integer.toHexString(sb.toString().hashCode());
     }
 
 
@@ -441,14 +492,14 @@ public class APIRequestUtil {
 
 
 			JSONObject requestBody = new JSONObject();
-			JSONObject nestedRequest = new JSONObject();
-			nestedRequest.put("userName",  VariableManager.getVariableValue(contextKey,"admin_userName").toString());
-			nestedRequest.put("password",  VariableManager.getVariableValue(contextKey,"admin_password").toString());
+			JSONObject nestedRequest = buildInternalUseridPwdRequest(contextKey);
 
-			nestedRequest.put("appId", VariableManager.getVariableValue(contextKey,"mosip_admin_app_id").toString());
-			nestedRequest.put("clientId", VariableManager.getVariableValue(contextKey,"mosip_admin_client_id").toString());
-			nestedRequest.put("clientSecret", VariableManager.getVariableValue(contextKey,"mosip_admin_client_secret").toString());
-
+			String urlBase = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
+			String cachedToken = getRunCachedInternalAuthToken(contextKey);
+			if (cachedToken != null && !cachedToken.isEmpty()) {
+				tokens.put(urlBase + "system", cachedToken);
+				return true;
+			}
 
 			requestBody.put("metadata", new JSONObject());
 			requestBody.put("version", "1.0");
@@ -475,7 +526,8 @@ public class APIRequestUtil {
             }
            String token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
 
-           tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system",token);
+           tokens.put(urlBase + "system", token);
+           cacheInternalAuthToken(contextKey, nestedRequest, token);
 
 
 			return true;	
@@ -507,12 +559,15 @@ public class APIRequestUtil {
 	        }
 
 			JSONObject requestBody = new JSONObject();
-			JSONObject nestedRequest = new JSONObject();
-			nestedRequest.put("userName", VariableManager.getVariableValue(contextKey,"admin_userName").toString() );
-			nestedRequest.put("password", VariableManager.getVariableValue(contextKey,"admin_password").toString() );
-            nestedRequest.put("appId", VariableManager.getVariableValue(contextKey,"mosip_admin_app_id").toString());
-            nestedRequest.put("clientId", VariableManager.getVariableValue(contextKey,"mosip_admin_client_id").toString());
-            nestedRequest.put("clientSecret", VariableManager.getVariableValue(contextKey,"mosip_admin_client_secret").toString());
+			JSONObject nestedRequest = buildInternalUseridPwdRequest(contextKey);
+
+			String urlBase = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
+			String cachedToken = getRunCachedInternalAuthToken(contextKey);
+			if (cachedToken != null && !cachedToken.isEmpty()) {
+				tokens.put(urlBase + "system", cachedToken);
+				return true;
+			}
+
 			requestBody.put("metadata", "");
 			requestBody.put("version", "1.0");
 			requestBody.put("id", "test");
@@ -539,7 +594,8 @@ public class APIRequestUtil {
         token= new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
 
 
-            tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system",token);
+            tokens.put(urlBase + "system", token);
+            cacheInternalAuthToken(contextKey, nestedRequest, token);
 			return true;	
 		}
 		catch(Exception  ex){

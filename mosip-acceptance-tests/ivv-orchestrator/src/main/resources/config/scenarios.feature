@@ -50,7 +50,7 @@ And I write pre req where environment details is the saved external packet envir
 And I clear device cert cache
 And I generate auth certifcates
 And I upload device certificate
-And I reset context data
+And I warm run cache
 
   @scenario_1
   @Positive_Test
@@ -6614,4 +6614,5 @@ And I user where user action is DELETE_User, and user index or master user is ds
 And I delete certificates and onboarding partners
 And I masterdata delete
 And I write persona data
+And I clear run cache
 

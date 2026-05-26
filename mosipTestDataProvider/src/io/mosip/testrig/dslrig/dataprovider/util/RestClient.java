@@ -34,6 +34,8 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import io.mosip.testrig.dslrig.dataprovider.mds.HttpRCapture;
+import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
+import io.mosip.testrig.dslrig.dataprovider.preparation.RunScopedMasterdataCache;
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogging;
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiManualRecorder;
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiRestAssuredFilter;
@@ -105,7 +107,18 @@ public class RestClient {
 		Object urlBase = VariableManager.getVariableValue(contextKey, URLBASE);
 
 		if (urlBase != null) {
-			String token = tokens.get(urlBase.toString().trim() + role);
+			String tokenKey = urlBase.toString().trim() + role;
+			String token = tokens.get(tokenKey);
+			if (token == null || token.isEmpty()) {
+				restoreAuthTokenFromRunCache(role, contextKey);
+				token = tokens.get(tokenKey);
+			}
+			if (token != null && !token.isEmpty()) {
+				String runCached = getRunCachedAuthTokenForRole(role, contextKey);
+				if (runCached != null && runCached.equals(token)) {
+					return true;
+				}
+			}
 			return isValidTokenOffline(token, contextKey);
 		} else {
 			return false;
@@ -134,6 +147,24 @@ public class RestClient {
 	public static void clearToken() {
 		tokens.clear();
 		refreshToken = null;
+	}
+
+	public static void clearRunScopedCache(String contextKey) {
+		MosipDataSetup.clearRunCache(contextKey);
+		clearTokensForUrlBase(contextKey);
+	}
+
+	private static void clearTokensForUrlBase(String contextKey) {
+		try {
+			Object urlBase = VariableManager.getVariableValue(contextKey, URLBASE);
+			if (urlBase == null) {
+				return;
+			}
+			String prefix = urlBase.toString().trim();
+			tokens.keySet().removeIf(key -> key.startsWith(prefix));
+		} catch (Exception e) {
+			logger.debug("Could not clear tokens for context {}", contextKey);
+		}
 	}
 
 	public int status() {
@@ -305,6 +336,15 @@ public class RestClient {
 	public static JSONObject get(String url, JSONObject requestParams, JSONObject pathParam, String contextKey)
 			throws Exception {
 
+		String runCacheKey = null;
+		if (RunScopedMasterdataCache.isEnabled(contextKey) && RunScopedMasterdataCache.isCacheableGetUrl(url)) {
+			runCacheKey = RunScopedMasterdataCache.buildCacheKey(url, requestParams, pathParam);
+			JSONObject cached = RunScopedMasterdataCache.getCachedJson(contextKey, runCacheKey);
+			if (cached != null) {
+				return cached;
+			}
+		}
+
 		String role = SYSTEM;
 		if (!isValidToken(role, contextKey)) {
 			initToken(contextKey);
@@ -358,17 +398,25 @@ public class RestClient {
 
 		JSONObject fullResp = new JSONObject(response.getBody().asString());
 
+		JSONObject result;
 		if (fullResp.has(dataKey)) {
 			Object respObj = fullResp.get(dataKey);
 
 			if (respObj instanceof JSONObject) {
-				return (JSONObject) respObj;
+				result = (JSONObject) respObj;
 			} else if (respObj instanceof JSONArray) {
-				return fullResp;
+				result = fullResp;
+			} else {
+				result = fullResp;
 			}
+		} else {
+			result = fullResp;
 		}
 
-		return fullResp;
+		if (runCacheKey != null) {
+			RunScopedMasterdataCache.putCachedJson(contextKey, runCacheKey, result);
+		}
+		return result;
 	}
 
 	public static Response getWithoutCookie(String url) {
@@ -444,6 +492,15 @@ public class RestClient {
 	public static JSONArray getDoc(String url, JSONObject requestParams, JSONObject pathParam, String contextKey)
 			throws Exception {
 
+		String runCacheKey = null;
+		if (RunScopedMasterdataCache.isEnabled(contextKey) && RunScopedMasterdataCache.isCacheableGetUrl(url)) {
+			runCacheKey = RunScopedMasterdataCache.buildCacheKey(url, requestParams, pathParam);
+			JSONArray cached = RunScopedMasterdataCache.getCachedArray(contextKey, runCacheKey);
+			if (cached != null) {
+				return cached;
+			}
+		}
+
 		String role = SYSTEM;
 		if (!isValidToken(role, contextKey)) {
 			initToken(contextKey);
@@ -496,7 +553,11 @@ public class RestClient {
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 
-		return new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
+		JSONArray result = new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
+		if (runCacheKey != null) {
+			RunScopedMasterdataCache.putCachedArray(contextKey, runCacheKey, result);
+		}
+		return result;
 	}
 
 	public static JSONObject getNoAuth(String url, JSONObject requestParams, JSONObject pathParam, String contextKey)
@@ -1270,7 +1331,15 @@ public class RestClient {
 			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
 			requestBody.put(REQUEST, nestedRequest);
 
-			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
+			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
+			String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
+					nestedRequest, false, contextKey);
+			if (cachedToken != null && !cachedToken.isEmpty()) {
+				tokens.put(urlBase + SYSTEM, cachedToken);
+				return true;
+			}
+
+			String authUrl = urlBase
 					+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString();
 			logInfo(contextKey, contextKey + " InitToken logger " + authUrl + AUTHURL + jsonBody);
@@ -1303,7 +1372,9 @@ public class RestClient {
 
 			String responseBody = response.getBody().asString();
 			String token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + SYSTEM, token);
+			tokens.put(urlBase + SYSTEM, token);
+			cacheAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH, nestedRequest, false, contextKey,
+					token);
 			return true;
 		} catch (Exception ex) {
 
@@ -1330,7 +1401,15 @@ public class RestClient {
 			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
 			requestBody.put(REQUEST, nestedRequest);
 
-			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
+			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
+			String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
+					nestedRequest, false, contextKey);
+			if (cachedToken != null && !cachedToken.isEmpty()) {
+				tokens.put(urlBase + ADMIN, cachedToken);
+				return true;
+			}
+
+			String authUrl = urlBase
 					+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
 			String jsonBody = requestBody.toString();
 			logInfo(contextKey, contextKey + " InitToken_admin logger " + authUrl + AUTHURL + jsonBody);
@@ -1361,7 +1440,9 @@ public class RestClient {
 			String responseBody = response.getBody().asString();
 			String token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
 
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + ADMIN, token);
+			tokens.put(urlBase + ADMIN, token);
+			cacheAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH, nestedRequest, false, contextKey,
+					token);
 
 			return true;
 		} catch (Exception ex) {
@@ -1387,8 +1468,15 @@ public class RestClient {
 			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
 			requestBody.put(REQUEST, nestedRequest);
 
-			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
-					+ "v1/authmanager/authenticate/clientidsecretkey";
+			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
+			String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
+					nestedRequest, true, contextKey);
+			if (cachedToken != null && !cachedToken.isEmpty()) {
+				tokens.put(urlBase + RESIDENT, cachedToken);
+				return true;
+			}
+
+			String authUrl = urlBase + MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH;
 
 			String jsonBody = requestBody.toString();
 			logInfo(contextKey, contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
@@ -1417,7 +1505,9 @@ public class RestClient {
 				return false;
 			}
 			String token = response.getCookie(AUTHORIZATION);
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + RESIDENT, token);
+			tokens.put(urlBase + RESIDENT, token);
+			cacheAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH, nestedRequest, true, contextKey,
+					token);
 
 			return true;
 		} catch (Exception ex) {
@@ -1442,8 +1532,15 @@ public class RestClient {
 			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
 			requestBody.put(REQUEST, nestedRequest);
 
-			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
-					+ "v1/authmanager/authenticate/clientidsecretkey";
+			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
+			String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
+					nestedRequest, true, contextKey);
+			if (cachedToken != null && !cachedToken.isEmpty()) {
+				tokens.put(urlBase + REGPROC, cachedToken);
+				return true;
+			}
+
+			String authUrl = urlBase + MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH;
 
 			String jsonBody = requestBody.toString();
 			logInfo(contextKey, contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
@@ -1472,7 +1569,9 @@ public class RestClient {
 				return false;
 			}
 			String token = response.getCookie(AUTHORIZATION);
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + REGPROC, token);
+			tokens.put(urlBase + REGPROC, token);
+			cacheAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH, nestedRequest, true, contextKey,
+					token);
 
 			return true;
 		} catch (Exception ex) {
@@ -1498,8 +1597,15 @@ public class RestClient {
 			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
 			requestBody.put(REQUEST, nestedRequest);
 
-			String authUrl = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim()
-					+ "v1/authmanager/authenticate/clientidsecretkey";
+			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
+			String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
+					nestedRequest, true, contextKey);
+			if (cachedToken != null && !cachedToken.isEmpty()) {
+				tokens.put(urlBase + CRVS, cachedToken);
+				return true;
+			}
+
+			String authUrl = urlBase + MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH;
 
 			String jsonBody = requestBody.toString();
 			logInfo(contextKey, contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
@@ -1525,7 +1631,9 @@ public class RestClient {
 				return false;
 			}
 			String token = response.getCookie(AUTHORIZATION);
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + CRVS, token);
+			tokens.put(urlBase + CRVS, token);
+			cacheAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH, nestedRequest, true, contextKey,
+					token);
 			checkErrorResponse(response.getBody().asString(), authUrl);
 			return true;
 		} catch (Exception ex) {
@@ -1782,6 +1890,117 @@ public class RestClient {
 			return false;
 		} else
 			return false;
+	}
+
+	private static boolean isClientSecretAuthRole(String role) {
+		return RESIDENT.equals(role) || REGPROC.equals(role) || CRVS.equals(role);
+	}
+
+	private static void appendJsonField(StringBuilder sb, JSONObject nestedRequest, String key) {
+		if (nestedRequest.has(key) && !nestedRequest.isNull(key)) {
+			sb.append(key).append('=').append(nestedRequest.get(key)).append(';');
+		}
+	}
+
+	private static String credFingerprint(JSONObject nestedRequest, boolean clientSecretAuth) {
+		StringBuilder sb = new StringBuilder();
+		appendJsonField(sb, nestedRequest, USERNAME);
+		appendJsonField(sb, nestedRequest, PASSWORD);
+		appendJsonField(sb, nestedRequest, APPID);
+		appendJsonField(sb, nestedRequest, CLIENTID);
+		if (clientSecretAuth) {
+			appendJsonField(sb, nestedRequest, "secretKey");
+		}
+		appendJsonField(sb, nestedRequest, "clientSecret");
+		return Integer.toHexString(sb.toString().hashCode());
+	}
+
+	private static String getRunCachedAuthTokenForRequest(String authPath, JSONObject nestedRequest,
+			boolean clientSecretAuth, String contextKey) {
+		String cacheKey = MosipDataSetup.authCacheKey(authPath, credFingerprint(nestedRequest, clientSecretAuth));
+		Object cached = MosipDataSetup.getCache(cacheKey, MosipDataSetup.getRunContextNamespace(contextKey));
+		return cached instanceof String ? (String) cached : null;
+	}
+
+	private static void cacheAuthTokenForRequest(String authPath, JSONObject nestedRequest, boolean clientSecretAuth,
+			String contextKey, String token) {
+		if (token == null || token.isEmpty()) {
+			return;
+		}
+		String cacheKey = MosipDataSetup.authCacheKey(authPath, credFingerprint(nestedRequest, clientSecretAuth));
+		MosipDataSetup.setCache(cacheKey, token, MosipDataSetup.getRunContextNamespace(contextKey));
+	}
+
+	private static JSONObject buildNestedRequestForRole(String role, String contextKey) {
+		JSONObject nestedRequest = new JSONObject();
+		try {
+			if (ADMIN.equals(role) || SYSTEM.equals(role)) {
+				nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "admin_userName").toString());
+				nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, "admin_password").toString());
+				nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_admin_app_id").toString());
+				nestedRequest.put(CLIENTID,
+						VariableManager.getVariableValue(contextKey, "mosip_admin_client_id").toString());
+				nestedRequest.put("clientSecret",
+						VariableManager.getVariableValue(contextKey, "mosip_admin_client_secret").toString());
+				return nestedRequest;
+			}
+			if (RESIDENT.equals(role)) {
+				nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
+				nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
+				nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_resident_app_id"));
+				nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_resident_client_id"));
+				nestedRequest.put("secretKey",
+						VariableManager.getVariableValue(contextKey, "mosip_resident_client_secret"));
+				return nestedRequest;
+			}
+			if (REGPROC.equals(role)) {
+				nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
+				nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
+				nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_regprocclient_app_id"));
+				nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_regproc_client_id"));
+				nestedRequest.put("secretKey",
+						VariableManager.getVariableValue(contextKey, "mosip_regproc_client_secret"));
+				return nestedRequest;
+			}
+			if (CRVS.equals(role)) {
+				nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
+				nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
+				nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_crvs1_app_id"));
+				nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_id"));
+				nestedRequest.put("secretKey",
+						VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_secret"));
+				return nestedRequest;
+			}
+		} catch (Exception e) {
+			logger.debug("Could not build auth request for role {}: {}", role, e.getMessage());
+		}
+		return null;
+	}
+
+	private static String getRunCachedAuthTokenForRole(String role, String contextKey) {
+		JSONObject nestedRequest = buildNestedRequestForRole(role, contextKey);
+		if (nestedRequest == null) {
+			return null;
+		}
+		boolean clientSecretAuth = isClientSecretAuthRole(role);
+		String authPath = clientSecretAuth ? MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH
+				: MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH;
+		return getRunCachedAuthTokenForRequest(authPath, nestedRequest, clientSecretAuth, contextKey);
+	}
+
+	private static void restoreAuthTokenFromRunCache(String role, String contextKey) {
+		String token = getRunCachedAuthTokenForRole(role, contextKey);
+		if (token == null || token.isEmpty()) {
+			return;
+		}
+		try {
+			Object urlBase = VariableManager.getVariableValue(contextKey, URLBASE);
+			if (urlBase != null) {
+				tokens.put(urlBase.toString().trim() + role, token);
+			}
+		} catch (Exception e) {
+			logger.debug("Could not restore auth token for role {}: {}", role, e.getMessage());
+		}
 	}
 
 }

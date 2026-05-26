@@ -27,7 +27,6 @@ import io.mosip.testrig.apirig.utils.MispPartnerAndLicenseKeyGeneration;
 import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.OTPListener;
-import io.mosip.testrig.dslrig.ivv.orchestrator.logcapture.ExecutionLogService;
 
 public class TestRunner {
 	private static final Logger LOGGER = Logger.getLogger(TestRunner.class);
@@ -175,11 +174,7 @@ public class TestRunner {
 
 		System.getProperties().setProperty("emailable.report3.name", "DSL-" + BaseTestCase.environment + "-"
 				+ "EXTENT" + "-run-" + System.currentTimeMillis() + "-report.html");
-		try {
-			runner.run();
-		} finally {
-			ExecutionLogService.finalizeCaptureAndUpload();
-		}
+		runner.run();
 
 		OTPListener mockSMTPListener = new OTPListener();
 		mockSMTPListener.bTerminate = true;
@@ -354,7 +349,6 @@ public class TestRunner {
 		getListOfFilesFromJarAndCopyToExternalResource("ivv_masterdata/");
 		getListOfFilesFromJarAndCopyToExternalResource("syncdata/");
 		getListOfFilesFromJarAndCopyToExternalResource("regproc/");
-		getListOfFilesFromJarAndCopyToExternalResource("config/log-capture.properties");
 	}
 
 	public static void getListOfFilesFromJarAndCopyToExternalResource(String key) {
