@@ -95,13 +95,22 @@ public class RestClient {
 	int http_status;
 	Properties headers;
 
+	private static boolean shouldForceAuthRefresh(String contextKey) {
+		try {
+			Object obj = VariableManager.getVariableValue(contextKey, "urlSwitched");
+			if (obj != null) {
+				return Boolean.parseBoolean(obj.toString());
+			}
+		} catch (Exception ignored) {
+			// allow run-cache reuse
+		}
+		return false;
+	}
+
 	public static Boolean isValidToken(String role, String contextKey) {
 
-		Object obj = VariableManager.getVariableValue(contextKey, "urlSwitched");
-		if (obj != null) {
-			Boolean bClear = Boolean.valueOf(obj.toString());
-			if (bClear)
-				return false;
+		if (shouldForceAuthRefresh(contextKey)) {
+			return false;
 		}
 
 		Object urlBase = VariableManager.getVariableValue(contextKey, URLBASE);
@@ -114,12 +123,8 @@ public class RestClient {
 				token = tokens.get(tokenKey);
 			}
 			if (token != null && !token.isEmpty()) {
-				String runCached = getRunCachedAuthTokenForRole(role, contextKey);
-				if (runCached != null && runCached.equals(token)) {
-					return true;
-				}
+				return isValidTokenOffline(token, contextKey);
 			}
-			return isValidTokenOffline(token, contextKey);
 		} else {
 			return false;
 		}
@@ -1332,11 +1337,13 @@ public class RestClient {
 			requestBody.put(REQUEST, nestedRequest);
 
 			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
-			String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
-					nestedRequest, false, contextKey);
-			if (cachedToken != null && !cachedToken.isEmpty()) {
-				tokens.put(urlBase + SYSTEM, cachedToken);
-				return true;
+			if (!shouldForceAuthRefresh(contextKey)) {
+				String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
+						nestedRequest, false, contextKey);
+				if (cachedToken != null && !cachedToken.isEmpty()) {
+					tokens.put(urlBase + SYSTEM, cachedToken);
+					return true;
+				}
 			}
 
 			String authUrl = urlBase
@@ -1402,11 +1409,13 @@ public class RestClient {
 			requestBody.put(REQUEST, nestedRequest);
 
 			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
-			String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
-					nestedRequest, false, contextKey);
-			if (cachedToken != null && !cachedToken.isEmpty()) {
-				tokens.put(urlBase + ADMIN, cachedToken);
-				return true;
+			if (!shouldForceAuthRefresh(contextKey)) {
+				String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
+						nestedRequest, false, contextKey);
+				if (cachedToken != null && !cachedToken.isEmpty()) {
+					tokens.put(urlBase + ADMIN, cachedToken);
+					return true;
+				}
 			}
 
 			String authUrl = urlBase
@@ -1469,11 +1478,13 @@ public class RestClient {
 			requestBody.put(REQUEST, nestedRequest);
 
 			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
-			String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
-					nestedRequest, true, contextKey);
-			if (cachedToken != null && !cachedToken.isEmpty()) {
-				tokens.put(urlBase + RESIDENT, cachedToken);
-				return true;
+			if (!shouldForceAuthRefresh(contextKey)) {
+				String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
+						nestedRequest, true, contextKey);
+				if (cachedToken != null && !cachedToken.isEmpty()) {
+					tokens.put(urlBase + RESIDENT, cachedToken);
+					return true;
+				}
 			}
 
 			String authUrl = urlBase + MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH;
@@ -1533,11 +1544,13 @@ public class RestClient {
 			requestBody.put(REQUEST, nestedRequest);
 
 			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
-			String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
-					nestedRequest, true, contextKey);
-			if (cachedToken != null && !cachedToken.isEmpty()) {
-				tokens.put(urlBase + REGPROC, cachedToken);
-				return true;
+			if (!shouldForceAuthRefresh(contextKey)) {
+				String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
+						nestedRequest, true, contextKey);
+				if (cachedToken != null && !cachedToken.isEmpty()) {
+					tokens.put(urlBase + REGPROC, cachedToken);
+					return true;
+				}
 			}
 
 			String authUrl = urlBase + MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH;
@@ -1598,11 +1611,13 @@ public class RestClient {
 			requestBody.put(REQUEST, nestedRequest);
 
 			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
-			String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
-					nestedRequest, true, contextKey);
-			if (cachedToken != null && !cachedToken.isEmpty()) {
-				tokens.put(urlBase + CRVS, cachedToken);
-				return true;
+			if (!shouldForceAuthRefresh(contextKey)) {
+				String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
+						nestedRequest, true, contextKey);
+				if (cachedToken != null && !cachedToken.isEmpty()) {
+					tokens.put(urlBase + CRVS, cachedToken);
+					return true;
+				}
 			}
 
 			String authUrl = urlBase + MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH;

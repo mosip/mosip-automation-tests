@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,7 +40,7 @@ public class RunCacheController {
 			description = "Fetches auth tokens and frequently used masterdata once and stores them in the run cache "
 					+ "({urlBase}run_context) for reuse across all scenarios in the suite.")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Cache warmed") })
-	@GetMapping(value = "/runCache/warm/{contextKey}")
+	@PostMapping(value = "/runCache/warm/{contextKey}")
 	public @ResponseBody ResponseEntity<Map<String, Object>> warmRunCache(@PathVariable("contextKey") String contextKey) {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.isEmpty()) {
@@ -60,7 +60,7 @@ public class RunCacheController {
 			description = "Clears the {urlBase}run_context namespace and in-memory auth tokens (shared with resetContextData). "
 					+ "Does not delete the context namespace or packet temp folders. Call after the test suite completes.")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Cache cleared") })
-	@GetMapping(value = "/runCache/clear/{contextKey}")
+	@PostMapping(value = "/runCache/clear/{contextKey}")
 	public @ResponseBody String clearRunCache(@PathVariable("contextKey") String contextKey) {
 		try {
 			contextResetService.clearRunScopedCache(contextKey);

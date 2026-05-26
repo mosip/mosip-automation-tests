@@ -7,6 +7,7 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
+import io.mosip.testrig.dslrig.ivv.orchestrator.util.RunCacheStepSupport;
 import io.restassured.response.Response;
 
 public class ClearRunCache extends BaseTestCaseUtil implements StepInterface {
@@ -22,16 +23,12 @@ public class ClearRunCache extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		String clearUrl = baseUrl + props.getProperty("clearRunCache");
-		Response response = getRequest(clearUrl, "Clear run-scoped MOSIP API cache", step);
+		Response response = postRequest(clearUrl, "{}", "Clear run-scoped MOSIP API cache", step);
 		if (response == null || response.getStatusCode() != 200) {
 			this.hasError = true;
 			throw new RigInternalError("Clearing run cache failed");
 		}
-		String body = response.getBody().asString();
-		if (!body.contains("true")) {
-			this.hasError = true;
-			throw new RigInternalError("Clearing run cache failed: " + body);
-		}
+		RunCacheStepSupport.assertClearSucceeded(response.getBody().asString());
 		logger.info("Run cache cleared");
 	}
 }

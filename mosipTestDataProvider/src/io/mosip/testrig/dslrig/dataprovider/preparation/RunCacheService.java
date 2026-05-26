@@ -142,11 +142,11 @@ public final class RunCacheService {
 	private static void warmClientSecretTokens(String contextKey, Map<String, Object> summary) {
 		if (hasVariable(contextKey, "mosip_resident_client_id")) {
 			summary.put("authResident",
-					RestClient.initToken_Resident(contextKey) ? "ok" : "skipped");
+					RestClient.initToken_Resident(contextKey) ? "ok" : "failed");
 		}
 		if (hasVariable(contextKey, "mosip_regproc_client_id")) {
 			summary.put("authRegproc",
-					RestClient.initToken_Regproc(contextKey) ? "ok" : "skipped");
+					RestClient.initToken_Regproc(contextKey) ? "ok" : "failed");
 		}
 	}
 

@@ -589,8 +589,8 @@ public  class MosipMasterData {
 		return process.toLowerCase().trim() + "Process";
 	}
 
-	private static String idSchemaLatestResponseCacheKey(String url, String processKey) {
-		return url + "#idschemaLatestResponse#" + processKey;
+	private static String idSchemaLatestResponseCacheKey(String url) {
+		return url + "#idschemaLatestResponse";
 	}
 
 	private static String idSchemaLatestParsedCacheKey(String url, String processKey) {
@@ -603,8 +603,7 @@ public  class MosipMasterData {
 	private static JSONObject fetchIdSchemaLatestResponse(String contextKey) {
 		String url = getIdSchemaLatestUrl(contextKey);
 		String run_context = VariableManager.getVariableValue(contextKey, "urlBase").toString() + RUN_CONTEXT;
-		String processKey = resolveIdSchemaProcessKey(contextKey);
-		String cacheKey = idSchemaLatestResponseCacheKey(url, processKey);
+		String cacheKey = idSchemaLatestResponseCacheKey(url);
 		Object cached = MosipDataSetup.getCache(cacheKey, run_context);
 		if (cached instanceof JSONObject) {
 			return (JSONObject) cached;

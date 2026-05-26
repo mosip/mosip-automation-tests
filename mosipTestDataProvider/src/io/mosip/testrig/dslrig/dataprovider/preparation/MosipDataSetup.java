@@ -121,10 +121,7 @@ public class MosipDataSetup {
 
 	public static void clearRunCache(String contextKey) {
 		try {
-			Object urlBase = VariableManager.getVariableValue(contextKey, "urlBase");
-			if (urlBase != null) {
-				VariableManager.deleteNameSpace(urlBase.toString().trim() + RUN_CONTEXT);
-			}
+			VariableManager.deleteNameSpace(getRunContextNamespace(contextKey));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}

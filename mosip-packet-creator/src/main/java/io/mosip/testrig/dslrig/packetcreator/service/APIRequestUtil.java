@@ -115,9 +115,33 @@ public class APIRequestUtil {
     }
 
     public void clearRunScopedCache(String contextKey) {
-    	tokens.clear();
+    	clearTokensForContext(contextKey);
     	MosipDataSetup.clearRunCache(contextKey);
     	RestClient.clearRunScopedCache(contextKey);
+    }
+
+    private void clearTokensForContext(String contextKey) {
+    	try {
+    		Object urlBase = VariableManager.getVariableValue(contextKey, "urlBase");
+    		if (urlBase != null) {
+    			String prefix = urlBase.toString().trim();
+    			tokens.keySet().removeIf(key -> key.startsWith(prefix));
+    		}
+    	} catch (Exception e) {
+    		logger.debug("Could not clear in-memory tokens for context {}", contextKey);
+    	}
+    }
+
+    private boolean shouldForceAuthRefresh(String contextKey) {
+    	try {
+    		Object obj = VariableManager.getVariableValue(contextKey, "urlSwitched");
+    		if (obj != null) {
+    			return Boolean.parseBoolean(obj.toString());
+    		}
+    	} catch (Exception ignored) {
+    		// default: allow run-cache reuse
+    	}
+    	return false;
     }
 
     public void resetServerApiTrace(String contextKey) {
@@ -495,10 +519,12 @@ public class APIRequestUtil {
 			JSONObject nestedRequest = buildInternalUseridPwdRequest(contextKey);
 
 			String urlBase = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
-			String cachedToken = getRunCachedInternalAuthToken(contextKey);
-			if (cachedToken != null && !cachedToken.isEmpty()) {
-				tokens.put(urlBase + "system", cachedToken);
-				return true;
+			if (!shouldForceAuthRefresh(contextKey)) {
+				String cachedToken = getRunCachedInternalAuthToken(contextKey);
+				if (cachedToken != null && !cachedToken.isEmpty()) {
+					tokens.put(urlBase + "system", cachedToken);
+					return true;
+				}
 			}
 
 			requestBody.put("metadata", new JSONObject());
@@ -562,10 +588,12 @@ public class APIRequestUtil {
 			JSONObject nestedRequest = buildInternalUseridPwdRequest(contextKey);
 
 			String urlBase = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
-			String cachedToken = getRunCachedInternalAuthToken(contextKey);
-			if (cachedToken != null && !cachedToken.isEmpty()) {
-				tokens.put(urlBase + "system", cachedToken);
-				return true;
+			if (!shouldForceAuthRefresh(contextKey)) {
+				String cachedToken = getRunCachedInternalAuthToken(contextKey);
+				if (cachedToken != null && !cachedToken.isEmpty()) {
+					tokens.put(urlBase + "system", cachedToken);
+					return true;
+				}
 			}
 
 			requestBody.put("metadata", "");
