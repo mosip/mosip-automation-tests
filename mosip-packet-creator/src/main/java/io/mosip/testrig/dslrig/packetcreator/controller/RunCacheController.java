@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import io.mosip.testrig.dslrig.dataprovider.preparation.RunCacheService;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
+import io.mosip.testrig.dslrig.packetcreator.service.ContextResetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,6 +32,9 @@ public class RunCacheController {
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
+
+	@Autowired
+	private ContextResetService contextResetService;
 
 	@Operation(summary = "Warm run-scoped cache",
 			description = "Fetches auth tokens and frequently used masterdata once and stores them in the run cache "
@@ -52,13 +57,13 @@ public class RunCacheController {
 	}
 
 	@Operation(summary = "Clear run-scoped cache",
-			description = "Clears the {urlBase}run_context namespace and in-memory auth tokens. "
-					+ "Call after the test suite completes.")
+			description = "Clears the {urlBase}run_context namespace and in-memory auth tokens (shared with resetContextData). "
+					+ "Does not delete the context namespace or packet temp folders. Call after the test suite completes.")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Cache cleared") })
 	@GetMapping(value = "/runCache/clear/{contextKey}")
 	public @ResponseBody String clearRunCache(@PathVariable("contextKey") String contextKey) {
 		try {
-			RunCacheService.clear(contextKey);
+			contextResetService.clearRunScopedCache(contextKey);
 			return "true";
 		} catch (ServiceException se) {
 			throw se;
