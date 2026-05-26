@@ -51,8 +51,8 @@ jobs:
       BRANCH: gh-pages
       INCLUDE_ALL_CHARTS: "${{ inputs.INCLUDE_ALL_CHARTS || 'NO' }}"
       IGNORE_CHARTS: "${{ inputs.IGNORE_CHARTS || '\"\"' }}"
-      # PRs: lint only (no push to mosip-helm; avoids ACTION_PAT failures on forks)
-      CHART_PUBLISH: "${{ github.event_name == 'pull_request' && 'NO' || (github.event_name == 'workflow_dispatch' && inputs.CHART_PUBLISH || 'YES') }}"
+      # Lint-only when: PR, fork, or manual NO. Publish only on upstream push/release with ACTION_PAT.
+      CHART_PUBLISH: ${{ (github.event_name == 'pull_request' || github.repository != 'mosip/mosip-automation-tests' || (github.event_name == 'workflow_dispatch' && inputs.CHART_PUBLISH == 'NO')) && 'NO' || (github.event_name == 'workflow_dispatch' && inputs.CHART_PUBLISH || 'YES') }}
       LINTING_CHART_SCHEMA_YAML_URL: "https://raw.githubusercontent.com/mosip/kattu/master/.github/helm-lint-configs/chart-schema.yaml"
       LINTING_LINTCONF_YAML_URL: "https://raw.githubusercontent.com/mosip/kattu/master/.github/helm-lint-configs/lintconf.yaml"
       LINTING_CHART_TESTING_CONFIG_YAML_URL: "https://raw.githubusercontent.com/mosip/kattu/master/.github/helm-lint-configs/chart-testing-config.yaml"
