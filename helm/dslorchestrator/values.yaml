@@ -218,7 +218,7 @@ extraEnvVarsCM:
   - keycloak-host
   - db
   - dslorchestrator
-  - logCapture
+  - log-capture
   - config-server-share
   - artifactory-share
 ## Secret with extra environment variables
@@ -497,7 +497,7 @@ dslorchestrator:
       servicesNotDeployed: ""
       scenariosToSkip: ""
       scenariosToExecute: ""
-    logCapture:
+    log-capture:
       logCapture.enabled: "true"
       logCapture.namespace: "mosip"
       logCapture.captureMode: "execution-window"
