@@ -9,7 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import io.mosip.testrig.apirig.utils.GetCredentialTableStackTrace;
-import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.dslrig.ivv.orchestrator.DslReportLogUtil;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -66,7 +66,7 @@ public class CheckRIDStatusInDataBase extends BaseTestCaseUtil implements StepIn
 				    }
 
 				    ridStatus = GetCredentialTableStackTrace.getStatusFromCredentialTransactionTable(Rid);
-				    GlobalMethods.ReportRequestAndResponse(null, null, null, null, ridStatus, true);
+				    DslReportLogUtil.reportRequestAndResponse(null, null, null, null, ridStatus, true);
 
 				    long stopTime = System.currentTimeMillis();
 				    long elapsedTime = stopTime - startTime;

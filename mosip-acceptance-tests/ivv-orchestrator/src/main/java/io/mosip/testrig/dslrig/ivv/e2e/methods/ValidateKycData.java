@@ -16,12 +16,12 @@ import org.json.JSONObject;
 import org.testng.Reporter;
 
 import io.mosip.testrig.apirig.utils.ConfigManager;
-import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.DslReportLogUtil;
 
 public class ValidateKycData extends BaseTestCaseUtil implements StepInterface {
 
@@ -96,7 +96,7 @@ public class ValidateKycData extends BaseTestCaseUtil implements StepInterface {
 				}
 			}
 
-			GlobalMethods.reportRequest("decryptEkycData", newResponse);
+			DslReportLogUtil.reportRequest("decryptEkycData", newResponse);
 		} catch (RigInternalError e) {
 			this.hasError = true;
 			logger.error(e.getMessage());
@@ -146,7 +146,7 @@ public class ValidateKycData extends BaseTestCaseUtil implements StepInterface {
 
 	/**
 	 * Maps a DSL/Gherkin field token to an actual key present in decrypted eKYC JSON
-	 * (e.g. demo {@code name} → {@code name_eng}, {@code phone} → {@code phoneNumber}).
+	 * (e.g. demo {@code name} -> {@code name_eng}, {@code phone} -> {@code phoneNumber}).
 	 */
 	static String resolveKycResponseKey(String requested, JSONObject responseJson) {
 		if (requested == null || requested.isBlank() || responseJson == null) {

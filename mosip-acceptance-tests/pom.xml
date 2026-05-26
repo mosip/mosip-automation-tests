@@ -131,8 +131,35 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>io.mosip.testrig.dslrig.ivv.core</groupId>
+				<artifactId>dslrig-ivv-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.mosip.testrig.dslrig.ivv.parser</groupId>
+				<artifactId>dslrig-ivv-parser</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.mosip.testrig.dslrig.ivv.dg</groupId>
+				<artifactId>dslrig-ivv-dg</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<profiles>
+		<profile>
+			<id>local-dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<gpg.skip>true</gpg.skip>
+			</properties>
+		</profile>
+	</profiles>
 
 	<distributionManagement>
 		<snapshotRepository>

@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.mosip.testrig.dslrig.dataprovider.util.SensitiveLogMasker;
+
 
 public final class InternalApiLogFormatter {
 
@@ -98,7 +100,10 @@ public final class InternalApiLogFormatter {
 	}
 
 	private static String safe(String s) {
-		return s == null ? "" : s;
+		if (s == null || s.isEmpty()) {
+			return "";
+		}
+		return SensitiveLogMasker.mask(s);
 	}
 
 	private static String indent(String block) {
@@ -118,7 +123,7 @@ public final class InternalApiLogFormatter {
 		}
 		try {
 			Object tree = MAPPER.readValue(t, Object.class);
-			return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
+			return SensitiveLogMasker.mask(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tree));
 		} catch (Exception e) {
 			return raw;
 		}
