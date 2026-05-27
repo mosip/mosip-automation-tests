@@ -626,9 +626,6 @@ public class Orchestrator {
 					st.setSystemProperties(properties);
 					st.setState(store);
 					st.setStep(step);
-					st.setup();
-					st.validateStep();
-
 					String stepAction = "e2e_" + step.getName() + step.getParameters();
 					stepAction = trimSpaceWithinSquareBrackets(stepAction);
 
@@ -682,36 +679,9 @@ public class Orchestrator {
 					}
 
 
-					st.run();
-					st.assertHttpStatus();
-					if (st.hasError()) {
-						if (willRetry) {
-							extentTest.warning(identifier + " - failed (will retry)");
-						} else {
-							extentTest.fail(identifier + " - failed");
-						}
-						throw new RuntimeException("Step reported error");
-					}
-					if (st.getErrorsForAssert().size() > 0) {
-						st.errorHandler();
-						if (st.hasError()) {
-							if (willRetry) {
-								extentTest.warning(identifier + " - failed after errorHandler (will retry)");
-							} else {
-								extentTest.fail(identifier + " - failed after errorHandler");
-							}
-							throw new RuntimeException("Step reported error after errorHandler");
-						}
-					} else {
-						st.assertNoError();
-						if (st.hasError()) {
-							if (willRetry) {
-								extentTest.warning(identifier + " - failed after assertNoError (will retry)");
-							} else {
-								extentTest.fail(identifier + " - failed after assertNoError");
-							}
-							throw new RuntimeException("Step reported error after assertNoError");
-						}
+					StepRunner.runLifecycle(st);
+					if (StepRunner.lifecycleFailed(st)) {
+						failStep(extentTest, identifier, willRetry, "Step reported error");
 					}
 					store = st.getState();
 
@@ -1126,9 +1096,6 @@ public class Orchestrator {
 			st.setSystemProperties(properties);
 			st.setState(store);
 			st.setStep(step);
-			st.setup();
-			st.validateStep();
-
 			String stepAction = "e2e_" + step.getName() + step.getParameters();
 			stepAction = trimSpaceWithinSquareBrackets(stepAction);
 
@@ -1175,41 +1142,23 @@ public class Orchestrator {
 				}
 			}
 
-			st.run();
-			st.assertHttpStatus();
-			if (st.hasError()) {
-				if (willRetry) {
-					extentTest.warning(identifier + " - failed (will retry)");
-				} else {
-					extentTest.fail(identifier + " - failed");
-				}
-				throw new RuntimeException("Step reported error");
-			}
-			if (st.getErrorsForAssert().size() > 0) {
-				st.errorHandler();
-				if (st.hasError()) {
-					if (willRetry) {
-						extentTest.warning(identifier + " - failed after errorHandler (will retry)");
-					} else {
-						extentTest.fail(identifier + " - failed after errorHandler");
-					}
-					throw new RuntimeException("Step reported error after errorHandler");
-				}
-			} else {
-				st.assertNoError();
-				if (st.hasError()) {
-					if (willRetry) {
-						extentTest.warning(identifier + " - failed after assertNoError (will retry)");
-					} else {
-						extentTest.fail(identifier + " - failed after assertNoError");
-					}
-					throw new RuntimeException("Step reported error after assertNoError");
-				}
+			StepRunner.runLifecycle(st);
+			if (StepRunner.lifecycleFailed(st)) {
+				failStep(extentTest, identifier, willRetry, "Step reported error");
 			}
 			store = st.getState();
 			extentTest.pass(identifier + " - passed");
 		}
 		return store;
+	}
+
+	private static void failStep(ExtentTest extentTest, String identifier, boolean willRetry, String message) {
+		if (willRetry) {
+			extentTest.warning(identifier + " - failed (will retry)");
+		} else {
+			extentTest.fail(identifier + " - failed");
+		}
+		throw new RuntimeException(message);
 	}
 
 	private Scenario copyScenarioForParallelTrack(Scenario source) {
