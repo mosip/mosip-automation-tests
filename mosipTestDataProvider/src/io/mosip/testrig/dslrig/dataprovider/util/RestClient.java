@@ -128,6 +128,7 @@ public class RestClient {
 		} else {
 			return false;
 		}
+		return false;
 	}
 
 	public static boolean isValidTokenOffline(String cookie, String contextKey) {
