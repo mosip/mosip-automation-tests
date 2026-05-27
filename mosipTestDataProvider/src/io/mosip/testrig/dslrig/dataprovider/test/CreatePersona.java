@@ -16,7 +16,6 @@ import org.mvel2.MVEL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
 import io.mosip.testrig.dslrig.dataprovider.PacketTemplateProvider;
 import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldModel;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipGenderModel;
@@ -43,7 +42,7 @@ public class CreatePersona {
 
 		obj.put("language", primLang);
 		if(primVal != null && primVal.equals(""))
-			obj.put("value", Json.NULL);
+			obj.put("value", JSONObject.NULL);
 		else
 			obj.put("value", primVal);
 		if(bSimpleType){
@@ -53,7 +52,7 @@ public class CreatePersona {
 				obj = new JSONObject();
 				obj.put("language", secLang);
 				if(secVal != null && secVal.equals(""))
-					obj.put("value", Json.NULL);
+					obj.put("value", JSONObject.NULL);
 				else
 					obj.put("value", secVal);
 				array.put(1, obj);

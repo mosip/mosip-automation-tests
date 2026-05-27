@@ -64,20 +64,37 @@ public class MosipDataSetup {
 		return props;
 	}
 
-	public static Object getCache(String key, String contextKey) {
-
+	/**
+	 * @param runContextNamespace {@link #getRunContextNamespace(String)} value, not DSL contextKey
+	 */
+	public static Object getCache(String key, String runContextNamespace) {
 		try {
-			logger.debug("Getting cache for key: {} with context: {}", key, contextKey);
-			return fromCacheValue(VariableManager.getVariableValue(contextKey, key));
+			logger.debug("Getting cache for key: {} with namespace: {}", key, runContextNamespace);
+			return MasterdataCache.getByNamespace(runContextNamespace, key);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 		return null;
 	}
 
-	public static void setCache(String key, Object value, String contextKey) {
+	/**
+	 * @param runContextNamespace {@link #getRunContextNamespace(String)} value, not DSL contextKey
+	 */
+	public static void setCache(String key, Object value, String runContextNamespace) {
+		MasterdataCache.putByNamespace(runContextNamespace, key, value);
+	}
 
-		VariableManager.setVariableValue(contextKey, key, toCacheValue(value));
+	static Object readCacheRaw(String key, String runContextNamespace) {
+		try {
+			return fromCacheValue(VariableManager.getVariableValue(runContextNamespace, key));
+		} catch (Exception e) {
+			logger.debug("Cache read failed for key {}: {}", key, e.getMessage());
+		}
+		return null;
+	}
+
+	static void writeCacheRaw(String key, Object value, String runContextNamespace) {
+		VariableManager.setVariableValue(runContextNamespace, key, toCacheValue(value));
 	}
 
 	public static Object toCacheValue(Object value) {

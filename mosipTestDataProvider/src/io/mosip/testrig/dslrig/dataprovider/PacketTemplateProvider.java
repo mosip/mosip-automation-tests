@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.Json;
+import io.mosip.testrig.dslrig.dataprovider.packet.PacketTemplateDocuments;
 import io.mosip.mock.sbi.exception.SBIException;
 import io.mosip.testrig.dslrig.dataprovider.models.BioModality;
 import io.mosip.testrig.dslrig.dataprovider.models.ContextSchemaDetail;
@@ -49,6 +49,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.SchemaRule;
 import io.mosip.testrig.dslrig.dataprovider.models.SchemaValidator;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
+import io.mosip.testrig.dslrig.dataprovider.persona.PersonaBiometricsAssembler;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
@@ -121,12 +122,13 @@ public class PacketTemplateProvider {
 	public String generate(String source, String process, ResidentModel resident, String packetFilePath,
 			String preregId, String machineId, String centerId, String contextKey, Properties props,
 			JSONObject preregResponse, String purpose, String qualityScore, boolean genarateValidCbeff)
-			throws IOException {
+			throws Exception {
 		final HashMap<String, String[]> fileInfo = new HashMap<String, String[]>();
 		String rootFolder = packetFilePath;
 		String ridFolder = "";
 		Path path = Paths.get(rootFolder);
 		RestClient.logInfo(contextKey, "path1:" + path);
+		PersonaBiometricsAssembler.ensureAssembled(resident, null, contextKey);
 		ContextSchemaDetail contextSchemaDetail = getSchema(contextKey);
 
 		if (!Files.exists(path)) {
@@ -243,7 +245,8 @@ public class PacketTemplateProvider {
 	private JSONObject processMVEL(ResidentModel resident, String idJson, String process,
 			ContextSchemaDetail contextSchemaDetail, String contextKey) {
 		Map<String, Object> allIdentityDetails = new LinkedHashMap<String, Object>();
-		Map<String, DocumentDto> documents = getDocuments(resident, idJson, contextSchemaDetail);
+		Map<String, DocumentDto> documents = PacketTemplateDocuments.buildDocumentMap(resident, idJson,
+				contextSchemaDetail);
 		allIdentityDetails.putAll(documents);
 		JSONObject json = new JSONObject(idJson);
 		json = json.getJSONObject(IDENTITY);
@@ -270,7 +273,7 @@ public class PacketTemplateProvider {
 					RestClient.logInfo(contextKey, "rule:result=" + bval);
 					if (!bval) {
 						json = new JSONObject(idJson);
-						json.put(s.getId(), Json.NULL);
+						json.put(s.getId(), JSONObject.NULL);
 					}
 				}
 			}
@@ -282,34 +285,6 @@ public class PacketTemplateProvider {
 			json = identityWrapper; 
 		}
 		return json;
-	}
-
-	private Map<String, DocumentDto> getDocuments(ResidentModel resident, String idJson,
-			ContextSchemaDetail contextSchemaDetail) {
-		Map<String, DocumentDto> documents = new HashMap<>();
-		JSONObject json = new JSONObject(idJson);
-		json = json.getJSONObject(IDENTITY);
-		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
-			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
-				continue;
-			for (MosipDocument doc : resident.getDocuments()) {
-				if (s.getSubType() != null
-						&& doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
-					DocumentDto documentDto = new DocumentDto();
-					if (json.has(s.getId())) {
-						JSONObject formateJson = json.getJSONObject(s.getId());
-						documentDto.setCategory(doc.getDocCategoryCode());
-						documentDto.setFormat(formateJson.get(FORMAT).toString());
-						documentDto.setType(formateJson.get("type").toString());
-						documentDto.setValue(formateJson.get(VALUE).toString());
-						documents.put(s.getId(), documentDto);
-					}
-				}
-
-			}
-
-		}
-		return documents;
 	}
 
 	static Map<String, Object> getIdentityObject(List<MosipIDSchema> schemas, String process, double schemaVersion,
@@ -611,7 +586,7 @@ public class PacketTemplateProvider {
 		JSONObject o = new JSONObject();
 		o.put(LANGUAGE, primLang);
 		if (primValue != null && primValue.equals(""))
-			o.put(VALUE, Json.NULL);
+			o.put(VALUE, JSONObject.NULL);
 		else
 			o.put(VALUE, primValue);
 		ar.put(o);
@@ -620,7 +595,7 @@ public class PacketTemplateProvider {
 			o = new JSONObject();
 			o.put(LANGUAGE, secLang);
 			if (secValue != null && secValue.equals(""))
-				o.put(VALUE, Json.NULL);
+				o.put(VALUE, JSONObject.NULL);
 			else
 				o.put(VALUE, secValue);
 			ar.put(o);
@@ -629,7 +604,7 @@ public class PacketTemplateProvider {
 			o = new JSONObject();
 			o.put(LANGUAGE, thirdLang);
 			if (thirdValue.equals(""))
-				o.put(VALUE, Json.NULL);
+				o.put(VALUE, JSONObject.NULL);
 			else
 				o.put(VALUE, thirdValue);
 			ar.put(o);
@@ -658,7 +633,7 @@ public class PacketTemplateProvider {
 		JSONObject o = new JSONObject();
 		o.put(LANGUAGE, primLang);
 		if (primValue != null && primValue.equals(""))
-			o.put(VALUE, Json.NULL);
+			o.put(VALUE, JSONObject.NULL);
 		else
 			o.put(VALUE, primValue);
 		ar.put(o);
@@ -667,7 +642,7 @@ public class PacketTemplateProvider {
 			o = new JSONObject();
 			o.put(LANGUAGE, secLang);
 			if (secValue != null && secValue.equals(""))
-				o.put(VALUE, Json.NULL);
+				o.put(VALUE, JSONObject.NULL);
 			else
 				o.put(VALUE, secValue);
 			ar.put(o);
@@ -676,7 +651,7 @@ public class PacketTemplateProvider {
 			o = new JSONObject();
 			o.put(LANGUAGE, thirdLang);
 			if (thirdValue.equals(""))
-				o.put(VALUE, Json.NULL);
+				o.put(VALUE, JSONObject.NULL);
 			else
 				o.put(VALUE, thirdValue);
 			ar.put(o);

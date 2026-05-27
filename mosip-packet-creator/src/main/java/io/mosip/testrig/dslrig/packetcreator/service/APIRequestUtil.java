@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -25,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
+import io.mosip.testrig.dslrig.dataprovider.util.AuthTokenStore;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.SlackIt;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -43,11 +43,6 @@ public class APIRequestUtil {
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
 	private static final String DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
-
-	static Map<String, String> tokens = new HashMap<String,String>();
-
-
-    String refreshToken;
 
     @Value("${mosip.test.regclient.userid}")
     private String operatorId;
@@ -110,26 +105,16 @@ public class APIRequestUtil {
 
 	}
 
+    /**
+     * @deprecated Prefer {@link #clearRunScopedCache(String)} for a single DSL context.
+     */
+    @Deprecated
     public void clearToken() {
-    	tokens.clear();
+    	AuthTokenStore.clearAll();
     }
 
     public void clearRunScopedCache(String contextKey) {
-    	clearTokensForContext(contextKey);
-    	MosipDataSetup.clearRunCache(contextKey);
     	RestClient.clearRunScopedCache(contextKey);
-    }
-
-    private void clearTokensForContext(String contextKey) {
-    	try {
-    		Object urlBase = VariableManager.getVariableValue(contextKey, "urlBase");
-    		if (urlBase != null) {
-    			String prefix = urlBase.toString().trim();
-    			tokens.keySet().removeIf(key -> key.startsWith(prefix));
-    		}
-    	} catch (Exception e) {
-    		logger.debug("Could not clear in-memory tokens for context {}", contextKey);
-    	}
     }
 
     private boolean shouldForceAuthRefresh(String contextKey) {
@@ -238,7 +223,7 @@ public class APIRequestUtil {
 
     	while(!bDone) {
 
-    		Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system")).build();
+    		Cookie kukki = new Cookie.Builder("Authorization", AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM)).build();
     		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(requestParams.toMap()).get(url,pathParam.toMap());
     		if(response.getStatusCode() == 401) {
     			if(nLoop >= 1)
@@ -275,7 +260,7 @@ public class APIRequestUtil {
 
     	while(!bDone) {
 
-    		Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system")).build();
+    		Cookie kukki = new Cookie.Builder("Authorization", AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM)).build();
     		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(requestParams.toMap()).get(url,pathParam.toMap());
     		if(response.getStatusCode() == 401) {
     			if(nLoop >= 1)
@@ -315,7 +300,7 @@ public class APIRequestUtil {
 
     	while(!bDone) {
 
-    		Cookie kukki = new Cookie.Builder("Authorization",tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system")).build();
+    		Cookie kukki = new Cookie.Builder("Authorization",AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM)).build();
     		response = given().cookie(kukki).contentType(ContentType.JSON).queryParams(requestParams.toMap()).get(url,pathParam.toMap());
     		if(response.getStatusCode() == 401) {
     			if(nLoop >= 1)
@@ -355,7 +340,7 @@ public class APIRequestUtil {
     	Response response =null;
 
     	while(!bDone) {
-    		Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system")).build();
+    		Cookie kukki = new Cookie.Builder("Authorization", AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM)).build();
     		response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
     		if(response.getStatusCode() == 401) {
     			if(nLoop >= 1)
@@ -383,7 +368,7 @@ public class APIRequestUtil {
 		String centerId= VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 		String machineId=VariableManager.getVariableValue(contextKey, "machineid").toString();
     	loadContext(contextKey);
-    	 tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system",null);
+    	 AuthTokenStore.remove(contextKey, AuthTokenStore.ROLE_SYSTEM);
     	if (!isValidToken(contextKey)){
             initToken(contextKey);
         }
@@ -399,7 +384,7 @@ public class APIRequestUtil {
     		objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     		String outputJson = objectMapper.writeValueAsString(requestBody);
 
-            String authToken = tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system");
+            String authToken = AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM);
     		Cookie kukki = new Cookie.Builder("Authorization", authToken).build();
     		response = given().cookie(kukki)
                 .header("timestamp", timestamp)
@@ -434,7 +419,7 @@ public class APIRequestUtil {
 
 
     	loadContext(contextKey);
-    	tokens.put(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system",null);
+    	AuthTokenStore.remove(contextKey, AuthTokenStore.ROLE_SYSTEM);
 
 
     	if (!isValidToken(contextKey)){
@@ -442,7 +427,7 @@ public class APIRequestUtil {
         }
     	File f = new File(filePath);
 
-        Cookie kukki = new Cookie.Builder("Authorization", tokens.get(VariableManager.getVariableValue(contextKey,"urlBase").toString().trim()+"system")
+        Cookie kukki = new Cookie.Builder("Authorization", AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM)
             	).build();
         Response response = given().cookie(kukki).multiPart("file", f.getCanonicalFile()).post(url);
         addServerApiTrace(contextKey, "POST", url,
@@ -454,23 +439,20 @@ public class APIRequestUtil {
     }
 
     private boolean isValidToken(String contextKey) throws Exception {
-    	Object obj = VariableManager.getVariableValue(contextKey,"urlSwitched");
-    	if(obj != null) {
-    		Boolean bClear = Boolean.valueOf(obj.toString());
-    		if(bClear)
-
-    			return false;
+    	if (shouldForceAuthRefresh(contextKey)) {
+    		return false;
     	}
-    	String urlBase = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
-    	String tokenKey = urlBase + "system";
-    	String token = tokens.get(tokenKey);
+    	String token = AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM);
     	if (token == null || token.isEmpty()) {
     		token = getRunCachedInternalAuthToken(contextKey);
     		if (token != null && !token.isEmpty()) {
-    			tokens.put(tokenKey, token);
+    			AuthTokenStore.put(contextKey, AuthTokenStore.ROLE_SYSTEM, token);
     		}
     	}
-    	return token != null && !token.isEmpty();
+    	if (token == null || token.isEmpty()) {
+    		return false;
+    	}
+    	return RestClient.isValidTokenOffline(token, contextKey);
     }
 
     private JSONObject buildInternalUseridPwdRequest(String contextKey) {
@@ -522,7 +504,7 @@ public class APIRequestUtil {
 			if (!shouldForceAuthRefresh(contextKey)) {
 				String cachedToken = getRunCachedInternalAuthToken(contextKey);
 				if (cachedToken != null && !cachedToken.isEmpty()) {
-					tokens.put(urlBase + "system", cachedToken);
+					AuthTokenStore.put(contextKey, AuthTokenStore.ROLE_SYSTEM, cachedToken);
 					return true;
 				}
 			}
@@ -552,7 +534,7 @@ public class APIRequestUtil {
             }
            String token = new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
 
-           tokens.put(urlBase + "system", token);
+           AuthTokenStore.put(contextKey, AuthTokenStore.ROLE_SYSTEM, token);
            cacheInternalAuthToken(contextKey, nestedRequest, token);
 
 
@@ -591,7 +573,7 @@ public class APIRequestUtil {
 			if (!shouldForceAuthRefresh(contextKey)) {
 				String cachedToken = getRunCachedInternalAuthToken(contextKey);
 				if (cachedToken != null && !cachedToken.isEmpty()) {
-					tokens.put(urlBase + "system", cachedToken);
+					AuthTokenStore.put(contextKey, AuthTokenStore.ROLE_SYSTEM, cachedToken);
 					return true;
 				}
 			}
@@ -622,7 +604,7 @@ public class APIRequestUtil {
         token= new JSONObject(response.getBody().asString()).getJSONObject(dataKey).getString("token");
 
 
-            tokens.put(urlBase + "system", token);
+            AuthTokenStore.put(contextKey, AuthTokenStore.ROLE_SYSTEM, token);
             cacheInternalAuthToken(contextKey, nestedRequest, token);
 			return true;	
 		}
