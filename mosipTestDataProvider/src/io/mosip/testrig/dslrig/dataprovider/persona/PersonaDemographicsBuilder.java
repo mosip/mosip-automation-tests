@@ -99,7 +99,7 @@ public final class PersonaDemographicsBuilder {
 		String thirdLang = (String) attributeList.get(ResidentAttribute.RA_THIRD_LANG);
 
 		Object oAttr = attributeList.get(ResidentAttribute.RA_SCHEMA_VERSION);
-		double schemaVersion = oAttr == null ? 0 : (double) oAttr;
+		double schemaVersion = parseSchemaVersion(oAttr);
 		VariableManager.setVariableValue(contextKey, "schemaVersion", schemaVersion);
 
 		String[] langsRequired = getConfiguredLanguages(contextKey);
@@ -320,12 +320,13 @@ public final class PersonaDemographicsBuilder {
 				res.setResidentStatus(lstResStatusPrimLang.get(indx));
 			}
 		}
-		if (res.getSecondaryLanguage() != null) {
+		if (res.getSecondaryLanguage() != null && lstResStatusPrimLang != null && !lstResStatusPrimLang.isEmpty()) {
 			List<MosipIndividualTypeModel> lstResStatusSecLang = ctx.resStatusList.get(res.getSecondaryLanguage());
 			if (lstResStatusSecLang != null) {
-				final int chosen = indx;
+				final int chosen = Math.min(indx, lstResStatusPrimLang.size() - 1);
+				String primaryCode = lstResStatusPrimLang.get(chosen).getCode();
 				for (MosipIndividualTypeModel itm : lstResStatusSecLang) {
-					if (itm.getCode().equals(lstResStatusPrimLang.get(chosen).getCode())) {
+					if (itm.getCode().equals(primaryCode)) {
 						res.setResidentStatus_seclang(itm);
 						break;
 					}
@@ -396,5 +397,20 @@ public final class PersonaDemographicsBuilder {
 		}
 		langArr = new String[minLanguages > 0 ? minLanguages : langs.size()];
 		return langs.toArray(langArr);
+	}
+
+	static double parseSchemaVersion(Object oAttr) {
+		if (oAttr == null) {
+			return 0;
+		}
+		if (oAttr instanceof Number number) {
+			return number.doubleValue();
+		}
+		try {
+			return Double.parseDouble(oAttr.toString().trim());
+		} catch (NumberFormatException e) {
+			logger.debug("Invalid schema version '{}', using 0", oAttr);
+			return 0;
+		}
 	}
 }

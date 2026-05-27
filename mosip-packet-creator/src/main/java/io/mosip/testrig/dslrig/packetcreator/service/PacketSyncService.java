@@ -918,7 +918,8 @@ public class PacketSyncService {
 			}
 			for (String path : personaFilePaths) {
 				ResidentModel resident = ResidentModel.readPersona(path);
-				PersonaBiometricsAssembler.ensureAssembled(resident, null, contextKey);
+				PersonaBiometricsAssembler.ensureAssembled(resident,
+						PersonaBiometricsAssembler.hintsFromResident(resident), contextKey);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				RestClient.logInfo(contextKey, "packetPath=" + packetPath);
 				String returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath,

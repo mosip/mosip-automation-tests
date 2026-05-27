@@ -74,11 +74,11 @@ public final class PersonaBiometricsAssembler {
 		if (attrs != null && "true".equals(attrs.get(ATTR_ASSEMBLED))) {
 			return false;
 		}
-		if (resident.getBiometric() != null && resident.getBiometric().getFingerPrint() != null) {
-			return false;
-		}
 		if (attrs != null && "true".equals(attrs.get(ATTR_DEFERRED))) {
 			return true;
+		}
+		if (resident.getBiometric() != null && resident.getBiometric().getFingerPrint() != null) {
+			return false;
 		}
 		return resident.getBiometric() == null;
 	}
@@ -165,6 +165,7 @@ public final class PersonaBiometricsAssembler {
 
 		oAttr = attributeList.get(ResidentAttribute.RA_Document);
 		boolean bDocRequired = oAttr == null || Boolean.parseBoolean(oAttr.toString());
+		boolean documentsReady = true;
 		if (bDocRequired) {
 			try {
 				Object lowQualityDocumentAttr = attributeList.get(ResidentAttribute.RA_LowQualityDocument);
@@ -181,8 +182,15 @@ public final class PersonaBiometricsAssembler {
 							.collect(Collectors.toList()));
 				}
 			} catch (DocumentException | IOException | ParseException e) {
-				logger.error(e.getMessage());
+				logger.error("Document generation failed: {}", e.getMessage());
+				documentsReady = false;
 			}
+		}
+		if (bDocRequired && !documentsReady) {
+			Hashtable<String, String> attrs = resident.getAddtionalAttributes();
+			attrs.put(ATTR_DEFERRED, "true");
+			attrs.remove(ATTR_ASSEMBLED);
+			return;
 		}
 
 		if (resident.getDocuments() != null) {

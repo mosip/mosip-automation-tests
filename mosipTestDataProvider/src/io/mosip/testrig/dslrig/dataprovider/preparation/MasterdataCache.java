@@ -132,20 +132,38 @@ public final class MasterdataCache {
 
 	public static JSONObject getCachedGetJson(String contextKey, String getKey) {
 		Object cached = get(contextKey, getKey);
-		return cached instanceof JSONObject ? (JSONObject) cached : null;
+		if (cached instanceof JSONObject json) {
+			return copyJsonObject(json);
+		}
+		return null;
 	}
 
 	public static void putCachedGetJson(String contextKey, String getKey, JSONObject value) {
-		put(contextKey, getKey, value);
+		if (value != null) {
+			put(contextKey, getKey, copyJsonObject(value));
+		}
 	}
 
 	public static JSONArray getCachedGetArray(String contextKey, String getKey) {
 		Object cached = get(contextKey, getKey);
-		return cached instanceof JSONArray ? (JSONArray) cached : null;
+		if (cached instanceof JSONArray array) {
+			return copyJsonArray(array);
+		}
+		return null;
 	}
 
 	public static void putCachedGetArray(String contextKey, String getKey, JSONArray value) {
-		put(contextKey, getKey, value);
+		if (value != null) {
+			put(contextKey, getKey, copyJsonArray(value));
+		}
+	}
+
+	private static JSONObject copyJsonObject(JSONObject source) {
+		return new JSONObject(source.toString());
+	}
+
+	private static JSONArray copyJsonArray(JSONArray source) {
+		return new JSONArray(source.toString());
 	}
 
 	public static void clearContext(String contextKey) {

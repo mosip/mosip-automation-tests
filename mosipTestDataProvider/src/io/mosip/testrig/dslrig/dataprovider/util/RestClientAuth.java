@@ -120,7 +120,8 @@ public final class RestClientAuth {
 
 	private static boolean authenticateInternal(String contextKey, String role, String requestId) {
 		try {
-			JSONObject nestedRequest = buildAdminNestedRequest(contextKey);
+			boolean systemPrincipal = AuthTokenStore.ROLE_SYSTEM.equals(role);
+			JSONObject nestedRequest = buildInternalNestedRequest(contextKey, systemPrincipal);
 			JSONObject requestBody = wrapAuthRequest(nestedRequest, requestId, new JSONObject());
 
 			if (!shouldForceAuthRefresh(contextKey)) {
@@ -171,6 +172,10 @@ public final class RestClientAuth {
 				return false;
 			}
 			String token = response.getCookie(AUTHORIZATION);
+			if (token == null || token.isBlank()) {
+				notifyAuthFailure(contextKey, authUrl);
+				return false;
+			}
 			AuthTokenStore.put(contextKey, role, token);
 			cacheAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH, nestedRequest, true, contextKey, token);
 			RestClient.checkErrorResponse(response.getBody().asString(), authUrl);
@@ -181,15 +186,38 @@ public final class RestClientAuth {
 		}
 	}
 
-	private static JSONObject buildAdminNestedRequest(String contextKey) throws Exception {
+	private static JSONObject buildInternalNestedRequest(String contextKey, boolean systemPrincipal)
+			throws Exception {
 		JSONObject nestedRequest = new JSONObject();
-		nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "admin_userName").toString());
-		nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, "admin_password").toString());
-		nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_admin_app_id").toString());
-		nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_admin_client_id").toString());
-		nestedRequest.put("clientSecret",
-				VariableManager.getVariableValue(contextKey, "mosip_admin_client_secret").toString());
+		if (systemPrincipal) {
+			nestedRequest.put(USERNAME, variableOrFallback(contextKey, "system_userName", "admin_userName"));
+			nestedRequest.put(PASSWORD, variableOrFallback(contextKey, "system_password", "admin_password"));
+			nestedRequest.put(APPID, variableOrFallback(contextKey, "mosip_system_app_id", "mosip_admin_app_id"));
+			nestedRequest.put(CLIENTID, variableOrFallback(contextKey, "mosip_system_client_id", "mosip_admin_client_id"));
+			nestedRequest.put("clientSecret",
+					variableOrFallback(contextKey, "mosip_system_client_secret", "mosip_admin_client_secret"));
+		} else {
+			nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "admin_userName").toString());
+			nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, "admin_password").toString());
+			nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_admin_app_id").toString());
+			nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_admin_client_id").toString());
+			nestedRequest.put("clientSecret",
+					VariableManager.getVariableValue(contextKey, "mosip_admin_client_secret").toString());
+		}
 		return nestedRequest;
+	}
+
+	private static String variableOrFallback(String contextKey, String primaryKey, String fallbackKey)
+			throws Exception {
+		try {
+			Object value = VariableManager.getVariableValue(contextKey, primaryKey);
+			if (value != null && !value.toString().isBlank()) {
+				return value.toString();
+			}
+		} catch (Exception ignored) {
+			// use admin fallback keys
+		}
+		return VariableManager.getVariableValue(contextKey, fallbackKey).toString();
 	}
 
 	private static JSONObject buildClientSecretRequest(String contextKey, String appIdKey, String clientIdKey,
@@ -214,7 +242,7 @@ public final class RestClientAuth {
 	}
 
 	private static Response postJson(String contextKey, String authUrl, String jsonBody) throws Exception {
-		RestClient.logInfo(contextKey, contextKey + AUTHURL + authUrl + jsonBody);
+		RestClient.logInfo(contextKey, contextKey + AUTHURL + authUrl + " [auth credentials redacted]");
 		RequestSpecification spec = RestClient.requestSpec(contextKey).contentType("application/json").body(jsonBody);
 		if (RestClient.isDebugEnabled(contextKey)) {
 			return spec.log().all().post(authUrl).then().log().all().extract().response();
@@ -277,8 +305,11 @@ public final class RestClientAuth {
 
 	private static JSONObject buildNestedRequestForRole(String role, String contextKey) {
 		try {
-			if (AuthTokenStore.ROLE_ADMIN.equals(role) || AuthTokenStore.ROLE_SYSTEM.equals(role)) {
-				return buildAdminNestedRequest(contextKey);
+			if (AuthTokenStore.ROLE_ADMIN.equals(role)) {
+				return buildInternalNestedRequest(contextKey, false);
+			}
+			if (AuthTokenStore.ROLE_SYSTEM.equals(role)) {
+				return buildInternalNestedRequest(contextKey, true);
 			}
 			if (AuthTokenStore.ROLE_RESIDENT.equals(role)) {
 				return buildClientSecretRequest(contextKey, "mosip_resident_app_id", "mosip_resident_client_id",

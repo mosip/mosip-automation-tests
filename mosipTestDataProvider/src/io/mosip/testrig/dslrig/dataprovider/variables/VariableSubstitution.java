@@ -37,7 +37,9 @@ public final class VariableSubstitution {
 			return text;
 		}
 		String result = text;
-		for (String varRef : findVariables(text)) {
+		Matcher matcher = VAR_FIND_PATTERN.matcher(text);
+		while (matcher.find()) {
+			String varRef = matcher.group(1).trim();
 			String value = resolve(contextKey, varRef);
 			if (value != null) {
 				result = substituteOne(result, varRef, value);

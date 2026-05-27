@@ -30,7 +30,7 @@ public final class AuthTokenStore {
 	}
 
 	public static void put(String contextKey, String role, String token) {
-		if (contextKey == null || contextKey.isBlank() || role == null) {
+		if (contextKey == null || contextKey.isBlank() || role == null || token == null || token.isBlank()) {
 			return;
 		}
 		BY_CONTEXT.computeIfAbsent(normalize(contextKey), k -> new ConcurrentHashMap<>()).put(role, token);

@@ -69,6 +69,20 @@ public class RestClient {
 	private static final String AUTHURL = " Auth URL";
 	private static final String POST2SLACK = "post2slack";
 
+	/** Extracts cookie value from {@code Set-Cookie} (stops at first {@code ;}). */
+	static String tokenFromSetCookie(String setCookieHeader) {
+		if (setCookieHeader == null || setCookieHeader.isBlank()) {
+			return null;
+		}
+		int eq = setCookieHeader.indexOf('=');
+		if (eq < 0 || eq + 1 >= setCookieHeader.length()) {
+			return null;
+		}
+		String value = setCookieHeader.substring(eq + 1);
+		int semi = value.indexOf(';');
+		return (semi >= 0 ? value.substring(0, semi) : value).trim();
+	}
+
 	static {
 
 
@@ -675,9 +689,9 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String[] parts = cookie.split("=");
-			if (parts.length > 1) {
-				token = parts[1].split(";")[0];
+			String refreshed = tokenFromSetCookie(cookie);
+			if (refreshed != null) {
+				token = refreshed;
 				AuthTokenStore.put(contextKey, role, token);
 			}
 
@@ -726,12 +740,10 @@ public class RestClient {
 				logInfo(contextKey, h.getName() + "=" + h.getValue());
 			}
 			String cookie = response.getHeader(SET_COOKIE);
-			if (cookie != null && cookie.contains("=")) {
-				String[] parts = cookie.split("=", 2);
-				if (parts.length > 1) {
-					token = parts[1].split(";")[0];
-					AuthTokenStore.put(contextKey, role, token);
-				}
+			String refreshed = tokenFromSetCookie(cookie);
+			if (refreshed != null) {
+				token = refreshed;
+				AuthTokenStore.put(contextKey, role, token);
 			}
 			logInfo(contextKey, token);
 			checkErrorResponse(response.getBody().asString(), url);
@@ -774,7 +786,7 @@ public class RestClient {
 
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
+			token = tokenFromSetCookie(cookie);
 			AuthTokenStore.put(contextKey, role, token);
 		}
 		logInfo(contextKey, token);
@@ -805,7 +817,7 @@ public class RestClient {
 
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
+			token = tokenFromSetCookie(cookie);
 			AuthTokenStore.put(contextKey, role, token);
 		}
 		logInfo(contextKey, token);
@@ -834,7 +846,7 @@ public class RestClient {
 			response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
+			token = tokenFromSetCookie(cookie);
 			AuthTokenStore.put(contextKey, role, token);
 		}
 		logInfo(contextKey, token);
@@ -862,7 +874,7 @@ public class RestClient {
 			response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
+			token = tokenFromSetCookie(cookie);
 			AuthTokenStore.put(contextKey, role, token);
 		}
 		logInfo(contextKey, token);
@@ -893,7 +905,7 @@ public class RestClient {
 
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
+			token = tokenFromSetCookie(cookie);
 			AuthTokenStore.put(contextKey, role, token);
 		}
 		logInfo(contextKey, token);
@@ -969,7 +981,7 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String token = cookie.split("=")[1];
+			String token = tokenFromSetCookie(cookie);
 
 			AuthTokenStore.put(contextKey, role, token);
 		}
@@ -1028,7 +1040,7 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String token = cookie.split("=")[1];
+			String token = tokenFromSetCookie(cookie);
 			AuthTokenStore.put(contextKey, role, token);
 
 		}
@@ -1109,7 +1121,7 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String token = cookie.split("=")[1];
+			String token = tokenFromSetCookie(cookie);
 			AuthTokenStore.put(contextKey, role, token);
 
 		}
@@ -1156,7 +1168,7 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String token = cookie.split("=")[1];
+			String token = tokenFromSetCookie(cookie);
 
 			AuthTokenStore.put(contextKey, role, token);
 		}
@@ -1203,7 +1215,7 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String token = cookie.split("=")[1];
+			String token = tokenFromSetCookie(cookie);
 
 			AuthTokenStore.put(contextKey, role, token);
 		}

@@ -128,7 +128,8 @@ public class PacketTemplateProvider {
 		String ridFolder = "";
 		Path path = Paths.get(rootFolder);
 		RestClient.logInfo(contextKey, "path1:" + path);
-		PersonaBiometricsAssembler.ensureAssembled(resident, null, contextKey);
+		PersonaBiometricsAssembler.ensureAssembled(resident,
+				PersonaBiometricsAssembler.hintsFromResident(resident), contextKey);
 		ContextSchemaDetail contextSchemaDetail = getSchema(contextKey);
 
 		if (!Files.exists(path)) {
@@ -265,6 +266,9 @@ public class PacketTemplateProvider {
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
+			if (s.getType().equalsIgnoreCase(DOCUMENTTYPE) || s.getType().equalsIgnoreCase(BIOMETRICSTYPE)) {
+				continue;
+			}
 			List<SchemaRule> rule = s.getRequiredOn();
 			if (rule != null) {
 				for (SchemaRule sr : rule) {
@@ -272,7 +276,6 @@ public class PacketTemplateProvider {
 					boolean bval = MosipMasterData.executeMVEL(sr.getExpr(), (Object) allIdentityDetails);
 					RestClient.logInfo(contextKey, "rule:result=" + bval);
 					if (!bval) {
-						json = new JSONObject(idJson);
 						json.put(s.getId(), JSONObject.NULL);
 					}
 				}
