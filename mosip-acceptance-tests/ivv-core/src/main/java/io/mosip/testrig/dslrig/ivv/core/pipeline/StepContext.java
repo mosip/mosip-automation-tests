@@ -1,29 +1,29 @@
 package io.mosip.testrig.dslrig.ivv.core.pipeline;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import io.mosip.testrig.dslrig.ivv.core.dsl.DslRuntime;
+import io.mosip.testrig.dslrig.ivv.core.dsl.ResolvedParameters;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import lombok.Getter;
 
 /**
- * Bound view of a DSL step after {@link StepBinder#bind(Scenario.Step)} — scenario variables
- * resolved, outputs collected for {@link PipelineStep#publishOutputs()}.
+ * Bound view of a DSL step after {@link StepBinder#bind(Scenario.Step, io.mosip.testrig.dslrig.ivv.core.dtos.Store)}.
  */
 @Getter
 public class StepContext {
     private final Scenario.Step step;
-    private final List<String> boundParameters;
+    private final DslRuntime dsl;
+    private final ResolvedParameters parameters;
     private final String outVarName;
     private final Map<String, String> outputs = new HashMap<>();
 
-    public StepContext(Scenario.Step step, List<String> boundParameters) {
+    public StepContext(Scenario.Step step, DslRuntime dsl, ResolvedParameters parameters) {
         this.step = step;
-        this.boundParameters = Collections.unmodifiableList(new ArrayList<>(boundParameters));
-        this.outVarName = step.getOutVarName();
+        this.dsl = dsl;
+        this.parameters = parameters;
+        this.outVarName = step != null ? step.getOutVarName() : null;
     }
 
     public void putOutput(String key, String value) {
@@ -39,9 +39,6 @@ public class StepContext {
     }
 
     public String boundParameter(int index) {
-        if (index < 0 || index >= boundParameters.size()) {
-            return null;
-        }
-        return boundParameters.get(index);
+        return parameters != null ? parameters.get(index) : null;
     }
 }

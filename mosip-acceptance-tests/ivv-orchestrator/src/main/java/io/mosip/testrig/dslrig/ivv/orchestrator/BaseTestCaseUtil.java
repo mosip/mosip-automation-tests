@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.ivv.orchestrator;
 
 import static io.restassured.RestAssured.given;
 
+import java.io.Console;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -60,6 +61,71 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static final long DEFAULT_WAIT_TIME = 30000l;
 	public static final long TIME_IN_MILLISEC = 1000l;
 
+	/**
+	 * Sleeps for the given duration while updating a single console line every second
+	 * (e.g. "Wait: 90 sec remaining" becomes 89, 88 … on the same line).
+	 */
+	public static void sleepWithCountdown(long waitTimeMs) throws InterruptedException {
+		sleepWithCountdown(waitTimeMs, "Waiting");
+	}
+
+	public static void sleepWithCountdown(long waitTimeMs, String label) throws InterruptedException {
+		if (waitTimeMs <= 0) {
+			return;
+		}
+		String prefix = (label == null || label.isBlank()) ? "Waiting" : label.trim();
+		long endTime = System.currentTimeMillis() + waitTimeMs;
+		long totalSeconds = (waitTimeMs + TIME_IN_MILLISEC - 1) / TIME_IN_MILLISEC;
+		Console console = System.console();
+		int printedLength = 0;
+
+		while (true) {
+			long remainingMs = endTime - System.currentTimeMillis();
+			if (remainingMs <= 0) {
+				break;
+			}
+			long remainingSec = (remainingMs + TIME_IN_MILLISEC - 1) / TIME_IN_MILLISEC;
+			String line = String.format("%s: %3d sec remaining", prefix, remainingSec);
+
+			if (console != null) {
+				console.writer().printf("\r%-40s", line);
+				console.writer().flush();
+			} else {
+				if (printedLength > 0) {
+					eraseConsoleLine(printedLength);
+				}
+				System.out.print(line);
+				System.out.flush();
+				printedLength = line.length();
+			}
+
+			Thread.sleep(Math.min(TIME_IN_MILLISEC, remainingMs));
+		}
+
+		String doneLine = String.format("%s: completed (%d sec)", prefix, totalSeconds);
+		if (console != null) {
+			console.writer().printf("\r%-40s%n", doneLine);
+			console.writer().flush();
+		} else {
+			if (printedLength > 0) {
+				eraseConsoleLine(printedLength);
+			}
+			System.out.println(doneLine);
+		}
+	}
+
+	/** Erases {@code length} characters so the next print reuses the same console line. */
+	private static void eraseConsoleLine(int length) {
+		for (int i = 0; i < length; i++) {
+			System.out.print('\b');
+		}
+		for (int i = 0; i < length; i++) {
+			System.out.print(' ');
+		}
+		for (int i = 0; i < length; i++) {
+			System.out.print('\b');
+		}
+	}
 
 	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = 10_000;
 
