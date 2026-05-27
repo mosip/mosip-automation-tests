@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,15 @@ import io.restassured.response.Response;
 
 public class MosipDataSetup {
 	private static final Logger logger = LoggerFactory.getLogger(MosipDataSetup.class);
-	private static String RUN_CONTEXT = "run_context";
+	public static final String RUN_CONTEXT = "run_context";
+
+	/** EhCache copy-on-write requires Serializable values; org.json types are not. */
+	private static final String JSON_OBJECT_CACHE_PREFIX = "JSON_OBJ:";
+	private static final String JSON_ARRAY_CACHE_PREFIX = "JSON_ARR:";
+
+	public static final String AUTH_INTERNAL_USERID_PWD_PATH = "v1/authmanager/authenticate/internal/useridPwd";
+	public static final String AUTH_CLIENT_ID_SECRET_PATH = "v1/authmanager/authenticate/clientidsecretkey";
+	public static final String ID_SCHEMA_LATEST_PATH = "v1/masterdata/idschema/latest";
 
 	public static Properties getConfig(String contextKey) {
 		Properties props = new Properties();
@@ -58,8 +67,8 @@ public class MosipDataSetup {
 	public static Object getCache(String key, String contextKey) {
 
 		try {
-			logger.info("Getting cache for key: " + key + "with context: " + contextKey);
-			return VariableManager.getVariableValue(contextKey, key);
+			logger.debug("Getting cache for key: {} with context: {}", key, contextKey);
+			return fromCacheValue(VariableManager.getVariableValue(contextKey, key));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -68,7 +77,54 @@ public class MosipDataSetup {
 
 	public static void setCache(String key, Object value, String contextKey) {
 
-		VariableManager.setVariableValue(contextKey, key, value);
+		VariableManager.setVariableValue(contextKey, key, toCacheValue(value));
+	}
+
+	public static Object toCacheValue(Object value) {
+		if (value instanceof JSONObject) {
+			return JSON_OBJECT_CACHE_PREFIX + value.toString();
+		}
+		if (value instanceof JSONArray) {
+			return JSON_ARRAY_CACHE_PREFIX + value.toString();
+		}
+		return value;
+	}
+
+	public static Object fromCacheValue(Object value) {
+		if (!(value instanceof String stored)) {
+			return value;
+		}
+		if (stored.startsWith(JSON_OBJECT_CACHE_PREFIX)) {
+			return new JSONObject(new JSONTokener(stored.substring(JSON_OBJECT_CACHE_PREFIX.length())));
+		}
+		if (stored.startsWith(JSON_ARRAY_CACHE_PREFIX)) {
+			return new JSONArray(new JSONTokener(stored.substring(JSON_ARRAY_CACHE_PREFIX.length())));
+		}
+		return value;
+	}
+
+	public static String getRunContextNamespace(String contextKey) {
+		try {
+			Object urlBase = VariableManager.getVariableValue(contextKey, "urlBase");
+			if (urlBase != null) {
+				return urlBase.toString().trim() + RUN_CONTEXT;
+			}
+		} catch (Exception e) {
+			logger.debug("urlBase not set for context {}", contextKey);
+		}
+		return contextKey + RUN_CONTEXT;
+	}
+
+	public static String authCacheKey(String authPath, String credentialFingerprint) {
+		return "auth:" + authPath + ":" + credentialFingerprint;
+	}
+
+	public static void clearRunCache(String contextKey) {
+		try {
+			VariableManager.deleteNameSpace(getRunContextNamespace(contextKey));
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
 	}
 
 	public static void getMachineConfig(String machineName, String contextKey) {

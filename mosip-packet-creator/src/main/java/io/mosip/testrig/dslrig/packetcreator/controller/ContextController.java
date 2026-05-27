@@ -51,6 +51,8 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 import io.mosip.testrig.dslrig.packetcreator.service.CommandsService;
 
+import io.mosip.testrig.dslrig.packetcreator.service.ContextResetService;
+
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
 
 import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
@@ -76,6 +78,10 @@ public class ContextController {
 	@Autowired
 
 	ContextUtils contextUtils;
+
+	@Autowired
+
+	ContextResetService contextResetService;
 
 	@Value("${mosip.test.persona.configpath}")
 
@@ -220,7 +226,9 @@ public class ContextController {
     }
 
 
-    @Operation(summary = "Reset the server context data")
+    @Operation(summary = "Reset the server context data",
+			description = "Full reset: clears packet temp folders, run-scoped MOSIP cache (same as /runCache/clear), "
+					+ "and deletes the entire context variable namespace.")
 
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Context data reset successfully") })
 
@@ -230,17 +238,7 @@ public class ContextController {
 
 		try {
 
-			Object urlBase = VariableManager.getVariableValue(contextKey, "urlBase");
-
-			ContextUtils.clearPacketGenFolders(contextKey);
-
-			VariableManager.deleteNameSpace(contextKey);
-
-			if (urlBase != null) {
-
-				VariableManager.deleteNameSpace(urlBase.toString() + "run_context");
-
-			}
+			contextResetService.resetContextData(contextKey);
 
 			return "true";
 

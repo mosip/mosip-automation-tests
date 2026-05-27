@@ -2,8 +2,10 @@ package io.mosip.testrig.dslrig.dataprovider.preparation;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Queue;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -57,6 +59,8 @@ public  class MosipMasterData {
 	private static final Logger logger = LoggerFactory.getLogger(MosipMasterData.class);
 	public static String RUN_CONTEXT = "run_context";
 
+	private static final String[] STANDARD_DOC_CATEGORIES = { "POA", "POI", "POE", "POR", "COE" };
+
 	public static List<MosipBiometricAttributeModel> getBiometricAttrByTypes(String bioType,String lang,String contextKey){
 
 		List<MosipBiometricAttributeModel> biotypes =null;
@@ -64,9 +68,6 @@ public  class MosipMasterData {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"biometricAttributes").toString();
 		url = url + lang + "/" + bioType;
-		Object o = MosipDataSetup.getCache(url,contextKey);
-		if(o != null)
-			return( (List<MosipBiometricAttributeModel>) o);
 		try {
 			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
 			if(resp != null) {
@@ -75,8 +76,6 @@ public  class MosipMasterData {
 
 				 biotypes = objectMapper.readValue(langArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipBiometricAttributeModel.class));
-
-				 MosipDataSetup.setCache(url,  biotypes,contextKey);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -93,9 +92,6 @@ public  class MosipMasterData {
 
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"biometricTypes").toString();
-		Object o = MosipDataSetup.getCache(url,contextKey);
-		if(o != null)
-			return( (List<MosipBiometricTypeModel>) o);
 		try {
 			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
 			if(resp != null) {
@@ -104,8 +100,6 @@ public  class MosipMasterData {
 
 				 biotypes = objectMapper.readValue(langArray.toString(), 
 						objectMapper.getTypeFactory().constructCollectionType(List.class, MosipBiometricTypeModel.class));
-
-				 MosipDataSetup.setCache(url,  biotypes,contextKey);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -222,8 +216,9 @@ public  class MosipMasterData {
 
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"locationhierarchy").toString();
-		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
-		Object o = MosipDataSetup.getCache(url,run_context);
+		String run_context = MosipDataSetup.getRunContextNamespace(contextKey);
+		String cacheKey = url + langCode;
+		Object o = MosipDataSetup.getCache(cacheKey, run_context);
 		if(o != null)
 			return( (LocationHierarchyModel[]) o);
 
@@ -248,7 +243,7 @@ public  class MosipMasterData {
 					}
 				}
 
-				MosipDataSetup.setCache(url, locationHierarchy,run_context);
+				MosipDataSetup.setCache(cacheKey, locationHierarchy, run_context);
 
 			}
 		} catch (Exception e) {
@@ -264,8 +259,8 @@ public  class MosipMasterData {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
 		"v1/masterdata/locations/immediatechildren/";
 		url = url+ locCode + "/" + langCode ;
-		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
-		Object o = MosipDataSetup.getCache(url,run_context);
+		String run_context = MosipDataSetup.getRunContextNamespace(contextKey);
+		Object o = MosipDataSetup.getCache(url, run_context);
 		if(o != null)
 			return( (List<MosipLocationModel>) o);
 
@@ -490,20 +485,15 @@ public  class MosipMasterData {
 	 }
 
 	public static String getIDSchemaSchemaLatestVersion(String contextKey) {
-		String schemaJson = null;
-
-		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(VariableManager.NS_DEFAULT,"idschemaapi").toString();
-	    try {
-				JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject(),contextKey);
-
-				schemaJson = resp.getString("schemaJson");
-
-
+		try {
+			JSONObject resp = fetchIdSchemaLatestResponse(contextKey);
+			if (resp != null) {
+				return resp.getString("schemaJson");
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-	    return schemaJson;
+		return null;
 	}
 	public static void test1() {
 
@@ -513,24 +503,23 @@ public  class MosipMasterData {
 
 	public static Hashtable<Double, Properties> getIDSchemaLatestVersion(String contextKey) {
 	    Hashtable<Double, Properties> tbl = new Hashtable<>();
-	    String url = VariableManager.getVariableValue(contextKey, "urlBase").toString() +
-	                 VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "idschemaapi").toString();
+	    String url = getIdSchemaLatestUrl(contextKey);
 	    String run_context = VariableManager.getVariableValue(contextKey, "urlBase").toString() + RUN_CONTEXT;
-	    String process = VariableManager.getVariableValue(contextKey, "process").toString();
-	    if (process == null) {
-	        process = "NEW";
-	    }
-	    process = process.toLowerCase().trim() + "Process";
-	    Object o = MosipDataSetup.getCache(url,run_context);
+	    String processKey = resolveIdSchemaProcessKey(contextKey);
+	    String parsedCacheKey = idSchemaLatestParsedCacheKey(url, processKey);
+	    Object o = MosipDataSetup.getCache(parsedCacheKey, run_context);
 	    if (o != null) {
 	        return (Hashtable<Double, Properties>) o;
 	    }
 	    try {
-	        JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject(), contextKey);
+	        JSONObject resp = fetchIdSchemaLatestResponse(contextKey);
+	        if (resp == null) {
+	            return tbl;
+	        }
 	        JSONArray idSchema = new JSONArray();
 	        double schemaVersion = 0.0;
 	        String schemaTitle = "";
-	        JSONArray screens = resp.getJSONObject(process).getJSONArray("screens");
+	        JSONArray screens = resp.getJSONObject(processKey).getJSONArray("screens");
 	        for (int i = 0; i < screens.length(); i++) {
 	            JSONArray fields = screens.getJSONObject(i).getJSONArray("fields");
 	            for (int j = 0; j < fields.length(); j++) {
@@ -573,13 +562,62 @@ public  class MosipMasterData {
 	                prop.put("schemaList", listSchema);
 	                prop.put("requiredAttributes", requiredAttributes);
 	                tbl.put(schemaVersion, prop);
-	                MosipDataSetup.setCache(url, tbl, run_context);
+	                MosipDataSetup.setCache(parsedCacheKey, tbl, run_context);
 	            }
 	        }
 	    } catch (Exception e) {
 	        logger.error("Error processing ID schema: " + e.getMessage(), e);
 	    }
 	    return tbl;
+	}
+
+	private static String getIdSchemaLatestUrl(String contextKey) {
+		return VariableManager.getVariableValue(contextKey, "urlBase").toString()
+				+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "idschemaapi").toString();
+	}
+
+	private static String resolveIdSchemaProcessKey(String contextKey) {
+		String process = "NEW";
+		try {
+			Object processObj = VariableManager.getVariableValue(contextKey, "process");
+			if (processObj != null && !processObj.toString().isBlank()) {
+				process = processObj.toString();
+			}
+		} catch (Exception e) {
+			logger.debug("process not set for {}, defaulting to NEW", contextKey);
+		}
+		return process.toLowerCase().trim() + "Process";
+	}
+
+	private static String idSchemaLatestResponseCacheKey(String url) {
+		return url + "#idschemaLatestResponse";
+	}
+
+	private static String idSchemaLatestParsedCacheKey(String url, String processKey) {
+		return url + "#idschemaLatestParsed#" + processKey;
+	}
+
+	/**
+	 * Single HTTP GET to {@code v1/masterdata/idschema/latest} per run (cached in {@code urlBase + run_context}).
+	 */
+	private static JSONObject fetchIdSchemaLatestResponse(String contextKey) {
+		String url = getIdSchemaLatestUrl(contextKey);
+		String run_context = VariableManager.getVariableValue(contextKey, "urlBase").toString() + RUN_CONTEXT;
+		String cacheKey = idSchemaLatestResponseCacheKey(url);
+		Object cached = MosipDataSetup.getCache(cacheKey, run_context);
+		if (cached instanceof JSONObject) {
+			return (JSONObject) cached;
+		}
+		try {
+			JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject(), contextKey);
+			if (resp != null) {
+				MosipDataSetup.setCache(cacheKey, resp, run_context);
+			}
+			return resp;
+		} catch (Exception e) {
+			logger.error("GET idschema/latest failed for {}: {}", url, e.getMessage());
+			return null;
+		}
 	}
 
 	private static String buildUrl(String baseUrl, String apiPath) {
@@ -728,10 +766,12 @@ public  class MosipMasterData {
 				).toString();
 
 		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
+		String cacheKey = url + "#preregSchemaParsed";
 
-		Object o = MosipDataSetup.getCache(url,run_context);
-		if(o != null)
-			return( (Hashtable<Double,Properties>) o);
+		Object o = MosipDataSetup.getCache(cacheKey, run_context);
+		if (o instanceof Hashtable) {
+			return (Hashtable<Double, Properties>) o;
+		}
 
         try {
 			JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject(),contextKey);
@@ -768,7 +808,7 @@ public  class MosipMasterData {
 
 				tbl.put(resp.getDouble("idSchemaVersion"), prop);
 
-				MosipDataSetup.setCache(url, tbl,run_context);
+				MosipDataSetup.setCache(cacheKey, tbl, run_context);
 			}
 
 		} catch (Exception e) {
@@ -1182,21 +1222,11 @@ public  class MosipMasterData {
 	}
 
 	public static String getIDschemaStringLatest(String contextKey){
-
-		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString() +
-				VariableManager.getVariableValue(
-				VariableManager.NS_DEFAULT,
-
-				"idschemaapi"
-				).toString();
-
-
 		try {
-			JSONObject resp = RestClient.get(url, genQueryParams(), new JSONObject(),contextKey);
-
-			return resp.toString();
-
-
+			JSONObject resp = fetchIdSchemaLatestResponse(contextKey);
+			if (resp != null) {
+				return resp.toString();
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -1301,9 +1331,11 @@ public  class MosipMasterData {
 		String url = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim() +"preregistration/v1/uispec/latest?identitySchemaVersion=0&version=0";
 
 		String run_context = VariableManager.getVariableValue(contextKey,"urlBase").toString() + RUN_CONTEXT;
-		Object o = MosipDataSetup.getCache(url,run_context);
-		if(o != null)
-			return( (JSONArray) o);
+		String cacheKey = url + "#uiSpecRequiredFieldIds";
+		Object o = MosipDataSetup.getCache(cacheKey, run_context);
+		if (o instanceof JSONArray) {
+			return new JSONArray(o.toString());
+		}
 
 		try {
 			JSONObject resp = RestClient.get(url,new JSONObject() , new JSONObject(),contextKey);
@@ -1319,7 +1351,7 @@ public  class MosipMasterData {
 				logger.info("printing Array : "+ array);
 
 
-				MosipDataSetup.setCache(url, array, run_context);
+				MosipDataSetup.setCache(cacheKey, array, run_context);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -1423,5 +1455,61 @@ public  class MosipMasterData {
 			});
 
 		}
+	}
+
+	/**
+	 * Pre-loads {@code validdocuments/{category}/{lang}} into run cache.
+	 */
+	public static int warmValidDocumentsCache(String contextKey, List<String> langCodes) {
+		int warmed = 0;
+		for (String langCode : langCodes) {
+			for (String category : STANDARD_DOC_CATEGORIES) {
+				try {
+					List<MosipDocTypeModel> docs = getMappedDocumentTypes(category, langCode, contextKey);
+					if (docs != null) {
+						warmed++;
+					}
+				} catch (Exception e) {
+					logger.debug("warmValidDocumentsCache {}/{} failed: {}", category, langCode, e.getMessage());
+				}
+			}
+		}
+		return warmed;
+	}
+
+	/**
+	 * Breadth-first walk of location tree; each {@code immediatechildren} URL is cached for the run.
+	 */
+	public static int warmLocationImmediateChildrenCache(String contextKey, List<String> langCodes, int maxCallsPerLang) {
+		int warmed = 0;
+		try {
+			MosipPreRegLoginConfig config = getPreregLoginConfig(contextKey);
+			String countryCode = config.getMosip_country_code();
+			if (countryCode == null || countryCode.isBlank()) {
+				return 0;
+			}
+			for (String langCode : langCodes) {
+				Queue<String> queue = new ArrayDeque<>();
+				queue.add(countryCode);
+				int calls = 0;
+				while (!queue.isEmpty() && calls < maxCallsPerLang) {
+					String locCode = queue.poll();
+					List<MosipLocationModel> children = getImmedeateChildren(locCode, langCode, contextKey);
+					calls++;
+					warmed++;
+					if (children == null || children.isEmpty()) {
+						continue;
+					}
+					for (MosipLocationModel child : children) {
+						if (child != null && Boolean.TRUE.equals(child.getIsActive()) && child.getCode() != null) {
+							queue.add(child.getCode());
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.warn("warmLocationImmediateChildrenCache failed: {}", e.getMessage());
+		}
+		return warmed;
 	}
 }
