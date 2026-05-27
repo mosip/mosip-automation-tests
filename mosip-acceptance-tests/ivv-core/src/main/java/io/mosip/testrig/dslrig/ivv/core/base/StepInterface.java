@@ -12,11 +12,6 @@ import io.mosip.testrig.dslrig.ivv.core.dtos.Store;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 
-/**
- * Executable DSL step. Full lifecycle:
- * parse (ivv-parser) → bind/prepare/execute/publish ({@link PipelineStep}) →
- * assert (orchestrator, after {@link #run()}).
- */
 public interface StepInterface {
     Boolean hasError();
 

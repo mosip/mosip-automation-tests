@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -39,7 +40,6 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.util.SensitiveLogMasker;
 import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.base.BaseStep;
-import io.mosip.testrig.dslrig.ivv.core.pipeline.StepBinder;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
@@ -634,11 +634,37 @@ public class BaseTestCaseUtil extends BaseStep {
 	}
 
 	protected static boolean referencesScenarioVariable(Scenario.Step step, String value) {
-		return StepBinder.referencesScenarioVariable(step, value);
+		if (org.apache.commons.lang.StringUtils.isBlank(value)) {
+			return false;
+		}
+		String normalized = value.trim().replaceAll("/\\*[^*]*\\*/", "").trim();
+		if (normalized.startsWith("$$")) {
+			return true;
+		}
+		return step.getScenario().getVariables().containsKey("$$" + toDslVariableName(normalized));
 	}
 
 	protected static String resolveScenarioVariable(Scenario.Step step, String value) throws RigInternalError {
-		return StepBinder.resolveScenarioVariable(step, value);
+		if (org.apache.commons.lang.StringUtils.isBlank(value)) {
+			return value;
+		}
+		String normalized = value.trim().replaceAll("/\\*[^*]*\\*/", "").trim();
+		if (normalized.startsWith("$$")) {
+			String resolved = step.getScenario().getVariables().get(normalized);
+			if (resolved != null && !resolved.isBlank()) {
+				return resolved;
+			}
+			throw new RigInternalError("Scenario variable is not set or empty: " + normalized);
+		}
+		String variableKey = "$$" + toDslVariableName(normalized);
+		if (step.getScenario().getVariables().containsKey(variableKey)) {
+			String resolved = step.getScenario().getVariables().get(variableKey);
+			if (resolved != null && !resolved.isBlank()) {
+				return resolved;
+			}
+			throw new RigInternalError("Scenario variable is not set or empty: " + variableKey);
+		}
+		return normalized;
 	}
 
 	/**
@@ -662,7 +688,7 @@ public class BaseTestCaseUtil extends BaseStep {
 			throw new RigInternalError(label + " is not set or empty: " + normalized);
 		}
 		if (!normalized.startsWith("$$") && resolved.equals(normalized)) {
-			String variableKey = "$$" + StepBinder.toDslVariableName(normalized);
+			String variableKey = "$$" + toDslVariableName(normalized);
 			if (step.getScenario().getVariables().containsKey(variableKey)) {
 				throw new RigInternalError(label + " must reference scenario variable " + variableKey
 						+ " in DSL (got unresolved literal [" + normalized + "])");
@@ -673,6 +699,24 @@ public class BaseTestCaseUtil extends BaseStep {
 		if (!resolved.contains("/") && !resolved.contains("\\")) {
 			throw new RigInternalError(label + " is not a valid file path: [" + resolved + "]");
 		}
+	}
+
+	private static String toDslVariableName(String displayName) {
+		String[] words = displayName.trim().split("\\s+");
+		if (words.length == 0) {
+			return displayName;
+		}
+		StringBuilder sb = new StringBuilder(words[0].toLowerCase(Locale.ROOT));
+		for (int i = 1; i < words.length; i++) {
+			String w = words[i];
+			if (!w.isEmpty()) {
+				sb.append(Character.toUpperCase(w.charAt(0)));
+				if (w.length() > 1) {
+					sb.append(w.substring(1).toLowerCase(Locale.ROOT));
+				}
+			}
+		}
+		return sb.toString();
 	}
 
 	/** Fail fast when MOSIP returns {@code errors} or a null {@code response} body. */
