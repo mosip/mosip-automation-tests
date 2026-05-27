@@ -23,7 +23,7 @@ public abstract class HttpPipelineStep extends BaseTestCaseUtil implements StepI
 
     @Override
     public final void run() throws RigInternalError, FeatureNotSupportedError {
-        context = StepBinder.bind(step);
+        context = StepBinder.bind(step, store);
         prepareRequest();
         RequestDataDTO request = buildRequest();
         if (request != null) {

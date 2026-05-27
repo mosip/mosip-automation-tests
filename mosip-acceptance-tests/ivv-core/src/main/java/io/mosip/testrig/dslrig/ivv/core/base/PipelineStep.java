@@ -16,7 +16,9 @@ import io.mosip.testrig.dslrig.ivv.core.pipeline.StepOutputs;
  *   <li>assert — orchestrator (HTTP status, error middleware, MOSIP body)</li>
  *   <li>publish — {@link #publishOutputs()}</li>
  * </ol>
- * MOSIP-specific steps should stay thin: bind parameters here, delegate domain work to helpers.
+ * MOSIP-specific steps should stay thin: use {@link io.mosip.testrig.dslrig.ivv.core.dsl.DslRuntime}
+ * via {@link #context} ({@code context.getDsl().resolve(...)} / {@code context.boundParameter(i)}),
+ * delegate domain work to helpers.
  */
 public abstract class PipelineStep extends BaseStep implements StepInterface {
 
@@ -30,9 +32,9 @@ public abstract class PipelineStep extends BaseStep implements StepInterface {
         publishOutputs();
     }
 
-    /** Resolve {@code $$} variables into {@link #context}. */
+    /** Resolve all step parameters through {@link io.mosip.testrig.dslrig.ivv.core.dsl.DslRuntime}. */
     protected void bind() throws RigInternalError {
-        context = StepBinder.bind(step);
+        context = StepBinder.bind(step, store);
     }
 
     /** Build requests, load templates, validate parameters. */

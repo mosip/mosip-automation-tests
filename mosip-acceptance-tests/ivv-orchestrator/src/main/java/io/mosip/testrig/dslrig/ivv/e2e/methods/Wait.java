@@ -63,7 +63,7 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 			String finalMsg = " Wait Time  " + (waitTime / 1000) + " seconds";
 			logger.info(finalMsg);
 			Reporter.log(finalMsg, true);
-			Thread.sleep(waitTime);
+			sleepWithCountdown(waitTime, "Wait");
 
 		} catch (NumberFormatException e) {
 			logger.error("Invalid wait time format: " + e.getMessage());

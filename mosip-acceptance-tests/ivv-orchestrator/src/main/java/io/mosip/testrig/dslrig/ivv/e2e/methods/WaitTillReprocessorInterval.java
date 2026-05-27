@@ -30,7 +30,7 @@ public class WaitTillReprocessorInterval extends BaseTestCaseUtil implements Ste
 
 		try {
 			Reporter.log("Total waiting for: " + waitTime / 1000 + " Sec" + " Starting Waiting: " + getDateTime());
-			Thread.sleep(waitTime);
+			sleepWithCountdown(waitTime, "Reprocessor wait");
 			Reporter.log("Waiting Done: " + getDateTime());
 		} catch (NumberFormatException e) {
 			logger.error(e.getMessage());
