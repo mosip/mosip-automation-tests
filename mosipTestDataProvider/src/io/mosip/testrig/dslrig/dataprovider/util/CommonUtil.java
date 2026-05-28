@@ -85,26 +85,75 @@ public class CommonUtil {
 			throw new IOException("Invalid output path");
 		}
 
-		Path normalizedPath = normalizeAbsolute(Paths.get(outputPath));
-		if (normalizedPath.toString().contains("..")) {
+		Path resolved = Paths.get(outputPath).toAbsolutePath().normalize();
+		if (resolved.toString().contains("..")) {
 			throw new IOException("Invalid output path");
 		}
 
-		Path parent = normalizedPath.getParent();
+		Path parent = resolved.getParent();
 		if (parent == null) {
 			throw new IOException("Invalid output path");
 		}
 
-		Path osTempRoot = getOsTempRoot();
-		Path ctxTempRoot = getContextTempRoot(contextKey);
-		boolean allowed = (osTempRoot != null && normalizedPath.startsWith(osTempRoot))
-				|| (ctxTempRoot != null && normalizedPath.startsWith(ctxTempRoot));
-		if (!allowed) {
-			throw new IOException("Refusing to write file outside allowed temp roots: " + normalizedPath);
+		Path matchedRoot = findMatchingAllowedRoot(resolved, contextKey);
+		if (matchedRoot == null) {
+			throw new IOException("Output path is outside allowed temp roots");
 		}
 
-		Files.createDirectories(parent);
-		return normalizedPath;
+		if (!resolved.startsWith(matchedRoot)) {
+			throw new IOException("Path traversal attempt detected");
+		}
+
+		Path safePath = buildPathUnderRoot(matchedRoot, resolved);
+		if (!safePath.startsWith(matchedRoot)) {
+			throw new IOException("Path traversal attempt detected");
+		}
+		if (safePath.toString().contains("..")) {
+			throw new IOException("Invalid output path");
+		}
+
+		Path safeParent = safePath.getParent();
+		if (safeParent == null || !safeParent.startsWith(matchedRoot)) {
+			throw new IOException("Invalid output path");
+		}
+		Files.createDirectories(safeParent);
+		return safePath;
+	}
+
+	private static Path findMatchingAllowedRoot(Path candidate, String contextKey) {
+		Path osTempRoot = getOsTempRoot();
+		if (osTempRoot != null && candidate.startsWith(osTempRoot)) {
+			return osTempRoot;
+		}
+
+		Path ctxTempRoot = getContextTempRoot(contextKey);
+		if (ctxTempRoot != null && candidate.startsWith(ctxTempRoot)) {
+			return ctxTempRoot;
+		}
+
+		return null;
+	}
+
+	private static Path buildPathUnderRoot(Path root, Path candidate) throws IOException {
+		Path relative = root.relativize(candidate.normalize());
+		if (containsUnsafePathComponent(relative)) {
+			throw new IOException("Invalid output path");
+		}
+		Path safePath = root;
+		for (int i = 0; i < relative.getNameCount(); i++) {
+			safePath = safePath.resolve(relative.getName(i));
+		}
+		return safePath.normalize().toAbsolutePath();
+	}
+
+	private static boolean containsUnsafePathComponent(Path relative) {
+		for (Path component : relative) {
+			String name = component.toString();
+			if (name.equals("..") || name.equals(".") || name.isEmpty()) {
+				return true;
+			}
+		}
+		return relative.toString().contains("..");
 	}
 
 	public static void initializeUTCDateFormat(String contextKey) {
