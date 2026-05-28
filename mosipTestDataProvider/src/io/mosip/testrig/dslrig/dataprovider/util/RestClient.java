@@ -110,11 +110,12 @@ public class RestClient {
 	}
 
 	/**
-	 * @deprecated Prefer {@link #clearRunScopedCache(String)} for a single DSL context.
+	 * @deprecated Use {@link #clearRunScopedCache(String)} — global token clearing is unsafe under parallel runs.
 	 */
 	@Deprecated
 	public static void clearToken() {
-		AuthTokenStore.clearAll();
+		throw new UnsupportedOperationException(
+				"Global clearToken() clears all contexts; use clearRunScopedCache(contextKey) instead.");
 	}
 
 	public static void clearRunScopedCache(String contextKey) {

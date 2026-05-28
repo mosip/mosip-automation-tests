@@ -54,8 +54,7 @@ public final class AuthTokenStore {
 	}
 
 	/**
-	 * Clears tokens for every context. Avoid during parallel DSL runs; prefer
-	 * {@link #clearContext(String)} via {@code clearRunScopedCache}.
+	 * Clears tokens for every context. Test-only — unsafe during parallel DSL runs.
 	 */
 	public static void clearAll() {
 		BY_CONTEXT.clear();

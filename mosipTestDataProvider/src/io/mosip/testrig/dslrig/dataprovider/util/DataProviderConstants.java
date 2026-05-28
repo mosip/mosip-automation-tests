@@ -22,8 +22,6 @@ public class DataProviderConstants {
 	public static String COUNTRY_CODE ="IN";
 	public static String DOC_TEMPLATE_PATH=  "documents/templates/";
 	public static String LANG_CODE_ENGLISH = "eng";
-	public static String ANGULI_PATH ="C:\\Mosip.io\\gitrepos\\biometric-data\\anguli"	;
-
 
 	public static String [] schemaNames = {
 			"leftThumb",
