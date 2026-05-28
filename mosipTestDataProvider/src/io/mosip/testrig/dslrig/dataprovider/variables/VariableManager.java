@@ -2,11 +2,8 @@ package io.mosip.testrig.dslrig.dataprovider.variables;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -25,9 +22,6 @@ public final class VariableManager {
 	private static final Logger logger = LoggerFactory.getLogger(VariableManager.class);
 	public static String CONFIG_PATH = DataProviderConstants.RESOURCE + "config/";
 	public static String NS_DEFAULT = "mosipdefault";
-
-	private static String VAR_SUBSTITUE_PATTERN = "\\{\\{%s\\}\\}";
-	private static String VAR_FIND_PATTERN = "\\{\\{[_a-zA-Z]+[0-9]*[\\.]?[_a-zA-Z]+[0-9]*\\}\\}";
 
 	static Hashtable<String, Cache<String, Object>> varNameSpaces;
 	static MutableConfiguration<String, Object> cacheConfig;
@@ -109,24 +103,15 @@ public final class VariableManager {
 }
 
 	public static String[] findVariables(String text) {
+		return VariableSubstitution.findVariables(text);
+	}
 
-		HashSet<String> set = new HashSet<String>();
-
-		Pattern pattern = Pattern.compile(VAR_FIND_PATTERN);
-		Matcher matcher = pattern.matcher(text);
-		while (matcher.find()) {
-			String extract = text.substring(matcher.start(), matcher.end());
-
-			if (extract != null && extract.startsWith("{{"))
-				extract = extract.substring(2);
-			if (extract != null && extract.endsWith("}}"))
-				extract = extract.substring(0, extract.length() - 2);
-
-			set.add(extract.trim());
-
-		}
-		String[] a = new String[set.size()];
-		return set.toArray(a);
+	/**
+	 * Replaces all {@code {{variable}}} placeholders using values from {@code contextKey} and
+	 * {@link #NS_DEFAULT} (including {@code {{default.name}}} aliases).
+	 */
+	public static String substituteAll(String text, String contextKey) {
+		return VariableSubstitution.substituteAll(text, contextKey);
 	}
 
 	public static Object getVariableValue(String contextKey, String varName) {
@@ -204,10 +189,9 @@ public final class VariableManager {
 		logger.info(s.toString());
 	}
 
+	@Deprecated
 	static String substituteVaraiable(String text, String varName, String varValue) {
-		String formatVarName = String.format(VAR_SUBSTITUE_PATTERN, varName);
-		return text.replaceAll(formatVarName, varValue);
-
+		return VariableSubstitution.substituteOne(text, varName, varValue);
 	}
 
 	public static void main(String[] args) {

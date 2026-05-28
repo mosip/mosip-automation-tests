@@ -15,6 +15,10 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 /**
  * Pre-loads MOSIP masterdata and auth tokens into the per-run cache ({@code urlBase + run_context})
  * so packet generation does not repeat the same GET/POST calls for every scenario.
+ * <p>
+ * Suite flow: {@code POST /runCache/warm/{contextKey}} once per worker → scenarios →
+ * {@code POST /runCache/clear/{contextKey}}. Cached via {@link MasterdataCache} (keys {@code md:get:*},
+ * {@code md:entity:*}). See {@link MasterdataCache#WARM_OPERATIONS}.
  */
 public final class RunCacheService {
 
@@ -26,10 +30,16 @@ public final class RunCacheService {
 	public static Map<String, Object> warm(String contextKey) {
 		Map<String, Object> summary = new LinkedHashMap<>();
 		summary.put("contextKey", contextKey);
+		summary.put("masterdataCacheVersion", MasterdataCache.CACHE_VERSION);
 
 		try {
 			Object urlBase = VariableManager.getVariableValue(contextKey, "urlBase");
-			summary.put("urlBase", urlBase != null ? urlBase.toString() : "unknown");
+			if (urlBase == null || urlBase.toString().isBlank()) {
+				summary.put("urlBase", "missing");
+				logger.warn("Run cache warm: urlBase not set for context {}", contextKey);
+				return summary;
+			}
+			summary.put("urlBase", urlBase.toString().trim());
 		} catch (Exception e) {
 			summary.put("urlBase", "missing");
 			logger.warn("Run cache warm: urlBase not set for context {}", contextKey);

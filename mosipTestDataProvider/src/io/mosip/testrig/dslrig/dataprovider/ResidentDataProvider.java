@@ -1,50 +1,27 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
-import java.io.IOException;
-import java.security.SecureRandom;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.lowagie.text.DocumentException;
-
 import io.mosip.testrig.dslrig.dataprovider.mds.MDSClient;
-import io.mosip.testrig.dslrig.dataprovider.models.ApplicationConfigIdSchema;
 import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
-import io.mosip.testrig.dslrig.dataprovider.models.Contact;
-import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldModel;
-import io.mosip.testrig.dslrig.dataprovider.models.DynamicFieldValueModel;
 import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipDocument;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipGenderModel;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipIndividualTypeModel;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipLanguage;
-import io.mosip.testrig.dslrig.dataprovider.models.MosipPreRegLoginConfig;
-import io.mosip.testrig.dslrig.dataprovider.models.Name;
-import io.mosip.testrig.dslrig.dataprovider.models.NrcId;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
-import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
+import io.mosip.testrig.dslrig.dataprovider.persona.PersonaBiometricsAssembler;
+import io.mosip.testrig.dslrig.dataprovider.persona.PersonaDemographicsBuilder;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
-import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.ResidentAttribute;
-import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
-import io.mosip.testrig.dslrig.dataprovider.util.Translator;
-import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 
 public class ResidentDataProvider {
 	private static final Logger logger = LoggerFactory.getLogger(ResidentDataProvider.class);
-	private static SecureRandom  rand = new SecureRandom ();
 	private static final Set<String> SINGLE_FINGER_TYPES = Set.of(
 	        "rightindex",
 	        "rightlittle",
@@ -58,35 +35,34 @@ public class ResidentDataProvider {
 	        "rightthumb"
 	);
 
-		Properties attributeList;
+	Properties attributeList;
 
 
 	public ResidentDataProvider() {
 		attributeList = new Properties();
-
-
-		RestClient.clearToken();
 	}
 
 	public ResidentDataProvider addCondition(ResidentAttribute attributeName, Object attributeValue) {
 		attributeList.put(attributeName, attributeValue);
 		return this;
 	}
-	public static ResidentModel genGuardian(Properties attributes,String contextKey) throws Exception {
+
+	public static ResidentModel genGuardian(Properties attributes, String contextKey) throws Exception {
 		Properties attributeList = new Properties();
-		attributes.forEach( (k,v) ->{
-			attributeList.put(k, v);
-		});
+		attributes.forEach((k, v) -> attributeList.put(k, v));
 
 		attributeList.put(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
 		attributeList.put(ResidentAttribute.RA_Gender, Gender.Any);
 
 		ResidentDataProvider provider = new ResidentDataProvider();
 		provider.attributeList = attributeList;
-		ResidentModel guardian = provider.generate(contextKey).get(0);
-		return guardian;
+		return provider.generate(contextKey).get(0);
 	}
-	public static ResidentModel updateBiometric(ResidentModel model,String bioType,String contextKey) throws Exception {
+
+	public static ResidentModel updateBiometric(ResidentModel model, String bioType, String contextKey)
+			throws Exception {
+		PersonaBiometricsAssembler.ensureAssembled(model, PersonaBiometricsAssembler.hintsFromResident(model),
+				contextKey);
 		boolean bDirty = false;
 		model.setFilteredBioAttribtures(null);
 		if (bioType.equalsIgnoreCase("finger")) {
@@ -97,7 +73,7 @@ public class ResidentDataProvider {
 			model.setSkipFinger(false);
 			bDirty = true;
 		} else if (SINGLE_FINGER_TYPES.contains(bioType.toLowerCase())) {
-			BiometricDataModel bioData = BiometricDataProvider.updateSelectedFingerData(model ,contextKey, bioType);
+			BiometricDataModel bioData = BiometricDataProvider.updateSelectedFingerData(model, contextKey, bioType);
 			model.getBiometric().setFingerPrint(bioData.getFingerPrint());
 			model.getBiometric().setFingerHash(bioData.getFingerHash());
 			model.getBiometric().setFingerRaw(bioData.getFingerRaw());
@@ -121,24 +97,25 @@ public class ResidentDataProvider {
 			}
 		}
 
-		if(bioType.equalsIgnoreCase("face")) {
+		if (bioType.equalsIgnoreCase("face")) {
 			BiometricDataModel bioData = model.getBiometric();
 			byte[][] faceData = BiometricDataProvider.updateFaceData(contextKey);
-			bioData.setEncodedPhoto(
-					Base64.getEncoder().encodeToString(faceData[0]));
+			bioData.setEncodedPhoto(Base64.getEncoder().encodeToString(faceData[0]));
 			bioData.setRawFaceData(faceData[1]);
-
-			bioData.setFaceHash(CommonUtil.getHexEncodedHash( faceData[1]));
+			bioData.setFaceHash(CommonUtil.getHexEncodedHash(faceData[1]));
 			bDirty = true;
 		}
 
-		  if(bDirty) model.getBiometric().setCbeff(null);
+		if (bDirty) {
+			model.getBiometric().setCbeff(null);
+		}
 
 		return model;
 	}
 
 	public static ResidentModel updateBiometricWithTestPersona(ResidentModel model, ResidentModel testModel,
 			String bioType, String contextKey) throws Exception {
+		PersonaBiometricsAssembler.ensureBiometricShell(model);
 		model.setFilteredBioAttribtures(null);
 		boolean bDirty = false;
 		if (bioType.equalsIgnoreCase("finger")) {
@@ -157,398 +134,24 @@ public class ResidentDataProvider {
 			model.getBiometric().setRawFaceData(testModel.getBiometric().getRawFaceData());
 			bDirty = true;
 		}
-		 if(bDirty) {
-			 model.setFilteredBioAttribtures(null);
-			 model.getBiometric().setCbeff(null);
-		 }
+		if (bDirty) {
+			model.setFilteredBioAttribtures(null);
+			model.getBiometric().setCbeff(null);
+		}
 		return model;
 	}
 
-	private static String[] getConfiguredLanguages(String contextKey) {
-		String [] lang_arr = null;
-		List<String> langs= new ArrayList<String>();
-		List<MosipLanguage> allLang = null;
-		try {
-			allLang = MosipMasterData.getConfiguredLanguages(contextKey);
-		}catch(Exception e) {
-			logger.error(e.getMessage());
-		}
-
-		MosipPreRegLoginConfig  preregconfig = MosipMasterData.getPreregLoginConfig(contextKey);
-		if(preregconfig == null) {
-
-			try {
-
-				lang_arr = new String[allLang.size()];
-				int i=0;
-				for(MosipLanguage l: allLang){
-					lang_arr[i]= l.getIso2();
-					i++;
-				}
-			}catch(Exception e) {
-				logger.error(e.getMessage());
-			}
-			return lang_arr;
-		}
-
-		String primary_lang = preregconfig.getMosip_primary_language();
-		if(primary_lang != null)
-			langs.add(primary_lang);
-
-
-		String mandatory_languages_list =preregconfig.getMandatory_languages();
-		 String[] mandatlangueages = null;
-		if(mandatory_languages_list !=null && !mandatory_languages_list.equals("")) {
-			  mandatlangueages = mandatory_languages_list.split(",");
-		}
-		int minLanguages=Integer.parseInt(preregconfig.getMin_languages_count());
-		String opt_lang_list = preregconfig.getOptional_languages();
-		String[] opt_langs = null;
-		if(opt_lang_list != null && !opt_lang_list.equals("")) {
-			opt_langs = opt_lang_list.split(",");
-		}
-		if(mandatlangueages != null && mandatlangueages.length > 0 ) {
-			for(int i=0; i < mandatlangueages.length; i++)
-				langs.add( mandatlangueages[i]);
-		}
-		if(opt_langs != null && opt_langs.length >0) {
-			for(int i=0; i < opt_langs.length; i++)
-				langs.add( opt_langs[i]);
-		}
-
-		if(minLanguages > 0  && langs.size() < minLanguages && allLang != null ) {
-			int n2add = minLanguages - langs.size();
-			for(int i= 0; i < allLang.size() && i < n2add; i++ ) {
-				langs.add( allLang.get(i).getIso2());
-			}
-		}
-		lang_arr = new String [ minLanguages > 0 ? minLanguages : langs.size()];
-		return langs.toArray(lang_arr);
-	}
-
-
 	public List<ResidentModel> generate(String contextKey) throws Exception {
+		List<ResidentModel> residents = new ArrayList<>();
+		boolean lazyBiometrics = PersonaBiometricsAssembler.isLazyEnabled(contextKey);
+		PersonaDemographicsBuilder.Context demoCtx = PersonaDemographicsBuilder.prepare(attributeList, contextKey);
 
-		List<ResidentModel> residents = new ArrayList<ResidentModel>();
-
-		int count = 1;
-		Gender gender =  (Gender) attributeList.get(ResidentAttribute.RA_Gender);
-		String primary_lang = (String) attributeList.get(ResidentAttribute.RA_PRIMARAY_LANG);
-		String sec_lang = (String) attributeList.get(ResidentAttribute.RA_SECONDARY_LANG);
-		String override_primary_lan = primary_lang;
-		String override_sec_lang = sec_lang;
-		String third_lang = (String) attributeList.get(ResidentAttribute.RA_THIRD_LANG);
-
-		Object oAttr = attributeList.get(ResidentAttribute.RA_SCHEMA_VERSION);
-		double schemaVersion = (oAttr == null) ? 0: (double)oAttr;
-		VariableManager.setVariableValue(contextKey,"schemaVersion", schemaVersion);
-
-
-		String[] langsRequired = getConfiguredLanguages(contextKey);
-		if(langsRequired != null) {
-			primary_lang = langsRequired[0];
-			if(langsRequired.length > 1)
-				sec_lang = langsRequired[1];
-			if(langsRequired.length > 2)
-				third_lang = langsRequired[2];
-
-		}
-
-
-		if(override_primary_lan != null && !override_primary_lan.equals(""))
-			primary_lang = override_primary_lan;
-
-		if(override_sec_lang != null && !override_sec_lang.equals(""))
-			sec_lang = override_sec_lang;
-
-		oAttr = attributeList.get(ResidentAttribute.RA_Iris);
-		boolean bIrisRequired = true;
-
-		if(oAttr != null) {
-			bIrisRequired = (boolean)oAttr;
-		}
-		if(gender == null)
-			gender  = Gender.Any;
-		List<Name> names_sec = null;
-		List<Name> names_primary =null;
-
-		Hashtable<String,List<DynamicFieldModel>> dynaFields = MosipMasterData.getAllDynamicFields(contextKey);
-
-		List<MosipGenderModel> genderTypes_primary = MosipMasterData.getGenderTypes(primary_lang,contextKey);
-		List<MosipGenderModel> genderTypes_sec = null;
-		List<MosipGenderModel> genderTypes_third = null;
-
-		if(sec_lang != null)
-			genderTypes_sec = MosipMasterData.getGenderTypes(sec_lang,contextKey);
-
-		if(third_lang != null)
-			genderTypes_third = MosipMasterData.getGenderTypes(third_lang,contextKey);
-
-
-		int maleCount =0,femaleCount = 0;
-
-		switch(gender) {
-			case  Any:
-				maleCount = count/2;
-				femaleCount = count-maleCount;
-				break;
-			case Male:
-				maleCount = count;
-				break;
-			case Female:
-				femaleCount = count;
-				break;
-			default:
-				break;
-
-		}
-		List<Name> eng_male_names = null;
-		List<Name> eng_female_names = null;
-		List<Name> eng_names = null;
-
-		if(maleCount >0) {
-			eng_male_names = NameProvider.generateNames(Gender.Male,  DataProviderConstants.LANG_CODE_ENGLISH, maleCount, null,contextKey);
-			eng_names = eng_male_names;
-		}
-		if(femaleCount > 0) {
-			eng_female_names = NameProvider.generateNames(Gender.Female,  DataProviderConstants.LANG_CODE_ENGLISH, femaleCount, null,contextKey);
-			if(eng_names != null)
-				eng_names.addAll(eng_female_names);
-			else
-				eng_names = eng_female_names;
-		}
-
-		if(primary_lang != null) {
-			if(!primary_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
-				names_primary = NameProvider.generateNames(gender, primary_lang, count, eng_names,contextKey);
-			}
-			else
-				names_primary = eng_names;
-
-		}
-		if(sec_lang != null) {
-			if(!sec_lang.startsWith( DataProviderConstants.LANG_CODE_ENGLISH)) {
-				names_sec = NameProvider.generateNames(gender, sec_lang, count, eng_names,contextKey);
-			}
-			else
-				names_sec = eng_names;
-
-		}
-
-		List<Contact> contacts = ContactProvider.generate(eng_names, count);
-		List<NrcId> nrcIds = NrcIdProvider.generate( count);
-		ApplicationConfigIdSchema locations = LocationProvider.generate(primary_lang, count,contextKey);
-		ApplicationConfigIdSchema locations_secLang  = null;
-		if(sec_lang != null)
-			locations_secLang = LocationProvider.generate(sec_lang, count, contextKey);
-
-		Hashtable<String,List<DynamicFieldValueModel>> bloodGroups = null;
-		if(dynaFields != null && !dynaFields.isEmpty())
-			 bloodGroups = BloodGroupProvider.generate(count, dynaFields);
-
-		Hashtable<String, List<MosipIndividualTypeModel>> resStatusList =  MosipMasterData.getIndividualTypes(contextKey);
-
-
-		List<IrisDataModel> irisList = null;
-		try {
-			if(bIrisRequired)
-				irisList = BiometricDataProvider.generateIris(count,contextKey);
-		} catch (  Exception e1) {
-			logger.error(e1.getMessage());
-		}
-
-
-		for(int i=0; i < count; i++) {
-			Gender res_gender = names_primary.get(i).getGender();
-			ResidentModel res= new ResidentModel();
-			res.setPrimaryLanguage(primary_lang);
-			res.setSecondaryLanguage(sec_lang);
-			res.setDynaFields(dynaFields);
-			res.setName(names_primary.get(i));
-			res.setThirdLanguage(third_lang);
-
-			res.getGenderTypes().put(primary_lang, genderTypes_primary);
-			if(sec_lang != null)
-				res.getGenderTypes().put(sec_lang, genderTypes_sec);
-			if(third_lang != null)
-				res.getGenderTypes().put(third_lang, genderTypes_third);
-
-			if(attributeList.containsKey(ResidentAttribute.RA_MissList)) {
-				res.setMissAttributes( (List<String>) attributeList.get(ResidentAttribute.RA_MissList));
-			}
-			if(attributeList.containsKey(ResidentAttribute.RA_InvalidList)) {
-				res.setInvalidAttributes( (List<String>) attributeList.get(ResidentAttribute.RA_InvalidList));
-			}
-			res.setGender(res_gender);
-			if(names_sec != null) {
-				res.setName_seclang(names_sec.get(i));
-			}
-
-			if(bloodGroups != null && !bloodGroups.isEmpty())
-				res.setBloodgroup(bloodGroups.get(res.getPrimaryLanguage()).get(i));
-			res.setContact(contacts.get(i));
-			res.setNrcId(nrcIds.get(i));
-			res.setDob( DateOfBirthProvider.generate((ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age),contextKey));
-			ResidentAttribute age =  (ResidentAttribute) attributeList.get(ResidentAttribute.RA_Age);
-			Boolean skipGaurdian = false;
-			if(age == ResidentAttribute.RA_Minor)  {
-				res.setMinor(true);
-				if(attributeList.containsKey(ResidentAttribute.RA_SKipGaurdian))
-					skipGaurdian =   Boolean.valueOf(attributeList.get(ResidentAttribute.RA_SKipGaurdian).toString());
-				if(!skipGaurdian)
-					res.setGuardian( genGuardian(attributeList, contextKey));
-			}
-
-			else if(age == ResidentAttribute.RA_Infant )  {
-				res.setInfant(true);
-				if(attributeList.containsKey(ResidentAttribute.RA_SKipGaurdian))
-					skipGaurdian =   Boolean.valueOf(attributeList.get(ResidentAttribute.RA_SKipGaurdian).toString());
-				if(!skipGaurdian)
-					res.setGuardian( genGuardian(attributeList, contextKey));
-			}
-
-			res.setAppConfigIdSchema( locations);
-			res.setAppConfigIdSchema_secLang(locations_secLang);
-
-			res.setLocation(  locations.getTblLocations().get(i));
-			String [] addr = new String[ DataProviderConstants.MAX_ADDRESS_LINES];
-			String addrFmt = "#%d, %d Street, %d block, lane #%d" ;
-			for(int ii=0; ii< DataProviderConstants.MAX_ADDRESS_LINES; ii++) {
-				String addrLine = String.format(addrFmt, (10+ rand.nextInt(999)),
-					(1 + rand.nextInt(99)),
-					(1 + rand.nextInt(10)), ii+1
-					);
-				addr[ii] = addrLine;
-			}
-
-			String primLang = res.getPrimaryLanguage();
-			if(!primLang.toLowerCase().startsWith("en"))
-			{
-
-				String [] addrP = new String[ DataProviderConstants.MAX_ADDRESS_LINES];
-
-				for(int ii=0; ii< DataProviderConstants.MAX_ADDRESS_LINES; ii++) {
-
-					addrP[ii] = Translator.translate(primLang, addr[ii],contextKey);
-				}
-				res.setAddress(addrP);
-			}
-			else
-				res.setAddress(addr);
-
-			if(res.getSecondaryLanguage() != null) {
-				res.setLocation_seclang (  locations_secLang.getTblLocations().get(i));
-				String[] addr_sec = new String[DataProviderConstants.MAX_ADDRESS_LINES];
-				for(int ii=0; ii< DataProviderConstants.MAX_ADDRESS_LINES; ii++) {
-					addr_sec[ii] = Translator.translate(res.getSecondaryLanguage(), addr[ii],contextKey);
-				}	
-				res.setAddress_seclang(addr_sec);
-			}
-
-
-			List<MosipIndividualTypeModel> lstResStatusPrimLang = resStatusList.get( res.getPrimaryLanguage());
-			int indx =0;
-			if(lstResStatusPrimLang != null) {
-				for(MosipIndividualTypeModel itm: lstResStatusPrimLang) {
-					if(itm.getCode().equals("NFR")) {
-						res.setResidentStatus(itm);
-						break;
-					}
-					indx++;
-				}
-				if(res.getResidentStatus() == null) {
-					indx = rand.nextInt(lstResStatusPrimLang.size());
-					res.setResidentStatus(lstResStatusPrimLang.get(indx));
-				}
-			}
-			if(res.getSecondaryLanguage() != null) {
-				List<MosipIndividualTypeModel> lstResStatusSecLang = resStatusList.get( res.getSecondaryLanguage());
-				if(lstResStatusSecLang != null) {
-					for(MosipIndividualTypeModel itm: lstResStatusSecLang) {
-						if(itm.getCode().equals(lstResStatusPrimLang.get(indx).getCode())){
-							res.setResidentStatus_seclang(itm);
-							break;
-						}
-					}
-				}	
-				if(res.getResidentStatus_seclang() == null) {
-					res.setResidentStatus_seclang(res.getResidentStatus());
-				}
-			}
-			Object bFinger = attributeList.get(ResidentAttribute.RA_Finger);
-			Boolean skip =  (bFinger == null ? false: !(Boolean)bFinger);
-			res.setSkipFinger(skip);
-			bFinger = attributeList.get(ResidentAttribute.RA_Photo);
-			skip =  (bFinger == null ? false: !(Boolean)bFinger);
-			res.setSkipFace(skip);
-			bFinger = attributeList.get(ResidentAttribute.RA_Iris);
-			skip =  (bFinger == null ? false: !(Boolean)bFinger);
-			res.setSkipIris(skip);
-
-
-			BiometricDataModel bioData =null;
-			try {
-				bioData = BiometricDataProvider.getBiometricData(bFinger == null ? true: (Boolean)bFinger,contextKey);
-			} catch (Exception e2) {
-				logger.error(e2.getMessage());
-				throw e2;
-			}
-			if(bIrisRequired)
-				bioData.setIris(irisList.get(i));
-
-			Object bOFace = attributeList.get(ResidentAttribute.RA_Photo);
-			boolean bFace = ( bOFace == null ? true: (boolean)bOFace);
-			if(bFace) {
-
-				Object largeFaceFlag = attributeList.get(ResidentAttribute.RA_LargeFace);
-				boolean generateLargeFace = largeFaceFlag != null && Boolean.parseBoolean(largeFaceFlag.toString());
-				Object obstructedFaceFlag = attributeList.get(ResidentAttribute.RA_ObstructedFace);
-				boolean generateObstructedFace = obstructedFaceFlag != null
-						&& Boolean.parseBoolean(obstructedFaceFlag.toString());
-
-				byte[][] faceData = PhotoProvider.getPhoto(contextKey, generateLargeFace, generateObstructedFace);
-
-				bioData.setEncodedPhoto(
-						Base64.getEncoder().encodeToString(faceData[0]));
-				bioData.setRawFaceData(faceData[1]);
-
-				try {
-					bioData.setFaceHash(CommonUtil.getHexEncodedHash( faceData[1]));
-				} catch (Exception e1) {
-
-				}
-			}
-
-
-			res.setBiometric(bioData);
-
-			oAttr = attributeList.get(ResidentAttribute.RA_Document);
-			boolean bDocRequired = ( oAttr == null ? true: (boolean)oAttr);
-
-			if(bDocRequired) {
-				try {
-					Object lowQualityDocumentAttr = attributeList.get(ResidentAttribute.RA_LowQualityDocument);
-					boolean generateLowQualityDocuments = lowQualityDocumentAttr != null
-							&& Boolean.parseBoolean(lowQualityDocumentAttr.toString());
-					res.setDocuments(DocumentProvider.generateDocuments(res, contextKey, generateLowQualityDocuments));
-					Object docCategoryAttr = attributeList.get(ResidentAttribute.RA_DocumentCategory);
-					if (docCategoryAttr != null && !docCategoryAttr.toString().trim().isEmpty()) {
-						String requiredDocCategory = docCategoryAttr.toString().trim();
-						res.setDocuments(res.getDocuments().stream()
-								.filter(doc -> doc != null && doc.getDocCategoryCode() != null
-										&& doc.getDocCategoryCode().equalsIgnoreCase(requiredDocCategory))
-								.collect(Collectors.toList()));
-					}
-				} catch (DocumentException | IOException  | ParseException e) {
-
-					logger.error(e.getMessage());
-				}
-			}
-
-			for(MosipDocument doc: res.getDocuments()) {
-				String id = doc.getDocCategoryCode();
-				int index = CommonUtil.generateRandomNumbers(1, doc.getDocs().size()-1, 0)[0];
-				res.getDocIndexes().put(id,index);
+		for (int i = 0; i < demoCtx.count; i++) {
+			ResidentModel res = PersonaDemographicsBuilder.populate(i, demoCtx, attributeList, contextKey);
+			if (lazyBiometrics) {
+				PersonaBiometricsAssembler.markDeferred(res, attributeList);
+			} else {
+				PersonaBiometricsAssembler.assemble(res, attributeList, contextKey);
 			}
 			residents.add(res);
 		}
@@ -556,22 +159,22 @@ public class ResidentDataProvider {
 	}
 
 	public static void main(String[] args) throws Exception {
-
 		ResidentDataProvider residentProvider = new ResidentDataProvider();
 		residentProvider
-		.addCondition(ResidentAttribute.RA_SECONDARY_LANG, "ara")
-		.addCondition(ResidentAttribute.RA_Gender, Gender.Any)
-		.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
+				.addCondition(ResidentAttribute.RA_SECONDARY_LANG, "ara")
+				.addCondition(ResidentAttribute.RA_Gender, Gender.Any)
+				.addCondition(ResidentAttribute.RA_Age, ResidentAttribute.RA_Adult);
 
-		List<ResidentModel> lst =  residentProvider.generate("contextKey");
+		List<ResidentModel> lst = residentProvider.generate("contextKey");
+		for (ResidentModel r : lst) {
+			PersonaBiometricsAssembler.ensureAssembled(r, null, "contextKey");
+		}
 		MDSClient cli = new MDSClient(0);
 
-		for(ResidentModel r: lst) {
+		for (ResidentModel r : lst) {
 			logger.info(r.toJSONString());
-
-			cli.createProfile("C:\\Mosip.io\\gitrepos\\mosip-mock-services\\MockMDS\\target\\Profile\\", "tst1", r,"contextKey","Registration");
-
+			cli.createProfile("C:\\Mosip.io\\gitrepos\\mosip-mock-services\\MockMDS\\target\\Profile\\", "tst1", r,
+					"contextKey", "Registration");
 		}
-
 	}
 }

@@ -38,7 +38,8 @@ public class RunCacheController {
 
 	@Operation(summary = "Warm run-scoped cache",
 			description = "Fetches auth tokens and frequently used masterdata once and stores them in the run cache "
-					+ "({urlBase}run_context) for reuse across all scenarios in the suite.")
+					+ "({urlBase}run_context, MasterdataCache md:get:/md:entity: keys) for reuse across all scenarios. "
+					+ "Call once per DSL context/worker before scenarios; pair with clear after the suite.")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Cache warmed") })
 	@PostMapping(value = "/runCache/warm/{contextKey}")
 	public @ResponseBody ResponseEntity<Map<String, Object>> warmRunCache(@PathVariable("contextKey") String contextKey) {

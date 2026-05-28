@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 import io.mosip.testrig.dslrig.dataprovider.NameProvider;
 import io.mosip.testrig.dslrig.dataprovider.PacketTemplateProvider;
 import io.mosip.testrig.dslrig.dataprovider.ResidentDataProvider;
+import io.mosip.testrig.dslrig.dataprovider.persona.PersonaBiometricsAssembler;
 import io.mosip.testrig.dslrig.dataprovider.models.AppointmentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.AppointmentTimeSlotModel;
 import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
@@ -917,6 +918,8 @@ public class PacketSyncService {
 			}
 			for (String path : personaFilePaths) {
 				ResidentModel resident = ResidentModel.readPersona(path);
+				PersonaBiometricsAssembler.ensureAssembled(resident,
+						PersonaBiometricsAssembler.hintsFromResident(resident), contextKey);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				RestClient.logInfo(contextKey, "packetPath=" + packetPath);
 				String returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath,

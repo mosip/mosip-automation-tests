@@ -34,7 +34,7 @@ public class PhotoProvider {
 		return getPhoto(contextKey, generateLargeFace, false);
 	}
 
-	static byte[][] getPhoto(String contextKey, boolean generateLargeFace, boolean generateObstructedFace) {
+	public static byte[][] getPhoto(String contextKey, boolean generateLargeFace, boolean generateObstructedFace) {
 
 		byte[] bencoded = null;
 		byte[] bData = null;

@@ -1422,7 +1422,7 @@ public class BiometricDataProvider {
 	}
 
 
-	static List<IrisDataModel> generateIris(int count, String contextKey) throws Exception {
+	public static List<IrisDataModel> generateIris(int count, String contextKey) throws Exception {
 		List<IrisDataModel> retVal = new ArrayList<IrisDataModel>();
 
 		IrisDataModel m = new IrisDataModel();

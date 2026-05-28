@@ -1,7 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider.util;
 
 import static io.restassured.RestAssured.given;
-import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,7 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +27,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
 import io.mosip.testrig.dslrig.dataprovider.mds.HttpRCapture;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
-import io.mosip.testrig.dslrig.dataprovider.preparation.RunScopedMasterdataCache;
+import io.mosip.testrig.dslrig.dataprovider.preparation.MasterdataCache;
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogging;
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiManualRecorder;
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiRestAssuredFilter;
@@ -52,8 +46,6 @@ public class RestClient {
 
 	static String dataKey = "response";
 	static String errorKey = "errors";
-	static Map<String, String> tokens = new HashMap<String, String>();
-	static String refreshToken;
 
 
 	private static final String URLBASE = "urlBase";
@@ -77,12 +69,26 @@ public class RestClient {
 	private static final String AUTHURL = " Auth URL";
 	private static final String POST2SLACK = "post2slack";
 
+	/** Extracts cookie value from {@code Set-Cookie} (stops at first {@code ;}). */
+	static String tokenFromSetCookie(String setCookieHeader) {
+		if (setCookieHeader == null || setCookieHeader.isBlank()) {
+			return null;
+		}
+		int eq = setCookieHeader.indexOf('=');
+		if (eq < 0 || eq + 1 >= setCookieHeader.length()) {
+			return null;
+		}
+		String value = setCookieHeader.substring(eq + 1);
+		int semi = value.indexOf(';');
+		return (semi >= 0 ? value.substring(0, semi) : value).trim();
+	}
+
 	static {
 
 
 	}
 
-	private static RequestSpecification givenFiltered(String contextKey) {
+	static RequestSpecification requestSpec(String contextKey) {
 		RequestSpecification spec = given();
 		if (InternalApiLogging.isEnabled(contextKey)) {
 			spec = spec.filter(new InternalApiRestAssuredFilter(contextKey));
@@ -95,82 +101,25 @@ public class RestClient {
 	int http_status;
 	Properties headers;
 
-	private static boolean shouldForceAuthRefresh(String contextKey) {
-		try {
-			Object obj = VariableManager.getVariableValue(contextKey, "urlSwitched");
-			if (obj != null) {
-				return Boolean.parseBoolean(obj.toString());
-			}
-		} catch (Exception ignored) {
-			// allow run-cache reuse
-		}
-		return false;
-	}
-
 	public static Boolean isValidToken(String role, String contextKey) {
-
-		if (shouldForceAuthRefresh(contextKey)) {
-			return false;
-		}
-
-		Object urlBase = VariableManager.getVariableValue(contextKey, URLBASE);
-
-		if (urlBase != null) {
-			String tokenKey = urlBase.toString().trim() + role;
-			String token = tokens.get(tokenKey);
-			if (token == null || token.isEmpty()) {
-				restoreAuthTokenFromRunCache(role, contextKey);
-				token = tokens.get(tokenKey);
-			}
-			if (token != null && !token.isEmpty()) {
-				return isValidTokenOffline(token, contextKey);
-			}
-		} else {
-			return false;
-		}
-		return false;
+		return RestClientAuth.isValidToken(role, contextKey);
 	}
 
 	public static boolean isValidTokenOffline(String cookie, String contextKey) {
-		boolean bReturn = false;
-		if (cookie == null)
-			return bReturn;
-		try {
-			DecodedJWT decodedJWT = JWT.decode(cookie);
-			long expirationTime = decodedJWT.getExpiresAt().getTime();
-			if (expirationTime < System.currentTimeMillis()) {
-				logInfo(contextKey, "The token is expired");
-			} else {
-				bReturn = true;
-				logInfo(contextKey, "The token is not expired");
-			}
-		} catch (JWTDecodeException e) {
-			logger.error("The token is invalid");
-		}
-		return bReturn;
+		return RestClientAuth.isValidTokenOffline(cookie, contextKey);
 	}
 
+	/**
+	 * @deprecated Prefer {@link #clearRunScopedCache(String)} for a single DSL context.
+	 */
+	@Deprecated
 	public static void clearToken() {
-		tokens.clear();
-		refreshToken = null;
+		AuthTokenStore.clearAll();
 	}
 
 	public static void clearRunScopedCache(String contextKey) {
 		MosipDataSetup.clearRunCache(contextKey);
-		clearTokensForUrlBase(contextKey);
-	}
-
-	private static void clearTokensForUrlBase(String contextKey) {
-		try {
-			Object urlBase = VariableManager.getVariableValue(contextKey, URLBASE);
-			if (urlBase == null) {
-				return;
-			}
-			String prefix = urlBase.toString().trim();
-			tokens.keySet().removeIf(key -> key.startsWith(prefix));
-		} catch (Exception e) {
-			logger.debug("Could not clear tokens for context {}", contextKey);
-		}
+		AuthTokenStore.clearContext(contextKey);
 	}
 
 	public int status() {
@@ -222,17 +171,16 @@ public class RestClient {
 		try {
 			while (!bDone) {
 
-				String token = tokens
-						.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+				String token = AuthTokenStore.get(contextKey, role);
 				Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 				Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
 				Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
 				if (isDebugEnabled(contextKey)) {
-					response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+					response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
 							.get(url, mapPathParam).then().log().all().extract().response();
 				} else {
-					response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
+					response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
 							mapPathParam);
 				}
 				if (response.getStatusCode() == 401) {
@@ -296,17 +244,16 @@ public class RestClient {
 		try {
 			while (!bDone) {
 
-				String token = tokens
-						.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+				String token = AuthTokenStore.get(contextKey, role);
 				Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 				Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
 				Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
 				if (isDebugEnabled(contextKey)) {
-					response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+					response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
 							.get(url, mapPathParam).then().log().all().extract().response();
 				} else {
-					response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
+					response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
 							mapPathParam);
 				}
 
@@ -343,9 +290,9 @@ public class RestClient {
 			throws Exception {
 
 		String runCacheKey = null;
-		if (RunScopedMasterdataCache.isEnabled(contextKey) && RunScopedMasterdataCache.isCacheableGetUrl(url)) {
-			runCacheKey = RunScopedMasterdataCache.buildCacheKey(url, requestParams, pathParam);
-			JSONObject cached = RunScopedMasterdataCache.getCachedJson(contextKey, runCacheKey);
+		if (MasterdataCache.isEnabled(contextKey) && MasterdataCache.isCacheableGetUrl(url)) {
+			runCacheKey = MasterdataCache.buildGetKey(url, requestParams, pathParam);
+			JSONObject cached = MasterdataCache.getCachedGetJson(contextKey, runCacheKey);
 			if (cached != null) {
 				return cached;
 			}
@@ -363,17 +310,16 @@ public class RestClient {
 		try {
 			while (!bDone) {
 
-				String token = tokens
-						.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+				String token = AuthTokenStore.get(contextKey, role);
 				Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 				Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
 				Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
 				if (isDebugEnabled(contextKey)) {
-					response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+					response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
 							.get(url, mapPathParam).then().log().all().extract().response();
 				} else {
-					response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
+					response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
 							mapPathParam);
 				}
 
@@ -420,7 +366,7 @@ public class RestClient {
 		}
 
 		if (runCacheKey != null) {
-			RunScopedMasterdataCache.putCachedJson(contextKey, runCacheKey, result);
+			MasterdataCache.putCachedGetJson(contextKey, runCacheKey, result);
 		}
 		return result;
 	}
@@ -429,7 +375,7 @@ public class RestClient {
 
 		Response response = null;
 		try {
-			response = givenFiltered(null)
+			response = requestSpec(null)
 					.relaxedHTTPSValidation()
 					.log().all()
 					.when()
@@ -459,10 +405,10 @@ public class RestClient {
 			Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
 			if (isDebugEnabled(contextKey)) {
-				response = givenFiltered(contextKey).log().all().contentType(ContentType.JSON).queryParams(mapParam)
+				response = requestSpec(contextKey).log().all().contentType(ContentType.JSON).queryParams(mapParam)
 						.get(url, mapPathParam).then().log().all().extract().response();
 			} else {
-				response = givenFiltered(contextKey).contentType(ContentType.JSON).queryParams(mapParam).get(url, mapPathParam);
+				response = requestSpec(contextKey).contentType(ContentType.JSON).queryParams(mapParam).get(url, mapPathParam);
 			}
 
 			if (isDebugEnabled(contextKey) && response != null) {
@@ -499,9 +445,9 @@ public class RestClient {
 			throws Exception {
 
 		String runCacheKey = null;
-		if (RunScopedMasterdataCache.isEnabled(contextKey) && RunScopedMasterdataCache.isCacheableGetUrl(url)) {
-			runCacheKey = RunScopedMasterdataCache.buildCacheKey(url, requestParams, pathParam);
-			JSONArray cached = RunScopedMasterdataCache.getCachedArray(contextKey, runCacheKey);
+		if (MasterdataCache.isEnabled(contextKey) && MasterdataCache.isCacheableGetUrl(url)) {
+			runCacheKey = MasterdataCache.buildGetKey(url, requestParams, pathParam);
+			JSONArray cached = MasterdataCache.getCachedGetArray(contextKey, runCacheKey);
 			if (cached != null) {
 				return cached;
 			}
@@ -518,17 +464,17 @@ public class RestClient {
 
 		while (!bDone) {
 
-			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+			String token = AuthTokenStore.get(contextKey, role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
 			Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
 			if (isDebugEnabled(contextKey)) {
-				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+				response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
 						.get(url, mapPathParam).then().log().all().extract().response();
 			} else {
-				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
+				response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
 						mapPathParam);
 			}
 
@@ -561,7 +507,7 @@ public class RestClient {
 
 		JSONArray result = new JSONObject(response.getBody().asString()).getJSONArray(dataKey);
 		if (runCacheKey != null) {
-			RunScopedMasterdataCache.putCachedArray(contextKey, runCacheKey, result);
+			MasterdataCache.putCachedGetArray(contextKey, runCacheKey, result);
 		}
 		return result;
 	}
@@ -572,7 +518,7 @@ public class RestClient {
 		if (!isValidToken(role, contextKey)) {
 			initPreregToken(url, requestParams, contextKey);
 		}
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 
 		Response response = null;
 
@@ -582,10 +528,10 @@ public class RestClient {
 		Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
 		if (isDebugEnabled(contextKey)) {
-			response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+			response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
 					.get(url, mapPathParam).then().log().all().extract().response();
 		} else {
-			response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url, mapPathParam);
+			response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url, mapPathParam);
 		}
 
 		if (isDebugEnabled(contextKey) && response != null) {
@@ -617,24 +563,24 @@ public class RestClient {
 
 		Response response = null;
 
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
 		if (requestData != null) {
 			if (isDebugEnabled(contextKey))
-				response = givenFiltered(contextKey).log().all().cookie(kukki).multiPart("file", new File(filePath))
+				response = requestSpec(contextKey).log().all().cookie(kukki).multiPart("file", new File(filePath))
 						.param("Document request", requestData.toString()).post(url).then().log().all().extract()
 						.response();
 			else
-				response = givenFiltered(contextKey).cookie(kukki).multiPart("file", new File(filePath))
+				response = requestSpec(contextKey).cookie(kukki).multiPart("file", new File(filePath))
 						.param("Document request", requestData.toString()).post(url);
 		} else {
 			if (isDebugEnabled(contextKey))
-				response = givenFiltered(contextKey).log().all().cookie(kukki).multiPart("file", new File(filePath)).post(url).then()
+				response = requestSpec(contextKey).log().all().cookie(kukki).multiPart("file", new File(filePath)).post(url).then()
 						.log().all().extract().response();
 			else
-				response = givenFiltered(contextKey).cookie(kukki).multiPart("file", new File(filePath)).post(url);
+				response = requestSpec(contextKey).cookie(kukki).multiPart("file", new File(filePath)).post(url);
 		}
 		if (response == null) {
 			throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
@@ -661,14 +607,14 @@ public class RestClient {
 
 		Response response = null;
 		RequestSpecification spec = null;
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
 		if (isDebugEnabled(contextKey))
-			spec = givenFiltered(contextKey).log().all().cookie(kukki);
+			spec = requestSpec(contextKey).log().all().cookie(kukki);
 		else
-			spec = givenFiltered(contextKey).cookie(kukki);
+			spec = requestSpec(contextKey).cookie(kukki);
 		for (String fName : filePaths)
 			spec = spec.multiPart("files", new File(fName));
 		if (requestData != null) {
@@ -715,16 +661,16 @@ public class RestClient {
 
 		}
 
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 
 		Response response = null;
 		logInfo(contextKey, "Request: " + jsonRequest.toString());
 		try {
 			if (isDebugEnabled(contextKey))
-				response = givenFiltered(contextKey).log().all().contentType(ContentType.JSON).body(jsonRequest.toString()).post(url)
+				response = requestSpec(contextKey).log().all().contentType(ContentType.JSON).body(jsonRequest.toString()).post(url)
 						.then().log().all().extract().response();
 			else
-				response = givenFiltered(contextKey).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+				response = requestSpec(contextKey).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
 		} catch (ServiceException se) {
 			throw se;
 		} catch (Exception e) {
@@ -743,10 +689,10 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String[] parts = cookie.split("=");
-			if (parts.length > 1) {
-				token = parts[1].split(";")[0];
-				tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			String refreshed = tokenFromSetCookie(cookie);
+			if (refreshed != null) {
+				token = refreshed;
+				AuthTokenStore.put(contextKey, role, token);
 			}
 
 		}
@@ -768,17 +714,17 @@ public class RestClient {
 
 		}
 
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 
 		Response response = null;
 		logInfo(contextKey, "Request: " + jsonRequest.toString());
 		try {
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			if (isDebugEnabled(contextKey))
-				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+				response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.post(url).then().log().all().extract().response();
 			else
-				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+				response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
 
 			if (isDebugEnabled(contextKey)) {
 				if (response != null) {
@@ -794,12 +740,10 @@ public class RestClient {
 				logInfo(contextKey, h.getName() + "=" + h.getValue());
 			}
 			String cookie = response.getHeader(SET_COOKIE);
-			if (cookie != null && cookie.contains("=")) {
-				String[] parts = cookie.split("=", 2);
-				if (parts.length > 1) {
-					token = parts[1].split(";")[0];
-					tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
-				}
+			String refreshed = tokenFromSetCookie(cookie);
+			if (refreshed != null) {
+				token = refreshed;
+				AuthTokenStore.put(contextKey, role, token);
 			}
 			logInfo(contextKey, token);
 			checkErrorResponse(response.getBody().asString(), url);
@@ -828,22 +772,22 @@ public class RestClient {
 			}
 
 		}
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 
 		Response response = null;
 		logInfo(contextKey, "Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
 		if (isDebugEnabled(contextKey))
-			response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+			response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 					.put(url).then().log().all().extract().response();
 		else
-			response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+			response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			token = tokenFromSetCookie(cookie);
+			AuthTokenStore.put(contextKey, role, token);
 		}
 		logInfo(contextKey, token);
 		logInfo(contextKey, "Response:" + response.getBody().asString());
@@ -858,7 +802,7 @@ public class RestClient {
 		if (!isValidToken(role, contextKey)) {
 			initToken_admin(contextKey);
 		}
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 
 		Response response = null;
 
@@ -866,15 +810,15 @@ public class RestClient {
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
 		if (isDebugEnabled(contextKey))
-			response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+			response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 					.delete(url).then().log().all().extract().response();
 		else
-			response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
+			response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
 
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			token = tokenFromSetCookie(cookie);
+			AuthTokenStore.put(contextKey, role, token);
 		}
 		logInfo(contextKey, token);
 		logInfo(contextKey, "Response:" + response.getBody().asString());
@@ -889,21 +833,21 @@ public class RestClient {
 		if (!isValidToken(role, contextKey)) {
 			initToken_Resident(contextKey);
 		}
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 
 		Response response = null;
 
 		logInfo(contextKey, "Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 		if (isDebugEnabled(contextKey))
-			response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+			response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 					.delete(url).then().log().all().extract().response();
 		else
-			response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
+			response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			token = tokenFromSetCookie(cookie);
+			AuthTokenStore.put(contextKey, role, token);
 		}
 		logInfo(contextKey, token);
 		logInfo(contextKey, "Response:" + response.getBody().asString());
@@ -917,21 +861,21 @@ public class RestClient {
 		if (!isValidToken(role, contextKey)) {
 			initToken_Resident(contextKey);
 		}
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 
 		Response response = null;
 
 		logInfo(contextKey, "Request:" + jsonRequest.toString());
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 		if (isDebugEnabled(contextKey))
-			response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+			response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 					.delete(url).then().log().all().extract().response();
 		else
-			response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
+			response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).delete(url);
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			token = tokenFromSetCookie(cookie);
+			AuthTokenStore.put(contextKey, role, token);
 		}
 		logInfo(contextKey, token);
 		logInfo(contextKey, "Response:" + response.getBody().asString());
@@ -946,7 +890,7 @@ public class RestClient {
 		if (!isValidToken(role, contextKey)) {
 			initToken_Resident(contextKey);
 		}
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 
 		Response response = null;
 
@@ -954,15 +898,15 @@ public class RestClient {
 		Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 
 		if (isDebugEnabled(contextKey))
-			response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(jsonRequest.toMap())
+			response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(jsonRequest.toMap())
 					.delete(url).then().log().all().extract().response();
 		else
-			response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(jsonRequest.toMap()).delete(url);
+			response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(jsonRequest.toMap()).delete(url);
 
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
-			token = cookie.split("=")[1];
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			token = tokenFromSetCookie(cookie);
+			AuthTokenStore.put(contextKey, role, token);
 		}
 		logInfo(contextKey, token);
 		logInfo(contextKey, "Response:" + response.getBody().asString());
@@ -978,10 +922,10 @@ public class RestClient {
 	public static Response post(String url, String requestBody, String contextKey) throws Exception {
 		Response response = null;
 		if (isDebugEnabled(contextKey))
-			response = givenFiltered(contextKey).log().all().baseUri(url).contentType(ContentType.JSON).and()
+			response = requestSpec(contextKey).log().all().baseUri(url).contentType(ContentType.JSON).and()
 					.body(requestBody).when().post().then().log().all().extract().response();
 		else
-			response = givenFiltered(contextKey).baseUri(url).contentType(ContentType.JSON).and().body(requestBody).when()
+			response = requestSpec(contextKey).baseUri(url).contentType(ContentType.JSON).and().body(requestBody).when()
 					.post().then().extract().response();
 
 		return response;
@@ -1007,15 +951,15 @@ public class RestClient {
 		Response response = null;
 
 		while (!bDone) {
-			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+			String token = AuthTokenStore.get(contextKey, role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			logInfo(contextKey, "Request:" + jsonRequest.toString());
 			if (isDebugEnabled(contextKey))
-				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+				response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.post(url).then().log().all().extract().response();
 			else
-				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+				response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
 			if (response.getStatusCode() == 401 || response.getStatusCode() == 500) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -1037,9 +981,9 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String token = cookie.split("=")[1];
+			String token = tokenFromSetCookie(cookie);
 
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			AuthTokenStore.put(contextKey, role, token);
 		}
 		if (response.getBody().asString().startsWith("{")) {
 			logInfo(contextKey, "Response:" + response.getBody().asString());
@@ -1072,15 +1016,15 @@ public class RestClient {
 		Response response = null;
 
 		while (!bDone) {
-			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+			String token = AuthTokenStore.get(contextKey, role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			logInfo(contextKey, "Request:" + jsonRequest.toString());
 			if (isDebugEnabled(contextKey)) {
-				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+				response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.put(url).then().log().all().extract().response();
 			} else
-				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+				response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 			if (response.getStatusCode() == 401 || response.getStatusCode() == 500) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -1096,8 +1040,8 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String token = cookie.split("=")[1];
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			String token = tokenFromSetCookie(cookie);
+			AuthTokenStore.put(contextKey, role, token);
 
 		}
 
@@ -1138,7 +1082,7 @@ public class RestClient {
 				initToken(contextKey);
 			}
 		}
-		String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+		String token = AuthTokenStore.get(contextKey, role);
 		return token;
 
 	}
@@ -1153,15 +1097,15 @@ public class RestClient {
 		Response response = null;
 
 		while (!bDone) {
-			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+			String token = AuthTokenStore.get(contextKey, role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			logInfo(contextKey, "Request:" + jsonRequest.toString());
 			if (isDebugEnabled(contextKey)) {
-				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+				response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.put(url).then().log().all().extract().response();
 			} else
-				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+				response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 			if (response.getStatusCode() == 401 || response.getStatusCode() == 500) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -1177,8 +1121,8 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String token = cookie.split("=")[1];
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			String token = tokenFromSetCookie(cookie);
+			AuthTokenStore.put(contextKey, role, token);
 
 		}
 		if (response.getBody().asString().startsWith("{")) {
@@ -1200,15 +1144,15 @@ public class RestClient {
 		Response response = null;
 
 		while (!bDone) {
-			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+			String token = AuthTokenStore.get(contextKey, role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			logInfo(contextKey, "Request:" + jsonRequest.toString());
 			if (isDebugEnabled(contextKey)) {
-				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+				response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.put(url).then().log().all().extract().response();
 			} else
-				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
+				response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).put(url);
 			if (response.getStatusCode() == 401 || response.getStatusCode() == 500) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -1224,9 +1168,9 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String token = cookie.split("=")[1];
+			String token = tokenFromSetCookie(cookie);
 
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			AuthTokenStore.put(contextKey, role, token);
 		}
 		if (response.getBody().asString().startsWith("{")) {
 			logInfo(contextKey, "Response:" + response.getBody().asString());
@@ -1247,15 +1191,15 @@ public class RestClient {
 		Response response = null;
 
 		while (!bDone) {
-			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+			String token = AuthTokenStore.get(contextKey, role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			logInfo(contextKey, "Request:" + jsonRequest.toString());
 			if (isDebugEnabled(contextKey))
-				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
+				response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString())
 						.patch(url).then().log().all().extract().response();
 			else
-				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).patch(url);
+				response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).patch(url);
 			if (response.getStatusCode() == 401 || response.getStatusCode() == 500) {
 				if (nLoop >= 1)
 					bDone = true;
@@ -1271,9 +1215,9 @@ public class RestClient {
 		String cookie = response.getHeader(SET_COOKIE);
 		if (cookie != null) {
 
-			String token = cookie.split("=")[1];
+			String token = tokenFromSetCookie(cookie);
 
-			tokens.put(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role, token);
+			AuthTokenStore.put(contextKey, role, token);
 		}
 		if (response.getBody().asString().startsWith("{")) {
 			logInfo(contextKey, "Response:" + response.getBody().asString());
@@ -1293,10 +1237,10 @@ public class RestClient {
 			Response response = null;
 			try {
 				if (isDebugEnabled(contextKey))
-					response = givenFiltered(contextKey).log().all().contentType("application/json").body(jsonBody).post(url).then().log()
+					response = requestSpec(contextKey).log().all().contentType("application/json").body(jsonBody).post(url).then().log()
 							.all().extract().response();
 				else
-					response = givenFiltered(contextKey).contentType("application/json").body(jsonBody).post(url);
+					response = requestSpec(contextKey).contentType("application/json").body(jsonBody).post(url);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
@@ -1319,347 +1263,29 @@ public class RestClient {
 		}
 	}
 
+
 	public static boolean initToken(String contextKey) {
-		try {
-
-			JSONObject requestBody = new JSONObject();
-			JSONObject nestedRequest = new JSONObject();
-			nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "admin_userName").toString());
-			nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, "admin_password").toString());
-			nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_admin_app_id").toString());
-			nestedRequest.put(CLIENTID,
-					VariableManager.getVariableValue(contextKey, "mosip_admin_client_id").toString());
-			nestedRequest.put("clientSecret",
-					VariableManager.getVariableValue(contextKey, "mosip_admin_client_secret").toString());
-			requestBody.put(METADATA, new JSONObject());
-			requestBody.put(VERSION, "1.0");
-			requestBody.put("id", "mosip.authentication.useridPwd");
-			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
-			requestBody.put(REQUEST, nestedRequest);
-
-			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
-			if (!shouldForceAuthRefresh(contextKey)) {
-				String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
-						nestedRequest, false, contextKey);
-				if (cachedToken != null && !cachedToken.isEmpty()) {
-					tokens.put(urlBase + SYSTEM, cachedToken);
-					return true;
-				}
-			}
-
-			String authUrl = urlBase
-					+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
-			String jsonBody = requestBody.toString();
-			logInfo(contextKey, contextKey + " InitToken logger " + authUrl + AUTHURL + jsonBody);
-
-			Response response = null;
-			try {
-				if (isDebugEnabled(contextKey))
-					response = givenFiltered(contextKey).log().all().contentType("application/json").body(jsonBody).post(authUrl).then()
-							.log().all().extract().response();
-				else
-					response = givenFiltered(contextKey).contentType("application/json").body(jsonBody).post(authUrl);
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-			}
-			if (response == null) {
-				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
-			}
-			if (response != null) {
-				checkErrorResponse(response.getBody().asString(), authUrl);
-				if (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE)) {
-					boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
-							: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
-					if (bSlackit)
-						SlackIt.postMessage(null, authUrl + " Failed to authenticate, Is "
-								+ VariableManager.getVariableValue(contextKey, URLBASE).toString() + " down ?");
-
-					return false;
-				}
-			}
-
-			String responseBody = response.getBody().asString();
-			String token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
-			tokens.put(urlBase + SYSTEM, token);
-			cacheAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH, nestedRequest, false, contextKey,
-					token);
-			return true;
-		} catch (Exception ex) {
-
-		}
-		return false;
-
+		return RestClientAuth.initToken(contextKey);
 	}
 
 	public static boolean initToken_admin(String contextKey) {
-		try {
-
-			JSONObject requestBody = new JSONObject();
-			JSONObject nestedRequest = new JSONObject();
-			nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "admin_userName").toString());
-			nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, "admin_password").toString());
-			nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_admin_app_id").toString());
-			nestedRequest.put(CLIENTID,
-					VariableManager.getVariableValue(contextKey, "mosip_admin_client_id").toString());
-			nestedRequest.put("clientSecret",
-					VariableManager.getVariableValue(contextKey, "mosip_admin_client_secret").toString());
-			requestBody.put(METADATA, new JSONObject());
-			requestBody.put(VERSION, "1.0");
-			requestBody.put("id", "mosip.authentication.useridPwd");
-			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
-			requestBody.put(REQUEST, nestedRequest);
-
-			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
-			if (!shouldForceAuthRefresh(contextKey)) {
-				String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
-						nestedRequest, false, contextKey);
-				if (cachedToken != null && !cachedToken.isEmpty()) {
-					tokens.put(urlBase + ADMIN, cachedToken);
-					return true;
-				}
-			}
-
-			String authUrl = urlBase
-					+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "authManagerURL").toString().trim();
-			String jsonBody = requestBody.toString();
-			logInfo(contextKey, contextKey + " InitToken_admin logger " + authUrl + AUTHURL + jsonBody);
-			Response response = null;
-			try {
-				if (isDebugEnabled(contextKey))
-					response = givenFiltered(contextKey).log().all().contentType("application/json").body(jsonBody).post(authUrl).then()
-							.log().all().extract().response();
-				else
-					response = givenFiltered(contextKey).contentType("application/json").body(jsonBody).post(authUrl);
-
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-			}
-			if (response == null) {
-				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
-			}
-			checkErrorResponse(response.getBody().asString(), authUrl);
-			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {
-				boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
-						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
-				if (bSlackit)
-					SlackIt.postMessage(null, authUrl + " Failed to authenticate, Is "
-							+ VariableManager.getVariableValue(contextKey, URLBASE).toString() + " down ?");
-
-				return false;
-			}
-			String responseBody = response.getBody().asString();
-			String token = new JSONObject(responseBody).getJSONObject(dataKey).getString("token");
-
-			tokens.put(urlBase + ADMIN, token);
-			cacheAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH, nestedRequest, false, contextKey,
-					token);
-
-			return true;
-		} catch (Exception ex) {
-
-		}
-		return false;
-
+		return RestClientAuth.initToken_admin(contextKey);
 	}
 
 	public static boolean initToken_Resident(String contextKey) {
-		try {
-			JSONObject requestBody = new JSONObject();
-			JSONObject nestedRequest = new JSONObject();
-			nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
-			nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
-			nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_resident_app_id"));
-			nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_resident_client_id"));
-			nestedRequest.put("secretKey",
-					VariableManager.getVariableValue(contextKey, "mosip_resident_client_secret"));
-			requestBody.put(METADATA, new JSONObject());
-			requestBody.put(VERSION, "string");
-			requestBody.put("id", "string");
-			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
-			requestBody.put(REQUEST, nestedRequest);
-
-			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
-			if (!shouldForceAuthRefresh(contextKey)) {
-				String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
-						nestedRequest, true, contextKey);
-				if (cachedToken != null && !cachedToken.isEmpty()) {
-					tokens.put(urlBase + RESIDENT, cachedToken);
-					return true;
-				}
-			}
-
-			String authUrl = urlBase + MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH;
-
-			String jsonBody = requestBody.toString();
-			logInfo(contextKey, contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
-
-			Response response = null;
-			try {
-				if (isDebugEnabled(contextKey))
-					response = givenFiltered(contextKey).log().all().contentType("application/json").body(jsonBody).post(authUrl).then()
-							.log().all().extract().response();
-				else
-					response = givenFiltered(contextKey).contentType("application/json").body(jsonBody).post(authUrl);
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-			}
-			if (response == null) {
-				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
-			}
-			checkErrorResponse(response.getBody().asString(), authUrl);
-			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {
-				boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
-						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
-				if (bSlackit)
-					SlackIt.postMessage(null, authUrl + " Failed to authenticate, Is "
-							+ VariableManager.getVariableValue(contextKey, URLBASE).toString() + " down ?");
-
-				return false;
-			}
-			String token = response.getCookie(AUTHORIZATION);
-			tokens.put(urlBase + RESIDENT, token);
-			cacheAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH, nestedRequest, true, contextKey,
-					token);
-
-			return true;
-		} catch (Exception ex) {
-
-		}
-		return false;
-
+		return RestClientAuth.initToken_Resident(contextKey);
 	}
 
 	public static boolean initToken_Regproc(String contextKey) {
-		try {
-			JSONObject requestBody = new JSONObject();
-			JSONObject nestedRequest = new JSONObject();
-			nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
-			nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
-			nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_regprocclient_app_id"));
-			nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_regproc_client_id"));
-			nestedRequest.put("secretKey", VariableManager.getVariableValue(contextKey, "mosip_regproc_client_secret"));
-			requestBody.put(METADATA, new JSONObject());
-			requestBody.put(VERSION, "string");
-			requestBody.put("id", "string");
-			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
-			requestBody.put(REQUEST, nestedRequest);
-
-			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
-			if (!shouldForceAuthRefresh(contextKey)) {
-				String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
-						nestedRequest, true, contextKey);
-				if (cachedToken != null && !cachedToken.isEmpty()) {
-					tokens.put(urlBase + REGPROC, cachedToken);
-					return true;
-				}
-			}
-
-			String authUrl = urlBase + MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH;
-
-			String jsonBody = requestBody.toString();
-			logInfo(contextKey, contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
-
-			Response response = null;
-			try {
-				if (isDebugEnabled(contextKey))
-					response = givenFiltered(contextKey).log().all().contentType("application/json").body(jsonBody).post(authUrl).then()
-							.log().all().extract().response();
-				else
-					response = givenFiltered(contextKey).contentType("application/json").body(jsonBody).post(authUrl);
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-			}
-			if (response == null) {
-				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", authUrl);
-			}
-			checkErrorResponse(response.getBody().asString(), authUrl);
-			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {
-				boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
-						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
-				if (bSlackit)
-					SlackIt.postMessage(null, authUrl + " Failed to authenticate, Is "
-							+ VariableManager.getVariableValue(contextKey, URLBASE).toString() + " down ?");
-
-				return false;
-			}
-			String token = response.getCookie(AUTHORIZATION);
-			tokens.put(urlBase + REGPROC, token);
-			cacheAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH, nestedRequest, true, contextKey,
-					token);
-
-			return true;
-		} catch (Exception ex) {
-
-		}
-
-		return false;
-
+		return RestClientAuth.initToken_Regproc(contextKey);
 	}
 
 	public static boolean initToken_crvs1(String contextKey) {
-		try {
-			JSONObject requestBody = new JSONObject();
-			JSONObject nestedRequest = new JSONObject();
-			nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
-			nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
-			nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_crvs1_app_id"));
-			nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_id"));
-			nestedRequest.put("secretKey", VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_secret"));
-			requestBody.put(METADATA, new JSONObject());
-			requestBody.put(VERSION, "string");
-			requestBody.put("id", "string");
-			requestBody.put(REQUESTTIME, CommonUtil.getUTCDateTime(LocalDateTime.now()).toString());
-			requestBody.put(REQUEST, nestedRequest);
-
-			String urlBase = VariableManager.getVariableValue(contextKey, URLBASE).toString().trim();
-			if (!shouldForceAuthRefresh(contextKey)) {
-				String cachedToken = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
-						nestedRequest, true, contextKey);
-				if (cachedToken != null && !cachedToken.isEmpty()) {
-					tokens.put(urlBase + CRVS, cachedToken);
-					return true;
-				}
-			}
-
-			String authUrl = urlBase + MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH;
-
-			String jsonBody = requestBody.toString();
-			logInfo(contextKey, contextKey + " initToken_Resident logger " + authUrl + AUTHURL + jsonBody);
-
-			Response response = null;
-			try {
-				if (isDebugEnabled(contextKey))
-					response = givenFiltered(contextKey).log().all().contentType("application/json").body(jsonBody).post(authUrl).then()
-							.log().all().extract().response();
-				else
-					response = givenFiltered(contextKey).contentType("application/json").body(jsonBody).post(authUrl);
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-			}
-
-			if (response != null && (response.getStatusCode() != 200 || response.toString().contains(ERRORCODE))) {
-				boolean bSlackit = VariableManager.getVariableValue(contextKey, POST2SLACK) == null ? false
-						: Boolean.parseBoolean(VariableManager.getVariableValue(contextKey, POST2SLACK).toString());
-				if (bSlackit)
-					SlackIt.postMessage(null, authUrl + " Failed to authenticate, Is "
-							+ VariableManager.getVariableValue(contextKey, URLBASE).toString() + " down ?");
-
-				return false;
-			}
-			String token = response.getCookie(AUTHORIZATION);
-			tokens.put(urlBase + CRVS, token);
-			cacheAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH, nestedRequest, true, contextKey,
-					token);
-			checkErrorResponse(response.getBody().asString(), authUrl);
-			return true;
-		} catch (Exception ex) {
-
-		}
-		return false;
-
+		return RestClientAuth.initToken_crvs1(contextKey);
 	}
 
-	private static void checkErrorResponse(String response, String url) {
+
+	static void checkErrorResponse(String response, String url) {
 
 
 		if (response == null || response.trim().isEmpty()) {
@@ -1767,18 +1393,18 @@ public class RestClient {
 
 		while (!bDone) {
 
-			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+			String token = AuthTokenStore.get(contextKey, role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			Map<String, Object> mapParam = requestParams == null ? null : requestParams.toMap();
 			Map<String, Object> mapPathParam = pathParam == null ? null : pathParam.toMap();
 
 			if (isDebugEnabled(contextKey))
-				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
+				response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam)
 						.get(url, mapPathParam).then().log().all().extract().response();
 
 			else
-				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
+				response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).queryParams(mapParam).get(url,
 						mapPathParam);
 
 			if (response.getStatusCode() == 401) {
@@ -1849,14 +1475,14 @@ public class RestClient {
 
 		while (!bDone) {
 
-			String token = tokens.get(VariableManager.getVariableValue(contextKey, URLBASE).toString().trim() + role);
+			String token = AuthTokenStore.get(contextKey, role);
 
 			Cookie kukki = new Cookie.Builder(AUTHORIZATION, token).build();
 			if (isDebugEnabled(contextKey))
-				response = givenFiltered(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).get(urlAct).then().log().all()
+				response = requestSpec(contextKey).log().all().cookie(kukki).contentType(ContentType.JSON).get(urlAct).then().log().all()
 						.extract().response();
 			else
-				response = givenFiltered(contextKey).cookie(kukki).contentType(ContentType.JSON).get(urlAct);
+				response = requestSpec(contextKey).cookie(kukki).contentType(ContentType.JSON).get(urlAct);
 
 			if (response.getStatusCode() == 401) {
 				if (nLoop >= 1)
@@ -1889,10 +1515,10 @@ public class RestClient {
 
 		Response response = null;
 		if (isDebugEnabled(contextKey))
-			response = givenFiltered(contextKey).log().all().contentType(ContentType.JSON).get(urlAct).then().log().all().extract()
+			response = requestSpec(contextKey).log().all().contentType(ContentType.JSON).get(urlAct).then().log().all().extract()
 					.response();
 		else
-			response = givenFiltered(contextKey).contentType(ContentType.JSON).get(urlAct);
+			response = requestSpec(contextKey).contentType(ContentType.JSON).get(urlAct);
 
 		if (response != null && response.getStatusCode() == 200) {
 			checkErrorResponse(response.getBody().asString(), urlAct);
@@ -1906,117 +1532,6 @@ public class RestClient {
 			return false;
 		} else
 			return false;
-	}
-
-	private static boolean isClientSecretAuthRole(String role) {
-		return RESIDENT.equals(role) || REGPROC.equals(role) || CRVS.equals(role);
-	}
-
-	private static void appendJsonField(StringBuilder sb, JSONObject nestedRequest, String key) {
-		if (nestedRequest.has(key) && !nestedRequest.isNull(key)) {
-			sb.append(key).append('=').append(nestedRequest.get(key)).append(';');
-		}
-	}
-
-	private static String credFingerprint(JSONObject nestedRequest, boolean clientSecretAuth) {
-		StringBuilder sb = new StringBuilder();
-		appendJsonField(sb, nestedRequest, USERNAME);
-		appendJsonField(sb, nestedRequest, PASSWORD);
-		appendJsonField(sb, nestedRequest, APPID);
-		appendJsonField(sb, nestedRequest, CLIENTID);
-		if (clientSecretAuth) {
-			appendJsonField(sb, nestedRequest, "secretKey");
-		}
-		appendJsonField(sb, nestedRequest, "clientSecret");
-		return Integer.toHexString(sb.toString().hashCode());
-	}
-
-	private static String getRunCachedAuthTokenForRequest(String authPath, JSONObject nestedRequest,
-			boolean clientSecretAuth, String contextKey) {
-		String cacheKey = MosipDataSetup.authCacheKey(authPath, credFingerprint(nestedRequest, clientSecretAuth));
-		Object cached = MosipDataSetup.getCache(cacheKey, MosipDataSetup.getRunContextNamespace(contextKey));
-		return cached instanceof String ? (String) cached : null;
-	}
-
-	private static void cacheAuthTokenForRequest(String authPath, JSONObject nestedRequest, boolean clientSecretAuth,
-			String contextKey, String token) {
-		if (token == null || token.isEmpty()) {
-			return;
-		}
-		String cacheKey = MosipDataSetup.authCacheKey(authPath, credFingerprint(nestedRequest, clientSecretAuth));
-		MosipDataSetup.setCache(cacheKey, token, MosipDataSetup.getRunContextNamespace(contextKey));
-	}
-
-	private static JSONObject buildNestedRequestForRole(String role, String contextKey) {
-		JSONObject nestedRequest = new JSONObject();
-		try {
-			if (ADMIN.equals(role) || SYSTEM.equals(role)) {
-				nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "admin_userName").toString());
-				nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, "admin_password").toString());
-				nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_admin_app_id").toString());
-				nestedRequest.put(CLIENTID,
-						VariableManager.getVariableValue(contextKey, "mosip_admin_client_id").toString());
-				nestedRequest.put("clientSecret",
-						VariableManager.getVariableValue(contextKey, "mosip_admin_client_secret").toString());
-				return nestedRequest;
-			}
-			if (RESIDENT.equals(role)) {
-				nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
-				nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
-				nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_resident_app_id"));
-				nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_resident_client_id"));
-				nestedRequest.put("secretKey",
-						VariableManager.getVariableValue(contextKey, "mosip_resident_client_secret"));
-				return nestedRequest;
-			}
-			if (REGPROC.equals(role)) {
-				nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
-				nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
-				nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_regprocclient_app_id"));
-				nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_regproc_client_id"));
-				nestedRequest.put("secretKey",
-						VariableManager.getVariableValue(contextKey, "mosip_regproc_client_secret"));
-				return nestedRequest;
-			}
-			if (CRVS.equals(role)) {
-				nestedRequest.put(USERNAME, VariableManager.getVariableValue(contextKey, "operatorId"));
-				nestedRequest.put(PASSWORD, VariableManager.getVariableValue(contextKey, PASSWORD));
-				nestedRequest.put(APPID, VariableManager.getVariableValue(contextKey, "mosip_crvs1_app_id"));
-				nestedRequest.put(CLIENTID, VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_id"));
-				nestedRequest.put("secretKey",
-						VariableManager.getVariableValue(contextKey, "mosip_crvs1_client_secret"));
-				return nestedRequest;
-			}
-		} catch (Exception e) {
-			logger.debug("Could not build auth request for role {}: {}", role, e.getMessage());
-		}
-		return null;
-	}
-
-	private static String getRunCachedAuthTokenForRole(String role, String contextKey) {
-		JSONObject nestedRequest = buildNestedRequestForRole(role, contextKey);
-		if (nestedRequest == null) {
-			return null;
-		}
-		boolean clientSecretAuth = isClientSecretAuthRole(role);
-		String authPath = clientSecretAuth ? MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH
-				: MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH;
-		return getRunCachedAuthTokenForRequest(authPath, nestedRequest, clientSecretAuth, contextKey);
-	}
-
-	private static void restoreAuthTokenFromRunCache(String role, String contextKey) {
-		String token = getRunCachedAuthTokenForRole(role, contextKey);
-		if (token == null || token.isEmpty()) {
-			return;
-		}
-		try {
-			Object urlBase = VariableManager.getVariableValue(contextKey, URLBASE);
-			if (urlBase != null) {
-				tokens.put(urlBase.toString().trim() + role, token);
-			}
-		} catch (Exception e) {
-			logger.debug("Could not restore auth token for role {}: {}", role, e.getMessage());
-		}
 	}
 
 }

@@ -49,7 +49,6 @@ public class PreregSyncService {
 		try{
 			workDirectory = Files.createTempDirectory("prereg").toFile().getAbsolutePath();
 			logger.info("CURRENT PRE_REG WORK DIRECTORY --> {}", workDirectory);
-			apiUtil.clearToken();
 		} catch(Exception ex){
 			logger.error("", ex);
 		}
