@@ -165,7 +165,8 @@ public final class CrvsIdJsonBuilder {
 					MosipLocationModel locModel = locations.get(locKey);
 
 					if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())
-							|| s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
+							|| (s.getSubType() != null
+									&& s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase()))) {
 						primaryValue = locModel.getCode();
 
 						break;

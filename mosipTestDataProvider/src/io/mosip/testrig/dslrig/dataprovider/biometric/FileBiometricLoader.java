@@ -49,9 +49,9 @@ public final class FileBiometricLoader {
 	private static final String DIRPATH = "dirPath ";
 	private static final String SCENARIO = "scenario";
 
-	private static final Map<String, Integer> FINGER_INDEX_MAP = Map.of("rightindex", 0, "rightmiddle", 1, "rightring",
-			2, "rightlittle", 3, "rightthumb", 4, "leftindex", 5, "leftmiddle", 6, "leftring", 7, "leftlittle", 8,
-			"leftthumb", 9);
+	private static final Map<String, Integer> FINGER_INDEX_MAP = Map.of("leftthumb", 0, "leftindex", 1, "leftmiddle",
+			2, "leftring", 3, "leftlittle", 4, "rightthumb", 5, "rightindex", 6, "rightmiddle", 7, "rightring", 8,
+			"rightlittle", 9);
 
 	private FileBiometricLoader() {
 	}
@@ -65,13 +65,19 @@ public final class FileBiometricLoader {
 		File dir = new File(dirPath);
 
 		File listDir[] = dir.listFiles();
+		if (listDir == null || listDir.length == 0) {
+			logger.error("No fingerprint directories found in {}", dirPath);
+			return tblFiles;
+		}
 		int numberOfSubfolders = listDir.length;
 
 		int min = 1;
 		int max = numberOfSubfolders;
 		int randomNumber = (int) (Math.random() * (max - min)) + min;
 		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+		String afterscenario = beforescenario.contains(":")
+				? beforescenario.substring(0, beforescenario.indexOf(':'))
+				: beforescenario;
 		if (afterscenario.contains("_")) {
 			afterscenario = afterscenario.replace("_", "0");
 		}
@@ -146,13 +152,19 @@ public final class FileBiometricLoader {
 			} else {
 				logger.error(dirPath + " is not a directory.");
 			}
+			if (listDir == null || listDir.length == 0) {
+				logger.error("No impression directories found in {}", dirPath);
+				return data;
+			}
 			int numberOfSubfolders = listDir.length;
 
 			int min = 1;
 			int max = numberOfSubfolders;
 			int randomNumber = (int) (Math.random() * (max - min)) + min;
 			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+			String afterscenario = beforescenario.contains(":")
+					? beforescenario.substring(0, beforescenario.indexOf(':'))
+					: beforescenario;
 			if (afterscenario.contains("_")) {
 				afterscenario = afterscenario.replace("_", "0");
 			}
@@ -224,13 +236,19 @@ public final class FileBiometricLoader {
 		} else {
 			logger.error(dirPath + " is not a directory.");
 		}
+		if (listDir == null || listDir.length == 0) {
+			logger.error("No impression directories found in {}", dirPath);
+			return data;
+		}
 		int numberOfSubfolders = listDir.length;
 
 		int min = 1;
 		int max = numberOfSubfolders;
 		int randomNumber;
 		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+		String afterscenario = beforescenario.contains(":")
+				? beforescenario.substring(0, beforescenario.indexOf(':'))
+				: beforescenario;
 		if (afterscenario.contains("_")) {
 			afterscenario = afterscenario.replace("_", "0");
 		}
@@ -316,7 +334,9 @@ public final class FileBiometricLoader {
 
 		String beforeScenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 
-		String afterScenario = beforeScenario.substring(0, beforeScenario.indexOf(':')).replace("_", "0");
+		String afterScenario = (beforeScenario.contains(":")
+				? beforeScenario.substring(0, beforeScenario.indexOf(':'))
+				: beforeScenario).replace("_", "0");
 
 		int currentScenarioNumber = Integer.parseInt(afterScenario);
 
@@ -449,13 +469,19 @@ public final class FileBiometricLoader {
 			File dir = new File(srcPath);
 
 			File listDir[] = dir.listFiles();
+			if (listDir == null || listDir.length == 0) {
+				logger.error("No iris directories found in {}", srcPath);
+				return retVal;
+			}
 			int numberOfSubfolders = listDir.length;
 
 			int min = 1;
 			int max = numberOfSubfolders;
 			int randomNumber = (int) (Math.random() * (max - min)) + min;
 			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+			String afterscenario = beforescenario.contains(":")
+					? beforescenario.substring(0, beforescenario.indexOf(':'))
+					: beforescenario;
 			if (afterscenario.contains("_")) {
 				afterscenario = afterscenario.replace("_", "0");
 			}
@@ -535,13 +561,19 @@ public final class FileBiometricLoader {
 		File dir = new File(srcPath);
 
 		File listDir[] = dir.listFiles();
+		if (listDir == null || listDir.length == 0) {
+			logger.error("No iris directories found in {}", srcPath);
+			return retVal;
+		}
 		int numberOfSubfolders = listDir.length;
 
 		int min = 1;
 		int max = numberOfSubfolders;
 		int randomNumber;
 		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-		String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+		String afterscenario = beforescenario.contains(":")
+				? beforescenario.substring(0, beforescenario.indexOf(':'))
+				: beforescenario;
 		if (afterscenario.contains("_")) {
 			afterscenario = afterscenario.replace("_", "0");
 		}
@@ -635,7 +667,9 @@ public final class FileBiometricLoader {
 
 		String beforeScenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
 
-		String afterScenario = beforeScenario.substring(0, beforeScenario.indexOf(':')).replace("_", "0");
+		String afterScenario = (beforeScenario.contains(":")
+				? beforeScenario.substring(0, beforeScenario.indexOf(':'))
+				: beforeScenario).replace("_", "0");
 
 		int currentScenarioNumber = Integer.parseInt(afterScenario);
 
@@ -710,13 +744,19 @@ public final class FileBiometricLoader {
 				}
 			};
 			File[] listDir = dir.listFiles(filter);
+			if (listDir == null || listDir.length == 0) {
+				logger.error("No face files found in {}", dirPath);
+				return new byte[][] { null, null };
+			}
 			int numberOfSubfolders = listDir.length;
 
 			int min = 1;
 			int max = numberOfSubfolders;
 			int randomNumber;
 			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+			String afterscenario = beforescenario.contains(":")
+					? beforescenario.substring(0, beforescenario.indexOf(':'))
+					: beforescenario;
 			if (afterscenario.contains("_")) {
 				afterscenario = afterscenario.replace("_", "0");
 			}
@@ -755,7 +795,7 @@ public final class FileBiometricLoader {
 
 	public static File[] getRandomIrisVariation(File[] listOfFiles) {
 		if (listOfFiles == null || listOfFiles.length == 0) {
-			System.out.println("No image files found in the directory.");
+			logger.warn("No image files found in the directory.");
 			return null;
 		}
 
@@ -777,7 +817,7 @@ public final class FileBiometricLoader {
 		commonNames.retainAll(rightIrisImages.keySet());
 
 		if (commonNames.isEmpty()) {
-			System.out.println("No matching left and right iris images found.");
+			logger.warn("No matching left and right iris images found.");
 			return null;
 		}
 
@@ -789,8 +829,8 @@ public final class FileBiometricLoader {
 
 		File[] selectedImages = { selectedLeftImage, selectedRightImage };
 
-		System.out.println("Selected Left Iris Image: " + selectedLeftImage.getAbsolutePath());
-		System.out.println("Selected Right Iris Image: " + selectedRightImage.getAbsolutePath());
+		logger.info("Selected Left Iris Image: {}", selectedLeftImage.getAbsolutePath());
+		logger.info("Selected Right Iris Image: {}", selectedRightImage.getAbsolutePath());
 
 		return selectedImages;
 	}

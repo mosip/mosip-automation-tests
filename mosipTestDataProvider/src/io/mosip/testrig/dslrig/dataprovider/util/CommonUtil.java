@@ -77,6 +77,36 @@ public class CommonUtil {
 		return normalizeAbsolute(Paths.get(String.valueOf(mountPath) + String.valueOf(tempPath)));
 	}
 
+	public static Path validateOutputPath(String outputPath, String contextKey) throws IOException {
+		if (outputPath == null || outputPath.isBlank()) {
+			throw new IOException("Output path is required");
+		}
+		if (outputPath.contains("..")) {
+			throw new IOException("Invalid output path");
+		}
+
+		Path normalizedPath = normalizeAbsolute(Paths.get(outputPath));
+		if (normalizedPath.toString().contains("..")) {
+			throw new IOException("Invalid output path");
+		}
+
+		Path parent = normalizedPath.getParent();
+		if (parent == null) {
+			throw new IOException("Invalid output path");
+		}
+
+		Path osTempRoot = getOsTempRoot();
+		Path ctxTempRoot = getContextTempRoot(contextKey);
+		boolean allowed = (osTempRoot != null && normalizedPath.startsWith(osTempRoot))
+				|| (ctxTempRoot != null && normalizedPath.startsWith(ctxTempRoot));
+		if (!allowed) {
+			throw new IOException("Refusing to write file outside allowed temp roots: " + normalizedPath);
+		}
+
+		Files.createDirectories(parent);
+		return normalizedPath;
+	}
+
 	public static void initializeUTCDateFormat(String contextKey) {
 		if (cachedUtcDateformat != null)
 			return;

@@ -104,7 +104,14 @@ public final class MasterdataCacheStore {
 				try {
 					cacheManager.destroyCache(cacheName);
 				} catch (Exception e) {
-					logger.debug("Failed to destroy masterdata cache {}: {}", cacheName, e.getMessage());
+					// Ensure no stale entries leak across runs even when destroy is unsupported/fails.
+					try {
+						cache.clear();
+					} catch (Exception clearException) {
+						logger.warn("Failed to clear masterdata cache {} after destroy failure: {}", cacheName,
+								clearException.getMessage());
+					}
+					logger.warn("Failed to destroy masterdata cache {}: {}", cacheName, e.getMessage());
 				}
 			}
 		}

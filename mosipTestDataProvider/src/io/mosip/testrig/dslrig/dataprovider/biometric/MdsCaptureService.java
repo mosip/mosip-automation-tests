@@ -61,7 +61,8 @@ public final class MdsCaptureService {
 		String mdsprofilePath = null;
 		String profileName = null;
 		int port = 0;
-		val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsbypass").toString();
+		Object bypassValue = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "mdsbypass");
+		val = bypassValue != null ? bypassValue.toString() : FALSE;
 		List<String> filteredAttribs = resident.getFilteredBioAttribtures();
 		List<BioModality> bioExceptions = resident.getBioExceptions();
 		List<String> bioexceptionlist = new ArrayList<String>();
@@ -149,7 +150,6 @@ public final class MdsCaptureService {
 					return new MDSRCaptureModel();
 			} catch (Throwable t) {
 				logger.error(" Port issue " + contextKey, t);
-				t.getStackTrace();
 				return null;
 			}
 
@@ -171,7 +171,6 @@ public final class MdsCaptureService {
 
 			catch (Throwable t) {
 				logger.error(" Face get capture   fail" + contextKey, t);
-				t.getStackTrace();
 				return null;
 			}
 
@@ -236,7 +235,6 @@ public final class MdsCaptureService {
 
 			catch (Throwable t) {
 				logger.error(" IRIS get capture  fail" + contextKey, t);
-				t.getStackTrace();
 				return null;
 			}
 
@@ -298,7 +296,6 @@ public final class MdsCaptureService {
 
 			catch (Throwable t) {
 				logger.error("Finger get capture fail" + contextKey, t);
-				t.getStackTrace();
 				return null;
 			}
 
@@ -316,7 +313,6 @@ public final class MdsCaptureService {
 
 					} catch (Throwable t) {
 						logger.error("Exception photo capture failure" + contextKey, t);
-						t.getStackTrace();
 						return null;
 					}
 
@@ -326,7 +322,6 @@ public final class MdsCaptureService {
 
 			catch (Throwable t) {
 				logger.error("Exceptionphoto face capture", t);
-				t.getStackTrace();
 				return null;
 			}
 			return capture;

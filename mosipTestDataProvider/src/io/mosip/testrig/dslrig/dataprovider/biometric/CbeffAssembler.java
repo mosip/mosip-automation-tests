@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.dataprovider.biometric;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -25,6 +26,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.IrisDataModel;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSDeviceCaptureModel;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -139,10 +141,11 @@ public final class CbeffAssembler {
 					.t(bioSubType.toString().substring(1, bioSubType.toString().length() - 1)).up().up();
 		}
 		if (toFile != null) {
-			FileOutputStream fos = new FileOutputStream(toFile);
-			PrintWriter writer = new PrintWriter(fos);
-			builder.toWriter(true, writer, null);
-			fos.close();
+			Path safePath = CommonUtil.validateOutputPath(toFile, contextKey);
+			try (FileOutputStream fos = new FileOutputStream(safePath.toFile());
+					PrintWriter writer = new PrintWriter(fos)) {
+				builder.toWriter(true, writer, null);
+			}
 		}
 
 		retXml = builder.asString(null);
@@ -212,10 +215,11 @@ public final class CbeffAssembler {
 		}
 
 		if (toFile != null) {
-			FileOutputStream fos = new FileOutputStream(toFile);
-			PrintWriter writer = new PrintWriter(fos);
-			builder.toWriter(true, writer, null);
-			fos.close();
+			Path safePath = CommonUtil.validateOutputPath(toFile, contextKey);
+			try (FileOutputStream fos = new FileOutputStream(safePath.toFile());
+					PrintWriter writer = new PrintWriter(fos)) {
+				builder.toWriter(true, writer, null);
+			}
 		}
 		retXml = builder.asString(null);
 		return retXml;

@@ -35,8 +35,11 @@ public final class PacketMetadataBuilder {
 			String centerId, HashMap<String, String[]> fileInfo, String contextKey,
 			ContextSchemaDetail contextSchemaDetail) {
 
-		String templateMetaJsonPath = System.getProperty("java.io.tmpdir")
-				+ VariableManager.getVariableValue(contextKey, "templateIDMeta").toString().trim();
+		Object templateMetaObj = VariableManager.getVariableValue(contextKey, "templateIDMeta");
+		if (templateMetaObj == null) {
+			throw new IllegalStateException("templateIDMeta is not configured for context: " + contextKey);
+		}
+		String templateMetaJsonPath = System.getProperty("java.io.tmpdir") + templateMetaObj.toString().trim();
 
 		String templateIdentityStr = CommonUtil.readFromJSONFile(templateMetaJsonPath);
 		JSONObject templateIdentity = new JSONObject(templateIdentityStr).getJSONObject(IDENTITY);
@@ -114,8 +117,11 @@ public final class PacketMetadataBuilder {
 			String machineId, String centerId, String contextKey, ContextSchemaDetail contextSchemaDetail) {
 		JSONObject metaInfo = new JSONObject();
 		JSONArray metaDataArray = new JSONArray();
-		String templateMetaJsonPath = System.getProperty("java.io.tmpdir")
-				+ VariableManager.getVariableValue(contextKey, "templateIDMeta").toString().trim();
+		Object templateMetaObj = VariableManager.getVariableValue(contextKey, "templateIDMeta");
+		if (templateMetaObj == null) {
+			throw new IllegalStateException("templateIDMeta is not configured for context: " + contextKey);
+		}
+		String templateMetaJsonPath = System.getProperty("java.io.tmpdir") + templateMetaObj.toString().trim();
 
 		String templateIdentityStr = CommonUtil.readFromJSONFile(templateMetaJsonPath);
 		JSONObject templateIdentity = new JSONObject(templateIdentityStr).getJSONObject(IDENTITY);

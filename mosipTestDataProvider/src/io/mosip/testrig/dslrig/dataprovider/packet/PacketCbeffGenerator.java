@@ -1,8 +1,8 @@
 package io.mosip.testrig.dslrig.dataprovider.packet;
 
-import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
+import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 /**
@@ -28,9 +29,12 @@ public final class PacketCbeffGenerator {
 			String contextKey, String purpose, String qualityScore, List<String> missAttribs,
 			boolean genarateValidCbeff, String process) throws Exception {
 
-		String strVal = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "usemds").toString();
+		Object useMdsValue = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "usemds");
+		String strVal = useMdsValue != null ? useMdsValue.toString() : "false";
 		boolean bMDS = Boolean.valueOf(strVal);
 		String cbeff = null;
+		Path safeOutputPath = CommonUtil.validateOutputPath(outFile, contextKey);
+		String safeOutFile = safeOutputPath.toString();
 
 		if (resident.getBioExceptions() == null || resident.getBioExceptions().isEmpty())
 			cbeff = resident.getBiometric().getCbeff();
@@ -47,48 +51,38 @@ public final class PacketCbeffGenerator {
 				}
 
 				resident.getBiometric().setCapture(capture.getLstBiometrics());
-				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, outFile, missAttribs,
+				String strCBeff = BiometricDataProvider.toCBEFFFromCapture(bioAttrib, capture, safeOutFile, missAttribs,
 						genarateValidCbeff, resident.getBioExceptions(), contextKey);
 
 				resident.getBiometric().setCbeff(strCBeff);
 
 			} else {
-			try(FileOutputStream fos = new FileOutputStream(outFile)){
-				BufferedOutputStream bos = new BufferedOutputStream(fos);
-
-				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
-				writer.print(cbeff);
-				writer.close();
-				fos.close();
-				bos.close();
-			}catch(Exception e) {
-				logger.error("Error while writing CBEFF to file", e);
-				return false;
+				try (FileOutputStream fos = new FileOutputStream(safeOutputPath.toFile());
+						PrintWriter writer = new PrintWriter(fos)) {
+					writer.print(cbeff);
+				} catch (Exception e) {
+					logger.error("Error while writing CBEFF to file", e);
+					return false;
+				}
 			}
-		}
 
 		} else {
 
 			if (cbeff == null) {
 
-				String strCBeff = BiometricDataProvider.toCBEFF(bioAttrib, resident.getBiometric(), outFile,
+				String strCBeff = BiometricDataProvider.toCBEFF(bioAttrib, resident.getBiometric(), safeOutFile,
 						genarateValidCbeff, contextKey);
 				resident.getBiometric().setCbeff(strCBeff);
 
 			} else {
-				try(FileOutputStream fos = new FileOutputStream(outFile)){
-				BufferedOutputStream bos = new BufferedOutputStream(fos);
-
-				PrintWriter writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outFile)));
-				writer.print(cbeff);
-				writer.close();
-				fos.close();
-				bos.close();
-				}catch(Exception e) {
+				try (FileOutputStream fos = new FileOutputStream(safeOutputPath.toFile());
+						PrintWriter writer = new PrintWriter(fos)) {
+					writer.print(cbeff);
+				} catch (Exception e) {
 					logger.error("Error while writing CBEFF to file", e);
 					return false;
+				}
 			}
-		}
 		}
 		resident.save();
 		return true;

@@ -173,7 +173,8 @@ public final class EvidenceJsonBuilder {
 					}
 					continue;
 				} else if (s.getId().toLowerCase().contains("consent")) {
-					String consentFlag = VariableManager.getVariableValue(contextKey, "consent").toString();
+					Object consentValue = VariableManager.getVariableValue(contextKey, "consent");
+					String consentFlag = consentValue != null ? consentValue.toString() : "";
 					if (consentFlag.equalsIgnoreCase("yes"))
 						identity.put(s.getId(), "Y");
 					else if (consentFlag.equalsIgnoreCase("no"))

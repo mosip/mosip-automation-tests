@@ -258,7 +258,8 @@ public final class IdJsonBuilder {
 		Hashtable<String, List<DynamicFieldModel>> dynaFields = resident.getDynaFields();
 		Hashtable<String, List<MosipGenderModel>> genderTypes = resident.getGenderTypes();
 		boolean found = false;
-		String flow = VariableManager.getVariableValue(contextKey, "process").toString();
+		Object processValue = VariableManager.getVariableValue(contextKey, "process");
+		String flow = processValue != null ? processValue.toString() : "";
 
 		if (s.getFieldType().equals("dynamic")) {
 
@@ -453,7 +454,7 @@ public final class IdJsonBuilder {
 							+ fileInfo.get(PacketTemplateProvider.RID_FOLDER)[1];
 					try {
 						List<String> missAttribs = resident.getMissAttributes();
-						List<String> bioAttrib = s.getBioAttributes();
+						List<String> bioAttrib = new ArrayList<>(s.getBioAttributes());
 						if (missAttribs != null && !missAttribs.isEmpty()) {
 							bioAttrib.removeAll(missAttribs);
 							resident.getBiometric().setCbeff(null);
@@ -530,7 +531,7 @@ public final class IdJsonBuilder {
 						try {
 
 							List<String> missAttribs = resident.getMissAttributes();
-							List<String> bioAttrib = s.getBioAttributes();
+							List<String> bioAttrib = new ArrayList<>(s.getBioAttributes());
 							if (missAttribs != null && !missAttribs.isEmpty()) {
 								bioAttrib.removeAll(missAttribs);
 								resident.getBiometric().setCbeff(null);
