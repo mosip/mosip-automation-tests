@@ -1012,10 +1012,14 @@ public class PacketSyncService {
 
 
 				MosipDocument doc = null;
-				for (MosipDocument md : persona.getDocuments()) {
-					if (md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
-						doc = md;
-						break;
+				if (persona.getDocuments() != null) {
+					for (MosipDocument md : persona.getDocuments()) {
+						String docCategoryCode = md.getDocCategoryCode() == null ? "" : md.getDocCategoryCode().toLowerCase();
+						String docCategoryName = md.getDocCategoryName() == null ? "" : md.getDocCategoryName().toLowerCase();
+						if (docCategoryCode.equals(key) || docCategoryName.equals(key)) {
+							doc = md;
+							break;
+						}
 					}
 				}
 

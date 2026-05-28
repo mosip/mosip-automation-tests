@@ -519,7 +519,11 @@ public  class MosipMasterData {
 	        JSONArray idSchema = new JSONArray();
 	        double schemaVersion = 0.0;
 	        String schemaTitle = "";
-	        JSONArray screens = resp.getJSONObject(processKey).getJSONArray("screens");
+	        JSONArray screens = resolveScreens(resp, processKey);
+	        if (screens == null || screens.length() == 0) {
+	            logger.warn("No screens found in idschema/latest response for processKey={}", processKey);
+	            return tbl;
+	        }
 	        for (int i = 0; i < screens.length(); i++) {
 	            JSONArray fields = screens.getJSONObject(i).getJSONArray("fields");
 	            for (int j = 0; j < fields.length(); j++) {
@@ -569,6 +573,44 @@ public  class MosipMasterData {
 	        logger.error("Error processing ID schema: " + e.getMessage(), e);
 	    }
 	    return tbl;
+	}
+
+	private static JSONArray resolveScreens(JSONObject resp, String processKey) {
+		if (resp == null) {
+			return null;
+		}
+		if (processKey != null) {
+			JSONObject processObject = resp.optJSONObject(processKey);
+			if (processObject != null) {
+				JSONArray screens = processObject.optJSONArray("screens");
+				if (screens != null && screens.length() > 0) {
+					return screens;
+				}
+			}
+		}
+
+		JSONArray rootScreens = resp.optJSONArray("screens");
+		if (rootScreens != null && rootScreens.length() > 0) {
+			return rootScreens;
+		}
+
+		Iterator<String> keys = resp.keys();
+		while (keys.hasNext()) {
+			String key = keys.next();
+			if (!key.endsWith("Process")) {
+				continue;
+			}
+			JSONObject processObject = resp.optJSONObject(key);
+			if (processObject == null) {
+				continue;
+			}
+			JSONArray screens = processObject.optJSONArray("screens");
+			if (screens != null && screens.length() > 0) {
+				logger.info("Using fallback process block {} for idschema/latest", key);
+				return screens;
+			}
+		}
+		return null;
 	}
 
 	private static String getIdSchemaLatestUrl(String contextKey) {
