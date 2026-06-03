@@ -16,12 +16,9 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class NameProvider {
 	private static final Logger logger = LoggerFactory.getLogger(NameProvider.class);
-	private static String resourceName_male;
-	private static String resourceName_female;
-	private static String resourceName_surname;
 
 	static String[] getSurNames(String lang, int count, String contextKey) {
-		resourceName_surname = System.getProperty("java.io.tmpdir")
+		String resourceName_surname = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.namesdatapath").toString() + "/"
 				+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/surnames.csv";
 		logger.info("resourceName surname : "+ resourceName_surname);
@@ -136,20 +133,20 @@ public class NameProvider {
 		Gender recGender = Gender.Female;
 
 		if (gender == Gender.Male) {
-			resourceName_male = System.getProperty("java.io.tmpdir")
+			String resourceNameMale = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.namesdatapath").toString() + "/"
 					+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/boy_names.csv";
-			logger.info("resourceName  : "+ resourceName_male);
+			logger.info("resourceName  : "+ resourceNameMale);
 
-			resPath = String.format(resourceName_male, lang);
+			resPath = String.format(resourceNameMale, lang);
 			recGender = Gender.Male;
 		} else {
-			resourceName_female = System.getProperty("java.io.tmpdir")
+			String resourceNameFemale = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.namesdatapath").toString() + "/"
 					+ VariableManager.getVariableValue(contextKey, "langCode").toString() + "/girl_names.csv";
-			logger.info("resourceName  : "+ resourceName_female);
+			logger.info("resourceName  : "+ resourceNameFemale);
 
-			resPath = String.format(resourceName_female, lang);
+			resPath = String.format(resourceNameFemale, lang);
 		}
 
 		try {
@@ -165,9 +162,9 @@ public class NameProvider {
 			List<String[]> recs = helper.readRecords(recNos);
 
 			String[] surNames = getSurNames(lang, count, contextKey);
-			Name name = new Name();
 			int i = 0;
 			for (String[] r : recs) {
+				Name name = new Name();
 				if (lang.equals("en")) {
 					name.setFirstName(CommonUtil.toCaptialize(r[1]));
 					name.setSurName(CommonUtil.toCaptialize(surNames[i]));

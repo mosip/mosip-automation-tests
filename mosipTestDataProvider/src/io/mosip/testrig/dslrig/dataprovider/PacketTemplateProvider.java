@@ -122,6 +122,9 @@ public class PacketTemplateProvider {
 			if (idJson != null && idJson.equalsIgnoreCase("Failed to generate biometric via mds"))
 				return "Failed to generate biometric via mds";
 
+			if (idJson == null || idJson.isBlank())
+				return "Failed to generate ID JSON - biometric generation failed";
+
 		} catch (Throwable e) {
 			logger.error("generate", e);
 			return e.getMessage();
@@ -277,10 +280,8 @@ public class PacketTemplateProvider {
 		}
 
 		allIdentityDetails.put("langCodes", resident.getPrimaryLanguage());
-		if (process.equals("NEW")) {
-			allIdentityDetails.put("updatableFields", null);
-			allIdentityDetails.put("updatableFieldGroups", null);
-		}
+		allIdentityDetails.put("updatableFields", null);
+		allIdentityDetails.put("updatableFieldGroups", null);
 
 		return allIdentityDetails;
 	}

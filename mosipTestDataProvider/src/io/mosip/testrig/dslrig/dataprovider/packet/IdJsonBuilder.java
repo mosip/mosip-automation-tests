@@ -570,6 +570,8 @@ public final class IdJsonBuilder {
 					continue;
 				} else if (s.getType().equals(DOCUMENTTYPE)) {
 
+					if (resident.getDocuments() == null)
+						continue;
 					int index = 0;
 					for (MosipDocument doc : resident.getDocuments()) {
 

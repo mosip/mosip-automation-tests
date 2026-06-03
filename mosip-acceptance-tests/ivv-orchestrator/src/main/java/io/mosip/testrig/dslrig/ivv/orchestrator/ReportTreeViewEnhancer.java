@@ -57,11 +57,14 @@ public final class ReportTreeViewEnhancer {
                     + "li.style.display=show?'':'none';});});})();</script>";
 
 
+    // scrollIntoView handles content-visibility:auto natively (spec requires browsers to
+    // expand skipped content before scrolling). The old getBoundingClientRect approach
+    // returned placeholder heights (contain-intrinsic-size: 480px) for off-screen
+    // scenario sections, causing clicks to land at the wrong position until the content
+    // happened to be rendered — requiring 2-3 clicks to navigate reliably.
     private static final String REPORT_MAIN_SCROLL_SCRIPT =
-            "<script>(function(){function m(){return document.querySelector('.report-main')}"
-                    + "function s(el,sm){var p=m();if(!p||!el)return;"
-                    + "var t=el.getBoundingClientRect().top-p.getBoundingClientRect().top+p.scrollTop-10;"
-                    + "p.scrollTo({top:Math.max(0,t),behavior:sm?'smooth':'auto'})}"
+            "<script>(function(){"
+                    + "function s(el,sm){if(!el)return;el.scrollIntoView({behavior:sm?'smooth':'auto',block:'start'})}"
                     + "function h(hash,sm){if(!hash||hash.charAt(0)!=='#')return;"
                     + "var el=document.getElementById(hash.slice(1));if(el)s(el,sm)}"
                     + "function navClick(e){var a=e.target.closest&&e.target.closest('a[href^=\"#\"]');"
@@ -74,7 +77,7 @@ public final class ReportTreeViewEnhancer {
                     + "var el=document.getElementById(id.slice(1));if(!el||!el.closest('.report-main'))return;"
                     + "e.preventDefault();h(id,true)}"
                     + "function init(){document.querySelector('.report-sidebar')?.addEventListener('click',navClick);"
-                    + "m()?.addEventListener('click',mainClick);"
+                    + "document.querySelector('.report-main')?.addEventListener('click',mainClick);"
                     + "h(location.hash||'#report-exec-summary',false);"
                     + "if(!document.getElementById('report-exec-summary'))h('#summary',false)}"
                     + "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);"
@@ -535,6 +538,9 @@ public final class ReportTreeViewEnhancer {
                 out.replace(
                         "href=\"#summary\" role=\"treeitem\"><span class=\"tree-icon\"",
                         "href=\"#report-exec-summary\" role=\"treeitem\"><span class=\"tree-icon\"");
+        // Upgrade old getBoundingClientRect-based scroll script to the scrollIntoView
+        // version so that re-enhanced existing reports also get the navigation fix.
+        out = upgradeScrollScript(out);
         if (!out.contains("h(location.hash||'#report-exec-summary'")) {
             String inject = REPORT_MAIN_SCROLL_SCRIPT + "\n";
             if (out.contains("</body>")) {
@@ -548,6 +554,28 @@ public final class ReportTreeViewEnhancer {
         // it here is safe: it only wraps the orphaned H3s that still lack a section.
         out = wrapScenarioDetailCards(out);
         return stripScenarioDetailCardChrome(out);
+    }
+
+
+    private static String upgradeScrollScript(String html) {
+        // Detect old getBoundingClientRect-based scroll script by its unique signature.
+        // content-visibility:auto causes getBoundingClientRect to return placeholder
+        // heights for off-screen elements, so the calculated scroll position is wrong
+        // until the element has been rendered — requiring multiple clicks to navigate.
+        String oldSignature = "getBoundingClientRect().top-p.getBoundingClientRect().top+p.scrollTop";
+        int sigIdx = html.indexOf(oldSignature);
+        if (sigIdx < 0) {
+            return html;
+        }
+        int scriptStart = html.lastIndexOf("<script>", sigIdx);
+        if (scriptStart < 0) {
+            return html;
+        }
+        int scriptEnd = html.indexOf("</script>", sigIdx);
+        if (scriptEnd < 0) {
+            return html;
+        }
+        return html.substring(0, scriptStart) + REPORT_MAIN_SCROLL_SCRIPT + html.substring(scriptEnd + 9);
     }
 
 
