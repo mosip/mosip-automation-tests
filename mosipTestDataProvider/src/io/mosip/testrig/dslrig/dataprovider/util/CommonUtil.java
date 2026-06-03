@@ -100,12 +100,12 @@ public class CommonUtil {
 			throw new IOException("Output path is outside allowed temp roots");
 		}
 
-		if (!resolved.startsWith(matchedRoot)) {
+		if (!isPathUnderRoot(resolved, matchedRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
 
 		Path safePath = buildPathUnderRoot(matchedRoot, resolved);
-		if (!safePath.startsWith(matchedRoot)) {
+		if (!isPathUnderRoot(safePath, matchedRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
 		if (safePath.toString().contains("..")) {
@@ -113,7 +113,7 @@ public class CommonUtil {
 		}
 
 		Path safeParent = safePath.getParent();
-		if (safeParent == null || !safeParent.startsWith(matchedRoot)) {
+		if (safeParent == null || !isPathUnderRoot(safeParent, matchedRoot)) {
 			throw new IOException("Invalid output path");
 		}
 		Files.createDirectories(safeParent);
@@ -122,24 +122,47 @@ public class CommonUtil {
 
 	private static Path findMatchingAllowedRoot(Path candidate, String contextKey) {
 		Path osTempRoot = getOsTempRoot();
-		if (osTempRoot != null && candidate.startsWith(osTempRoot)) {
+		if (osTempRoot != null && isPathUnderRoot(candidate, osTempRoot)) {
 			return osTempRoot;
 		}
 
 		Path ctxTempRoot = getContextTempRoot(contextKey);
-		if (ctxTempRoot != null && candidate.startsWith(ctxTempRoot)) {
+		if (ctxTempRoot != null && isPathUnderRoot(candidate, ctxTempRoot)) {
 			return ctxTempRoot;
 		}
 
 		return null;
 	}
 
+	private static boolean isPathUnderRoot(Path path, Path root) {
+		Path canonicalRoot = toCanonicalPath(root);
+		Path canonicalPath = toCanonicalPath(path);
+		return canonicalPath.startsWith(canonicalRoot);
+	}
+
+	private static Path toCanonicalPath(Path path) {
+		try {
+			if (Files.exists(path)) {
+				return path.toRealPath();
+			}
+			Path parent = path.getParent();
+			if (parent != null && Files.exists(parent)) {
+				return parent.toRealPath().resolve(path.getFileName()).normalize();
+			}
+		} catch (IOException ignored) {
+			// fall through
+		}
+		return path.toAbsolutePath().normalize();
+	}
+
 	private static Path buildPathUnderRoot(Path root, Path candidate) throws IOException {
-		Path relative = root.relativize(candidate.normalize());
+		Path canonicalRoot = toCanonicalPath(root);
+		Path canonicalCandidate = toCanonicalPath(candidate);
+		Path relative = canonicalRoot.relativize(canonicalCandidate.normalize());
 		if (containsUnsafePathComponent(relative)) {
 			throw new IOException("Invalid output path");
 		}
-		Path safePath = root;
+		Path safePath = canonicalRoot;
 		for (int i = 0; i < relative.getNameCount(); i++) {
 			safePath = safePath.resolve(relative.getName(i));
 		}

@@ -194,8 +194,7 @@ public class PacketTemplateProvider {
 		Map<String, DocumentDto> documents = PacketTemplateDocuments.buildDocumentMap(resident, idJson,
 				contextSchemaDetail);
 		allIdentityDetails.putAll(documents);
-		JSONObject json = new JSONObject(idJson);
-		json = json.getJSONObject(IDENTITY);
+		JSONObject json = extractIdentityJson(idJson, contextKey, resident);
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
@@ -233,6 +232,26 @@ public class PacketTemplateProvider {
 			json = identityWrapper; 
 		}
 		return json;
+	}
+
+	private JSONObject extractIdentityJson(String idJson, String contextKey, ResidentModel resident) {
+		if (idJson == null || idJson.isBlank()) {
+			RestClient.logInfo(contextKey, "ID JSON is blank; continuing with empty identity object");
+			return new JSONObject();
+		}
+		try {
+			JSONObject root = new JSONObject(idJson);
+			JSONObject identity = root.optJSONObject(IDENTITY);
+			if (identity == null) {
+				RestClient.logInfo(contextKey, "ID JSON does not contain identity; continuing with empty identity object");
+				return new JSONObject();
+			}
+			return identity;
+		} catch (JSONException e) {
+			logger.warn("Invalid ID JSON while processing MVEL. residentId={}", resident != null ? resident.getId() : null, e);
+			RestClient.logInfo(contextKey, "Invalid ID JSON detected; continuing with empty identity object");
+			return new JSONObject();
+		}
 	}
 
 	static Map<String, Object> getIdentityObject(List<MosipIDSchema> schemas, String process, double schemaVersion,

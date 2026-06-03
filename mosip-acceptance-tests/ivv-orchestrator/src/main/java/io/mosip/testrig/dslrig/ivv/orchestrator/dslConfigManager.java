@@ -118,12 +118,12 @@ public class dslConfigManager extends ConfigManager {
 
 	public static synchronized boolean isInTobeBugList(String scenario) {
 	    Map<String, String> skipMap = loadTestcaseToBeSkippedMap();
-	    return skipMap.containsKey(scenario);
+	    return skipMap.containsKey(normalizeScenarioKey(scenario));
 	}
 
 	public static String getBugId(String scenario) {
 	    Map<String, String> skipMap = loadTestcaseToBeSkippedMap();
-	    return skipMap.getOrDefault(scenario, "");
+	    return skipMap.getOrDefault(normalizeScenarioKey(scenario), "");
 	}
 
 	public static Map<String, String> loadTestcaseToBeSkippedMap() {
@@ -134,17 +134,23 @@ public class dslConfigManager extends ConfigManager {
 
 	        String line;
 	        while ((line = br.readLine()) != null) {
+	            line = line == null ? "" : line.trim();
+	            if (line.isEmpty()) {
+	                continue;
+	            }
 
 	            if (line.startsWith("#")) {
 	                continue;
 	            }
 
 	            if (line.contains("==")) {
-	                String[] parts = line.split("==");
+	                String[] parts = line.split("==", 2);
 	                if (parts.length > 1) {
 	                    String bugId = parts[0].trim();
-	                    String scenario = parts[1].trim();
-	                    testcaseToBeSkippedMap.put(scenario, bugId);
+	                    String scenario = normalizeScenarioKey(parts[1]);
+	                    if (!scenario.isEmpty()) {
+	                    	testcaseToBeSkippedMap.put(scenario, bugId);
+	                    }
 	                }
 	            }
 	        }
@@ -153,6 +159,32 @@ public class dslConfigManager extends ConfigManager {
 	    }
 
 	    return testcaseToBeSkippedMap;
+	}
+
+	private static String normalizeScenarioKey(String scenario) {
+		if (scenario == null) {
+			return "";
+		}
+
+		String normalized = scenario.trim();
+		if (normalized.isEmpty()) {
+			return "";
+		}
+
+		int inlineCommentIndex = normalized.indexOf('#');
+		if (inlineCommentIndex >= 0) {
+			normalized = normalized.substring(0, inlineCommentIndex).trim();
+		}
+
+		if (normalized.toUpperCase().startsWith("S-")) {
+			normalized = normalized.substring(2).trim();
+		}
+
+		normalized = normalized.replaceAll("\\s+", "");
+		if (normalized.matches("\\d+")) {
+			normalized = String.valueOf(Integer.parseInt(normalized));
+		}
+		return "S-" + normalized.toUpperCase();
 	}
 
 

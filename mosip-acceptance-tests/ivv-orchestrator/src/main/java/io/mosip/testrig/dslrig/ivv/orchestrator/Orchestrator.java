@@ -108,6 +108,21 @@ public class Orchestrator {
 	public void beforeSuite() {
 		TestRunner.initializeResourcePaths();
 
+		// Ensure BaseTestCase path context is set for scenarios that use AdminTestUtil.loadyaml()
+		// (e.g. GetEmailByUIN, GetPhoneByUIN, WritePersonaData). When not run via TestRunner.main(),
+		// setRunContext() is never called and getGlobalResourcePath() returns a fallback string.
+		BaseTestCase.setRunContext(TestRunner.checkRunType(), TestRunner.jarUrl);
+
+		// Ensure MosipTemporaryTestResource is populated. copyTestResources() is normally called
+		// by TestRunner.main(), but IDE/Surefire runs skip main(). Without this, all scenarios
+		// using yml files from idaData/ (and other subdirectories) fail mid-run once 20 have
+		// exhausted retries and the global threshold fires.
+		File globalResourceDir = new File(TestRunner.getGlobalResourcePath());
+		if (!globalResourceDir.exists()) {
+			logger.info("MosipTemporaryTestResource not found; copying test resources (IDE/Surefire run without TestRunner.main())");
+			TestRunner.copyTestResources();
+		}
+
 		beforeSuiteFailed = false;
 		beforeSuiteSetupComplete = false;
 		beforeSuiteExeuted = false;
@@ -510,7 +525,7 @@ public class Orchestrator {
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 
 
-		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
+		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId()) && isFullSuiteRun()) {
 			extentTest.skip("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 			failBeforeSuiteIfScenario0Skipped(scenario);
@@ -519,14 +534,14 @@ public class Orchestrator {
 			throw new SkipException("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 		}
-		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
+		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId()) && isFullSuiteRun()) {
 			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform known issue");
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
 		}
-		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
+		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId()) && isFullSuiteRun()) {
 			extentTest.skip("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
 			failBeforeSuiteIfScenario0Skipped(scenario);
@@ -843,6 +858,11 @@ public class Orchestrator {
 			current = current.getCause();
 		}
 		return current;
+	}
+
+	private static boolean isFullSuiteRun() {
+		String scenariosToExecute = ConfigManager.getproperty("scenariosToExecute");
+		return scenariosToExecute == null || scenariosToExecute.trim().isEmpty();
 	}
 
 	private static Boolean matchTags(String systemTags, ArrayList<String> scenarioTags) {

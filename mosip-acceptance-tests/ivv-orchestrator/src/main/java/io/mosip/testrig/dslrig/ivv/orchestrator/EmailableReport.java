@@ -87,11 +87,17 @@ public class EmailableReport implements IReporter {
 		for (ISuite suite : suites) {
 			suiteResults.add(new SuiteResult(suite));
 		}
-		writeDocumentStart();
-		writeHead();
-		writeBody();
-		writeDocumentEnd();
-		writer.close();
+		try {
+			writeDocumentStart();
+			writeHead();
+			writeBody();
+			writeDocumentEnd();
+		} catch (Exception e) {
+			logger.error("[REPORT-INTEGRITY] generateReport() failed during HTML body generation; "
+					+ "the report file may be incomplete. Cause: " + e.getMessage(), e);
+		} finally {
+			writer.close();
+		}
 
 		File primaryReportFile = new File(outputDirectory, fileName).getAbsoluteFile();
 		applyTreeViewEnhancement(primaryReportFile, "primary emailable report");
@@ -661,6 +667,11 @@ public class EmailableReport implements IReporter {
 
 					String[] scenarioDetails = getScenarioDetails(result);
 
+					// Skip placeholder entries produced for results with no Scenario parameter.
+					if ("UNKNOWN".equals(scenarioDetails[0])) {
+						continue;
+					}
+
 					String scenarioStart = BaseTestCaseUtil.sceanrioExecutionStatistics
 							.get("Scenario_" + scenarioDetails[0] + "_startTime");
 					String scenarioEnd = BaseTestCaseUtil.sceanrioExecutionStatistics
@@ -727,27 +738,31 @@ public class EmailableReport implements IReporter {
 								.get("Scenario_" + scenarioDetails[0] + "_startTime");
 						String scenarioEnd = BaseTestCaseUtil.sceanrioExecutionStatistics
 								.get("Scenario_" + scenarioDetails[0] + "_endTime");
+
+						// RC#1 FIX: scenarioStart may be null when a scenario was skipped before
+						// execution (before-suite failure, dependency failure) and never recorded its
+						// start time. Guard against null to prevent NumberFormatException that would
+						// corrupt the entire report file.
+						if (scenarioStart == null) {
+							logger.warn("[REPORT] Scenario=" + scenarioDetails[0]
+									+ " Thread=" + Thread.currentThread().getId()
+									+ " has no recorded startTime in sceanrioExecutionStatistics."
+									+ " Sidebar entry will show 0ms duration. ScenarioIndex=" + scenarioIndex);
+						}
+
+						long startTime = (scenarioStart != null) ? Long.parseLong(scenarioStart) : 0L;
 						long endTime;
 						if (scenarioEnd == null || scenarioEnd.isEmpty())
-							endTime = System.nanoTime();
+							endTime = (scenarioStart != null) ? System.nanoTime() : 0L;
 						else
 							endTime = Long.parseLong(scenarioEnd);
 
-						long startTime = Long.parseLong(scenarioStart);
-						long scenarioDuration = endTime - startTime;
+						long scenarioDuration = (startTime == 0L) ? 0L : (endTime - startTime);
 
-						totalScenarioDuration += scenarioDuration;
-						totalScenarioCount++;
-
-						if (scenarioDuration < fastestScenarioDuration) {
-							fastestScenarioDuration = scenarioDuration;
-							fastestScenarioName = "Scenario_" + scenarioDetails[0];
-						}
-
-						if (scenarioDuration > slowestScenarioDuration) {
-							slowestScenarioDuration = scenarioDuration;
-							slowestScenarioName = "Scenario_" + scenarioDetails[0];
-						}
+						// RC#3 FIX: Do NOT mutate totalScenarioDuration/totalScenarioCount here.
+						// calculateExecutionStats() already computed these values correctly and
+						// writeSuiteSummary() already consumed them. Mutating them again doubles
+						// (and later triples) the average/fastest/slowest stats.
 
 						String displayValue;
 
@@ -766,6 +781,12 @@ public class EmailableReport implements IReporter {
 						} else {
 							displayValue = PacketUtility.convertNanosToTime(scenarioDuration);
 						}
+
+						logger.debug("[REPORT] Scenario=" + scenarioDetails[0]
+								+ " ScenarioId=scn_" + scenarioIndex
+								+ " Thread=" + Thread.currentThread().getId()
+								+ " CssClass=" + cssClass
+								+ " SidebarEntry=true");
 
 						buffer.append("<tr class=\"").append(cssClass).append("\">").append("<td><a href=\"#m")
 								.append(scenarioIndex).append("\">").append(scenarioName).append("</a></td>")
@@ -787,12 +808,16 @@ public class EmailableReport implements IReporter {
 
 	private String[] getScenarioDetails(ITestResult result) {
 		Object[] parameters = result.getParameters();
-		Scenario s = (Scenario) parameters[1];
-
-		String[] s1 = new String[2];
-		s1[0] = s.getId();
-		s1[1] = s.getDescription();
-		return s1;
+		// S6201: pattern-matching instanceof binds 's' in one step, no separate cast needed
+		if (parameters != null && parameters.length >= 2 && parameters[1] instanceof Scenario s) {
+			return new String[]{s.getId() != null ? s.getId() : "UNKNOWN", s.getDescription()};
+		}
+		logger.warn("[REPORT] getScenarioDetails: result '"
+				+ (result.getMethod() != null ? result.getMethod().getMethodName() : "?")
+				+ "' has no Scenario parameter (paramCount="
+				+ (parameters == null ? "null" : parameters.length)
+				+ "). Using placeholder.");
+		return new String[]{"UNKNOWN", ""};
 	}
 
 	private String generateFailedAndSkippedReport(String outputDirectory) {
@@ -800,9 +825,11 @@ public class EmailableReport implements IReporter {
 		PrintWriter originalWriter = writer;
 		String failedReportName = buildFailedReportName();
 
-		try {
-
-			writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(outputDirectory, failedReportName))));
+		// S2093: try-with-resources guarantees failedWriter is always closed even when
+		// a write method throws. The explicit finally still restores the primary writer.
+		try (PrintWriter failedWriter = new PrintWriter(
+				new BufferedWriter(new FileWriter(new File(outputDirectory, failedReportName))))) {
+			writer = failedWriter;
 
 			writeDocumentStart();
 			writeHead();
@@ -816,15 +843,14 @@ public class EmailableReport implements IReporter {
 			writer.print("</body>");
 			writeDocumentEnd();
 
-			writer.close();
-
 			logger.info("Failed + Skipped report generated: " + failedReportName);
 
 		} catch (Exception e) {
 			logger.error("Error generating failed/skipped report", e);
+		} finally {
+			writer = originalWriter;
 		}
 
-		writer = originalWriter;
 		return failedReportName;
 	}
 
@@ -911,9 +937,8 @@ public class EmailableReport implements IReporter {
 		int scenarioIndex = 0;
 		for (SuiteResult suiteResult : suiteResults) {
 			for (TestResult testResult : suiteResult.getTestResults()) {
-				scenarioIndex += writeScenarioDetails(testResult.getFailedConfigurationResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getFailedTestResults(), scenarioIndex);
-				scenarioIndex += writeScenarioDetails(testResult.getIgnoredConfigurationResults(), scenarioIndex);
+				scenarioIndex += writeScenarioDetails(testResult.getIgnoredTestResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getknownIssuesTestResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getSkippedTestResults(), scenarioIndex);
 				scenarioIndex += writeScenarioDetails(testResult.getPassedTestResults(), scenarioIndex);
@@ -925,15 +950,32 @@ public class EmailableReport implements IReporter {
 	private int writeScenarioDetails(List<ClassResult> classResults, int startingScenarioIndex) {
 		int scenarioIndex = startingScenarioIndex;
 		for (ClassResult classResult : classResults) {
-			String className = classResult.getClassName();
 			for (MethodResult methodResult : classResult.getMethodResults()) {
 				List<ITestResult> results = methodResult.getResults();
 				assert !results.isEmpty();
 
-				String label = Utils
-						.escapeHtml(className + "#" + results.iterator().next().getMethod().getMethodName());
 				for (ITestResult result : results) {
-					writeScenario(scenarioIndex, label, result);
+					try {
+						writeScenario(scenarioIndex, result);
+					} catch (Exception ex) {
+						// One scenario must not silently prevent all subsequent ones from getting
+						// their anchor. Write a minimal error stub so the H3 id exists and the
+						// sidebar link does not become a dead anchor.
+						logger.error("[REPORT] writeScenario failed for m" + scenarioIndex
+								+ "; writing error stub. Cause: " + ex.getMessage(), ex);
+						try {
+							writer.print("<h3 id=\"m");
+							writer.print(scenarioIndex);
+							writer.print("\" class=\"scenario-anchor\"></h3>");
+							writer.print("<table class=\"result\"><tr><td colspan=\"1\">");
+							writer.print(Utils.escapeHtml("Error rendering scenario detail: "
+									+ ex.getClass().getSimpleName() + ": " + ex.getMessage()));
+							writer.print("</td></tr></table>");
+							writer.print("<p class=\"totop\"><a href=\"#summary\">back to summary</a></p>");
+						} catch (Exception ignored) {
+							// secondary write failure — nothing more we can do
+						}
+					}
 					scenarioIndex++;
 				}
 			}
@@ -943,19 +985,25 @@ public class EmailableReport implements IReporter {
 	}
 
 
-	private void writeScenario(int scenarioIndex, String label, ITestResult result) {
+	private void writeScenario(int scenarioIndex, ITestResult result) {
 		String anchorClass = "scenario-anchor";
+		String scenarioId = "?";
 		Object[] parameters = result.getParameters();
-		if (parameters != null && parameters.length > 1 && parameters[1] instanceof Scenario) {
-			String sid = ((Scenario) parameters[1]).getId();
-			if (sid != null) {
-				if ("0".equalsIgnoreCase(sid)) {
-					anchorClass += " scenario-anchor--before-suite";
-				} else if ("AFTER_SUITE".equalsIgnoreCase(sid)) {
-					anchorClass += " scenario-anchor--after-suite";
-				}
+		// S6201: pattern-matching instanceof removes the separate cast
+		if (parameters != null && parameters.length > 1 && parameters[1] instanceof Scenario s) {
+			scenarioId = s.getId() != null ? s.getId() : "?";
+			if ("0".equalsIgnoreCase(scenarioId)) {
+				anchorClass += " scenario-anchor--before-suite";
+			} else if ("AFTER_SUITE".equalsIgnoreCase(scenarioId)) {
+				anchorClass += " scenario-anchor--after-suite";
 			}
 		}
+
+		logger.debug("[REPORT] Scenario=" + scenarioId
+				+ " ScenarioId=m" + scenarioIndex
+				+ " Thread=" + Thread.currentThread().getId()
+				+ " MainPanel=true");
+
 		writer.print("<h3 id=\"m");
 		writer.print(scenarioIndex);
 		writer.print("\" class=\"");
@@ -1177,7 +1225,13 @@ public class EmailableReport implements IReporter {
 					}
 				}
 			}
-			Set<ITestResult> testResultsSubSet = Set.copyOf(testResultsSubList);
+			// RC#5 FIX: Set.copyOf() returns an unordered set whose iteration order
+			// is JVM-internal and non-reproducible. groupResults() sorts by class+method
+			// name, but when all DSL scenarios share the same class and method the
+			// comparator returns 0 for every pair, making the sort order fully dependent
+			// on the input order. Use LinkedHashSet to preserve the insertion order
+			// established by the testResultsSubList iteration above.
+			Set<ITestResult> testResultsSubSet = new java.util.LinkedHashSet<>(testResultsSubList);
 			return testResultsSubSet;
 		}
 
@@ -1263,7 +1317,7 @@ public class EmailableReport implements IReporter {
 
 
 		public List<ClassResult> getIgnoredConfigurationResults() {
-			return ignoredTestResults;
+			return skippedConfigurationResults;
 		}
 
 		public List<ClassResult> getknownIssuesTestResults() {

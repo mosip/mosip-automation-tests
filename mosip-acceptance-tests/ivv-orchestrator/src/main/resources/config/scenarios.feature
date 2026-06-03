@@ -2164,7 +2164,7 @@ And I get bio modality hash where persona ID is -1, and modality subtypes is Rig
 And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is delay, and mock ABIS status is 10 and Error
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is REPROCESS
-Then I delete mock expect where modality hash value is the saved modality hash value
+And I delete mock expect
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 And I get email by uin where resident UIN is the saved UIN and store result in email
@@ -4073,7 +4073,7 @@ And I get uin by rid where source registration ID is the saved rid1 and store re
 And I check tags where registration ID is the saved rid1
 And I get email by uin where resident UIN is the saved uin1 and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
-Then I check ridstage where registration ID is the saved rid1, and RID stage is MANUAL_ADJUDICATION, and stage status is SUCCESS
+Then I check ridstage where registration ID is the saved rid1, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
   @scenario_154

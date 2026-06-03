@@ -113,8 +113,12 @@ public class ResidentModel  implements Serializable {
 		return jsonStr;
 	}
 
-	public void save() throws IOException {
-		Files.write(Paths.get(path), this.toJSONString().getBytes());
+	public synchronized void save() throws IOException {
+		if (path == null || path.isBlank()) {
+			logger.warn("Skipping resident save because persona path is not set for residentId={}", id);
+			return;
+		}
+		Files.write(Paths.get(path), this.toJSONString().getBytes(StandardCharsets.UTF_8));
 	}
 
 

@@ -1,7 +1,5 @@
 package io.mosip.testrig.dslrig.dataprovider.persona;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.Base64;
 import java.util.Hashtable;
 import java.util.List;
@@ -11,9 +9,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.lowagie.text.DocumentException;
-
 import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
+import io.mosip.testrig.dslrig.dataprovider.DateOfBirthProvider;
 import io.mosip.testrig.dslrig.dataprovider.DocumentProvider;
 import io.mosip.testrig.dslrig.dataprovider.PhotoProvider;
 import io.mosip.testrig.dslrig.dataprovider.models.BiometricDataModel;
@@ -168,6 +165,7 @@ public final class PersonaBiometricsAssembler {
 		boolean documentsReady = true;
 		if (bDocRequired) {
 			try {
+				ensureDob(resident, attributeList, contextKey);
 				Object lowQualityDocumentAttr = attributeList.get(ResidentAttribute.RA_LowQualityDocument);
 				boolean generateLowQualityDocuments = lowQualityDocumentAttr != null
 						&& Boolean.parseBoolean(lowQualityDocumentAttr.toString());
@@ -181,8 +179,8 @@ public final class PersonaBiometricsAssembler {
 									&& doc.getDocCategoryCode().equalsIgnoreCase(requiredDocCategory))
 							.collect(Collectors.toList()));
 				}
-			} catch (DocumentException | IOException | ParseException e) {
-				logger.error("Document generation failed: {}", e.getMessage());
+			} catch (Exception e) {
+				logger.error("Document generation failed: {}", e.getMessage(), e);
 				documentsReady = false;
 			}
 		}
@@ -206,6 +204,33 @@ public final class PersonaBiometricsAssembler {
 
 		resident.getAddtionalAttributes().put(ATTR_ASSEMBLED, "true");
 		resident.getAddtionalAttributes().remove(ATTR_DEFERRED);
+	}
+
+	private static void ensureDob(ResidentModel resident, Properties attributeList, String contextKey) {
+		if (resident == null) {
+			return;
+		}
+		String dob = resident.getDob();
+		if (dob != null && !dob.trim().isEmpty()) {
+			return;
+		}
+		ResidentAttribute ageAttr = ResidentAttribute.RA_Adult;
+		Object ageHint = attributeList != null ? attributeList.get(ResidentAttribute.RA_Age) : null;
+		if (ageHint instanceof ResidentAttribute ra) {
+			ageAttr = ra;
+		} else if (resident.isInfant()) {
+			ageAttr = ResidentAttribute.RA_Infant;
+		} else if (resident.isMinor()) {
+			ageAttr = ResidentAttribute.RA_Minor;
+		}
+		try {
+			resident.setDob(DateOfBirthProvider.generate(ageAttr, contextKey));
+		} catch (Exception e) {
+			logger.warn("Could not generate DOB from context for resident {}: {}", resident.getId(), e.getMessage());
+			resident.setDob(DateOfBirthProvider.generateDob(18, 60));
+		}
+		logger.warn("Resident {} had blank DOB before document assembly; set to {}", resident.getId(),
+				resident.getDob());
 	}
 
 	public static void storeAssemblyHints(ResidentModel resident, Properties attributeList) {

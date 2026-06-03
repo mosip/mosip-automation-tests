@@ -393,7 +393,24 @@ public class PacketSyncService {
 
 			JSONObject functionResponse = new JSONObject();
 			JSONObject nobj = new JSONObject();
-			response = packetSyncService.uploadPacket(packetPath, contextKey);
+			try {
+				response = packetSyncService.uploadPacket(packetPath, contextKey);
+			} catch (Exception ex) {
+				if (!isPacketNotFoundInSyncTable(ex)) {
+					throw ex;
+				}
+				String processValue = process;
+				if (processValue == null || processValue.isBlank()) {
+					Object processVariable = VariableManager.getVariableValue(contextKey, "process");
+					processValue = processVariable == null ? "" : processVariable.toString();
+				}
+				logger.warn(
+						"Upload failed with Packet Not Found in Sync Table for packet {}. Syncing RID and retrying upload once.",
+						packetPath);
+				packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", processValue, contextKey,
+						additionalInfoReqId);
+				response = packetSyncService.uploadPacket(packetPath, contextKey);
+			}
 			if (RestClient.isDebugEnabled(contextKey))
 				logger.info("Packet Upload response : {}", response);
 			JSONObject obj = new JSONObject(response);
@@ -420,6 +437,14 @@ public class PacketSyncService {
 			CommonUtil.cleanupPreregArtifacts(location, targetDirectory);
 		}
 
+	}
+
+	private boolean isPacketNotFoundInSyncTable(Exception ex) {
+		if (ex == null || ex.getMessage() == null) {
+			return false;
+		}
+		return ex.getMessage().contains("RPR-PKR-001")
+				|| ex.getMessage().contains("Packet Not Found in Sync Table");
 	}
 
 	public Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
@@ -1067,6 +1092,9 @@ public class PacketSyncService {
 					case "dob":
 					case "dateofbirth":
 						oldValues.put("dob", persona.getDob());
+						if (value == null || value.trim().isEmpty()) {
+							break;
+						}
 						if ("minor".equalsIgnoreCase(value)) {
 							persona.setInfant(false);
 							persona.setMinor(true);

@@ -418,7 +418,7 @@ public class TestRunner {
 		}
 	}
 
-	private static void copyTestResources() {
+	public static void copyTestResources() {
 		TestResources.copyTestResource("/testngFile");
 		TestResources.copyTestResource("/preReg");
 		TestResources.copyTestResource("/config");

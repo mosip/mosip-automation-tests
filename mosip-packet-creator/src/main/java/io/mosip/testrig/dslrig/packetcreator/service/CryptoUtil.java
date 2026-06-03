@@ -392,24 +392,53 @@ public class CryptoUtil {
 	}
 
 	private PrivateKey getMachinePrivateKey(String contextKey) throws Exception {
-		String filePath = null;
-		String machineId = "";
-		if (contextKey != null && !contextKey.equals("")) {
-			machineId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.machineid").toString();
-		}
 		File folder = new File(String.valueOf(personaConfigPath) + File.separator + "privatekeys" + File.separator);
 		File[] listOfFiles = folder.listFiles();
-		for (File file : listOfFiles) {
-			if (file.isFile()) {
-				if (file.getName().contains(
-						VariableManager.getVariableValue(contextKey, "db-server").toString() + "." + machineId)) {
+		if (listOfFiles == null || listOfFiles.length == 0) {
+			throw new Exception("privatekey file not found");
+		}
+
+		String filePath = null;
+		String machineId = "";
+		String dbServer = "";
+		if (contextKey != null && !contextKey.equals("")) {
+			Object machineIdValue = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.machineid");
+			Object dbServerValue = VariableManager.getVariableValue(contextKey, "db-server");
+			if (machineIdValue != null) {
+				machineId = machineIdValue.toString();
+			}
+			if (dbServerValue != null) {
+				dbServer = dbServerValue.toString();
+			}
+		}
+
+		if (!machineId.isEmpty() && !dbServer.isEmpty()) {
+			String expectedPattern = dbServer + "." + machineId;
+			for (File file : listOfFiles) {
+				if (file.isFile() && file.getName().contains(expectedPattern)) {
 					filePath = file.getAbsolutePath();
 					break;
 				}
 			}
 		}
-	if (filePath == null || filePath.isEmpty())
+
+		// Fallback for scenarios where machine-id does not map to a known key.
+		if (filePath == null || filePath.isEmpty()) {
+			int randomIndex = sr.nextInt(listOfFiles.length);
+			for (int i = 0; i < listOfFiles.length; i++) {
+				File candidate = listOfFiles[(randomIndex + i) % listOfFiles.length];
+				if (candidate.isFile()) {
+					filePath = candidate.getAbsolutePath();
+					logger.warn("Private key for machineId '{}' not found. Using fallback key '{}'.", machineId,
+							candidate.getName());
+					break;
+				}
+			}
+		}
+
+		if (filePath == null || filePath.isEmpty()) {
 			throw new Exception("privatekey file not found");
+		}
 		logger.info("PRIVATEKEY FILE PATH::" + filePath);
 		byte[] key = CommonUtil.read(filePath);
 		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);

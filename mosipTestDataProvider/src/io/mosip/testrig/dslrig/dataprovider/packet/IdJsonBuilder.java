@@ -525,7 +525,6 @@ public final class IdJsonBuilder {
 						v[2] = s.getId() + BIO_CBEFF_XML;
 						fileInfo.put(PacketTemplateProvider.RID_FOLDER, v);
 						o.put(VALUE, s.getId() + BIO_CBEFF);
-						identity.put(s.getId(), o);
 
 						String outFile = fileInfo.get(PacketTemplateProvider.RID_FOLDER)[0] + "/" + v[2];
 						try {
@@ -536,7 +535,9 @@ public final class IdJsonBuilder {
 								bioAttrib.removeAll(missAttribs);
 								resident.getBiometric().setCbeff(null);
 							}
-
+							if (resident.getGuardian().getFilteredBioAttribtures() == null) {
+								resident.getGuardian().setFilteredBioAttribtures(bioAttrib);
+							}
 
 							boolean bret = PacketCbeffGenerator.generateCBEFF(resident.getGuardian(), bioAttrib, outFile,
 									contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff, process);
@@ -544,8 +545,11 @@ public final class IdJsonBuilder {
 							if (bret == false)
 								return "";
 
+							identity.put(s.getId(), o);
+
 						} catch (Exception e) {
 							logger.error(GENERATEIDJSONV2, e);
+							return "";
 						}
 
 					} else if (resident.getGuardian() != null) {
