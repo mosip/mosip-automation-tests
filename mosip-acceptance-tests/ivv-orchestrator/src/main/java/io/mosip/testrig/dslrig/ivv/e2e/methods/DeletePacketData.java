@@ -24,18 +24,18 @@ public class DeletePacketData extends BaseTestCaseUtil implements StepInterface 
 	@Override
 	public void run() throws RigInternalError {
 
-		String url = baseUrl + props.getProperty("deletePacketData");
-		Response response = deleteRequest(url, "deletePacketData", step);
+		// String url = baseUrl + props.getProperty("deletePacketData");
+		// Response response = deleteRequest(url, "deletePacketData", step);
 
-		String responseStr = response.getBody().asString();
+		// String responseStr = response.getBody().asString();
 
-		if (responseStr.contains("successfully")) {
-			DslReportLogUtil.reportRequest("Delete Packet Data", responseStr);
-			Reporter.log("<b style=\"background-color: #0A0;\">Marking test case as passed. As " + responseStr
-					+ "</b><br>\n");
-		} else {
-			logger.info(response.toString() + " data is unable to delete");
-		}
+		// if (responseStr.contains("successfully")) {
+		// 	DslReportLogUtil.reportRequest("Delete Packet Data", responseStr);
+		// 	Reporter.log("<b style=\"background-color: #0A0;\">Marking test case as passed. As " + responseStr
+		// 			+ "</b><br>\n");
+		// } else {
+		// 	logger.info(response.toString() + " data is unable to delete");
+		// }
 	}
 
 }

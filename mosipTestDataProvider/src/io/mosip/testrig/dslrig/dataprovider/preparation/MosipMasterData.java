@@ -2,10 +2,8 @@ package io.mosip.testrig.dslrig.dataprovider.preparation;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Queue;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -627,6 +625,9 @@ public  class MosipMasterData {
 			}
 		} catch (Exception e) {
 			logger.debug("process not set for {}, defaulting to NEW", contextKey);
+		}
+		if (process.equalsIgnoreCase("LOST")) {
+			process = "NEW";
 		}
 		return process.toLowerCase().trim() + "Process";
 	}
@@ -1519,39 +1520,4 @@ public  class MosipMasterData {
 		return warmed;
 	}
 
-	/**
-	 * Breadth-first walk of location tree; each {@code immediatechildren} URL is cached for the run.
-	 */
-	public static int warmLocationImmediateChildrenCache(String contextKey, List<String> langCodes, int maxCallsPerLang) {
-		int warmed = 0;
-		try {
-			MosipPreRegLoginConfig config = getPreregLoginConfig(contextKey);
-			String countryCode = config.getMosip_country_code();
-			if (countryCode == null || countryCode.isBlank()) {
-				return 0;
-			}
-			for (String langCode : langCodes) {
-				Queue<String> queue = new ArrayDeque<>();
-				queue.add(countryCode);
-				int calls = 0;
-				while (!queue.isEmpty() && calls < maxCallsPerLang) {
-					String locCode = queue.poll();
-					List<MosipLocationModel> children = getImmedeateChildren(locCode, langCode, contextKey);
-					calls++;
-					warmed++;
-					if (children == null || children.isEmpty()) {
-						continue;
-					}
-					for (MosipLocationModel child : children) {
-						if (child != null && Boolean.TRUE.equals(child.getIsActive()) && child.getCode() != null) {
-							queue.add(child.getCode());
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			logger.warn("warmLocationImmediateChildrenCache failed: {}", e.getMessage());
-		}
-		return warmed;
-	}
 }

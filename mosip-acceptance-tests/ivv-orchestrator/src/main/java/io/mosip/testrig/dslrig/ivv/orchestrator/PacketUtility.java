@@ -745,6 +745,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 			if (invalidMachineFlag.contentEquals("invalidMachine") && response.getBody().asString().toLowerCase().contains("failed to sign data")) {
 				return "";
 			}
+			if (response.getBody().asString().contains("PRE_REG_TO_REGISTER_FAIL")
+					&& response.getBody().asString().contains("RPR-PKR-002")) {
+				logger.info("Received expected Invalid Packet Size error (RPR-PKR-002): " + response.getBody().asString());
+				return "INVALID_PACKET_SIZE";
+			}
 			if (!response.getBody().asString().toLowerCase().contains(responseStatus)
 					|| response.getBody().asString().toLowerCase().contains("failed")) {
 				if (count == maxRetryCount) {

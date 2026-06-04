@@ -14,6 +14,8 @@ import java.util.Properties;
 
 import java.util.concurrent.CompletableFuture;
 
+import java.util.concurrent.CompletionException;
+
 import java.util.concurrent.ExecutorService;
 
 import java.util.concurrent.Executors;
@@ -92,9 +94,19 @@ public final class Scenario0ParallelRunner {
 	/** setContext($$details3) — must run immediately after track3 WritePreReq. */
 	private static final int SET_CONTEXT_DETAILS3 = 38;
 
-	private static final int PHASE_FINAL_FROM = 39;
+	/** External-packet user and WritePreReq(4). */
 
-	private static final int PHASE_FINAL_TO = 44;
+	private static final int PHASE_FINAL_SETUP_FROM = 39;
+
+	private static final int PHASE_FINAL_SETUP_TO = 40;
+
+	private static final int STEP_CLEAR_DEVICE_CERT_CACHE = 41;
+
+	private static final int STEP_GENERATE_AUTH_CERTS = 42;
+
+	private static final int STEP_UPLOAD_DEVICE_CERT = 43;
+
+	private static final int STEP_WARM_RUN_CACHE = 44;
 
 
 
@@ -182,7 +194,7 @@ public final class Scenario0ParallelRunner {
 
 
 
-			logger.info("Scenario 0 parallel setup: phase 3 - track2b");
+			logger.info("Scenario 0 parallel setup: phase 3 - track2b (sequential; must finish before track3b)");
 
 			Map<String, String> track2bVars = runTrack(executor, "track2b", masterScenario, TRACK2B_FROM, TRACK2B_TO,
 
@@ -206,9 +218,53 @@ public final class Scenario0ParallelRunner {
 			store = stepRangeExecutor.execute(masterScenario, store, SET_CONTEXT_DETAILS3, SET_CONTEXT_DETAILS3,
 					willRetry);
 
-			logger.info("Scenario 0 parallel setup: phase 5 - global cert and cleanup steps");
+			final Store storeForWarmRunCache = store;
+			CompletableFuture<Void> warmFuture = CompletableFuture.runAsync(() -> {
+				try {
+					Scenario warmScenario = scenarioCopier.copyForTrack(masterScenario);
+					Store warmStore = cloneStore(storeForWarmRunCache);
+					stepRangeExecutor.execute(warmScenario, warmStore, STEP_WARM_RUN_CACHE, STEP_WARM_RUN_CACHE,
+							willRetry);
+					logger.info("Scenario 0 parallel setup: WarmRunCache completed (step " + STEP_WARM_RUN_CACHE + ")");
+				} catch (Exception e) {
+					throw new RuntimeException("WarmRunCache failed (step " + STEP_WARM_RUN_CACHE + "): "
+							+ rootCauseMessage(e), e);
+				}
+			}, executor);
 
-			store = stepRangeExecutor.execute(masterScenario, store, PHASE_FINAL_FROM, PHASE_FINAL_TO, willRetry);
+			logger.info(
+					"Scenario 0 parallel setup: phase 5 - external user, WritePreReq(4), clear (WarmRunCache already running)");
+
+			store = stepRangeExecutor.execute(masterScenario, store, PHASE_FINAL_SETUP_FROM, PHASE_FINAL_SETUP_TO,
+					willRetry);
+
+			store = stepRangeExecutor.execute(masterScenario, store, STEP_CLEAR_DEVICE_CERT_CACHE,
+					STEP_CLEAR_DEVICE_CERT_CACHE, willRetry);
+
+			logger.info(
+					"Scenario 0 parallel setup: phase 5b - GenerateAuthCertifcates and WarmRunCache in parallel (upload after auth)");
+
+			final Store storeForAuthAndWarm = store;
+			CompletableFuture<Void> authCertsFuture = CompletableFuture.runAsync(() -> {
+				try {
+					Scenario authScenario = scenarioCopier.copyForTrack(masterScenario);
+					Store authStore = cloneStore(storeForAuthAndWarm);
+					stepRangeExecutor.execute(authScenario, authStore, STEP_GENERATE_AUTH_CERTS, STEP_GENERATE_AUTH_CERTS,
+							willRetry);
+					logger.info("Scenario 0 parallel setup: GenerateAuthCertifcates completed (step "
+							+ STEP_GENERATE_AUTH_CERTS + ")");
+				} catch (Exception e) {
+					throw new RuntimeException("GenerateAuthCertifcates failed (step " + STEP_GENERATE_AUTH_CERTS + "): "
+							+ rootCauseMessage(e), e);
+				}
+			}, executor);
+
+			joinAsyncStep(authCertsFuture, "GenerateAuthCertifcates");
+
+			store = stepRangeExecutor.execute(masterScenario, store, STEP_UPLOAD_DEVICE_CERT, STEP_UPLOAD_DEVICE_CERT,
+					willRetry);
+
+			joinAsyncStep(warmFuture, "WarmRunCache");
 
 
 
@@ -280,6 +336,30 @@ public final class Scenario0ParallelRunner {
 
 		}, executor);
 
+	}
+
+
+
+	private static String rootCauseMessage(Exception e) {
+		Throwable root = e;
+		while (root.getCause() != null) {
+			root = root.getCause();
+		}
+		return root.getMessage();
+	}
+
+
+
+	private static void joinAsyncStep(CompletableFuture<Void> future, String stepLabel) {
+		try {
+			future.join();
+		} catch (CompletionException e) {
+			Throwable root = e.getCause() != null ? e.getCause() : e;
+			if (root instanceof RuntimeException) {
+				throw (RuntimeException) root;
+			}
+			throw new RuntimeException(stepLabel + " failed: " + root.getMessage(), root);
+		}
 	}
 
 

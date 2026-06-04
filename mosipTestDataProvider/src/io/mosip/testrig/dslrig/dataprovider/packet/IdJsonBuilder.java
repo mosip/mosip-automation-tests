@@ -356,6 +356,7 @@ public final class IdJsonBuilder {
 			if (!s.getRequired() && !(s.getRequiredOn() != null && s.getRequiredOn().size() > 0)) {
 				continue;
 			}
+			
 
 			if (VariableManager.getVariableValue(contextKey, "invalidIdSchemaFlag").toString().equals("invalidIdSchema")
 					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion"))) {
