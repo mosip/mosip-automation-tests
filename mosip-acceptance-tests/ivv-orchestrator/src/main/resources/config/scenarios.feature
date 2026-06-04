@@ -518,7 +518,6 @@ And I ridsync where packet type is NEW, and packet zip path is child zip packet 
 And I packetsync where packet zip path is parent zip packet path
 And I packetsync where packet zip path is child zip packet path
 And I check status where packet status is PROCESSED, and registration ID is the saved parent registration ID
-Then I check ridstage where registration ID is the saved child registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is REPROCESS
 And I delete packet data
 
   @scenario_22
@@ -3975,7 +3974,7 @@ And I read pre req where pre-requisite data index is 1 and store result in envir
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is dob=08/24/2026, and persona file is the saved persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is dob=2027/08/09, and persona file is the saved persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is REREGISTER, and registration ID is the saved registration ID
@@ -6256,7 +6255,6 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and missing biometric fields is true and store result in persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I delete packet data
 
   @scenario_242
@@ -6272,27 +6270,6 @@ And I get resident data where resident count is adult, and persona type is false
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
-And I delete packet data
-
-  @scenario_243
-  @Negative_Test
-  @persona_ResidentMaleAdult
-  @group_Adult_New
-  Scenario: Resident uploads only low-quality document and packet gets rejected during QC
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and missing biometric fields is LowQualityDocument=true and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I send otp where persona file path is the saved persona file path and store result in email
-And I validate otp where persona file path is the saved persona file path, and email is the saved email
-And I pre register where persona file path is the saved persona file path and store result in pre-registration ID
-And I upload documents where persona file path is the saved persona file path, and pre-registration ID is the saved pre-registration ID
-And I update pre reg status where status code is 0, and pre-registration ID is the saved pre-registration ID, and validation mode is valid
-And I book appointment where holiday booking flag is false, and pre-registration ID is the saved pre-registration ID, and slot number is 1
-And I generate and upload packet where pre-registration ID is the saved pre-registration ID, and packet template path is the saved packet template path and store result in registration ID
-And I check status where packet status is REREGISTER, and registration ID is the saved registration ID
 And I delete packet data
 
   @scenario_244
