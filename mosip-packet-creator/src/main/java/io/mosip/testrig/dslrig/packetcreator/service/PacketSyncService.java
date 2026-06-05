@@ -346,6 +346,14 @@ public class PacketSyncService {
 					process,
 					preregId, contextKey, true, additionalInfoReqId, targetDirectory);
 
+			try {
+				byte[] packetBytes = CommonUtil.read(packetPath);
+				VariableManager.setVariableValue(contextKey, "cachedPacketHash", cryptoUtil.getHexEncodedHash(packetBytes));
+				VariableManager.setVariableValue(contextKey, "cachedPacketSize", String.valueOf(packetBytes.length));
+			} catch (Exception e) {
+				logger.warn("Could not pre-cache packet hash/size; will re-read during sync: {}", e.getMessage());
+			}
+
 			String response = null;
 			if (RestClient.isDebugEnabled(contextKey))
 				logger.info("Packet created : {}", packetPath);
@@ -519,18 +527,11 @@ public class PacketSyncService {
 		String machineId = VariableManager.getVariableValue(contextKey, "machineid").toString();
 		if (contextKey != null && !contextKey.equals("")) {
 			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.packet.syncapi")) {
-					syncapi = v.toString();
-				} else if (k.toString().equals("mosip.test.primary.langcode")) {
-					primaryLangCode = v.toString();
-				} else if (k.toString().equals("mosip.test.baseurl")) {
-					baseUrl = v.toString();
-				} else if (k.toString().equals("mosip.version")) {
-					mosipVersion = v.toString();
-				}
-
-			});
+			String pv;
+			if ((pv = props.getProperty("mosip.test.packet.syncapi")) != null) syncapi = pv;
+			if ((pv = props.getProperty("mosip.test.primary.langcode")) != null) primaryLangCode = pv;
+			if ((pv = props.getProperty("mosip.test.baseurl")) != null) baseUrl = pv;
+			if ((pv = props.getProperty("mosip.version")) != null) mosipVersion = pv;
 		}
 		Path container = Path.of(containerFile);
 		String rid = null;
@@ -551,16 +552,19 @@ public class PacketSyncService {
 		jsonObject.put("phone", "");
 		jsonObject.put("registrationType", proc);
 
-		byte[] fileBytes = CommonUtil.read(containerFile);
-
 		String checkSum = VariableManager.getVariableValue(contextKey, "invalidCheckSum").toString();
-
-		if (checkSum.equalsIgnoreCase("invalidCheckSum"))
-			jsonObject.put("packetHashValue", "INVALID_CHECKSUM");
-		else
-			jsonObject.put("packetHashValue", cryptoUtil.getHexEncodedHash(fileBytes));
-
-		jsonObject.put("packetSize", fileBytes.length);
+		Object cachedHash = VariableManager.getVariableValue(contextKey, "cachedPacketHash");
+		Object cachedSize = VariableManager.getVariableValue(contextKey, "cachedPacketSize");
+		if (cachedHash != null && cachedSize != null) {
+			jsonObject.put("packetHashValue", checkSum.equalsIgnoreCase("invalidCheckSum") ? "INVALID_CHECKSUM" : cachedHash.toString());
+			jsonObject.put("packetSize", Long.parseLong(cachedSize.toString()));
+			VariableManager.removeVariableValue(contextKey, "cachedPacketHash");
+			VariableManager.removeVariableValue(contextKey, "cachedPacketSize");
+		} else {
+			byte[] fileBytes = CommonUtil.read(containerFile);
+			jsonObject.put("packetHashValue", checkSum.equalsIgnoreCase("invalidCheckSum") ? "INVALID_CHECKSUM" : cryptoUtil.getHexEncodedHash(fileBytes));
+			jsonObject.put("packetSize", fileBytes.length);
+		}
 		jsonObject.put("supervisorStatus", supervisorStatus);
 		jsonObject.put("supervisorComment", supervisorComment);
 
@@ -594,17 +598,10 @@ public class PacketSyncService {
 	public String uploadPacket(String path, String contextKey) throws Exception {
 
 		if (contextKey != null && !contextKey.equals("")) {
-
 			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.packet.uploadapi")) {
-
-					uploadapi = v.toString();
-
-				} else if (k.toString().equals("mosip.test.baseurl")) {
-					baseUrl = v.toString();
-				}
-			});
+			String pv;
+			if ((pv = props.getProperty("mosip.test.packet.uploadapi")) != null) uploadapi = pv;
+			if ((pv = props.getProperty("mosip.test.baseurl")) != null) baseUrl = pv;
 		}
 
 

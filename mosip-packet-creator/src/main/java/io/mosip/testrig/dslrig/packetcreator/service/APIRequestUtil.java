@@ -28,6 +28,8 @@ import io.mosip.testrig.dslrig.dataprovider.util.AuthTokenStore;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.SlackIt;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+import io.restassured.config.HttpClientConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.response.Response;
@@ -80,29 +82,40 @@ public class APIRequestUtil {
     @Value("${mosip.test.post2slack}")
     private boolean bSlackit;
 
+    @Value("${mosip.test.packetcreator.http.connect.timeout.ms:15000}")
+    private int httpConnectTimeoutMs;
+
+    @Value("${mosip.test.packetcreator.http.socket.timeout.ms:30000}")
+    private int httpSocketTimeoutMs;
+
+    @Value("${mosip.test.packetcreator.http.upload.timeout.ms:120000}")
+    private int httpUploadTimeoutMs;
+
     @Autowired
     ContextUtils contextUtils;
 
+    private RestAssuredConfig httpTimeoutConfig() {
+        return RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
+                .setParam("http.connection.timeout", httpConnectTimeoutMs)
+                .setParam("http.socket.timeout", httpSocketTimeoutMs));
+    }
+
+    private RestAssuredConfig uploadTimeoutConfig() {
+        return RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
+                .setParam("http.connection.timeout", httpConnectTimeoutMs)
+                .setParam("http.socket.timeout", httpUploadTimeoutMs));
+    }
+
 	void loadContext(String context) {
 		Properties props = contextUtils.loadServerContext(context);
-		props.forEach((k, v) -> {
-			if (k.equals("mosip.test.regclient.userid"))
-				operatorId = v.toString();
-			else if (k.equals("mosip.test.regclient.password"))
-				password = v.toString();
-			else if (k.equals("mosip.test.authmanager.url"))
-				authManagerURL = v.toString();
-			else if (k.equals("mosip.test.regclient.clientid"))
-				clientId = v.toString();
-			else if (k.equals("mosip.test.regclient.appId"))
-				appId = v.toString();
-			else if (k.equals("mosip.test.regclient.secretkey"))
-				secretKey = v.toString();
-			else if (k.equals("mosip.test.baseurl"))
-				baseUrl = v.toString();
-
-		});
-
+		String pv;
+		if ((pv = props.getProperty("mosip.test.regclient.userid")) != null) operatorId = pv;
+		if ((pv = props.getProperty("mosip.test.regclient.password")) != null) password = pv;
+		if ((pv = props.getProperty("mosip.test.authmanager.url")) != null) authManagerURL = pv;
+		if ((pv = props.getProperty("mosip.test.regclient.clientid")) != null) clientId = pv;
+		if ((pv = props.getProperty("mosip.test.regclient.appId")) != null) appId = pv;
+		if ((pv = props.getProperty("mosip.test.regclient.secretkey")) != null) secretKey = pv;
+		if ((pv = props.getProperty("mosip.test.baseurl")) != null) baseUrl = pv;
 	}
 
     /**
@@ -342,7 +355,7 @@ public class APIRequestUtil {
 
     	while(!bDone) {
     		Cookie kukki = new Cookie.Builder("Authorization", AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM)).build();
-    		response = given().cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
+    		response = given().config(httpTimeoutConfig()).cookie(kukki).contentType(ContentType.JSON).body(jsonRequest.toString()).post(url);
     		if(response.getStatusCode() == 401) {
     			if(nLoop >= 1)
     				bDone = true;
@@ -387,7 +400,7 @@ public class APIRequestUtil {
 
             String authToken = AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM);
     		Cookie kukki = new Cookie.Builder("Authorization", authToken).build();
-    		response = given().cookie(kukki)
+    		response = given().config(httpTimeoutConfig()).cookie(kukki)
                 .header("timestamp", timestamp)
                 .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
                 .contentType(ContentType.JSON).body(outputJson).post(url);
@@ -430,7 +443,7 @@ public class APIRequestUtil {
 
         Cookie kukki = new Cookie.Builder("Authorization", AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM)
             	).build();
-        Response response = given().cookie(kukki).multiPart("file", f.getCanonicalFile()).post(url);
+        Response response = given().config(uploadTimeoutConfig()).cookie(kukki).multiPart("file", f.getCanonicalFile()).post(url);
         addServerApiTrace(contextKey, "POST", url,
                 new JSONObject().put("filePath", filePath),
                 null, response);

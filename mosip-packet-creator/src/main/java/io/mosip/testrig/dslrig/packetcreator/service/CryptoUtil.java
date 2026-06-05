@@ -135,14 +135,9 @@ public class CryptoUtil {
 	public byte[] encrypt(byte[] data, String referenceId, String contextKey) throws Exception {
 
 		if (contextKey != null && !contextKey.equals("")) {
-
 			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.baseurl")) {
-					baseUrl = v.toString().trim();
-				}
-
-			});
+			String ctxBaseUrl = props.getProperty("mosip.test.baseurl");
+			if (ctxBaseUrl != null) baseUrl = ctxBaseUrl.trim();
 		}
 		JSONObject encryptObj = new JSONObject();
 
@@ -175,12 +170,10 @@ public class CryptoUtil {
 		byte[] encData = null;
 		try {
 			encData = encrypt(data, referenceId, contextKey);
-		} catch (Throwable e) {
-			logger.error("Encrypt Failing..", e);
-
-			encData = encrypt(data, referenceId, contextKey); 
-
-
+		} catch (Exception e) {
+			logger.error("Encrypt Failing — retrying once after 1s: {}", e.getMessage());
+			try { Thread.sleep(1000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+			encData = encrypt(data, referenceId, contextKey);
 		}
 
 		try (FileOutputStream fos = new FileOutputStream(packetLocation);
@@ -200,14 +193,9 @@ public class CryptoUtil {
 		JSONObject encryptObj = new JSONObject();
 
 		if (contextKey != null && !contextKey.equals("")) {
-
 			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.baseurl")) {
-					baseUrl = v.toString().trim();
-				}
-
-			});
+			String ctxBaseUrl = props.getProperty("mosip.test.baseurl");
+			if (ctxBaseUrl != null) baseUrl = ctxBaseUrl.trim();
 		}
 		encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
 		encryptObj.put("applicationId", encryptionAppId);
