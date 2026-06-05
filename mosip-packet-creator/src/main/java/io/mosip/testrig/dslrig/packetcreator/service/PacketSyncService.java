@@ -552,7 +552,8 @@ public class PacketSyncService {
 		jsonObject.put("phone", "");
 		jsonObject.put("registrationType", proc);
 
-		String checkSum = VariableManager.getVariableValue(contextKey, "invalidCheckSum").toString();
+		Object checkSumObj = VariableManager.getVariableValue(contextKey, "invalidCheckSum");
+		String checkSum = checkSumObj != null ? checkSumObj.toString() : "";
 		Object cachedHash = VariableManager.getVariableValue(contextKey, "cachedPacketHash");
 		Object cachedSize = VariableManager.getVariableValue(contextKey, "cachedPacketSize");
 		if (cachedHash != null && cachedSize != null) {

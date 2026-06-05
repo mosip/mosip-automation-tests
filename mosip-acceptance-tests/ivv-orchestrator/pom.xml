@@ -163,7 +163,7 @@
 		<dependency>
 			<groupId>io.mosip.testrig.apitest.commons</groupId>
 			<artifactId>apitest-commons</artifactId>
-			<version>1.5.0</version>
+			<version>1.5.0-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.sun.jersey</groupId>
@@ -172,10 +172,6 @@
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-reload4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.hibernate.orm</groupId>
-					<artifactId>hibernate-hikaricp</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
