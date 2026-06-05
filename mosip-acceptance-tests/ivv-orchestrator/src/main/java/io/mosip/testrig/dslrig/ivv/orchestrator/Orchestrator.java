@@ -118,8 +118,12 @@ public class Orchestrator {
 		// using yml files from idaData/ (and other subdirectories) fail mid-run once 20 have
 		// exhausted retries and the global threshold fires.
 		File globalResourceDir = new File(TestRunner.getGlobalResourcePath());
-		if (!globalResourceDir.exists()) {
-			logger.info("MosipTemporaryTestResource not found; copying test resources (IDE/Surefire run without TestRunner.main())");
+		boolean resourcesMissing = !globalResourceDir.exists()
+				|| !new File(globalResourceDir, "config").isDirectory()
+				|| !new File(globalResourceDir, "idaData").isDirectory()
+				|| !new File(globalResourceDir, "testngFile").isDirectory();
+		if (resourcesMissing) {
+			logger.info("MosipTemporaryTestResource missing or incomplete; copying test resources (IDE/Surefire run without TestRunner.main())");
 			TestRunner.copyTestResources();
 		}
 
@@ -873,7 +877,11 @@ public class Orchestrator {
 
 	private static boolean isFullSuiteRun() {
 		String scenariosToExecute = ConfigManager.getproperty("scenariosToExecute");
-		return scenariosToExecute == null || scenariosToExecute.trim().isEmpty();
+		String flowsToExecute = ConfigManager.getproperty("scenariosFlowToExecute");
+		String testLevel = BaseTestCase.testLevel;
+		return (scenariosToExecute == null || scenariosToExecute.trim().isEmpty())
+				&& (flowsToExecute == null || flowsToExecute.trim().isEmpty())
+				&& (testLevel == null || testLevel.isBlank() || "regression".equalsIgnoreCase(testLevel));
 	}
 
 	private static Boolean matchTags(String systemTags, ArrayList<String> scenarioTags) {

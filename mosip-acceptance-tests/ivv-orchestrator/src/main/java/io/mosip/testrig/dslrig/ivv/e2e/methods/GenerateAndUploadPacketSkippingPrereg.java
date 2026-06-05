@@ -62,8 +62,10 @@ public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil impl
 			}
 
 			String[] paths = resolvePersonaAndTemplatePaths(step);
+			String responseStatus = step.getParameters().stream()
+					.anyMatch(p -> "INVALID_PACKET_SIZE".equalsIgnoreCase(p)) ? "INVALID_PACKET_SIZE" : "success";
 			String rid = packetUtility.generateAndUploadPacketSkippingPrereg(paths[1], paths[0],
-					_additionalInfoReqId, step.getScenario().getCurrentStep(), "success", step, getRidFromSync,
+					_additionalInfoReqId, step.getScenario().getCurrentStep(), responseStatus, step, getRidFromSync,
 					invalidMachineFlag);
 			if ("INVALID_PACKET_SIZE".equals(rid)) {
 				logger.info("Packet upload returned expected Invalid Packet Size error (RPR-PKR-002) - step validation passed");
