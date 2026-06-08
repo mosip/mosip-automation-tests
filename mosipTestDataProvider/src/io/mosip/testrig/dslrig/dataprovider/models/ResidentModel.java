@@ -83,7 +83,7 @@ public class ResidentModel implements Serializable {
 	private Boolean skipFinger;
 	private Boolean skipFace;
 	private Boolean skipIris;
-	private static final Path ALLOWED_DIR = Paths.get("data").toAbsolutePath().normalize();
+	private static final Path ALLOWED_DIR = Paths.get(System.getProperty("java.io.tmpdir", System.getProperty("user.dir"))).toAbsolutePath().normalize();
 
 
 	public ResidentModel() {
