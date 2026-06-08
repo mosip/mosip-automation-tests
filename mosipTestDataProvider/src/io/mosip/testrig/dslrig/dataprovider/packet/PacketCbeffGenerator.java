@@ -84,7 +84,7 @@ public final class PacketCbeffGenerator {
 				}
 			}
 		}
-		resident.save(contextKey);
+		resident.save();
 		return true;
 	}
 }
