@@ -878,10 +878,8 @@ public class Orchestrator {
 	private static boolean isFullSuiteRun() {
 		String scenariosToExecute = ConfigManager.getproperty("scenariosToExecute");
 		String flowsToExecute = ConfigManager.getproperty("scenariosFlowToExecute");
-		String testLevel = BaseTestCase.testLevel;
 		return (scenariosToExecute == null || scenariosToExecute.trim().isEmpty())
-				&& (flowsToExecute == null || flowsToExecute.trim().isEmpty())
-				&& (testLevel == null || testLevel.isBlank() || "regression".equalsIgnoreCase(testLevel));
+				&& (flowsToExecute == null || flowsToExecute.trim().isEmpty());
 	}
 
 	private static Boolean matchTags(String systemTags, ArrayList<String> scenarioTags) {
