@@ -532,51 +532,62 @@ public class CommonUtil {
 		}
 
 		Path tempPath = normalizeAbsolute(Paths.get(folderPath));
-		Path osTempRoot = getOsTempRoot();
-		Path ctxTempRoot = getContextTempRoot(contextKey);
 
-		Path normalizedOsTempRoot = osTempRoot != null ? normalizeAbsolute(osTempRoot) : null;
-		Path normalizedCtxTempRoot = ctxTempRoot != null ? normalizeAbsolute(ctxTempRoot) : null;
-
-		boolean underOsTemp = normalizedOsTempRoot != null && tempPath.startsWith(normalizedOsTempRoot);
-		boolean underCtxTemp = normalizedCtxTempRoot != null && tempPath.startsWith(normalizedCtxTempRoot);
-
-		if (!underOsTemp && !underCtxTemp) {
+		Path matchedRoot = findMatchingAllowedRoot(tempPath, contextKey);
+		if (matchedRoot == null) {
 			logger.warn("Refusing to delete path outside allowed temp roots: {}", tempPath);
 			return;
 		}
 
-		if (Files.exists(tempPath)) {
-			try (Stream<Path> paths = Files.walk(tempPath)) {
-				paths.sorted((p1, p2) -> p2.compareTo(p1))
-						.forEach(path -> {
-							try {
-								Path normalizedPath = normalizeAbsolute(path);
-								if (normalizedPath.toString().contains("..")) {
-									logger.warn("Skipping deletion of path with traversal sequence: {}", normalizedPath);
-									return;
-								}
+		Path normalizedRoot = matchedRoot.toAbsolutePath().normalize();
+		Path canonicalRoot = toCanonicalTrustedPath(normalizedRoot);
 
-								boolean pathUnderOsTemp = normalizedOsTempRoot != null
-										&& normalizedPath.startsWith(normalizedOsTempRoot);
-								boolean pathUnderCtxTemp = normalizedCtxTempRoot != null
-										&& normalizedPath.startsWith(normalizedCtxTempRoot);
-
-								if (!pathUnderOsTemp && !pathUnderCtxTemp) {
-									logger.warn("Skipping deletion of path outside allowed roots: {}", normalizedPath);
-									return;
-								}
-
-								Files.delete(normalizedPath);
-								logger.info("Deleted: {}", normalizedPath);
-							} catch (IOException e) {
-								logger.error("❌ Failed to delete {}", path, e);
-								throw new RuntimeException(e);
-							}
-						});
-			}
-			logger.info("🗑️ Deleted old temp directory: {}", tempPath);
+		if (!isPathUnderRoot(tempPath, normalizedRoot)) {
+			logger.warn("Refusing to delete path outside allowed temp roots: {}", tempPath);
+			return;
 		}
+
+		Path safeTempPath;
+		try {
+			safeTempPath = buildPathUnderRoot(normalizedRoot, tempPath);
+		} catch (IOException e) {
+			logger.warn("Refusing to delete invalid path: {}", tempPath);
+			return;
+		}
+
+		if (!safeTempPath.startsWith(normalizedRoot) && !safeTempPath.startsWith(canonicalRoot)) {
+			logger.warn("Refusing to delete path outside allowed temp roots: {}", safeTempPath);
+			return;
+		}
+
+		if (!Files.exists(safeTempPath)) {
+			return;
+		}
+
+		try (Stream<Path> paths = Files.walk(safeTempPath)) {
+			paths.sorted((p1, p2) -> p2.compareTo(p1))
+					.forEach(path -> {
+						try {
+							Path normalizedPath = normalizeAbsolute(path);
+							if (normalizedPath.toString().contains("..")) {
+								logger.warn("Skipping deletion of path with traversal sequence: {}", normalizedPath);
+								return;
+							}
+							if (!normalizedPath.startsWith(normalizedRoot)
+									&& !normalizedPath.startsWith(canonicalRoot)) {
+								logger.warn("Skipping deletion of path outside allowed roots: {}", normalizedPath);
+								return;
+							}
+
+							Files.delete(normalizedPath);
+							logger.info("Deleted: {}", normalizedPath);
+						} catch (IOException e) {
+							logger.error("❌ Failed to delete {}", path, e);
+							throw new RuntimeException(e);
+						}
+					});
+		}
+		logger.info("🗑️ Deleted old temp directory: {}", safeTempPath);
 	}
 
 	public static void createFileIfNotExists(Path path) {
