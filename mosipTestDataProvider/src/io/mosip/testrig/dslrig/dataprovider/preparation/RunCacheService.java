@@ -127,9 +127,9 @@ public final class RunCacheService {
 		for (String langCode : langCodes) {
 			try {
 				MosipMasterData.getPreregLocHierarchy(langCode, 1, contextKey);
-				summary.put("locationHierarchy_" + langCode, "ok");
+				summary.put("preregLocHierarchy_" + langCode, "ok");
 			} catch (Exception e) {
-				summary.put("locationHierarchy_" + langCode, "failed");
+				summary.put("preregLocHierarchy_" + langCode, "failed");
 				logger.debug("Run cache warm: prereg location for {} failed: {}", langCode, e.getMessage());
 			}
 		}
@@ -139,6 +139,14 @@ public final class RunCacheService {
 			summary.put("preregLoginConfig", "ok");
 		} catch (Exception e) {
 			summary.put("preregLoginConfig", "failed");
+		}
+
+		try {
+			MosipMasterData.getUiSpecId(contextKey);
+			summary.put("preregUiSpec", "ok");
+		} catch (Exception e) {
+			summary.put("preregUiSpec", "failed");
+			logger.warn("Run cache warm: prereg uispec failed: {}", e.getMessage());
 		}
 
 		logger.info("Run cache warm completed for context {}: {}", contextKey, summary);

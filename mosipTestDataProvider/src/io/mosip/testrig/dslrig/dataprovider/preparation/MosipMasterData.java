@@ -1166,6 +1166,12 @@ public  class MosipMasterData {
 	}
 	public static ApplicationConfigIdSchema getPreregLocHierarchy(String primLang, int count, String contextKey) throws Exception {
 
+		String run_context = MosipDataSetup.getRunContextNamespace(contextKey);
+		String cacheKey = "preregLocHierarchy_" + primLang + "_" + count;
+		Object cached = MosipDataSetup.getCache(cacheKey, run_context);
+		if (cached != null) {
+			return (ApplicationConfigIdSchema) cached;
+		}
 
 		MosipPreRegLoginConfig logincConfig = getPreregLoginConfig(contextKey);
 		String countryCode = logincConfig.getMosip_country_code();
@@ -1176,23 +1182,18 @@ public  class MosipMasterData {
 
 		LocationHierarchyModel[]  locHiModels = MosipMasterData.getLocationHierarchy(langCode,contextKey);
 
-
-		if(locHiModels != null) {
-
-
-		}
 		if(countryCode == null || countryCode.equals("")) {
 			throw new Exception("Missing pre-reg-country-code");
 
 		}
-		ApplicationConfigIdSchema idschema =  new ApplicationConfigIdSchema(); 
+		ApplicationConfigIdSchema idschema =  new ApplicationConfigIdSchema();
 
 		Hashtable<Double,Properties> tblSchema = getIDSchemaLatestVersion(contextKey);
 		List<MosipIDSchema> idSchemaList = (List<MosipIDSchema>) tblSchema.get( tblSchema.keys().nextElement()).get("schemaList");
 		List<MosipIDSchema> locSchemaList = new ArrayList<MosipIDSchema>();
 		for(MosipIDSchema s: idSchemaList) {
 			if(s.getRequired() && s.getControlType() != null && s.getControlType().equals("dropdown") &&
-					( 
+					(
 							(s.getContactType() != null && s.getContactType().equals("Postal")) ||
 							(s.getGroup() != null && (
 									s.getGroup().equals("Location") ||
@@ -1210,8 +1211,7 @@ public  class MosipMasterData {
 
 		List<Hashtable<String, MosipLocationModel>>  tblList = new ArrayList< Hashtable<String, MosipLocationModel>>();
 		List<MosipLocationModel> rootLocs =  getImmedeateChildren(levelCode, langCode, contextKey);
-		if(rootLocs == null && rootLocs.isEmpty()) {
-
+		if(rootLocs == null || rootLocs.isEmpty()) {
 			return null;
 		}
 		int [] idxArray = CommonUtil.generateRandomNumbers(count, rootLocs.size()-1, 0);
@@ -1231,6 +1231,7 @@ public  class MosipMasterData {
 
 		idschema.setTblLocations(tblList);
 
+		MosipDataSetup.setCache(cacheKey, idschema, run_context);
 		return idschema;
 	}
 	static void getChildLocations(List<MosipIDSchema> locHirachyList, String langCode, String levelCode,
