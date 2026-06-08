@@ -114,19 +114,18 @@ public class ResidentModel implements Serializable {
 			logger.warn("Skipping resident save because persona path is not set for residentId={}", id);
 			return;
 		}
-		Path filePath = Paths.get(path).toAbsolutePath().normalize();
+		if (path.contains("..")) {
+			throw new SecurityException("Path traversal attempt detected: " + path);
+		}
 
-		validatePath(filePath);
+		Path filePath = Paths.get(path).toAbsolutePath().normalize();
+		if (!filePath.startsWith(ALLOWED_DIR)) {
+			throw new SecurityException(
+					"Path is outside allowed directory: " + filePath);
+		}
 
 		Files.write(filePath,
 				this.toJSONString().getBytes(StandardCharsets.UTF_8));
-	}
-
-	private static void validatePath(Path path) {
-		if (!path.startsWith(ALLOWED_DIR)) {
-			throw new SecurityException(
-					"Path is outside allowed directory: " + path);
-		}
 	}
 
 	public static ResidentModel readPersona(String filePath) throws IOException {

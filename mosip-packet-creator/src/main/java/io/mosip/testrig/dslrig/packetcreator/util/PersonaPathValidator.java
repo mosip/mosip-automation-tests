@@ -60,16 +60,21 @@ public class PersonaPathValidator {
 			throw new IOException("Persona file path is outside allowed directories");
 		}
 
-		if (!isPathUnderRoot(resolved, matchedRoot)) {
+		Path normalizedRoot = matchedRoot.toAbsolutePath().normalize();
+
+		if (!isPathUnderRoot(resolved, normalizedRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
 
-		Path safePath = buildPathUnderRoot(matchedRoot, resolved);
-		if (!isPathUnderRoot(safePath, matchedRoot)) {
+		Path safePath = buildPathUnderRoot(normalizedRoot, resolved);
+		if (!isPathUnderRoot(safePath, normalizedRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
 		if (safePath.toString().contains("..")) {
 			throw new IOException("Invalid persona file path");
+		}
+		if (!safePath.startsWith(normalizedRoot)) {
+			throw new IOException("Path traversal attempt detected");
 		}
 
 		Path realPath;
@@ -78,7 +83,8 @@ public class PersonaPathValidator {
 		} catch (IOException e) {
 			throw new IOException("Resident data file does not exist");
 		}
-		if (!isPathUnderRoot(realPath, matchedRoot)) {
+		Path canonicalRoot = toCanonicalTrustedPath(normalizedRoot);
+		if (!realPath.startsWith(canonicalRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
 		if (!Files.isRegularFile(realPath)) {
@@ -117,12 +123,17 @@ public class PersonaPathValidator {
 			throw new IOException("Target path is outside allowed directories");
 		}
 
-		Path safeTarget = buildPathUnderRoot(matchedRoot, tentativeTarget);
-		if (!isPathUnderRoot(safeTarget, matchedRoot)) {
+		Path normalizedRoot = matchedRoot.toAbsolutePath().normalize();
+
+		Path safeTarget = buildPathUnderRoot(normalizedRoot, tentativeTarget);
+		if (!isPathUnderRoot(safeTarget, normalizedRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
 		if (safeTarget.toString().contains("..")) {
 			throw new IOException("Invalid target path");
+		}
+		if (!safeTarget.startsWith(normalizedRoot)) {
+			throw new IOException("Path traversal attempt detected");
 		}
 		if (!isPathUnderRoot(safeTarget, parent)) {
 			throw new IOException("Invalid target path");
@@ -140,19 +151,36 @@ public class PersonaPathValidator {
 	}
 
 	/**
-	 * Checks that {@code path} lies under {@code root}, resolving both to real
-	 * paths when
-	 * possible so Windows short names, junctions, and symlinks do not break
-	 * {@link Path#startsWith}.
+	 * Checks that {@code path} lies under {@code root}, using normalized prefix
+	 * checks first and real-path resolution when symlinks, junctions, or short
+	 * names would otherwise break {@link Path#startsWith}.
 	 */
 	private static boolean isPathUnderRoot(Path path, Path root) {
-		Path canonicalRoot = toCanonicalPath(root);
-		Path canonicalPath = toCanonicalPath(path);
-		return canonicalPath.startsWith(canonicalRoot);
+		Path normalizedPath = path.toAbsolutePath().normalize();
+		Path normalizedRoot = root.toAbsolutePath().normalize();
+		if (normalizedPath.toString().contains("..")) {
+			return false;
+		}
+		if (normalizedPath.startsWith(normalizedRoot)) {
+			return true;
+		}
+		Path canonicalRoot = toCanonicalTrustedPath(root);
+		if (!canonicalRoot.equals(normalizedRoot) && normalizedPath.startsWith(canonicalRoot)) {
+			return true;
+		}
+		try {
+			Path canonicalPath = toCanonicalCandidatePath(normalizedPath);
+			return canonicalPath.startsWith(canonicalRoot) || canonicalPath.startsWith(normalizedRoot);
+		} catch (IOException ignored) {
+			return false;
+		}
 	}
 
-	private static Path toCanonicalPath(Path path) {
-		Path normalizedPath = path.toAbsolutePath().normalize();
+	/**
+	 * Resolves symlinks/junctions for trusted roots only.
+	 */
+	private static Path toCanonicalTrustedPath(Path trustedRoot) {
+		Path normalizedPath = trustedRoot.toAbsolutePath().normalize();
 		try {
 			if (Files.exists(normalizedPath)) {
 				return normalizedPath.toRealPath();
@@ -164,25 +192,54 @@ public class PersonaPathValidator {
 		} catch (IOException ignored) {
 			// use normalized absolute path
 		}
-		return normalizedPath.toAbsolutePath().normalize();
+		return normalizedPath;
+	}
+
+	private static Path toCanonicalCandidatePath(Path normalizedPath) throws IOException {
+		if (Files.exists(normalizedPath)) {
+			return normalizedPath.toRealPath();
+		}
+		Path parent = normalizedPath.getParent();
+		if (parent != null && Files.exists(parent)) {
+			return parent.toRealPath().resolve(normalizedPath.getFileName()).normalize();
+		}
+		return normalizedPath;
 	}
 
 	/**
 	 * Reconstructs {@code candidate} as {@code root.resolve(relative)} using only
 	 * validated name components.
-	 * Root and candidate are canonicalized the same way as {@link #isPathUnderRoot}
-	 * so symlink/junction
-	 * roots (e.g. temp mount) match real paths returned from
-	 * {@link #validatePersonaFile}.
 	 */
 	private static Path buildPathUnderRoot(Path root, Path candidate) throws IOException {
-		Path canonicalRoot = toCanonicalPath(root);
-		Path canonicalCandidate = toCanonicalPath(candidate);
-		Path relative = canonicalRoot.relativize(canonicalCandidate.normalize());
-		if (containsUnsafePathComponent(relative)) {
+		Path normalizedRoot = root.toAbsolutePath().normalize();
+		Path normalizedCandidate = candidate.toAbsolutePath().normalize();
+		Path canonicalRoot = toCanonicalTrustedPath(root);
+
+		Path baseRoot;
+		Path relative;
+		if (normalizedCandidate.startsWith(normalizedRoot)) {
+			baseRoot = normalizedRoot;
+			relative = normalizedRoot.relativize(normalizedCandidate);
+		} else if (normalizedCandidate.startsWith(canonicalRoot)) {
+			baseRoot = canonicalRoot;
+			relative = canonicalRoot.relativize(normalizedCandidate);
+		} else {
+			Path canonicalCandidate = toCanonicalCandidatePath(normalizedCandidate);
+			if (canonicalCandidate.startsWith(canonicalRoot)) {
+				baseRoot = canonicalRoot;
+				relative = canonicalRoot.relativize(canonicalCandidate);
+			} else if (canonicalCandidate.startsWith(normalizedRoot)) {
+				baseRoot = normalizedRoot;
+				relative = normalizedRoot.relativize(canonicalCandidate);
+			} else {
+				throw new IOException("Invalid persona file path");
+			}
+		}
+
+		if (relative.isAbsolute() || containsUnsafePathComponent(relative)) {
 			throw new IOException("Invalid persona file path");
 		}
-		Path safePath = canonicalRoot;
+		Path safePath = baseRoot;
 		for (int i = 0; i < relative.getNameCount(); i++) {
 			safePath = safePath.resolve(relative.getName(i));
 		}
