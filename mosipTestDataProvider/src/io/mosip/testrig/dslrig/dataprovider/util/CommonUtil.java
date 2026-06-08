@@ -97,11 +97,13 @@ public class CommonUtil {
 
 		Path normalizedRoot = matchedRoot.toAbsolutePath().normalize();
 
+		Path canonicalRoot = toCanonicalTrustedPath(normalizedRoot);
+
 		Path safePath = buildPathUnderRoot(normalizedRoot, resolved);
 		if (!isPathUnderRoot(safePath, normalizedRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
-		if (!safePath.startsWith(normalizedRoot)) {
+		if (!safePath.startsWith(normalizedRoot) && !safePath.startsWith(canonicalRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
 
@@ -113,7 +115,7 @@ public class CommonUtil {
 		if (!isPathUnderRoot(safeParent, normalizedRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
-		if (!safeParent.startsWith(normalizedRoot)) {
+		if (!safeParent.startsWith(normalizedRoot) && !safeParent.startsWith(canonicalRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
 
@@ -165,9 +167,9 @@ public class CommonUtil {
 	}
 
 	/**
-	 * Checks that {@code path} lies under {@code root}, using normalized prefix
-	 * checks first and real-path resolution when symlinks, junctions, or short
-	 * names would otherwise break {@link Path#startsWith}.
+	 * Checks that {@code path} lies under {@code root}. Only trusted roots are
+	 * resolved via {@link Files}; user paths are compared with {@code normalize()}
+	 * and {@link Path#startsWith(Path)} against normalized and canonical roots.
 	 */
 	private static boolean isPathUnderRoot(Path path, Path root) {
 		Path normalizedPath = path.toAbsolutePath().normalize();
@@ -179,15 +181,7 @@ public class CommonUtil {
 			return true;
 		}
 		Path canonicalRoot = toCanonicalTrustedPath(root);
-		if (!canonicalRoot.equals(normalizedRoot) && normalizedPath.startsWith(canonicalRoot)) {
-			return true;
-		}
-		try {
-			Path canonicalPath = toCanonicalCandidatePath(normalizedPath);
-			return canonicalPath.startsWith(canonicalRoot) || canonicalPath.startsWith(normalizedRoot);
-		} catch (IOException ignored) {
-			return false;
-		}
+		return normalizedPath.startsWith(canonicalRoot);
 	}
 
 	/**
@@ -209,20 +203,6 @@ public class CommonUtil {
 		return normalizedPath;
 	}
 
-	/**
-	 * Resolves a candidate path for containment checks after {@code ..} rejection.
-	 */
-	private static Path toCanonicalCandidatePath(Path normalizedPath) throws IOException {
-		if (Files.exists(normalizedPath)) {
-			return normalizedPath.toRealPath();
-		}
-		Path parent = normalizedPath.getParent();
-		if (parent != null && Files.exists(parent)) {
-			return parent.toRealPath().resolve(normalizedPath.getFileName()).normalize();
-		}
-		return normalizedPath;
-	}
-
 	private static Path buildPathUnderRoot(Path root, Path candidate) throws IOException {
 		Path normalizedRoot = root.toAbsolutePath().normalize();
 		Path normalizedCandidate = candidate.toAbsolutePath().normalize();
@@ -237,16 +217,7 @@ public class CommonUtil {
 			baseRoot = canonicalRoot;
 			relative = canonicalRoot.relativize(normalizedCandidate);
 		} else {
-			Path canonicalCandidate = toCanonicalCandidatePath(normalizedCandidate);
-			if (canonicalCandidate.startsWith(canonicalRoot)) {
-				baseRoot = canonicalRoot;
-				relative = canonicalRoot.relativize(canonicalCandidate);
-			} else if (canonicalCandidate.startsWith(normalizedRoot)) {
-				baseRoot = normalizedRoot;
-				relative = normalizedRoot.relativize(canonicalCandidate);
-			} else {
-				throw new IOException("Invalid output path");
-			}
+			throw new IOException("Invalid output path");
 		}
 
 		if (relative.isAbsolute() || containsUnsafePathComponent(relative)) {
