@@ -2,8 +2,8 @@ package io.mosip.testrig.dslrig.dataprovider.variables;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -23,7 +23,7 @@ public final class VariableManager {
 	public static String CONFIG_PATH = DataProviderConstants.RESOURCE + "config/";
 	public static String NS_DEFAULT = "mosipdefault";
 
-	static Hashtable<String, Cache<String, Object>> varNameSpaces;
+	static ConcurrentHashMap<String, Cache<String, Object>> varNameSpaces;
 	static MutableConfiguration<String, Object> cacheConfig;
 	static CacheManager cacheManager;
 	static boolean bInit = false;
@@ -50,7 +50,7 @@ public final class VariableManager {
 					.setStatisticsEnabled(true);
 
 			if (varNameSpaces == null) {
-				varNameSpaces = new Hashtable<String, Cache<String, Object>>();
+				varNameSpaces = new ConcurrentHashMap<>();
 				Cache<String, Object> cache = cacheManager.createCache(NS_DEFAULT, cacheConfig);
 				varNameSpaces.put(NS_DEFAULT, cache);
 			}
@@ -61,12 +61,15 @@ public final class VariableManager {
 	}
 
 	static Cache<String, Object> createNameSpace(String contextKey) {
-		Cache<String, Object> ht = varNameSpaces.get(contextKey);
-		if (ht == null) {
-			ht = cacheManager.createCache(contextKey, cacheConfig);
-			varNameSpaces.put(contextKey, ht);
-		}
-		return ht;
+		return varNameSpaces.computeIfAbsent(contextKey, key -> {
+			synchronized (cacheManager) {
+				Cache<String, Object> existing = cacheManager.getCache(key, String.class, Object.class);
+				if (existing != null) {
+					return existing;
+				}
+				return cacheManager.createCache(key, cacheConfig);
+			}
+		});
 	}
 
 	public static Object setVariableValue(String contextKey, String varName, Object value) {

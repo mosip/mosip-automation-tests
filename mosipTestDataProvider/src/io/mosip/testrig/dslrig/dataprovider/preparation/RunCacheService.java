@@ -81,10 +81,9 @@ public final class RunCacheService {
 
 		for (String langCode : langCodes) {
 			try {
-				MosipMasterData.getGenderTypes(langCode, contextKey);
 				MosipMasterData.getLocationHierarchy(langCode, contextKey);
 			} catch (Exception e) {
-				logger.warn("Run cache warm: gender/location hierarchy for {} failed: {}", langCode, e.getMessage());
+				logger.warn("Run cache warm: location hierarchy for {} failed: {}", langCode, e.getMessage());
 			}
 		}
 
@@ -122,9 +121,6 @@ public final class RunCacheService {
 
 		int validDocsWarmed = MosipMasterData.warmValidDocumentsCache(contextKey, langCodes);
 		summary.put("validDocumentsEndpoints", validDocsWarmed);
-
-		int locationChildrenWarmed = MosipMasterData.warmLocationImmediateChildrenCache(contextKey, langCodes, 80);
-		summary.put("locationImmediateChildrenEndpoints", locationChildrenWarmed);
 
 		// Biometric masterdata and mock-abis are intentionally not warmed: each scenario needs unique biometrics.
 

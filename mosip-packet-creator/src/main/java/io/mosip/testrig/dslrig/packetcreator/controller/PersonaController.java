@@ -46,9 +46,6 @@ public class PersonaController {
 
 	private PacketSyncService packetSyncService;
 
-	@Value("${mosip.test.persona.Angulipath}")
-	private String personaAnguliPath;
-
 	private static final Logger logger = LoggerFactory.getLogger(PersonaController.class);
 
 	public PersonaController(@Lazy PacketSyncService packetSyncService) {
@@ -153,10 +150,6 @@ public class PersonaController {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.RESOURCE = personaConfigPath;
 			}
-			if (personaAnguliPath != null && !personaAnguliPath.equals("")) {
-				DataProviderConstants.ANGULI_PATH = personaAnguliPath;
-			}
-			RestClient.logInfo(contextKey, "personaAnguliPath =" + DataProviderConstants.ANGULI_PATH);
 
 			RestClient.logInfo(contextKey, "Resource Path=" + DataProviderConstants.RESOURCE);
 

@@ -108,6 +108,25 @@ public class Orchestrator {
 	public void beforeSuite() {
 		TestRunner.initializeResourcePaths();
 
+		// Ensure BaseTestCase path context is set for scenarios that use AdminTestUtil.loadyaml()
+		// (e.g. GetEmailByUIN, GetPhoneByUIN, WritePersonaData). When not run via TestRunner.main(),
+		// setRunContext() is never called and getGlobalResourcePath() returns a fallback string.
+		BaseTestCase.setRunContext(TestRunner.checkRunType(), TestRunner.jarUrl);
+
+		// Ensure MosipTemporaryTestResource is populated. copyTestResources() is normally called
+		// by TestRunner.main(), but IDE/Surefire runs skip main(). Without this, all scenarios
+		// using yml files from idaData/ (and other subdirectories) fail mid-run once 20 have
+		// exhausted retries and the global threshold fires.
+		File globalResourceDir = new File(TestRunner.getGlobalResourcePath());
+		boolean resourcesMissing = !globalResourceDir.exists()
+				|| !new File(globalResourceDir, "config").isDirectory()
+				|| !new File(globalResourceDir, "idaData").isDirectory()
+				|| !new File(globalResourceDir, "testngFile").isDirectory();
+		if (resourcesMissing) {
+			logger.info("MosipTemporaryTestResource missing or incomplete; copying test resources (IDE/Surefire run without TestRunner.main())");
+			TestRunner.copyTestResources();
+		}
+
 		beforeSuiteFailed = false;
 		beforeSuiteSetupComplete = false;
 		beforeSuiteExeuted = false;
@@ -409,7 +428,13 @@ public class Orchestrator {
 		logger.info("Scenario " + scenario.getId() + " waiting for Scenario 0 (before suite) to complete...");
 		long remainingMs = suiteMaxTimeInMillis - (System.currentTimeMillis() - suiteStartTime);
 		if (remainingMs <= 0) {
-			beforeSuiteFailed = true;
+			// Only flag before-suite as failed if Scenario 0 has not finished yet.
+			// If it already completed (latch released), leave beforeSuiteFailed as-is so
+			// the scenario falls through to the suite-time-exceeded check instead of being
+			// invisibly dropped with a "Scenario 0 failed" message.
+			if (!beforeSuiteSetupComplete) {
+				beforeSuiteFailed = true;
+			}
 			return;
 		}
 		boolean completed = beforeSuiteLatch.await(remainingMs, TimeUnit.MILLISECONDS);
@@ -424,13 +449,19 @@ public class Orchestrator {
 			Properties properties) throws SQLException, InterruptedException, ClassNotFoundException,
 			IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 
+		// Create the ExtentTest entry immediately so every scenario — including those
+		// skipped before any step runs — appears in the report.
+		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
+
 		awaitBeforeSuiteSetup(scenario);
 
 		if (beforeSuiteFailed && !scenario.getId().equalsIgnoreCase("AFTER_SUITE")
 				&& !scenario.getId().equalsIgnoreCase("0")) {
+			String skipMsg = "Skipping scenarios execution: scenario " + scenario.getId()
+					+ " skipped because before-suite (Scenario 0) failed.";
+			extentTest.skip(skipMsg);
 			updateRunStatistics(scenario);
-			throw new SkipException("Skipping scenario " + scenario.getId()
-					+ " because Scenario 0 (before suite) failed.");
+			throw new SkipException(skipMsg);
 		}
 
 		long startTime = System.nanoTime();
@@ -485,7 +516,6 @@ public class Orchestrator {
 
 		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
-		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
 		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && beforeSuiteFailed) {
 			String skipMsg = "Skipping AFTER_SUITE teardown because Scenario 0 (before suite) failed — "
 					+ "WritePreReq(1/2/3) data was never stored. Fix Scenario 0 (track2b steps 17-25 for index 2) first.";
@@ -510,7 +540,7 @@ public class Orchestrator {
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 
 
-		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
+		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId()) && isFullSuiteRun()) {
 			extentTest.skip("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 			failBeforeSuiteIfScenario0Skipped(scenario);
@@ -519,14 +549,14 @@ public class Orchestrator {
 			throw new SkipException("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 		}
-		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
+		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId()) && isFullSuiteRun()) {
 			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform known issue");
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
 			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
 		}
-		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId()) && ConfigManager.getproperty("scenariosToExecute").isEmpty()) {
+		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId()) && isFullSuiteRun()) {
 			extentTest.skip("A-" + scenario.getId()
 					+ ": Ignoring scenario as it is marked to be excluded due to a known automation issue");
 			failBeforeSuiteIfScenario0Skipped(scenario);
@@ -843,6 +873,15 @@ public class Orchestrator {
 			current = current.getCause();
 		}
 		return current;
+	}
+
+	private static boolean isFullSuiteRun() {
+		String scenariosToExecute = ConfigManager.getproperty("scenariosToExecute");
+		String flowsToExecute = ConfigManager.getproperty("scenariosFlowToExecute");
+		String testLevel = BaseTestCase.testLevel;
+		return (scenariosToExecute == null || scenariosToExecute.trim().isEmpty())
+				&& (flowsToExecute == null || flowsToExecute.trim().isEmpty())
+				&& (testLevel == null || testLevel.isBlank() || "regression".equalsIgnoreCase(testLevel));
 	}
 
 	private static Boolean matchTags(String systemTags, ArrayList<String> scenarioTags) {

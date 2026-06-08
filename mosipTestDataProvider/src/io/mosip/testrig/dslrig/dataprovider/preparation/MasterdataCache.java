@@ -10,7 +10,8 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 /**
  * Unified run-scoped cache for MOSIP masterdata (GET JSON, parsed entities, derived values).
- * All entries live in the {@code {urlBase}run_context} namespace with normalized {@code md:*} keys.
+ * All entries live in dedicated {@link MasterdataCacheStore} namespaces ({@code md_cache:*}),
+ * separate from {@link io.mosip.testrig.dslrig.dataprovider.variables.VariableManager} scenario keys.
  * Legacy unprefixed keys are still read for backward compatibility within the same JVM.
  */
 public final class MasterdataCache {

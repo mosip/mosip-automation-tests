@@ -135,14 +135,9 @@ public class CryptoUtil {
 	public byte[] encrypt(byte[] data, String referenceId, String contextKey) throws Exception {
 
 		if (contextKey != null && !contextKey.equals("")) {
-
 			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.baseurl")) {
-					baseUrl = v.toString().trim();
-				}
-
-			});
+			String ctxBaseUrl = props.getProperty("mosip.test.baseurl");
+			if (ctxBaseUrl != null) baseUrl = ctxBaseUrl.trim();
 		}
 		JSONObject encryptObj = new JSONObject();
 
@@ -175,12 +170,10 @@ public class CryptoUtil {
 		byte[] encData = null;
 		try {
 			encData = encrypt(data, referenceId, contextKey);
-		} catch (Throwable e) {
-			logger.error("Encrypt Failing..", e);
-
-			encData = encrypt(data, referenceId, contextKey); 
-
-
+		} catch (Exception e) {
+			logger.error("Encrypt Failing — retrying once after 1s: {}", e.getMessage());
+			try { Thread.sleep(1000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+			encData = encrypt(data, referenceId, contextKey);
 		}
 
 		try (FileOutputStream fos = new FileOutputStream(packetLocation);
@@ -200,14 +193,9 @@ public class CryptoUtil {
 		JSONObject encryptObj = new JSONObject();
 
 		if (contextKey != null && !contextKey.equals("")) {
-
 			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.baseurl")) {
-					baseUrl = v.toString().trim();
-				}
-
-			});
+			String ctxBaseUrl = props.getProperty("mosip.test.baseurl");
+			if (ctxBaseUrl != null) baseUrl = ctxBaseUrl.trim();
 		}
 		encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
 		encryptObj.put("applicationId", encryptionAppId);
@@ -392,24 +380,53 @@ public class CryptoUtil {
 	}
 
 	private PrivateKey getMachinePrivateKey(String contextKey) throws Exception {
-		String filePath = null;
-		String machineId = "";
-		if (contextKey != null && !contextKey.equals("")) {
-			machineId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.machineid").toString();
-		}
 		File folder = new File(String.valueOf(personaConfigPath) + File.separator + "privatekeys" + File.separator);
 		File[] listOfFiles = folder.listFiles();
-		for (File file : listOfFiles) {
-			if (file.isFile()) {
-				if (file.getName().contains(
-						VariableManager.getVariableValue(contextKey, "db-server").toString() + "." + machineId)) {
+		if (listOfFiles == null || listOfFiles.length == 0) {
+			throw new Exception("privatekey file not found");
+		}
+
+		String filePath = null;
+		String machineId = "";
+		String dbServer = "";
+		if (contextKey != null && !contextKey.equals("")) {
+			Object machineIdValue = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.machineid");
+			Object dbServerValue = VariableManager.getVariableValue(contextKey, "db-server");
+			if (machineIdValue != null) {
+				machineId = machineIdValue.toString();
+			}
+			if (dbServerValue != null) {
+				dbServer = dbServerValue.toString();
+			}
+		}
+
+		if (!machineId.isEmpty() && !dbServer.isEmpty()) {
+			String expectedPattern = dbServer + "." + machineId;
+			for (File file : listOfFiles) {
+				if (file.isFile() && file.getName().contains(expectedPattern)) {
 					filePath = file.getAbsolutePath();
 					break;
 				}
 			}
 		}
-	if (filePath == null || filePath.isEmpty())
+
+		// Fallback for scenarios where machine-id does not map to a known key.
+		if (filePath == null || filePath.isEmpty()) {
+			int randomIndex = sr.nextInt(listOfFiles.length);
+			for (int i = 0; i < listOfFiles.length; i++) {
+				File candidate = listOfFiles[(randomIndex + i) % listOfFiles.length];
+				if (candidate.isFile()) {
+					filePath = candidate.getAbsolutePath();
+					logger.warn("Private key for machineId '{}' not found. Using fallback key '{}'.", machineId,
+							candidate.getName());
+					break;
+				}
+			}
+		}
+
+		if (filePath == null || filePath.isEmpty()) {
 			throw new Exception("privatekey file not found");
+		}
 		logger.info("PRIVATEKEY FILE PATH::" + filePath);
 		byte[] key = CommonUtil.read(filePath);
 		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);

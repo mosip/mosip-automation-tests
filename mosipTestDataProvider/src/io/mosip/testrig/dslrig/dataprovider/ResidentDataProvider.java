@@ -116,23 +116,37 @@ public class ResidentDataProvider {
 	public static ResidentModel updateBiometricWithTestPersona(ResidentModel model, ResidentModel testModel,
 			String bioType, String contextKey) throws Exception {
 		PersonaBiometricsAssembler.ensureBiometricShell(model);
+		if (testModel == null || testModel.getBiometric() == null) {
+			logger.warn("Test persona biometric is missing for bioType '{}'; falling back to generated biometric update.",
+					bioType);
+			return updateBiometric(model, bioType, contextKey);
+		}
 		model.setFilteredBioAttribtures(null);
 		boolean bDirty = false;
+		BiometricDataModel testBiometric = testModel.getBiometric();
 		if (bioType.equalsIgnoreCase("finger")) {
-			model.getBiometric().setFingerHash(testModel.getBiometric().getFingerHash());
-			model.getBiometric().setFingerPrint(testModel.getBiometric().getFingerPrint());
-			model.getBiometric().setFingerRaw(testModel.getBiometric().getFingerRaw());
+			model.getBiometric().setFingerHash(testBiometric.getFingerHash());
+			model.getBiometric().setFingerPrint(testBiometric.getFingerPrint());
+			model.getBiometric().setFingerRaw(testBiometric.getFingerRaw());
 			model.setSkipFinger(false);
 			bDirty = true;
 		} else if (bioType.equalsIgnoreCase("iris")) {
-			model.getBiometric().setIris(testModel.getBiometric().getIris());
-			model.setSkipIris(false);
-			bDirty = true;
+			if (testBiometric.getIris() != null) {
+				model.getBiometric().setIris(testBiometric.getIris());
+				model.setSkipIris(false);
+				bDirty = true;
+			}
 		} else if (bioType.equalsIgnoreCase("face")) {
-			model.getBiometric().setEncodedPhoto(testModel.getBiometric().getEncodedPhoto());
-			model.getBiometric().setFaceHash(testModel.getBiometric().getFaceHash());
-			model.getBiometric().setRawFaceData(testModel.getBiometric().getRawFaceData());
-			bDirty = true;
+			if (testBiometric.getEncodedPhoto() != null || testBiometric.getRawFaceData() != null) {
+				model.getBiometric().setEncodedPhoto(testBiometric.getEncodedPhoto());
+				model.getBiometric().setFaceHash(testBiometric.getFaceHash());
+				model.getBiometric().setRawFaceData(testBiometric.getRawFaceData());
+				bDirty = true;
+			}
+		}
+		if (!bDirty) {
+			logger.warn("Test persona has no '{}' biometric payload; falling back to generated biometric update.", bioType);
+			return updateBiometric(model, bioType, contextKey);
 		}
 		if (bDirty) {
 			model.setFilteredBioAttribtures(null);

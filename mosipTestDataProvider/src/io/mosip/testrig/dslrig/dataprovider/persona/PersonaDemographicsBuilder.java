@@ -127,12 +127,9 @@ public final class PersonaDemographicsBuilder {
 		}
 
 		Hashtable<String, List<DynamicFieldModel>> dynaFields = MosipMasterData.getAllDynamicFields(contextKey);
-		List<MosipGenderModel> genderTypesPrimary = MosipMasterData.getGenderTypes(primaryLang, contextKey);
-		List<MosipGenderModel> genderTypesSec = secLang != null ? MosipMasterData.getGenderTypes(secLang, contextKey)
-				: null;
-		List<MosipGenderModel> genderTypesThird = thirdLang != null
-				? MosipMasterData.getGenderTypes(thirdLang, contextKey)
-				: null;
+		List<MosipGenderModel> genderTypesPrimary = null;
+		List<MosipGenderModel> genderTypesSec = null;
+		List<MosipGenderModel> genderTypesThird = null;
 
 		int maleCount = 0;
 		int femaleCount = 0;
@@ -211,13 +208,6 @@ public final class PersonaDemographicsBuilder {
 		res.setDynaFields(ctx.dynaFields);
 		res.setName(ctx.namesPrimary.get(index));
 
-		res.getGenderTypes().put(ctx.primaryLang, ctx.genderTypesPrimary);
-		if (ctx.secLang != null) {
-			res.getGenderTypes().put(ctx.secLang, ctx.genderTypesSec);
-		}
-		if (ctx.thirdLang != null) {
-			res.getGenderTypes().put(ctx.thirdLang, ctx.genderTypesThird);
-		}
 
 		if (attributeList.containsKey(ResidentAttribute.RA_MissList)) {
 			res.setMissAttributes((List<String>) attributeList.get(ResidentAttribute.RA_MissList));

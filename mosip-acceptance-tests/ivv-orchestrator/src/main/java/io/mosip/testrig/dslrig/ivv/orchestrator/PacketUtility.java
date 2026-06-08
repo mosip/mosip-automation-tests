@@ -745,8 +745,17 @@ public class PacketUtility extends BaseTestCaseUtil {
 			if (invalidMachineFlag.contentEquals("invalidMachine") && response.getBody().asString().toLowerCase().contains("failed to sign data")) {
 				return "";
 			}
-			if (!response.getBody().asString().toLowerCase().contains(responseStatus)
-					|| response.getBody().asString().toLowerCase().contains("failed")) {
+			String body = response.getBody().asString();
+			if (body.contains("PRE_REG_TO_REGISTER_FAIL") && body.contains("RPR-PKR-002")) {
+				if ("INVALID_PACKET_SIZE".equalsIgnoreCase(responseStatus)) {
+					logger.info("Received expected Invalid Packet Size error (RPR-PKR-002): " + body);
+					return "INVALID_PACKET_SIZE";
+				}
+				this.hasError = true;
+				throw new RigInternalError("Received unexpected invalid packet size error: " + body);
+			}
+			if (!body.toLowerCase().contains(responseStatus)
+					|| body.toLowerCase().contains("failed")) {
 				if (count == maxRetryCount) {
 					this.hasError = true;
 					throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
@@ -889,7 +898,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 
 
-		jsonReq.put("ageCategory", MasterDataUtil.getValueFromRegprocActuator("/mosip/mosip-config/registration-processor-default.properties", "mosip.regproc.packet.classifier.tagging.agegroup.ranges"));
+		jsonReq.put("ageCategory", MasterDataUtil.getValueFromRegprocActuator("/mosip-config/registration-processor-default.properties", "mosip.regproc.packet.classifier.tagging.agegroup.ranges"));
 
 		jsonReq.put("IDSchemaVersion", getValueFromIdJson("IDSchemaVersion"));
 		jsonReq.put("uin", getValueFromIdJson("uin"));

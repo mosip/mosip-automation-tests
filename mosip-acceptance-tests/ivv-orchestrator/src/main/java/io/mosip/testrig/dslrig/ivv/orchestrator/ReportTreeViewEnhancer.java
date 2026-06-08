@@ -57,11 +57,14 @@ public final class ReportTreeViewEnhancer {
                     + "li.style.display=show?'':'none';});});})();</script>";
 
 
+    // scrollIntoView handles content-visibility:auto natively (spec requires browsers to
+    // expand skipped content before scrolling). The old getBoundingClientRect approach
+    // returned placeholder heights (contain-intrinsic-size: 480px) for off-screen
+    // scenario sections, causing clicks to land at the wrong position until the content
+    // happened to be rendered — requiring 2-3 clicks to navigate reliably.
     private static final String REPORT_MAIN_SCROLL_SCRIPT =
-            "<script>(function(){function m(){return document.querySelector('.report-main')}"
-                    + "function s(el,sm){var p=m();if(!p||!el)return;"
-                    + "var t=el.getBoundingClientRect().top-p.getBoundingClientRect().top+p.scrollTop-10;"
-                    + "p.scrollTo({top:Math.max(0,t),behavior:sm?'smooth':'auto'})}"
+            "<script>(function(){"
+                    + "function s(el,sm){if(!el)return;el.scrollIntoView({behavior:sm?'smooth':'auto',block:'start'})}"
                     + "function h(hash,sm){if(!hash||hash.charAt(0)!=='#')return;"
                     + "var el=document.getElementById(hash.slice(1));if(el)s(el,sm)}"
                     + "function navClick(e){var a=e.target.closest&&e.target.closest('a[href^=\"#\"]');"
@@ -74,7 +77,7 @@ public final class ReportTreeViewEnhancer {
                     + "var el=document.getElementById(id.slice(1));if(!el||!el.closest('.report-main'))return;"
                     + "e.preventDefault();h(id,true)}"
                     + "function init(){document.querySelector('.report-sidebar')?.addEventListener('click',navClick);"
-                    + "m()?.addEventListener('click',mainClick);"
+                    + "document.querySelector('.report-main')?.addEventListener('click',mainClick);"
                     + "h(location.hash||'#report-exec-summary',false);"
                     + "if(!document.getElementById('report-exec-summary'))h('#summary',false)}"
                     + "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);"
@@ -99,12 +102,6 @@ public final class ReportTreeViewEnhancer {
 
     private static final Pattern H3_ANCHOR = Pattern.compile("<h3[^>]*\\bid=['\"](m\\d+)['\"][^>]*>", Pattern.CASE_INSENSITIVE);
 
-
-    private static final Pattern STEP_CARD =
-            Pattern.compile(
-                    "<div class=['\"]step-capture-card['\"]\\s+id=['\"](m\\d+-s\\d+)['\"][^>]*>.*?<div class=['\"]step-capture-panel['\"]>(.*?)</div>"
-                            + "\\s*(?:<textarea[^>]*\\bstep-capture-raw\\b[^>]*>([^<]*)</textarea>\\s*)?</div>",
-                    Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     private static final Pattern STEP_CAPTURE_LINE =
             Pattern.compile(
@@ -163,8 +160,15 @@ public final class ReportTreeViewEnhancer {
                     "<nav\\b[^>]*class\\s*=\\s*['\"]tree-nav['\"][^>]*\\baria-label\\s*=\\s*['\"]Scenario outline['\"][^>]*>.*?</nav>",
                     Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
+    // Matches any <div> whose class attribute contains "step-capture-card", regardless of
+    // additional classes or other attributes on the tag. The original strict pattern
+    // "<div class=['"]step-capture-card['"]>" was invisible to any card logged with extra
+    // attributes (e.g. data-step="...", style="...") or extra CSS classes. Those scenarios
+    // would then produce no step IDs and appear to have zero steps in the sidebar.
     private static final Pattern STEP_CAPTURE_DIV =
-            Pattern.compile("<div class=['\"]step-capture-card['\"]>", Pattern.CASE_INSENSITIVE);
+            Pattern.compile(
+                    "<div\\b[^>]*\\bclass\\s*=\\s*['\"][^'\"]*\\bstep-capture-card\\b[^'\"]*['\"][^>]*>",
+                    Pattern.CASE_INSENSITIVE);
 
 
     private static final Pattern SCENARIO_DETAIL_SECTION_OPEN =
@@ -275,6 +279,13 @@ public final class ReportTreeViewEnhancer {
             log.info(
                     "ReportTreeViewEnhancer: enhanced report written in place; previous plain HTML removed/replaced: "
                             + target);
+            boolean integrityOk = ReportIntegrityValidator.validate(enhanced);
+            if (!integrityOk) {
+                log.error("ReportTreeViewEnhancer: INTEGRITY CHECK FAILED for " + target
+                        + " — sidebar/panel mismatch detected. See [REPORT-INTEGRITY] log lines above.");
+            } else {
+                log.info("ReportTreeViewEnhancer: integrity check passed for " + target);
+            }
             return true;
         } catch (OutOfMemoryError oom) {
             log.error(
@@ -360,6 +371,7 @@ public final class ReportTreeViewEnhancer {
                                 state = TextareaScanState.TEXTAREA_BODY;
                                 bodyWritten = 0;
                                 truncateNoteWritten = false;
+                                closeProbe.setLength(0);
                             } else {
                                 writer.write(tagText);
                                 state = TextareaScanState.NORMAL;
@@ -375,6 +387,20 @@ public final class ReportTreeViewEnhancer {
                         if (bodyWritten < maxChars) {
                             writer.write(c);
                             bodyWritten++;
+                            // Track </textarea> close so we exit TEXTAREA_BODY when the
+                            // textarea ends normally (body smaller than maxChars). Without
+                            // this the state machine stays stuck in TEXTAREA_BODY and counts
+                            // subsequent scenario HTML as body bytes — eventually hitting
+                            // maxChars mid-scenario and silently dropping H3 anchors.
+                            closeProbe.append(Character.toLowerCase(c));
+                            if (closeProbe.length() > 12) {
+                                closeProbe.delete(0, closeProbe.length() - 12);
+                            }
+                            if (endsWithTextareaClose(closeProbe)) {
+                                // The </textarea> chars were already written above one by one.
+                                state = TextareaScanState.NORMAL;
+                                closeProbe.setLength(0);
+                            }
                         } else {
                             if (!truncateNoteWritten) {
                                 writer.write(TEXTAREA_TRUNCATE_NOTE);
@@ -512,13 +538,44 @@ public final class ReportTreeViewEnhancer {
                 out.replace(
                         "href=\"#summary\" role=\"treeitem\"><span class=\"tree-icon\"",
                         "href=\"#report-exec-summary\" role=\"treeitem\"><span class=\"tree-icon\"");
+        // Upgrade old getBoundingClientRect-based scroll script to the scrollIntoView
+        // version so that re-enhanced existing reports also get the navigation fix.
+        out = upgradeScrollScript(out);
         if (!out.contains("h(location.hash||'#report-exec-summary'")) {
             String inject = REPORT_MAIN_SCROLL_SCRIPT + "\n";
             if (out.contains("</body>")) {
                 out = replaceFirstLiteral(out, "</body>", inject + "</body>");
             }
         }
+        // Repair scenario-detail-card wrappers that were missed in a previous enhancement
+        // pass (e.g. because findClosingTableStartIndex hit a </table> inside a textarea
+        // payload and wrapScenarioDetailCards silently skipped those scenarios). Since
+        // wrapScenarioDetailCards now detects already-wrapped H3s and skips them, calling
+        // it here is safe: it only wraps the orphaned H3s that still lack a section.
+        out = wrapScenarioDetailCards(out);
         return stripScenarioDetailCardChrome(out);
+    }
+
+
+    private static String upgradeScrollScript(String html) {
+        // Detect old getBoundingClientRect-based scroll script by its unique signature.
+        // content-visibility:auto causes getBoundingClientRect to return placeholder
+        // heights for off-screen elements, so the calculated scroll position is wrong
+        // until the element has been rendered — requiring multiple clicks to navigate.
+        String oldSignature = "getBoundingClientRect().top-p.getBoundingClientRect().top+p.scrollTop";
+        int sigIdx = html.indexOf(oldSignature);
+        if (sigIdx < 0) {
+            return html;
+        }
+        int scriptStart = html.lastIndexOf("<script>", sigIdx);
+        if (scriptStart < 0) {
+            return html;
+        }
+        int scriptEnd = html.indexOf("</script>", sigIdx);
+        if (scriptEnd < 0) {
+            return html;
+        }
+        return html.substring(0, scriptStart) + REPORT_MAIN_SCROLL_SCRIPT + html.substring(scriptEnd + 9);
     }
 
 
@@ -851,25 +908,181 @@ public final class ReportTreeViewEnhancer {
         }
         for (ScenarioRow r : rows) {
             String chunk = segs.getOrDefault(r.anchor, "");
-            List<StepEntry> stepsOut = new ArrayList<>();
-            Matcher sm = STEP_CARD.matcher(chunk);
-            while (sm.find()) {
-                String sid = sm.group(1);
-                if (!sid.startsWith(r.anchor + "-")) {
-                    continue;
-                }
-                String raw = sm.group(3);
-                if (raw == null || raw.isBlank()) {
-                    raw = parseStepCapturePanelHtml(sm.group(2) == null ? "" : sm.group(2));
-                } else {
-                    raw = decodeMinimalHtmlEntities(raw);
-                }
-                String[] parsed = parseStepCaptureText(raw);
-                stepsOut.add(new StepEntry(sid, parsed[0], parsed[1]));
-            }
-            r.steps = stepsOut;
+            // RC#4 FIX: Replace STEP_CARD regex (DOTALL + nested .*? caused catastrophic
+            // backtracking on large scenario chunks with many HTTP payloads) with a linear
+            // character-level scanner that tracks div depth. O(n), no backtracking.
+            r.steps = extractStepEntriesLinear(chunk, r.anchor);
         }
         return rows;
+    }
+
+    /**
+     * Linear O(n) extractor: locates step-capture-card divs whose id starts with
+     * {@code anchorPrefix + "-"}, then extracts label/desc using depth-tracked div
+     * traversal. No regex backtracking regardless of chunk size.
+     */
+    private static List<StepEntry> extractStepEntriesLinear(String chunk, String anchorPrefix) {
+        List<StepEntry> out = new ArrayList<>();
+        if (chunk == null || chunk.isEmpty()) {
+            return out;
+        }
+        String prefix = anchorPrefix + "-";
+        int pos = 0;
+        while (pos < chunk.length()) {
+            int divOpen = indexOfIgnoreCase(chunk, "<div", pos);
+            if (divOpen < 0) {
+                break;
+            }
+            int divGt = chunk.indexOf('>', divOpen);
+            if (divGt < 0) {
+                break;
+            }
+            String openTag = chunk.substring(divOpen, divGt + 1);
+            pos = divGt + 1;
+            if (!containsIgnoreCase(openTag, "step-capture-card")) {
+                continue;
+            }
+            String sid = extractAttrValue(openTag, "id");
+            if (sid == null || !sid.startsWith(prefix)) {
+                continue;
+            }
+            int cardBodyEnd = findBalancedDivCloseIndex(chunk, divGt + 1);
+            if (cardBodyEnd < 0) {
+                continue;
+            }
+            String cardBody = chunk.substring(divGt + 1, cardBodyEnd);
+            String raw = extractTextareaBody(cardBody, "step-capture-raw");
+            if (raw == null || raw.isBlank()) {
+                String panelHtml = extractDivBody(cardBody, "step-capture-panel");
+                raw = parseStepCapturePanelHtml(panelHtml == null ? "" : panelHtml);
+            } else {
+                raw = decodeMinimalHtmlEntities(raw);
+            }
+            String[] parsed = parseStepCaptureText(raw);
+            out.add(new StepEntry(sid, parsed[0], parsed[1]));
+            pos = cardBodyEnd + 6; // skip past </div>
+        }
+        return out;
+    }
+
+    /**
+     * Depth-tracking search for the balanced {@code </div>} that closes the div
+     * whose opening tag ends just before {@code from}.
+     *
+     * <p><b>Textarea-safe</b>: skips {@code <textarea>} bodies so that literal
+     * {@code </div>} strings inside HTTP response payloads do not corrupt the
+     * depth counter and cause step-card body extraction to terminate early.
+     */
+    private static int findBalancedDivCloseIndex(String html, int from) {
+        int depth = 1;
+        int pos = from;
+        while (depth > 0 && pos < html.length()) {
+            int nextOpen    = indexOfIgnoreCase(html, "<div",      pos);
+            int nextClose   = indexOfIgnoreCase(html, "</div>",    pos);
+            int nextTextarea = indexOfIgnoreCase(html, "<textarea", pos);
+
+            if (nextClose < 0) {
+                return -1;
+            }
+            int divMin = nextOpen >= 0 ? Math.min(nextOpen, nextClose) : nextClose;
+            if (nextTextarea >= 0 && nextTextarea < divMin) {
+                int taGt    = html.indexOf('>', nextTextarea);
+                int taClose = taGt >= 0 ? indexOfIgnoreCase(html, "</textarea>", taGt + 1) : -1;
+                pos = taClose >= 0 ? taClose + 11 : html.length();
+                continue;
+            }
+            if (nextOpen >= 0 && nextOpen < nextClose) {
+                depth++;
+                pos = nextOpen + 4;
+            } else {
+                depth--;
+                if (depth == 0) {
+                    return nextClose;
+                }
+                pos = nextClose + 6;
+            }
+        }
+        return -1;
+    }
+
+    /** Extracts {@code attrName="value"} or {@code attrName='value'} from an HTML open tag string. */
+    private static String extractAttrValue(String tag, String attrName) {
+        int i = indexOfIgnoreCase(tag, attrName, 0);
+        if (i < 0) {
+            return null;
+        }
+        int eq = tag.indexOf('=', i + attrName.length());
+        if (eq < 0 || eq >= tag.length() - 1) {
+            return null;
+        }
+        int start = eq + 1;
+        while (start < tag.length() && Character.isWhitespace(tag.charAt(start))) {
+            start++;
+        }
+        if (start >= tag.length()) {
+            return null;
+        }
+        char quote = tag.charAt(start);
+        if (quote != '"' && quote != '\'') {
+            return null;
+        }
+        int end = tag.indexOf(quote, start + 1);
+        if (end < 0) {
+            return null;
+        }
+        return tag.substring(start + 1, end);
+    }
+
+    /** Extracts the inner HTML of the first {@code <div>} whose opening tag contains {@code cssClass}. */
+    private static String extractDivBody(String html, String cssClass) {
+        int pos = 0;
+        while (pos < html.length()) {
+            int divOpen = indexOfIgnoreCase(html, "<div", pos);
+            if (divOpen < 0) {
+                return null;
+            }
+            int divGt = html.indexOf('>', divOpen);
+            if (divGt < 0) {
+                return null;
+            }
+            String openTag = html.substring(divOpen, divGt + 1);
+            pos = divGt + 1;
+            if (!containsIgnoreCase(openTag, cssClass)) {
+                continue;
+            }
+            int bodyEnd = findBalancedDivCloseIndex(html, divGt + 1);
+            if (bodyEnd < 0) {
+                return null;
+            }
+            return html.substring(divGt + 1, bodyEnd);
+        }
+        return null;
+    }
+
+    /** Extracts content of first {@code <textarea>} whose opening tag contains {@code attrHint}. */
+    private static String extractTextareaBody(String html, String attrHint) {
+        int pos = 0;
+        while (pos < html.length()) {
+            int tOpen = indexOfIgnoreCase(html, "<textarea", pos);
+            if (tOpen < 0) {
+                return null;
+            }
+            int tGt = html.indexOf('>', tOpen);
+            if (tGt < 0) {
+                return null;
+            }
+            String openTag = html.substring(tOpen, tGt + 1);
+            pos = tGt + 1;
+            if (!containsIgnoreCase(openTag, attrHint)) {
+                continue;
+            }
+            int closeIdx = indexOfIgnoreCase(html, "</textarea>", tGt + 1);
+            if (closeIdx < 0) {
+                return null;
+            }
+            return html.substring(tGt + 1, closeIdx);
+        }
+        return null;
     }
 
 
@@ -971,10 +1184,26 @@ public final class ReportTreeViewEnhancer {
     }
 
 
+    /**
+     * Returns true if the H3 element starting at {@code h3Start} is already inside a
+     * {@code scenario-detail-card__inner} div (i.e., already wrapped by a previous run).
+     * Looks back up to 120 characters before the H3 opening tag.
+     */
+    private static boolean isAlreadyWrappedScenarioH3(String html, int h3Start) {
+        int lookFrom = Math.max(0, h3Start - 120);
+        String lookback = html.substring(lookFrom, h3Start);
+        return containsIgnoreCase(lookback, "scenario-detail-card__inner");
+    }
+
     private static String wrapScenarioDetailCards(String html) {
-        if (html == null || html.isEmpty() || SCENARIO_DETAIL_SECTION_OPEN.matcher(html).find()) {
+        if (html == null || html.isEmpty()) {
             return html;
         }
+        // Original fast-path: if NO section exists at all, this is a fresh plain report —
+        // process every H3. If sections DO exist (already-enhanced or partial report), we
+        // still need to process UNWRAPPED H3s (e.g. m19 in a report whose wrapping failed
+        // for that scenario due to the old textarea bug). We detect per-H3 whether it is
+        // already wrapped instead of bailing out for the entire document.
         final String h3Head = "<h3";
         StringBuilder out = new StringBuilder();
         int cursor = 0;
@@ -998,6 +1227,15 @@ public final class ReportTreeViewEnhancer {
             }
             String anchorId = extractScenarioAnchorId(h3Tag);
             if (anchorId == null) {
+                out.append(html, cursor, h3End);
+                cursor = h3End;
+                continue;
+            }
+            // Skip H3s already wrapped in a scenario-detail-card__inner div so we don't
+            // double-wrap sections in partially-enhanced reports. This also makes
+            // wrapScenarioDetailCards() safe to call on already-enhanced reports (via
+            // patchExistingTreeViewReport) to repair the scenarios whose wrapping failed.
+            if (isAlreadyWrappedScenarioH3(html, h3)) {
                 out.append(html, cursor, h3End);
                 cursor = h3End;
                 continue;
@@ -1036,8 +1274,14 @@ public final class ReportTreeViewEnhancer {
             while (pScan < html.length() && Character.isWhitespace(html.charAt(pScan))) {
                 pScan++;
             }
+            // Search for <p class="totop"> after </table>. The original 120-char limit was
+            // too tight: annotation passes (tc-outcome-banner, validation-panel, etc.) can
+            // insert content between </table> and <p class="totop">, causing wrapping to
+            // silently fail for those scenarios. Use a generous bound (4096) so any
+            // reasonable annotation output is tolerated, while still not scanning the
+            // entire document for a mis-matched <p>.
             int pOpen = indexOfIgnoreCase(html, "<p", pScan);
-            if (pOpen < 0 || pOpen > pScan + 120) {
+            if (pOpen < 0 || pOpen > pScan + 4096) {
                 out.append(html, cursor, h3End);
                 cursor = h3End;
                 continue;
@@ -1050,9 +1294,23 @@ public final class ReportTreeViewEnhancer {
             }
             String pTag = html.substring(pOpen, pGt + 1);
             if (!containsIgnoreCase(pTag, "totop")) {
-                out.append(html, cursor, h3End);
-                cursor = h3End;
-                continue;
+                // The first <p> wasn't the totop one — scan forward for the real one.
+                int searchFrom = pGt + 1;
+                boolean found = false;
+                while (searchFrom < Math.min(pScan + 4096, html.length())) {
+                    pOpen = indexOfIgnoreCase(html, "<p", searchFrom);
+                    if (pOpen < 0) break;
+                    pGt = html.indexOf('>', pOpen);
+                    if (pGt < 0) break;
+                    pTag = html.substring(pOpen, pGt + 1);
+                    if (containsIgnoreCase(pTag, "totop")) { found = true; break; }
+                    searchFrom = pGt + 1;
+                }
+                if (!found) {
+                    out.append(html, cursor, h3End);
+                    cursor = h3End;
+                    continue;
+                }
             }
             int pClose = indexOfIgnoreCase(html, "</p>", pGt + 1);
             if (pClose < 0) {
@@ -1120,14 +1378,37 @@ public final class ReportTreeViewEnhancer {
     }
 
 
+    /**
+     * Finds the start index of the {@code </table>} that closes the table whose
+     * opening tag ends just before {@code innerStart}, tracking nesting depth.
+     *
+     * <p><b>Textarea-safe</b>: {@code <textarea>} content is verbatim text, not HTML.
+     * HTTP response payloads stored in textareas can contain literal {@code </table>}
+     * strings (e.g. an API that returns an HTML-formatted error page). Without skipping
+     * textarea bodies the naive depth counter would find one of those literal strings and
+     * return the wrong position, causing {@link #wrapScenarioDetailCards} to fail to find
+     * {@code <p class="totop">} within the expected window — and the scenario detail card
+     * would silently be left unwrapped, making the scenario invisible in the right panel.
+     */
     private static int findClosingTableStartIndex(String html, int innerStart) {
         int depth = 1;
         int pos = innerStart;
         while (depth > 0 && pos < html.length()) {
-            int nextOpen = indexOfIgnoreCase(html, "<table", pos);
-            int nextClose = indexOfIgnoreCase(html, "</table>", pos);
+            int nextOpen    = indexOfIgnoreCase(html, "<table",    pos);
+            int nextClose   = indexOfIgnoreCase(html, "</table>",  pos);
+            int nextTextarea = indexOfIgnoreCase(html, "<textarea", pos);
+
             if (nextClose < 0) {
                 return -1;
+            }
+            // If a <textarea> starts before any table tag, its body is verbatim text —
+            // skip to the matching </textarea> before continuing the depth scan.
+            int tableMin = nextOpen >= 0 ? Math.min(nextOpen, nextClose) : nextClose;
+            if (nextTextarea >= 0 && nextTextarea < tableMin) {
+                int taGt    = html.indexOf('>', nextTextarea);
+                int taClose = taGt >= 0 ? indexOfIgnoreCase(html, "</textarea>", taGt + 1) : -1;
+                pos = taClose >= 0 ? taClose + 11 : html.length();
+                continue;
             }
             if (nextOpen >= 0 && nextOpen < nextClose) {
                 depth++;

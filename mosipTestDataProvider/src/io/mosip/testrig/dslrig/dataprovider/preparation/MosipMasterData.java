@@ -2,10 +2,8 @@ package io.mosip.testrig.dslrig.dataprovider.preparation;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Queue;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -519,7 +517,11 @@ public  class MosipMasterData {
 	        JSONArray idSchema = new JSONArray();
 	        double schemaVersion = 0.0;
 	        String schemaTitle = "";
-	        JSONArray screens = resp.getJSONObject(processKey).getJSONArray("screens");
+	        JSONArray screens = resolveScreens(resp, processKey);
+	        if (screens == null || screens.length() == 0) {
+	            logger.warn("No screens found in idschema/latest response for processKey={}", processKey);
+	            return tbl;
+	        }
 	        for (int i = 0; i < screens.length(); i++) {
 	            JSONArray fields = screens.getJSONObject(i).getJSONArray("fields");
 	            for (int j = 0; j < fields.length(); j++) {
@@ -571,6 +573,44 @@ public  class MosipMasterData {
 	    return tbl;
 	}
 
+	private static JSONArray resolveScreens(JSONObject resp, String processKey) {
+		if (resp == null) {
+			return null;
+		}
+		if (processKey != null) {
+			JSONObject processObject = resp.optJSONObject(processKey);
+			if (processObject != null) {
+				JSONArray screens = processObject.optJSONArray("screens");
+				if (screens != null && screens.length() > 0) {
+					return screens;
+				}
+			}
+		}
+
+		JSONArray rootScreens = resp.optJSONArray("screens");
+		if (rootScreens != null && rootScreens.length() > 0) {
+			return rootScreens;
+		}
+
+		Iterator<String> keys = resp.keys();
+		while (keys.hasNext()) {
+			String key = keys.next();
+			if (!key.endsWith("Process")) {
+				continue;
+			}
+			JSONObject processObject = resp.optJSONObject(key);
+			if (processObject == null) {
+				continue;
+			}
+			JSONArray screens = processObject.optJSONArray("screens");
+			if (screens != null && screens.length() > 0) {
+				logger.info("Using fallback process block {} for idschema/latest", key);
+				return screens;
+			}
+		}
+		return null;
+	}
+
 	private static String getIdSchemaLatestUrl(String contextKey) {
 		return VariableManager.getVariableValue(contextKey, "urlBase").toString()
 				+ VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "idschemaapi").toString();
@@ -585,6 +625,9 @@ public  class MosipMasterData {
 			}
 		} catch (Exception e) {
 			logger.debug("process not set for {}, defaulting to NEW", contextKey);
+		}
+		if (process.equalsIgnoreCase("LOST")) {
+			process = "NEW";
 		}
 		return process.toLowerCase().trim() + "Process";
 	}
@@ -1477,39 +1520,4 @@ public  class MosipMasterData {
 		return warmed;
 	}
 
-	/**
-	 * Breadth-first walk of location tree; each {@code immediatechildren} URL is cached for the run.
-	 */
-	public static int warmLocationImmediateChildrenCache(String contextKey, List<String> langCodes, int maxCallsPerLang) {
-		int warmed = 0;
-		try {
-			MosipPreRegLoginConfig config = getPreregLoginConfig(contextKey);
-			String countryCode = config.getMosip_country_code();
-			if (countryCode == null || countryCode.isBlank()) {
-				return 0;
-			}
-			for (String langCode : langCodes) {
-				Queue<String> queue = new ArrayDeque<>();
-				queue.add(countryCode);
-				int calls = 0;
-				while (!queue.isEmpty() && calls < maxCallsPerLang) {
-					String locCode = queue.poll();
-					List<MosipLocationModel> children = getImmedeateChildren(locCode, langCode, contextKey);
-					calls++;
-					warmed++;
-					if (children == null || children.isEmpty()) {
-						continue;
-					}
-					for (MosipLocationModel child : children) {
-						if (child != null && Boolean.TRUE.equals(child.getIsActive()) && child.getCode() != null) {
-							queue.add(child.getCode());
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			logger.warn("warmLocationImmediateChildrenCache failed: {}", e.getMessage());
-		}
-		return warmed;
-	}
 }

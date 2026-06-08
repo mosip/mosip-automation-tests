@@ -346,6 +346,14 @@ public class PacketSyncService {
 					process,
 					preregId, contextKey, true, additionalInfoReqId, targetDirectory);
 
+			try {
+				byte[] packetBytes = CommonUtil.read(packetPath);
+				VariableManager.setVariableValue(contextKey, "cachedPacketHash", cryptoUtil.getHexEncodedHash(packetBytes));
+				VariableManager.setVariableValue(contextKey, "cachedPacketSize", String.valueOf(packetBytes.length));
+			} catch (Exception e) {
+				logger.warn("Could not pre-cache packet hash/size; will re-read during sync: {}", e.getMessage());
+			}
+
 			String response = null;
 			if (RestClient.isDebugEnabled(contextKey))
 				logger.info("Packet created : {}", packetPath);
@@ -393,7 +401,24 @@ public class PacketSyncService {
 
 			JSONObject functionResponse = new JSONObject();
 			JSONObject nobj = new JSONObject();
-			response = packetSyncService.uploadPacket(packetPath, contextKey);
+			try {
+				response = packetSyncService.uploadPacket(packetPath, contextKey);
+			} catch (Exception ex) {
+				if (!isPacketNotFoundInSyncTable(ex)) {
+					throw ex;
+				}
+				String processValue = process;
+				if (processValue == null || processValue.isBlank()) {
+					Object processVariable = VariableManager.getVariableValue(contextKey, "process");
+					processValue = processVariable == null ? "" : processVariable.toString();
+				}
+				logger.warn(
+						"Upload failed with Packet Not Found in Sync Table for packet {}. Syncing RID and retrying upload once.",
+						packetPath);
+				packetSyncService.syncPacketRid(packetPath, "dummy", "APPROVED", "dummy", processValue, contextKey,
+						additionalInfoReqId);
+				response = packetSyncService.uploadPacket(packetPath, contextKey);
+			}
 			if (RestClient.isDebugEnabled(contextKey))
 				logger.info("Packet Upload response : {}", response);
 			JSONObject obj = new JSONObject(response);
@@ -420,6 +445,14 @@ public class PacketSyncService {
 			CommonUtil.cleanupPreregArtifacts(location, targetDirectory);
 		}
 
+	}
+
+	private boolean isPacketNotFoundInSyncTable(Exception ex) {
+		if (ex == null || ex.getMessage() == null) {
+			return false;
+		}
+		return ex.getMessage().contains("RPR-PKR-001")
+				|| ex.getMessage().contains("Packet Not Found in Sync Table");
 	}
 
 	public Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
@@ -494,18 +527,11 @@ public class PacketSyncService {
 		String machineId = VariableManager.getVariableValue(contextKey, "machineid").toString();
 		if (contextKey != null && !contextKey.equals("")) {
 			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.packet.syncapi")) {
-					syncapi = v.toString();
-				} else if (k.toString().equals("mosip.test.primary.langcode")) {
-					primaryLangCode = v.toString();
-				} else if (k.toString().equals("mosip.test.baseurl")) {
-					baseUrl = v.toString();
-				} else if (k.toString().equals("mosip.version")) {
-					mosipVersion = v.toString();
-				}
-
-			});
+			String pv;
+			if ((pv = props.getProperty("mosip.test.packet.syncapi")) != null) syncapi = pv;
+			if ((pv = props.getProperty("mosip.test.primary.langcode")) != null) primaryLangCode = pv;
+			if ((pv = props.getProperty("mosip.test.baseurl")) != null) baseUrl = pv;
+			if ((pv = props.getProperty("mosip.version")) != null) mosipVersion = pv;
 		}
 		Path container = Path.of(containerFile);
 		String rid = null;
@@ -526,16 +552,20 @@ public class PacketSyncService {
 		jsonObject.put("phone", "");
 		jsonObject.put("registrationType", proc);
 
-		byte[] fileBytes = CommonUtil.read(containerFile);
-
-		String checkSum = VariableManager.getVariableValue(contextKey, "invalidCheckSum").toString();
-
-		if (checkSum.equalsIgnoreCase("invalidCheckSum"))
-			jsonObject.put("packetHashValue", "INVALID_CHECKSUM");
-		else
-			jsonObject.put("packetHashValue", cryptoUtil.getHexEncodedHash(fileBytes));
-
-		jsonObject.put("packetSize", fileBytes.length);
+		Object checkSumObj = VariableManager.getVariableValue(contextKey, "invalidCheckSum");
+		String checkSum = checkSumObj != null ? checkSumObj.toString() : "";
+		Object cachedHash = VariableManager.getVariableValue(contextKey, "cachedPacketHash");
+		Object cachedSize = VariableManager.getVariableValue(contextKey, "cachedPacketSize");
+		if (cachedHash != null && cachedSize != null) {
+			jsonObject.put("packetHashValue", checkSum.equalsIgnoreCase("invalidCheckSum") ? "INVALID_CHECKSUM" : cachedHash.toString());
+			jsonObject.put("packetSize", Long.parseLong(cachedSize.toString()));
+			VariableManager.removeVariableValue(contextKey, "cachedPacketHash");
+			VariableManager.removeVariableValue(contextKey, "cachedPacketSize");
+		} else {
+			byte[] fileBytes = CommonUtil.read(containerFile);
+			jsonObject.put("packetHashValue", checkSum.equalsIgnoreCase("invalidCheckSum") ? "INVALID_CHECKSUM" : cryptoUtil.getHexEncodedHash(fileBytes));
+			jsonObject.put("packetSize", fileBytes.length);
+		}
 		jsonObject.put("supervisorStatus", supervisorStatus);
 		jsonObject.put("supervisorComment", supervisorComment);
 
@@ -569,17 +599,10 @@ public class PacketSyncService {
 	public String uploadPacket(String path, String contextKey) throws Exception {
 
 		if (contextKey != null && !contextKey.equals("")) {
-
 			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.packet.uploadapi")) {
-
-					uploadapi = v.toString();
-
-				} else if (k.toString().equals("mosip.test.baseurl")) {
-					baseUrl = v.toString();
-				}
-			});
+			String pv;
+			if ((pv = props.getProperty("mosip.test.packet.uploadapi")) != null) uploadapi = pv;
+			if ((pv = props.getProperty("mosip.test.baseurl")) != null) baseUrl = pv;
 		}
 
 
@@ -1012,10 +1035,14 @@ public class PacketSyncService {
 
 
 				MosipDocument doc = null;
-				for (MosipDocument md : persona.getDocuments()) {
-					if (md.getDocCategoryCode().toLowerCase().equals(key) || md.getDocCategoryName().equals(key)) {
-						doc = md;
-						break;
+				if (persona.getDocuments() != null) {
+					for (MosipDocument md : persona.getDocuments()) {
+						String docCategoryCode = md.getDocCategoryCode() == null ? "" : md.getDocCategoryCode().toLowerCase();
+						String docCategoryName = md.getDocCategoryName() == null ? "" : md.getDocCategoryName().toLowerCase();
+						if (docCategoryCode.equals(key) || docCategoryName.equals(key)) {
+							doc = md;
+							break;
+						}
 					}
 				}
 
@@ -1063,6 +1090,9 @@ public class PacketSyncService {
 					case "dob":
 					case "dateofbirth":
 						oldValues.put("dob", persona.getDob());
+						if (value == null || value.trim().isEmpty()) {
+							break;
+						}
 						if ("minor".equalsIgnoreCase(value)) {
 							persona.setInfant(false);
 							persona.setMinor(true);

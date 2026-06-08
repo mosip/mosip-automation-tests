@@ -29,9 +29,6 @@ public class TestDataController {
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
-	@Value("${mosip.test.persona.Angulipath}")
-	private String personaAnguliPath;
-
 	PacketMakerService pkm;
 	PacketSyncService packetSyncService;
 

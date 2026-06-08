@@ -85,16 +85,11 @@ public class MosipDataSetup {
 	}
 
 	static Object readCacheRaw(String key, String runContextNamespace) {
-		try {
-			return fromCacheValue(VariableManager.getVariableValue(runContextNamespace, key));
-		} catch (Exception e) {
-			logger.debug("Cache read failed for key {}: {}", key, e.getMessage());
-		}
-		return null;
+		return MasterdataCacheStore.get(runContextNamespace, key);
 	}
 
 	static void writeCacheRaw(String key, Object value, String runContextNamespace) {
-		VariableManager.setVariableValue(runContextNamespace, key, toCacheValue(value));
+		MasterdataCacheStore.put(runContextNamespace, key, value);
 	}
 
 	public static Object toCacheValue(Object value) {
@@ -138,7 +133,7 @@ public class MosipDataSetup {
 
 	public static void clearRunCache(String contextKey) {
 		try {
-			VariableManager.deleteNameSpace(getRunContextNamespace(contextKey));
+			MasterdataCacheStore.clearNamespace(getRunContextNamespace(contextKey));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
