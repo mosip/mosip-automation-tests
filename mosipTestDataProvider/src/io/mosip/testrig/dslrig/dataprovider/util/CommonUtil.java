@@ -81,42 +81,36 @@ public class CommonUtil {
 		if (outputPath == null || outputPath.isBlank()) {
 			throw new IOException("Output path is required");
 		}
+
 		if (outputPath.contains("..")) {
 			throw new IOException("Invalid output path");
 		}
 
 		Path resolved = Paths.get(outputPath).toAbsolutePath().normalize();
-		if (resolved.toString().contains("..")) {
-			throw new IOException("Invalid output path");
-		}
-
-		Path parent = resolved.getParent();
-		if (parent == null) {
-			throw new IOException("Invalid output path");
-		}
 
 		Path matchedRoot = findMatchingAllowedRoot(resolved, contextKey);
 		if (matchedRoot == null) {
 			throw new IOException("Output path is outside allowed temp roots");
 		}
 
-		if (!isPathUnderRoot(resolved, matchedRoot)) {
-			throw new IOException("Path traversal attempt detected");
-		}
+		matchedRoot = matchedRoot.toAbsolutePath().normalize();
 
 		Path safePath = buildPathUnderRoot(matchedRoot, resolved);
 		if (!isPathUnderRoot(safePath, matchedRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
-		if (safePath.toString().contains("..")) {
+
+		Path safeParent = safePath.getParent();
+		if (safeParent == null) {
 			throw new IOException("Invalid output path");
 		}
 
-		Path safeParent = safePath.getParent();
-		if (safeParent == null || !isPathUnderRoot(safeParent, matchedRoot)) {
-			throw new IOException("Invalid output path");
+		if (!isPathUnderRoot(safeParent, matchedRoot)) {
+			throw new IOException("Path traversal attempt detected");
 		}
+
 		Files.createDirectories(safeParent);
+
 		return safePath;
 	}
 
@@ -141,18 +135,19 @@ public class CommonUtil {
 	}
 
 	private static Path toCanonicalPath(Path path) {
+		 Path normalizedPath = path.toAbsolutePath().normalize();
 		try {
-			if (Files.exists(path)) {
-				return path.toRealPath();
+			if (Files.exists(normalizedPath)) {
+				return normalizedPath.toRealPath();
 			}
-			Path parent = path.getParent();
+			Path parent = normalizedPath.getParent();
 			if (parent != null && Files.exists(parent)) {
-				return parent.toRealPath().resolve(path.getFileName()).normalize();
+				return parent.toRealPath().resolve(normalizedPath.getFileName()).normalize();
 			}
 		} catch (IOException ignored) {
 			// fall through
 		}
-		return path.toAbsolutePath().normalize();
+		return normalizedPath.toAbsolutePath().normalize();
 	}
 
 	private static Path buildPathUnderRoot(Path root, Path candidate) throws IOException {
@@ -218,7 +213,6 @@ public class CommonUtil {
 	public static String toCaptialize(String text) {
 		return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
 	}
-
 
 	public static int[] generateRandomNumbers(int count, int max, int min) {
 		int[] rand_nums = new int[count];
@@ -299,7 +293,6 @@ public class CommonUtil {
 	}
 
 	public static void CopyRecursivly(Path sourceDirectory, Path targetDirectory) throws IOException {
-
 
 		try (Stream<Path> paths = Files.walk(sourceDirectory)) {
 			paths.forEach(sourcePath -> {
@@ -396,7 +389,7 @@ public class CommonUtil {
 	public static void copyFileWithBuffer(Path source, Path destination) {
 		try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(source));
 				BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(destination))) {
-			byte[] buffer = new byte[8192]; 
+			byte[] buffer = new byte[8192];
 			int bytesRead;
 			while ((bytesRead = in.read(buffer)) != -1) {
 				out.write(buffer, 0, bytesRead);
@@ -462,53 +455,55 @@ public class CommonUtil {
 		deleteOldTempDir(folderPath, null);
 	}
 
-		public static void deleteOldTempDir(String folderPath, String contextKey) throws IOException {
-        if (folderPath == null || folderPath.isBlank()) {
-            return;
-        }
+	public static void deleteOldTempDir(String folderPath, String contextKey) throws IOException {
+		if (folderPath == null || folderPath.isBlank()) {
+			return;
+		}
 
-        Path tempPath = normalizeAbsolute(Paths.get(folderPath));
-        Path osTempRoot = getOsTempRoot();
-        Path ctxTempRoot = getContextTempRoot(contextKey);
+		Path tempPath = normalizeAbsolute(Paths.get(folderPath));
+		Path osTempRoot = getOsTempRoot();
+		Path ctxTempRoot = getContextTempRoot(contextKey);
 
+		Path normalizedOsTempRoot = osTempRoot != null ? normalizeAbsolute(osTempRoot) : null;
+		Path normalizedCtxTempRoot = ctxTempRoot != null ? normalizeAbsolute(ctxTempRoot) : null;
 
-        Path normalizedOsTempRoot = osTempRoot != null ? normalizeAbsolute(osTempRoot) : null;
-        Path normalizedCtxTempRoot = ctxTempRoot != null ? normalizeAbsolute(ctxTempRoot) : null;
+		boolean allowed = (normalizedOsTempRoot != null && tempPath.startsWith(normalizedOsTempRoot))
+				|| (normalizedCtxTempRoot != null && tempPath.startsWith(normalizedCtxTempRoot));
 
-        boolean allowed = (normalizedOsTempRoot != null && tempPath.startsWith(normalizedOsTempRoot))
-                || (normalizedCtxTempRoot != null && tempPath.startsWith(normalizedCtxTempRoot));
+		if (!allowed) {
+			logger.warn("Refusing to delete path outside allowed temp roots: {}", tempPath);
+			return;
+		}
 
-        if (!allowed) {
-            logger.warn("Refusing to delete path outside allowed temp roots: {}", tempPath);
-            return;
-        }
+		if (Files.exists(tempPath)) {
+			try (Stream<Path> paths = Files.walk(tempPath)) {
+				paths.sorted((p1, p2) -> p2.compareTo(p1))
+						.forEach(path -> {
+							try {
 
-        if (Files.exists(tempPath)) {
-            try (Stream<Path> paths = Files.walk(tempPath)) {
-                paths.sorted((p1, p2) -> p2.compareTo(p1)) 
-                        .forEach(path -> {
-                            try {
+								Path normalizedPath = normalizeAbsolute(path);
+								boolean pathAllowed = (normalizedOsTempRoot != null
+										&& normalizedPath.startsWith(normalizedOsTempRoot))
+										|| (normalizedCtxTempRoot != null
+												&& normalizedPath.startsWith(normalizedCtxTempRoot));
 
-                                Path normalizedPath = normalizeAbsolute(path);
-                                boolean pathAllowed = (normalizedOsTempRoot != null && normalizedPath.startsWith(normalizedOsTempRoot))
-                                        || (normalizedCtxTempRoot != null && normalizedPath.startsWith(normalizedCtxTempRoot));
+								if (!pathAllowed) {
+									logger.warn("Skipping deletion of path outside allowed roots: {}", normalizedPath);
+									return;
+								}
 
-                                if (!pathAllowed) {
-                                    logger.warn("Skipping deletion of path outside allowed roots: {}", normalizedPath);
-                                    return;
-                                }
+								Files.delete(normalizedPath);
+								logger.info("Deleted: {}", normalizedPath);
+							} catch (IOException e) {
+								logger.error("❌ Failed to delete {}", path, e);
+								throw new RuntimeException(e);
+							}
+						});
+			}
+			logger.info("🗑️ Deleted old temp directory: {}", folderPath);
+		}
+	}
 
-                                Files.delete(normalizedPath);
-                                logger.info("Deleted: {}", normalizedPath);
-                            } catch (IOException e) {
-                                logger.error("❌ Failed to delete {}", path, e);
-                                throw new RuntimeException(e);
-                            }
-                        });
-            }
-            logger.info("🗑️ Deleted old temp directory: {}", folderPath);
-        }
-    }
 	public static void createFileIfNotExists(Path path) {
 		createFileIfNotExists(path, null);
 	}

@@ -14,9 +14,12 @@ import org.springframework.stereotype.Component;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 /**
- * Validates persona file paths against allowed base directories to prevent path traversal.
- * Guards are structured so CodeQL can recognize path sanitization (normalize, {@code ..} check,
- * {@link Path#startsWith(Path)} against a trusted root) on the same expression used for I/O.
+ * Validates persona file paths against allowed base directories to prevent path
+ * traversal.
+ * Guards are structured so CodeQL can recognize path sanitization (normalize,
+ * {@code ..} check,
+ * {@link Path#startsWith(Path)} against a trusted root) on the same expression
+ * used for I/O.
  */
 @Component
 public class PersonaPathValidator {
@@ -30,7 +33,8 @@ public class PersonaPathValidator {
 	private String personaConfigPath;
 
 	/**
-	 * Validates and resolves a persona file path. All file existence checks use a path
+	 * Validates and resolves a persona file path. All file existence checks use a
+	 * path
 	 * reconstructed from a trusted root plus validated relative components.
 	 */
 	public Path validatePersonaFile(String personaFilePath, String contextKey) throws IOException {
@@ -84,7 +88,8 @@ public class PersonaPathValidator {
 	}
 
 	/**
-	 * Builds the clone target path from an already validated source file (same parent directory).
+	 * Builds the clone target path from an already validated source file (same
+	 * parent directory).
 	 */
 	public Path buildCloneTargetPath(Path validatedSource, String contextKey) throws IOException {
 		Path parent = validatedSource.getParent();
@@ -135,8 +140,10 @@ public class PersonaPathValidator {
 	}
 
 	/**
-	 * Checks that {@code path} lies under {@code root}, resolving both to real paths when
-	 * possible so Windows short names, junctions, and symlinks do not break {@link Path#startsWith}.
+	 * Checks that {@code path} lies under {@code root}, resolving both to real
+	 * paths when
+	 * possible so Windows short names, junctions, and symlinks do not break
+	 * {@link Path#startsWith}.
 	 */
 	private static boolean isPathUnderRoot(Path path, Path root) {
 		Path canonicalRoot = toCanonicalPath(root);
@@ -145,24 +152,28 @@ public class PersonaPathValidator {
 	}
 
 	private static Path toCanonicalPath(Path path) {
+		Path normalizedPath = path.toAbsolutePath().normalize();
 		try {
-			if (Files.exists(path)) {
-				return path.toRealPath();
+			if (Files.exists(normalizedPath)) {
+				return normalizedPath.toRealPath();
 			}
-			Path parent = path.getParent();
+			Path parent = normalizedPath.getParent();
 			if (parent != null && Files.exists(parent)) {
-				return parent.toRealPath().resolve(path.getFileName()).normalize();
+				return parent.toRealPath().resolve(normalizedPath.getFileName()).normalize();
 			}
 		} catch (IOException ignored) {
 			// use normalized absolute path
 		}
-		return path.toAbsolutePath().normalize();
+		return normalizedPath.toAbsolutePath().normalize();
 	}
 
 	/**
-	 * Reconstructs {@code candidate} as {@code root.resolve(relative)} using only validated name components.
-	 * Root and candidate are canonicalized the same way as {@link #isPathUnderRoot} so symlink/junction
-	 * roots (e.g. temp mount) match real paths returned from {@link #validatePersonaFile}.
+	 * Reconstructs {@code candidate} as {@code root.resolve(relative)} using only
+	 * validated name components.
+	 * Root and candidate are canonicalized the same way as {@link #isPathUnderRoot}
+	 * so symlink/junction
+	 * roots (e.g. temp mount) match real paths returned from
+	 * {@link #validatePersonaFile}.
 	 */
 	private static Path buildPathUnderRoot(Path root, Path candidate) throws IOException {
 		Path canonicalRoot = toCanonicalPath(root);
