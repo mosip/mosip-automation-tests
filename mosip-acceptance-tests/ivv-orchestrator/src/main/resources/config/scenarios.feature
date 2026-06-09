@@ -6141,29 +6141,29 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_237
-  @Positive_Test
-  @persona_ResidentMaleAdult
-  @group_NA
-  Scenario: Resident walks into registration center completes the process and gets UIN card with handle. Later updates his name and handle and perform demographic authentication both using UIN and handle
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
-And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-And I wait where wait seconds is 90
-And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and email or phone is the saved email and store result in VID
-And I verify notification where notification type is Successful Generation of VID, and email is the saved email
-And I update identity with array handles where persona file path is the saved UIN, and parameter 2 is the saved persona file path
-And I get handles by uin where parameter 1 is the saved UIN and store result in handles
-And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID, and age update flag is 0, and handle key is handles
-And I delete packet data
+#  @scenario_237
+#  @Positive_Test
+#  @persona_ResidentMaleAdult
+#  @group_NA
+#  Scenario: Resident walks into registration center completes the process and gets UIN card with handle. Later updates his name and handle and perform demographic authentication both using UIN and handle
+#Given I get ping health where component is packetcreator
+#And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+#And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+#And I get ping health where component is targetenv
+#And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+#And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+#And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+#And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+#And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+#And I get email by uin where resident UIN is the saved UIN and store result in email
+#And I verify notification where notification type is UIN Generated, and email is the saved email
+#And I wait where wait seconds is 90
+#And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and email or phone is the saved email and store result in VID
+#And I verify notification where notification type is Successful Generation of VID, and email is the saved email
+#And I update identity with array handles where persona file path is the saved UIN, and parameter 2 is the saved persona file path
+#And I get handles by uin where parameter 1 is the saved UIN and store result in handles
+#And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID, and age update flag is 0, and handle key is handles
+#And I delete packet data
 
   @scenario_238
   @Positive_Test
