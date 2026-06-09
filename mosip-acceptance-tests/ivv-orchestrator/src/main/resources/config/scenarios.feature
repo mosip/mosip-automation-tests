@@ -6254,7 +6254,7 @@ And I set context where context key is env_context, and pre-requisite details is
 And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender is Male, and missing biometric fields is true and store result in persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path, and sync RID flag or expected error code is INVALID_PACKET_SIZE
 And I delete packet data
 
   @scenario_242
