@@ -746,7 +746,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 				return "";
 			}
 			String body = response.getBody().asString();
-			if (body.contains("PRE_REG_TO_REGISTER_FAIL") && body.contains("RPR-PKR-002")) {
+			if (body.contains("PRE_REG_TO_REGISTER_FAIL") && body.contains("RPR-PKR-002")
+					&& body.contains("Invalid Packet Size")) {
 				if ("INVALID_PACKET_SIZE".equalsIgnoreCase(responseStatus)) {
 					logger.info("Received expected Invalid Packet Size error (RPR-PKR-002): " + body);
 					return "INVALID_PACKET_SIZE";
