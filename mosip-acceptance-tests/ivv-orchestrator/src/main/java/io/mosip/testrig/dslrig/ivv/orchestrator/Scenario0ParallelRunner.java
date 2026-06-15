@@ -58,11 +58,13 @@ public final class Scenario0ParallelRunner {
 
 	private static final int TRACK1_TO = 13;
 
-	/** User2 + center2 only (ReadPreReq/setContext run later after track1 WritePreReq). */
+	/** User2 only in parallel with track1; center2 runs sequentially after track1 (avoids masterdata API races). */
 
 	private static final int TRACK2A_FROM = 14;
 
-	private static final int TRACK2A_TO = 15;
+	private static final int TRACK2A_TO = 14;
+
+	private static final int STEP_CENTER_CREATE_2 = 15;
 
 	/** Machine + zone setup for track 2 (needs $$center2 from track2a). */
 
@@ -160,7 +162,8 @@ public final class Scenario0ParallelRunner {
 
 
 
-			logger.info("Scenario 0 parallel setup: phase 1 - tracks 1 and 2a in parallel");
+			logger.info(
+					"Scenario 0 parallel setup: phase 1 - track1 and track2a (user2 only) in parallel");
 
 			List<CompletableFuture<Map<String, String>>> phase1Futures = new ArrayList<>();
 
@@ -182,7 +185,18 @@ public final class Scenario0ParallelRunner {
 
 			logger.info(
 
-					"Scenario 0 parallel setup: phase 1b - track 3a sequential (user3 + center3; avoids masterdata API races)");
+					"Scenario 0 parallel setup: phase 1b - center CREATE 2 sequential (step " + STEP_CENTER_CREATE_2
+
+							+ "; avoids masterdata API races with track1 center CREATE)");
+
+			store = stepRangeExecutor.execute(masterScenario, store, STEP_CENTER_CREATE_2, STEP_CENTER_CREATE_2,
+					willRetry);
+
+
+
+			logger.info(
+
+					"Scenario 0 parallel setup: phase 1c - track 3a sequential (user3 + center3; avoids masterdata API races)");
 
 			store = stepRangeExecutor.execute(masterScenario, store, TRACK3A_FROM, TRACK3A_TO, willRetry);
 

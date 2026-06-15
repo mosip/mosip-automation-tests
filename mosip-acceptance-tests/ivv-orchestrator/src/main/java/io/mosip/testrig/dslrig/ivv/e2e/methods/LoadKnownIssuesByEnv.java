@@ -1,7 +1,6 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import static io.restassured.RestAssured.given;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -13,9 +12,12 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class LoadKnownIssuesByEnv extends BaseTestCaseUtil implements StepInterface {
+
+	private static final String DEFAULT_IDREPO_ACTUATOR_INFO_PATH = "idrepository/v1/identity/actuator/info";
 
 	private static final Logger logger = Logger.getLogger(LoadKnownIssuesByEnv.class);
 
@@ -29,23 +31,23 @@ public class LoadKnownIssuesByEnv extends BaseTestCaseUtil implements StepInterf
 
 	@Override
 	public void run() throws RigInternalError {
-		String endpoint = props.getProperty("idrepoActuatorInfo");
-		if (endpoint == null || endpoint.isBlank()) {
-			this.hasError = true;
-			throw new RigInternalError("idrepoActuatorInfo property is not configured");
-		}
 		String targetBaseUrl = BaseTestCase.ApplnURI;
 		if (targetBaseUrl == null || targetBaseUrl.isBlank()) {
 			this.hasError = true;
 			throw new RigInternalError("env.endpoint (ApplnURI) is not configured");
 		}
-		String query = "?targetBaseUrl=" + URLEncoder.encode(targetBaseUrl.trim(), StandardCharsets.UTF_8);
-		String url = baseUrl + endpoint + query;
-		Response response = getRequest(url, "Fetch id-repository actuator info for known-issues selection", step);
+		String actuatorPath = props.getProperty("idrepoActuatorInfoPath");
+		if (actuatorPath == null || actuatorPath.isBlank()) {
+			actuatorPath = DEFAULT_IDREPO_ACTUATOR_INFO_PATH;
+		}
+		String infoUrl = joinBaseUrlAndPath(targetBaseUrl.trim(), actuatorPath.trim());
+		Response response = given().relaxedHTTPSValidation().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.get(infoUrl);
 		if (response == null || response.getStatusCode() != 200) {
 			this.hasError = true;
-			throw new RigInternalError("Failed to fetch id-repository actuator info from packet creator (HTTP "
-					+ (response == null ? "no response" : response.getStatusCode()) + ")");
+			String responseBody = response == null ? "" : response.getBody().asString();
+			throw new RigInternalError("Failed to fetch id-repository actuator info from " + infoUrl + " (HTTP "
+					+ (response == null ? "no response" : response.getStatusCode()) + "): " + responseBody);
 		}
 		JSONObject actuatorInfo = new JSONObject(response.getBody().asString());
 		String version = actuatorInfo.getJSONObject("build").getString("version");
@@ -55,5 +57,17 @@ public class LoadKnownIssuesByEnv extends BaseTestCaseUtil implements StepInterf
 				+ "); using known issues from " + dslConfigManager.getKnownIssuesSourceFile();
 		logger.info(message);
 		Reporter.log(message + "<br>");
+	}
+
+	private static String joinBaseUrlAndPath(String baseUrl, String path) {
+		String base = baseUrl.trim();
+		String apiPath = path.trim();
+		if (base.endsWith("/") && apiPath.startsWith("/")) {
+			return base + apiPath.substring(1);
+		}
+		if (!base.endsWith("/") && !apiPath.startsWith("/")) {
+			return base + "/" + apiPath;
+		}
+		return base + apiPath;
 	}
 }
