@@ -170,9 +170,6 @@ public class ContextController {
 			return commandsService.getIdRepoActuatorInfo(contextKey, targetBaseUrl);
 		} catch (ServiceException se) {
 			throw se;
-		} catch (Exception ex) {
-			logger.error("getIdRepoActuatorInfo", ex);
-			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_IDREPO_ACTUATOR_INFO_FAIL", null, ex);
 		}
 	}
 

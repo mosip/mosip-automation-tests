@@ -21,8 +21,8 @@ import io.mosip.testrig.apirig.utils.ConfigManager;
 public class dslConfigManager extends ConfigManager {
 	private static final Logger LOGGER = Logger.getLogger(dslConfigManager.class);
 
-	private static final String KNOWN_ISSUES_JAVA11_FILE = "config/java11Known Issues,txt";
-	private static final String KNOWN_ISSUES_JAVA21_FILE = "config/java21Known Issues,txt";
+	private static final String KNOWN_ISSUES_JAVA11_FILE = "config/java11Known_Issues,txt";
+	private static final String KNOWN_ISSUES_JAVA21_FILE = "config/java21Known_Issues,txt";
 
 	private static volatile Map<String, String> cachedTestcaseToBeSkippedMap;
 	private static volatile String knownIssuesSourceFile;
