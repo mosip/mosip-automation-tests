@@ -50,6 +50,9 @@ public class CommandsService {
 	@Value("${mosip.test.pinglistfile:../deploy/pinglist.txt}")
 	private String pinglistfile;
 
+	@Value("${mosip.test.idrepo.actuator.info.path:idrepository/v1/identity/actuator/info}")
+	private String idRepoActuatorInfoPath;
+
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
@@ -136,6 +139,49 @@ public class CommandsService {
         }
 
         return retJson.toString();
+	}
+
+	public String getIdRepoActuatorInfo(String contextKey, String targetBaseUrlOverride) {
+		String envBaseUrl = resolveTargetBaseUrl(contextKey, targetBaseUrlOverride);
+		String infoUrl = normalizeBaseUrl(envBaseUrl) + idRepoActuatorInfoPath;
+		RestClient.logInfo(contextKey, "Fetching id-repository actuator info from " + infoUrl);
+		io.restassured.response.Response response = RestClient.getWithoutCookie(infoUrl);
+		if (response == null || response.getStatusCode() != 200) {
+			int status = response == null ? -1 : response.getStatusCode();
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "IDREPO_ACTUATOR_INFO_FAIL",
+					"Failed to fetch id-repository actuator info from " + infoUrl + " (HTTP " + status + ")");
+		}
+		String body = response.getBody().asString();
+		JSONObject json = new JSONObject(body);
+		if (!json.has("build") || !json.getJSONObject("build").has("version")) {
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "IDREPO_ACTUATOR_INFO_INVALID",
+					"Actuator info response missing build.version: " + body);
+		}
+		return json.toString();
+	}
+
+	private String resolveTargetBaseUrl(String contextKey, String targetBaseUrlOverride) {
+		if (targetBaseUrlOverride != null && !targetBaseUrlOverride.isBlank()) {
+			return targetBaseUrlOverride.trim();
+		}
+		Properties props = contextUtils.loadServerContext(contextKey);
+		String fromContext = props.getProperty("urlBase");
+		if (fromContext != null && !fromContext.isBlank()) {
+			return fromContext.trim();
+		}
+		if (baseUrl != null && !baseUrl.isBlank()) {
+			return baseUrl.trim();
+		}
+		throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_MISSING",
+				"targetBaseUrl query parameter, context urlBase, or mosip.test.baseurl must be configured");
+	}
+
+	private static String normalizeBaseUrl(String url) {
+		String normalized = url.trim();
+		if (normalized.endsWith("/")) {
+			return normalized.substring(0, normalized.length() - 1);
+		}
+		return normalized;
 	}
 
 	public String writeToFile(String contextKey, Properties requestData, long offset) throws IOException {

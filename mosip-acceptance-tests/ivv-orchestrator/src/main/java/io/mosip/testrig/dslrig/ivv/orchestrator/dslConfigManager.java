@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,12 @@ import io.mosip.testrig.apirig.utils.ConfigManager;
 
 public class dslConfigManager extends ConfigManager {
 	private static final Logger LOGGER = Logger.getLogger(dslConfigManager.class);
+
+	private static final String KNOWN_ISSUES_JAVA11_FILE = "config/java11Known Issues,txt";
+	private static final String KNOWN_ISSUES_JAVA21_FILE = "config/java21Known Issues,txt";
+
+	private static volatile Map<String, String> cachedTestcaseToBeSkippedMap;
+	private static volatile String knownIssuesSourceFile;
 
 	public static void init() {
 		Map<String, Object> moduleSpecificPropertiesMap = new HashMap<>();
@@ -126,11 +133,52 @@ public class dslConfigManager extends ConfigManager {
 	    return skipMap.getOrDefault(normalizeScenarioKey(scenario), "");
 	}
 
+	/**
+	 * Selects Java 11 vs Java 21 known-issues file from id-repository identity-service version
+	 * (1.2.x → Java 11 file, 1.3+ → Java 21 file) and caches the parsed skip map for the run.
+	 */
+	public static synchronized void initKnownIssuesFromIdRepoVersion(String version) {
+		String fileName = resolveKnownIssuesFileName(version);
+		knownIssuesSourceFile = fileName;
+		cachedTestcaseToBeSkippedMap = loadTestcaseToBeSkippedMapFromFile(fileName);
+		LOGGER.info("Loaded " + cachedTestcaseToBeSkippedMap.size() + " known issues from " + fileName
+				+ " for id-repository version " + version);
+	}
+
+	public static String getKnownIssuesSourceFile() {
+		return knownIssuesSourceFile;
+	}
+
+	static String resolveKnownIssuesFileName(String version) {
+		if (version == null || version.isBlank()) {
+			throw new IllegalArgumentException("id-repository build.version is empty");
+		}
+		String normalized = version.trim();
+		if (normalized.startsWith("1.2")) {
+			return KNOWN_ISSUES_JAVA11_FILE;
+		}
+		if (normalized.startsWith("1.3") || normalized.startsWith("1.4") || normalized.startsWith("1.5")) {
+			return KNOWN_ISSUES_JAVA21_FILE;
+		}
+		throw new IllegalArgumentException(
+				"Unsupported id-repository version '" + version + "'; expected 1.2.x (Java 11) or 1.3+ (Java 21)");
+	}
+
 	public static Map<String, String> loadTestcaseToBeSkippedMap() {
+		Map<String, String> cached = cachedTestcaseToBeSkippedMap;
+		if (cached != null) {
+			return cached;
+		}
+		LOGGER.warn("Known issues not loaded; run Scenario 0 step 'load known issues by env' first. "
+				+ "No platform known-issue skips will apply until then.");
+		return Collections.emptyMap();
+	}
+
+	private static Map<String, String> loadTestcaseToBeSkippedMapFromFile(String relativePath) {
 	    Map<String, String> testcaseToBeSkippedMap = new HashMap<>();
 
 	    try (BufferedReader br = new BufferedReader(
-	            new FileReader(BaseTestCase.getGlobalResourcePath() + "/" + "config/TestCaseSkip.txt"))) {
+	            new FileReader(BaseTestCase.getGlobalResourcePath() + "/" + relativePath))) {
 
 	        String line;
 	        while ((line = br.readLine()) != null) {
@@ -155,6 +203,7 @@ public class dslConfigManager extends ConfigManager {
 	            }
 	        }
 	    } catch (IOException e) {
+	        LOGGER.error("Failed to load known issues from " + relativePath + ": " + e.getMessage());
 	        e.printStackTrace();
 	    }
 
