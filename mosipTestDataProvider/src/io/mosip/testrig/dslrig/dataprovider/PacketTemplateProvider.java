@@ -1054,11 +1054,11 @@ public class PacketTemplateProvider {
 			}
 			if (processDynamicFields(s, identity, resident, contextKey))
 				continue;
-			if (s.getFieldCategory().equals("evidence") && s.getId().equals("nrcId") ) {
+			if (s.getId().contains("nrcId")) {
 				identity.put(s.getId(),resident.getNrcId().getNrcId());
 				continue;
 			}
-			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
+			if (true) {
 				String primaryValue = "";
 				String secValue = "";
 				if (VariableManager.getVariableValue(contextKey, "name") != null
@@ -1380,11 +1380,11 @@ public class PacketTemplateProvider {
 				continue;
 			}
 			
-			if (s.getFieldCategory().equals("evidence") && s.getId().equals("nrcId") ) {
+			if (s.getFieldCategory() != null && s.getFieldCategory().equals("evidence") && s.getId().equals("nrcId") ) {
 				identity.put(s.getId(),resident.getNrcId().getNrcId());
 				continue;
 			}
-			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
+			if (s.getFieldCategory() != null && (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc"))) {
 				String primaryValue = "";
 				String secValue = "";
 				if (VariableManager.getVariableValue(contextKey, "name") != null
