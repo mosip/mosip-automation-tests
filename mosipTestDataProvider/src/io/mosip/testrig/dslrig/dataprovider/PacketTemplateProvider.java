@@ -1046,7 +1046,8 @@ public class PacketTemplateProvider {
 			}
 
 			if (s.getId().contains("residenceStatus")) {
-				VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", resident.getResidentStatus().getCode());
+				VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus",
+						resident.getResidentStatus().getCode());
 			}
 
 			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
@@ -1055,264 +1056,259 @@ public class PacketTemplateProvider {
 			if (processDynamicFields(s, identity, resident, contextKey))
 				continue;
 			if (s.getId().contains("nrcId")) {
-				identity.put(s.getId(),resident.getNrcId().getNrcId());
+				identity.put(s.getId(), resident.getNrcId().getNrcId());
 				continue;
 			}
-			if (true) {
-				String primaryValue = "";
-				String secValue = "";
-				if (VariableManager.getVariableValue(contextKey, "name") != null
-						&& VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
-					primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
-							+ resident.getName().getSurName();
+			String primaryValue = "";
+			String secValue = "";
+			if (VariableManager.getVariableValue(contextKey, "name") != null
+					&& VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
+				primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
+						+ resident.getName().getSurName();
+				if (secLanguage != null)
+					secValue = resident.getName_seclang().getFirstName() + " " + resident.getName_seclang().getMidName()
+							+ " " + resident.getName_seclang().getSurName();
+			} else if (prop.getProperty(FIRSTNAME) != null && s.getId().equals(prop.getProperty(FIRSTNAME))) {
+				primaryValue = resident.getName().getFirstName();
+				if (secLanguage != null)
+					secValue = resident.getName_seclang().getFirstName();
+			} else if (prop.getProperty(LASTNAME) != null && s.getId().equals(prop.getProperty(LASTNAME))) {
+				primaryValue = resident.getName().getSurName();
+				if (secLanguage != null)
+					secValue = resident.getName_seclang().getSurName();
+			} else if (prop.getProperty(MIDDLENAME) != null && s.getId().equals(prop.getProperty(MIDDLENAME))) {
+				primaryValue = resident.getName().getMidName();
+				if (secLanguage != null)
+					secValue = resident.getName_seclang().getMidName();
+			} else if (VariableManager.getVariableValue(contextKey, "dob") != null
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "dob"))) {
+				primaryValue = resident.getDob();
+				secValue = primaryValue;
+			} else if (prop.getProperty("addressgroup") != null && s.getId().equals(prop.getProperty("addressgroup"))) {
+				if (s.getControlType().equals(CHECKBOX)) {
+					primaryValue = "Y";
 					if (secLanguage != null)
-						secValue = resident.getName_seclang().getFirstName() + " "
-								+ resident.getName_seclang().getMidName() + " "
-								+ resident.getName_seclang().getSurName();
-				} else if (prop.getProperty(FIRSTNAME) != null && s.getId().equals(prop.getProperty(FIRSTNAME))) {
-					primaryValue = resident.getName().getFirstName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getFirstName();
-				} else if (prop.getProperty(LASTNAME) != null && s.getId().equals(prop.getProperty(LASTNAME))) {
-					primaryValue = resident.getName().getSurName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getSurName();
-				} else if (prop.getProperty(MIDDLENAME) != null && s.getId().equals(prop.getProperty(MIDDLENAME))) {
-					primaryValue = resident.getName().getMidName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getMidName();
-				} else if (VariableManager.getVariableValue(contextKey, "dob") != null
-						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "dob"))) {
-					primaryValue = resident.getDob();
-					secValue = primaryValue;
-				} else if (prop.getProperty("addressgroup") != null
-						&& s.getId().equals(prop.getProperty("addressgroup"))) {
-					if (s.getControlType().equals(CHECKBOX)) {
-						primaryValue = "Y";
-						if (secLanguage != null)
-							secValue = "Y";
-					} else {
-						Pair<String, String> addrLines = processAddresslines(s, resident, identity, contextKey);
-						primaryValue = addrLines.getValue0();
-						secValue = addrLines.getValue1();
-					}
-				} else if (s.getId().contains("residenceStatus")) {
-					primaryValue = resident.getResidentStatus().getCode();
-					secValue = primaryValue;
-				} else if (VariableManager.getVariableValue(contextKey, "emailId") != null
-						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
-					primaryValue = resident.getContact().getEmailId();
+						secValue = "Y";
+				} else {
+					Pair<String, String> addrLines = processAddresslines(s, resident, identity, contextKey);
+					primaryValue = addrLines.getValue0();
+					secValue = addrLines.getValue1();
 				}
+			} else if (s.getId().contains("residenceStatus")) {
+				primaryValue = resident.getResidentStatus().getCode();
+				secValue = primaryValue;
+			} else if (VariableManager.getVariableValue(contextKey, "emailId") != null
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
+				primaryValue = resident.getContact().getEmailId();
+			}
 
-				else if (s.getId().toLowerCase().contains("blood")) {
-					primaryValue = resident.getBloodgroup().getCode();
-					secValue = primaryValue;
-				} else if (VariableManager.getVariableValue(contextKey, "individualBiometrics") != null
-						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "individualBiometrics"))) {
-					if(!VariableManager.getVariableValue(contextKey, "skipBiometricClassificationFlag").toString().contentEquals("skipBiometricClassification"))
-					{
-						JSONObject o = new JSONObject();
-						o.put(FORMAT, CBEFF);
-						o.put(VERSION, 1.0f);
-						String[] v = fileInfo.get(RID_FOLDER);
-						v[1] = s.getId() + BIO_CBEFF_XML;
-						fileInfo.put(RID_FOLDER, v);
-						o.put(VALUE, s.getId() + BIO_CBEFF);
-						identity.put(s.getId(), o);
+			else if (s.getId().toLowerCase().contains("blood")) {
+				primaryValue = resident.getBloodgroup().getCode();
+				secValue = primaryValue;
+			} else if (VariableManager.getVariableValue(contextKey, "individualBiometrics") != null
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "individualBiometrics"))) {
+				if (!VariableManager.getVariableValue(contextKey, "skipBiometricClassificationFlag").toString()
+						.contentEquals("skipBiometricClassification")) {
+					JSONObject o = new JSONObject();
+					o.put(FORMAT, CBEFF);
+					o.put(VERSION, 1.0f);
+					String[] v = fileInfo.get(RID_FOLDER);
+					v[1] = s.getId() + BIO_CBEFF_XML;
+					fileInfo.put(RID_FOLDER, v);
+					o.put(VALUE, s.getId() + BIO_CBEFF);
+					identity.put(s.getId(), o);
+				}
+				String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
+				try {
+					List<String> missAttribs = resident.getMissAttributes();
+					List<BioModality> bioExceptions = resident.getBioExceptions();
+
+					List<String> bioAttrib = s.getBioAttributes();
+					if (missAttribs != null && !missAttribs.isEmpty())
+						bioAttrib.removeAll(missAttribs);
+					if (resident.getFilteredBioAttribtures() == null)
+						resident.setFilteredBioAttribtures(bioAttrib);
+					if (resident.getSkipFace())
+						bioAttrib.removeAll(List.of("face"));
+					if (resident.getSkipIris())
+						bioAttrib.removeAll(List.of("leftEye", "rightEye"));
+					if (resident.getSkipFinger()) {
+						bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
 					}
-					String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
-					try {
-						List<String> missAttribs = resident.getMissAttributes();
-						List<BioModality> bioExceptions = resident.getBioExceptions();
+					RestClient.logInfo(contextKey, "Before Cbeff Generation contextkey=" + contextKey + " fileinfo="
+							+ fileInfo + " outFile=" + outFile);
 
+					boolean bret = false;
+
+					bret = generateCBEFF(resident, bioAttrib, outFile, contextKey, purpose, qualityScore, missAttribs,
+							genarateValidCbeff);
+
+					if (bret == false)
+						return "Failed to generate biometric via mds";
+
+					if (prop.containsKey("mosip.test.regclient.officerBiometricFileName")) {
+						RestClient.logInfo(contextKey, preregResponse.toString());
+						JSONArray getArray = preregResponse.getJSONObject("response").getJSONArray(DOCUMENTS);
+						JSONObject objects = getArray.getJSONObject(0);
+						String value = (String) objects.get(VALUE);
+						byte[] decoded = Base64.getUrlDecoder().decode(value);
+						String decodedcbeff = new String(decoded, StandardCharsets.UTF_8);
+						resident.getBiometric().setCbeff(decodedcbeff);
+						bret = generateCBEFF(resident, bioAttrib,
+								fileInfo.get(RID_FOLDER)[0] + "/"
+										+ prop.get("mosip.test.regclient.officerBiometricFileName") + ".xml",
+								contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
+						if (bret == false)
+							return "";
+					}
+					if (prop.containsKey("mosip.test.regclient.supervisorBiometricFileName")) {
+						bret = generateCBEFF(resident, bioAttrib,
+								fileInfo.get(RID_FOLDER)[0] + "/"
+										+ prop.get("mosip.test.regclient.supervisorBiometricFileName") + ".xml",
+								contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
+
+						if (bret == false)
+							return "";
+					}
+
+				} catch (Exception e) {
+					logger.error(GENERATEIDJSONV2, e);
+				}
+				continue;
+			} else if ((VariableManager.getVariableValue(contextKey, "introducerBiometrics") != null
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerBiometrics"))))
+
+			{
+				if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
+					JSONObject o = new JSONObject();
+					o.put(FORMAT, CBEFF);
+					o.put(VERSION, 1.0f);
+					String[] v = fileInfo.get(RID_FOLDER);
+					v[2] = s.getId() + BIO_CBEFF_XML;
+					fileInfo.put(RID_FOLDER, v);
+					o.put(VALUE, s.getId() + BIO_CBEFF);
+					identity.put(s.getId(), o);
+
+					String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + v[2];
+					try {
+						// Implement excetpions by parsing 'Miss' list
+						List<String> missAttribs = resident.getMissAttributes();
 						List<String> bioAttrib = s.getBioAttributes();
 						if (missAttribs != null && !missAttribs.isEmpty())
 							bioAttrib.removeAll(missAttribs);
-						if (resident.getFilteredBioAttribtures() == null)
-							resident.setFilteredBioAttribtures(bioAttrib);
-						if (resident.getSkipFace())
-							bioAttrib.removeAll(List.of("face"));
-						if (resident.getSkipIris())
-							bioAttrib.removeAll(List.of("leftEye", "rightEye"));
-						if (resident.getSkipFinger()) {
-							bioAttrib.removeAll(List.of(DataProviderConstants.schemaFingerNames));
-						}
-						RestClient.logInfo(contextKey, "Before Cbeff Generation contextkey=" + contextKey + " fileinfo="
-								+ fileInfo + " outFile=" + outFile);
 
-						boolean bret = false;
-
-						bret = generateCBEFF(resident, bioAttrib, outFile, contextKey, purpose, qualityScore,
-								missAttribs, genarateValidCbeff);
+						boolean bret = generateCBEFF(resident.getGuardian(), bioAttrib, outFile, contextKey, purpose,
+								qualityScore, missAttribs, genarateValidCbeff);
 
 						if (bret == false)
-							return "Failed to generate biometric via mds";
-
-						if (prop.containsKey("mosip.test.regclient.officerBiometricFileName")) {
-							RestClient.logInfo(contextKey, preregResponse.toString());
-							JSONArray getArray = preregResponse.getJSONObject("response").getJSONArray(DOCUMENTS);
-							JSONObject objects = getArray.getJSONObject(0);
-							String value = (String) objects.get(VALUE);
-							byte[] decoded = Base64.getUrlDecoder().decode(value);
-							String decodedcbeff = new String(decoded, StandardCharsets.UTF_8);
-							resident.getBiometric().setCbeff(decodedcbeff);
-							bret = generateCBEFF(resident, bioAttrib,
-									fileInfo.get(RID_FOLDER)[0] + "/"
-											+ prop.get("mosip.test.regclient.officerBiometricFileName") + ".xml",
-											contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
-							if (bret == false)
-								return "";
-						}
-						if (prop.containsKey("mosip.test.regclient.supervisorBiometricFileName")) {
-							bret = generateCBEFF(resident, bioAttrib,
-									fileInfo.get(RID_FOLDER)[0] + "/"
-											+ prop.get("mosip.test.regclient.supervisorBiometricFileName") + ".xml",
-											contextKey, purpose, qualityScore, missAttribs, genarateValidCbeff);
-
-							if (bret == false)
-								return "";
-						}
+							return "";
 
 					} catch (Exception e) {
 						logger.error(GENERATEIDJSONV2, e);
 					}
-					continue;
-				} else if ((VariableManager.getVariableValue(contextKey, "introducerBiometrics") != null
-						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerBiometrics"))))
 
-				{
-					if ((resident.isMinor() || resident.isInfant()) && resident.getGuardian() != null) {
+				} else if (resident.getGuardian() != null) {
+					String primValue = null;
+					String secGValue = null;
+					if (resident.getGuardian() != null)
+						primValue = resident.getGuardian().getName().getFirstName();
+					if (resident.getGuardian() != null && resident.getGuardian().getName_seclang() != null)
+						secGValue = resident.getGuardian().getName_seclang().getFirstName();
+
+					updateSimpleType(s.getId(), identity, primValue, secGValue, resident.getPrimaryLanguage(),
+							resident.getSecondaryLanguage(), resident.getThirdLanguage(), contextKey);
+
+				}
+				continue;
+			} else if (s.getType().equals(BIOMETRICSTYPE)) {
+				continue;
+			} else if (s.getType().equals(DOCUMENTTYPE)) {
+
+				int index = 0;
+				for (MosipDocument doc : resident.getDocuments()) {
+
+					if (CommonUtil.isExists(lstMissedAttributes, doc.getDocCategoryCode()))
+						continue;
+					index = 0;
+					if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
+
+						index = resident.getDocIndexes().get(doc.getDocCategoryCode());
+
+						String docFile = doc.getDocs().get(0);
+						RestClient.logInfo(contextKey, DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
 						JSONObject o = new JSONObject();
-						o.put(FORMAT, CBEFF);
-						o.put(VERSION, 1.0f);
+						o.put(FORMAT, "pdf");
+						o.put("type", doc.getType().get(0).getDocTypeCode());
 						String[] v = fileInfo.get(RID_FOLDER);
-						v[2] = s.getId() + BIO_CBEFF_XML;
+						v[1] = s.getId() + ".pdf";
 						fileInfo.put(RID_FOLDER, v);
-						o.put(VALUE, s.getId() + BIO_CBEFF);
+						o.put(VALUE, s.getId());
+
 						identity.put(s.getId(), o);
-
-						String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + v[2];
+						String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
 						try {
-							// Implement excetpions by parsing 'Miss' list
-							List<String> missAttribs = resident.getMissAttributes();
-							List<String> bioAttrib = s.getBioAttributes();
-							if (missAttribs != null && !missAttribs.isEmpty())
-								bioAttrib.removeAll(missAttribs);
-
-							boolean bret = generateCBEFF(resident.getGuardian(), bioAttrib, outFile, contextKey,
-									purpose, qualityScore, missAttribs, genarateValidCbeff);
-
-							if (bret == false)
-								return "";
-
+							// Files.copy(Paths.get(docFile), Paths.get(outFile));
+							if (!VariableManager.getVariableValue(contextKey, "skipApplicantDocumentsFlag").toString()
+									.contentEquals("skipApplicantDocuments")) // Applican documents missing in packet
+								CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
 						} catch (Exception e) {
 							logger.error(GENERATEIDJSONV2, e);
 						}
-
-					} else if (resident.getGuardian() != null) {
-						String primValue = null;
-						String secGValue = null;
-						if (resident.getGuardian() != null)
-							primValue = resident.getGuardian().getName().getFirstName();
-						if (resident.getGuardian() != null && resident.getGuardian().getName_seclang() != null)
-							secGValue = resident.getGuardian().getName_seclang().getFirstName();
-
-						updateSimpleType(s.getId(), identity, primValue, secGValue, resident.getPrimaryLanguage(),
-								resident.getSecondaryLanguage(), resident.getThirdLanguage(), contextKey);
-
-					}
-					continue;
-				} else if (s.getType().equals(BIOMETRICSTYPE)) {
-					continue;
-				} else if (s.getType().equals(DOCUMENTTYPE)) {
-
-					int index = 0;
-					for (MosipDocument doc : resident.getDocuments()) {
-
-						if (CommonUtil.isExists(lstMissedAttributes, doc.getDocCategoryCode()))
-							continue;
-						index = 0;
-						if (doc.getDocCategoryCode().toLowerCase().equals(s.getSubType().toLowerCase())) {
-
-							index = resident.getDocIndexes().get(doc.getDocCategoryCode());
-
-							String docFile = doc.getDocs().get(0);
-							RestClient.logInfo(contextKey,
-									DOCFILE + docFile + DTYPE + s.getSubType() + CAT + s.getId());
-							JSONObject o = new JSONObject();
-							o.put(FORMAT, "pdf");
-							o.put("type", doc.getType().get(0).getDocTypeCode());
-							String[] v = fileInfo.get(RID_FOLDER);
-							v[1] = s.getId() + ".pdf";
-							fileInfo.put(RID_FOLDER, v);
-							o.put(VALUE, s.getId());
-
-							identity.put(s.getId(), o);
-							String outFile = fileInfo.get(RID_FOLDER)[0] + "/" + fileInfo.get(RID_FOLDER)[1];
-							try {
-								//								Files.copy(Paths.get(docFile), Paths.get(outFile));
-								if(!VariableManager.getVariableValue(contextKey, "skipApplicantDocumentsFlag").toString().contentEquals("skipApplicantDocuments"))  // Applican documents missing in packet
-									CommonUtil.copyFileWithBuffer(Paths.get(docFile), Paths.get(outFile));
-							} catch (Exception e) {
-								logger.error(GENERATEIDJSONV2, e);
-							}
-							break;
-						}
-
-					}
-					continue;
-				} else if (prop.getProperty("identitynumber") != null
-						&& s.getId().equals(prop.getProperty("identitynumber"))) {
-					List<SchemaValidator> validators = s.getValidators();
-					if (validators != null) {
-						primaryValue = generateDefaultAttributes(s, resident, identity,contextKey);
-					} else {
-						primaryValue = resident.getId();
+						break;
 					}
 
-					identity.put(s.getId(), primaryValue);
-					continue;
 				}
-				for (String locKey : locationSet) {
-					MosipLocationModel locModel = locations.get(locKey);
+				continue;
+			} else if (prop.getProperty("identitynumber") != null
+					&& s.getId().equals(prop.getProperty("identitynumber"))) {
+				List<SchemaValidator> validators = s.getValidators();
+				if (validators != null) {
+					primaryValue = generateDefaultAttributes(s, resident, identity, contextKey);
+				} else {
+					primaryValue = resident.getId();
+				}
 
-					if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())
-							|| s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
-						primaryValue = locModel.getCode();
+				identity.put(s.getId(), primaryValue);
+				continue;
+			}
+			for (String locKey : locationSet) {
+				MosipLocationModel locModel = locations.get(locKey);
 
+				if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())
+						|| s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
+					primaryValue = locModel.getCode();
+
+					break;
+				}
+			}
+			if (locations_seclang != null)
+				for (String locKey : locationSet_sec) {
+					MosipLocationModel locModel = locations_seclang.get(locKey);
+
+					if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
+						secValue = locModel.getCode();
 						break;
 					}
 				}
-				if (locations_seclang != null)
-					for (String locKey : locationSet_sec) {
-						MosipLocationModel locModel = locations_seclang.get(locKey);
 
-						if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
-							secValue = locModel.getCode();
-							break;
-						}
-					}
-
-				if (primaryValue == null || primaryValue.equals("")) {
-					primaryValue = generateDefaultAttributes(s, resident, identity, contextKey);
-					if (secLanguage != null) {
-						secValue = Translator.translate(secLanguage, primaryValue, contextKey);
-					}
-				}
-
-				if (s.getType().equals(SIMPLETYPE)) {
-
-					updateSimpleType(s.getId(), identity, primaryValue, secValue, primaryLanguage, secLanguage,
-							resident.getThirdLanguage(), contextKey);
-
-				} else {
-					if (primaryValue.equals(""))
-						identity.put(s.getId(), JSONObject.NULL);
-					else
-						identity.put(s.getId(), primaryValue);
+			if (primaryValue == null || primaryValue.equals("")) {
+				primaryValue = generateDefaultAttributes(s, resident, identity, contextKey);
+				if (secLanguage != null) {
+					secValue = Translator.translate(secLanguage, primaryValue, contextKey);
 				}
 			}
 
+			if (s.getType().equals(SIMPLETYPE)) {
+
+				updateSimpleType(s.getId(), identity, primaryValue, secValue, primaryLanguage, secLanguage,
+						resident.getThirdLanguage(), contextKey);
+
+			} else {
+				if (primaryValue.equals(""))
+					identity.put(s.getId(), JSONObject.NULL);
+				else
+					identity.put(s.getId(), primaryValue);
+			}
 		}
 		JSONObject retObject = new JSONObject();
 		retObject.put(IDENTITY, identity);
@@ -1322,7 +1318,8 @@ public class PacketTemplateProvider {
 
 
 	JSONObject generateCRVSIDJson(ResidentModel resident, String contextKey,
-			Properties prop, ContextSchemaDetail contextSchemaDetail, boolean validateToken, String uin) throws JSONException, Exception {
+			Properties prop, ContextSchemaDetail contextSchemaDetail, boolean validateToken, String uin)
+			throws JSONException, Exception {
 
 		JSONObject identity = new JSONObject();
 
@@ -1364,124 +1361,122 @@ public class PacketTemplateProvider {
 			}
 
 			if (s.getId().contains("residenceStatus")) {
-				VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", resident.getResidentStatus().getCode());
+				VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus",
+						resident.getResidentStatus().getCode());
 			}
 
 			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
 				continue;
 			}
-			if (processDynamicFields(s, identity, resident, contextKey)) {	
+			if (processDynamicFields(s, identity, resident, contextKey)) {
 				if (s.getId().contains("gender")) {
-				Object rawValue = identity.get("gender");
-				if (rawValue instanceof JSONArray) {
-				    identity.put("gender", rawValue.toString());
-				}
-				}
-				continue;
-			}
-			
-			if (s.getId().contains("nrcId")) {
-				identity.put(s.getId(),resident.getNrcId().getNrcId());
-				continue;
-			}
-			if (true) {
-				String primaryValue = "";
-				String secValue = "";
-				if (VariableManager.getVariableValue(contextKey, "name") != null
-						&& VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
-					primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
-							+ resident.getName().getSurName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getFirstName() + " "
-								+ resident.getName_seclang().getMidName() + " "
-								+ resident.getName_seclang().getSurName();
-				} else if (prop.getProperty(FIRSTNAME) != null && s.getId().equals(prop.getProperty(FIRSTNAME))) {
-					primaryValue = resident.getName().getFirstName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getFirstName();
-				} else if (prop.getProperty(LASTNAME) != null && s.getId().equals(prop.getProperty(LASTNAME))) {
-					primaryValue = resident.getName().getSurName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getSurName();
-				} else if (prop.getProperty(MIDDLENAME) != null && s.getId().equals(prop.getProperty(MIDDLENAME))) {
-					primaryValue = resident.getName().getMidName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getMidName();
-				} else if (VariableManager.getVariableValue(contextKey, "dob") != null
-						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "dob"))) {
-					primaryValue = resident.getDob();
-					secValue = primaryValue;
-				} else if (prop.getProperty("addressgroup") != null
-						&& s.getId().equals(prop.getProperty("addressgroup"))) {
-					if (s.getControlType().equals(CHECKBOX)) {
-						primaryValue = "Y";
-						if (secLanguage != null)
-							secValue = "Y";
-					} else {
-						Pair<String, String> addrLines = processAddresslines(s, resident, identity, contextKey);
-						primaryValue = addrLines.getValue0();
-						secValue = addrLines.getValue1();
+					Object rawValue = identity.get("gender");
+					if (rawValue instanceof JSONArray) {
+						identity.put("gender", rawValue.toString());
 					}
-				} else if (s.getId().contains("residenceStatus")) {
-					primaryValue = resident.getResidentStatus().getCode();
-					secValue = primaryValue;
-				} else if (VariableManager.getVariableValue(contextKey, "emailId") != null
-						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
-					primaryValue = resident.getContact().getEmailId();
 				}
-				for (String locKey : locationSet) {
-					MosipLocationModel locModel = locations.get(locKey);
+				continue;
+			}
 
-					if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())
-							|| s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
-						primaryValue = locModel.getCode();
+			if (s.getId().contains("nrcId")) {
+				identity.put(s.getId(), resident.getNrcId().getNrcId());
+				continue;
+			}
+			String primaryValue = "";
+			String secValue = "";
+			if (VariableManager.getVariableValue(contextKey, "name") != null
+					&& VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
+				primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
+						+ resident.getName().getSurName();
+				if (secLanguage != null)
+					secValue = resident.getName_seclang().getFirstName() + " " + resident.getName_seclang().getMidName()
+							+ " " + resident.getName_seclang().getSurName();
+			} else if (prop.getProperty(FIRSTNAME) != null && s.getId().equals(prop.getProperty(FIRSTNAME))) {
+				primaryValue = resident.getName().getFirstName();
+				if (secLanguage != null)
+					secValue = resident.getName_seclang().getFirstName();
+			} else if (prop.getProperty(LASTNAME) != null && s.getId().equals(prop.getProperty(LASTNAME))) {
+				primaryValue = resident.getName().getSurName();
+				if (secLanguage != null)
+					secValue = resident.getName_seclang().getSurName();
+			} else if (prop.getProperty(MIDDLENAME) != null && s.getId().equals(prop.getProperty(MIDDLENAME))) {
+				primaryValue = resident.getName().getMidName();
+				if (secLanguage != null)
+					secValue = resident.getName_seclang().getMidName();
+			} else if (VariableManager.getVariableValue(contextKey, "dob") != null
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "dob"))) {
+				primaryValue = resident.getDob();
+				secValue = primaryValue;
+			} else if (prop.getProperty("addressgroup") != null && s.getId().equals(prop.getProperty("addressgroup"))) {
+				if (s.getControlType().equals(CHECKBOX)) {
+					primaryValue = "Y";
+					if (secLanguage != null)
+						secValue = "Y";
+				} else {
+					Pair<String, String> addrLines = processAddresslines(s, resident, identity, contextKey);
+					primaryValue = addrLines.getValue0();
+					secValue = addrLines.getValue1();
+				}
+			} else if (s.getId().contains("residenceStatus")) {
+				primaryValue = resident.getResidentStatus().getCode();
+				secValue = primaryValue;
+			} else if (VariableManager.getVariableValue(contextKey, "emailId") != null
+					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
+				primaryValue = resident.getContact().getEmailId();
+			}
+			for (String locKey : locationSet) {
+				MosipLocationModel locModel = locations.get(locKey);
 
+				if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())
+						|| s.getSubType().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
+					primaryValue = locModel.getCode();
+
+					break;
+				}
+			}
+			if (locations_seclang != null)
+				for (String locKey : locationSet_sec) {
+					MosipLocationModel locModel = locations_seclang.get(locKey);
+
+					if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
+						secValue = locModel.getCode();
 						break;
 					}
 				}
-				if (locations_seclang != null)
-					for (String locKey : locationSet_sec) {
-						MosipLocationModel locModel = locations_seclang.get(locKey);
 
-						if (s.getId().toLowerCase().endsWith(locModel.getHierarchyName().toLowerCase())) {
-							secValue = locModel.getCode();
-							break;
-						}
-					}
-
-				if (primaryValue == null || primaryValue.equals("")) {
-					primaryValue = generateDefaultAttributes(s, resident, identity, contextKey);
-					if (secLanguage != null) {
-						secValue = Translator.translate(secLanguage, primaryValue, contextKey);
-					}
-				}
-               
-				if (s.getType().equals(SIMPLETYPE)) {
-
-					updateSimpleTypeString(s.getId(), identity, primaryValue, secValue, primaryLanguage, secLanguage,
-							resident.getThirdLanguage(), contextKey);
-
-				} else {
-					if (primaryValue.equals(""))
-						identity.put(s.getId(), JSONObject.NULL);
-					else
-						identity.put(s.getId(), primaryValue);
+			if (primaryValue == null || primaryValue.equals("")) {
+				primaryValue = generateDefaultAttributes(s, resident, identity, contextKey);
+				if (secLanguage != null) {
+					secValue = Translator.translate(secLanguage, primaryValue, contextKey);
 				}
 			}
 
-		}
-		 if(validateToken==true && VariableManager.getVariableValue(contextKey, "process").toString().contains("NEW")) {
-         	identity.put("introducerInfoToken", RestClient.getToken("crvs", contextKey));
-         }else if(validateToken==true && VariableManager.getVariableValue(contextKey, "process").toString().contains("DEATH")) {
-          	identity.put("deceasedInformer", RestClient.getToken("crvs", contextKey));
-          	identity.put("declaredAsDeceased", "Y");
-          	identity.put("UIN", uin);
-          	LocalDate today = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-            String formattedDate = today.format(formatter);
-          	identity.put("deceasedDeclarationDate",formattedDate );
+			if (s.getType().equals(SIMPLETYPE)) {
 
-          }
+				updateSimpleTypeString(s.getId(), identity, primaryValue, secValue, primaryLanguage, secLanguage,
+						resident.getThirdLanguage(), contextKey);
+
+			} else {
+				if (primaryValue.equals(""))
+					identity.put(s.getId(), JSONObject.NULL);
+				else
+					identity.put(s.getId(), primaryValue);
+			}
+		}
+		if (validateToken == true
+				&& VariableManager.getVariableValue(contextKey, "process").toString().contains("NEW")) {
+			identity.put("introducerInfoToken", RestClient.getToken("crvs", contextKey));
+		} else if (validateToken == true
+				&& VariableManager.getVariableValue(contextKey, "process").toString().contains("DEATH")) {
+			identity.put("deceasedInformer", RestClient.getToken("crvs", contextKey));
+			identity.put("declaredAsDeceased", "Y");
+			identity.put("UIN", uin);
+			LocalDate today = LocalDate.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+			String formattedDate = today.format(formatter);
+			identity.put("deceasedDeclarationDate", formattedDate);
+
+		}
 		return identity;
 	}
 
