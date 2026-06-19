@@ -111,11 +111,10 @@ public final class CrvsIdJsonBuilder {
 				continue;
 			}
 
-			if (s.getFieldCategory() != null && s.getFieldCategory().equals("evidence") && s.getId().equals("nrcId") ) {
+			if (s.getId().equals("nrcId")) {
 				identity.put(s.getId(), resident.getNrcId().getNrcId());
 				continue;
 			}
-			if (s.getFieldCategory() != null && (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc"))) {
 				String primaryValue = "";
 				String secValue = "";
 				if (VariableManager.getVariableValue(contextKey, "name") != null
@@ -200,7 +199,6 @@ public final class CrvsIdJsonBuilder {
 					else
 						identity.put(s.getId(), primaryValue);
 				}
-			}
 
 		}
 		if (validateToken == true
