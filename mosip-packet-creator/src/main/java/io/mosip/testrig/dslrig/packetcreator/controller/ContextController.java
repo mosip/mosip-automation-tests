@@ -158,6 +158,21 @@ public class ContextController {
 	}
 
 
+	@Operation(summary = "Fetch id-repository identity-service actuator info",
+			description = "Calls {targetBaseUrl}/idrepository/v1/identity/actuator/info and returns the actuator JSON "
+					+ "(including build.version) for Java 11 vs Java 21 environment detection in the DSL before-suite.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Actuator info retrieved successfully") })
+	@GetMapping("/env/idrepoActuatorInfo/{contextKey}")
+	public @ResponseBody String getIdRepoActuatorInfo(@PathVariable("contextKey") String contextKey,
+			@RequestParam(name = "targetBaseUrl", required = false) String targetBaseUrl) {
+		try {
+			return commandsService.getIdRepoActuatorInfo(contextKey, targetBaseUrl);
+		} catch (ServiceException se) {
+			throw se;
+		}
+	}
+
 	@GetMapping("/ping/{eSignetDeployed}/{contextKey}")
 
 
