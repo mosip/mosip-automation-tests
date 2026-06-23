@@ -75,6 +75,7 @@
   "e2e_resetContextData": [],
   "e2e_DeletePacketData": [],
   "e2e_clearDeviceCertCache": [],
+  "e2e_loadKnownIssuesByEnv": [],
   "e2e_ReprocessPacket": ["registration ID"],
   "e2e_RenameFpDataFiles": ["persona file path"],
   "e2e_WritePersonaData": ["persona file path"],

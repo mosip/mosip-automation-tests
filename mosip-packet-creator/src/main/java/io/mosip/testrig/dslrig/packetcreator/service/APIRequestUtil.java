@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.packetcreator.service;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
+import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -82,14 +83,20 @@ public class APIRequestUtil {
     @Value("${mosip.test.post2slack}")
     private boolean bSlackit;
 
-    @Value("${mosip.test.packetcreator.http.connect.timeout.ms:15000}")
+    @Value("${mosip.test.packetcreator.http.connect.timeout.ms:30000}")
     private int httpConnectTimeoutMs;
 
-    @Value("${mosip.test.packetcreator.http.socket.timeout.ms:30000}")
+    @Value("${mosip.test.packetcreator.http.socket.timeout.ms:120000}")
     private int httpSocketTimeoutMs;
 
-    @Value("${mosip.test.packetcreator.http.upload.timeout.ms:120000}")
+    @Value("${mosip.test.packetcreator.http.upload.timeout.ms:300000}")
     private int httpUploadTimeoutMs;
+
+    @Value("${mosip.test.packetcreator.http.sync.timeout.ms:300000}")
+    private int httpSyncTimeoutMs;
+
+    @Value("${mosip.test.packetcreator.http.sync.retry.count:2}")
+    private int httpSyncRetryCount;
 
     @Autowired
     ContextUtils contextUtils;
@@ -104,6 +111,21 @@ public class APIRequestUtil {
         return RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
                 .setParam("http.connection.timeout", httpConnectTimeoutMs)
                 .setParam("http.socket.timeout", httpUploadTimeoutMs));
+    }
+
+    private RestAssuredConfig syncTimeoutConfig() {
+        return RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
+                .setParam("http.connection.timeout", httpConnectTimeoutMs)
+                .setParam("http.socket.timeout", httpSyncTimeoutMs));
+    }
+
+    private static boolean isReadTimeout(Throwable throwable) {
+        for (Throwable t = throwable; t != null; t = t.getCause()) {
+            if (t instanceof SocketTimeoutException) {
+                return true;
+            }
+        }
+        return false;
     }
 
 	void loadContext(String context) {
@@ -388,33 +410,49 @@ public class APIRequestUtil {
         }
 
     	boolean bDone = false;
-    	int nLoop  = 0;
-    	Response response =null;
+    	int authRetry = 0;
+    	int timeoutRetry = 0;
+    	Response response = null;
 
-    	while(!bDone) {
+    	ObjectMapper objectMapper = new ObjectMapper();
+    	objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    	objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    	String outputJson = objectMapper.writeValueAsString(requestBody);
 
-    		ObjectMapper objectMapper = new ObjectMapper();
-    		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    		objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-    		String outputJson = objectMapper.writeValueAsString(requestBody);
+    	while (!bDone) {
+    		try {
+    			String authToken = AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM);
+    			Cookie kukki = new Cookie.Builder("Authorization", authToken).build();
+    			response = given().config(syncTimeoutConfig()).cookie(kukki)
+                    .header("timestamp", timestamp)
+                    .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
+                    .contentType(ContentType.JSON).body(outputJson).post(url);
 
-            String authToken = AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM);
-    		Cookie kukki = new Cookie.Builder("Authorization", authToken).build();
-    		response = given().config(httpTimeoutConfig()).cookie(kukki)
-                .header("timestamp", timestamp)
-                .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
-                .contentType(ContentType.JSON).body(outputJson).post(url);
-
-    		if(response.getStatusCode() == 401) {
-    			if(nLoop >= 1)
+    			if (response.getStatusCode() == 401) {
+    				if (authRetry >= 1) {
+    					bDone = true;
+    				} else {
+    					initToken(contextKey);
+    					authRetry++;
+    				}
+    			} else {
     				bDone = true;
-    			else {
-    				initToken(contextKey);
-    				nLoop++;
+    			}
+    		} catch (Exception e) {
+    			if (isReadTimeout(e) && timeoutRetry < httpSyncRetryCount) {
+    				timeoutRetry++;
+    				logger.warn("syncRid read timed out for {} (retry {}/{}): {}", url, timeoutRetry,
+    						httpSyncRetryCount, e.getMessage());
+    				try {
+    					Thread.sleep(2000L);
+    				} catch (InterruptedException ie) {
+    					Thread.currentThread().interrupt();
+    					throw e;
+    				}
+    			} else {
+    				throw e;
     			}
     		}
-    		else
-    			bDone = true;
     	}
         if (response == null) {
             throw new Exception("No response received for POST " + url);
