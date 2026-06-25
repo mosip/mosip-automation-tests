@@ -445,13 +445,45 @@ public class BaseTestCaseUtil extends BaseStep {
 		return getResponse;
 	}
 
+	public static int getPacketTemplateRetryCount() {
+		return resolveRetryCount("packetTemplateRetryCount");
+	}
+
+	public static int getPacketSyncRetryCount() {
+		return resolveRetryCount("packetSyncRetryCount");
+	}
+
+	private static int resolveRetryCount(String propertyName) {
+		String value = props.getProperty(propertyName);
+		if (value == null || value.isBlank()) {
+			value = props.getProperty("loopCount");
+		}
+		try {
+			int parsed = Integer.parseInt(value.trim());
+			return parsed > 0 ? parsed : 1;
+		} catch (NumberFormatException e) {
+			logger.warn("Invalid {} '{}', using loopCount fallback", propertyName, value);
+			try {
+				return Integer.parseInt(props.getProperty("loopCount", "3").trim());
+			} catch (NumberFormatException ex) {
+				return 3;
+			}
+		}
+	}
+
 	public Response postRequest(String url, String body, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
-
-		Response apiResponse = RestClient.postRequest(url, body, MediaType.APPLICATION_JSON,
-				MediaType.APPLICATION_JSON);
+		if (dslConfigManager.IsDebugEnabled()) {
+			Response apiResponse = givenHttpClient(url).body(body).log().all().when().post(url).then().log().all()
+					.extract().response();
+			DslReportLogUtil.reportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
+					apiResponse.getBody().asString(), true);
+			appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
+			return apiResponse;
+		}
+		Response apiResponse = givenHttpClient(url).body(body).when().post(url).then().extract().response();
 		DslReportLogUtil.reportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
-				apiResponse.getBody().asString(),true);
+				apiResponse.getBody().asString(), true);
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return apiResponse;
 	}

@@ -77,6 +77,10 @@ public class APIRequestUtil {
     final String dataKey = "response";
     final String errorKey = "errors";
 
+    private static final ObjectMapper TRACE_OBJECT_MAPPER = new ObjectMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
 
@@ -240,6 +244,12 @@ public class APIRequestUtil {
             entry.put("headers", headers == null ? new JSONObject() : limitTraceValue(new JSONObject(headers)));
             entry.put("statusCode", response == null ? JSONObject.NULL : response.getStatusCode());
             entry.put("response", response == null ? JSONObject.NULL : trimTraceString(response.getBody().asString()));
+            if (response != null) {
+                String serverMs = response.getHeader("x-envoy-upstream-service-time");
+                if (serverMs != null && !serverMs.isBlank()) {
+                    entry.put("serverDurationMs", serverMs);
+                }
+            }
             trace.put(entry);
             VariableManager.setVariableValue(contextKey, SERVER_API_TRACE_KEY,
                     MosipDataSetup.toCacheValue(limitTraceEntries(trace)));
@@ -414,10 +424,7 @@ public class APIRequestUtil {
     	int timeoutRetry = 0;
     	Response response = null;
 
-    	ObjectMapper objectMapper = new ObjectMapper();
-    	objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    	objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-    	String outputJson = objectMapper.writeValueAsString(requestBody);
+    	String outputJson = TRACE_OBJECT_MAPPER.writeValueAsString(requestBody);
 
     	while (!bDone) {
     		try {

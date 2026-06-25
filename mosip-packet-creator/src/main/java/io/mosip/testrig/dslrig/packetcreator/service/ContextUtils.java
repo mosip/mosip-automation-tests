@@ -15,6 +15,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -41,7 +42,13 @@ public class ContextUtils {
 
 	static Logger logger = LoggerFactory.getLogger(ContextUtils.class);
 
+	private static final ConcurrentHashMap<String, Properties> SERVER_CONTEXT_CACHE = new ConcurrentHashMap<>();
+
 	public Properties loadServerContext(String ctxName) {
+		return SERVER_CONTEXT_CACHE.computeIfAbsent(ctxName, this::loadServerContextFromDisk);
+	}
+
+	private Properties loadServerContextFromDisk(String ctxName) {
 		Properties p = new Properties();
 
 		try (FileReader reader = new FileReader(resolveServerContextPath(ctxName).toFile())) {
@@ -52,6 +59,12 @@ public class ContextUtils {
 		return p;
 	}
 
+	public void invalidateServerContextCache(String ctxName) {
+		if (ctxName != null) {
+			SERVER_CONTEXT_CACHE.remove(ctxName);
+		}
+	}
+
 	public String createUpdateServerContext(Properties props, String ctxName) throws IOException {
 	    Path filePath = resolveServerContextPath(ctxName);
 
@@ -59,6 +72,7 @@ public class ContextUtils {
 
 	        props.store(fr, "Server Context Attributes");
 
+	        invalidateServerContextCache(ctxName);
 	        Properties pp = loadServerContext(ctxName);
 	        pp.forEach((k, v) ->
 	                VariableManager.setVariableValue(ctxName, k.toString(), v.toString())

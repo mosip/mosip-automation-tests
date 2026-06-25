@@ -178,6 +178,7 @@ public class Orchestrator {
 	public void afterSuite() {
 		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
 		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
+		DslStepTimingCollector.logReport();
 		extent.flush();
 	}
 
