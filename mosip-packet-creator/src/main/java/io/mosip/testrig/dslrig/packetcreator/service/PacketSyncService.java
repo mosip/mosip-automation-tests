@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 import io.mosip.testrig.dslrig.dataprovider.NameProvider;
 import io.mosip.testrig.dslrig.dataprovider.PacketTemplateProvider;
 import io.mosip.testrig.dslrig.dataprovider.ResidentDataProvider;
+import io.mosip.testrig.dslrig.packetcreator.cache.PacketTemplateCache;
 import io.mosip.testrig.dslrig.dataprovider.persona.PersonaBiometricsAssembler;
 import io.mosip.testrig.dslrig.dataprovider.models.AppointmentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.AppointmentTimeSlotModel;
@@ -891,6 +892,19 @@ public class PacketSyncService {
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
 		logger.info("Template generation started at time: " + System.currentTimeMillis());
+		if (PacketTemplateCache.isEnabled(contextKey)) {
+			try {
+				String cacheKey = PacketTemplateCache.buildKey(contextKey, process, qualityScore, genarateValidCbeff,
+						personaFilePaths);
+				String cached = PacketTemplateCache.get(cacheKey);
+				if (cached != null) {
+					logger.info("Template cache hit for context {}", contextKey);
+					return cached;
+				}
+			} catch (IOException e) {
+				logger.warn("Template cache lookup skipped: {}", e.getMessage());
+			}
+		}
 		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 		String machineId = VariableManager.getVariableValue(contextKey, "machineid").toString();
 		boolean packetDirCreated = false;
@@ -968,7 +982,17 @@ public class PacketSyncService {
 		JSONObject response = new JSONObject();
 		response.put("packets", packetPaths);
 		logger.info("Template generated at time: " + System.currentTimeMillis());
-		return response.toString();
+		String responseJson = response.toString();
+		if (PacketTemplateCache.isEnabled(contextKey)) {
+			try {
+				String cacheKey = PacketTemplateCache.buildKey(contextKey, process, qualityScore, genarateValidCbeff,
+						personaFilePaths);
+				PacketTemplateCache.put(cacheKey, responseJson);
+			} catch (IOException e) {
+				logger.warn("Template cache store skipped: {}", e.getMessage());
+			}
+		}
+		return responseJson;
 
 	}
 

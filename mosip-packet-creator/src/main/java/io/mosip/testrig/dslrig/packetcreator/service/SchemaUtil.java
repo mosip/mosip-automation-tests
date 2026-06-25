@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.json.JSONArray;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SchemaUtil {
+
+    private static final ConcurrentHashMap<String, String> SCHEMA_MEMORY_CACHE = new ConcurrentHashMap<>();
 
     public static final String PROPERTIES = "properties";
     public static final String IDENTITY = "identity";
@@ -57,8 +60,15 @@ public class SchemaUtil {
     		});
     	}
         Path schemaFileLocation = Path.of(workFolder, "v"+version+".json");
+        String memoryKey = contextKey + "|v" + version;
+        String cached = SCHEMA_MEMORY_CACHE.get(memoryKey);
+        if (cached != null) {
+            return cached;
+        }
         if (schemaFileLocation.toFile().exists()){
-            return readSchemaAsString(schemaFileLocation.toFile().getAbsolutePath());
+            String fromDisk = readSchemaAsString(schemaFileLocation.toFile().getAbsolutePath());
+            SCHEMA_MEMORY_CACHE.put(memoryKey, fromDisk);
+            return fromDisk;
         }
 
         JSONObject queryParams = new JSONObject();
@@ -70,7 +80,9 @@ public class SchemaUtil {
                 String schemaData = response.getString("schemaJson");
                 fos.write(schemaData.getBytes());
                 fos.flush();
-                return readSchemaAsString(schemaFileLocation.toFile().getAbsolutePath());
+                String loaded = readSchemaAsString(schemaFileLocation.toFile().getAbsolutePath());
+                SCHEMA_MEMORY_CACHE.put(memoryKey, loaded);
+                return loaded;
             }
     }
 
