@@ -24,6 +24,11 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class PhotoProvider {
 	private static final Logger logger = LoggerFactory.getLogger(PhotoProvider.class);
+	/** Minimum JPEG bytes for large-face packets to exceed typical registration.processor.max.file.size (5 MB). */
+	private static final int LARGE_FACE_MIN_JPEG_BYTES = 5 * 1024 * 1024;
+	private static final int LARGE_FACE_INITIAL_UPSCALE = 8;
+	private static final int LARGE_FACE_MAX_UPSCALE = 56;
+	private static final int LARGE_FACE_UPSCALE_STEP = 8;
 	static String Photo_File_Format = "/face%04d.jpg";
 
 	static byte[][] getPhoto(String contextKey) {
@@ -98,18 +103,30 @@ public class PhotoProvider {
 				}
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			BufferedImage sourceImage = img;
 
 			if (generateLargeFace) {
-
-
-				img = upscaleImage(img, 8);
+				int factor = LARGE_FACE_INITIAL_UPSCALE;
+				while (true) {
+					img = upscaleImage(sourceImage, factor);
+					baos.reset();
+					ImageIO.write(img, "jpg", baos);
+					baos.flush();
+					bData = baos.toByteArray();
+					if (bData.length >= LARGE_FACE_MIN_JPEG_BYTES || factor >= LARGE_FACE_MAX_UPSCALE) {
+						logger.info("Large face JPEG size={} bytes at upscale factor={}", bData.length, factor);
+						break;
+					}
+					factor += LARGE_FACE_UPSCALE_STEP;
+				}
+			} else {
+				if (generateObstructedFace) {
+					img = applyFaceObstruction(img);
+				}
+				ImageIO.write(img, "jpg", baos);
+				baos.flush();
+				bData = baos.toByteArray();
 			}
-			if (generateObstructedFace) {
-				img = applyFaceObstruction(img);
-			}
-			ImageIO.write(img, "jpg", baos);
-			baos.flush();
-			bData = baos.toByteArray();
 			bencoded = encodeFaceImageData(bData);
 
 			baos.close();

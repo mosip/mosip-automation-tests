@@ -784,8 +784,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 					return "";
 				}
 				String body = response.getBody().asString();
-				if (body.contains("PRE_REG_TO_REGISTER_FAIL") && body.contains("RPR-PKR-002")
-						&& body.contains("Invalid Packet Size")) {
+				if (isInvalidPacketSizeError(body)) {
 					if ("INVALID_PACKET_SIZE".equalsIgnoreCase(responseStatus)) {
 						logger.info("Received expected Invalid Packet Size error (RPR-PKR-002): " + body);
 						return "INVALID_PACKET_SIZE";
@@ -812,6 +811,14 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 			return rid;
 		}
+	}
+
+	private static boolean isInvalidPacketSizeError(String body) {
+		if (body == null || body.isBlank()) {
+			return false;
+		}
+		return body.contains("PRE_REG_TO_REGISTER_FAIL") && body.contains("RPR-PKR-002")
+				&& body.contains("Invalid Packet Size");
 	}
 
 	public String createContext(String key, String baseUrl, Scenario.Step step) throws RigInternalError {
