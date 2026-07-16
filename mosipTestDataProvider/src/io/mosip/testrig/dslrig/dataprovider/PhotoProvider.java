@@ -26,11 +26,12 @@ public class PhotoProvider {
 	private static final Logger logger = LoggerFactory.getLogger(PhotoProvider.class);
 	/** Minimum JPEG bytes for large-face packets to exceed typical registration.processor.max.file.size (5 MB). */
 	private static final int LARGE_FACE_MIN_JPEG_BYTES = 5 * 1024 * 1024;
-	private static final int LARGE_FACE_INITIAL_UPSCALE = 8;
-	private static final int LARGE_FACE_MAX_UPSCALE = 16;
-	private static final int LARGE_FACE_UPSCALE_STEP = 4;
-	/** Soft cap on BufferedImage pixels while generating large-face JPEGs under concurrency. */
-	private static final long LARGE_FACE_MAX_PIXELS = 8_000_000L;
+	/**
+	 * Large-face negative tests only need byte length > max packet size. Prefer COM-segment
+	 * padding over BufferedImage upscale — upscaling under full-suite concurrency OOMs the
+	 * packet-creator JVM (Scenario_241) and cascades to later scenarios (e.g. Scenario_181).
+	 */
+	private static final Object LARGE_FACE_LOCK = new Object();
 	static String Photo_File_Format = "/face%04d.jpg";
 
 	static byte[][] getPhoto(String contextKey) {
@@ -47,10 +48,10 @@ public class PhotoProvider {
 		byte[] bData = null;
 		try {
 
-			String dirPath = System.getProperty("java.io.tmpdir")
+			String templateDirPath = System.getProperty("java.io.tmpdir")
 					+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath").toString();
 
-			File dir = new File(dirPath);
+			File dir = new File(templateDirPath);
 			FileFilter filter = new FileFilter() {
 				@Override
 				public boolean accept(File pathname) {
@@ -58,28 +59,34 @@ public class PhotoProvider {
 				}
 			};
 			File[] listDir = dir.listFiles(filter);
+			if (listDir == null || listDir.length == 0) {
+				throw new IllegalStateException("No face templates found in " + templateDirPath);
+			}
 			int numberOfSubfolders = listDir.length;
 
-			int min = 1;
-			int max = numberOfSubfolders;
-			int randomNumber = (int) (Math.random() * (max - min)) + min;
 			String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
-			String afterscenario = beforescenario.substring(0, beforescenario.indexOf(':'));
+			String afterscenario = beforescenario.contains(":")
+					? beforescenario.substring(0, beforescenario.indexOf(':'))
+					: beforescenario;
 			if (afterscenario.contains("_")) {
 				afterscenario = afterscenario.replace("_", "0");
 			}
 			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
+			// Deterministic impression pick — Math.random() caused biometric collisions under parallel runs.
+			int impressionToPick = Math.floorMod(currentScenarioNumber - 1, numberOfSubfolders) + 1;
 
-			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
-
-			dirPath = FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber,
+			// Returns scenario output directory; face file is under <dir>/face/
+			String outputDirPath = FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber,
 					impressionToPick);
 
 			logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders=" + numberOfSubfolders
-					+ " impressionToPick=" + impressionToPick);
+					+ " impressionToPick=" + impressionToPick + " outputDir=" + outputDirPath);
 
-			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face/");
+			List<File> generatedFaces = CommonUtil.listFiles(outputDirPath + "/face/");
+			if (generatedFaces == null || generatedFaces.isEmpty()) {
+				throw new IllegalStateException("No generated face file under " + outputDirPath + "/face/");
+			}
 
 			Object val = VariableManager.getVariableValue(VariableManager.NS_DEFAULT, "enableExternalBiometricSource");
 			boolean bExternalSrc = false;
@@ -97,49 +104,26 @@ public class PhotoProvider {
 					img = ImageIO.read(bis);
 				}
 			} else {
-
-				try (FileInputStream fos = new FileInputStream(firstSet.get(0));
+				File faceFile = generatedFaces.get(0);
+				try (FileInputStream fos = new FileInputStream(faceFile);
 						BufferedInputStream bis = new BufferedInputStream(fos)) {
 					img = ImageIO.read(bis);
-					logger.info("Image picked from this path=" + firstSet.get(0));
+					logger.info("Image picked from this path=" + faceFile.getAbsolutePath());
 				}
+			}
+			if (img == null) {
+				throw new IllegalStateException("Failed to decode face image");
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			BufferedImage sourceImage = img;
 
 			if (generateLargeFace) {
-				int factor = LARGE_FACE_INITIAL_UPSCALE;
-				while (true) {
-					long targetPixels = (long) sourceImage.getWidth() * factor
-							* (long) sourceImage.getHeight() * factor;
-					if (targetPixels > LARGE_FACE_MAX_PIXELS && factor > LARGE_FACE_INITIAL_UPSCALE) {
-						break;
-					}
-					try {
-						img = upscaleImage(sourceImage, factor);
-					} catch (OutOfMemoryError oom) {
-						logger.warn("Large face upscale aborted at factor={} due to memory pressure", factor);
-						break;
-					}
+				synchronized (LARGE_FACE_LOCK) {
 					baos.reset();
-					ImageIO.write(img, "jpg", baos);
+					ImageIO.write(sourceImage, "jpg", baos);
 					baos.flush();
-					bData = baos.toByteArray();
-					if (bData.length >= LARGE_FACE_MIN_JPEG_BYTES || factor >= LARGE_FACE_MAX_UPSCALE) {
-						logger.info("Large face JPEG size={} bytes at upscale factor={}", bData.length, factor);
-						break;
-					}
-					factor += LARGE_FACE_UPSCALE_STEP;
-				}
-				if (bData == null || bData.length < LARGE_FACE_MIN_JPEG_BYTES) {
-					if (bData == null) {
-						baos.reset();
-						ImageIO.write(sourceImage, "jpg", baos);
-						baos.flush();
-						bData = baos.toByteArray();
-					}
-					bData = padJpegToMinSize(bData, LARGE_FACE_MIN_JPEG_BYTES);
-					logger.info("Large face JPEG padded to {} bytes", bData.length);
+					bData = padJpegToMinSize(baos.toByteArray(), LARGE_FACE_MIN_JPEG_BYTES);
+					logger.info("Large face JPEG padded to {} bytes (no upscale)", bData.length);
 				}
 			} else {
 				if (generateObstructedFace) {
@@ -152,28 +136,15 @@ public class PhotoProvider {
 			bencoded = encodeFaceImageData(bData);
 
 			baos.close();
-			CommonUtil.deleteOldTempDir(dirPath);
+			// Only delete the per-scenario output folder — never the shared face templates.
+			CommonUtil.deleteOldTempDir(outputDirPath);
 
 		} catch (Exception e) {
 
-			logger.error(e.getMessage());
+			logger.error("getPhoto failed: {}", e.getMessage(), e);
+			throw new IllegalStateException("getPhoto failed: " + e.getMessage(), e);
 		}
 		return new byte[][] { bencoded, bData };
-	}
-
-	private static BufferedImage upscaleImage(BufferedImage source, int factor) {
-		if (source == null) {
-			throw new IllegalArgumentException("source image must not be null");
-		}
-		if (factor <= 0) {
-			throw new IllegalArgumentException("factor must be > 0");
-		}
-		int type = source.getType() == 0 ? BufferedImage.TYPE_INT_RGB : source.getType();
-		BufferedImage enlarged = new BufferedImage(source.getWidth() * factor, source.getHeight() * factor, type);
-		Graphics2D g2d = enlarged.createGraphics();
-		g2d.drawImage(source, 0, 0, enlarged.getWidth(), enlarged.getHeight(), null);
-		g2d.dispose();
-		return enlarged;
 	}
 
 	/**

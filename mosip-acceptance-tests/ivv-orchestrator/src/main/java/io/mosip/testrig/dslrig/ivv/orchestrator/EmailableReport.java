@@ -136,41 +136,22 @@ public class EmailableReport implements IReporter {
 				}
 				if (dslConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 					S3Adapter s3Adapter = new S3Adapter();
-					boolean isStoreSuccess = false;
-					boolean isStoreSuccess2 = false;
-					boolean isStoreSuccess3 = false;
-					boolean isStoreSuccess4 = false;
+					// Upload each artifact independently so one failure (e.g. missing Excel
+					// baseline in Docker) does not skip the error report.
+					uploadReportToS3(s3Adapter, "Main report", newString, newReportFile);
 
-					try {
+					File extentReport = new File(BaseTestCaseUtil.getExtentReportName());
+					uploadReportToS3(s3Adapter, "Extent report", "ExtentReport-" + newString, extentReport);
 
-						isStoreSuccess = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
-								null, null, newString, newReportFile);
-
-						logger.info("Main report uploaded: " + isStoreSuccess);
-
-						File extentReport = new File(BaseTestCaseUtil.getExtentReportName());
-
-						isStoreSuccess2 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
-								null, null, "ExtentReport-" + newString, extentReport);
-
-						logger.info("Extent report uploaded: " + isStoreSuccess2);
-
-						isStoreSuccess3 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
-								null, null, "comparison_vs_BASE_LINE.xlsx", new File(excelFilePath));
-
-						logger.info("Excel report uploaded: " + isStoreSuccess3);
-
-						File failedReportFile = new File(System.getProperty("user.dir") + "/"
-								+ System.getProperty("testng.outpur.dir") + "/" + failedReportName);
-
-						isStoreSuccess4 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
-								null, null, failedReportName, failedReportFile);
-
-						logger.info("Failed report uploaded: " + isStoreSuccess4);
-
-					} catch (Exception e) {
-						logger.error("Error occurred while pushing report to S3: " + e.getMessage());
+					if (excelFilePath != null) {
+						uploadReportToS3(s3Adapter, "Excel report", "comparison_vs_BASE_LINE.xlsx",
+								new File(excelFilePath));
+					} else {
+						logger.warn("Excel report path is null; skipping S3 upload for comparison_vs_BASE_LINE.xlsx");
 					}
+
+					// Prefer the file already written under TestNG outputDirectory
+					uploadReportToS3(s3Adapter, "Failed/error report", failedReportName, failedDigestReportFile);
 				}
 
 			} else {
@@ -178,6 +159,21 @@ public class EmailableReport implements IReporter {
 			}
 		} else {
 			logger.error("Original report File does not exist!");
+		}
+	}
+
+	private void uploadReportToS3(S3Adapter s3Adapter, String reportLabel, String objectName, File reportFile) {
+		if (reportFile == null || !reportFile.isFile()) {
+			logger.warn(reportLabel + " not found for S3 upload"
+					+ (reportFile == null ? "" : " at " + reportFile.getAbsolutePath()) + "; skip.");
+			return;
+		}
+		try {
+			boolean uploaded = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null, null,
+					objectName, reportFile);
+			logger.info(reportLabel + " uploaded to S3 (" + objectName + "): " + uploaded);
+		} catch (Exception e) {
+			logger.error("Error uploading " + reportLabel + " to S3 (" + objectName + "): " + e.getMessage(), e);
 		}
 	}
 
@@ -229,7 +225,10 @@ public class EmailableReport implements IReporter {
 		int totalTests = totalPassedTests + totalSkippedTests + totalIgnoredTests + totalKnownIssuesTests
 				+ totalFailedTests;
 
-		String env = System.getProperty("env.user").replaceAll("https?://", "").replaceAll("[^a-zA-Z0-9.-]", "");
+		String envProperty = System.getProperty("env.user");
+		String env = (envProperty == null || envProperty.isBlank())
+				? "unknown"
+				: envProperty.replaceAll("https?://", "").replaceAll("[^a-zA-Z0-9.-]", "");
 
 		return "DSL-" + env + "-" + BaseTestCase.testLevel + "-error-" + timestamp + "-report_T-" + totalTests + "_P-"
 				+ totalPassedTests + "_S-" + totalSkippedTests + "_F-" + totalFailedTests + ".html";

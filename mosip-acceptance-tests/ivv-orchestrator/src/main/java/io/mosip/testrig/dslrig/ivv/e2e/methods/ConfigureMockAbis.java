@@ -134,7 +134,10 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			}
 		} else {
 			modalityHashValueMap.clear();
-			modalityHashValueMap = hashtable.get(personaId);
+			Map<String, String> scoped = hashtable.get(scenarioScopedPersonaKey(step.getScenario().getId(), personaId));
+			if (scoped != null) {
+				modalityHashValueMap = scoped;
+			}
 		}
 
 		JSONArray outterReq = new JSONArray();

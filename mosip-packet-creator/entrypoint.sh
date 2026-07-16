@@ -29,4 +29,5 @@ done
 IFS=$' \t\n'
 
 java --version
-java -Dfile.encoding=UTF-8  -jar dslrig-packetcreator-*.jar --spring.config.location=./config/application.properties
+echo "JDK_JAVA_OPTIONS=${JDK_JAVA_OPTIONS:-<unset>}"
+java -Dfile.encoding=UTF-8 -jar dslrig-packetcreator-*.jar --spring.config.location=./config/application.properties

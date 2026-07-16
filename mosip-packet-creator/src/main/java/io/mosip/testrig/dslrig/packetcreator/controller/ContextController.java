@@ -120,7 +120,7 @@ public class ContextController {
 
 	        if (personaConfigPath != null && !personaConfigPath.isEmpty()) {
 
-	            DataProviderConstants.RESOURCE = personaConfigPath;
+	            DataProviderConstants.setResource(personaConfigPath);
 
 	        }
 
