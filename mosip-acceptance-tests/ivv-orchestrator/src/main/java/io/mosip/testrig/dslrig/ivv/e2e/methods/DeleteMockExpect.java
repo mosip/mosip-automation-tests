@@ -25,17 +25,17 @@ public class DeleteMockExpect extends BaseTestCaseUtil implements StepInterface 
 			modalityHashValue = step.getScenario().getVariables().get(step.getParameters().get(0));
 		}
 
+		String url = null;
 		if (String.valueOf(modalityHashValue).equals("null") || String.valueOf(modalityHashValue).isEmpty()) {
-			logger.warn("deleteMockExpectation skipped: no modality hash provided "
-					+ "(refusing global delete under shared mock-ABIS)");
-			return;
-		}
-
-		String[] hashValues = modalityHashValue.split(",");
-		for (String hashValue : hashValues) {
-			hashValue = hashValue.replaceAll("[A-Za-z ]+=", "").replace("{", "");
-			String url = baseUrl + props.getProperty("deleteMockExpectation") + "/" + hashValue;
-			deleteRequest(url, "deleteMockExpectation for hash value: " + hashValue, step);
+			url = baseUrl + props.getProperty("deleteMockExpectation");
+			Response response = deleteRequest(url, "deleteMockExpectation", step);
+		} else {
+			String[] hashValues = modalityHashValue.split(",");
+			for (String hashValue : hashValues) {
+				hashValue = hashValue.replaceAll("[A-Za-z ]+=", "").replace("{", "");
+				url = baseUrl + props.getProperty("deleteMockExpectation") + "/" + hashValue;
+				Response response = deleteRequest(url, "deleteMockExpectation for hash value: " + hashValue, step);
+			}
 		}
 	}
 }

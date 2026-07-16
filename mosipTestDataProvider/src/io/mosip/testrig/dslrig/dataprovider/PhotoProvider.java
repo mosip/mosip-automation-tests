@@ -20,12 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
+import io.mosip.testrig.dslrig.dataprovider.util.PacketSizeUtil;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class PhotoProvider {
 	private static final Logger logger = LoggerFactory.getLogger(PhotoProvider.class);
-	/** Minimum JPEG bytes for large-face packets to exceed typical registration.processor.max.file.size (5 MB). */
-	private static final int LARGE_FACE_MIN_JPEG_BYTES = 5 * 1024 * 1024;
+	/** Minimum JPEG bytes for large-face persona biometrics (packet zip is padded separately in {@link PacketSizeUtil}). */
+	private static final int LARGE_FACE_MIN_JPEG_BYTES = PacketSizeUtil.DEFAULT_MIN_PACKET_BYTES;
 	/**
 	 * Large-face negative tests only need byte length > max packet size. Prefer COM-segment
 	 * padding over BufferedImage upscale — upscaling under full-suite concurrency OOMs the

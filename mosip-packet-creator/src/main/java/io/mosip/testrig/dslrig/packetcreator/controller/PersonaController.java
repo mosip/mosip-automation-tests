@@ -202,15 +202,20 @@ public class PersonaController {
 		}
 
 	}
-    @Operation(summary = "Delete mock-abis-service expectation by id (global wipe is disabled for parallel safety)")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted or skipped") })
+    @Operation(summary = "Delete all mock-abis-service expectation")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted") })
 	@DeleteMapping(value = "persona/mock-abis-service/config/expectation/{contextKey}")
 	public @ResponseBody String deleteAllExpectations(
 	@PathVariable("contextKey") String contextKey) {
-
-		logger.warn("deleteAllExpectations refused for contextKey={} — pass modality hash via "
-				+ "persona/mock-abis-service/config/expectation/{{modalityHashValue}}/{{contextKey}}", contextKey);
-		return "DELETE_SKIPPED_GLOBAL_WIPE_DISABLED";
+		try {
+			return packetSyncService.deleteMockAbisExpectations(contextKey , null);
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception ex) {
+			logger.error("Error while deleting Mock ABIS expectations for contextKey={}", contextKey, ex);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DELETE_MOCKABIS_EXPECTATION_FAIL", null, ex,
+					ex.getMessage());
+		}
 	}
 
 	@Operation(summary = "Delete expectation for a given Id")

@@ -190,6 +190,7 @@ public class PacketMakerService {
 	private ContextUtils contextUtils;
 
 	private PacketSyncService packetSyncService;
+	private String newRegId;
 
 	@Value("${mosip.version:1.2}")
 	private String mosipVersion;
@@ -230,8 +231,7 @@ public class PacketMakerService {
 		if (ctx != null && ctx.regId != null) {
 			return ctx.regId;
 		}
-		// Never fall back to a shared instance field — that races under parallel requests.
-		return null;
+		return newRegId;
 	}
 
 	private String activeTemplateSource() {
@@ -251,12 +251,10 @@ public class PacketMakerService {
 	}
 
 	private void assignRegId(String regId) {
+		newRegId = regId;
 		PacketThreadContext ctx = PACKET_THREAD_CONTEXT.get();
 		if (ctx != null) {
 			ctx.regId = regId;
-		} else {
-			beginPacketThreadContext(null, null);
-			PACKET_THREAD_CONTEXT.get().regId = regId;
 		}
 	}
 

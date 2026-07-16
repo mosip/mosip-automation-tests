@@ -606,14 +606,11 @@ public class MosipDataSetup {
 	public static String deleteMockAbisExpectations(String contextKey , String mockId) {
 
 		String response = "";
-		if (mockId == null || mockId.isBlank()) {
-			// Global wipe races with parallel scenarios that just configured expectations.
-			logger.warn("deleteMockAbisExpectations refused: mockId is required (contextKey={})", contextKey);
-			return "DELETE_SKIPPED_MISSING_MOCK_ID";
-		}
 		String url = VariableManager.getVariableValue(contextKey, "urlBase").toString().trim() + VariableManager
-				.getVariableValue(VariableManager.NS_DEFAULT, "deleteMockAbisExpectations").toString().trim()
-				+ "/" + mockId;
+				.getVariableValue(VariableManager.NS_DEFAULT, "deleteMockAbisExpectations").toString().trim();
+		if (mockId != null && !mockId.isBlank()) {
+			url += "/" + mockId;
+		}
 		try {
 
 			response = RestClient.deleteExpectation(url, new JSONObject(), contextKey);
