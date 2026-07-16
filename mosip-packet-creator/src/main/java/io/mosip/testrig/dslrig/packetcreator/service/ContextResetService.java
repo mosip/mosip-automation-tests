@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+import io.mosip.testrig.dslrig.dataprovider.cache.PersonaParseCache;
+import io.mosip.testrig.dslrig.dataprovider.cache.PersonaTemplateCache;
+import io.mosip.testrig.dslrig.packetcreator.cache.PacketTemplateCache;
 
 /**
  * Shared reset/clear logic for {@link io.mosip.testrig.dslrig.packetcreator.controller.ContextController}
@@ -29,6 +32,9 @@ public class ContextResetService {
 	 */
 	public void clearRunScopedCache(String contextKey) {
 		apiRequestUtil.clearRunScopedCache(contextKey);
+		PacketTemplateCache.clear();
+		PersonaTemplateCache.clear();
+		PersonaParseCache.clear();
 		logger.info("Run-scoped cache cleared for context {}", contextKey);
 	}
 

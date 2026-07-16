@@ -135,6 +135,9 @@ public class Orchestrator {
 		completedScenarioCount.set(0);
 		executableScenarioCount = 0;
 
+		DslStepTimingCollector.clear();
+		DslPacketTemplateCache.clear();
+
 		suiteStartTime = System.currentTimeMillis();
 		BaseTestCaseUtil.exectionStartTime = suiteStartTime;
 		logger.info("Suite start time is: " + BaseTestCaseUtil.exectionStartTime);
@@ -178,7 +181,11 @@ public class Orchestrator {
 	public void afterSuite() {
 		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
 		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
+		DslStepTimingCollector.logReport();
 		extent.flush();
+		if (dslConfigManager.IsDebugEnabled()) {
+			logger.info("Debug mode enabled; suite teardown limited to timing report and extent flush");
+		}
 	}
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
@@ -516,6 +523,13 @@ public class Orchestrator {
 
 		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
+		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.IsDebugEnabled()) {
+			String skipMsg = "Skipping AFTER_SUITE scenario because enableDebug=yes";
+			logger.info(skipMsg);
+			extentTest.skip(skipMsg);
+			updateRunStatistics(scenario);
+			throw new SkipException(skipMsg);
+		}
 		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && beforeSuiteFailed) {
 			String skipMsg = "Skipping AFTER_SUITE teardown because Scenario 0 (before suite) failed — "
 					+ "WritePreReq(1/2/3) data was never stored. Fix Scenario 0 (track2b steps 17-25 for index 2) first.";
