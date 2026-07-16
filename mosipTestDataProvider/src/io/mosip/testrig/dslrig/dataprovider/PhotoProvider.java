@@ -24,6 +24,13 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class PhotoProvider {
 	private static final Logger logger = LoggerFactory.getLogger(PhotoProvider.class);
+	/** Minimum JPEG bytes for large-face packets to exceed typical registration.processor.max.file.size (5 MB). */
+	private static final int LARGE_FACE_MIN_JPEG_BYTES = 5 * 1024 * 1024;
+	private static final int LARGE_FACE_INITIAL_UPSCALE = 8;
+	private static final int LARGE_FACE_MAX_UPSCALE = 16;
+	private static final int LARGE_FACE_UPSCALE_STEP = 4;
+	/** Soft cap on BufferedImage pixels while generating large-face JPEGs under concurrency. */
+	private static final long LARGE_FACE_MAX_PIXELS = 8_000_000L;
 	static String Photo_File_Format = "/face%04d.jpg";
 
 	static byte[][] getPhoto(String contextKey) {
@@ -98,18 +105,50 @@ public class PhotoProvider {
 				}
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			BufferedImage sourceImage = img;
 
 			if (generateLargeFace) {
-
-
-				img = upscaleImage(img, 8);
+				int factor = LARGE_FACE_INITIAL_UPSCALE;
+				while (true) {
+					long targetPixels = (long) sourceImage.getWidth() * factor
+							* (long) sourceImage.getHeight() * factor;
+					if (targetPixels > LARGE_FACE_MAX_PIXELS && factor > LARGE_FACE_INITIAL_UPSCALE) {
+						break;
+					}
+					try {
+						img = upscaleImage(sourceImage, factor);
+					} catch (OutOfMemoryError oom) {
+						logger.warn("Large face upscale aborted at factor={} due to memory pressure", factor);
+						break;
+					}
+					baos.reset();
+					ImageIO.write(img, "jpg", baos);
+					baos.flush();
+					bData = baos.toByteArray();
+					if (bData.length >= LARGE_FACE_MIN_JPEG_BYTES || factor >= LARGE_FACE_MAX_UPSCALE) {
+						logger.info("Large face JPEG size={} bytes at upscale factor={}", bData.length, factor);
+						break;
+					}
+					factor += LARGE_FACE_UPSCALE_STEP;
+				}
+				if (bData == null || bData.length < LARGE_FACE_MIN_JPEG_BYTES) {
+					if (bData == null) {
+						baos.reset();
+						ImageIO.write(sourceImage, "jpg", baos);
+						baos.flush();
+						bData = baos.toByteArray();
+					}
+					bData = padJpegToMinSize(bData, LARGE_FACE_MIN_JPEG_BYTES);
+					logger.info("Large face JPEG padded to {} bytes", bData.length);
+				}
+			} else {
+				if (generateObstructedFace) {
+					img = applyFaceObstruction(img);
+				}
+				ImageIO.write(img, "jpg", baos);
+				baos.flush();
+				bData = baos.toByteArray();
 			}
-			if (generateObstructedFace) {
-				img = applyFaceObstruction(img);
-			}
-			ImageIO.write(img, "jpg", baos);
-			baos.flush();
-			bData = baos.toByteArray();
 			bencoded = encodeFaceImageData(bData);
 
 			baos.close();
@@ -135,6 +174,45 @@ public class PhotoProvider {
 		g2d.drawImage(source, 0, 0, enlarged.getWidth(), enlarged.getHeight(), null);
 		g2d.dispose();
 		return enlarged;
+	}
+
+	/**
+	 * Inflates JPEG payload size via COM segments without allocating larger BufferedImages.
+	 * Used for negative packet-size tests that only need byte length to exceed the processor limit.
+	 */
+	static byte[] padJpegToMinSize(byte[] jpeg, int minBytes) {
+		if (jpeg == null || jpeg.length >= minBytes) {
+			return jpeg;
+		}
+		int eoi = jpeg.length - 2;
+		while (eoi > 0 && !(jpeg[eoi] == (byte) 0xFF && jpeg[eoi + 1] == (byte) 0xD9)) {
+			eoi--;
+		}
+		boolean hasEoi = eoi > 0;
+		int insertAt = hasEoi ? eoi : jpeg.length;
+		int need = minBytes - jpeg.length;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(minBytes + 64);
+		out.write(jpeg, 0, insertAt);
+		int remaining = need;
+		while (remaining > 0) {
+			int chunk = Math.min(remaining, 65533);
+			int segmentLength = chunk + 2;
+			out.write(0xFF);
+			out.write(0xFE);
+			out.write((segmentLength >> 8) & 0xFF);
+			out.write(segmentLength & 0xFF);
+			for (int i = 0; i < chunk; i++) {
+				out.write(0);
+			}
+			remaining -= chunk;
+		}
+		if (hasEoi) {
+			out.write(jpeg, insertAt, jpeg.length - insertAt);
+		} else {
+			out.write(0xFF);
+			out.write(0xD9);
+		}
+		return out.toByteArray();
 	}
 
 	private static BufferedImage applyFaceObstruction(BufferedImage source) {

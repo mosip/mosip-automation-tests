@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.json.JSONArray;
@@ -42,6 +43,8 @@ public class APIRequestUtil {
     private static final String SERVER_API_TRACE_KEY = "packetCreator.serverApiTrace";
     private static final int MAX_SERVER_API_TRACE_ENTRIES = 50;
     private static final int MAX_SERVER_API_TRACE_VALUE_LENGTH = 10000;
+    private static final Set<String> SENSITIVE_TRACE_KEYS = Set.of(
+            "password", "clientsecret", "clientid", "username", "token", "otp");
 
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
 	private static final String DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -76,6 +79,10 @@ public class APIRequestUtil {
 
     final String dataKey = "response";
     final String errorKey = "errors";
+
+    private static final ObjectMapper TRACE_OBJECT_MAPPER = new ObjectMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
@@ -214,6 +221,60 @@ public class APIRequestUtil {
         return trimTraceString(String.valueOf(value));
     }
 
+    private Object redactSensitive(Object value) {
+        if (value == null || value == JSONObject.NULL) {
+            return value;
+        }
+        if (value instanceof JSONObject json) {
+            JSONObject redacted = new JSONObject();
+            for (String key : json.keySet()) {
+                if (key != null && SENSITIVE_TRACE_KEYS.contains(key.toLowerCase())) {
+                    redacted.put(key, "***");
+                } else {
+                    redacted.put(key, redactSensitive(json.get(key)));
+                }
+            }
+            return redacted;
+        }
+        if (value instanceof JSONArray array) {
+            JSONArray redacted = new JSONArray();
+            for (int i = 0; i < array.length(); i++) {
+                redacted.put(redactSensitive(array.get(i)));
+            }
+            return redacted;
+        }
+        if (value instanceof Map<?, ?> map) {
+            JSONObject asJson = new JSONObject();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                String key = String.valueOf(entry.getKey());
+                if (SENSITIVE_TRACE_KEYS.contains(key.toLowerCase())) {
+                    asJson.put(key, "***");
+                } else {
+                    asJson.put(key, redactSensitive(entry.getValue()));
+                }
+            }
+            return asJson;
+        }
+        if (value instanceof String str) {
+            String trimmed = str.trim();
+            if (trimmed.startsWith("{")) {
+                try {
+                    return redactSensitive(new JSONObject(trimmed)).toString();
+                } catch (Exception ignored) {
+                    return value;
+                }
+            }
+            if (trimmed.startsWith("[")) {
+                try {
+                    return redactSensitive(new JSONArray(trimmed)).toString();
+                } catch (Exception ignored) {
+                    return value;
+                }
+            }
+        }
+        return value;
+    }
+
     private JSONArray limitTraceEntries(JSONArray trace) {
         if (trace.length() <= MAX_SERVER_API_TRACE_ENTRIES) {
             return trace;
@@ -236,10 +297,17 @@ public class APIRequestUtil {
             JSONObject entry = new JSONObject();
             entry.put("method", method);
             entry.put("url", url);
-            entry.put("request", limitTraceValue(request));
-            entry.put("headers", headers == null ? new JSONObject() : limitTraceValue(new JSONObject(headers)));
+            entry.put("request", limitTraceValue(redactSensitive(request)));
+            entry.put("headers", headers == null ? new JSONObject()
+                    : limitTraceValue(redactSensitive(new JSONObject(headers))));
             entry.put("statusCode", response == null ? JSONObject.NULL : response.getStatusCode());
             entry.put("response", response == null ? JSONObject.NULL : trimTraceString(response.getBody().asString()));
+            if (response != null) {
+                String serverMs = response.getHeader("x-envoy-upstream-service-time");
+                if (serverMs != null && !serverMs.isBlank()) {
+                    entry.put("serverDurationMs", serverMs);
+                }
+            }
             trace.put(entry);
             VariableManager.setVariableValue(contextKey, SERVER_API_TRACE_KEY,
                     MosipDataSetup.toCacheValue(limitTraceEntries(trace)));
@@ -414,10 +482,7 @@ public class APIRequestUtil {
     	int timeoutRetry = 0;
     	Response response = null;
 
-    	ObjectMapper objectMapper = new ObjectMapper();
-    	objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    	objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-    	String outputJson = objectMapper.writeValueAsString(requestBody);
+    	String outputJson = TRACE_OBJECT_MAPPER.writeValueAsString(requestBody);
 
     	while (!bDone) {
     		try {

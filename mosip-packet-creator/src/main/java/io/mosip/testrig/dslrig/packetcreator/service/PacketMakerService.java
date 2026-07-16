@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import jakarta.annotation.PostConstruct;
@@ -72,6 +73,14 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 public class PacketMakerService {
 
 	private static final Logger logger = LoggerFactory.getLogger(PacketMakerService.class);
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+	private static final ThreadLocal<PacketThreadContext> PACKET_THREAD_CONTEXT = new ThreadLocal<>();
+
+	private static final class PacketThreadContext {
+		private String templateSource;
+		private String mosipVersion;
+		private String regId;
+	}
 
 	private static final String UNDERSCORE = "_";
 	private static final String PACKET_META_FILENAME = "packet_meta_info.json";
@@ -155,7 +164,9 @@ public class PacketMakerService {
 	private String src;
 
 	@Value("${mosip.test.rid.seq.initialvalue}")
-	private int counter;
+	private int counterInitialValue;
+
+	private final AtomicInteger regIdSequence = new AtomicInteger();
 
 	@Value("${mosip.test.regclient.supervisorBiometricFileName}")
 	private String supervisorBiometricFileName;
@@ -197,6 +208,7 @@ public class PacketMakerService {
 
 	@PostConstruct
 	public void initService() {
+		regIdSequence.set(counterInitialValue);
 		if (workDirectory != null)
 			return;
 		try {
@@ -216,7 +228,35 @@ public class PacketMakerService {
 	}
 
 	public String getNewRegId() {
+		PacketThreadContext ctx = PACKET_THREAD_CONTEXT.get();
+		if (ctx != null && ctx.regId != null) {
+			return ctx.regId;
+		}
 		return newRegId;
+	}
+
+	private String activeTemplateSource() {
+		PacketThreadContext ctx = PACKET_THREAD_CONTEXT.get();
+		return ctx != null && ctx.templateSource != null ? ctx.templateSource : src;
+	}
+
+	private void beginPacketThreadContext(String templateSource, String version) {
+		PacketThreadContext ctx = new PacketThreadContext();
+		ctx.templateSource = templateSource != null ? templateSource : src;
+		ctx.mosipVersion = version != null ? version : mosipVersion;
+		PACKET_THREAD_CONTEXT.set(ctx);
+	}
+
+	private void endPacketThreadContext() {
+		PACKET_THREAD_CONTEXT.remove();
+	}
+
+	private void assignRegId(String regId) {
+		newRegId = regId;
+		PacketThreadContext ctx = PACKET_THREAD_CONTEXT.get();
+		if (ctx != null) {
+			ctx.regId = regId;
+		}
 	}
 
 	public String getWorkDirectory() {
@@ -232,29 +272,32 @@ public class PacketMakerService {
 			boolean isValidChecksum) throws Exception {
 		String process = null;
 		String retPath = "";
+		String effectiveSource = src;
 		if (contextKey != null && !contextKey.equals("")) {
 
 			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.packet.template.source")) {
-					src = v.toString();
+			for (Map.Entry<Object, Object> entry : props.entrySet()) {
+				if (entry.getKey().toString().equals("mosip.test.packet.template.source")) {
+					effectiveSource = entry.getValue().toString();
 				}
-			});
+			}
 		}
 		if (source != null)
-			src = source;
+			effectiveSource = source;
 
+		beginPacketThreadContext(effectiveSource, mosipVersion);
+		try {
 		String regId = getRegIdFromPacketPath(packetPath);
 		String tempPacketRootFolder = Path.of(packetPath).toString();
 
 		if (proc != null)
 			process = proc;
 		else {
-			String tprocess = ContextUtils.ProcessFromTemplate(src, packetPath);
+			String tprocess = ContextUtils.ProcessFromTemplate(activeTemplateSource(), packetPath);
 			if (tprocess != null)
 				process = tprocess;
 		}
-		RestClient.logInfo(contextKey, "packPacketContainer:src=" + src + ",process=" + process + "PacketRoot="
+		RestClient.logInfo(contextKey, "packPacketContainer:src=" + activeTemplateSource() + ",process=" + process + "PacketRoot="
 				+ tempPacketRootFolder + " regid=" + regId);
 		try {
 			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder, contextKey), regId, "id"), regId, "id",
@@ -284,6 +327,9 @@ public class PacketMakerService {
 		}
 		retPath = Path.of(Path.of(tempPacketRootFolder) + ".zip").toString();
 		return retPath;
+		} finally {
+			endPacketThreadContext();
+		}
 	}
 
 	public String createPacketFromTemplate(String templatePath, String personaPath, String contextKey,
@@ -303,95 +349,104 @@ public class PacketMakerService {
 			logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
 		JSONObject retObj = new JSONObject();
 		retObj.put("packet", packetPath);
-		retObj.put("regId", newRegId);
+		String regId = packetPath != null ? getRegIdFromPacketPath(packetPath) : getNewRegId();
+		retObj.put("regId", regId);
 
 		return retObj.toString();
 	}
 
-	public synchronized String createContainer(String dataFile, String templatePacketLocation, String source,
+	public String createContainer(String dataFile, String templatePacketLocation, String source,
 			String processArg,
 			String preregId, String contextKey, boolean bZip, String additionalInfoReqId, File preRegPacketLocation)
 			throws Exception {
-		String process = null;
-		String packetPath = "";
+		String effectiveSource = src;
+		String effectiveMosipVersion = mosipVersion;
 		if (contextKey != null && !contextKey.equals("")) {
-
 			Properties props = contextUtils.loadServerContext(contextKey);
-			props.forEach((k, v) -> {
-				if (k.toString().equals("mosip.test.packet.template.source")) {
-					src = v.toString();
-				} else if (k.toString().equals("mosip.version")) {
-					mosipVersion = v.toString();
-				}
-			});
-		}
-
-		String templateLocation = (null == templatePacketLocation) ? defaultTemplateLocation : templatePacketLocation;
-
-		String regId = generateRegId(contextKey);
-		String appId = (additionalInfoReqId == null) ? regId
-				: additionalInfoReqId.replace("-BIOMETRIC_CORRECTION-1", "");
-		if (additionalInfoReqId != null)
-			regId = appId;
-		newRegId = regId;
-		if (source != null && !source.equals(""))
-			src = source;
-		if (processArg != null && !processArg.equals(""))
-			process = processArg;
-		else {
-			String tprocess = ContextUtils.ProcessFromTemplate(src, templatePacketLocation);
-			if (tprocess != null)
-				process = tprocess;
-		}
-		if (preRegPacketLocation != null) {
-			List<String> files = getDemographicDocFiles(preRegPacketLocation.getAbsolutePath());
-
-			for (String filePath : files) {
-				Path sourceprereg = Paths.get(filePath);
-				String originalFileName = sourceprereg.getFileName().toString();
-				if (!originalFileName.toLowerCase().endsWith(".pdf")) {
-					continue;
-				} else {
-					originalFileName = originalFileName.replaceFirst("^[^_]*_", "");
-				}
-
-				Path target = Paths.get(templateLocation + File.separator + source + File.separator +
-						processArg + File.separator + "rid_id", originalFileName);
-
-				try {
-					Files.copy(sourceprereg, target, StandardCopyOption.REPLACE_EXISTING);
-				} catch (IOException e) {
-					e.printStackTrace(); 
+			for (Map.Entry<Object, Object> entry : props.entrySet()) {
+				if (entry.getKey().toString().equals("mosip.test.packet.template.source")) {
+					effectiveSource = entry.getValue().toString();
+				} else if (entry.getKey().toString().equals("mosip.version")) {
+					effectiveMosipVersion = entry.getValue().toString();
 				}
 			}
 		}
-
-		String tempPacketRootFolder = createTempTemplate(templateLocation, appId, contextKey);
-
-
-		createPacket(tempPacketRootFolder, regId, dataFile, "id", preregId, contextKey);
-		if (bZip)
-			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder, contextKey), regId, "id"), regId, "id",
-					contextKey);
-		createPacket(tempPacketRootFolder, regId, dataFile, EVIDENCE, preregId, contextKey);
-		if (bZip)
-			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder, contextKey), regId, EVIDENCE), regId,
-					EVIDENCE,
-					contextKey);
-		createPacket(tempPacketRootFolder, regId, dataFile, OPTIONAL, preregId, contextKey);
-		if (bZip) {
-			packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder, contextKey), regId, OPTIONAL), regId,
-					OPTIONAL,
-					contextKey);
-			packContainer(tempPacketRootFolder, contextKey);
-
-			packetPath = Path.of(Path.of(tempPacketRootFolder) + ".zip").toString();
-		} else {
-			packetPath = tempPacketRootFolder;
+		if (source != null && !source.equals("")) {
+			effectiveSource = source;
 		}
 
-		return packetPath;
+		beginPacketThreadContext(effectiveSource, effectiveMosipVersion);
+		try {
+			String process = null;
+			String packetPath = "";
+			String templateLocation = (null == templatePacketLocation) ? defaultTemplateLocation
+					: templatePacketLocation;
 
+			String regId = generateRegId(contextKey);
+			String appId = (additionalInfoReqId == null) ? regId
+					: additionalInfoReqId.replace("-BIOMETRIC_CORRECTION-1", "");
+			if (additionalInfoReqId != null) {
+				regId = appId;
+			}
+			assignRegId(regId);
+			if (processArg != null && !processArg.equals("")) {
+				process = processArg;
+			} else {
+				String tprocess = ContextUtils.ProcessFromTemplate(activeTemplateSource(), templatePacketLocation);
+				if (tprocess != null) {
+					process = tprocess;
+				}
+			}
+			if (preRegPacketLocation != null) {
+				List<String> files = getDemographicDocFiles(preRegPacketLocation.getAbsolutePath());
+
+				for (String filePath : files) {
+					Path sourceprereg = Paths.get(filePath);
+					String originalFileName = sourceprereg.getFileName().toString();
+					if (!originalFileName.toLowerCase().endsWith(".pdf")) {
+						continue;
+					} else {
+						originalFileName = originalFileName.replaceFirst("^[^_]*_", "");
+					}
+
+					Path target = Paths.get(templateLocation + File.separator + source + File.separator + processArg
+							+ File.separator + "rid_id", originalFileName);
+
+					try {
+						Files.copy(sourceprereg, target, StandardCopyOption.REPLACE_EXISTING);
+					} catch (IOException e) {
+						logger.error("Failed to copy pre-reg document {} -> {}", sourceprereg, target, e);
+					}
+				}
+			}
+
+			String tempPacketRootFolder = createTempTemplate(templateLocation, appId, contextKey);
+
+			createPacket(tempPacketRootFolder, regId, dataFile, "id", preregId, contextKey);
+			if (bZip) {
+				packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder, contextKey), regId, "id"), regId, "id",
+						contextKey);
+			}
+			createPacket(tempPacketRootFolder, regId, dataFile, EVIDENCE, preregId, contextKey);
+			if (bZip) {
+				packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder, contextKey), regId, EVIDENCE), regId,
+						EVIDENCE, contextKey);
+			}
+			createPacket(tempPacketRootFolder, regId, dataFile, OPTIONAL, preregId, contextKey);
+			if (bZip) {
+				packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder, contextKey), regId, OPTIONAL), regId,
+						OPTIONAL, contextKey);
+				packContainer(tempPacketRootFolder, contextKey);
+
+				packetPath = Path.of(Path.of(tempPacketRootFolder) + ".zip").toString();
+			} else {
+				packetPath = tempPacketRootFolder;
+			}
+
+			return packetPath;
+		} finally {
+			endPacketThreadContext();
+		}
 	}
 
 	public Map<?, ?> mergeJSON(String templateFile, String dataFile) throws Exception {
@@ -558,20 +613,20 @@ public class PacketMakerService {
 			updatePacketMetaInfo(identityObj, OPERATIONSDATA, "supervisorPassword", supervisorP, false);
 
 
-			officerBiometricFileName = p.getProperty("mosip.test.regclient.officerBiometricFileName");
-			if (officerBiometricFileName != null && officerBiometricFileName.length() > 1) {
-			} else
-				officerBiometricFileName = null;
-			updatePacketMetaInfo(identityObj, OPERATIONSDATA, "officerBiometricFileName", officerBiometricFileName,
+			String officerBioFileName = p.getProperty("mosip.test.regclient.officerBiometricFileName");
+			if (officerBioFileName == null || officerBioFileName.length() <= 1) {
+				officerBioFileName = null;
+			}
+			updatePacketMetaInfo(identityObj, OPERATIONSDATA, "officerBiometricFileName", officerBioFileName,
 					false);
 
 
-			supervisorBiometricFileName = p.getProperty("mosip.test.regclient.supervisorBiometricFileName");
-			if (supervisorBiometricFileName != null && supervisorBiometricFileName.length() > 1) {
-			} else
-				supervisorBiometricFileName = null;
+			String supervisorBioFileName = p.getProperty("mosip.test.regclient.supervisorBiometricFileName");
+			if (supervisorBioFileName == null || supervisorBioFileName.length() <= 1) {
+				supervisorBioFileName = null;
+			}
 			updatePacketMetaInfo(identityObj, OPERATIONSDATA, "supervisorBiometricFileName",
-					supervisorBiometricFileName, false);
+					supervisorBioFileName, false);
 			CommonUtil.write(metaPath, metaJsonObject.toString().getBytes(UTF8));
 			updateAudit(packetRootFolder, regId, contextKey);
 
@@ -644,15 +699,13 @@ public class PacketMakerService {
     Path destination = Path.of(mountPath + tempPath, contextKey.replace(CONTEXT, ""),
             unencZipPath.getFileName().toString());
     CommonUtil.copyFileWithBuffer(unencZipPath, destination);
-    synchronized (containerRootFolder.intern()) {
-        Path unencZipToDelete = validateUnderAllowedTempRoots(unencZipPath, contextKey);
-        if (unencZipToDelete != null) {
-            Files.delete(unencZipToDelete);
-        }
-        Path containerRootToDelete = validateUnderAllowedTempRoots(validatedContainerRoot, contextKey);
-        if (containerRootToDelete != null) {
-            FileSystemUtils.deleteRecursively(containerRootToDelete);
-        }
+    Path unencZipToDelete = validateUnderAllowedTempRoots(unencZipPath, contextKey);
+    if (unencZipToDelete != null) {
+        Files.delete(unencZipToDelete);
+    }
+    Path containerRootToDelete = validateUnderAllowedTempRoots(validatedContainerRoot, contextKey);
+    if (containerRootToDelete != null) {
+        FileSystemUtils.deleteRecursively(containerRootToDelete);
     }
 
 
@@ -686,7 +739,7 @@ public class PacketMakerService {
 		return result;
 	}
 
-	public synchronized boolean zipAndEncrypt(Path zipSrcFolder, String contextKey) throws Exception {
+	public boolean zipAndEncrypt(Path zipSrcFolder, String contextKey) throws Exception {
 		Path finalZipFile = Path.of(zipSrcFolder + UNENCZIP);
 		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 		String machineId = VariableManager.getVariableValue(contextKey, "machineid").toString();
@@ -713,8 +766,7 @@ public class PacketMakerService {
 	}
 
 	private boolean writeJSONFile(Map<?, ?> jsonValue, String fileToWrite) {
-		ObjectMapper objectMapper = new ObjectMapper();
-		ObjectWriter jsonWriter = objectMapper.writer();
+		ObjectWriter jsonWriter = JSON_MAPPER.writer();
 		final int BUFFER_SIZE = 32 * 1024;
 		try (FileOutputStream fos = new FileOutputStream(fileToWrite);
 				BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER_SIZE);
@@ -732,8 +784,8 @@ public class PacketMakerService {
 	}
 
 	private String getProcessRoot(String containerRootFolder, String contextKey) {
-		return Path.of(containerRootFolder, src, VariableManager.getVariableValue(contextKey, "process").toString())
-				.toString();
+		return Path.of(containerRootFolder, activeTemplateSource(),
+				VariableManager.getVariableValue(contextKey, "process").toString()).toString();
 	}
 
 	private String getPacketRoot(String processRootFolder, String rid, String type) {
@@ -759,7 +811,7 @@ public class PacketMakerService {
 	}
 
 	private void setupTemplateName(String templateRootPath, String regId, String contextKey) throws SecurityException {
-		String finalPath = templateRootPath + File.separator + src + File.separator
+		String finalPath = templateRootPath + File.separator + activeTemplateSource() + File.separator
 				+ VariableManager.getVariableValue(contextKey, "process").toString();
 		File rootFolder = new File(finalPath);
 		File[] listFiles = rootFolder.listFiles();
@@ -789,7 +841,7 @@ public class PacketMakerService {
 		metaData.put("encryptedhash", encryptedHash);
 		metaData.put("signature", signature);
 		metaData.put("id", rid);
-		metaData.put("source", src);
+		metaData.put("source", activeTemplateSource());
 		metaData.put("packetname", rid + UNDERSCORE + type);
 
 		File containerMetaDataTemp = File.createTempFile("pkm", ".cm");
@@ -885,8 +937,8 @@ public class PacketMakerService {
 		SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHHmmss");
 		f.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String currUTCTime = f.format(new Date());
-		++counter;
-		return centerId + machineId + counter + currUTCTime;
+		int seq = regIdSequence.incrementAndGet();
+		return centerId + machineId + seq + currUTCTime;
 	}
 
 	private LinkedList<String> updateHashSequence1(String packetRootFolder) throws Exception {

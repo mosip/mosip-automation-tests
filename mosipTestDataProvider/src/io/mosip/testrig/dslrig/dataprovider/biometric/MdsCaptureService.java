@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,13 @@ public final class MdsCaptureService {
 
 	private static final Logger logger = LoggerFactory.getLogger(MdsCaptureService.class);
 
+	private static final ConcurrentHashMap<String, Object> MDS_CONTEXT_LOCKS = new ConcurrentHashMap<>();
+
+	private static Object mdsLockFor(String contextKey) {
+		String key = contextKey == null ? "default" : contextKey;
+		return MDS_CONTEXT_LOCKS.computeIfAbsent(key, k -> new Object());
+	}
+
 	private static final String FALSE = "false";
 	private static final String LEFTEYE = "leftEye";
 	private static final String RIGHTEYE = "rightEye";
@@ -50,6 +58,13 @@ public final class MdsCaptureService {
 	}
 
 	public static MDSRCaptureModel regenBiometricViaMDS(ResidentModel resident, String contextKey, String purpose,
+			String qualityScore, String process) throws Exception {
+		synchronized (mdsLockFor(contextKey)) {
+			return regenBiometricViaMDSUnderLock(resident, contextKey, purpose, qualityScore, process);
+		}
+	}
+
+	private static MDSRCaptureModel regenBiometricViaMDSUnderLock(ResidentModel resident, String contextKey, String purpose,
 			String qualityScore, String process) throws Exception {
 		CentralizedMockSBI.stopSBI(contextKey);
 		BiometricDataModel biodata = null;
