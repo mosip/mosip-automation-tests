@@ -892,6 +892,9 @@ public class PacketSyncService {
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
 		logger.info("Template generation started at time: " + System.currentTimeMillis());
+		if (process != null) {
+			VariableManager.setVariableValue(contextKey, "process", process);
+		}
 		if (PacketTemplateCache.isEnabled(contextKey)) {
 			try {
 				String cacheKey = PacketTemplateCache.buildKey(contextKey, process, qualityScore, genarateValidCbeff,
@@ -912,9 +915,6 @@ public class PacketSyncService {
 		JSONArray packetPaths = new JSONArray();
 
 		RestClient.logInfo(contextKey, "createPacketTemplates->outDir:" + outDir);
-		if (process != null) {
-			VariableManager.setVariableValue(contextKey, "process", process);
-		}
 		if (outDir == null || outDir.trim().equals("")) {
 			packetDir = Files.createTempDirectory("packets_");
 			String newPacketPath = packetDir.toFile().getAbsolutePath();

@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 final class DslPacketTemplateCache {
 
+	private static final int MAX_ENTRIES = 256;
 	private static final ConcurrentHashMap<String, String> RESPONSE_CACHE = new ConcurrentHashMap<>();
 
 	private DslPacketTemplateCache() {
@@ -45,6 +47,23 @@ final class DslPacketTemplateCache {
 	static void put(String cacheKey, String responseJson) {
 		if (cacheKey != null && responseJson != null && !responseJson.isBlank()) {
 			RESPONSE_CACHE.put(cacheKey, responseJson);
+			evictIfNeeded();
+		}
+	}
+
+	static void clear() {
+		RESPONSE_CACHE.clear();
+	}
+
+	private static void evictIfNeeded() {
+		int overflow = RESPONSE_CACHE.size() - MAX_ENTRIES;
+		if (overflow <= 0) {
+			return;
+		}
+		Iterator<String> keys = RESPONSE_CACHE.keySet().iterator();
+		while (overflow > 0 && keys.hasNext()) {
+			RESPONSE_CACHE.remove(keys.next());
+			overflow--;
 		}
 	}
 }

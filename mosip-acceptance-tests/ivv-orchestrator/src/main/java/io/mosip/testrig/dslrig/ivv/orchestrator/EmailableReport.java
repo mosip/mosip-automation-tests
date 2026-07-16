@@ -340,7 +340,18 @@ public class EmailableReport implements IReporter {
 	}
 
 	public static String getExecutionTime() {
-		long duration = BaseTestCaseUtil.exectionEndTime - BaseTestCaseUtil.exectionStartTime;
+		long startTime = BaseTestCaseUtil.exectionStartTime;
+		long endTime = BaseTestCaseUtil.exectionEndTime;
+		// Fallback when @AfterSuite has not set end time yet (e.g. report runs first,
+		// or suite exited early). Always prefer a positive wall-clock duration.
+		if (endTime <= 0L) {
+			endTime = System.currentTimeMillis();
+			BaseTestCaseUtil.exectionEndTime = endTime;
+		}
+		if (startTime <= 0L) {
+			return "00:00:00";
+		}
+		long duration = Math.max(0L, endTime - startTime);
 		long totalSeconds = duration / 1000;
 		long seconds = totalSeconds % 60;
 		long totalMinutes = totalSeconds / 60;

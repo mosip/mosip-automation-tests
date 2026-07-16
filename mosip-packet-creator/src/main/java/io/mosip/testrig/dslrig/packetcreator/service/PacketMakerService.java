@@ -349,7 +349,8 @@ public class PacketMakerService {
 			logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
 		JSONObject retObj = new JSONObject();
 		retObj.put("packet", packetPath);
-		retObj.put("regId", newRegId);
+		String regId = packetPath != null ? getRegIdFromPacketPath(packetPath) : getNewRegId();
+		retObj.put("regId", regId);
 
 		return retObj.toString();
 	}
@@ -414,7 +415,7 @@ public class PacketMakerService {
 					try {
 						Files.copy(sourceprereg, target, StandardCopyOption.REPLACE_EXISTING);
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.error("Failed to copy pre-reg document {} -> {}", sourceprereg, target, e);
 					}
 				}
 			}
@@ -612,20 +613,20 @@ public class PacketMakerService {
 			updatePacketMetaInfo(identityObj, OPERATIONSDATA, "supervisorPassword", supervisorP, false);
 
 
-			officerBiometricFileName = p.getProperty("mosip.test.regclient.officerBiometricFileName");
-			if (officerBiometricFileName != null && officerBiometricFileName.length() > 1) {
-			} else
-				officerBiometricFileName = null;
-			updatePacketMetaInfo(identityObj, OPERATIONSDATA, "officerBiometricFileName", officerBiometricFileName,
+			String officerBioFileName = p.getProperty("mosip.test.regclient.officerBiometricFileName");
+			if (officerBioFileName == null || officerBioFileName.length() <= 1) {
+				officerBioFileName = null;
+			}
+			updatePacketMetaInfo(identityObj, OPERATIONSDATA, "officerBiometricFileName", officerBioFileName,
 					false);
 
 
-			supervisorBiometricFileName = p.getProperty("mosip.test.regclient.supervisorBiometricFileName");
-			if (supervisorBiometricFileName != null && supervisorBiometricFileName.length() > 1) {
-			} else
-				supervisorBiometricFileName = null;
+			String supervisorBioFileName = p.getProperty("mosip.test.regclient.supervisorBiometricFileName");
+			if (supervisorBioFileName == null || supervisorBioFileName.length() <= 1) {
+				supervisorBioFileName = null;
+			}
 			updatePacketMetaInfo(identityObj, OPERATIONSDATA, "supervisorBiometricFileName",
-					supervisorBiometricFileName, false);
+					supervisorBioFileName, false);
 			CommonUtil.write(metaPath, metaJsonObject.toString().getBytes(UTF8));
 			updateAudit(packetRootFolder, regId, contextKey);
 
