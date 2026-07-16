@@ -347,6 +347,10 @@ public class PacketSyncService {
 					process,
 					preregId, contextKey, true, additionalInfoReqId, targetDirectory);
 
+			if (personaPath != null && shouldPadPacketForLargeFace(personaPath)) {
+				padPacketToDefaultMinSizeIfAvailable(packetPath);
+			}
+
 			try {
 				byte[] packetBytes = CommonUtil.read(packetPath);
 				VariableManager.setVariableValue(contextKey, "cachedPacketHash", cryptoUtil.getHexEncodedHash(packetBytes));
@@ -454,6 +458,31 @@ public class PacketSyncService {
 		}
 		return ex.getMessage().contains("RPR-PKR-001")
 				|| ex.getMessage().contains("Packet Not Found in Sync Table");
+	}
+
+	private boolean shouldPadPacketForLargeFace(String personaPath) {
+		try {
+			Class<?> utilClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.util.PacketSizeUtil");
+			Object result = utilClass.getMethod("isLargeFaceRequested", String.class).invoke(null, personaPath);
+			return result instanceof Boolean && (Boolean) result;
+		} catch (ClassNotFoundException e) {
+			logger.debug("PacketSizeUtil not available on classpath; skipping packet-size checks");
+		} catch (Exception e) {
+			logger.warn("Failed to evaluate large-face packet-size rule", e);
+		}
+		return false;
+	}
+
+	private void padPacketToDefaultMinSizeIfAvailable(String packetPath) {
+		try {
+			Class<?> utilClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.util.PacketSizeUtil");
+			int defaultMinBytes = utilClass.getField("DEFAULT_MIN_PACKET_BYTES").getInt(null);
+			utilClass.getMethod("padFileToMinSize", String.class, int.class).invoke(null, packetPath, defaultMinBytes);
+		} catch (ClassNotFoundException e) {
+			logger.debug("PacketSizeUtil not available on classpath; skipping packet padding");
+		} catch (Exception e) {
+			logger.warn("Failed to pad packet to minimum size", e);
+		}
 	}
 
 	public Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {

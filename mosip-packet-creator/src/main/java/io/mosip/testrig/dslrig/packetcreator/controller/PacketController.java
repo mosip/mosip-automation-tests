@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.testrig.apirig.utils.ErrorCodes;
-import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.packetcreator.dto.ExternalPacketRequestDTO;
@@ -30,6 +29,7 @@ import io.mosip.testrig.dslrig.packetcreator.dto.SyncRidDto;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketMakerService;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
+import io.mosip.testrig.dslrig.packetcreator.util.DataProviderResourceConfigurer;
 import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -67,9 +67,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.setResource(personaConfigPath);
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetMakerService.createPacketFromTemplate(requestDto.getPersonaFilePath().get(0),
 					requestDto.getPersonaFilePath().get(1), contextKey, requestDto.getAdditionalInfoReqId());
@@ -97,9 +95,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.setResource(personaConfigPath);
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetSyncService.createPacketTemplates(requestDto.getPersonaFilePath(), process, null, null,
 					contextKey, "Registration", qualityScore, genarateValidCbeff);
@@ -123,9 +119,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.setResource(personaConfigPath);
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetSyncService.bulkuploadPackets(packetPaths, contextKey);
 
@@ -151,9 +145,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.setResource(personaConfigPath);
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetSyncService.makePacketAndSync(preregId, null, null, contextKey, null, getRidFromSync, true)
 					.toString();
@@ -266,9 +258,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.setResource(personaConfigPath);
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 			if (preRegisterRequestDto.getPersonaFilePath().size() == 0) {
 				return "{\"Missing Template\"}";
 			}
@@ -327,9 +317,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.setResource(personaConfigPath);
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetSyncService.createPacketUpload(requestDto.getPersonaFilePath(),requestDto.getSource(), process, requestDto.getUin(), rid,
 					validateToken,contextKey);
@@ -353,9 +341,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.setResource(personaConfigPath);
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetSyncService.syncAndUpload(rid, contextKey);
 
