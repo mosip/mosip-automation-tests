@@ -104,7 +104,8 @@ public class GetBioModalityHash extends BaseTestCaseUtil implements StepInterfac
 			step.getScenario().getVariables().put(step.getOutVarName(), modalityHashValueMap.toString());
 			logger.info(step.getScenario().getVariables().get(modalityHashValueMap.toString()));
 		} else {
-			hashtable.put(personaId, modalityHashValueMap);
+			// Scope by scenario so parallel threads with the same personaId ("1") do not overwrite each other.
+			hashtable.put(scenarioScopedPersonaKey(step.getScenario().getId(), personaId), modalityHashValueMap);
 		}
 
 	}

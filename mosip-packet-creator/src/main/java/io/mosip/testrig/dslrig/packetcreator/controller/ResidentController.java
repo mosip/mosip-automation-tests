@@ -44,7 +44,7 @@ public class ResidentController {
 			@PathVariable("contextKey") String contextKey) {
 
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
-			DataProviderConstants.RESOURCE = personaConfigPath;
+			DataProviderConstants.setResource(personaConfigPath);
 		}
 		try {
 			return residentService.getRIDStatus(rid, contextKey);
@@ -65,7 +65,7 @@ public class ResidentController {
 		String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
 
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
-			DataProviderConstants.RESOURCE = personaConfigPath;
+			DataProviderConstants.setResource(personaConfigPath);
 		}
 
 		try {
@@ -91,7 +91,7 @@ public class ResidentController {
 		String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
 
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
-			DataProviderConstants.RESOURCE = personaConfigPath;
+			DataProviderConstants.setResource(personaConfigPath);
 		}
 
 		try {
@@ -113,7 +113,7 @@ public class ResidentController {
 	public @ResponseBody String getAdditionalInfoReqId(@PathVariable("contextKey") String contextKey) {
 
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
-			DataProviderConstants.RESOURCE = personaConfigPath;
+			DataProviderConstants.setResource(personaConfigPath);
 		}
 		try {
 			List<String> getadditionalInfoReqIds = ReadEmail.getadditionalInfoReqIds();
@@ -137,7 +137,7 @@ public class ResidentController {
 			@PathVariable("contextKey") String contextKey) {
 		String r = null;
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
-			DataProviderConstants.RESOURCE = personaConfigPath;
+			DataProviderConstants.setResource(personaConfigPath);
 		}
 
 		try {

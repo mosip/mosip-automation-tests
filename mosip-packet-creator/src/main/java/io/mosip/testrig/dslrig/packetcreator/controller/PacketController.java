@@ -68,7 +68,7 @@ public class PacketController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 
 			return packetMakerService.createPacketFromTemplate(requestDto.getPersonaFilePath().get(0),
@@ -98,7 +98,7 @@ public class PacketController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 
 			return packetSyncService.createPacketTemplates(requestDto.getPersonaFilePath(), process, null, null,
@@ -124,7 +124,7 @@ public class PacketController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 
 			return packetSyncService.bulkuploadPackets(packetPaths, contextKey);
@@ -152,7 +152,7 @@ public class PacketController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 
 			return packetSyncService.makePacketAndSync(preregId, null, null, contextKey, null, getRidFromSync, true)
@@ -267,7 +267,7 @@ public class PacketController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			if (preRegisterRequestDto.getPersonaFilePath().size() == 0) {
 				return "{\"Missing Template\"}";
@@ -328,7 +328,7 @@ public class PacketController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 
 			return packetSyncService.createPacketUpload(requestDto.getPersonaFilePath(),requestDto.getSource(), process, requestDto.getUin(), rid,
@@ -354,7 +354,7 @@ public class PacketController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 
 			return packetSyncService.syncAndUpload(rid, contextKey);

@@ -186,6 +186,13 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static PacketUtility packetUtility = new PacketUtility();
 	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
 
+	/** Key for {@link #hashtable} that is unique across parallel scenarios. */
+	public static String scenarioScopedPersonaKey(String scenarioId, String personaId) {
+		String sid = (scenarioId == null || scenarioId.isBlank()) ? "unknown" : scenarioId;
+		String pid = (personaId == null || personaId.isBlank()) ? "-1" : personaId;
+		return sid + ":" + pid;
+	}
+
 	public static Map<String, String> sceanrioExecutionStatistics = Collections
 			.synchronizedMap(new HashMap<String, String>());
 
