@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.LongAdder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +19,6 @@ public final class DslStepTimingCollector {
 	private static final Logger logger = LoggerFactory.getLogger(DslStepTimingCollector.class);
 
 	private static final ConcurrentHashMap<String, ConcurrentLinkedQueue<Long>> SAMPLES = new ConcurrentHashMap<>();
-	private static final ConcurrentHashMap<String, LongAdder> TOTAL_MS = new ConcurrentHashMap<>();
-	private static final ConcurrentHashMap<String, LongAdder> COUNT = new ConcurrentHashMap<>();
 
 	private DslStepTimingCollector() {
 	}
@@ -36,8 +32,6 @@ public final class DslStepTimingCollector {
 			return;
 		}
 		SAMPLES.computeIfAbsent(stepName, k -> new ConcurrentLinkedQueue<>()).add(durationMs);
-		TOTAL_MS.computeIfAbsent(stepName, k -> new LongAdder()).add(durationMs);
-		COUNT.computeIfAbsent(stepName, k -> new LongAdder()).increment();
 
 		logger.info(
 				"DSL_TIMING step={} scenarioId={} threadId={} durationMs={} httpMs={} serverMs={}",
@@ -85,8 +79,6 @@ public final class DslStepTimingCollector {
 
 	public static void clear() {
 		SAMPLES.clear();
-		TOTAL_MS.clear();
-		COUNT.clear();
 	}
 
 	private static long percentile(List<Long> sorted, int pct) {

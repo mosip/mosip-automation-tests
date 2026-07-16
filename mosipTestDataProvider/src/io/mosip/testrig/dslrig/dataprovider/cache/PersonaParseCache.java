@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,7 +23,9 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
  */
 public final class PersonaParseCache {
 
+	private static final Logger logger = LoggerFactory.getLogger(PersonaParseCache.class);
 	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final int MAX_ENTRIES = 256;
 
 	private static final ConcurrentHashMap<String, byte[]> BYTES_CACHE = new ConcurrentHashMap<>();
 
@@ -32,8 +38,9 @@ public final class PersonaParseCache {
 			if (flag != null && Boolean.parseBoolean(flag.toString())) {
 				return false;
 			}
-		} catch (Exception ignored) {
-			// default enabled
+		} catch (Exception e) {
+			logger.debug("disablePersonaParseCache lookup failed for context {}; defaulting to enabled",
+					contextKey, e);
 		}
 		return true;
 	}
@@ -51,6 +58,7 @@ public final class PersonaParseCache {
 			} else {
 				bytes = CommonUtil.read(absolute.toString());
 				BYTES_CACHE.putIfAbsent(cacheKey, bytes);
+				evictIfNeeded();
 			}
 		} else {
 			bytes = CommonUtil.read(absolute.toString());
@@ -63,5 +71,17 @@ public final class PersonaParseCache {
 
 	public static void clear() {
 		BYTES_CACHE.clear();
+	}
+
+	private static void evictIfNeeded() {
+		int overflow = BYTES_CACHE.size() - MAX_ENTRIES;
+		if (overflow <= 0) {
+			return;
+		}
+		Iterator<String> keys = BYTES_CACHE.keySet().iterator();
+		while (overflow > 0 && keys.hasNext()) {
+			BYTES_CACHE.remove(keys.next());
+			overflow--;
+		}
 	}
 }

@@ -135,6 +135,9 @@ public class Orchestrator {
 		completedScenarioCount.set(0);
 		executableScenarioCount = 0;
 
+		DslStepTimingCollector.clear();
+		DslPacketTemplateCache.clear();
+
 		suiteStartTime = System.currentTimeMillis();
 		BaseTestCaseUtil.exectionStartTime = suiteStartTime;
 		logger.info("Suite start time is: " + BaseTestCaseUtil.exectionStartTime);
@@ -176,14 +179,13 @@ public class Orchestrator {
 
 	@AfterSuite
 	public void afterSuite() {
-		if (dslConfigManager.IsDebugEnabled()) {
-			logger.info("Skipping afterSuite because enableDebug=yes");
-			return;
-		}
 		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
 		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
 		DslStepTimingCollector.logReport();
 		extent.flush();
+		if (dslConfigManager.IsDebugEnabled()) {
+			logger.info("Debug mode enabled; suite teardown limited to timing report and extent flush");
+		}
 	}
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)

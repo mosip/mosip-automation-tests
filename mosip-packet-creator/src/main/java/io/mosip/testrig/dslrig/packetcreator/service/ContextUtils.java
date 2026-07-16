@@ -45,7 +45,10 @@ public class ContextUtils {
 	private static final ConcurrentHashMap<String, Properties> SERVER_CONTEXT_CACHE = new ConcurrentHashMap<>();
 
 	public Properties loadServerContext(String ctxName) {
-		return SERVER_CONTEXT_CACHE.computeIfAbsent(ctxName, this::loadServerContextFromDisk);
+		Properties cached = SERVER_CONTEXT_CACHE.computeIfAbsent(ctxName, this::loadServerContextFromDisk);
+		Properties copy = new Properties();
+		copy.putAll(cached);
+		return copy;
 	}
 
 	private Properties loadServerContextFromDisk(String ctxName) {

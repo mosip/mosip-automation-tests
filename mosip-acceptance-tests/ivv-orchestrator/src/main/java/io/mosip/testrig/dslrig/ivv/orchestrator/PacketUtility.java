@@ -729,7 +729,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String url = baseUrl + "/packet/sync/01/" + true; 
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, true, invalidMachineFlag);
+				getRidFromSync, true, invalidMachineFlag, "generateAndUploadPacketWrongHash");
 	}
 
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
@@ -738,7 +738,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; 
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, true,invalidMachineFlag);
+				getRidFromSync, true, invalidMachineFlag, "generateAndUploadPacketSkippingPrereg");
 
 	}
 
@@ -748,16 +748,24 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; 
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, false,invalidMachineFlag);
+				getRidFromSync, false, invalidMachineFlag, "generateAndUploadWithInvalidCbeffPacketSkippingPrereg");
 
 	}
 
 	public String getRID(String url, String packetPath, String residentPath, String additionalInfoReqId,
 			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync,
 			boolean genarateValidCbeff, String invalidMachineFlag) throws RigInternalError {
+		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
+				getRidFromSync, genarateValidCbeff, invalidMachineFlag, "generateAndUploadPacketSkippingPrereg");
+	}
+
+	public String getRID(String url, String packetPath, String residentPath, String additionalInfoReqId,
+			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync,
+			boolean genarateValidCbeff, String invalidMachineFlag, String timingLabel) throws RigInternalError {
 		String scenarioId = step != null && step.getScenario() != null ? step.getScenario().getId() : null;
-		try (DslStepTimingCollector.TimingScope timing = DslStepTimingCollector
-				.start("generateAndUploadPacketSkippingPrereg").scenarioId(scenarioId)) {
+		String label = (timingLabel == null || timingLabel.isBlank()) ? "generateAndUploadPacketSkippingPrereg"
+				: timingLabel;
+		try (DslStepTimingCollector.TimingScope timing = DslStepTimingCollector.start(label).scenarioId(scenarioId)) {
 			String rid = null;
 			if (genarateValidCbeff)
 				url += "/1";

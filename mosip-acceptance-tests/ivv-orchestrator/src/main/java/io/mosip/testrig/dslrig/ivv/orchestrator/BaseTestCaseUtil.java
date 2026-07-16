@@ -458,6 +458,9 @@ public class BaseTestCaseUtil extends BaseStep {
 		if (value == null || value.isBlank()) {
 			value = props.getProperty("loopCount");
 		}
+		if (value == null || value.isBlank()) {
+			return 3;
+		}
 		try {
 			int parsed = Integer.parseInt(value.trim());
 			return parsed > 0 ? parsed : 1;
