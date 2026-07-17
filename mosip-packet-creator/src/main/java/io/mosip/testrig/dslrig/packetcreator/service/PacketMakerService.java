@@ -190,6 +190,7 @@ public class PacketMakerService {
 	private ContextUtils contextUtils;
 
 	private PacketSyncService packetSyncService;
+
 	private String newRegId;
 
 	@Value("${mosip.version:1.2}")
@@ -296,9 +297,6 @@ public class PacketMakerService {
 			if (tprocess != null)
 				process = tprocess;
 		}
-		if (process != null && !process.isBlank() && contextKey != null && !contextKey.isBlank()) {
-			VariableManager.setVariableValue(contextKey, "process", process);
-		}
 		RestClient.logInfo(contextKey, "packPacketContainer:src=" + activeTemplateSource() + ",process=" + process + "PacketRoot="
 				+ tempPacketRootFolder + " regid=" + regId);
 		try {
@@ -398,12 +396,6 @@ public class PacketMakerService {
 				if (tprocess != null) {
 					process = tprocess;
 				}
-			}
-			// Keep VariableManager in sync with the template process. Otherwise stale
-			// values (e.g. NEW after a cached UPDATE template) make getProcessRoot /
-			// setupTemplateName look under the wrong folder and miss packet_meta_info.json.
-			if (process != null && !process.isBlank() && contextKey != null && !contextKey.isBlank()) {
-				VariableManager.setVariableValue(contextKey, "process", process);
 			}
 			if (preRegPacketLocation != null) {
 				List<String> files = getDemographicDocFiles(preRegPacketLocation.getAbsolutePath());

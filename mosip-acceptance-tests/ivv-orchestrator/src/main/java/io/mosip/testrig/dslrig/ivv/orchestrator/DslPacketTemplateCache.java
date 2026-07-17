@@ -27,12 +27,23 @@ final class DslPacketTemplateCache {
 		return flag == null || !flag.equalsIgnoreCase("true");
 	}
 
+	/**
+	 * Builds a cache key from the persona file paths and their local modification
+	 * timestamps. Returns {@code null} if any persona file is not accessible on the
+	 * orchestrator's local filesystem (e.g. Docker, where persona files live inside
+	 * the packet-creator container). A {@code null} return tells the caller to skip
+	 * both the cache lookup and the cache store, preventing stale template hits when
+	 * the same persona is reused across multiple packet operations in a scenario.
+	 */
 	static String buildKey(String contextKey, String process, String qualityScore, boolean generateValidCbeff,
 			List<String> personaFilePaths) throws IOException {
 		List<String> normalized = new ArrayList<>(personaFilePaths.size());
 		for (String path : personaFilePaths) {
 			Path p = Paths.get(path).toAbsolutePath().normalize();
-			long modified = Files.exists(p) ? Files.getLastModifiedTime(p).toMillis() : 0L;
+			if (!Files.exists(p)) {
+				return null;
+			}
+			long modified = Files.getLastModifiedTime(p).toMillis();
 			normalized.add(p + "@" + modified);
 		}
 		Collections.sort(normalized);
@@ -41,6 +52,9 @@ final class DslPacketTemplateCache {
 	}
 
 	static String get(String cacheKey) {
+		if (cacheKey == null) {
+			return null;
+		}
 		return RESPONSE_CACHE.get(cacheKey);
 	}
 
@@ -53,30 +67,6 @@ final class DslPacketTemplateCache {
 
 	static void clear() {
 		RESPONSE_CACHE.clear();
-	}
-
-	/**
-	 * Drop cached templates for personas that were modified. On Docker, persona paths are
-	 * remote so mtime in {@link #buildKey} stays 0 and a later getPacketTemplate would
-	 * otherwise reuse a stale response (step appears skipped in the report).
-	 */
-	static void invalidateForPersonaPaths(String... personaPaths) {
-		if (personaPaths == null || personaPaths.length == 0 || RESPONSE_CACHE.isEmpty()) {
-			return;
-		}
-		for (String path : personaPaths) {
-			if (path == null || path.isBlank()) {
-				continue;
-			}
-			String needle;
-			try {
-				needle = Paths.get(path).toAbsolutePath().normalize().toString();
-			} catch (Exception e) {
-				needle = path.trim();
-			}
-			final String match = needle;
-			RESPONSE_CACHE.keySet().removeIf(key -> key != null && key.contains(match));
-		}
 	}
 
 	private static void evictIfNeeded() {
