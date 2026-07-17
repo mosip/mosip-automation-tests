@@ -55,6 +55,30 @@ final class DslPacketTemplateCache {
 		RESPONSE_CACHE.clear();
 	}
 
+	/**
+	 * Drop cached templates for personas that were modified. On Docker, persona paths are
+	 * remote so mtime in {@link #buildKey} stays 0 and a later getPacketTemplate would
+	 * otherwise reuse a stale response (step appears skipped in the report).
+	 */
+	static void invalidateForPersonaPaths(String... personaPaths) {
+		if (personaPaths == null || personaPaths.length == 0 || RESPONSE_CACHE.isEmpty()) {
+			return;
+		}
+		for (String path : personaPaths) {
+			if (path == null || path.isBlank()) {
+				continue;
+			}
+			String needle;
+			try {
+				needle = Paths.get(path).toAbsolutePath().normalize().toString();
+			} catch (Exception e) {
+				needle = path.trim();
+			}
+			final String match = needle;
+			RESPONSE_CACHE.keySet().removeIf(key -> key != null && key.contains(match));
+		}
+	}
+
 	private static void evictIfNeeded() {
 		int overflow = RESPONSE_CACHE.size() - MAX_ENTRIES;
 		if (overflow <= 0) {
