@@ -140,8 +140,13 @@ public class EmailableReport implements IReporter {
 					// baseline in Docker) does not skip the error report.
 					uploadReportToS3(s3Adapter, "Main report", newString, newReportFile);
 
-					File extentReport = new File(BaseTestCaseUtil.getExtentReportName());
-					uploadReportToS3(s3Adapter, "Extent report", "ExtentReport-" + newString, extentReport);
+					String extentReportName = BaseTestCaseUtil.getExtentReportName();
+					if (extentReportName != null) {
+						uploadReportToS3(s3Adapter, "Extent report", "ExtentReport-" + newString,
+								new File(extentReportName));
+					} else {
+						logger.warn("Extent report name is null; skipping S3 upload for extent report");
+					}
 
 					if (excelFilePath != null) {
 						uploadReportToS3(s3Adapter, "Excel report", "comparison_vs_BASE_LINE.xlsx",

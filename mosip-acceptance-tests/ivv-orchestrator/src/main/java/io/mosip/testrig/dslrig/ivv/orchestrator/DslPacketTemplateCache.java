@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Orchestrator-side cache for packet template HTTP responses (avoids duplicate
@@ -17,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class DslPacketTemplateCache {
 
+	private static final Logger logger = LoggerFactory.getLogger(DslPacketTemplateCache.class);
 	private static final int MAX_ENTRIES = 256;
 	private static final ConcurrentHashMap<String, String> RESPONSE_CACHE = new ConcurrentHashMap<>();
 
@@ -82,7 +85,7 @@ public final class DslPacketTemplateCache {
 			Path p = Paths.get(personaPath).toAbsolutePath().normalize();
 			UPDATE_COUNTERS.computeIfAbsent(p.toString(), k -> new AtomicInteger(0)).incrementAndGet();
 		} catch (Exception e) {
-			// ignore malformed paths
+			logger.warn("Ignoring malformed persona path '{}': {}", personaPath, e.getMessage());
 		}
 	}
 

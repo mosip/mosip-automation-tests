@@ -29,5 +29,5 @@ done
 IFS=$' \t\n'
 
 java --version
-echo "JDK_JAVA_OPTIONS=${JDK_JAVA_OPTIONS:-<unset>}"
+if [ -n "${JDK_JAVA_OPTIONS:-}" ]; then echo "JDK_JAVA_OPTIONS is set"; else echo "JDK_JAVA_OPTIONS is not set"; fi
 java -Dfile.encoding=UTF-8 -jar dslrig-packetcreator-*.jar --spring.config.location=./config/application.properties
