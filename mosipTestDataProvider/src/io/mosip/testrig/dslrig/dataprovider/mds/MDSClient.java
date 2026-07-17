@@ -123,8 +123,7 @@ public class MDSClient implements MDSClientInterface {
 
 				IrisDataModel iris = resident.getBiometric().getIris();
 				if (iris != null) {
-					logger.info("IRIS_DATA : " + iris);
-					logger.info("IRIS_DATA_PATH : " + profDir + "/" + "Left_Iris.iso");
+						logger.info("IRIS_DATA_PATH : " + profDir + "/" + "Left_Iris.iso");
 					if (logger.isDebugEnabled() && iris.getRawLeft() != null) {
 						logger.debug("IRIS_RAW_DATA_left size={} bytes", iris.getRawLeft().length);
 					}

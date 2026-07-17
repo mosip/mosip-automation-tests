@@ -32,7 +32,7 @@ public class DeleteMockExpect extends BaseTestCaseUtil implements StepInterface 
 		} else {
 			String[] hashValues = modalityHashValue.split(",");
 			for (String hashValue : hashValues) {
-				hashValue = hashValue.replaceAll("[A-Za-z ]+=", "").replace("{", "");
+				hashValue = hashValue.replaceAll("[A-Za-z ]+=", "").replace("{", "").replace("}", "");
 				url = baseUrl + props.getProperty("deleteMockExpectation") + "/" + hashValue;
 				Response response = deleteRequest(url, "deleteMockExpectation for hash value: " + hashValue, step);
 			}
