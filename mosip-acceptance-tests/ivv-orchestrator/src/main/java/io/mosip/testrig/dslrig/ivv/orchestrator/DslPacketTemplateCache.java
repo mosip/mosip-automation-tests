@@ -32,14 +32,7 @@ final class DslPacketTemplateCache {
 		List<String> normalized = new ArrayList<>(personaFilePaths.size());
 		for (String path : personaFilePaths) {
 			Path p = Paths.get(path).toAbsolutePath().normalize();
-			// Persona files live on packet-creator. In Docker the DSL JVM cannot see them, so
-			// mtime would always be 0 and a later getPacketTemplate for the same process+path
-			// (after updateDemo/updateResident/bioException) would cache-hit and skip the HTTP
-			// call — which is exactly what fails for scenarios 13/143/153/181 on Docker only.
-			if (!Files.exists(p)) {
-				throw new IOException("persona path not local; skip DSL template cache: " + p);
-			}
-			long modified = Files.getLastModifiedTime(p).toMillis();
+			long modified = Files.exists(p) ? Files.getLastModifiedTime(p).toMillis() : 0L;
 			normalized.add(p + "@" + modified);
 		}
 		Collections.sort(normalized);
