@@ -278,11 +278,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 					String cacheKey = DslPacketTemplateCache.buildKey(
 							BaseTestCaseUtil.buildPacketCreatorContextKey(step.getScenario()), process, qualityScore,
 							genarateValidCbeff, personaPaths);
-					if (cacheKey != null) {
-						String cached = DslPacketTemplateCache.get(cacheKey);
-						if (cached != null && cached.toLowerCase().contains("packets")) {
-							return new JSONObject(cached).getJSONArray("packets");
-						}
+					String cached = DslPacketTemplateCache.get(cacheKey);
+					if (cached != null && cached.toLowerCase().contains("packets")) {
+						return new JSONObject(cached).getJSONArray("packets");
 					}
 				} catch (Exception e) {
 					logger.info("Template cache lookup skipped: " + e.getMessage());
