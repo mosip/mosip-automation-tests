@@ -278,9 +278,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 					String cacheKey = DslPacketTemplateCache.buildKey(
 							BaseTestCaseUtil.buildPacketCreatorContextKey(step.getScenario()), process, qualityScore,
 							genarateValidCbeff, personaPaths);
-					String cached = DslPacketTemplateCache.get(cacheKey);
-					if (cached != null && cached.toLowerCase().contains("packets")) {
-						return new JSONObject(cached).getJSONArray("packets");
+					if (cacheKey != null) {
+						String cached = DslPacketTemplateCache.get(cacheKey);
+						if (cached != null && cached.toLowerCase().contains("packets")) {
+							return new JSONObject(cached).getJSONArray("packets");
+						}
 					}
 				} catch (Exception e) {
 					logger.info("Template cache lookup skipped: " + e.getMessage());
@@ -541,7 +543,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 			this.hasError = true;
 			throw new RigInternalError("Unable to add Resident RID in resident data");
 		}
-		DslPacketTemplateCache.invalidateForPersonaPaths(personaFilePath);
 		String ret = response.getBody().asString();
 		return ret;
 
@@ -569,7 +570,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 			this.hasError = true;
 			throw new RigInternalError("Unable to add UIN in resident data");
 		}
-		DslPacketTemplateCache.invalidateForPersonaPaths(personaFilePath);
 		String ret = response.getBody().asString();
 		return ret;
 
@@ -1236,7 +1236,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		        throw new RigInternalError("Failed to parse success from response for attributes: " + attributeList);
 		    }
 		}
-		DslPacketTemplateCache.invalidateForPersonaPaths(resFilePath);
 		return response.getBody().asString();
 
 	}
@@ -1278,7 +1277,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 			this.hasError = true;
 			throw new RigInternalError("Unable to update bio exception  from packet utility");
 		}
-		DslPacketTemplateCache.invalidateForPersonaPaths(resFilePath);
 	}
 
 	public String packetSync(String personaPath, HashMap<String, String> map, Scenario.Step step,
