@@ -440,7 +440,10 @@ public final class FileBiometricLoader {
 			RestClient.logInfo(contextKey, DIRPATH + srcPath);
 			File dir = new File(srcPath);
 
-			File listDir[] = dir.listFiles();
+			// Only count numeric subdirectories (e.g. "001", "002") — excludes the
+			// "output" directory left by IrisVariationGenerator after a previous run,
+			// which otherwise inflates the count and causes out-of-range impression picks.
+			File[] listDir = dir.listFiles(f -> f.isDirectory() && f.getName().matches("\\d+"));
 			if (listDir == null || listDir.length == 0) {
 				logger.error("No iris directories found in {}", srcPath);
 				return retVal;
@@ -520,7 +523,9 @@ public final class FileBiometricLoader {
 		RestClient.logInfo(contextKey, DIRPATH + srcPath);
 		File dir = new File(srcPath);
 
-		File listDir[] = dir.listFiles();
+		// Only count numeric subdirectories — excludes the "output" directory left
+		// by IrisVariationGenerator after a previous run (same fix as generateIris).
+		File[] listDir = dir.listFiles(f -> f.isDirectory() && f.getName().matches("\\d+"));
 		if (listDir == null || listDir.length == 0) {
 			logger.error("No iris directories found in {}", srcPath);
 			return retVal;
@@ -602,7 +607,9 @@ public final class FileBiometricLoader {
 		RestClient.logInfo(contextKey, DIRPATH + srcPath);
 
 		File dir = new File(srcPath);
-		File[] listDir = dir.listFiles();
+		// Only count numeric subdirectories — excludes the "output" directory left
+		// by IrisVariationGenerator after a previous run (same fix as generateIris).
+		File[] listDir = dir.listFiles(f -> f.isDirectory() && f.getName().matches("\\d+"));
 		if (listDir == null || listDir.length == 0) {
 			logger.error("No subdirectories found in {}", srcPath);
 			retVal.add(m);
