@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -83,6 +84,14 @@ public class PacketSyncService {
 
 	private static final String UNDERSCORE = "_";
 	private static final Logger logger = LoggerFactory.getLogger(PacketSyncService.class);
+
+	// MDS (Mock Device Service) allocates ports in the range 4501–4506, giving a
+	// hard limit of 6 concurrent biometric-generation sessions. A fair semaphore
+	// here prevents port exhaustion when more than 6 template requests arrive
+	// simultaneously: requests queue up and each waits for a slot rather than
+	// failing with "Socket Not available / Failed to generate biometric via mds".
+	private static final int MDS_MAX_CONCURRENT = Integer.getInteger("mds.max.concurrent", 6);
+	private static final Semaphore MDS_SEMAPHORE = new Semaphore(MDS_MAX_CONCURRENT, true);
 	private static final Queue<SlotEntry> slotQueue = new ConcurrentLinkedQueue<>();
 	private static final long SLOT_EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000;
 
@@ -988,10 +997,16 @@ public class PacketSyncService {
 						PersonaBiometricsAssembler.hintsFromResident(resident), contextKey);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				RestClient.logInfo(contextKey, "packetPath=" + packetPath);
-				String returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath,
-						preregId,
-						machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
-						genarateValidCbeff);
+				String returnMsg;
+				MDS_SEMAPHORE.acquire();
+				try {
+					returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath,
+							preregId,
+							machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
+							genarateValidCbeff);
+				} finally {
+					MDS_SEMAPHORE.release();
+				}
 				if (!returnMsg.equalsIgnoreCase("Success"))
 					return "{\"" + returnMsg + "\"}";
 
