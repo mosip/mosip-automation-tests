@@ -1508,8 +1508,8 @@ And I packetcreator where packet type is NEW, and template path is the saved chi
 And I ridsync where packet type is NEW, and packet zip path is child zip packet path and store result in child registration ID
 And I packetsync where packet zip path is parent zip packet path
 And I packetsync where packet zip path is child zip packet path
-And I check status where packet status is REREGISTER, and registration ID is the saved child registration ID
 And I check status where packet status is REREGISTER, and registration ID is the saved parent registration ID
+And I check status where packet status is REREGISTER, and registration ID is the saved child registration ID
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is ERROR
 Then I check ridstage where registration ID is the saved parent registration ID, and RID stage is VALIDATE_PACKET, and stage status is REJECTED
 And I delete packet data

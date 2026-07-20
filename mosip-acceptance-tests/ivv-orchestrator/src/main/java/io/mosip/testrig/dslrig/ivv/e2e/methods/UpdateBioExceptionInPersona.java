@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.DslPacketTemplateCache;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 public class UpdateBioExceptionInPersona extends BaseTestCaseUtil implements StepInterface {
@@ -57,6 +58,7 @@ public class UpdateBioExceptionInPersona extends BaseTestCaseUtil implements Ste
 		if (personaFilePath.startsWith("$$")) {
 			personaFilePath = step.getScenario().getVariables().get(personaFilePath);
 			packetUtility.updateBioException(personaFilePath, exceptionArray, step);
+			DslPacketTemplateCache.incrementUpdateCounter(personaFilePath);
 		}
 	}
 

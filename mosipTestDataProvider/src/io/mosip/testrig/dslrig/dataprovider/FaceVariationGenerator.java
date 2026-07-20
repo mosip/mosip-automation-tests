@@ -31,11 +31,25 @@ public final class FaceVariationGenerator {
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath") + "/output/"
 				+ currentScenarioNumber;
 
-		Files.createDirectories(Paths.get(outputUniqueFaceDataPath));
+		Path faceOutDir = Paths.get(outputUniqueFaceDataPath, "face");
+		// Clear leftovers so callers do not pick an older NONMATCH_* file under parallel/re-runs.
+		if (Files.isDirectory(faceOutDir)) {
+			try (var stream = Files.list(faceOutDir)) {
+				stream.forEach(p -> {
+					try {
+						Files.deleteIfExists(p);
+					} catch (Exception e) {
+						logger.warn("Unable to clear stale face file {}: {}", p, e.getMessage());
+					}
+				});
+			}
+		}
+		Files.createDirectories(faceOutDir);
 
 		generateNonMatchingFace(inputFaceTemplatePath, outputUniqueFaceDataPath, "face",
 				"face" + impressionToPick + ".png");
 
+		// Return the scenario output directory (callers list <dir>/face/).
 		return outputUniqueFaceDataPath;
 	}
 

@@ -37,8 +37,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
-import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
-
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogCollector;
@@ -54,6 +52,8 @@ import io.mosip.testrig.dslrig.packetcreator.service.CommandsService;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextResetService;
 
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
+
+import io.mosip.testrig.dslrig.packetcreator.util.DataProviderResourceConfigurer;
 
 import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 
@@ -118,11 +118,7 @@ public class ContextController {
 
 	    try {
 
-	        if (personaConfigPath != null && !personaConfigPath.isEmpty()) {
-
-	            DataProviderConstants.RESOURCE = personaConfigPath;
-
-	        }
+	        DataProviderResourceConfigurer.configure(personaConfigPath);
 
 
 	        String result = contextUtils.createUpdateServerContext(contextProperties, contextKey);
