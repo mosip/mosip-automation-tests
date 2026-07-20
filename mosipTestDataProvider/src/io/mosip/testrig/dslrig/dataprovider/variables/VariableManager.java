@@ -20,7 +20,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 
 public final class VariableManager {
 	private static final Logger logger = LoggerFactory.getLogger(VariableManager.class);
-	public static String CONFIG_PATH = DataProviderConstants.RESOURCE + "config/";
+	public static String CONFIG_PATH = DataProviderConstants.getResource() + "config/";
 	public static String NS_DEFAULT = "mosipdefault";
 
 	static ConcurrentHashMap<String, Cache<String, Object>> varNameSpaces;
@@ -54,7 +54,7 @@ public final class VariableManager {
 				Cache<String, Object> cache = cacheManager.createCache(NS_DEFAULT, cacheConfig);
 				varNameSpaces.put(NS_DEFAULT, cache);
 			}
-			CONFIG_PATH = DataProviderConstants.RESOURCE + "config/";
+			CONFIG_PATH = DataProviderConstants.getResource() + "config/";
 			Boolean bret = loadNamespaceFromPropertyFile(CONFIG_PATH + "default.properties", NS_DEFAULT);
 			bInit = bret;
 		}

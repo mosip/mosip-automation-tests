@@ -4,7 +4,7 @@
   "e2e_setContext": ["context key", "pre-requisite details", "generate private key", "registration status or invalidation flag", "negative test or signature flag", "change supervisor name flag", "invalid encrypted hash flag", "invalid checksum flag"],
   "e2e_getResidentData": ["resident count", "persona type", "guardian flag", "gender", "missing biometric fields"],
   "e2e_getResidentData#3": ["persona type", "guardian flag", "gender and biometric flags"],
-  "e2e_getResidentData#4": ["persona type", "guardian flag", "gender", "missing biometric fields"],
+  "e2e_getResidentData#4": ["persona type", "guardian flag", "gender", "large face or missing biometric fields"],
   "e2e_getPacketTemplate": ["packet type", "persona file path", "biometric quality score", "generate valid CBEFF"],
   "e2e_sendOtp": ["persona file path"],
   "e2e_validateOtp": ["persona file path", "email"],

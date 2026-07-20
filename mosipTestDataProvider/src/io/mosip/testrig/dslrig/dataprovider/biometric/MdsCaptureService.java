@@ -33,6 +33,11 @@ public final class MdsCaptureService {
 
 	private static final ConcurrentHashMap<String, Object> MDS_CONTEXT_LOCKS = new ConcurrentHashMap<>();
 
+	// CentralizedMockSBI.localStore is a plain HashMap (not thread-safe). All
+	// startSBI/stopSBI calls must be serialized through this global lock to prevent
+	// concurrent HashMap corruption when multiple scenarios run in parallel.
+	private static final Object SBI_MAP_LOCK = new Object();
+
 	private static Object mdsLockFor(String contextKey) {
 		String key = contextKey == null ? "default" : contextKey;
 		return MDS_CONTEXT_LOCKS.computeIfAbsent(key, k -> new Object());
@@ -66,7 +71,9 @@ public final class MdsCaptureService {
 
 	private static MDSRCaptureModel regenBiometricViaMDSUnderLock(ResidentModel resident, String contextKey, String purpose,
 			String qualityScore, String process) throws Exception {
-		CentralizedMockSBI.stopSBI(contextKey);
+		synchronized (SBI_MAP_LOCK) {
+			CentralizedMockSBI.stopSBI(contextKey);
+		}
 		BiometricDataModel biodata = null;
 		MDSRCaptureModel capture = null;
 
@@ -108,8 +115,10 @@ public final class MdsCaptureService {
 
 					while (maxLoopCount > 0) {
 						try {
-							port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device",
-									p12path.toString());
+							synchronized (SBI_MAP_LOCK) {
+								port = CentralizedMockSBI.startSBI(contextKey, "Registration", "Biometric Device",
+										p12path.toString());
+							}
 						} catch (Exception e) {
 							logger.error("Exception occured during startSBI " + contextKey, e);
 						}
@@ -355,7 +364,9 @@ public final class MdsCaptureService {
 		} finally {
 			MdsPortRegistry.remove(contextKey);
 			try {
-				CentralizedMockSBI.stopSBI(contextKey);
+				synchronized (SBI_MAP_LOCK) {
+					CentralizedMockSBI.stopSBI(contextKey);
+				}
 			} catch (Throwable t) {
 				logger.warn("Failed to stop SBI for context {}", contextKey, t);
 			}
