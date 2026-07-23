@@ -713,6 +713,8 @@ public class PacketMakerService {
         logger.error("Invalid zip path construction");
         return false;
     }
+    assertUnderAllowedRoot(zipPath, contextKey);
+    assertUnderAllowedRoot(unencZipPath, contextKey);
 
     byte[] zipBytes = Files.readAllBytes(zipPath);
     byte[] unencZipBytes = Files.readAllBytes(unencZipPath);
@@ -749,6 +751,7 @@ public class PacketMakerService {
         logger.error("Invalid container metadata path");
         return false;
     }
+    assertUnderAllowedRoot(containerMetaDataPath, contextKey);
 
     return fixContainerMetaData(containerMetaDataPath.toString(), regId, type, encryptedHash, signature, contextKey);
 }
@@ -767,6 +770,7 @@ public class PacketMakerService {
 
 		Path srcToDelete = validateUnderAllowedTempRoots(src, contextKey);
 		if (srcToDelete != null) {
+			assertUnderAllowedRoot(srcToDelete, contextKey);
 			Files.delete(srcToDelete);
 		}
 		return result;
