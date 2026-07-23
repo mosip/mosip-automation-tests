@@ -30,12 +30,12 @@ public final class PacketSizeUtil {
 	private PacketSizeUtil() {
 	}
 
-	public static boolean isLargeFaceRequested(String personaPath) {
+	public static boolean isLargeFaceRequested(String personaPath, String contextKey) {
 		if (personaPath == null || personaPath.isBlank()) {
 			return false;
 		}
 		try {
-			return isLargeFaceRequested(ResidentModel.readPersona(personaPath));
+			return isLargeFaceRequested(ResidentModel.readPersona(personaPath, contextKey));
 		} catch (IOException e) {
 			logger.warn("Could not read persona for large-face check: {}", e.getMessage());
 			return false;

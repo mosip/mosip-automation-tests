@@ -112,7 +112,13 @@ public class PacketMakerService {
 	private static final String CHANGESUPERVISORNAMETODIFFCASE = "changeSupervisorNameToDiffCase";
 
 	private static Path normalizeAbsolute(Path path) {
-		return path.toAbsolutePath().normalize();
+		Path absolute = path.toAbsolutePath().normalize();
+		try {
+			// Resolve symlinks so a link inside an allowed root cannot point outside it.
+			return absolute.toRealPath();
+		} catch (IOException e) {
+			return absolute;
+		}
 	}
 
 	private static Path getOsTempRoot() {
@@ -409,8 +415,14 @@ public class PacketMakerService {
 						originalFileName = originalFileName.replaceFirst("^[^_]*_", "");
 					}
 
+					Path templateRoot = Paths.get(templateLocation).toAbsolutePath().normalize();
 					Path target = Paths.get(templateLocation + File.separator + source + File.separator + processArg
-							+ File.separator + "rid_id", originalFileName);
+							+ File.separator + "rid_id", originalFileName).toAbsolutePath().normalize();
+
+					if (!target.startsWith(templateRoot)) {
+						logger.error("Refusing to copy pre-reg document outside template root: {}", target);
+						continue;
+					}
 
 					try {
 						Files.copy(sourceprereg, target, StandardCopyOption.REPLACE_EXISTING);
@@ -699,12 +711,18 @@ public class PacketMakerService {
     Path destination = Path.of(mountPath + tempPath, contextKey.replace(CONTEXT, ""),
             unencZipPath.getFileName().toString());
     CommonUtil.copyFileWithBuffer(unencZipPath, destination);
+    Path osTempRootForDelete = getOsTempRoot();
+    Path ctxTempRootForDelete = getContextTempRoot(contextKey);
     Path unencZipToDelete = validateUnderAllowedTempRoots(unencZipPath, contextKey);
-    if (unencZipToDelete != null) {
+    if (unencZipToDelete != null
+            && ((osTempRootForDelete != null && unencZipToDelete.startsWith(osTempRootForDelete))
+                    || (ctxTempRootForDelete != null && unencZipToDelete.startsWith(ctxTempRootForDelete)))) {
         Files.delete(unencZipToDelete);
     }
     Path containerRootToDelete = validateUnderAllowedTempRoots(validatedContainerRoot, contextKey);
-    if (containerRootToDelete != null) {
+    if (containerRootToDelete != null
+            && ((osTempRootForDelete != null && containerRootToDelete.startsWith(osTempRootForDelete))
+                    || (ctxTempRootForDelete != null && containerRootToDelete.startsWith(ctxTempRootForDelete)))) {
         FileSystemUtils.deleteRecursively(containerRootToDelete);
     }
 
@@ -903,7 +921,7 @@ public class PacketMakerService {
 			return;
 		}
 		try {
-			ResidentModel resident = ResidentModel.readPersona(personaPath);
+			ResidentModel resident = ResidentModel.readPersona(personaPath, contextKey);
 			List<String> miss = resident.getMissAttributes();
 			if (miss == null || miss.isEmpty()) {
 				return;

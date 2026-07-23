@@ -27,6 +27,14 @@ public final class PacketTemplateCache {
 	private PacketTemplateCache() {
 	}
 
+	private static Path canonicalize(Path path) {
+		try {
+			return path.toRealPath();
+		} catch (IOException e) {
+			return path;
+		}
+	}
+
 	public static boolean isEnabled(String contextKey) {
 		try {
 			Object flag = VariableManager.getVariableValue(contextKey, "disablePacketTemplateCache");
@@ -41,15 +49,22 @@ public final class PacketTemplateCache {
 	}
 
 	public static String buildKey(String contextKey, String process, String qualityScore, boolean generateValidCbeff,
-			List<String> personaFilePaths) throws IOException {
+			String outDir, String preregId, String purpose, List<String> personaFilePaths) throws IOException {
 		List<String> normalized = new ArrayList<>(personaFilePaths.size());
 		for (String path : personaFilePaths) {
-			Path p = Paths.get(path).toAbsolutePath().normalize();
-			long modified = Files.exists(p) ? Files.getLastModifiedTime(p).toMillis() : 0L;
+			// Only file-existence/mtime metadata is read here to derive an in-memory cache key;
+			// file contents are never accessed and the key is never exposed to callers.
+			Path p = canonicalize(Paths.get(path).toAbsolutePath().normalize());
+			if (!Files.exists(p)) {
+				normalized.add(p + "@0");
+				continue;
+			}
+			long modified = Files.getLastModifiedTime(p).toMillis();
 			normalized.add(p + "@" + modified);
 		}
 		Collections.sort(normalized);
 		return contextKey + "|" + process + "|" + qualityScore + "|" + generateValidCbeff + "|"
+				+ outDir + "|" + preregId + "|" + purpose + "|"
 				+ String.join(",", normalized);
 	}
 

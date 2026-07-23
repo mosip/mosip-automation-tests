@@ -41,7 +41,7 @@ public class LoadKnownIssuesByEnv extends BaseTestCaseUtil implements StepInterf
 			actuatorPath = DEFAULT_IDREPO_ACTUATOR_INFO_PATH;
 		}
 		String infoUrl = joinBaseUrlAndPath(targetBaseUrl.trim(), actuatorPath.trim());
-		Response response = given().relaxedHTTPSValidation().contentType(ContentType.JSON).accept(ContentType.JSON)
+		Response response = given().contentType(ContentType.JSON).accept(ContentType.JSON)
 				.get(infoUrl);
 		if (response == null || response.getStatusCode() != 200) {
 			this.hasError = true;

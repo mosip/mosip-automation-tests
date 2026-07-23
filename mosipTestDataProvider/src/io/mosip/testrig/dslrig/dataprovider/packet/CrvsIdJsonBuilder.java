@@ -112,7 +112,7 @@ public final class CrvsIdJsonBuilder {
 			}
 
 			if (s.getId().equals("nrcId")) {
-				identity.put(s.getId(), resident.getNrcId().getNrcId());
+				identity.put(s.getId(), resident.getNrcId() == null ? "" : resident.getNrcId().getNrcId());
 				continue;
 			}
 				String primaryValue = "";
