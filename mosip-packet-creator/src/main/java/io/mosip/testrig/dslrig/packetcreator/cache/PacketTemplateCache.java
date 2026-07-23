@@ -1,9 +1,7 @@
 package io.mosip.testrig.dslrig.packetcreator.cache;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -27,14 +25,6 @@ public final class PacketTemplateCache {
 	private PacketTemplateCache() {
 	}
 
-	private static Path canonicalize(Path path) {
-		try {
-			return path.toRealPath();
-		} catch (IOException e) {
-			return path;
-		}
-	}
-
 	public static boolean isEnabled(String contextKey) {
 		try {
 			Object flag = VariableManager.getVariableValue(contextKey, "disablePacketTemplateCache");
@@ -54,13 +44,16 @@ public final class PacketTemplateCache {
 		for (String path : personaFilePaths) {
 			// Only file-existence/mtime metadata is read here to derive an in-memory cache key;
 			// file contents are never accessed and the key is never exposed to callers.
-			Path p = canonicalize(Paths.get(path).toAbsolutePath().normalize());
-			if (!Files.exists(p)) {
-				normalized.add(p + "@0");
-				continue;
+			if (path == null || path.contains("..")) {
+				throw new IOException("Invalid persona file path: " + path);
 			}
-			long modified = Files.getLastModifiedTime(p).toMillis();
-			normalized.add(p + "@" + modified);
+			String canonicalPath = new File(path).getCanonicalPath();
+			if (canonicalPath.contains("..")) {
+				throw new IOException("Invalid persona file path: " + path);
+			}
+			File f = new File(canonicalPath);
+			long modified = f.exists() ? f.lastModified() : 0L;
+			normalized.add(canonicalPath + "@" + modified);
 		}
 		Collections.sort(normalized);
 		return contextKey + "|" + process + "|" + qualityScore + "|" + generateValidCbeff + "|"
