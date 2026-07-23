@@ -2,6 +2,8 @@ package io.mosip.testrig.dslrig.packetcreator.cache;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -21,6 +23,9 @@ public final class PacketTemplateCache {
 	private static final Logger logger = LoggerFactory.getLogger(PacketTemplateCache.class);
 	private static final int MAX_ENTRIES = 256;
 	private static final ConcurrentHashMap<String, String> RESPONSE_CACHE = new ConcurrentHashMap<>();
+	/** Same boundary ResidentModel enforces when writing personas: only java.io.tmpdir is trusted. */
+	private static final Path ALLOWED_DIR = Paths
+			.get(System.getProperty("java.io.tmpdir", System.getProperty("user.dir"))).toAbsolutePath().normalize();
 
 	private PacketTemplateCache() {
 	}
@@ -47,11 +52,11 @@ public final class PacketTemplateCache {
 			if (path == null || path.contains("..")) {
 				throw new IOException("Invalid persona file path: " + path);
 			}
-			String canonicalPath = new File(path).getCanonicalPath();
-			if (canonicalPath.contains("..")) {
-				throw new IOException("Invalid persona file path: " + path);
+			File f = new File(path).getCanonicalFile();
+			Path canonicalPath = f.toPath();
+			if (!canonicalPath.startsWith(ALLOWED_DIR)) {
+				throw new IOException("Persona file path outside allowed directory: " + path);
 			}
-			File f = new File(canonicalPath);
 			long modified = f.exists() ? f.lastModified() : 0L;
 			normalized.add(canonicalPath + "@" + modified);
 		}

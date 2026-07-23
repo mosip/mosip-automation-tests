@@ -149,14 +149,18 @@ public class PacketMakerService {
 
 	/**
 	 * Throws if {@code candidate}'s canonical path is not under an allowed temp root.
-	 * Uses {@link File#getCanonicalPath()} (resolves symlinks/".." segments) and fails closed.
+	 * Compares canonicalized {@link Path} objects with {@link Path#startsWith(Path)} (segment-aware,
+	 * not a raw string prefix check) so a sibling like "/tmp/allowed-evil" cannot pass a
+	 * "/tmp/allowed" check, and fails closed if neither root is configured or matches.
 	 */
 	private static void assertUnderAllowedRoot(Path candidate, String contextKey) throws IOException {
-		String canonical = candidate.toFile().getCanonicalPath();
+		Path canonical = candidate.toFile().getCanonicalFile().toPath();
 		Path osRoot = getOsTempRoot();
 		Path ctxRoot = getContextTempRoot(contextKey);
-		boolean ok = (osRoot != null && canonical.startsWith(osRoot.toFile().getCanonicalPath()))
-				|| (ctxRoot != null && canonical.startsWith(ctxRoot.toFile().getCanonicalPath()));
+		Path canonicalOsRoot = osRoot == null ? null : osRoot.toFile().getCanonicalFile().toPath();
+		Path canonicalCtxRoot = ctxRoot == null ? null : ctxRoot.toFile().getCanonicalFile().toPath();
+		boolean ok = (canonicalOsRoot != null && canonical.startsWith(canonicalOsRoot))
+				|| (canonicalCtxRoot != null && canonical.startsWith(canonicalCtxRoot));
 		if (!ok) {
 			throw new SecurityException("Refusing to access path outside allowed temp roots: " + canonical);
 		}
