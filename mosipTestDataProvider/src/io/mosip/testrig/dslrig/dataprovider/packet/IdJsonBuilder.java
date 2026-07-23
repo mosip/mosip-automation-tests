@@ -386,7 +386,7 @@ public final class IdJsonBuilder {
 			if (processDynamicFields(s, identity, resident, contextKey))
 				continue;
 			if (s.getId().equals("nrcId")) {
-				identity.put(s.getId(),resident.getNrcId().getNrcId());
+				identity.put(s.getId(), resident.getNrcId() == null ? "" : resident.getNrcId().getNrcId());
 				continue;
 			}
 				String primaryValue = "";

@@ -90,7 +90,7 @@ public class PacketSyncService {
 	// here prevents port exhaustion when more than 6 template requests arrive
 	// simultaneously: requests queue up and each waits for a slot rather than
 	// failing with "Socket Not available / Failed to generate biometric via mds".
-	private static final int MDS_MAX_CONCURRENT = Integer.getInteger("mds.max.concurrent", 6);
+	private static final int MDS_MAX_CONCURRENT = Math.max(1, Integer.getInteger("mds.max.concurrent", 6));
 	private static final Semaphore MDS_SEMAPHORE = new Semaphore(MDS_MAX_CONCURRENT, true);
 	private static final Queue<SlotEntry> slotQueue = new ConcurrentLinkedQueue<>();
 	private static final long SLOT_EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000;
@@ -356,7 +356,7 @@ public class PacketSyncService {
 					process,
 					preregId, contextKey, true, additionalInfoReqId, targetDirectory);
 
-			if (personaPath != null && shouldPadPacketForLargeFace(personaPath)) {
+			if (personaPath != null && shouldPadPacketForLargeFace(personaPath, contextKey)) {
 				padPacketToDefaultMinSizeIfAvailable(packetPath);
 			}
 
@@ -469,10 +469,11 @@ public class PacketSyncService {
 				|| ex.getMessage().contains("Packet Not Found in Sync Table");
 	}
 
-	private boolean shouldPadPacketForLargeFace(String personaPath) {
+	private boolean shouldPadPacketForLargeFace(String personaPath, String contextKey) {
 		try {
 			Class<?> utilClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.util.PacketSizeUtil");
-			Object result = utilClass.getMethod("isLargeFaceRequested", String.class).invoke(null, personaPath);
+			Object result = utilClass.getMethod("isLargeFaceRequested", String.class, String.class).invoke(null,
+					personaPath, contextKey);
 			return result instanceof Boolean && (Boolean) result;
 		} catch (ClassNotFoundException e) {
 			logger.debug("PacketSizeUtil not available on classpath; skipping packet-size checks");
@@ -496,7 +497,7 @@ public class PacketSyncService {
 
 	public Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
 
-		ResidentModel resident = ResidentModel.readPersona(personaFile);
+		ResidentModel resident = ResidentModel.readPersona(personaFile, contextKey);
 		JSONObject jsonIdentity = CreatePersona.createIdentity(resident, null, contextKey);
 		JSONObject jsonWrapper = new JSONObject();
 		jsonWrapper.put("identity", jsonIdentity);
@@ -670,7 +671,7 @@ public class PacketSyncService {
 
 
 		for (String path : personaFilePath) {
-			ResidentModel resident = ResidentModel.readPersona(path);
+			ResidentModel resident = ResidentModel.readPersona(path, contextKey);
 			String response = PreRegistrationSteps.postApplication(resident, null, contextKey);
 
 			saveRegIDMap(response, path);
@@ -682,7 +683,7 @@ public class PacketSyncService {
 	public String updateResidentApplication(String personaFilePath, String preregId, String contextKey)
 			throws IOException {
 
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath, contextKey);
 		return PreRegistrationSteps.putApplication(resident, preregId, contextKey);
 
 	}
@@ -720,7 +721,7 @@ public class PacketSyncService {
 	public String requestOtp(List<String> personaFilePath, String to, String contextKey) throws IOException {
 		StringBuilder builder = new StringBuilder();
 		for (String path : personaFilePath) {
-			ResidentModel resident = ResidentModel.readPersona(path);
+			ResidentModel resident = ResidentModel.readPersona(path, contextKey);
 			ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 			builder.append(preReg.sendOtpTo(resident, to, contextKey));
 
@@ -729,7 +730,7 @@ public class PacketSyncService {
 	}
 
 	public String verifyOtp(String personaFilePath, String to, String otp, String contextKey) throws IOException {
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath, contextKey);
 		ResidentPreRegistration preReg = new ResidentPreRegistration(resident);
 
 		if (otp != null && otp.isEmpty()) {
@@ -863,7 +864,7 @@ public class PacketSyncService {
 	public String uploadDocuments(String personaFilePath, String preregId, String contextKey) throws IOException {
 
 		StringBuilder responseBuilder = new StringBuilder();
-		ResidentModel resident = ResidentModel.readPersona(personaFilePath);
+		ResidentModel resident = ResidentModel.readPersona(personaFilePath, contextKey);
 
 		PacketTemplateProvider provider = new PacketTemplateProvider();
 		List<MosipIDSchema> documentSchemas = provider.getSchema(contextKey).getSchema();
@@ -936,7 +937,7 @@ public class PacketSyncService {
 		if (PacketTemplateCache.isEnabled(contextKey)) {
 			try {
 				String cacheKey = PacketTemplateCache.buildKey(contextKey, process, qualityScore, genarateValidCbeff,
-						personaFilePaths);
+						outDir, preregId, purpose, personaFilePaths);
 				String cached = PacketTemplateCache.get(cacheKey);
 				if (cached != null) {
 					logger.info("Template cache hit for context {}", contextKey);
@@ -992,7 +993,7 @@ public class PacketSyncService {
 						new JSONObject(), contextKey);
 			}
 			for (String path : personaFilePaths) {
-				ResidentModel resident = ResidentModel.readPersona(path);
+				ResidentModel resident = ResidentModel.readPersona(path, contextKey);
 				PersonaBiometricsAssembler.ensureAssembled(resident,
 						PersonaBiometricsAssembler.hintsFromResident(resident), contextKey);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
@@ -1030,7 +1031,7 @@ public class PacketSyncService {
 		if (PacketTemplateCache.isEnabled(contextKey)) {
 			try {
 				String cacheKey = PacketTemplateCache.buildKey(contextKey, process, qualityScore, genarateValidCbeff,
-						personaFilePaths);
+						outDir, preregId, purpose, personaFilePaths);
 				PacketTemplateCache.put(cacheKey, responseJson);
 			} catch (IOException e) {
 				logger.warn("Template cache store skipped: {}", e.getMessage());
@@ -1056,7 +1057,7 @@ public class PacketSyncService {
 		JSONObject requestNode = new JSONObject();
 		try {
 			Properties props = contextUtils.loadServerContext(contextKey);
-			ResidentModel resident = ResidentModel.readPersona(personaFilePaths.get(0));
+			ResidentModel resident = ResidentModel.readPersona(personaFilePaths.get(0), contextKey);
 			machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
 
 			centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
@@ -1286,7 +1287,7 @@ public class PacketSyncService {
 
 		for (UpdatePersonaDto req : getPersonaRequest) {
 
-			ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
+			ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath(), contextKey);
 			List<String> retrieveAttrs = req.getRetriveAttributeList();
 			if (retrieveAttrs != null) {
 				for (String attr : retrieveAttrs) {
@@ -1451,14 +1452,14 @@ public class PacketSyncService {
 		for (UpdatePersonaDto req : updatePersonaRequest) {
 			JSONObject individualResponse = new JSONObject();
 			try {
-				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
+				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath(), contextKey);
 				List<String> regenAttrs = req.getRegenAttributeList();
 				if (regenAttrs != null)
 					VariableManager.setVariableValue(contextKey, "regenAttribute", String.join(",", regenAttrs));
 				if (regenAttrs != null) {
 					for (String attr : regenAttrs) {
 						if (req.getTestPersonaPath() != null) {
-							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath());
+							ResidentModel testPersona = ResidentModel.readPersona(req.getTestPersonaPath(), contextKey);
 							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
 						} else {
 							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
@@ -1510,18 +1511,18 @@ public class PacketSyncService {
 			String keyS = key.toString().toLowerCase();
 			if (keyS.startsWith("uin")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident);
+				persona = ResidentModel.readPersona(filePathResident, contextKey);
 				persona.setUIN(uin);
 			} else if (keyS.toString().startsWith("rid")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident);
+				persona = ResidentModel.readPersona(filePathResident, contextKey);
 				persona.setRID(rid);
 			} else if (keyS.toString().startsWith("child")) {
 				filePathResident = list.get(key).toString();
-				persona = ResidentModel.readPersona(filePathResident);
+				persona = ResidentModel.readPersona(filePathResident, contextKey);
 			} else if (keyS.startsWith("guardian")) {
 				filePathParent = list.get(key).toString();
-				guardian = ResidentModel.readPersona(filePathParent);
+				guardian = ResidentModel.readPersona(filePathParent, contextKey);
 			}
 		}
 		if (guardian != null && persona != null)
@@ -1538,7 +1539,7 @@ public class PacketSyncService {
 
 		RestClient.logInfo(contextKey, "updatePersonaBioExceptions:" + contextKey);
 		try {
-			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath());
+			ResidentModel persona = ResidentModel.readPersona(personaBERequestDto.getPersonaFilePath(), contextKey);
 
 			persona.setBioExceptions(personaBERequestDto.getExceptions());
 
@@ -1662,7 +1663,7 @@ public class PacketSyncService {
 		String[] duplicateBdbs;
 		for (MockABISExpectationsDto expct : expectations) {
 
-			ResidentModel persona = ResidentModel.readPersona(expct.getPersonaPath());
+			ResidentModel persona = ResidentModel.readPersona(expct.getPersonaPath(), contextKey);
 
 			List<String> modalities = expct.getModalities();
 			List<MDSDeviceCaptureModel> capFingers = persona.getBiometric().getCapture()
@@ -1781,7 +1782,7 @@ public class PacketSyncService {
 			throws Exception {
 		String url = baseUrl + "registrationprocessor/v1/workflowmanager/workflowinstance";
 		ResidentModel resident = ResidentModel
-				.readPersona(VariableManager.getVariableValue(contextKey, "personaFilePath").toString());
+				.readPersona(VariableManager.getVariableValue(contextKey, "personaFilePath").toString(), contextKey);
 
 		JSONObject outerRequest = new JSONObject();
 		outerRequest.put("id", "mosip.registration.processor.workflow.instance");

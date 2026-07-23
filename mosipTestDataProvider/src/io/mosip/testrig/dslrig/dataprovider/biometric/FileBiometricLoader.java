@@ -62,14 +62,19 @@ public final class FileBiometricLoader {
 	}
 
 	static int parseScenarioNumber(String contextKey) {
-		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-		String afterscenario = beforescenario.contains(":")
-				? beforescenario.substring(0, beforescenario.indexOf(':'))
-				: beforescenario;
-		if (afterscenario.contains("_")) {
-			afterscenario = afterscenario.replace("_", "0");
+		try {
+			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
+			String afterscenario = beforescenario.contains(":")
+					? beforescenario.substring(0, beforescenario.indexOf(':'))
+					: beforescenario;
+			if (afterscenario.contains("_")) {
+				afterscenario = afterscenario.replace("_", "0");
+			}
+			return Integer.parseInt(afterscenario.trim());
+		} catch (Exception e) {
+			logger.warn("Unable to parse scenario number for {}, defaulting to 1: {}", contextKey, e.getMessage());
+			return 1;
 		}
-		return Integer.valueOf(afterscenario);
 	}
 
 	private FileBiometricLoader() {

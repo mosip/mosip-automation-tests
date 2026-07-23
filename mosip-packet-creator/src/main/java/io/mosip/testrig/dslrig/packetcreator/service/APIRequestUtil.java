@@ -22,9 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
 import io.mosip.testrig.dslrig.dataprovider.util.AuthTokenStore;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
@@ -44,7 +41,8 @@ public class APIRequestUtil {
     private static final int MAX_SERVER_API_TRACE_ENTRIES = 50;
     private static final int MAX_SERVER_API_TRACE_VALUE_LENGTH = 10000;
     private static final Set<String> SENSITIVE_TRACE_KEYS = Set.of(
-            "password", "clientsecret", "clientid", "username", "token", "otp");
+            "password", "clientsecret", "clientid", "username", "token", "otp",
+            "uin", "vid", "individualid", "residentid");
 
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
 	private static final String DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -79,10 +77,6 @@ public class APIRequestUtil {
 
     final String dataKey = "response";
     final String errorKey = "errors";
-
-    private static final ObjectMapper TRACE_OBJECT_MAPPER = new ObjectMapper()
-            .enable(SerializationFeature.INDENT_OUTPUT)
-            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
@@ -482,8 +476,6 @@ public class APIRequestUtil {
     	int timeoutRetry = 0;
     	Response response = null;
 
-    	String outputJson = TRACE_OBJECT_MAPPER.writeValueAsString(requestBody);
-
     	while (!bDone) {
     		try {
     			String authToken = AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM);
@@ -491,7 +483,7 @@ public class APIRequestUtil {
     			response = given().config(syncTimeoutConfig()).cookie(kukki)
                     .header("timestamp", timestamp)
                     .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
-                    .contentType(ContentType.JSON).body(outputJson).post(url);
+                    .contentType(ContentType.JSON).body(requestBody).post(url);
 
     			if (response.getStatusCode() == 401) {
     				if (authRetry >= 1) {
