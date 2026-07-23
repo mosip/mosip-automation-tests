@@ -147,6 +147,21 @@ public class PacketMakerService {
 		return normalizeAbsolute(Paths.get(String.valueOf(mountPath) + String.valueOf(tempPath)));
 	}
 
+	/**
+	 * Throws if {@code candidate}'s canonical path is not under an allowed temp root.
+	 * Uses {@link File#getCanonicalPath()} (resolves symlinks/".." segments) and fails closed.
+	 */
+	private static void assertUnderAllowedRoot(Path candidate, String contextKey) throws IOException {
+		String canonical = candidate.toFile().getCanonicalPath();
+		Path osRoot = getOsTempRoot();
+		Path ctxRoot = getContextTempRoot(contextKey);
+		boolean ok = (osRoot != null && canonical.startsWith(osRoot.toFile().getCanonicalPath()))
+				|| (ctxRoot != null && canonical.startsWith(ctxRoot.toFile().getCanonicalPath()));
+		if (!ok) {
+			throw new SecurityException("Refusing to access path outside allowed temp roots: " + canonical);
+		}
+	}
+
 	private static Path validateUnderAllowedTempRoots(Path candidate, String contextKey) {
 		Path normalized = normalizeAbsolute(candidate);
 		Path osTempRoot = getOsTempRoot();
@@ -711,18 +726,14 @@ public class PacketMakerService {
     Path destination = Path.of(mountPath + tempPath, contextKey.replace(CONTEXT, ""),
             unencZipPath.getFileName().toString());
     CommonUtil.copyFileWithBuffer(unencZipPath, destination);
-    Path osTempRootForDelete = getOsTempRoot();
-    Path ctxTempRootForDelete = getContextTempRoot(contextKey);
     Path unencZipToDelete = validateUnderAllowedTempRoots(unencZipPath, contextKey);
-    if (unencZipToDelete != null
-            && ((osTempRootForDelete != null && unencZipToDelete.startsWith(osTempRootForDelete))
-                    || (ctxTempRootForDelete != null && unencZipToDelete.startsWith(ctxTempRootForDelete)))) {
+    if (unencZipToDelete != null) {
+        assertUnderAllowedRoot(unencZipToDelete, contextKey);
         Files.delete(unencZipToDelete);
     }
     Path containerRootToDelete = validateUnderAllowedTempRoots(validatedContainerRoot, contextKey);
-    if (containerRootToDelete != null
-            && ((osTempRootForDelete != null && containerRootToDelete.startsWith(osTempRootForDelete))
-                    || (ctxTempRootForDelete != null && containerRootToDelete.startsWith(ctxTempRootForDelete)))) {
+    if (containerRootToDelete != null) {
+        assertUnderAllowedRoot(containerRootToDelete, contextKey);
         FileSystemUtils.deleteRecursively(containerRootToDelete);
     }
 
