@@ -166,6 +166,28 @@ public class PacketMakerService {
 		}
 	}
 
+	/**
+	 * Rejects a caller-supplied template path (createContainer's templatePacketLocation, sourced
+	 * from the packetcreator REST request body) unless it canonicalizes to a location under the
+	 * configured template root ({@code mosip.test.packet.template.location}). Without this,
+	 * createTempTemplate's FileSystemUtils.copyRecursively would recursively copy an arbitrary
+	 * caller-chosen directory from the host filesystem.
+	 */
+	private String assertUnderTemplateRoot(String candidate) {
+		Path canonical;
+		Path templateRoot;
+		try {
+			canonical = new File(candidate).getCanonicalFile().toPath();
+			templateRoot = new File(templateFolder).getCanonicalFile().toPath();
+		} catch (IOException e) {
+			throw new SecurityException("Invalid template path: " + candidate);
+		}
+		if (!canonical.startsWith(templateRoot)) {
+			throw new SecurityException("Refusing to use template path outside configured template root: " + candidate);
+		}
+		return canonical.toString();
+	}
+
 	private static Path validateUnderAllowedTempRoots(Path candidate, String contextKey) {
 		Path normalized = normalizeAbsolute(candidate);
 		Path osTempRoot = getOsTempRoot();
@@ -384,6 +406,9 @@ public class PacketMakerService {
 			String processArg,
 			String preregId, String contextKey, boolean bZip, String additionalInfoReqId, File preRegPacketLocation)
 			throws Exception {
+		if (templatePacketLocation != null) {
+			templatePacketLocation = assertUnderTemplateRoot(templatePacketLocation);
+		}
 		String effectiveSource = src;
 		String effectiveMosipVersion = mosipVersion;
 		if (contextKey != null && !contextKey.equals("")) {
