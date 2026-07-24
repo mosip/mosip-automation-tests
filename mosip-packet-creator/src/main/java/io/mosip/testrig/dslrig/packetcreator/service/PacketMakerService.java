@@ -409,6 +409,9 @@ public class PacketMakerService {
 		if (templatePacketLocation != null) {
 			templatePacketLocation = assertUnderTemplateRoot(templatePacketLocation);
 		}
+		if (dataFile != null) {
+			assertUnderAllowedRoot(Paths.get(dataFile), contextKey);
+		}
 		String effectiveSource = src;
 		String effectiveMosipVersion = mosipVersion;
 		if (contextKey != null && !contextKey.equals("")) {
