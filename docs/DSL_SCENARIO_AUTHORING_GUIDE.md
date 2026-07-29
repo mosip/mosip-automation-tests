@@ -29,25 +29,25 @@ The framework translates them into internal e2e_* actions and executes Java step
 
 **Canonical Form**
 
-```
+```text
 Given|When|Then|And I <action phrase> where <label> is <value>, and <label> is <value> ...
 ```
 
 **Save Output**
 
-```
+```text
 ... and store result in <saved variable display name>
 ```
 
 **Reuse Output**
 
-```
+```text
 ... is the saved <saved variable display name>
 ```
 
 **Example**
 
-```
+```gherkin
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 ```
 
@@ -59,7 +59,7 @@ And I get uin by rid where source registration ID is the saved registration ID a
 
 Use:
 
-```
+```text
 and store result in <name>
 ```
 
@@ -76,13 +76,13 @@ and store result in <name>
 
 Use:
 
-```
+```text
 the saved <name>
 ```
 
 **Examples**
 
-```
+```gherkin
 registration ID is the saved registration ID
 resident UIN is the saved UIN
 ```
@@ -131,7 +131,7 @@ If missing/empty, execution fails.
 
 **Correct Sample**
 
-```
+```gherkin
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 ```
 
@@ -146,6 +146,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 | generate private key       | signing/key generation toggle                          |
 | persona type                | adult/minor/infant/senior                              |
 | guardian flag               | guardian linkage behavior                               |
+| gender and biometric flags  | gender followed by the biometric boolean flags (e.g. `Male and false and false and true`) |
 | packet type                 | NEW/UPDATE/LOST/BIOMETRIC_CORRECTION/etc.              |
 | registration ID             | RID                                                     |
 | UIN                          | unique identity number                                  |
@@ -193,7 +194,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 
 Always include:
 
-```
+```gherkin
 And I delete packet data
 ```
 
@@ -212,7 +213,7 @@ And I set context where context key is env_context, and pre-requisite details is
 
 And I get ping health where component is targetenv
 
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and false and false and true and store result in persona file path
 
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 
@@ -257,7 +258,7 @@ the saved value is missing
 
 Verify producer step has:
 
-```
+```text
 store result in <same name>
 ```
 
@@ -271,7 +272,7 @@ parser says invalid parameter clause
 
 Use exact format:
 
-```
+```text
 label is value, and label is value
 ```
 
@@ -301,7 +302,7 @@ Compare with nearest working scenario of same flow type.
 
 Authoritative action → parameter mapping is maintained in:
 
-```
+```text
 mosip-acceptance-tests/ivv-parser/src/main/resources/step-parameter-labels.json
 ```
 
@@ -326,7 +327,7 @@ Use this file as the final contract while adding or editing scenarios.
 
 **Step 1**
 
-```
+```gherkin
 Given I get ping health where component is packetcreator
 ```
 
@@ -340,7 +341,7 @@ Given I get ping health where component is packetcreator
 
 **Step 2**
 
-```
+```gherkin
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 ```
 
@@ -355,7 +356,7 @@ And I read pre req where pre-requisite data index is 1 and store result in envir
 
 **Step 3**
 
-```
+```gherkin
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 ```
 
@@ -373,7 +374,7 @@ And I set context where context key is env_context, and pre-requisite details is
 
 **Step 4**
 
-```
+```gherkin
 And I get ping health where component is targetenv
 ```
 
@@ -385,8 +386,8 @@ Validates target backend readiness.
 
 **Step 5**
 
-```
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+```gherkin
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Female and false and false and true and store result in persona file path
 ```
 
 **Explanation**
@@ -394,7 +395,7 @@ And I get resident data where persona type is adult, and guardian flag is false,
 - get resident data = generate persona input
 - persona type = resident category (adult)
 - guardian flag = guardian requirement (false)
-- gender and biometric flags = demographic/biometric generation control
+- gender and biometric flags = gender followed by the three biometric boolean flags
 - Female = requested gender value
 - store result in persona file path = save persona file location
 
@@ -402,7 +403,7 @@ And I get resident data where persona type is adult, and guardian flag is false,
 
 **Step 6**
 
-```
+```gherkin
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 ```
 
@@ -418,7 +419,7 @@ And I get packet template where packet type is NEW, and persona file path is the
 
 **Step 7**
 
-```
+```gherkin
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 ```
 
@@ -431,7 +432,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 
 **Step 8**
 
-```
+```gherkin
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 ```
 
@@ -445,7 +446,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 
 **Step 9**
 
-```
+```gherkin
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 ```
 
@@ -459,7 +460,7 @@ And I get uin by rid where source registration ID is the saved registration ID a
 
 **Step 10**
 
-```
+```gherkin
 And I get email by uin where resident UIN is the saved UIN and store result in email
 ```
 
@@ -472,7 +473,7 @@ And I get email by uin where resident UIN is the saved UIN and store result in e
 
 **Step 11**
 
-```
+```gherkin
 And I verify notification where notification type is UIN Generated, and email is the saved email
 ```
 
@@ -487,7 +488,7 @@ And I verify notification where notification type is UIN Generated, and email is
 
 **Step 12**
 
-```
+```gherkin
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 ```
 
@@ -501,20 +502,20 @@ Then I check ridstage where registration ID is the saved registration ID, and RI
 
 **Step 13**
 
-```
+```gherkin
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is SUCCESS
 ```
 
 **Explanation**
 
-- BIOGRAPHIC_VERIFICATION = biometric verification stage
+- BIOGRAPHIC_VERIFICATION = biographic verification stage
 - SUCCESS = expected completion status
 
 ---
 
 **Step 14**
 
-```
+```gherkin
 Then I check tags where registration ID is the saved registration ID
 ```
 
@@ -526,7 +527,7 @@ Then I check tags where registration ID is the saved registration ID
 
 **Step 15**
 
-```
+```gherkin
 And I delete packet data
 ```
 
