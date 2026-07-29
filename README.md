@@ -34,6 +34,9 @@ Below are repository details of various modules used for the automation
 * [Mosip Test Data Provider](mosipTestDataProvider)
 * [Mosip-Packet-Creator](mosip-packet-creator)
 
+### Documentation
+* [DSL Scenario Authoring Guide](docs/DSL_SCENARIO_AUTHORING_GUIDE.md)
+
 ## Build and run
 ### To build end to end automation 
 * apitest-commons `mvn clean install -Dgpg.skip`
