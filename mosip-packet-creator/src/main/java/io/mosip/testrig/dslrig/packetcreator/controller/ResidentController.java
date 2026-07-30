@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.ReadEmail;
@@ -86,7 +87,7 @@ public class ResidentController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Download result or file path as JSON/plain string") })
 	@PostMapping(value = "/resident/card/{contextKey}")
-	public @ResponseBody String downloadCard(@RequestBody DownloadCardRequestDto downloadCardRequestDto,
+	public @ResponseBody String downloadCard(@Valid @RequestBody DownloadCardRequestDto downloadCardRequestDto,
 			@PathVariable("contextKey") String contextKey) {
 		String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
 

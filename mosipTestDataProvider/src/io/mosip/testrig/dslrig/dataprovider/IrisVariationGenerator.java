@@ -26,7 +26,7 @@ public final class IrisVariationGenerator {
 	public static String irisVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick)
 			throws Exception {
 		return irisVariationGenerator(contextKey, currentScenarioNumber, impressionToPick,
-				String.valueOf(currentScenarioNumber));
+				currentScenarioNumber + "_" + UUID.randomUUID());
 	}
 
 	public static String irisVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick,
