@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.ReadEmail;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
+import io.mosip.testrig.dslrig.packetcreator.dto.DownloadCardRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.service.ResidentService;
 import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -84,9 +85,8 @@ public class ResidentController {
 			description = "Calls resident service to download the physical/digital card PDF for the given UIN using the persona file at the path in the request body.")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Download result or file path as JSON/plain string") })
-	@OpenApiDocumentation.PersonaPathRequestBody
-	@PostMapping(value = "/resident/card/{uin}/{contextKey}")
-	public @ResponseBody String downloadCard(@RequestBody String personaPath, @PathVariable("uin") String uin,
+	@PostMapping(value = "/resident/card/{contextKey}")
+	public @ResponseBody String downloadCard(@RequestBody DownloadCardRequestDto downloadCardRequestDto,
 			@PathVariable("contextKey") String contextKey) {
 		String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
 
@@ -95,7 +95,8 @@ public class ResidentController {
 		}
 
 		try {
-			return residentService.downloadCard(personaPath, uin, contextKey);
+			return residentService.downloadCard(downloadCardRequestDto.getPersonaFilePath(),
+					downloadCardRequestDto.getUin(), contextKey);
 		} catch (ServiceException se) {
 			throw se;
 		} catch (Exception e) {

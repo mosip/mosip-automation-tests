@@ -47,8 +47,7 @@ public final class PersonaParseCache {
 
 	public static ResidentModel readPersona(String filePath, String contextKey) throws IOException {
 		Path absolute = Paths.get(filePath).toAbsolutePath().normalize();
-		long modified = Files.getLastModifiedTime(absolute).toMillis();
-		String cacheKey = absolute + "@" + modified;
+		String cacheKey = absolute + "@" + Files.getLastModifiedTime(absolute);
 
 		byte[] bytes;
 		if (isEnabled(contextKey)) {

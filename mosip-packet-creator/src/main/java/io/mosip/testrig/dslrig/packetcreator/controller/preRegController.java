@@ -68,16 +68,16 @@ public class preRegController {
 	@Operation(summary = "Verify the sent OTP for the given Persona and channel {mail | phone}")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully verified the OTP sent for given persona and channel") })
-	@PostMapping(value = "/otp/verify/{to}/{otp}/{contextKey}")
-	public @ResponseBody String verifyOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-			@PathVariable("to") String to, @PathVariable("contextKey") String contextKey,
-			@PathVariable("otp") String otp) {
+	@PostMapping(value = "/otp/verify/{to}/{contextKey}")
+	public @ResponseBody String verifyOtpForChannel(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
+			@PathVariable("to") String to, @PathVariable("contextKey") String contextKey) {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.setResource(personaConfigPath);
 			}
-			return packetSyncService.verifyOtp(preRegisterRequestDto.getPersonaFilePath().get(0), to, otp, contextKey);
+			return packetSyncService.verifyOtp(preRegisterRequestDto.getPersonaFilePath().get(0), to,
+					preRegisterRequestDto.getOtp(), contextKey);
 
 		} catch (Exception ex) {
 			logger.error("verifyOtp", ex);

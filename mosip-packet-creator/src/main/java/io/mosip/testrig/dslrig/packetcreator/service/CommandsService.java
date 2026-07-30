@@ -220,10 +220,11 @@ public class CommandsService {
 			return;
 		}
 		try {
-			InetAddress addr = InetAddress.getByName(host);
-			if (addr.isLoopbackAddress() || addr.isLinkLocalAddress() || addr.isSiteLocalAddress()
-					|| addr.isAnyLocalAddress() || addr.isMulticastAddress()) {
-				throw new ServiceException(HttpStatus.FORBIDDEN, "TARGET_BASE_URL_NOT_ALLOWED", candidate);
+			for (InetAddress addr : InetAddress.getAllByName(host)) {
+				if (addr.isLoopbackAddress() || addr.isLinkLocalAddress() || addr.isSiteLocalAddress()
+						|| addr.isAnyLocalAddress() || addr.isMulticastAddress()) {
+					throw new ServiceException(HttpStatus.FORBIDDEN, "TARGET_BASE_URL_NOT_ALLOWED", candidate);
+				}
 			}
 		} catch (UnknownHostException ex) {
 			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_INVALID", candidate);

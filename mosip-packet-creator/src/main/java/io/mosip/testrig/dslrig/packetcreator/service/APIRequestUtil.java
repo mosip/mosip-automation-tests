@@ -269,6 +269,20 @@ public class APIRequestUtil {
         return value;
     }
 
+    private String redactUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+        String redacted = url;
+        for (String key : SENSITIVE_TRACE_KEYS) {
+            redacted = redacted.replaceAll("(?i)([?&]" + key + "=)[^&#]*", "$1***");
+        }
+        // UIN/VID are long numeric identifiers that can also appear as raw path segments
+        // (e.g. /identity/{uin}) rather than query parameters.
+        redacted = redacted.replaceAll("/(\\d{8,})(?=/|\\?|#|$)", "/***");
+        return redacted;
+    }
+
     private JSONArray limitTraceEntries(JSONArray trace) {
         if (trace.length() <= MAX_SERVER_API_TRACE_ENTRIES) {
             return trace;
@@ -290,12 +304,13 @@ public class APIRequestUtil {
             JSONArray trace = getServerApiTrace(contextKey);
             JSONObject entry = new JSONObject();
             entry.put("method", method);
-            entry.put("url", url);
+            entry.put("url", redactUrl(url));
             entry.put("request", limitTraceValue(redactSensitive(request)));
             entry.put("headers", headers == null ? new JSONObject()
                     : limitTraceValue(redactSensitive(new JSONObject(headers))));
             entry.put("statusCode", response == null ? JSONObject.NULL : response.getStatusCode());
-            entry.put("response", response == null ? JSONObject.NULL : trimTraceString(response.getBody().asString()));
+            entry.put("response", response == null ? JSONObject.NULL
+                    : limitTraceValue(redactSensitive(response.getBody().asString())));
             if (response != null) {
                 String serverMs = response.getHeader("x-envoy-upstream-service-time");
                 if (serverMs != null && !serverMs.isBlank()) {

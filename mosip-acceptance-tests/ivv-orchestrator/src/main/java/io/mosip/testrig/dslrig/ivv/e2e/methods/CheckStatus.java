@@ -64,7 +64,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 
 	public void checkStatus(String _ridStatusParam, String _expectedRidProcessed, Scenario.Step step)
 			throws RigInternalError {
-		long waitMs = Long.parseLong(props.getProperty("waitTime"));
+		long waitMs = getPacketStatusPollIntervalMs();
 		long maxTotalWaitMs = getMaxPacketStatusWaitTimeMs();
 		int statusSocketTimeoutMs = getPacketStatusSocketTimeoutMs();
 		try {
@@ -74,7 +74,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				String lastPollError = null;
 				boolean gotSuccessfulPoll = false;
 				String stopReason = "max poll loops reached";
-				int maxLoop = Integer.parseInt(props.getProperty("loopCount"));
+				int maxLoop = getPacketStatusMaxLoopCount();
 				long startTime = System.currentTimeMillis();
 				long deadline = startTime + maxTotalWaitMs;
 				while (counter < maxLoop) {

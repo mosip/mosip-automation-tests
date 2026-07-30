@@ -25,6 +25,12 @@ public final class IrisVariationGenerator {
 
 	public static String irisVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick)
 			throws Exception {
+		return irisVariationGenerator(contextKey, currentScenarioNumber, impressionToPick,
+				String.valueOf(currentScenarioNumber));
+	}
+
+	public static String irisVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick,
+			String outputScope) throws Exception {
 
 		String inputDir = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath") + "/"
@@ -32,7 +38,7 @@ public final class IrisVariationGenerator {
 
 		String outputDir = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath") + "/output/"
-				+ currentScenarioNumber;
+				+ outputScope;
 
 		Path irisOutDir = Paths.get(outputDir, "iris");
 		if (Files.isDirectory(irisOutDir)) {

@@ -67,14 +67,7 @@ public class PhotoProvider {
 			}
 			int numberOfSubfolders = listDir.length;
 
-			String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
-			String afterscenario = beforescenario.contains(":")
-					? beforescenario.substring(0, beforescenario.indexOf(':'))
-					: beforescenario;
-			if (afterscenario.contains("_")) {
-				afterscenario = afterscenario.replace("_", "0");
-			}
-			int currentScenarioNumber = Integer.valueOf(afterscenario);
+			int currentScenarioNumber = CommonUtil.parseScenarioNumber(contextKey);
 
 			// Per-call salt so multiple personas generated under the same scenario pick distinct
 			// template impressions and write to distinct output dirs, instead of sharing both and

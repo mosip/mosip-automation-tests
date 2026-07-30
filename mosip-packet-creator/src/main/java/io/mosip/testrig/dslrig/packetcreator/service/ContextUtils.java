@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyPair;
@@ -45,10 +46,14 @@ public class ContextUtils {
 	private static final ConcurrentHashMap<String, Properties> SERVER_CONTEXT_CACHE = new ConcurrentHashMap<>();
 
 	public Properties loadServerContext(String ctxName) {
-		Properties cached = SERVER_CONTEXT_CACHE.computeIfAbsent(ctxName, this::loadServerContextFromDisk);
-		Properties copy = new Properties();
-		copy.putAll(cached);
-		return copy;
+		try {
+			Properties cached = SERVER_CONTEXT_CACHE.computeIfAbsent(ctxName, this::loadServerContextFromDisk);
+			Properties copy = new Properties();
+			copy.putAll(cached);
+			return copy;
+		} catch (UncheckedIOException e) {
+			return new Properties();
+		}
 	}
 
 	private Properties loadServerContextFromDisk(String ctxName) {
@@ -58,6 +63,8 @@ public class ContextUtils {
 			p.load(reader);
 		} catch (IOException e) {
 			logger.error("loadServerContext " + e.getMessage());
+			// Do not let computeIfAbsent cache a failed/empty load.
+			throw new UncheckedIOException(e);
 		}
 		return p;
 	}
