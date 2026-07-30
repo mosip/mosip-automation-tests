@@ -46,7 +46,7 @@ public final class PersonaTemplateCache {
 		List<String> normalized = new ArrayList<>(personaFilePaths.size());
 		for (String path : personaFilePaths) {
 			Path p = Paths.get(path).toAbsolutePath().normalize();
-			long modified = Files.exists(p) ? Files.getLastModifiedTime(p).toMillis() : 0L;
+			String modified = Files.exists(p) ? Files.getLastModifiedTime(p).toString() : "missing";
 			normalized.add(p + "@" + modified);
 		}
 		Collections.sort(normalized);

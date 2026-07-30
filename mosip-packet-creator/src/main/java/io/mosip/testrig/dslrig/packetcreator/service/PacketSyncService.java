@@ -441,7 +441,7 @@ public class PacketSyncService {
 				nobj.put(STATUS, SUCCESS);
 
 
-				nobj.put(REGISTRATIONID, packetMakerService.getNewRegId());
+				nobj.put(REGISTRATIONID, PacketMakerService.getRegIdFromPacketPath(packetPath));
 				nobj.put("serverApiTrace", apiRequestUtil.consumeServerApiTrace(contextKey));
 				logger.info("Packet sync and upload completed at time: " + System.currentTimeMillis());
 				return functionResponse;
@@ -934,7 +934,11 @@ public class PacketSyncService {
 		if (process != null) {
 			VariableManager.setVariableValue(contextKey, "process", process);
 		}
-		if (PacketTemplateCache.isEnabled(contextKey)) {
+		// When outDir is blank, packets land in a freshly created temp directory below (never
+		// reused across calls), so a cached response would point at a directory that may no
+		// longer exist; only cache when the caller pins a stable outDir.
+		boolean packetPathsCacheable = outDir != null && !outDir.trim().isEmpty();
+		if (packetPathsCacheable && PacketTemplateCache.isEnabled(contextKey)) {
 			try {
 				String cacheKey = PacketTemplateCache.buildKey(contextKey, process, qualityScore, genarateValidCbeff,
 						outDir, preregId, purpose, personaFilePaths);
@@ -1028,7 +1032,7 @@ public class PacketSyncService {
 		response.put("packets", packetPaths);
 		logger.info("Template generated at time: " + System.currentTimeMillis());
 		String responseJson = response.toString();
-		if (PacketTemplateCache.isEnabled(contextKey)) {
+		if (packetPathsCacheable && PacketTemplateCache.isEnabled(contextKey)) {
 			try {
 				String cacheKey = PacketTemplateCache.buildKey(contextKey, process, qualityScore, genarateValidCbeff,
 						outDir, preregId, purpose, personaFilePaths);

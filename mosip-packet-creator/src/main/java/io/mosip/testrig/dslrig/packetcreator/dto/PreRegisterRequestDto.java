@@ -17,4 +17,7 @@ public class PreRegisterRequestDto {
 	@Schema(description = "When true, read RID from sync response instead of generating locally.", example = "false")
 	private boolean getRidFromSync;
 
+	@Schema(description = "OTP to verify; required for the OTP-verification API.", example = "111111")
+	private String otp;
+
 }

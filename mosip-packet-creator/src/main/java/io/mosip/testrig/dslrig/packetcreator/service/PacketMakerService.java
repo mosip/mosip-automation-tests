@@ -188,6 +188,21 @@ public class PacketMakerService {
 		return canonical.toString();
 	}
 
+	/**
+	 * Rejects a persona server-context properties path (built from the caller-supplied
+	 * contextKey) unless it canonicalizes to a location under the configured persona config
+	 * root ({@code mosip.test.persona.configpath}). Without this, a contextKey containing
+	 * path traversal sequences could redirect the FileReader below to read an arbitrary file.
+	 */
+	private String assertUnderPersonaConfigRoot(String candidate) throws IOException {
+		Path canonical = new File(candidate).getCanonicalFile().toPath();
+		Path configRoot = new File(personaConfigPath).getCanonicalFile().toPath();
+		if (!canonical.startsWith(configRoot)) {
+			throw new IOException("Refusing to access path outside configured persona config root: " + candidate);
+		}
+		return canonical.toString();
+	}
+
 	private static Path validateUnderAllowedTempRoots(Path candidate, String contextKey) {
 		Path normalized = normalizeAbsolute(candidate);
 		Path osTempRoot = getOsTempRoot();
@@ -534,7 +549,14 @@ public class PacketMakerService {
 	boolean createPacket(String containerRootFolder, String regId, String dataFilePath, String type, String preregId,
 			String contextKey) throws Exception {
 		String packetRootFolder = getPacketRoot(getProcessRoot(containerRootFolder, contextKey), regId, type);
-		Path metaPath = Path.of(packetRootFolder, PACKET_META_FILENAME);
+		Path validatedPacketRoot = validateUnderAllowedTempRoots(Path.of(packetRootFolder), contextKey);
+		if (validatedPacketRoot == null) {
+			logger.error("Invalid packet root folder path: {}", packetRootFolder);
+			return false;
+		}
+		packetRootFolder = validatedPacketRoot.toString();
+		Path metaPath = validatedPacketRoot.resolve(PACKET_META_FILENAME);
+		assertUnderAllowedRoot(metaPath, contextKey);
 		String metaInfoJson = Files.readString(metaPath);
 
 		JSONObject metaJsonObject = new JSONObject(metaInfoJson);
@@ -630,7 +652,7 @@ public class PacketMakerService {
 			String filePath = personaConfigPath + "/server.context." + contextKey + ".properties";
 			Properties p = new Properties();
 
-			try (FileReader reader = new FileReader(filePath);) {
+			try (FileReader reader = new FileReader(assertUnderPersonaConfigRoot(filePath));) {
 				p.load(reader);
 				reader.close();
 

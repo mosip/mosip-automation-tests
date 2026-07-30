@@ -19,7 +19,29 @@ import org.springframework.stereotype.Component;
 public class SchemaUtil {
 
     private static final ConcurrentHashMap<String, String> SCHEMA_MEMORY_CACHE = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, Object> FILE_LOCKS = new ConcurrentHashMap<>();
+
+    /** Fixed-size lock striping keyed by schema file path hash; avoids FILE_LOCKS growing per distinct path. */
+    private static final int FILE_LOCK_STRIPES = 32;
+    private static final Object[] FILE_LOCKS = new Object[FILE_LOCK_STRIPES];
+    static {
+        for (int i = 0; i < FILE_LOCK_STRIPES; i++) {
+            FILE_LOCKS[i] = new Object();
+        }
+    }
+
+    private static Object fileLockFor(String path) {
+        return FILE_LOCKS[Math.floorMod(path.hashCode(), FILE_LOCK_STRIPES)];
+    }
+
+    /** Drops cached schema JSON scoped to {@code contextKey}; call on context reset so long-running or
+     *  repeatedly reset environments don't retain schema JSON for contexts that no longer exist. */
+    public static void invalidateContext(String contextKey) {
+        if (contextKey == null) {
+            return;
+        }
+        String prefix = contextKey + "|";
+        SCHEMA_MEMORY_CACHE.keySet().removeIf(key -> key.startsWith(prefix));
+    }
 
     public static final String PROPERTIES = "properties";
     public static final String IDENTITY = "identity";
@@ -62,7 +84,7 @@ public class SchemaUtil {
     	}
         Path schemaFileLocation = Path.of(workFolder, "v"+version+".json");
         String memoryKey = contextKey + "|v" + version;
-        Object fileLock = FILE_LOCKS.computeIfAbsent(schemaFileLocation.toString(), k -> new Object());
+        Object fileLock = fileLockFor(schemaFileLocation.toString());
         final String baseUrlForLoad = effectiveBaseUrl;
         final String schemaUrlForLoad = effectiveSchemaUrl;
         try {
