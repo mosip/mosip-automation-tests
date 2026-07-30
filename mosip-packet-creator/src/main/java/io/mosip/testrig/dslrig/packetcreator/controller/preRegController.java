@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.http.HttpStatus;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
@@ -69,7 +70,8 @@ public class preRegController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully verified the OTP sent for given persona and channel") })
 	@PostMapping(value = "/otp/verify/{to}/{contextKey}")
-	public @ResponseBody String verifyOtpForChannel(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
+	public @ResponseBody String verifyOtpForChannel(
+			@Validated(PreRegisterRequestDto.OtpVerification.class) @RequestBody PreRegisterRequestDto preRegisterRequestDto,
 			@PathVariable("to") String to, @PathVariable("contextKey") String contextKey) {
 
 		try {
