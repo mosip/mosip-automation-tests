@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import jakarta.annotation.PostConstruct;
@@ -546,8 +547,15 @@ public class PacketMakerService {
 		}
 	}
 
+	private static final Pattern SAFE_PATH_SEGMENT = Pattern.compile("[^\\\\/]+");
+
 	boolean createPacket(String containerRootFolder, String regId, String dataFilePath, String type, String preregId,
 			String contextKey) throws Exception {
+		if (regId == null || !SAFE_PATH_SEGMENT.matcher(regId).matches()
+				|| type == null || !SAFE_PATH_SEGMENT.matcher(type).matches()) {
+			logger.error("Invalid regId/type for packet root construction: regId={}, type={}", regId, type);
+			return false;
+		}
 		String packetRootFolder = getPacketRoot(getProcessRoot(containerRootFolder, contextKey), regId, type);
 		Path validatedPacketRoot = validateUnderAllowedTempRoots(Path.of(packetRootFolder), contextKey);
 		if (validatedPacketRoot == null) {
