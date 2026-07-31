@@ -135,6 +135,9 @@ public class Orchestrator {
 		completedScenarioCount.set(0);
 		executableScenarioCount = 0;
 
+		DslStepTimingCollector.clear();
+		DslPacketTemplateCache.clear();
+
 		suiteStartTime = System.currentTimeMillis();
 		BaseTestCaseUtil.exectionStartTime = suiteStartTime;
 		logger.info("Suite start time is: " + BaseTestCaseUtil.exectionStartTime);
@@ -178,7 +181,11 @@ public class Orchestrator {
 	public void afterSuite() {
 		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
 		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
+		DslStepTimingCollector.logReport();
 		extent.flush();
+		if (dslConfigManager.IsDebugEnabled()) {
+			logger.info("Debug mode enabled; suite teardown limited to timing report and extent flush");
+		}
 	}
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
@@ -452,6 +459,14 @@ public class Orchestrator {
 		// Create the ExtentTest entry immediately so every scenario — including those
 		// skipped before any step runs — appears in the report.
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
+
+		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.IsDebugEnabled()) {
+			String skipMsg = "Skipping AFTER_SUITE scenario because enableDebug=yes";
+			logger.info(skipMsg);
+			extentTest.skip(skipMsg);
+			updateRunStatistics(scenario);
+			throw new SkipException(skipMsg);
+		}
 
 		awaitBeforeSuiteSetup(scenario);
 
@@ -879,9 +894,10 @@ public class Orchestrator {
 		String scenariosToExecute = ConfigManager.getproperty("scenariosToExecute");
 		String flowsToExecute = ConfigManager.getproperty("scenariosFlowToExecute");
 		String testLevel = BaseTestCase.testLevel;
-		return (scenariosToExecute == null || scenariosToExecute.trim().isEmpty())
-				&& (flowsToExecute == null || flowsToExecute.trim().isEmpty())
-				&& (testLevel == null || testLevel.isBlank() || "regression".equalsIgnoreCase(testLevel));
+		boolean regressionLevel = testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression");
+		return regressionLevel
+				&& (scenariosToExecute == null || scenariosToExecute.trim().isEmpty())
+				&& (flowsToExecute == null || flowsToExecute.trim().isEmpty());
 	}
 
 	private static Boolean matchTags(String systemTags, ArrayList<String> scenarioTags) {

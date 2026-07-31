@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyPair;
@@ -15,6 +16,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -23,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+
+import jakarta.annotation.PostConstruct;
 
 import io.mosip.testrig.dslrig.dataprovider.models.ExecContext;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
@@ -39,17 +43,48 @@ public class ContextUtils {
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
+	@Value("${mosip.test.packet.template.location:/home/sasikumar/Documents/MOSIP/packetcreator/template}")
+	private String templateLocationProp;
+
+	private static volatile String templateRoot;
+
+	@PostConstruct
+	private void initTemplateRoot() {
+		templateRoot = templateLocationProp;
+	}
+
 	static Logger logger = LoggerFactory.getLogger(ContextUtils.class);
 
+	private static final ConcurrentHashMap<String, Properties> SERVER_CONTEXT_CACHE = new ConcurrentHashMap<>();
+
 	public Properties loadServerContext(String ctxName) {
+		try {
+			Properties cached = SERVER_CONTEXT_CACHE.computeIfAbsent(ctxName, this::loadServerContextFromDisk);
+			Properties copy = new Properties();
+			copy.putAll(cached);
+			return copy;
+		} catch (UncheckedIOException e) {
+			return new Properties();
+		}
+	}
+
+	private Properties loadServerContextFromDisk(String ctxName) {
 		Properties p = new Properties();
 
 		try (FileReader reader = new FileReader(resolveServerContextPath(ctxName).toFile())) {
 			p.load(reader);
 		} catch (IOException e) {
 			logger.error("loadServerContext " + e.getMessage());
+			// Do not let computeIfAbsent cache a failed/empty load.
+			throw new UncheckedIOException(e);
 		}
 		return p;
+	}
+
+	public void invalidateServerContextCache(String ctxName) {
+		if (ctxName != null) {
+			SERVER_CONTEXT_CACHE.remove(ctxName);
+		}
 	}
 
 	public String createUpdateServerContext(Properties props, String ctxName) throws IOException {
@@ -59,6 +94,7 @@ public class ContextUtils {
 
 	        props.store(fr, "Server Context Attributes");
 
+	        invalidateServerContextCache(ctxName);
 	        Properties pp = loadServerContext(ctxName);
 	        pp.forEach((k, v) ->
 	                VariableManager.setVariableValue(ctxName, k.toString(), v.toString())
@@ -135,10 +171,37 @@ public class ContextUtils {
 		return uid;
 	}
 
+	/**
+	 * Rejects a caller-supplied template path (e.g. PreRegisterRequestDto.personaFilePath[0]
+	 * from a REST request body) unless it canonicalizes to a location under the configured
+	 * template root ({@code mosip.test.packet.template.location}). Without this,
+	 * ProcessFromTemplate/idJsonPathFromTemplate's directory listing would enumerate an
+	 * arbitrary caller-chosen directory on the host filesystem.
+	 */
+	private static String assertUnderTemplateRoot(String candidate) {
+		String root = templateRoot;
+		if (root == null || root.isBlank()) {
+			throw new SecurityException("Template root is not configured");
+		}
+		Path canonical;
+		Path canonicalRoot;
+		try {
+			canonical = new File(candidate).getCanonicalFile().toPath();
+			canonicalRoot = new File(root).getCanonicalFile().toPath();
+		} catch (IOException e) {
+			throw new SecurityException("Invalid template path: " + candidate);
+		}
+		if (!canonical.startsWith(canonicalRoot)) {
+			throw new SecurityException("Refusing to use template path outside configured template root: " + candidate);
+		}
+		return canonical.toString();
+	}
+
 	public static String ProcessFromTemplate(String src, String templatePacketLocation) {
 		String process = null;
 		if (templatePacketLocation == null)
 			return process;
+		templatePacketLocation = assertUnderTemplateRoot(templatePacketLocation);
 		Path fPath = Path.of(templatePacketLocation + "/" + src.toUpperCase());
 		for (File f : fPath.toFile().listFiles()) {
 			if (f.isDirectory()) {
@@ -151,6 +214,7 @@ public class ContextUtils {
 	}
 
 	public static Path idJsonPathFromTemplate(String src, String templatePacketLocation) {
+		templatePacketLocation = assertUnderTemplateRoot(templatePacketLocation);
 		Path fPath = Path.of(templatePacketLocation + "/" + src.toUpperCase());
 		String process = null;
 

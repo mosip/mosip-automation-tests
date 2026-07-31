@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.json.JSONArray;
@@ -16,6 +17,31 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SchemaUtil {
+
+    private static final ConcurrentHashMap<String, String> SCHEMA_MEMORY_CACHE = new ConcurrentHashMap<>();
+
+    /** Fixed-size lock striping keyed by schema file path hash; avoids FILE_LOCKS growing per distinct path. */
+    private static final int FILE_LOCK_STRIPES = 32;
+    private static final Object[] FILE_LOCKS = new Object[FILE_LOCK_STRIPES];
+    static {
+        for (int i = 0; i < FILE_LOCK_STRIPES; i++) {
+            FILE_LOCKS[i] = new Object();
+        }
+    }
+
+    private static Object fileLockFor(String path) {
+        return FILE_LOCKS[Math.floorMod(path.hashCode(), FILE_LOCK_STRIPES)];
+    }
+
+    /** Drops cached schema JSON scoped to {@code contextKey}; call on context reset so long-running or
+     *  repeatedly reset environments don't retain schema JSON for contexts that no longer exist. */
+    public static void invalidateContext(String contextKey) {
+        if (contextKey == null) {
+            return;
+        }
+        String prefix = contextKey + "|";
+        SCHEMA_MEMORY_CACHE.keySet().removeIf(key -> key.startsWith(prefix));
+    }
 
     public static final String PROPERTIES = "properties";
     public static final String IDENTITY = "identity";
@@ -46,32 +72,50 @@ public class SchemaUtil {
 
     public String getAndSaveSchema(String version, String workFolder, String contextKey) throws Exception{
 
+    	String effectiveBaseUrl = baseUrl;
+    	String effectiveSchemaUrl = schemaUrl == null ? "" : schemaUrl.trim();
     	if(contextKey != null && !contextKey.equals("")) {
 
     		Properties props = contextUtils.loadServerContext(contextKey);
-    		props.forEach((k,v)->{
-    			if(k.toString().equals("mosip.test.baseurl")) {
-    				baseUrl = v.toString().trim();
-    			}
-
-    		});
+    		String ctxBaseUrl = props.getProperty("mosip.test.baseurl");
+    		if (ctxBaseUrl != null && !ctxBaseUrl.isBlank()) {
+    			effectiveBaseUrl = ctxBaseUrl.trim();
+    		}
     	}
         Path schemaFileLocation = Path.of(workFolder, "v"+version+".json");
-        if (schemaFileLocation.toFile().exists()){
-            return readSchemaAsString(schemaFileLocation.toFile().getAbsolutePath());
-        }
-
-        JSONObject queryParams = new JSONObject();
-        queryParams.put(SCHEMA_VERSION_QUERY_PARAM, Double.valueOf(version));
-        schemaUrl = schemaUrl.trim();
-        JSONObject response = apiRequestUtil.get(baseUrl, baseUrl+schemaUrl, queryParams, new JSONObject(),contextKey);
-
-        try(FileOutputStream fos = new FileOutputStream(schemaFileLocation.toString())){
-                String schemaData = response.getString("schemaJson");
-                fos.write(schemaData.getBytes());
-                fos.flush();
-                return readSchemaAsString(schemaFileLocation.toFile().getAbsolutePath());
+        String memoryKey = contextKey + "|v" + version;
+        Object fileLock = fileLockFor(schemaFileLocation.toString());
+        final String baseUrlForLoad = effectiveBaseUrl;
+        final String schemaUrlForLoad = effectiveSchemaUrl;
+        try {
+            return SCHEMA_MEMORY_CACHE.computeIfAbsent(memoryKey, k -> {
+                try {
+                    synchronized (fileLock) {
+                        if (schemaFileLocation.toFile().exists()) {
+                            return readSchemaAsString(schemaFileLocation.toFile().getAbsolutePath());
+                        }
+                        JSONObject queryParams = new JSONObject();
+                        queryParams.put(SCHEMA_VERSION_QUERY_PARAM, Double.valueOf(version));
+                        JSONObject response = apiRequestUtil.get(baseUrlForLoad, baseUrlForLoad + schemaUrlForLoad,
+                                queryParams, new JSONObject(), contextKey);
+                        try (FileOutputStream fos = new FileOutputStream(schemaFileLocation.toString())) {
+                            String schemaData = response.getString("schemaJson");
+                            fos.write(schemaData.getBytes());
+                            fos.flush();
+                        }
+                        return readSchemaAsString(schemaFileLocation.toFile().getAbsolutePath());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (RuntimeException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof Exception) {
+                throw (Exception) cause;
             }
+            throw e;
+        }
     }
 
     public String readSchemaAsString(String file) throws IOException{

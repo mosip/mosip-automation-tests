@@ -25,6 +25,12 @@ public final class IrisVariationGenerator {
 
 	public static String irisVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick)
 			throws Exception {
+		return irisVariationGenerator(contextKey, currentScenarioNumber, impressionToPick,
+				currentScenarioNumber + "_" + UUID.randomUUID());
+	}
+
+	public static String irisVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick,
+			String outputScope) throws Exception {
 
 		String inputDir = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath") + "/"
@@ -32,9 +38,21 @@ public final class IrisVariationGenerator {
 
 		String outputDir = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath") + "/output/"
-				+ currentScenarioNumber;
+				+ outputScope;
 
-		Files.createDirectories(Paths.get(outputDir));
+		Path irisOutDir = Paths.get(outputDir, "iris");
+		if (Files.isDirectory(irisOutDir)) {
+			try (var stream = Files.list(irisOutDir)) {
+				stream.forEach(p -> {
+					try {
+						Files.deleteIfExists(p);
+					} catch (Exception e) {
+						logger.warn("Unable to clear stale iris file {}: {}", p, e.getMessage());
+					}
+				});
+			}
+		}
+		Files.createDirectories(irisOutDir);
 
 		List<Path> inputs = Files.list(Paths.get(inputDir)).filter(Files::isRegularFile).toList();
 

@@ -42,6 +42,27 @@ public class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 	private static SecureRandom rand = new SecureRandom();
 
+	/**
+	 * Parses the scenario id stored under {@code contextKey} into a number, defaulting to 1 on
+	 * any malformed/missing value. Shared by biometric-selection call sites so an unparseable
+	 * scenario id degrades to impression 1 everywhere instead of throwing in some callers only.
+	 */
+	public static int parseScenarioNumber(String contextKey) {
+		try {
+			String beforeScenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
+			String afterScenario = beforeScenario.contains(":")
+					? beforeScenario.substring(0, beforeScenario.indexOf(':'))
+					: beforeScenario;
+			if (afterScenario.contains("_")) {
+				afterScenario = afterScenario.replace("_", "0");
+			}
+			return Integer.parseInt(afterScenario.trim());
+		} catch (Exception e) {
+			logger.warn("Unable to parse scenario number for {}, defaulting to 1: {}", contextKey, e.getMessage());
+			return 1;
+		}
+	}
+
 	private static String cachedUtcDateformat;
 	private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 	private static final String MOUNT_PATH_KEY = "mountPath";
@@ -121,6 +142,34 @@ public class CommonUtil {
 
 		Files.createDirectories(safeParent);
 
+		return safePath;
+	}
+
+	/**
+	 * Validates a caller-supplied file path (e.g. a persona file path from a REST request body)
+	 * resolves under one of the allowed temp/packet roots for {@code contextKey} before it is
+	 * read, mirroring {@link #validateOutputPath(String, String)}'s root checks but without
+	 * creating any directories.
+	 */
+	public static Path validateReadablePath(String path, String contextKey) throws IOException {
+		if (path == null || path.isBlank()) {
+			throw new IOException("Path is required");
+		}
+		if (path.contains("..")) {
+			throw new IOException("Invalid path");
+		}
+
+		Path resolved = Paths.get(path).toAbsolutePath().normalize();
+
+		Path matchedRoot = findMatchingAllowedRoot(resolved, contextKey);
+		if (matchedRoot == null) {
+			throw new IOException("Path is outside allowed temp roots: " + path);
+		}
+
+		Path safePath = buildPathUnderRoot(matchedRoot, resolved);
+		if (!isPathUnderRoot(safePath, matchedRoot)) {
+			throw new IOException("Path traversal attempt detected");
+		}
 		return safePath;
 	}
 

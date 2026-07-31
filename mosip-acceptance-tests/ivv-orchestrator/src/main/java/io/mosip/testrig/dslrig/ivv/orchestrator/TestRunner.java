@@ -346,6 +346,7 @@ public class TestRunner {
 		getListOfFilesFromJarAndCopyToExternalResource("preReg/");
 		getListOfFilesFromJarAndCopyToExternalResource("kernel/");
 		getListOfFilesFromJarAndCopyToExternalResource("idaData/");
+		getListOfFilesFromJarAndCopyToExternalResource("idRepo/");
 		getListOfFilesFromJarAndCopyToExternalResource("ivv_masterdata/");
 		getListOfFilesFromJarAndCopyToExternalResource("syncdata/");
 		getListOfFilesFromJarAndCopyToExternalResource("regproc/");

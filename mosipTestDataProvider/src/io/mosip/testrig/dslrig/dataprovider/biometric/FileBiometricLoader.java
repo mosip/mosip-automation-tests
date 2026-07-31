@@ -47,11 +47,27 @@ public final class FileBiometricLoader {
 	private static final Logger logger = LoggerFactory.getLogger(FileBiometricLoader.class);
 
 	private static final String DIRPATH = "dirPath ";
-	private static final String SCENARIO = "scenario";
 
 	private static final Map<String, Integer> FINGER_INDEX_MAP = Map.of("leftthumb", 0, "leftindex", 1, "leftmiddle",
 			2, "leftring", 3, "leftlittle", 4, "rightthumb", 5, "rightindex", 6, "rightmiddle", 7, "rightring", 8,
 			"rightlittle", 9);
+
+	/**
+	 * Deterministic impression index in [1, folderCount] from scenario id and resident/session
+	 * context — safe under parallel runs. Folding in the contextKey (unique per resident/session)
+	 * keeps two residents sharing the same scenario id from selecting the same biometric folder.
+	 */
+	static int deterministicImpression(int scenarioNumber, int folderCount, String contextKey) {
+		if (folderCount <= 0) {
+			return 1;
+		}
+		int residentSalt = contextKey == null ? 0 : contextKey.hashCode();
+		return Math.floorMod((scenarioNumber + residentSalt) - 1, folderCount) + 1;
+	}
+
+	static int parseScenarioNumber(String contextKey) {
+		return CommonUtil.parseScenarioNumber(contextKey);
+	}
 
 	private FileBiometricLoader() {
 	}
@@ -64,26 +80,15 @@ public final class FileBiometricLoader {
 		Hashtable<Integer, List<File>> tblFiles = new Hashtable<Integer, List<File>>();
 		File dir = new File(dirPath);
 
-		File listDir[] = dir.listFiles();
+		File listDir[] = dir.listFiles(f -> f.isDirectory() && f.getName().startsWith("Impression"));
 		if (listDir == null || listDir.length == 0) {
 			logger.error("No fingerprint directories found in {}", dirPath);
 			return tblFiles;
 		}
 		int numberOfSubfolders = listDir.length;
 
-		int min = 1;
-		int max = numberOfSubfolders;
-		int randomNumber = (int) (Math.random() * (max - min)) + min;
-		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-		String afterscenario = beforescenario.contains(":")
-				? beforescenario.substring(0, beforescenario.indexOf(':'))
-				: beforescenario;
-		if (afterscenario.contains("_")) {
-			afterscenario = afterscenario.replace("_", "0");
-		}
-		int currentScenarioNumber = Integer.valueOf(afterscenario);
-
-		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+		int currentScenarioNumber = parseScenarioNumber(contextKey);
+		int impressionToPick = deterministicImpression(currentScenarioNumber, numberOfSubfolders, contextKey);
 
 		RestClient.logInfo(contextKey, "currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders="
 				+ numberOfSubfolders + " impressionToPick=" + impressionToPick);
@@ -158,20 +163,8 @@ public final class FileBiometricLoader {
 			}
 			int numberOfSubfolders = listDir.length;
 
-			int min = 1;
-			int max = numberOfSubfolders;
-			int randomNumber = (int) (Math.random() * (max - min)) + min;
-			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-			String afterscenario = beforescenario.contains(":")
-					? beforescenario.substring(0, beforescenario.indexOf(':'))
-					: beforescenario;
-			if (afterscenario.contains("_")) {
-				afterscenario = afterscenario.replace("_", "0");
-			}
-			int currentScenarioNumber = Integer.valueOf(afterscenario);
-
-			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber
-					: randomNumber;
+			int currentScenarioNumber = parseScenarioNumber(contextKey);
+			int impressionToPick = deterministicImpression(currentScenarioNumber, numberOfSubfolders, contextKey);
 			dirPath = FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber,
 					impressionToPick);
 
@@ -242,20 +235,8 @@ public final class FileBiometricLoader {
 		}
 		int numberOfSubfolders = listDir.length;
 
-		int min = 1;
-		int max = numberOfSubfolders;
-		int randomNumber;
-		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-		String afterscenario = beforescenario.contains(":")
-				? beforescenario.substring(0, beforescenario.indexOf(':'))
-				: beforescenario;
-		if (afterscenario.contains("_")) {
-			afterscenario = afterscenario.replace("_", "0");
-		}
-		int currentScenarioNumber = Integer.valueOf(afterscenario);
-
-		randomNumber = (int) (Math.random() * (max - min)) + min;
-		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+		int currentScenarioNumber = parseScenarioNumber(contextKey);
+		int impressionToPick = deterministicImpression(currentScenarioNumber, numberOfSubfolders, contextKey);
 
 		dirPath = FingerprintVariationGenerator.fingerprintVariationGenerator(contextKey, currentScenarioNumber,
 				impressionToPick);
@@ -328,20 +309,8 @@ public final class FileBiometricLoader {
 			return data;
 		}
 		int numberOfSubfolders = listDir.length;
-		int min = 1;
-		int max = numberOfSubfolders;
-		int randomNumber;
-
-		String beforeScenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-
-		String afterScenario = (beforeScenario.contains(":")
-				? beforeScenario.substring(0, beforeScenario.indexOf(':'))
-				: beforeScenario).replace("_", "0");
-
-		int currentScenarioNumber = Integer.parseInt(afterScenario);
-
-		randomNumber = (int) (Math.random() * (max - min)) + min;
-		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+		int currentScenarioNumber = parseScenarioNumber(contextKey);
+		int impressionToPick = deterministicImpression(currentScenarioNumber, numberOfSubfolders, contextKey);
 
 		RestClient.logInfo(contextKey, "Impression used " + impressionToPick);
 
@@ -468,27 +437,18 @@ public final class FileBiometricLoader {
 			RestClient.logInfo(contextKey, DIRPATH + srcPath);
 			File dir = new File(srcPath);
 
-			File listDir[] = dir.listFiles();
+			// Only count numeric subdirectories (e.g. "001", "002") — excludes the
+			// "output" directory left by IrisVariationGenerator after a previous run,
+			// which otherwise inflates the count and causes out-of-range impression picks.
+			File[] listDir = dir.listFiles(f -> f.isDirectory() && f.getName().matches("\\d+"));
 			if (listDir == null || listDir.length == 0) {
 				logger.error("No iris directories found in {}", srcPath);
 				return retVal;
 			}
 			int numberOfSubfolders = listDir.length;
 
-			int min = 1;
-			int max = numberOfSubfolders;
-			int randomNumber = (int) (Math.random() * (max - min)) + min;
-			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-			String afterscenario = beforescenario.contains(":")
-					? beforescenario.substring(0, beforescenario.indexOf(':'))
-					: beforescenario;
-			if (afterscenario.contains("_")) {
-				afterscenario = afterscenario.replace("_", "0");
-			}
-
-			int currentScenarioNumber = Integer.valueOf(afterscenario);
-
-			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+			int currentScenarioNumber = parseScenarioNumber(contextKey);
+			int impressionToPick = deterministicImpression(currentScenarioNumber, numberOfSubfolders, contextKey);
 			srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey, currentScenarioNumber,
 					impressionToPick);
 
@@ -560,27 +520,17 @@ public final class FileBiometricLoader {
 		RestClient.logInfo(contextKey, DIRPATH + srcPath);
 		File dir = new File(srcPath);
 
-		File listDir[] = dir.listFiles();
+		// Only count numeric subdirectories — excludes the "output" directory left
+		// by IrisVariationGenerator after a previous run (same fix as generateIris).
+		File[] listDir = dir.listFiles(f -> f.isDirectory() && f.getName().matches("\\d+"));
 		if (listDir == null || listDir.length == 0) {
 			logger.error("No iris directories found in {}", srcPath);
 			return retVal;
 		}
 		int numberOfSubfolders = listDir.length;
 
-		int min = 1;
-		int max = numberOfSubfolders;
-		int randomNumber;
-		String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-		String afterscenario = beforescenario.contains(":")
-				? beforescenario.substring(0, beforescenario.indexOf(':'))
-				: beforescenario;
-		if (afterscenario.contains("_")) {
-			afterscenario = afterscenario.replace("_", "0");
-		}
-		int currentScenarioNumber = Integer.valueOf(afterscenario);
-
-		randomNumber = (int) (Math.random() * (max - min)) + min;
-		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+		int currentScenarioNumber = parseScenarioNumber(contextKey);
+		int impressionToPick = deterministicImpression(currentScenarioNumber, numberOfSubfolders, contextKey);
 
 		srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
 
@@ -654,27 +604,17 @@ public final class FileBiometricLoader {
 		RestClient.logInfo(contextKey, DIRPATH + srcPath);
 
 		File dir = new File(srcPath);
-		File[] listDir = dir.listFiles();
+		// Only count numeric subdirectories — excludes the "output" directory left
+		// by IrisVariationGenerator after a previous run (same fix as generateIris).
+		File[] listDir = dir.listFiles(f -> f.isDirectory() && f.getName().matches("\\d+"));
 		if (listDir == null || listDir.length == 0) {
 			logger.error("No subdirectories found in {}", srcPath);
 			retVal.add(m);
 			return retVal;
 		}
 		int numberOfSubfolders = listDir.length;
-		int min = 1;
-		int max = numberOfSubfolders;
-		int randomNumber;
-
-		String beforeScenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-
-		String afterScenario = (beforeScenario.contains(":")
-				? beforeScenario.substring(0, beforeScenario.indexOf(':'))
-				: beforeScenario).replace("_", "0");
-
-		int currentScenarioNumber = Integer.parseInt(afterScenario);
-
-		randomNumber = (int) (Math.random() * (max - min)) + min;
-		int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
+		int currentScenarioNumber = parseScenarioNumber(contextKey);
+		int impressionToPick = deterministicImpression(currentScenarioNumber, numberOfSubfolders, contextKey);
 
 		srcPath = IrisVariationGenerator.irisVariationGenerator(contextKey, currentScenarioNumber, impressionToPick);
 
@@ -750,32 +690,24 @@ public final class FileBiometricLoader {
 			}
 			int numberOfSubfolders = listDir.length;
 
-			int min = 1;
-			int max = numberOfSubfolders;
-			int randomNumber;
-			String beforescenario = VariableManager.getVariableValue(contextKey, SCENARIO).toString();
-			String afterscenario = beforescenario.contains(":")
-					? beforescenario.substring(0, beforescenario.indexOf(':'))
-					: beforescenario;
-			if (afterscenario.contains("_")) {
-				afterscenario = afterscenario.replace("_", "0");
-			}
-			int currentScenarioNumber = Integer.valueOf(afterscenario);
+			int currentScenarioNumber = parseScenarioNumber(contextKey);
+			int impressionToPick = deterministicImpression(currentScenarioNumber, numberOfSubfolders, contextKey);
 
-			randomNumber = (int) (Math.random() * (max - min)) + min;
-			int impressionToPick = (currentScenarioNumber < numberOfSubfolders) ? currentScenarioNumber : randomNumber;
-
-			dirPath = FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber,
+			String outputDirPath = FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber,
 					impressionToPick);
-
-			List<File> firstSet = CommonUtil.listFiles(dirPath + "/face/");
+			List<File> generatedFaces = CommonUtil.listFiles(outputDirPath + "/face/");
+			if (generatedFaces == null || generatedFaces.isEmpty()) {
+				logger.error("No generated face file under {}", outputDirPath + "/face/");
+				return new byte[][] { null, null };
+			}
 
 			BufferedImage img = null;
+			File faceFile = generatedFaces.get(0);
 
-			try (FileInputStream fos = new FileInputStream(firstSet.get(0));
+			try (FileInputStream fos = new FileInputStream(faceFile);
 					BufferedInputStream bis = new BufferedInputStream(fos)) {
 				img = ImageIO.read(bis);
-				logger.info("Image picked from this path=" + firstSet.get(0));
+				logger.info("Image picked from this path=" + faceFile.getAbsolutePath());
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -785,7 +717,7 @@ public final class FileBiometricLoader {
 			bencoded = PhotoProvider.encodeFaceImageData(bData);
 
 			baos.close();
-			CommonUtil.deleteOldTempDir(dirPath);
+			CommonUtil.deleteOldTempDir(outputDirPath);
 		} catch (Exception e) {
 
 			logger.error(e.getMessage());
