@@ -333,7 +333,14 @@ public class CommandsService {
 	public String storeFile(MultipartFile file) throws IOException {
 		String fileExtension = "";
 		String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
-		fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+		int dotIndex = originalFileName.lastIndexOf(".");
+		if (dotIndex >= 0) {
+			fileExtension = originalFileName.substring(dotIndex);
+		}
+		// The extracted "extension" is attacker-controlled text after the last dot in the
+		// original filename; strip any path separators/traversal so it cannot smuggle a
+		// directory escape into targetLocation below.
+		fileExtension = fileExtension.replaceAll("[\\\\/]", "_").replace("..", "_");
 		File uploadFolder = new File(uploadPath);
 		if (!uploadFolder.exists() || !uploadFolder.isDirectory()) {
 			uploadFolder.mkdir();
@@ -341,8 +348,14 @@ public class CommandsService {
 		String fileName = UUID.randomUUID().toString() + fileExtension;
 		Path targetLocation = Path.of(uploadPath + "/" + fileName);
 
-		CommonUtil.copyMultipartFileWithBuffer(file, targetLocation);
-		return targetLocation.toString();
+		Path canonicalTarget = targetLocation.toFile().getCanonicalFile().toPath();
+		Path canonicalUploadFolder = uploadFolder.getCanonicalFile().toPath();
+		if (!canonicalTarget.getParent().equals(canonicalUploadFolder)) {
+			throw new IOException("Refusing to store upload outside configured upload folder: " + targetLocation);
+		}
+
+		CommonUtil.copyMultipartFileWithBuffer(file, canonicalTarget);
+		return canonicalTarget.toString();
 	}
 
 	public String generatekey(String contextKey, String machineId) {
