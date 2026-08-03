@@ -609,8 +609,8 @@ public class MosipDataSetup {
 		String url = VariableManager.getVariableValue(contextKey, "urlBase").toString().trim() + VariableManager
 				.getVariableValue(VariableManager.NS_DEFAULT, "deleteMockAbisExpectations").toString().trim();
 		if (mockId != null && !mockId.isBlank()) {
-            url += "/" + mockId;
-     }
+			url += "/" + mockId;
+		}
 		try {
 
 			response = RestClient.deleteExpectation(url, new JSONObject(), contextKey);

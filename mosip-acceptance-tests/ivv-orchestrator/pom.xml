@@ -6,13 +6,13 @@
 	<parent>
 		<groupId>io.mosip.testrig.dslrig.ivv</groupId>
 		<artifactId>dslrig-ivv-parent</artifactId>
-		<version>1.4.0-SNAPSHOT</version>
+		<version>1.5.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>io.mosip.testrig.dslrig.ivv.orchestrator</groupId>
 	<artifactId>dslrig-ivv-orchestrator</artifactId>
 	<name>mosip-dsl-test</name>
-	<version>1.4.0-SNAPSHOT</version>
+	<version>1.5.0-SNAPSHOT</version>
 
 	<repositories>
 		<repository>
@@ -29,7 +29,7 @@
 	<properties>
 		<suiteXmlFile>testng.xml</suiteXmlFile>
 		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
-		<central.publishing.maven.plugin.version>0.7.0</central.publishing.maven.plugin.version>
+		<central.publishing.maven.plugin.version>0.8.0</central.publishing.maven.plugin.version>
 	</properties>
 
 	<distributionManagement>
@@ -80,8 +80,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<source>21</source>
-					<target>21</target>
+					<source>25</source>
+					<target>25</target>
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
 			</plugin>
@@ -97,7 +97,7 @@
 						</goals>
 						<configuration>
 							<finalName>
-								dslrig-ivv-orchestrator-1.4.0-SNAPSHOT-jar-with-dependencies</finalName>
+								dslrig-ivv-orchestrator-1.5.0-SNAPSHOT-jar-with-dependencies</finalName>
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
@@ -163,7 +163,7 @@
 		<dependency>
 			<groupId>io.mosip.testrig.apitest.commons</groupId>
 			<artifactId>apitest-commons</artifactId>
-			<version>1.5.0-SNAPSHOT</version>
+			<version>1.6.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.sun.jersey</groupId>

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import io.mosip.testrig.dslrig.dataprovider.cache.PersonaParseCache;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import lombok.Data;
@@ -28,6 +29,7 @@ import java.io.FileOutputStream;
 @Data
 public class ResidentModel implements Serializable {
 	private static final Logger logger = LoggerFactory.getLogger(ResidentModel.class);
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 	private static final long serialVersionUID = 1L;
 	private String id;
 	private String primaryLanguage;
@@ -85,7 +87,6 @@ public class ResidentModel implements Serializable {
 	private Boolean skipIris;
 	private static final Path ALLOWED_DIR = Paths.get(System.getProperty("java.io.tmpdir", System.getProperty("user.dir"))).toAbsolutePath().normalize();
 
-
 	public ResidentModel() {
 
 		int[] r = CommonUtil.generateRandomNumbers(2, 99999, 11111);
@@ -97,11 +98,9 @@ public class ResidentModel implements Serializable {
 
 	public String toJSONString() {
 
-		ObjectMapper mapper = new ObjectMapper();
-
 		String jsonStr = "";
 		try {
-			jsonStr = mapper.writeValueAsString(this);
+			jsonStr = JSON_MAPPER.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
 
 			logger.error(e.getMessage());
@@ -129,13 +128,7 @@ public class ResidentModel implements Serializable {
 	}
 
 	public static ResidentModel readPersona(String filePath) throws IOException {
-
-		ObjectMapper mapper = new ObjectMapper();
-
-		byte[] bytes = CommonUtil.read(filePath);
-		ResidentModel model = mapper.readValue(bytes, ResidentModel.class);
-		model.setPath(filePath);
-		return model;
+		return PersonaParseCache.readPersona(filePath);
 	}
 
 	public void writePersona(String filePath) throws IOException {
