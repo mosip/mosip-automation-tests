@@ -320,6 +320,7 @@ public class dslConfigManager extends ConfigManager {
 			String v = ConfigManager.getproperty("skipAfterSuiteTeardown");
 			return v != null && "yes".equalsIgnoreCase(v.trim());
 		} catch (Exception e) {
+			LOGGER.warn("Could not read skipAfterSuiteTeardown; running AFTER_SUITE teardown", e);
 			return false;
 		}
 	}

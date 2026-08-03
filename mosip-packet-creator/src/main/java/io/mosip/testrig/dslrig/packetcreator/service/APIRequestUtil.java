@@ -42,7 +42,7 @@ public class APIRequestUtil {
     private static final int MAX_SERVER_API_TRACE_VALUE_LENGTH = 10000;
     private static final Set<String> SENSITIVE_TRACE_KEYS = Set.of(
             "password", "clientsecret", "clientid", "username", "token", "otp",
-            "uin", "vid", "individualid", "residentid",
+            "uin", "vid", "individualid", "residentid", "rid", "registrationid",
             "secretkey", "authorization", "accesstoken", "refreshtoken",
             "email", "emailid", "phone", "mobilenumber", "dateofbirth", "dob",
             "fullname", "firstname", "middlename", "lastname");

@@ -69,6 +69,11 @@ public class ZipUtils {
 					logger.error("Zip entry is outside the target directory: {}", zipEntry.getName());
 					return false;
 				}
+				if (zipEntry.isDirectory()) {
+					Files.createDirectories(file);
+					zipEntry = zipInputStream.getNextEntry();
+					continue;
+				}
 
 				Files.createDirectories(file.getParent());
 

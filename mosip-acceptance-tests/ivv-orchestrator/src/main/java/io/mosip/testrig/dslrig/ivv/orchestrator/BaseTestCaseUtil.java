@@ -45,6 +45,7 @@ import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.e2e.constant.E2EConstants;
 import io.restassured.config.HttpClientConfig;
+import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -149,7 +150,8 @@ public class BaseTestCaseUtil extends BaseStep {
 	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
 			.httpClient(HttpClientConfig.httpClientConfig()
 					.setParam("http.connection.timeout", PACKET_CREATOR_CONNECT_MS)
-					.setParam("http.socket.timeout", PACKET_CREATOR_SOCKET_MS));
+					.setParam("http.socket.timeout", PACKET_CREATOR_SOCKET_MS))
+			.logConfig(LogConfig.logConfig().blacklistHeader("X-Api-Key"));
 
 	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = 600_000L;
 
@@ -222,7 +224,8 @@ public class BaseTestCaseUtil extends BaseStep {
 		int connectMs = Math.min(PACKET_CREATOR_CONNECT_MS, socketMs);
 		return RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
 				.setParam("http.connection.timeout", connectMs)
-				.setParam("http.socket.timeout", socketMs));
+				.setParam("http.socket.timeout", socketMs))
+				.logConfig(LogConfig.logConfig().blacklistHeader("X-Api-Key"));
 	}
 
 	public static PacketUtility packetUtility = new PacketUtility();

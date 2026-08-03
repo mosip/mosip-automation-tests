@@ -42,14 +42,17 @@ public class LoadKnownIssuesByEnv extends BaseTestCaseUtil implements StepInterf
 			actuatorPath = DEFAULT_IDREPO_ACTUATOR_INFO_PATH;
 		}
 		String infoUrl = joinBaseUrlAndPath(targetBaseUrl.trim(), actuatorPath.trim());
-		int maxAttempts = Integer.parseInt(System.getProperty("env.idrepoActuatorLoadAttempts", "3"));
-		long baseDelayMs = Long.parseLong(System.getProperty("env.idrepoActuatorLoadRetryMs", "3000"));
+		int maxAttempts = parseIntOrDefault(System.getProperty("env.idrepoActuatorLoadAttempts"), 3);
+		long baseDelayMs = parseLongOrDefault(System.getProperty("env.idrepoActuatorLoadRetryMs"), 3000L);
 		Response response = null;
 		RuntimeException lastError = null;
 		for (int attempt = 1; attempt <= maxAttempts; attempt++) {
 			if (attempt > 1) {
 				logger.warn("Retrying id-repository actuator fetch (attempt " + attempt + "/" + maxAttempts + ")");
 				sleepQuietly(baseDelayMs * attempt);
+				if (Thread.currentThread().isInterrupted()) {
+					break;
+				}
 			}
 			lastError = null;
 			try {
@@ -100,6 +103,30 @@ public class LoadKnownIssuesByEnv extends BaseTestCaseUtil implements StepInterf
 		String base = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
 		String relative = path.startsWith("/") ? path.substring(1) : path;
 		return java.net.URI.create(base).resolve(relative).toString();
+	}
+
+	private static int parseIntOrDefault(String value, int defaultValue) {
+		if (value == null || value.isBlank()) {
+			return defaultValue;
+		}
+		try {
+			return Integer.parseInt(value.trim());
+		} catch (NumberFormatException e) {
+			logger.warn("Invalid value '" + value + "', using default " + defaultValue);
+			return defaultValue;
+		}
+	}
+
+	private static long parseLongOrDefault(String value, long defaultValue) {
+		if (value == null || value.isBlank()) {
+			return defaultValue;
+		}
+		try {
+			return Long.parseLong(value.trim());
+		} catch (NumberFormatException e) {
+			logger.warn("Invalid value '" + value + "', using default " + defaultValue);
+			return defaultValue;
+		}
 	}
 
 	private static void sleepQuietly(long millis) {

@@ -324,8 +324,8 @@ public class CommonUtil {
 	}
 
 	public static String joinBaseUrlAndPath(String baseUrl, String path) {
-		String base = baseUrl.trim();
-		String apiPath = path.trim();
+		String base = baseUrl == null ? "" : baseUrl.trim();
+		String apiPath = path == null ? "" : path.trim();
 		if (base.endsWith("/") && apiPath.startsWith("/")) {
 			return base + apiPath.substring(1);
 		}
