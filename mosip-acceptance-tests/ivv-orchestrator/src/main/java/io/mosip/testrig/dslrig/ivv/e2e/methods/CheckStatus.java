@@ -64,7 +64,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 
 	public void checkStatus(String _ridStatusParam, String _expectedRidProcessed, Scenario.Step step)
 			throws RigInternalError {
-		long waitMs = Long.parseLong(props.getProperty("waitTime"));
+		long waitMs = getPacketStatusPollIntervalMs();
 		long maxTotalWaitMs = getMaxPacketStatusWaitTimeMs();
 		int statusSocketTimeoutMs = getPacketStatusSocketTimeoutMs();
 		try {
@@ -74,7 +74,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				String lastPollError = null;
 				boolean gotSuccessfulPoll = false;
 				String stopReason = "max poll loops reached";
-				int maxLoop = Integer.parseInt(props.getProperty("loopCount"));
+				int maxLoop = getPacketStatusMaxLoopCount();
 				long startTime = System.currentTimeMillis();
 				long deadline = startTime + maxTotalWaitMs;
 				while (counter < maxLoop) {
@@ -196,7 +196,8 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 		boolean statusMatches = ridStatus != null
 				&& ridStatus.toLowerCase().contains(expectedStatus.toLowerCase());
 		String statusColor = statusMatches ? "green" : "#c0392b";
-		String displayStatus = ridStatus == null || ridStatus.isBlank() ? "UNKNOWN" : ridStatus.toUpperCase();
+		String displayStatus = ridStatus == null || ridStatus.isBlank() ? "UNKNOWN"
+				: escapeHtml(ridStatus.toUpperCase());
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div style='")
 				.append("padding:8px;")
@@ -205,10 +206,10 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				.append("border-left:5px solid #2f80ed;")
 				.append("font-family:Arial;'>")
 				.append("<b style='color:#2f80ed;'>Packet Processing Report</b><br>")
-				.append("<span><b>RID:</b> ").append(rid).append("</span><br>")
+				.append("<span><b>RID:</b> ").append(escapeHtml(rid)).append("</span><br>")
 				.append("<span><b>Status:</b> <span style='color:").append(statusColor).append(";'>")
 				.append(displayStatus).append("</span></span><br>")
-				.append("<span><b>Expected:</b> ").append(expectedStatus.toUpperCase()).append("</span><br>")
+				.append("<span><b>Expected:</b> ").append(escapeHtml(expectedStatus.toUpperCase())).append("</span><br>")
 				.append("<span><b>Time Taken:</b> ").append(timeInMinutes).append(" min ")
 				.append(timeInSeconds).append(" sec</span><br>")
 				.append("<span><b>Polls:</b> ").append(pollCount).append("</span><br>")

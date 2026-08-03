@@ -8,7 +8,10 @@ import java.io.FileOutputStream;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URI;
 import java.net.URLDecoder;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -151,7 +154,7 @@ public class CommandsService {
 			String envBaseUrl = resolveTargetBaseUrl(contextKey, targetBaseUrlOverride);
 			String infoUrl = joinBaseUrlAndPath(envBaseUrl, idRepoActuatorInfoPath);
 			RestClient.logInfo(contextKey, "Fetching id-repository actuator info from " + infoUrl);
-			io.restassured.response.Response response = given().relaxedHTTPSValidation()
+			io.restassured.response.Response response = given()
 					.contentType(ContentType.JSON).accept(ContentType.JSON).get(infoUrl);
 			if (response == null || response.getStatusCode() != 200) {
 				int status = response == null ? -1 : response.getStatusCode();
@@ -175,11 +178,13 @@ public class CommandsService {
 	}
 
 	private String resolveTargetBaseUrl(String contextKey, String targetBaseUrlOverride) {
-		if (targetBaseUrlOverride != null && !targetBaseUrlOverride.isBlank()) {
-			return decodeTargetBaseUrl(targetBaseUrlOverride);
-		}
 		Properties props = contextUtils.loadServerContext(contextKey);
 		String fromContext = props.getProperty("urlBase");
+		if (targetBaseUrlOverride != null && !targetBaseUrlOverride.isBlank()) {
+			String decoded = decodeTargetBaseUrl(targetBaseUrlOverride);
+			validateAllowedTargetBaseUrl(decoded, fromContext);
+			return decoded;
+		}
 		if (fromContext != null && !fromContext.isBlank()) {
 			return fromContext.trim();
 		}
@@ -188,6 +193,54 @@ public class CommandsService {
 		}
 		throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_MISSING",
 				"targetBaseUrl query parameter, context urlBase, or mosip.test.baseurl must be configured");
+	}
+
+	/**
+	 * Blocks SSRF via the {@code targetBaseUrl} override: only https/http schemes are
+	 * accepted, and the resolved host must either match an already-configured trusted
+	 * host (context urlBase / mosip.test.baseurl) or be a public (non-loopback,
+	 * non-link-local, non-private) address.
+	 */
+	private void validateAllowedTargetBaseUrl(String candidate, String contextUrlBase) {
+		URI uri;
+		try {
+			uri = URI.create(candidate);
+		} catch (IllegalArgumentException ex) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_INVALID", candidate);
+		}
+		String scheme = uri.getScheme();
+		if (scheme == null || !("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_NOT_ALLOWED", candidate);
+		}
+		String host = uri.getHost();
+		if (host == null || host.isBlank()) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_INVALID", candidate);
+		}
+		if (isTrustedHost(host, contextUrlBase) || isTrustedHost(host, baseUrl)) {
+			return;
+		}
+		try {
+			for (InetAddress addr : InetAddress.getAllByName(host)) {
+				if (addr.isLoopbackAddress() || addr.isLinkLocalAddress() || addr.isSiteLocalAddress()
+						|| addr.isAnyLocalAddress() || addr.isMulticastAddress()) {
+					throw new ServiceException(HttpStatus.FORBIDDEN, "TARGET_BASE_URL_NOT_ALLOWED", candidate);
+				}
+			}
+		} catch (UnknownHostException ex) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_INVALID", candidate);
+		}
+	}
+
+	private static boolean isTrustedHost(String host, String trustedBaseUrl) {
+		if (trustedBaseUrl == null || trustedBaseUrl.isBlank()) {
+			return false;
+		}
+		try {
+			String trustedHost = URI.create(trustedBaseUrl.trim()).getHost();
+			return trustedHost != null && trustedHost.equalsIgnoreCase(host);
+		} catch (IllegalArgumentException ex) {
+			return false;
+		}
 	}
 
 	private static String decodeTargetBaseUrl(String value) {
@@ -280,7 +333,14 @@ public class CommandsService {
 	public String storeFile(MultipartFile file) throws IOException {
 		String fileExtension = "";
 		String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
-		fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+		int dotIndex = originalFileName.lastIndexOf(".");
+		if (dotIndex >= 0) {
+			fileExtension = originalFileName.substring(dotIndex);
+		}
+		// The extracted "extension" is attacker-controlled text after the last dot in the
+		// original filename; strip any path separators/traversal so it cannot smuggle a
+		// directory escape into targetLocation below.
+		fileExtension = fileExtension.replaceAll("[\\\\/]", "_").replace("..", "_");
 		File uploadFolder = new File(uploadPath);
 		if (!uploadFolder.exists() || !uploadFolder.isDirectory()) {
 			uploadFolder.mkdir();
@@ -288,8 +348,14 @@ public class CommandsService {
 		String fileName = UUID.randomUUID().toString() + fileExtension;
 		Path targetLocation = Path.of(uploadPath + "/" + fileName);
 
-		CommonUtil.copyMultipartFileWithBuffer(file, targetLocation);
-		return targetLocation.toString();
+		Path canonicalTarget = targetLocation.toFile().getCanonicalFile().toPath();
+		Path canonicalUploadFolder = uploadFolder.getCanonicalFile().toPath();
+		if (!canonicalTarget.getParent().equals(canonicalUploadFolder)) {
+			throw new IOException("Refusing to store upload outside configured upload folder: " + targetLocation);
+		}
+
+		CommonUtil.copyMultipartFileWithBuffer(file, canonicalTarget);
+		return canonicalTarget.toString();
 	}
 
 	public String generatekey(String contextKey, String machineId) {

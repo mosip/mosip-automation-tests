@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.Reporter;
 
@@ -41,16 +42,29 @@ public class LoadKnownIssuesByEnv extends BaseTestCaseUtil implements StepInterf
 			actuatorPath = DEFAULT_IDREPO_ACTUATOR_INFO_PATH;
 		}
 		String infoUrl = joinBaseUrlAndPath(targetBaseUrl.trim(), actuatorPath.trim());
-		Response response = given().relaxedHTTPSValidation().contentType(ContentType.JSON).accept(ContentType.JSON)
-				.get(infoUrl);
+		Response response;
+		try {
+			response = given().config(getIdRepoActuatorHttpConfig()).contentType(ContentType.JSON)
+					.accept(ContentType.JSON).get(infoUrl);
+		} catch (RuntimeException e) {
+			this.hasError = true;
+			throw new RigInternalError("Failed to fetch id-repository actuator info from " + infoUrl, e);
+		}
 		if (response == null || response.getStatusCode() != 200) {
 			this.hasError = true;
 			String responseBody = response == null ? "" : response.getBody().asString();
 			throw new RigInternalError("Failed to fetch id-repository actuator info from " + infoUrl + " (HTTP "
 					+ (response == null ? "no response" : response.getStatusCode()) + "): " + responseBody);
 		}
-		JSONObject actuatorInfo = new JSONObject(response.getBody().asString());
-		String version = actuatorInfo.getJSONObject("build").getString("version");
+		String version;
+		try {
+			JSONObject actuatorInfo = new JSONObject(response.getBody().asString());
+			version = actuatorInfo.getJSONObject("build").getString("version");
+		} catch (JSONException e) {
+			this.hasError = true;
+			throw new RigInternalError("Malformed id-repository actuator info response from " + infoUrl + ": "
+					+ e.getMessage(), e);
+		}
 		dslConfigManager.initKnownIssuesFromIdRepoVersion(version);
 		String envLabel = version.startsWith("1.2") ? "Java 11" : "Java 21";
 		String message = "Detected id-repository version " + version + " (" + envLabel

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -77,9 +76,7 @@ public class PersonaController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Resident data is successfully updated") })
 	@PostMapping(value = "/updateresident/{contextKey}")
 	public @ResponseBody String updateResidentData(@RequestBody PersonaRequestDto personaRequestDto,
-
-			@RequestParam(name = "UIN", required = false) String uin,
-			@RequestParam(name = "RID", required = false) String rid, @PathVariable("contextKey") String contextKey) {
+			@PathVariable("contextKey") String contextKey) {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
@@ -87,7 +84,8 @@ public class PersonaController {
 			}
 
 
-			return packetSyncService.updateResidentData(personaRequestDto.getRequests(), uin, rid, contextKey);
+			return packetSyncService.updateResidentData(personaRequestDto.getRequests(), personaRequestDto.getUin(),
+					personaRequestDto.getRid(), contextKey);
 
 		} catch (Exception ex) {
 			logger.error("updateResidentData", ex);
@@ -151,7 +149,7 @@ public class PersonaController {
 				DataProviderConstants.setResource(personaConfigPath);
 			}
 
-			RestClient.logInfo(contextKey, "Resource Path=" + DataProviderConstants.RESOURCE);
+			RestClient.logInfo(contextKey, "Resource Path=" + DataProviderConstants.getResource());
 
 
 			return packetSyncService.generateResidentData(residentRequestDto, contextKey).toString();

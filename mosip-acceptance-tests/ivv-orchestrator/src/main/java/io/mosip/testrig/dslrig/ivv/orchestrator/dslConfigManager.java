@@ -21,8 +21,8 @@ import io.mosip.testrig.apirig.utils.ConfigManager;
 public class dslConfigManager extends ConfigManager {
 	private static final Logger LOGGER = Logger.getLogger(dslConfigManager.class);
 
-	private static final String KNOWN_ISSUES_JAVA11_FILE = "config/java11Known_Issues,txt";
-	private static final String KNOWN_ISSUES_JAVA21_FILE = "config/java21Known_Issues,txt";
+	private static final String KNOWN_ISSUES_JAVA11_FILE = "config/java11Known_Issues.txt";
+	private static final String KNOWN_ISSUES_JAVA21_FILE = "config/java21Known_Issues.txt";
 
 	private static volatile Map<String, String> cachedTestcaseToBeSkippedMap;
 	private static volatile String knownIssuesSourceFile;
@@ -157,11 +157,8 @@ public class dslConfigManager extends ConfigManager {
 		if (normalized.startsWith("1.2")) {
 			return KNOWN_ISSUES_JAVA11_FILE;
 		}
-		if (normalized.startsWith("1.3") || normalized.startsWith("1.4") || normalized.startsWith("1.5")) {
-			return KNOWN_ISSUES_JAVA21_FILE;
-		}
-		throw new IllegalArgumentException(
-				"Unsupported id-repository version '" + version + "'; expected 1.2.x (Java 11) or 1.3+ (Java 21)");
+		// Any 1.3+ release (including future minors) runs on Java 21.
+		return KNOWN_ISSUES_JAVA21_FILE;
 	}
 
 	public static Map<String, String> loadTestcaseToBeSkippedMap() {
@@ -204,7 +201,6 @@ public class dslConfigManager extends ConfigManager {
 	        }
 	    } catch (IOException e) {
 	        LOGGER.error("Failed to load known issues from " + relativePath + ": " + e.getMessage());
-	        e.printStackTrace();
 	    }
 
 	    return testcaseToBeSkippedMap;

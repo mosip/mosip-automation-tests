@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import jakarta.annotation.PostConstruct;
@@ -112,7 +113,13 @@ public class PacketMakerService {
 	private static final String CHANGESUPERVISORNAMETODIFFCASE = "changeSupervisorNameToDiffCase";
 
 	private static Path normalizeAbsolute(Path path) {
-		return path.toAbsolutePath().normalize();
+		Path absolute = path.toAbsolutePath().normalize();
+		try {
+			// Resolve symlinks so a link inside an allowed root cannot point outside it.
+			return absolute.toRealPath();
+		} catch (IOException e) {
+			return absolute;
+		}
 	}
 
 	private static Path getOsTempRoot() {
@@ -139,6 +146,62 @@ public class PacketMakerService {
 			return null;
 		}
 		return normalizeAbsolute(Paths.get(String.valueOf(mountPath) + String.valueOf(tempPath)));
+	}
+
+	/**
+	 * Throws if {@code candidate}'s canonical path is not under an allowed temp root.
+	 * Compares canonicalized {@link Path} objects with {@link Path#startsWith(Path)} (segment-aware,
+	 * not a raw string prefix check) so a sibling like "/tmp/allowed-evil" cannot pass a
+	 * "/tmp/allowed" check, and fails closed if neither root is configured or matches.
+	 */
+	private static void assertUnderAllowedRoot(Path candidate, String contextKey) throws IOException {
+		Path canonical = candidate.toFile().getCanonicalFile().toPath();
+		Path osRoot = getOsTempRoot();
+		Path ctxRoot = getContextTempRoot(contextKey);
+		Path canonicalOsRoot = osRoot == null ? null : osRoot.toFile().getCanonicalFile().toPath();
+		Path canonicalCtxRoot = ctxRoot == null ? null : ctxRoot.toFile().getCanonicalFile().toPath();
+		boolean ok = (canonicalOsRoot != null && canonical.startsWith(canonicalOsRoot))
+				|| (canonicalCtxRoot != null && canonical.startsWith(canonicalCtxRoot));
+		if (!ok) {
+			throw new SecurityException("Refusing to access path outside allowed temp roots: " + canonical);
+		}
+	}
+
+	/**
+	 * Rejects a caller-supplied template path (createContainer's templatePacketLocation, sourced
+	 * from the packetcreator REST request body) unless it canonicalizes to a location under the
+	 * configured template root ({@code mosip.test.packet.template.location}). Without this,
+	 * createTempTemplate's FileSystemUtils.copyRecursively would recursively copy an arbitrary
+	 * caller-chosen directory from the host filesystem.
+	 */
+	private String assertUnderTemplateRoot(String candidate) {
+		Path canonical;
+		Path templateRoot;
+		try {
+			canonical = new File(candidate).getCanonicalFile().toPath();
+			templateRoot = new File(templateFolder).getCanonicalFile().toPath();
+		} catch (IOException e) {
+			throw new SecurityException("Invalid template path: " + candidate);
+		}
+		if (!canonical.startsWith(templateRoot)) {
+			throw new SecurityException("Refusing to use template path outside configured template root: " + candidate);
+		}
+		return canonical.toString();
+	}
+
+	/**
+	 * Rejects a persona server-context properties path (built from the caller-supplied
+	 * contextKey) unless it canonicalizes to a location under the configured persona config
+	 * root ({@code mosip.test.persona.configpath}). Without this, a contextKey containing
+	 * path traversal sequences could redirect the FileReader below to read an arbitrary file.
+	 */
+	private String assertUnderPersonaConfigRoot(String candidate) throws IOException {
+		Path canonical = new File(candidate).getCanonicalFile().toPath();
+		Path configRoot = new File(personaConfigPath).getCanonicalFile().toPath();
+		if (!canonical.startsWith(configRoot)) {
+			throw new IOException("Refusing to access path outside configured persona config root: " + candidate);
+		}
+		return canonical.toString();
 	}
 
 	private static Path validateUnderAllowedTempRoots(Path candidate, String contextKey) {
@@ -359,6 +422,12 @@ public class PacketMakerService {
 			String processArg,
 			String preregId, String contextKey, boolean bZip, String additionalInfoReqId, File preRegPacketLocation)
 			throws Exception {
+		if (templatePacketLocation != null) {
+			templatePacketLocation = assertUnderTemplateRoot(templatePacketLocation);
+		}
+		if (dataFile != null) {
+			assertUnderAllowedRoot(Paths.get(dataFile), contextKey);
+		}
 		String effectiveSource = src;
 		String effectiveMosipVersion = mosipVersion;
 		if (contextKey != null && !contextKey.equals("")) {
@@ -409,8 +478,14 @@ public class PacketMakerService {
 						originalFileName = originalFileName.replaceFirst("^[^_]*_", "");
 					}
 
+					Path templateRoot = Paths.get(templateLocation).toAbsolutePath().normalize();
 					Path target = Paths.get(templateLocation + File.separator + source + File.separator + processArg
-							+ File.separator + "rid_id", originalFileName);
+							+ File.separator + "rid_id", originalFileName).toAbsolutePath().normalize();
+
+					if (!target.startsWith(templateRoot)) {
+						logger.error("Refusing to copy pre-reg document outside template root: {}", target);
+						continue;
+					}
 
 					try {
 						Files.copy(sourceprereg, target, StandardCopyOption.REPLACE_EXISTING);
@@ -472,10 +547,24 @@ public class PacketMakerService {
 		}
 	}
 
+	private static final Pattern SAFE_PATH_SEGMENT = Pattern.compile("[^\\\\/]+");
+
 	boolean createPacket(String containerRootFolder, String regId, String dataFilePath, String type, String preregId,
 			String contextKey) throws Exception {
+		if (regId == null || !SAFE_PATH_SEGMENT.matcher(regId).matches()
+				|| type == null || !SAFE_PATH_SEGMENT.matcher(type).matches()) {
+			logger.error("Invalid regId/type for packet root construction: regId={}, type={}", regId, type);
+			return false;
+		}
 		String packetRootFolder = getPacketRoot(getProcessRoot(containerRootFolder, contextKey), regId, type);
-		Path metaPath = Path.of(packetRootFolder, PACKET_META_FILENAME);
+		Path validatedPacketRoot = validateUnderAllowedTempRoots(Path.of(packetRootFolder), contextKey);
+		if (validatedPacketRoot == null) {
+			logger.error("Invalid packet root folder path: {}", packetRootFolder);
+			return false;
+		}
+		packetRootFolder = validatedPacketRoot.toString();
+		Path metaPath = validatedPacketRoot.resolve(PACKET_META_FILENAME);
+		assertUnderAllowedRoot(metaPath, contextKey);
 		String metaInfoJson = Files.readString(metaPath);
 
 		JSONObject metaJsonObject = new JSONObject(metaInfoJson);
@@ -571,7 +660,7 @@ public class PacketMakerService {
 			String filePath = personaConfigPath + "/server.context." + contextKey + ".properties";
 			Properties p = new Properties();
 
-			try (FileReader reader = new FileReader(filePath);) {
+			try (FileReader reader = new FileReader(assertUnderPersonaConfigRoot(filePath));) {
 				p.load(reader);
 				reader.close();
 
@@ -682,6 +771,8 @@ public class PacketMakerService {
         logger.error("Invalid zip path construction");
         return false;
     }
+    assertUnderAllowedRoot(zipPath, contextKey);
+    assertUnderAllowedRoot(unencZipPath, contextKey);
 
     byte[] zipBytes = Files.readAllBytes(zipPath);
     byte[] unencZipBytes = Files.readAllBytes(unencZipPath);
@@ -701,10 +792,12 @@ public class PacketMakerService {
     CommonUtil.copyFileWithBuffer(unencZipPath, destination);
     Path unencZipToDelete = validateUnderAllowedTempRoots(unencZipPath, contextKey);
     if (unencZipToDelete != null) {
+        assertUnderAllowedRoot(unencZipToDelete, contextKey);
         Files.delete(unencZipToDelete);
     }
     Path containerRootToDelete = validateUnderAllowedTempRoots(validatedContainerRoot, contextKey);
     if (containerRootToDelete != null) {
+        assertUnderAllowedRoot(containerRootToDelete, contextKey);
         FileSystemUtils.deleteRecursively(containerRootToDelete);
     }
 
@@ -716,6 +809,7 @@ public class PacketMakerService {
         logger.error("Invalid container metadata path");
         return false;
     }
+    assertUnderAllowedRoot(containerMetaDataPath, contextKey);
 
     return fixContainerMetaData(containerMetaDataPath.toString(), regId, type, encryptedHash, signature, contextKey);
 }
@@ -734,6 +828,7 @@ public class PacketMakerService {
 
 		Path srcToDelete = validateUnderAllowedTempRoots(src, contextKey);
 		if (srcToDelete != null) {
+			assertUnderAllowedRoot(srcToDelete, contextKey);
 			Files.delete(srcToDelete);
 		}
 		return result;
@@ -903,7 +998,7 @@ public class PacketMakerService {
 			return;
 		}
 		try {
-			ResidentModel resident = ResidentModel.readPersona(personaPath);
+			ResidentModel resident = ResidentModel.readPersona(personaPath, contextKey);
 			List<String> miss = resident.getMissAttributes();
 			if (miss == null || miss.isEmpty()) {
 				return;
