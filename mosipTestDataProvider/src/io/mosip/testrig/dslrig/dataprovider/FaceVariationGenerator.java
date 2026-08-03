@@ -23,7 +23,7 @@ public final class FaceVariationGenerator {
 	public static String faceVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick)
 			throws Exception {
 		return faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick,
-				String.valueOf(currentScenarioNumber));
+				currentScenarioNumber + "_" + UUID.randomUUID());
 	}
 
 	public static String faceVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick,

@@ -29,6 +29,11 @@ public class DataProviderConstants {
 		RESOURCE_TL.set(path == null || path.isBlank() ? "src/main/resource/" : path);
 	}
 
+	/** Removes the thread-local override so a reused servlet worker thread does not leak it into the next request. */
+	public static void clearResource() {
+		RESOURCE_TL.remove();
+	}
+
 	/** @deprecated use {@link #getResource()} / {@link #setResource(String)} */
 	public static String RESOURCE = "src/main/resource/";
 	public static String COUNTRY_CODE ="IN";

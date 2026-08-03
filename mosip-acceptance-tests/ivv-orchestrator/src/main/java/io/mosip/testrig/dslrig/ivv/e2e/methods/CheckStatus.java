@@ -20,7 +20,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
-	private String getRidStatusUrl = "/resident/status/";
+	private String getRidStatusUrl = "/resident/status";
 	public static Logger logger = Logger.getLogger(CheckStatus.class);
 	public HashMap<String, String> tempPridAndRid = null;
 	public HashMap<String, String> ridStatusMap = new LinkedHashMap<>();
@@ -98,7 +98,8 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 					}
 					int callTimeoutMs = (int) Math.min(statusSocketTimeoutMs, deadline - now);
 					try {
-						Response response = getRequestSilent(baseUrl + getRidStatusUrl + rid, step, callTimeoutMs);
+						Response response = getRequestSilent(baseUrl + getRidStatusUrl, step, callTimeoutMs,
+								ridHeader(rid));
 						ridStatus = response.asString().toLowerCase();
 						gotSuccessfulPoll = true;
 						lastPollError = null;
@@ -119,13 +120,13 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				if (!gotSuccessfulPoll && lastPollError != null) {
 					ridStatus = "unknown (poll error)";
 				}
-				String statusUrl = baseUrl + getRidStatusUrl + rid;
+				String statusUrl = baseUrl + getRidStatusUrl;
 				try {
 					long remainingForFinal = deadline - System.currentTimeMillis();
 					if (remainingForFinal > 0) {
 						int finalTimeoutMs = (int) Math.min(statusSocketTimeoutMs, remainingForFinal);
 						Response finalResponse = getRequest(statusUrl, "Check rid status: " + rid, step,
-								finalTimeoutMs);
+								finalTimeoutMs, ridHeader(rid));
 						ridStatus = finalResponse.asString().toLowerCase();
 						gotSuccessfulPoll = true;
 						lastPollError = null;

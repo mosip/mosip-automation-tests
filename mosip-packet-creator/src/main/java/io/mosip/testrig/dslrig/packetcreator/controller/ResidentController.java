@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
@@ -41,8 +42,8 @@ public class ResidentController {
 
 	@Operation(summary = "Get the RID status from the resident")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully retrived the RID status") })
-	@GetMapping(value = "/resident/status/{rid}/{contextKey}")
-	public @ResponseBody String getRIDStatus(@PathVariable("rid") String rid,
+	@GetMapping(value = "/resident/status/{contextKey}")
+	public @ResponseBody String getRIDStatus(@RequestHeader("X-Rid") String rid,
 			@PathVariable("contextKey") String contextKey) {
 
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
@@ -61,8 +62,8 @@ public class ResidentController {
 	@Operation(summary = "Get the UIN with respect to RID from resident")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrived the UIN with respect to RID") })
-	@GetMapping(value = "/resident/uin/{rid}/{contextKey}")
-	public @ResponseBody String getUINByRid(@PathVariable("rid") String rid,
+	@GetMapping(value = "/resident/uin/{contextKey}")
+	public @ResponseBody String getUINByRid(@RequestHeader("X-Rid") String rid,
 			@PathVariable("contextKey") String contextKey) {
 		String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
 
@@ -134,8 +135,8 @@ public class ResidentController {
 	@Operation(summary = "Get the stages with respect to the RID")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrived the stages for the RID") })
-	@GetMapping(value = "/resident/stages/{rid}/{contextKey}")
-	public @ResponseBody String getStagesByRid(@PathVariable("rid") String rid,
+	@GetMapping(value = "/resident/stages/{contextKey}")
+	public @ResponseBody String getStagesByRid(@RequestHeader("X-Rid") String rid,
 			@PathVariable("contextKey") String contextKey) {
 		String r = null;
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {

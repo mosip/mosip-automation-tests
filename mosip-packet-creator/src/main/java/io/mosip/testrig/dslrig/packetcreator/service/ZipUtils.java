@@ -66,7 +66,8 @@ public class ZipUtils {
 				// allowed to resolve outside targetDirectory.
 				Path file = targetRoot.resolve(zipEntry.getName()).normalize();
 				if (!file.startsWith(targetRoot)) {
-					throw new IOException("Zip entry is outside the target directory: " + zipEntry.getName());
+					logger.error("Zip entry is outside the target directory: {}", zipEntry.getName());
+					return false;
 				}
 
 				Files.createDirectories(file.getParent());
@@ -84,6 +85,7 @@ public class ZipUtils {
 			}
 		} catch (IOException e) {
 			logger.error("Error while unzipping", e);
+			return false;
 		}
 		return unzipped;
 	}

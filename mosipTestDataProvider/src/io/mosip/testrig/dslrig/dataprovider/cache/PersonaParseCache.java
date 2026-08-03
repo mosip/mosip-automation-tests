@@ -55,11 +55,17 @@ public final class PersonaParseCache {
 				bytes = cachedBytes;
 			} else {
 				bytes = CommonUtil.read(absolute.toString());
+				if (bytes == null) {
+					throw new IOException("Unable to read persona file: " + absolute);
+				}
 				BYTES_CACHE.putIfAbsent(cacheKey, bytes);
 				evictIfNeeded();
 			}
 		} else {
 			bytes = CommonUtil.read(absolute.toString());
+			if (bytes == null) {
+				throw new IOException("Unable to read persona file: " + absolute);
+			}
 		}
 
 		ResidentModel model = MAPPER.readValue(bytes, ResidentModel.class);

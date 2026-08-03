@@ -203,7 +203,12 @@ public class ContextUtils {
 			return process;
 		templatePacketLocation = assertUnderTemplateRoot(templatePacketLocation);
 		Path fPath = Path.of(templatePacketLocation + "/" + src.toUpperCase());
-		for (File f : fPath.toFile().listFiles()) {
+		File[] children = fPath.toFile().listFiles();
+		if (children == null) {
+			logger.warn("Template directory does not exist or is not a directory: {}", fPath);
+			return process;
+		}
+		for (File f : children) {
 			if (f.isDirectory()) {
 				process = f.getName();
 				break;
@@ -218,7 +223,12 @@ public class ContextUtils {
 		Path fPath = Path.of(templatePacketLocation + "/" + src.toUpperCase());
 		String process = null;
 
-		for (File f : fPath.toFile().listFiles()) {
+		File[] children = fPath.toFile().listFiles();
+		if (children == null) {
+			logger.warn("Template directory does not exist or is not a directory: {}", fPath);
+			return null;
+		}
+		for (File f : children) {
 			if (f.isDirectory()) {
 				process = f.getName();
 				break;

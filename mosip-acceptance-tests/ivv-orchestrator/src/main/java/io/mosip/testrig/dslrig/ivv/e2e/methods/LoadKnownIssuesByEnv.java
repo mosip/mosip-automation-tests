@@ -42,13 +42,30 @@ public class LoadKnownIssuesByEnv extends BaseTestCaseUtil implements StepInterf
 			actuatorPath = DEFAULT_IDREPO_ACTUATOR_INFO_PATH;
 		}
 		String infoUrl = joinBaseUrlAndPath(targetBaseUrl.trim(), actuatorPath.trim());
-		Response response;
-		try {
-			response = given().config(getIdRepoActuatorHttpConfig()).contentType(ContentType.JSON)
-					.accept(ContentType.JSON).get(infoUrl);
-		} catch (RuntimeException e) {
+		int maxAttempts = Integer.parseInt(System.getProperty("env.idrepoActuatorLoadAttempts", "3"));
+		long baseDelayMs = Long.parseLong(System.getProperty("env.idrepoActuatorLoadRetryMs", "3000"));
+		Response response = null;
+		RuntimeException lastError = null;
+		for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+			if (attempt > 1) {
+				logger.warn("Retrying id-repository actuator fetch (attempt " + attempt + "/" + maxAttempts + ")");
+				sleepQuietly(baseDelayMs * attempt);
+			}
+			lastError = null;
+			try {
+				response = given().config(getIdRepoActuatorHttpConfig()).contentType(ContentType.JSON)
+						.accept(ContentType.JSON).get(infoUrl);
+				if (response != null && response.getStatusCode() == 200) {
+					break;
+				}
+			} catch (RuntimeException e) {
+				lastError = e;
+				response = null;
+			}
+		}
+		if (lastError != null) {
 			this.hasError = true;
-			throw new RigInternalError("Failed to fetch id-repository actuator info from " + infoUrl, e);
+			throw new RigInternalError("Failed to fetch id-repository actuator info from " + infoUrl, lastError);
 		}
 		if (response == null || response.getStatusCode() != 200) {
 			this.hasError = true;
@@ -65,23 +82,31 @@ public class LoadKnownIssuesByEnv extends BaseTestCaseUtil implements StepInterf
 			throw new RigInternalError("Malformed id-repository actuator info response from " + infoUrl + ": "
 					+ e.getMessage(), e);
 		}
-		dslConfigManager.initKnownIssuesFromIdRepoVersion(version);
-		String envLabel = version.startsWith("1.2") ? "Java 11" : "Java 21";
+		try {
+			dslConfigManager.initKnownIssuesFromIdRepoVersion(version);
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			this.hasError = true;
+			throw new RigInternalError("Failed to load known issues for id-repository version " + version, e);
+		}
+		String knownIssuesSourceFile = dslConfigManager.getKnownIssuesSourceFile();
+		String envLabel = "config/java11Known_Issues.txt".equals(knownIssuesSourceFile) ? "Java 11" : "Java 21";
 		String message = "Detected id-repository version " + version + " (" + envLabel
-				+ "); using known issues from " + dslConfigManager.getKnownIssuesSourceFile();
+				+ "); using known issues from " + knownIssuesSourceFile;
 		logger.info(message);
 		Reporter.log(message + "<br>");
 	}
 
 	private static String joinBaseUrlAndPath(String baseUrl, String path) {
-		String base = baseUrl.trim();
-		String apiPath = path.trim();
-		if (base.endsWith("/") && apiPath.startsWith("/")) {
-			return base + apiPath.substring(1);
+		String base = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+		String relative = path.startsWith("/") ? path.substring(1) : path;
+		return java.net.URI.create(base).resolve(relative).toString();
+	}
+
+	private static void sleepQuietly(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
-		if (!base.endsWith("/") && !apiPath.startsWith("/")) {
-			return base + "/" + apiPath;
-		}
-		return base + apiPath;
 	}
 }

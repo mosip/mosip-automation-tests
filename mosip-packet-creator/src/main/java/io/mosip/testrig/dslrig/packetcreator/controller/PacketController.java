@@ -25,7 +25,9 @@ import io.mosip.testrig.dslrig.packetcreator.dto.PacketReprocessDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.PreRegisterRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncReqRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncReqResponseDTO;
+import io.mosip.testrig.dslrig.packetcreator.dto.SyncExternalPacketRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.SyncRidDto;
+import jakarta.validation.Valid;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketMakerService;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
@@ -309,17 +311,16 @@ public class PacketController {
 
 	@Operation(summary = "Create the external packet and upload")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "External packet and upload successfully") })
-	@PostMapping(value = "/packetmanager/createPacket/{process}/{rid}/{introducerInfoToken}/{contextKey}")
-	public @ResponseBody String createCRVSPacket(@RequestBody ExternalPacketRequestDTO requestDto,
+	@PostMapping(value = "/packetmanager/createPacket/{process}/{introducerInfoToken}/{contextKey}")
+	public @ResponseBody String createCRVSPacket(@Valid @RequestBody ExternalPacketRequestDTO requestDto,
 			@PathVariable("process") String process,
-			@PathVariable("rid") String rid,
 			@PathVariable("introducerInfoToken") boolean validateToken,
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
 			DataProviderResourceConfigurer.configure(personaConfigPath);
 
-			return packetSyncService.createPacketUpload(requestDto.getPersonaFilePath(),requestDto.getSource(), process, requestDto.getUin(), rid,
+			return packetSyncService.createPacketUpload(requestDto.getPersonaFilePath(),requestDto.getSource(), process, requestDto.getUin(), requestDto.getRid(),
 					validateToken,contextKey);
 
 		} catch (ServiceException se) {
@@ -336,14 +337,14 @@ public class PacketController {
 
 	@Operation(summary = "sync the external packet")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "sync the external packet successfully") })
-	@PostMapping(value = "/sync/externalPacket/{rid}/{contextKey}")
-	public @ResponseBody String syncCRVSPacket(@PathVariable("rid") String rid,
+	@PostMapping(value = "/sync/externalPacket/{contextKey}")
+	public @ResponseBody String syncCRVSPacket(@Valid @RequestBody SyncExternalPacketRequestDto requestDto,
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
 			DataProviderResourceConfigurer.configure(personaConfigPath);
 
-			return packetSyncService.syncAndUpload(rid, contextKey);
+			return packetSyncService.syncAndUpload(requestDto.getRid(), contextKey);
 
 		} catch (ServiceException se) {
             throw se;

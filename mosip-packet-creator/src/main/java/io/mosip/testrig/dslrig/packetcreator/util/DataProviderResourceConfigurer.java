@@ -16,16 +16,17 @@ public final class DataProviderResourceConfigurer {
 	private DataProviderResourceConfigurer() {
 	}
 
+	private static final String DEFAULT_RESOURCE_PATH = "src/main/resource/";
+
 	public static void configure(String path) {
-		if (path == null || path.isEmpty()) {
-			return;
-		}
+		String resolved = (path == null || path.isEmpty()) ? DEFAULT_RESOURCE_PATH : path;
 		try {
-			DataProviderConstants.class.getMethod("setResource", String.class).invoke(null, path);
+			DataProviderConstants.class.getMethod("setResource", String.class).invoke(null, resolved);
 		} catch (NoSuchMethodException e) {
-			DataProviderConstants.RESOURCE = path;
+			DataProviderConstants.RESOURCE = resolved;
 		} catch (Exception e) {
-			logger.warn("Failed to set DataProviderConstants resource path", e);
+			logger.error("Failed to set DataProviderConstants resource path to {}", resolved, e);
+			throw new IllegalStateException("Failed to configure dataprovider resource path: " + resolved, e);
 		}
 	}
 }

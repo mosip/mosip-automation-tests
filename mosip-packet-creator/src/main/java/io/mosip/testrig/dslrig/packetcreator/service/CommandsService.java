@@ -8,13 +8,12 @@ import java.io.FileOutputStream;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -197,16 +196,16 @@ public class CommandsService {
 
 	/**
 	 * Blocks SSRF via the {@code targetBaseUrl} override: only https/http schemes are
-	 * accepted, and the resolved host must either match an already-configured trusted
-	 * host (context urlBase / mosip.test.baseurl) or be a public (non-loopback,
-	 * non-link-local, non-private) address.
+	 * accepted, and the scheme, host, and port must exactly match an already-configured
+	 * trusted origin (context urlBase / mosip.test.baseurl). No other target is allowed.
 	 */
 	private void validateAllowedTargetBaseUrl(String candidate, String contextUrlBase) {
 		URI uri;
 		try {
 			uri = URI.create(candidate);
 		} catch (IllegalArgumentException ex) {
-			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_INVALID", candidate);
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_INVALID", candidate, ex,
+					ex.getMessage());
 		}
 		String scheme = uri.getScheme();
 		if (scheme == null || !("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))) {
@@ -216,28 +215,23 @@ public class CommandsService {
 		if (host == null || host.isBlank()) {
 			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_INVALID", candidate);
 		}
-		if (isTrustedHost(host, contextUrlBase) || isTrustedHost(host, baseUrl)) {
+		if (isTrustedOrigin(uri, contextUrlBase) || isTrustedOrigin(uri, baseUrl)) {
 			return;
 		}
-		try {
-			for (InetAddress addr : InetAddress.getAllByName(host)) {
-				if (addr.isLoopbackAddress() || addr.isLinkLocalAddress() || addr.isSiteLocalAddress()
-						|| addr.isAnyLocalAddress() || addr.isMulticastAddress()) {
-					throw new ServiceException(HttpStatus.FORBIDDEN, "TARGET_BASE_URL_NOT_ALLOWED", candidate);
-				}
-			}
-		} catch (UnknownHostException ex) {
-			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_INVALID", candidate);
-		}
+		throw new ServiceException(HttpStatus.FORBIDDEN, "TARGET_BASE_URL_NOT_ALLOWED", candidate);
 	}
 
-	private static boolean isTrustedHost(String host, String trustedBaseUrl) {
+	private static boolean isTrustedOrigin(URI candidate, String trustedBaseUrl) {
 		if (trustedBaseUrl == null || trustedBaseUrl.isBlank()) {
 			return false;
 		}
 		try {
-			String trustedHost = URI.create(trustedBaseUrl.trim()).getHost();
-			return trustedHost != null && trustedHost.equalsIgnoreCase(host);
+			URI trusted = URI.create(trustedBaseUrl.trim());
+			return trusted.getHost() != null
+					&& trusted.getHost().equalsIgnoreCase(candidate.getHost())
+					&& trusted.getPort() == candidate.getPort()
+					&& trusted.getScheme() != null
+					&& trusted.getScheme().equalsIgnoreCase(candidate.getScheme());
 		} catch (IllegalArgumentException ex) {
 			return false;
 		}
@@ -264,15 +258,7 @@ public class CommandsService {
 			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_MISSING",
 					"targetBaseUrl query parameter, context urlBase, or mosip.test.baseurl must be configured");
 		}
-		String base = baseUrl.trim();
-		String path = apiPath == null ? "" : apiPath.trim();
-		if (base.endsWith("/") && path.startsWith("/")) {
-			return base + path.substring(1);
-		}
-		if (!base.endsWith("/") && !path.startsWith("/")) {
-			return base + "/" + path;
-		}
-		return base + path;
+		return CommonUtil.joinBaseUrlAndPath(baseUrl, apiPath == null ? "" : apiPath);
 	}
 
 	public String writeToFile(String contextKey, Properties requestData, long offset) throws IOException {
@@ -342,8 +328,8 @@ public class CommandsService {
 		// directory escape into targetLocation below.
 		fileExtension = fileExtension.replaceAll("[\\\\/]", "_").replace("..", "_");
 		File uploadFolder = new File(uploadPath);
-		if (!uploadFolder.exists() || !uploadFolder.isDirectory()) {
-			uploadFolder.mkdir();
+		if (!uploadFolder.isDirectory() && !uploadFolder.mkdirs()) {
+			throw new IOException("Failed to create upload folder: " + uploadFolder);
 		}
 		String fileName = UUID.randomUUID().toString() + fileExtension;
 		Path targetLocation = Path.of(uploadPath + "/" + fileName);
@@ -355,6 +341,9 @@ public class CommandsService {
 		}
 
 		CommonUtil.copyMultipartFileWithBuffer(file, canonicalTarget);
+		if (!Files.isRegularFile(canonicalTarget)) {
+			throw new IOException("Upload was not persisted: " + canonicalTarget);
+		}
 		return canonicalTarget.toString();
 	}
 

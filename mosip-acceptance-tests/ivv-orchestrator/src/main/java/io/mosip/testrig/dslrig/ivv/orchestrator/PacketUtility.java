@@ -357,7 +357,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 		if (uin != null) {
 		    jsonReq.put("uin", uin);
 		}
-		String url = baseUrl + props.getProperty("getCreatePacketUrl") + process + "/" + genRid +"/"+ genrateValidateToken;
+		jsonReq.put("rid", genRid);
+		String url = baseUrl + props.getProperty("getCreatePacketUrl") + process + "/" + genrateValidateToken;
 
 		Response templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
 		if(valid.equalsIgnoreCase("invalid")) {
@@ -376,19 +377,21 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String syncAndTriggerPacket( String rid, HashMap<String, String> contextKey, Scenario.Step step) throws RigInternalError {
 	    JSONObject jsonReq = new JSONObject();
+	    jsonReq.put("rid", rid);
 
-	    String url = baseUrl + props.getProperty("getSyncExternalPacketUrl") + rid;
+	    String url = baseUrl + props.getProperty("getSyncExternalPacketUrl");
 	    Response templateResponse = postRequest(url, jsonReq.toString(), "SYNC-PACKET", step);
 	    return templateResponse.getBody().asString();
 	}
 
 	public String requestOtp(String resFilePath, HashMap<String, String> map, String emailOrPhone, Scenario.Step step)
 			throws RigInternalError {
-		String url = baseUrl + props.getProperty("sendOtpUrl") + emailOrPhone;
+		String url = baseUrl + props.getProperty("sendOtpUrl");
 		JSONObject jsonReq = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put(PERSONAFILEPATH, jsonArray);
+		jsonReq.put("emailOrPhone", emailOrPhone);
 		Response response = postRequestWithQueryParamAndBody(url, jsonReq.toString(), map, "Send Otp", step);
 		if (!response.getBody().asString().toLowerCase().contains("email request submitted")) {
 			this.hasError = true;
@@ -402,12 +405,13 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public void verifyOtp(String resFilePath, HashMap<String, String> contextKey, String emailOrPhone,
 			Scenario.Step step, String otp) throws RigInternalError {
-		String url = baseUrl + props.getProperty("verifyOtpUrl") + emailOrPhone;
+		String url = baseUrl + props.getProperty("verifyOtpUrl");
 		JSONObject jsonReq = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put(PERSONAFILEPATH, jsonArray);
 		jsonReq.put("otp", otp);
+		jsonReq.put("emailOrPhone", emailOrPhone);
 		Response response = postRequest(url, jsonReq.toString(), "Verify Otp", step);
 		if (!response.getBody().asString().toLowerCase().contains("validation_successful")) {
 			this.hasError = true;
@@ -603,8 +607,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 				Thread.currentThread().interrupt();
 			}
 			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
-			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid, step);
-			DslReportLogUtil.reportRequestAndResponse("", "", identityUrl + rid, "", response.getBody().asString());
+			Response response = getRequest(identityUrl, "Get uin by rid :" + rid, step, ridHeader(rid));
+			DslReportLogUtil.reportRequestAndResponse("", "", identityUrl, "", response.getBody().asString());
 			String uin = response.asString();
 			updateResidentUIN(step.getScenario().getGeneratedResidentData().get(0), uin, step);
 		}
@@ -673,7 +677,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 				Thread.currentThread().interrupt();
 			}
 			String identityUrl = baseUrl + props.getProperty("getIdentityUrl");
-			Response response = getRequest(identityUrl + rid, "Get uin by rid :" + rid, step);
+			Response response = getRequest(identityUrl, "Get uin by rid :" + rid, step, ridHeader(rid));
 			String uin = response.asString();
 			updateResidentUIN(step.getScenario().getGeneratedResidentData().get(0), uin, step);
 		}

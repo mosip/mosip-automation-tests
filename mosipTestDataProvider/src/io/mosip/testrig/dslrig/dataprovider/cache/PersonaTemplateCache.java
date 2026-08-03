@@ -69,6 +69,14 @@ public final class PersonaTemplateCache {
 		RESPONSE_CACHE.clear();
 	}
 
+	public static void clearContext(String contextKey) {
+		if (contextKey == null) {
+			return;
+		}
+		String prefix = contextKey + "|";
+		RESPONSE_CACHE.keySet().removeIf(key -> key.startsWith(prefix));
+	}
+
 	private static void evictIfNeeded() {
 		int overflow = RESPONSE_CACHE.size() - MAX_ENTRIES;
 		if (overflow <= 0) {

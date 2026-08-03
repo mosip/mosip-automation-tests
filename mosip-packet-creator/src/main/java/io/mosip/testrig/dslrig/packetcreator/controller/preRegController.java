@@ -50,11 +50,16 @@ public class preRegController {
 	@Operation(summary = "Request for OTP for the given Persona and channel {mail | phone}")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully requested OTP for given persona and channel") })
-	@PostMapping(value = "/otp/request/{to}/{contextKey}")
+	@PostMapping(value = "/otp/request/{contextKey}")
 	public @ResponseBody String requestOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-			@PathVariable("to") String to, @PathVariable("contextKey") String contextKey) {
+			@PathVariable("contextKey") String contextKey) {
 
 		try {
+			String to = preRegisterRequestDto.getEmailOrPhone();
+			if (to == null || to.isBlank()) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "EMAIL_OR_PHONE_REQUIRED",
+						"emailOrPhone is required in the request body");
+			}
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.setResource(personaConfigPath);
 			}
@@ -69,12 +74,17 @@ public class preRegController {
 	@Operation(summary = "Verify the sent OTP for the given Persona and channel {mail | phone}")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully verified the OTP sent for given persona and channel") })
-	@PostMapping(value = "/otp/verify/{to}/{contextKey}")
+	@PostMapping(value = "/otp/verify/{contextKey}")
 	public @ResponseBody String verifyOtpForChannel(
 			@Validated(PreRegisterRequestDto.OtpVerification.class) @RequestBody PreRegisterRequestDto preRegisterRequestDto,
-			@PathVariable("to") String to, @PathVariable("contextKey") String contextKey) {
+			@PathVariable("contextKey") String contextKey) {
 
 		try {
+			String to = preRegisterRequestDto.getEmailOrPhone();
+			if (to == null || to.isBlank()) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "EMAIL_OR_PHONE_REQUIRED",
+						"emailOrPhone is required in the request body");
+			}
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.setResource(personaConfigPath);
 			}

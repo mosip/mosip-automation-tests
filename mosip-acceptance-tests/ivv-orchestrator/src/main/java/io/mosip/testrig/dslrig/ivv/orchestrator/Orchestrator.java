@@ -460,8 +460,8 @@ public class Orchestrator {
 		// skipped before any step runs — appears in the report.
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
 
-		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.IsDebugEnabled()) {
-			String skipMsg = "Skipping AFTER_SUITE scenario because enableDebug=yes";
+		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.isAfterSuiteTeardownSkipped()) {
+			String skipMsg = "Skipping AFTER_SUITE scenario because skipAfterSuiteTeardown=yes";
 			logger.info(skipMsg);
 			extentTest.skip(skipMsg);
 			updateRunStatistics(scenario);

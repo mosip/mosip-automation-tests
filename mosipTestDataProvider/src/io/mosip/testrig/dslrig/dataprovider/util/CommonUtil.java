@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.dataprovider.util;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -170,7 +171,14 @@ public class CommonUtil {
 		if (!isPathUnderRoot(safePath, matchedRoot)) {
 			throw new IOException("Path traversal attempt detected");
 		}
-		return safePath;
+		Path realPath = safePath.toRealPath();
+		if (!isPathUnderRoot(realPath, matchedRoot)) {
+			throw new IOException("Path resolves outside allowed temp roots: " + path);
+		}
+		if (!Files.isRegularFile(realPath, LinkOption.NOFOLLOW_LINKS)) {
+			throw new IOException("Path is not a regular file: " + path);
+		}
+		return realPath;
 	}
 
 	private static Path findMatchingAllowedRoot(Path candidate, String contextKey) {
@@ -313,6 +321,18 @@ public class CommonUtil {
 		if (obj.has(attrName))
 			return obj.getString(attrName);
 		return defValue;
+	}
+
+	public static String joinBaseUrlAndPath(String baseUrl, String path) {
+		String base = baseUrl.trim();
+		String apiPath = path.trim();
+		if (base.endsWith("/") && apiPath.startsWith("/")) {
+			return base + apiPath.substring(1);
+		}
+		if (!base.endsWith("/") && !apiPath.startsWith("/")) {
+			return base + "/" + apiPath;
+		}
+		return base + apiPath;
 	}
 
 	public static String getHexEncodedHash(byte[] data) throws Exception {

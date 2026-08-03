@@ -45,7 +45,7 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 		}
 
 		while (counter < Integer.parseInt(props.getProperty("loopCount"))) {
-			Response response = getRequestSilent(baseUrl + props.getProperty("ridStatus") + ridStage, step);
+			Response response = getRequestSilent(baseUrl + props.getProperty("ridStatus"), step, ridHeader(ridStage));
 			res = new JSONObject(response.getBody().asString());
 			arr = res.getJSONObject("response").getJSONArray("packetStatusUpdateList");
 			for (Object myObject : arr) {
@@ -79,8 +79,8 @@ public class CheckRIDStage extends BaseTestCaseUtil implements StepInterface {
 				}
 			}
 		}
-		Response finalResponse = getRequest(baseUrl + props.getProperty("ridStatus") + ridStage,
-				"Final RID Stage Check", step);
+		Response finalResponse = getRequest(baseUrl + props.getProperty("ridStatus"),
+				"Final RID Stage Check", step, ridHeader(ridStage));
 		res = new JSONObject(finalResponse.getBody().asString());
 	    logger.info(res.toString());
 

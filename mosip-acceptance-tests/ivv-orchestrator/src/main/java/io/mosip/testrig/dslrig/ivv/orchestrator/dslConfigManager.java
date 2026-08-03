@@ -154,7 +154,22 @@ public class dslConfigManager extends ConfigManager {
 			throw new IllegalArgumentException("id-repository build.version is empty");
 		}
 		String normalized = version.trim();
-		if (normalized.startsWith("1.2")) {
+		String[] parts = normalized.split("\\.");
+		if (parts.length < 2) {
+			throw new IllegalArgumentException("Invalid id-repository version: " + version);
+		}
+		int major;
+		int minor;
+		try {
+			major = Integer.parseInt(parts[0]);
+			minor = Integer.parseInt(parts[1]);
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Invalid id-repository version: " + version, e);
+		}
+		if (major != 1 || minor < 2) {
+			throw new IllegalArgumentException("Unsupported id-repository version: " + version);
+		}
+		if (minor == 2) {
 			return KNOWN_ISSUES_JAVA11_FILE;
 		}
 		// Any 1.3+ release (including future minors) runs on Java 21.
@@ -200,7 +215,8 @@ public class dslConfigManager extends ConfigManager {
 	            }
 	        }
 	    } catch (IOException e) {
-	        LOGGER.error("Failed to load known issues from " + relativePath + ": " + e.getMessage());
+	        LOGGER.error("Failed to load known issues from " + relativePath, e);
+	        throw new IllegalStateException("Failed to load known issues from " + relativePath, e);
 	    }
 
 	    return testcaseToBeSkippedMap;
@@ -290,6 +306,23 @@ public class dslConfigManager extends ConfigManager {
 		return properties;
 	}
 
+
+	/**
+	 * Whether the AFTER_SUITE teardown scenario (mock expectation cleanup, machine/center/user
+	 * delete mapping) should be skipped. Deliberately independent of {@link #IsDebugEnabled()}:
+	 * verbose logging must not bypass teardown hygiene.
+	 */
+	public static boolean isAfterSuiteTeardownSkipped() {
+		if (Boolean.parseBoolean(System.getProperty("dslrig.skipAfterSuiteTeardown", "false"))) {
+			return true;
+		}
+		try {
+			String v = ConfigManager.getproperty("skipAfterSuiteTeardown");
+			return v != null && "yes".equalsIgnoreCase(v.trim());
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
 	public static boolean isInternalApiLoggingForReport() {
 		if (Boolean.parseBoolean(System.getProperty("dslrig.internal.api.logging", "false"))) {

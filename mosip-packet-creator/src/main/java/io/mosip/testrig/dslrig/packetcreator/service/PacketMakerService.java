@@ -80,7 +80,6 @@ public class PacketMakerService {
 	private static final class PacketThreadContext {
 		private String templateSource;
 		private String mosipVersion;
-		private String regId;
 	}
 
 	private static final String UNDERSCORE = "_";
@@ -291,8 +290,6 @@ public class PacketMakerService {
 
 	private PacketSyncService packetSyncService;
 
-	private String newRegId;
-
 	@Value("${mosip.version:1.2}")
 	private String mosipVersion;
 
@@ -327,14 +324,6 @@ public class PacketMakerService {
 
 	}
 
-	public String getNewRegId() {
-		PacketThreadContext ctx = PACKET_THREAD_CONTEXT.get();
-		if (ctx != null && ctx.regId != null) {
-			return ctx.regId;
-		}
-		return newRegId;
-	}
-
 	private String activeTemplateSource() {
 		PacketThreadContext ctx = PACKET_THREAD_CONTEXT.get();
 		return ctx != null && ctx.templateSource != null ? ctx.templateSource : src;
@@ -349,14 +338,6 @@ public class PacketMakerService {
 
 	private void endPacketThreadContext() {
 		PACKET_THREAD_CONTEXT.remove();
-	}
-
-	private void assignRegId(String regId) {
-		newRegId = regId;
-		PacketThreadContext ctx = PACKET_THREAD_CONTEXT.get();
-		if (ctx != null) {
-			ctx.regId = regId;
-		}
 	}
 
 	public String getWorkDirectory() {
@@ -396,6 +377,9 @@ public class PacketMakerService {
 			String tprocess = ContextUtils.ProcessFromTemplate(activeTemplateSource(), packetPath);
 			if (tprocess != null)
 				process = tprocess;
+		}
+		if (process != null) {
+			VariableManager.setVariableValue(contextKey, "process", process);
 		}
 		RestClient.logInfo(contextKey, "packPacketContainer:src=" + activeTemplateSource() + ",process=" + process + "PacketRoot="
 				+ tempPacketRootFolder + " regid=" + regId);
@@ -449,7 +433,7 @@ public class PacketMakerService {
 			logger.info("createPacketFromTemplate:Packet created : {}", packetPath);
 		JSONObject retObj = new JSONObject();
 		retObj.put("packet", packetPath);
-		String regId = packetPath != null ? getRegIdFromPacketPath(packetPath) : getNewRegId();
+		String regId = getRegIdFromPacketPath(packetPath);
 		retObj.put("regId", regId);
 
 		return retObj.toString();
@@ -498,7 +482,6 @@ public class PacketMakerService {
 			if (additionalInfoReqId != null) {
 				regId = appId;
 			}
-			assignRegId(regId);
 			if (processArg != null && !processArg.equals("")) {
 				process = processArg;
 			} else {
@@ -520,7 +503,7 @@ public class PacketMakerService {
 					}
 
 					Path templateRoot = Paths.get(templateLocation).toAbsolutePath().normalize();
-					Path target = Paths.get(templateLocation + File.separator + source + File.separator + processArg
+					Path target = Paths.get(templateLocation + File.separator + source + File.separator + process
 							+ File.separator + "rid_id", originalFileName).toAbsolutePath().normalize();
 
 					if (!target.startsWith(templateRoot)) {
@@ -538,17 +521,23 @@ public class PacketMakerService {
 
 			String tempPacketRootFolder = createTempTemplate(templateLocation, appId, contextKey);
 
-			createPacket(tempPacketRootFolder, regId, dataFile, "id", preregId, contextKey);
+			if (!createPacket(tempPacketRootFolder, regId, dataFile, "id", preregId, contextKey)) {
+				throw new IOException("Failed to create id packet for regId " + regId);
+			}
 			if (bZip) {
 				packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder, contextKey), regId, "id"), regId, "id",
 						contextKey);
 			}
-			createPacket(tempPacketRootFolder, regId, dataFile, EVIDENCE, preregId, contextKey);
+			if (!createPacket(tempPacketRootFolder, regId, dataFile, EVIDENCE, preregId, contextKey)) {
+				throw new IOException("Failed to create evidence packet for regId " + regId);
+			}
 			if (bZip) {
 				packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder, contextKey), regId, EVIDENCE), regId,
 						EVIDENCE, contextKey);
 			}
-			createPacket(tempPacketRootFolder, regId, dataFile, OPTIONAL, preregId, contextKey);
+			if (!createPacket(tempPacketRootFolder, regId, dataFile, OPTIONAL, preregId, contextKey)) {
+				throw new IOException("Failed to create optional packet for regId " + regId);
+			}
 			if (bZip) {
 				packPacket(getPacketRoot(getProcessRoot(tempPacketRootFolder, contextKey), regId, OPTIONAL), regId,
 						OPTIONAL, contextKey);
@@ -588,7 +577,7 @@ public class PacketMakerService {
 		}
 	}
 
-	private static final Pattern SAFE_PATH_SEGMENT = Pattern.compile("[^\\\\/]+");
+	private static final Pattern SAFE_PATH_SEGMENT = Pattern.compile("(?!\\.+$)[A-Za-z0-9._-]+");
 
 	boolean createPacket(String containerRootFolder, String regId, String dataFilePath, String type, String preregId,
 			String contextKey) throws Exception {
@@ -772,8 +761,12 @@ public class PacketMakerService {
 				updatePacketDataHash(packetRootFolder, sequence, PACKET_DATA_HASH_FILENAME, contextKey);
 				updatePacketDataHash(packetRootFolder, operations_seq, PACKET_OPERATION_HASH_FILENAME, contextKey);
 			}
+		} catch (SecurityException | IOException e) {
+			logger.error("Packet {} rejected: {}", regId, e.getMessage(), e);
+			return false;
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("Packet {} failed: {}", regId, e.getMessage(), e);
+			return false;
 		}
 
 		VariableManager.setVariableValue(contextKey, "META_INFO-OPERATIONS_DATA-supervisorId",
@@ -830,7 +823,12 @@ public class PacketMakerService {
     }
     Path destination = Path.of(mountPath + tempPath, sanitizedContextSegment(contextKey),
             unencZipPath.getFileName().toString());
+    Files.createDirectories(destination.getParent());
     CommonUtil.copyFileWithBuffer(unencZipPath, destination);
+    if (!Files.isRegularFile(destination) || Files.size(destination) != Files.size(unencZipPath)) {
+        logger.error("Failed to copy {} to {}; keeping the source", unencZipPath, destination);
+        return false;
+    }
     Path unencZipToDelete = validateUnderAllowedTempRoots(unencZipPath, contextKey);
     if (unencZipToDelete != null) {
         assertUnderAllowedRoot(unencZipToDelete, contextKey);
@@ -865,7 +863,12 @@ public class PacketMakerService {
 				VariableManager.getVariableValue(contextKey, MOUNTPATH).toString()
 						+ VariableManager.getVariableValue(contextKey, MOSIP_TEST_TEMP).toString(),
 				sanitizedContextSegment(contextKey), src.getFileName().toString());
+		Files.createDirectories(destination.getParent());
 		CommonUtil.copyFileWithBuffer(src, destination);
+		if (!Files.isRegularFile(destination) || Files.size(destination) != Files.size(src)) {
+			logger.error("Failed to copy {} to {}; keeping the source", src, destination);
+			return false;
+		}
 
 		Path srcToDelete = validateUnderAllowedTempRoots(src, contextKey);
 		if (srcToDelete != null) {

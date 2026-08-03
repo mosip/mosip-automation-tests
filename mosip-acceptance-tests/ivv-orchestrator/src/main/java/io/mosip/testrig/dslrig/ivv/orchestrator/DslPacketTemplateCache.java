@@ -50,20 +50,12 @@ public final class DslPacketTemplateCache {
 		for (String path : personaFilePaths) {
 			Path p = Paths.get(path).toAbsolutePath().normalize();
 			String pathStr = p.toString();
-			long version;
-			if (Files.exists(p)) {
-				// Locally: file is on the orchestrator filesystem; use mtime for
-				// fine-grained differentiation (catches changes from any source).
-				version = Files.getLastModifiedTime(p).toMillis();
-			} else {
-				// Docker: persona files live inside the packet-creator container.
-				// mtime is not observable here; use the update counter instead.
-				// The counter starts at 0 and is incremented by explicit DSL update
-				// steps, so the cache key changes whenever the persona is modified.
-				AtomicInteger counter = UPDATE_COUNTERS.get(pathStr);
-				version = (counter != null) ? counter.get() : 0L;
-			}
-			normalized.add(pathStr + "@" + version);
+			// mtime catches local edits from any source; the counter catches updates
+			// applied inside the packet-creator container, where mtime is not visible.
+			long mtime = Files.exists(p) ? Files.getLastModifiedTime(p).toMillis() : 0L;
+			AtomicInteger counter = UPDATE_COUNTERS.get(pathStr);
+			long updates = (counter != null) ? counter.get() : 0L;
+			normalized.add(pathStr + "@" + mtime + "#" + updates);
 		}
 		Collections.sort(normalized);
 		return contextKey + "|" + process + "|" + qualityScore + "|" + generateValidCbeff + "|"

@@ -56,8 +56,8 @@ public final class PacketSizeUtil {
 	 *
 	 * @return size after padding
 	 */
-	public static long padFileToMinSize(String filePath, int minBytes) throws IOException {
-		Path path = Path.of(filePath);
+	public static long padFileToMinSize(String filePath, int minBytes, String contextKey) throws IOException {
+		Path path = CommonUtil.validateReadablePath(filePath, contextKey);
 		long size = Files.size(path);
 		if (size >= minBytes) {
 			return size;

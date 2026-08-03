@@ -332,6 +332,10 @@ public class BaseTestCaseUtil extends BaseStep {
 		return test;
 	}
 
+	protected static Map<String, String> ridHeader(String rid) {
+		return Collections.singletonMap("X-Rid", rid);
+	}
+
 	protected static String addContextToUrl(String url, Scenario.Step step) {
 
 		String context = buildPacketCreatorContextKey(step.getScenario());
@@ -356,11 +360,23 @@ public class BaseTestCaseUtil extends BaseStep {
 		return pcBase != null && !pcBase.isEmpty() && url != null && url.startsWith(pcBase);
 	}
 
+	private static RequestSpecification applyPacketCreatorApiKey(RequestSpecification spec, String url) {
+		if (!isPacketCreatorUrl(url)) {
+			return spec;
+		}
+		String apiKey = props.getProperty("packetCreatorApiKey");
+		if (apiKey == null || apiKey.isBlank()) {
+			return spec;
+		}
+		return spec.header("X-Api-Key", apiKey);
+	}
+
 	private static RequestSpecification givenHttpClient(String url) {
 		RequestSpecification spec = given();
 		if (isPacketCreatorUrl(url)) {
 			spec = spec.config(PACKET_CREATOR_HTTP_CONFIG);
 		}
+		spec = applyPacketCreatorApiKey(spec, url);
 		return spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON);
 	}
@@ -426,14 +442,27 @@ public class BaseTestCaseUtil extends BaseStep {
 	}
 
 	public static Response getRequest(String url, String opsToLog, Scenario.Step step, int socketTimeoutMs) {
+		return getRequest(url, opsToLog, step, socketTimeoutMs, null);
+	}
+
+	public static Response getRequest(String url, String opsToLog, Scenario.Step step, Map<String, String> headers) {
+		return getRequest(url, opsToLog, step, PACKET_CREATOR_SOCKET_MS, headers);
+	}
+
+	public static Response getRequest(String url, String opsToLog, Scenario.Step step, int socketTimeoutMs,
+			Map<String, String> headers) {
 		url = addContextToUrl(url, step);
 		Response getResponse;
 		RequestSpecification spec = given();
 		if (isPacketCreatorUrl(url)) {
 			spec = spec.config(packetCreatorHttpConfig(socketTimeoutMs));
 		}
+		spec = applyPacketCreatorApiKey(spec, url);
 		spec = spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON);
+		if (headers != null && !headers.isEmpty()) {
+			spec = spec.headers(headers);
+		}
 
 		if (dslConfigManager.IsDebugEnabled()) {
 			getResponse = spec.log().all().when().get(url).then().log().all().extract().response();
@@ -451,14 +480,27 @@ public class BaseTestCaseUtil extends BaseStep {
 	}
 
 	public static Response getRequestSilent(String url, Scenario.Step step, int socketTimeoutMs) {
+		return getRequestSilent(url, step, socketTimeoutMs, null);
+	}
+
+	public static Response getRequestSilent(String url, Scenario.Step step, Map<String, String> headers) {
+		return getRequestSilent(url, step, PACKET_CREATOR_SOCKET_MS, headers);
+	}
+
+	public static Response getRequestSilent(String url, Scenario.Step step, int socketTimeoutMs,
+			Map<String, String> headers) {
 		url = addContextToUrl(url, step);
 		Response getResponse = null;
 		RequestSpecification spec = given();
 		if (isPacketCreatorUrl(url)) {
 			spec = spec.config(packetCreatorHttpConfig(socketTimeoutMs));
 		}
+		spec = applyPacketCreatorApiKey(spec, url);
 		spec = spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON);
+		if (headers != null && !headers.isEmpty()) {
+			spec = spec.headers(headers);
+		}
 
 		if (dslConfigManager.IsDebugEnabled()) {
 			getResponse = spec.log().all().when().get(url).then().log().all().extract().response();
@@ -496,23 +538,18 @@ public class BaseTestCaseUtil extends BaseStep {
 	}
 
 	private static int resolveRetryCount(String propertyName) {
+		final int defaultRetry = 3;
+		final int maxRetry = 10;
 		String value = props.getProperty(propertyName);
 		if (value == null || value.isBlank()) {
-			value = props.getProperty("loopCount");
-		}
-		if (value == null || value.isBlank()) {
-			return 3;
+			return defaultRetry;
 		}
 		try {
 			int parsed = Integer.parseInt(value.trim());
-			return parsed > 0 ? parsed : 1;
+			return parsed > 0 ? Math.min(parsed, maxRetry) : defaultRetry;
 		} catch (NumberFormatException e) {
-			logger.warn("Invalid {} '{}', using loopCount fallback", propertyName, value);
-			try {
-				return Integer.parseInt(props.getProperty("loopCount", "3").trim());
-			} catch (NumberFormatException ex) {
-				return 3;
-			}
+			logger.warn("Invalid {} '{}', using default {}", propertyName, value, defaultRetry);
+			return defaultRetry;
 		}
 	}
 

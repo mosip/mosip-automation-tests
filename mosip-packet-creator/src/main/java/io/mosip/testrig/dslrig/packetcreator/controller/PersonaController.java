@@ -30,6 +30,7 @@ import io.mosip.testrig.dslrig.packetcreator.dto.PersonaRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.UpdatePersonaDto;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
 import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -75,10 +76,16 @@ public class PersonaController {
 	@Operation(summary = "Update the persona data with UIN/RID")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Resident data is successfully updated") })
 	@PostMapping(value = "/updateresident/{contextKey}")
-	public @ResponseBody String updateResidentData(@RequestBody PersonaRequestDto personaRequestDto,
+	public @ResponseBody String updateResidentData(@Valid @RequestBody PersonaRequestDto personaRequestDto,
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
+			boolean hasUin = personaRequestDto.getUin() != null && !personaRequestDto.getUin().isBlank();
+			boolean hasRid = personaRequestDto.getRid() != null && !personaRequestDto.getRid().isBlank();
+			if (!hasUin && !hasRid) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "UIN_OR_RID_REQUIRED",
+						"Either uin or rid is required in the request body");
+			}
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
 				DataProviderConstants.setResource(personaConfigPath);
 			}

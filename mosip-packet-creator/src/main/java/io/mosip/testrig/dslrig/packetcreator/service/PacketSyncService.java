@@ -357,7 +357,7 @@ public class PacketSyncService {
 					preregId, contextKey, true, additionalInfoReqId, targetDirectory);
 
 			if (personaPath != null && shouldPadPacketForLargeFace(personaPath, contextKey)) {
-				padPacketToDefaultMinSizeIfAvailable(packetPath);
+				padPacketToDefaultMinSizeIfAvailable(packetPath, contextKey);
 			}
 
 			try {
@@ -483,11 +483,12 @@ public class PacketSyncService {
 		return false;
 	}
 
-	private void padPacketToDefaultMinSizeIfAvailable(String packetPath) {
+	private void padPacketToDefaultMinSizeIfAvailable(String packetPath, String contextKey) {
 		try {
 			Class<?> utilClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.util.PacketSizeUtil");
 			int defaultMinBytes = utilClass.getField("DEFAULT_MIN_PACKET_BYTES").getInt(null);
-			utilClass.getMethod("padFileToMinSize", String.class, int.class).invoke(null, packetPath, defaultMinBytes);
+			utilClass.getMethod("padFileToMinSize", String.class, int.class, String.class).invoke(null, packetPath,
+					defaultMinBytes, contextKey);
 		} catch (ClassNotFoundException e) {
 			logger.debug("PacketSizeUtil not available on classpath; skipping packet padding");
 		} catch (Exception e) {

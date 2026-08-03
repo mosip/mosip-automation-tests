@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -118,13 +120,17 @@ public class ResidentModel implements Serializable {
 		}
 
 		Path filePath = Paths.get(path).toAbsolutePath().normalize();
-		if (!filePath.startsWith(ALLOWED_DIR)) {
+		Path allowedRoot = ALLOWED_DIR.toRealPath();
+		Path parent = filePath.getParent();
+		if (parent == null || !parent.toRealPath().startsWith(allowedRoot)
+				|| Files.isSymbolicLink(filePath)) {
 			throw new SecurityException(
 					"Path is outside allowed directory: " + filePath);
 		}
 
-		Files.write(filePath,
-				this.toJSONString().getBytes(StandardCharsets.UTF_8));
+		Files.write(filePath, this.toJSONString().getBytes(StandardCharsets.UTF_8),
+				StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING,
+				LinkOption.NOFOLLOW_LINKS);
 	}
 
 	public static ResidentModel readPersona(String filePath, String contextKey) throws IOException {

@@ -42,7 +42,10 @@ public class APIRequestUtil {
     private static final int MAX_SERVER_API_TRACE_VALUE_LENGTH = 10000;
     private static final Set<String> SENSITIVE_TRACE_KEYS = Set.of(
             "password", "clientsecret", "clientid", "username", "token", "otp",
-            "uin", "vid", "individualid", "residentid");
+            "uin", "vid", "individualid", "residentid",
+            "secretkey", "authorization", "accesstoken", "refreshtoken",
+            "email", "emailid", "phone", "mobilenumber", "dateofbirth", "dob",
+            "fullname", "firstname", "middlename", "lastname");
 
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
 	private static final String DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -516,9 +519,10 @@ public class APIRequestUtil {
     				logger.warn("syncRid read timed out for {} (retry {}/{}): {}", url, timeoutRetry,
     						httpSyncRetryCount, e.getMessage());
     				try {
-    					Thread.sleep(2000L);
+    					Thread.sleep(2000L * (1L << (timeoutRetry - 1)));
     				} catch (InterruptedException ie) {
     					Thread.currentThread().interrupt();
+    					e.addSuppressed(ie);
     					throw e;
     				}
     			} else {
