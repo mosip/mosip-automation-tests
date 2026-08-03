@@ -266,7 +266,7 @@ initContainers:
     envFrom:
       - configMapRef:
           name: global
-    image: docker.io/openjdk:11-jre
+    image: eclipse-temurin:25-jre
     imagePullPolicy: Always
     name: cacerts
     resources: {}
