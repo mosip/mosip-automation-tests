@@ -415,7 +415,7 @@ public class Orchestrator {
 		beforeSuiteFailed = !passed;
 		if (!passed) {
 			disableAllRetries = true;
-			logger.error("Scenario 0 (before suite) FAILED. All other scenarios will be skipped.");
+			logger.error("Scenario 0 (before suite) FAILED. All other scenarios will be skipped; AFTER_SUITE will still run.");
 		} else {
 			logger.info("Scenario 0 (before suite) PASSED. Other scenarios may proceed.");
 		}
@@ -535,6 +535,13 @@ public class Orchestrator {
 			String skipMsg = "Skipping AFTER_SUITE teardown because Scenario 0 (before suite) failed — "
 					+ "WritePreReq(1/2/3) data was never stored. Fix Scenario 0 (track2b steps 17-25 for index 2) first.";
 			logger.error(skipMsg);
+			extentTest.skip(skipMsg);
+			updateRunStatistics(scenario);
+			throw new SkipException(skipMsg);
+		}
+		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.IsDebugEnabled()) {
+			String skipMsg = "Skipping AFTER_SUITE scenario because enableDebug=yes";
+			logger.info(skipMsg);
 			extentTest.skip(skipMsg);
 			updateRunStatistics(scenario);
 			throw new SkipException(skipMsg);
