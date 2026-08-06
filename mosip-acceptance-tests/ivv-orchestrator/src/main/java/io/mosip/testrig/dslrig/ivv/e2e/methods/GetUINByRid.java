@@ -15,7 +15,7 @@ import io.restassured.response.Response;
 
 public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 
-	private String getIdentityUrl = "/resident/uin/";
+	private String getIdentityUrl = "/resident/uin";
 	static Logger logger = Logger.getLogger(GetUINByRid.class);
 	Boolean isForChildPacket = false;
 
@@ -85,7 +85,7 @@ public class GetUINByRid extends BaseTestCaseUtil implements StepInterface {
 			String uin = null;
 			Response response = null;
 			for (int attempt = 1; attempt <= maxLoop; attempt++) {
-				response = getRequest(baseUrl + getIdentityUrl + rid, "Get uin by rid: " + rid, step);
+				response = getRequest(baseUrl + getIdentityUrl, "Get uin by rid: " + rid, step, ridHeader(rid));
 				uin = response != null ? response.asString() : null;
 				if (isValidUinResponse(uin)) {
 					logger.info("UIN retrieved for RID " + rid + " on attempt " + attempt);

@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import io.mosip.testrig.dslrig.dataprovider.cache.PersonaParseCache;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import lombok.Data;
@@ -28,6 +31,7 @@ import java.io.FileOutputStream;
 @Data
 public class ResidentModel implements Serializable {
 	private static final Logger logger = LoggerFactory.getLogger(ResidentModel.class);
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 	private static final long serialVersionUID = 1L;
 	private String id;
 	private String primaryLanguage;
@@ -83,8 +87,7 @@ public class ResidentModel implements Serializable {
 	private Boolean skipFinger;
 	private Boolean skipFace;
 	private Boolean skipIris;
-	private static final Path ALLOWED_DIR = Paths.get("data").toAbsolutePath().normalize();
-
+	private static final Path ALLOWED_DIR = Paths.get(System.getProperty("java.io.tmpdir", System.getProperty("user.dir"))).toAbsolutePath().normalize();
 
 	public ResidentModel() {
 
@@ -97,11 +100,9 @@ public class ResidentModel implements Serializable {
 
 	public String toJSONString() {
 
-		ObjectMapper mapper = new ObjectMapper();
-
 		String jsonStr = "";
 		try {
-			jsonStr = mapper.writeValueAsString(this);
+			jsonStr = JSON_MAPPER.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
 
 			logger.error(e.getMessage());
@@ -119,23 +120,21 @@ public class ResidentModel implements Serializable {
 		}
 
 		Path filePath = Paths.get(path).toAbsolutePath().normalize();
-		if (!filePath.startsWith(ALLOWED_DIR)) {
+		Path allowedRoot = ALLOWED_DIR.toRealPath();
+		Path parent = filePath.getParent();
+		if (parent == null || !parent.toRealPath().startsWith(allowedRoot)
+				|| Files.isSymbolicLink(filePath)) {
 			throw new SecurityException(
 					"Path is outside allowed directory: " + filePath);
 		}
 
-		Files.write(filePath,
-				this.toJSONString().getBytes(StandardCharsets.UTF_8));
+		Files.write(filePath, this.toJSONString().getBytes(StandardCharsets.UTF_8),
+				StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING,
+				LinkOption.NOFOLLOW_LINKS);
 	}
 
-	public static ResidentModel readPersona(String filePath) throws IOException {
-
-		ObjectMapper mapper = new ObjectMapper();
-
-		byte[] bytes = CommonUtil.read(filePath);
-		ResidentModel model = mapper.readValue(bytes, ResidentModel.class);
-		model.setPath(filePath);
-		return model;
+	public static ResidentModel readPersona(String filePath, String contextKey) throws IOException {
+		return PersonaParseCache.readPersona(filePath, contextKey);
 	}
 
 	public void writePersona(String filePath) throws IOException {

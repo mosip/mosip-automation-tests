@@ -25,6 +25,12 @@ public final class FingerprintVariationGenerator {
 
 	public static String fingerprintVariationGenerator(String contextKey, int currentScenarioNumber,
 			int impressionToPick) throws Exception {
+		return fingerprintVariationGenerator(contextKey, currentScenarioNumber, impressionToPick,
+				currentScenarioNumber + "_" + UUID.randomUUID());
+	}
+
+	public static String fingerprintVariationGenerator(String contextKey, int currentScenarioNumber,
+			int impressionToPick, String outputScope) throws Exception {
 
 		String inputDir = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath")
@@ -32,9 +38,21 @@ public final class FingerprintVariationGenerator {
 
 		String outputDir = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath") + "/output/"
-				+ currentScenarioNumber;
+				+ outputScope;
 
-		Files.createDirectories(Paths.get(outputDir));
+		Path fpOutDir = Paths.get(outputDir, "fp");
+		if (Files.isDirectory(fpOutDir)) {
+			try (var stream = Files.list(fpOutDir)) {
+				stream.forEach(p -> {
+					try {
+						Files.deleteIfExists(p);
+					} catch (Exception e) {
+						logger.warn("Unable to clear stale fingerprint file {}: {}", p, e.getMessage());
+					}
+				});
+			}
+		}
+		Files.createDirectories(fpOutDir);
 
 		List<Path> inputs = Files.list(Paths.get(inputDir)).filter(Files::isRegularFile).toList();
 
