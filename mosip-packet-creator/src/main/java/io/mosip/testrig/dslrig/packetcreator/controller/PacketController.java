@@ -327,11 +327,7 @@ public class PacketController {
             throw se;
         } catch (Exception ex) {
             logger.error("createCRVSPacket", ex);
-            throw new ServiceException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "CREATE_CRVSPACKET_FAIL",
-                    ex.getMessage()
-            );
+            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "CREATE_CRVSPACKET_FAIL");
         }
 	}
 
@@ -350,11 +346,7 @@ public class PacketController {
             throw se;
         } catch (Exception ex) {
             logger.error("syncCRVSPacket", ex);
-            throw new ServiceException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "SYNC_CRVSPACKET_FAIL",
-                    ex.getMessage()
-            );
+            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "SYNC_CRVSPACKET_FAIL");
         }
 	}
 

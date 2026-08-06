@@ -43,6 +43,16 @@ public final class MdsCaptureService {
 		return MDS_CONTEXT_LOCKS.computeIfAbsent(key, k -> new Object());
 	}
 
+	/**
+	 * Removes the lock entry for a context so long-running deployments don't accumulate one
+	 * entry per distinct contextKey forever. Call only after the context's MDS work has
+	 * finished (e.g. from context reset/teardown), never while a capture may still be in flight.
+	 */
+	public static void releaseContextLock(String contextKey) {
+		String key = contextKey == null ? "default" : contextKey;
+		MDS_CONTEXT_LOCKS.remove(key);
+	}
+
 	private static final String FALSE = "false";
 	private static final String LEFTEYE = "leftEye";
 	private static final String RIGHTEYE = "rightEye";

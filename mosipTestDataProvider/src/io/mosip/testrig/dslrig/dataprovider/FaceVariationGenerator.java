@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
+import io.mosip.testrig.dslrig.dataprovider.util.BiometricOutputScope;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import javax.imageio.ImageIO;
 import org.slf4j.LoggerFactory;
@@ -37,20 +38,7 @@ public final class FaceVariationGenerator {
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath") + "/output/"
 				+ outputScope;
 
-		Path faceOutDir = Paths.get(outputUniqueFaceDataPath, "face");
-		// Clear leftovers so callers do not pick an older NONMATCH_* file under parallel/re-runs.
-		if (Files.isDirectory(faceOutDir)) {
-			try (var stream = Files.list(faceOutDir)) {
-				stream.forEach(p -> {
-					try {
-						Files.deleteIfExists(p);
-					} catch (Exception e) {
-						logger.warn("Unable to clear stale face file {}: {}", p, e.getMessage());
-					}
-				});
-			}
-		}
-		Files.createDirectories(faceOutDir);
+		BiometricOutputScope.prepare(outputUniqueFaceDataPath, "face");
 
 		generateNonMatchingFace(inputFaceTemplatePath, outputUniqueFaceDataPath, "face",
 				"face" + impressionToPick + ".png");

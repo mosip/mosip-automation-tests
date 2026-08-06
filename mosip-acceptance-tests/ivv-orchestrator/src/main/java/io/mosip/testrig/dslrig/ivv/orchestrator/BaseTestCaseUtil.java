@@ -161,62 +161,39 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	private static final int DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT = 80;
 
-	public static long getPacketStatusPollIntervalMs() {
-		String value = props.getProperty("waitTime");
+	private static long resolvePositiveLong(String propertyName, long defaultValue) {
+		String value = props.getProperty(propertyName);
 		if (value == null || value.isBlank()) {
-			return DEFAULT_PACKET_STATUS_POLL_INTERVAL_MS;
+			return defaultValue;
 		}
 		try {
 			long parsed = Long.parseLong(value.trim());
-			return parsed > 0 ? parsed : DEFAULT_PACKET_STATUS_POLL_INTERVAL_MS;
+			return parsed > 0 ? parsed : defaultValue;
 		} catch (NumberFormatException e) {
-			logger.warn("Invalid waitTime '{}', using default {}", value, DEFAULT_PACKET_STATUS_POLL_INTERVAL_MS);
-			return DEFAULT_PACKET_STATUS_POLL_INTERVAL_MS;
+			logger.warn("Invalid {} '{}', using default {}", propertyName, value, defaultValue);
+			return defaultValue;
 		}
+	}
+
+	private static int resolvePositiveInt(String propertyName, int defaultValue) {
+		long parsed = resolvePositiveLong(propertyName, defaultValue);
+		return (int) Math.min(parsed, Integer.MAX_VALUE);
+	}
+
+	public static long getPacketStatusPollIntervalMs() {
+		return resolvePositiveLong("waitTime", DEFAULT_PACKET_STATUS_POLL_INTERVAL_MS);
 	}
 
 	public static int getPacketStatusMaxLoopCount() {
-		String value = props.getProperty("loopCount");
-		if (value == null || value.isBlank()) {
-			return DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT;
-		}
-		try {
-			int parsed = Integer.parseInt(value.trim());
-			return parsed > 0 ? parsed : DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT;
-		} catch (NumberFormatException e) {
-			logger.warn("Invalid loopCount '{}', using default {}", value, DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT);
-			return DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT;
-		}
+		return resolvePositiveInt("loopCount", DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT);
 	}
 
 	public static long getMaxPacketStatusWaitTimeMs() {
-		String value = props.getProperty("maxPacketStatusWaitTimeMs");
-		if (value == null || value.isBlank()) {
-			return DEFAULT_MAX_PACKET_STATUS_WAIT_MS;
-		}
-		try {
-			long parsed = Long.parseLong(value.trim());
-			return parsed > 0 ? parsed : DEFAULT_MAX_PACKET_STATUS_WAIT_MS;
-		} catch (NumberFormatException e) {
-			logger.warn("Invalid maxPacketStatusWaitTimeMs '{}', using default {}", value,
-					DEFAULT_MAX_PACKET_STATUS_WAIT_MS);
-			return DEFAULT_MAX_PACKET_STATUS_WAIT_MS;
-		}
+		return resolvePositiveLong("maxPacketStatusWaitTimeMs", DEFAULT_MAX_PACKET_STATUS_WAIT_MS);
 	}
 
 	public static int getPacketStatusSocketTimeoutMs() {
-		String value = props.getProperty("packetStatusSocketTimeoutMs");
-		if (value == null || value.isBlank()) {
-			return DEFAULT_PACKET_STATUS_SOCKET_MS;
-		}
-		try {
-			int parsed = Integer.parseInt(value.trim());
-			return parsed > 0 ? parsed : DEFAULT_PACKET_STATUS_SOCKET_MS;
-		} catch (NumberFormatException e) {
-			logger.warn("Invalid packetStatusSocketTimeoutMs '{}', using default {}", value,
-					DEFAULT_PACKET_STATUS_SOCKET_MS);
-			return DEFAULT_PACKET_STATUS_SOCKET_MS;
-		}
+		return resolvePositiveInt("packetStatusSocketTimeoutMs", DEFAULT_PACKET_STATUS_SOCKET_MS);
 	}
 
 	private static RestAssuredConfig packetCreatorHttpConfig(int socketTimeoutMs) {
@@ -375,13 +352,22 @@ public class BaseTestCaseUtil extends BaseStep {
 	}
 
 	private static RequestSpecification givenHttpClient(String url) {
+		return packetCreatorSpec(url, PACKET_CREATOR_HTTP_CONFIG, null);
+	}
+
+	private static RequestSpecification packetCreatorSpec(String url, RestAssuredConfig httpConfig,
+			Map<String, String> headers) {
 		RequestSpecification spec = given();
 		if (isPacketCreatorUrl(url)) {
-			spec = spec.config(PACKET_CREATOR_HTTP_CONFIG);
+			spec = spec.config(httpConfig);
 		}
 		spec = applyPacketCreatorApiKey(spec, url);
-		return spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+		spec = spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON);
+		if (headers != null && !headers.isEmpty()) {
+			spec = spec.headers(headers);
+		}
+		return spec;
 	}
 
 	public static void appendOutboundInternalApiLogsAfterPacketCreatorCall(Scenario.Step step, String resolvedUrl) {
@@ -456,16 +442,7 @@ public class BaseTestCaseUtil extends BaseStep {
 			Map<String, String> headers) {
 		url = addContextToUrl(url, step);
 		Response getResponse;
-		RequestSpecification spec = given();
-		if (isPacketCreatorUrl(url)) {
-			spec = spec.config(packetCreatorHttpConfig(socketTimeoutMs));
-		}
-		spec = applyPacketCreatorApiKey(spec, url);
-		spec = spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON);
-		if (headers != null && !headers.isEmpty()) {
-			spec = spec.headers(headers);
-		}
+		RequestSpecification spec = packetCreatorSpec(url, packetCreatorHttpConfig(socketTimeoutMs), headers);
 
 		if (dslConfigManager.IsDebugEnabled()) {
 			getResponse = spec.log().all().when().get(url).then().log().all().extract().response();
@@ -493,17 +470,8 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static Response getRequestSilent(String url, Scenario.Step step, int socketTimeoutMs,
 			Map<String, String> headers) {
 		url = addContextToUrl(url, step);
-		Response getResponse = null;
-		RequestSpecification spec = given();
-		if (isPacketCreatorUrl(url)) {
-			spec = spec.config(packetCreatorHttpConfig(socketTimeoutMs));
-		}
-		spec = applyPacketCreatorApiKey(spec, url);
-		spec = spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON);
-		if (headers != null && !headers.isEmpty()) {
-			spec = spec.headers(headers);
-		}
+		Response getResponse;
+		RequestSpecification spec = packetCreatorSpec(url, packetCreatorHttpConfig(socketTimeoutMs), headers);
 
 		if (dslConfigManager.IsDebugEnabled()) {
 			getResponse = spec.log().all().when().get(url).then().log().all().extract().response();

@@ -51,7 +51,8 @@ public class preRegController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully requested OTP for given persona and channel") })
 	@PostMapping(value = "/otp/request/{contextKey}")
-	public @ResponseBody String requestOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
+	public @ResponseBody String requestOtp(
+			@Validated(PreRegisterRequestDto.OtpRequest.class) @RequestBody PreRegisterRequestDto preRegisterRequestDto,
 			@PathVariable("contextKey") String contextKey) {
 
 		try {

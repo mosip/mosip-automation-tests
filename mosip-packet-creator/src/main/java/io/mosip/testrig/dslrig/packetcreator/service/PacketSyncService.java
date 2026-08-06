@@ -25,6 +25,7 @@ import java.util.Properties;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -66,6 +67,7 @@ import io.mosip.testrig.dslrig.dataprovider.test.prereg.PreRegistrationSteps;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
+import io.mosip.testrig.dslrig.dataprovider.util.PacketSizeUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.ResidentAttribute;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -90,8 +92,11 @@ public class PacketSyncService {
 	// here prevents port exhaustion when more than 6 template requests arrive
 	// simultaneously: requests queue up and each waits for a slot rather than
 	// failing with "Socket Not available / Failed to generate biometric via mds".
+	// Sized once at class-load time, so this is a JVM -Dmds.max.concurrent system
+	// property, not a Spring/application.properties/Helm-managed value.
 	private static final int MDS_MAX_CONCURRENT = Math.max(1, Integer.getInteger("mds.max.concurrent", 6));
 	private static final Semaphore MDS_SEMAPHORE = new Semaphore(MDS_MAX_CONCURRENT, true);
+	private static final long MDS_ACQUIRE_TIMEOUT_SECONDS = 300L;
 	private static final Queue<SlotEntry> slotQueue = new ConcurrentLinkedQueue<>();
 	private static final long SLOT_EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000;
 
@@ -471,12 +476,7 @@ public class PacketSyncService {
 
 	private boolean shouldPadPacketForLargeFace(String personaPath, String contextKey) {
 		try {
-			Class<?> utilClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.util.PacketSizeUtil");
-			Object result = utilClass.getMethod("isLargeFaceRequested", String.class, String.class).invoke(null,
-					personaPath, contextKey);
-			return result instanceof Boolean && (Boolean) result;
-		} catch (ClassNotFoundException e) {
-			logger.debug("PacketSizeUtil not available on classpath; skipping packet-size checks");
+			return PacketSizeUtil.isLargeFaceRequested(personaPath, contextKey);
 		} catch (Exception e) {
 			logger.warn("Failed to evaluate large-face packet-size rule", e);
 		}
@@ -485,12 +485,7 @@ public class PacketSyncService {
 
 	private void padPacketToDefaultMinSizeIfAvailable(String packetPath, String contextKey) {
 		try {
-			Class<?> utilClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.util.PacketSizeUtil");
-			int defaultMinBytes = utilClass.getField("DEFAULT_MIN_PACKET_BYTES").getInt(null);
-			utilClass.getMethod("padFileToMinSize", String.class, int.class, String.class).invoke(null, packetPath,
-					defaultMinBytes, contextKey);
-		} catch (ClassNotFoundException e) {
-			logger.debug("PacketSizeUtil not available on classpath; skipping packet padding");
+			PacketSizeUtil.padFileToMinSize(packetPath, PacketSizeUtil.DEFAULT_MIN_PACKET_BYTES, contextKey);
 		} catch (Exception e) {
 			logger.warn("Failed to pad packet to minimum size", e);
 		}
@@ -1004,7 +999,11 @@ public class PacketSyncService {
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				RestClient.logInfo(contextKey, "packetPath=" + packetPath);
 				String returnMsg;
-				MDS_SEMAPHORE.acquire();
+				if (!MDS_SEMAPHORE.tryAcquire(MDS_ACQUIRE_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+					logger.error("Timed out after {}s waiting for an MDS slot for persona {}",
+							MDS_ACQUIRE_TIMEOUT_SECONDS, path);
+					return "{\"Timed out waiting for an MDS slot\"}";
+				}
 				try {
 					returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath,
 							preregId,
@@ -1025,6 +1024,9 @@ public class PacketSyncService {
 
 			}
 		} catch (Exception e) {
+			if (e instanceof InterruptedException) {
+				Thread.currentThread().interrupt();
+			}
 			logger.error("createPacketTemplates", e);
 			return "{\"" + e.getMessage() + "\"}";
 		}

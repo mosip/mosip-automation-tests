@@ -25,8 +25,12 @@ public final class PersonaParseCache {
 	private static final Logger logger = LoggerFactory.getLogger(PersonaParseCache.class);
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 	private static final int MAX_ENTRIES = 256;
+	/** Total cached bytes ceiling; persona files carry Base64 biometrics and are multi-MB. */
+	private static final long MAX_CACHED_BYTES = 64L * 1024 * 1024;
 
 	private static final ConcurrentHashMap<String, byte[]> BYTES_CACHE = new ConcurrentHashMap<>();
+	private static final java.util.concurrent.atomic.AtomicLong CACHED_BYTES =
+			new java.util.concurrent.atomic.AtomicLong();
 
 	private PersonaParseCache() {
 	}
@@ -46,7 +50,7 @@ public final class PersonaParseCache {
 
 	public static ResidentModel readPersona(String filePath, String contextKey) throws IOException {
 		Path absolute = CommonUtil.validateReadablePath(filePath, contextKey);
-		String cacheKey = absolute + "@" + Files.getLastModifiedTime(absolute);
+		String cacheKey = absolute + "@" + Files.getLastModifiedTime(absolute) + "#" + Files.size(absolute);
 
 		byte[] bytes;
 		if (isEnabled(contextKey)) {
@@ -58,7 +62,9 @@ public final class PersonaParseCache {
 				if (bytes == null) {
 					throw new IOException("Unable to read persona file: " + absolute);
 				}
-				BYTES_CACHE.putIfAbsent(cacheKey, bytes);
+				if (BYTES_CACHE.putIfAbsent(cacheKey, bytes) == null) {
+					CACHED_BYTES.addAndGet(bytes.length);
+				}
 				evictIfNeeded();
 			}
 		} else {
@@ -75,17 +81,18 @@ public final class PersonaParseCache {
 
 	public static void clear() {
 		BYTES_CACHE.clear();
+		CACHED_BYTES.set(0);
 	}
 
+	// BYTES_CACHE is a ConcurrentHashMap, so iteration order is arbitrary rather than
+	// least-recently-used; eviction below removes whichever entries the iterator yields first.
 	private static void evictIfNeeded() {
-		int overflow = BYTES_CACHE.size() - MAX_ENTRIES;
-		if (overflow <= 0) {
-			return;
-		}
 		Iterator<String> keys = BYTES_CACHE.keySet().iterator();
-		while (overflow > 0 && keys.hasNext()) {
-			BYTES_CACHE.remove(keys.next());
-			overflow--;
+		while ((BYTES_CACHE.size() > MAX_ENTRIES || CACHED_BYTES.get() > MAX_CACHED_BYTES) && keys.hasNext()) {
+			byte[] removed = BYTES_CACHE.remove(keys.next());
+			if (removed != null) {
+				CACHED_BYTES.addAndGet(-removed.length);
+			}
 		}
 	}
 }

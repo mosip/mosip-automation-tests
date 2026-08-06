@@ -127,9 +127,15 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 						int finalTimeoutMs = (int) Math.min(statusSocketTimeoutMs, remainingForFinal);
 						Response finalResponse = getRequest(statusUrl, "Check rid status: " + rid, step,
 								finalTimeoutMs, ridHeader(rid));
-						ridStatus = finalResponse.asString().toLowerCase();
-						gotSuccessfulPoll = true;
-						lastPollError = null;
+						String finalBody = finalResponse.asString();
+						if (finalResponse.getStatusCode() / 100 == 2 && finalBody != null && !finalBody.isBlank()) {
+							ridStatus = finalBody.toLowerCase();
+							gotSuccessfulPoll = true;
+							lastPollError = null;
+						} else {
+							lastPollError = "final status fetch returned HTTP " + finalResponse.getStatusCode();
+							logger.warn("Keeping last polled status for RID " + rid + ": " + lastPollError);
+						}
 					}
 				} catch (Exception finalEx) {
 					lastPollError = rootMessage(finalEx);
@@ -175,7 +181,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			logger.error("Failed due to thread sleep: " + e.getMessage());
 			Thread.currentThread().interrupt();
 			this.hasError = true;
-			throw new RigInternalError("Packet status check interrupted");
+			throw new RigInternalError("Packet status check interrupted", e);
 		}
 
 	}
@@ -214,7 +220,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 				.append("<span><b>Time Taken:</b> ").append(timeInMinutes).append(" min ")
 				.append(timeInSeconds).append(" sec</span><br>")
 				.append("<span><b>Polls:</b> ").append(pollCount).append("</span><br>")
-				.append("<span><b>Stop reason:</b> ").append(stopReason).append("</span>");
+				.append("<span><b>Stop reason:</b> ").append(escapeHtml(stopReason)).append("</span>");
 		if (lastError != null && !lastError.isBlank()) {
 			sb.append("<br><span><b>Last error:</b> <span style='color:#c0392b;'>")
 					.append(escapeHtml(lastError)).append("</span></span>");
@@ -224,7 +230,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 	}
 
 	private static String escapeHtml(String text) {
-		return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+		return text == null ? "" : org.testng.internal.Utils.escapeHtml(text);
 	}
 
 }

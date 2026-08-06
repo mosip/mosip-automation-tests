@@ -141,11 +141,11 @@ public class EmailableReport implements IReporter {
 					uploadReportToS3(s3Adapter, "Main report", newString, newReportFile);
 
 					String extentReportName = BaseTestCaseUtil.getExtentReportName();
-					if (extentReportName != null) {
+					if (extentReportName != null && !extentReportName.isBlank()) {
 						uploadReportToS3(s3Adapter, "Extent report", "ExtentReport-" + newString,
 								new File(extentReportName));
 					} else {
-						logger.warn("Extent report name is null; skipping S3 upload for extent report");
+						logger.warn("Extent report name is not set; skipping S3 upload for extent report");
 					}
 
 					if (excelFilePath != null) {

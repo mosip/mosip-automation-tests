@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
+import io.mosip.testrig.dslrig.dataprovider.util.BiometricOutputScope;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 import javax.imageio.ImageIO;
@@ -40,19 +41,7 @@ public final class IrisVariationGenerator {
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.irisdatapath") + "/output/"
 				+ outputScope;
 
-		Path irisOutDir = Paths.get(outputDir, "iris");
-		if (Files.isDirectory(irisOutDir)) {
-			try (var stream = Files.list(irisOutDir)) {
-				stream.forEach(p -> {
-					try {
-						Files.deleteIfExists(p);
-					} catch (Exception e) {
-						logger.warn("Unable to clear stale iris file {}: {}", p, e.getMessage());
-					}
-				});
-			}
-		}
-		Files.createDirectories(irisOutDir);
+		BiometricOutputScope.prepare(outputDir, "iris");
 
 		List<Path> inputs = Files.list(Paths.get(inputDir)).filter(Files::isRegularFile).toList();
 

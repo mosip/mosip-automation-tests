@@ -3,16 +3,17 @@ package io.mosip.testrig.dslrig.packetcreator.service;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
-import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -46,6 +47,12 @@ public class APIRequestUtil {
             "secretkey", "authorization", "accesstoken", "refreshtoken",
             "email", "emailid", "phone", "mobilenumber", "dateofbirth", "dob",
             "fullname", "firstname", "middlename", "lastname");
+    private static final List<Pattern> SENSITIVE_QUERY_PATTERNS = SENSITIVE_TRACE_KEYS.stream()
+            .map(key -> Pattern.compile("(?i)([?&]" + Pattern.quote(key) + "=)[^&#]*"))
+            .toList();
+    // UIN/VID are long numeric identifiers that can also appear as raw path segments
+    // (e.g. /identity/{uin}) rather than query parameters.
+    private static final Pattern NUMERIC_PATH_SEGMENT = Pattern.compile("/(\\d{8,})(?=/|\\?|#|$)");
 
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
 	private static final String DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -99,9 +106,6 @@ public class APIRequestUtil {
     @Value("${mosip.test.packetcreator.http.sync.timeout.ms:300000}")
     private int httpSyncTimeoutMs;
 
-    @Value("${mosip.test.packetcreator.http.sync.retry.count:2}")
-    private int httpSyncRetryCount;
-
     @Autowired
     ContextUtils contextUtils;
 
@@ -121,15 +125,6 @@ public class APIRequestUtil {
         return RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
                 .setParam("http.connection.timeout", httpConnectTimeoutMs)
                 .setParam("http.socket.timeout", httpSyncTimeoutMs));
-    }
-
-    private static boolean isReadTimeout(Throwable throwable) {
-        for (Throwable t = throwable; t != null; t = t.getCause()) {
-            if (t instanceof SocketTimeoutException) {
-                return true;
-            }
-        }
-        return false;
     }
 
 	void loadContext(String context) {
@@ -277,13 +272,10 @@ public class APIRequestUtil {
             return null;
         }
         String redacted = url;
-        for (String key : SENSITIVE_TRACE_KEYS) {
-            redacted = redacted.replaceAll("(?i)([?&]" + key + "=)[^&#]*", "$1***");
+        for (Pattern pattern : SENSITIVE_QUERY_PATTERNS) {
+            redacted = pattern.matcher(redacted).replaceAll("$1***");
         }
-        // UIN/VID are long numeric identifiers that can also appear as raw path segments
-        // (e.g. /identity/{uin}) rather than query parameters.
-        redacted = redacted.replaceAll("/(\\d{8,})(?=/|\\?|#|$)", "/***");
-        return redacted;
+        return NUMERIC_PATH_SEGMENT.matcher(redacted).replaceAll("/***");
     }
 
     private JSONArray limitTraceEntries(JSONArray trace) {
@@ -491,43 +483,29 @@ public class APIRequestUtil {
 
     	boolean bDone = false;
     	int authRetry = 0;
-    	int timeoutRetry = 0;
     	Response response = null;
 
+    	// A read timeout here does not indicate whether the server processed the request, so this
+    	// method does not retry on it: resubmitting a possibly-already-processed sync would risk a
+    	// duplicate RID sync. The orchestrator's packetSyncRetryCount is the single retry owner for
+    	// packet-sync operations.
     	while (!bDone) {
-    		try {
-    			String authToken = AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM);
-    			Cookie kukki = new Cookie.Builder("Authorization", authToken).build();
-    			response = given().config(syncTimeoutConfig()).cookie(kukki)
-                    .header("timestamp", timestamp)
-                    .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
-                    .contentType(ContentType.JSON).body(requestBody).post(url);
+    		String authToken = AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM);
+    		Cookie kukki = new Cookie.Builder("Authorization", authToken).build();
+    		response = given().config(syncTimeoutConfig()).cookie(kukki)
+                .header("timestamp", timestamp)
+                .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
+                .contentType(ContentType.JSON).body(requestBody).post(url);
 
-    			if (response.getStatusCode() == 401) {
-    				if (authRetry >= 1) {
-    					bDone = true;
-    				} else {
-    					initToken(contextKey);
-    					authRetry++;
-    				}
-    			} else {
+    		if (response.getStatusCode() == 401) {
+    			if (authRetry >= 1) {
     				bDone = true;
-    			}
-    		} catch (Exception e) {
-    			if (isReadTimeout(e) && timeoutRetry < httpSyncRetryCount) {
-    				timeoutRetry++;
-    				logger.warn("syncRid read timed out for {} (retry {}/{}): {}", url, timeoutRetry,
-    						httpSyncRetryCount, e.getMessage());
-    				try {
-    					Thread.sleep(2000L * (1L << (timeoutRetry - 1)));
-    				} catch (InterruptedException ie) {
-    					Thread.currentThread().interrupt();
-    					e.addSuppressed(ie);
-    					throw e;
-    				}
     			} else {
-    				throw e;
+    				initToken(contextKey);
+    				authRetry++;
     			}
+    		} else {
+    			bDone = true;
     		}
     	}
         if (response == null) {

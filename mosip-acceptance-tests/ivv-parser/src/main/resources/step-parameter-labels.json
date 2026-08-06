@@ -14,7 +14,7 @@
   "e2e_bookAppointment": ["holiday booking flag", "pre-registration ID", "slot number"],
   "e2e_generateAndUploadPacket": ["pre-registration ID", "packet template path"],
   "e2e_generateAndUploadPacketSkippingPrereg": ["persona file path", "packet template path", "sync RID flag", "additional info request ID", "expected error code"],
-  "e2e_generateAndUploadPacketSkippingPrereg#3": ["persona file path", "packet template path", "sync RID flag or expected error code"],
+  "e2e_generateAndUploadPacketSkippingPrereg#3": ["persona file path", "packet template path", "sync RID flag, invalid machine flag, or expected error code"],
   "e2e_generateAndUploadPacketSkippingPreregWithInvalidCbeff": ["persona file path", "packet template path", "sync RID flag", "additional info request ID"],
   "e2e_checkStatus": ["packet status", "registration ID", "second registration ID", "processed RID match mode"],
   "e2e_getUINByRid": ["source registration ID"],

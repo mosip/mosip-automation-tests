@@ -31,8 +31,11 @@ public class PhotoProvider {
 	 * Large-face negative tests only need byte length > max packet size. Prefer COM-segment
 	 * padding over BufferedImage upscale — upscaling under full-suite concurrency OOMs the
 	 * packet-creator JVM (Scenario_241) and cascades to later scenarios (e.g. Scenario_181).
+	 * Bounds concurrent large-face allocations (~5MB each) to limit peak heap; not a data-race
+	 * guard — the padding work below only touches method-local state.
 	 */
-	private static final Object LARGE_FACE_LOCK = new Object();
+	private static final java.util.concurrent.Semaphore LARGE_FACE_PERMITS = new java.util.concurrent.Semaphore(
+			Integer.getInteger("mosip.test.largeface.concurrency", 2));
 	/** Per-call salt so distinct personas within the same scenario get distinct impressions/output dirs. */
 	private static final java.util.concurrent.atomic.AtomicLong PERSONA_CALL_SEQ = new java.util.concurrent.atomic.AtomicLong();
 	static String Photo_File_Format = "/face%04d.jpg";
@@ -120,12 +123,20 @@ public class PhotoProvider {
 			BufferedImage sourceImage = img;
 
 			if (generateLargeFace) {
-				synchronized (LARGE_FACE_LOCK) {
+				try {
+					LARGE_FACE_PERMITS.acquire();
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+					throw new IllegalStateException("Interrupted while waiting for a large-face permit", ie);
+				}
+				try {
 					baos.reset();
 					ImageIO.write(sourceImage, "jpg", baos);
 					baos.flush();
 					bData = padJpegToMinSize(baos.toByteArray(), LARGE_FACE_MIN_JPEG_BYTES);
 					logger.info("Large face JPEG padded to {} bytes (no upscale)", bData.length);
+				} finally {
+					LARGE_FACE_PERMITS.release();
 				}
 			} else {
 				if (generateObstructedFace) {

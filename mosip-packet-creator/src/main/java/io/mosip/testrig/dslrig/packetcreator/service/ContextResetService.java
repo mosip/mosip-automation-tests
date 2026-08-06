@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import io.mosip.testrig.dslrig.dataprovider.biometric.MdsCaptureService;
 import io.mosip.testrig.dslrig.dataprovider.cache.PersonaTemplateCache;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.cache.PacketTemplateCache;
@@ -39,6 +40,7 @@ public class ContextResetService {
 		apiRequestUtil.clearRunScopedCache(contextKey);
 		PacketTemplateCache.clearContext(contextKey);
 		PersonaTemplateCache.clearContext(contextKey);
+		MdsCaptureService.releaseContextLock(contextKey);
 		logger.info("Run-scoped cache cleared for context {}", contextKey);
 	}
 

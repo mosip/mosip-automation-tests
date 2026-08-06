@@ -273,9 +273,10 @@ public class PacketUtility extends BaseTestCaseUtil {
 		try (DslStepTimingCollector.TimingScope timing = DslStepTimingCollector.start("getPacketTemplate")
 				.scenarioId(scenarioId)) {
 			ArrayList<String> personaPaths = new ArrayList<>(resPath);
+			String cacheKey = null;
 			if (step != null && DslPacketTemplateCache.isEnabled()) {
 				try {
-					String cacheKey = DslPacketTemplateCache.buildKey(
+					cacheKey = DslPacketTemplateCache.buildKey(
 							BaseTestCaseUtil.buildPacketCreatorContextKey(step.getScenario()), process, qualityScore,
 							genarateValidCbeff, personaPaths);
 					String cached = DslPacketTemplateCache.get(cacheKey);
@@ -283,6 +284,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 						return new JSONObject(cached).getJSONArray("packets");
 					}
 				} catch (Exception e) {
+					cacheKey = null;
 					logger.info("Template cache lookup skipped: " + e.getMessage());
 				}
 			}
@@ -323,15 +325,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 					}
 					logger.info("Unable to get Template from packet utility.Retrying...");
 				} else {
-					if (step != null && DslPacketTemplateCache.isEnabled()) {
-						try {
-							String cacheKey = DslPacketTemplateCache.buildKey(
-									BaseTestCaseUtil.buildPacketCreatorContextKey(step.getScenario()), process,
-									qualityScore, genarateValidCbeff, personaPaths);
-							DslPacketTemplateCache.put(cacheKey, jsonResponse.toString());
-						} catch (Exception e) {
-							logger.info("Template cache store skipped: " + e.getMessage());
-						}
+					if (cacheKey != null) {
+						DslPacketTemplateCache.put(cacheKey, jsonResponse.toString());
 					}
 					timing.serverMs(lastServerMs);
 					break;

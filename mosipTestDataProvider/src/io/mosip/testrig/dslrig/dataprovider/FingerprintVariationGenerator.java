@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
+import io.mosip.testrig.dslrig.dataprovider.util.BiometricOutputScope;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 import javax.imageio.ImageIO;
@@ -40,19 +41,7 @@ public final class FingerprintVariationGenerator {
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath") + "/output/"
 				+ outputScope;
 
-		Path fpOutDir = Paths.get(outputDir, "fp");
-		if (Files.isDirectory(fpOutDir)) {
-			try (var stream = Files.list(fpOutDir)) {
-				stream.forEach(p -> {
-					try {
-						Files.deleteIfExists(p);
-					} catch (Exception e) {
-						logger.warn("Unable to clear stale fingerprint file {}: {}", p, e.getMessage());
-					}
-				});
-			}
-		}
-		Files.createDirectories(fpOutDir);
+		BiometricOutputScope.prepare(outputDir, "fp");
 
 		List<Path> inputs = Files.list(Paths.get(inputDir)).filter(Files::isRegularFile).toList();
 

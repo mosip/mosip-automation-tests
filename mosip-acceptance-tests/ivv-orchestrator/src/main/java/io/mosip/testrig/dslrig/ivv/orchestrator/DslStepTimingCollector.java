@@ -52,7 +52,11 @@ public final class DslStepTimingCollector {
 		List<String> steps = new ArrayList<>(SAMPLES.keySet());
 		Collections.sort(steps);
 		for (String step : steps) {
-			List<Long> values = new ArrayList<>(SAMPLES.get(step));
+			ConcurrentLinkedQueue<Long> queue = SAMPLES.get(step);
+			if (queue == null) {
+				continue;
+			}
+			List<Long> values = new ArrayList<>(queue);
 			if (values.isEmpty()) {
 				continue;
 			}

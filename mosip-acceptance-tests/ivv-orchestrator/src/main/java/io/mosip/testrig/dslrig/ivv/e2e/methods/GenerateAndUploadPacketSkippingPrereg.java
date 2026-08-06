@@ -12,6 +12,8 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(GenerateAndUploadPacketSkippingPrereg.class);
 
+	private static final String INVALID_PACKET_SIZE = "INVALID_PACKET_SIZE";
+
 	static {
 		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -26,7 +28,7 @@ public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil impl
 		Boolean isForChildPacket = false;
 		String invalidMachineFlag = "";
 		boolean expectInvalidPacketSize = step.getParameters().stream()
-				.anyMatch(p -> "INVALID_PACKET_SIZE".equalsIgnoreCase(p));
+				.anyMatch(p -> INVALID_PACKET_SIZE.equalsIgnoreCase(p));
 		if (step.getParameters().size() >= 3) {
 			String thirdParam = step.getParameters().get(2);
 			if (thirdParam.contains("invalidMachine")) {
@@ -57,7 +59,7 @@ public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil impl
 			if (step.getParameters().size() == 3) {
 				String thirdParam = step.getParameters().get(2);
 				if (!thirdParam.contains("invalidMachine")
-						&& !"INVALID_PACKET_SIZE".equalsIgnoreCase(thirdParam)) {
+						&& !INVALID_PACKET_SIZE.equalsIgnoreCase(thirdParam)) {
 					getRidFromSync = Boolean.parseBoolean(thirdParam);
 				}
 			}
@@ -65,7 +67,7 @@ public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil impl
 			String _additionalInfoReqId = null;
 			if (step.getParameters().size() > 3) {
 				_additionalInfoReqId = step.getParameters().get(3);
-				if ("INVALID_PACKET_SIZE".equalsIgnoreCase(_additionalInfoReqId)) {
+				if (INVALID_PACKET_SIZE.equalsIgnoreCase(_additionalInfoReqId)) {
 					_additionalInfoReqId = null;
 				} else if (!_additionalInfoReqId.isEmpty() && _additionalInfoReqId.startsWith("$$")) {
 					_additionalInfoReqId = resolveScenarioVariable(step, _additionalInfoReqId);
@@ -73,11 +75,11 @@ public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil impl
 			}
 
 			String[] paths = resolvePersonaAndTemplatePaths(step);
-			String responseStatus = expectInvalidPacketSize ? "INVALID_PACKET_SIZE" : "success";
+			String responseStatus = expectInvalidPacketSize ? INVALID_PACKET_SIZE : "success";
 			String rid = packetUtility.generateAndUploadPacketSkippingPrereg(paths[1], paths[0],
 					_additionalInfoReqId, step.getScenario().getCurrentStep(), responseStatus, step, getRidFromSync,
 					invalidMachineFlag);
-			if ("INVALID_PACKET_SIZE".equals(rid)) {
+			if (INVALID_PACKET_SIZE.equals(rid)) {
 				logger.info("Packet upload returned expected Invalid Packet Size error (RPR-PKR-002) - step validation passed");
 				return;
 			}

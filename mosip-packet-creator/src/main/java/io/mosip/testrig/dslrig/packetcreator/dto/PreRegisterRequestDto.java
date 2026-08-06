@@ -17,6 +17,7 @@ public class PreRegisterRequestDto {
 	private String additionalInfoReqId;
 
 	@Schema(description = "OTP recipient email or phone; required for the OTP request/verify APIs.", example = "resident@example.com")
+	@NotBlank(message = "emailOrPhone must not be blank", groups = OtpRequest.class)
 	@ToString.Exclude
 	private String emailOrPhone;
 
@@ -30,6 +31,10 @@ public class PreRegisterRequestDto {
 
 	/** Validation group applied only by the OTP-verification controller method. */
 	public interface OtpVerification {
+	}
+
+	/** Validation group applied only by the OTP-request controller method. */
+	public interface OtpRequest {
 	}
 
 }

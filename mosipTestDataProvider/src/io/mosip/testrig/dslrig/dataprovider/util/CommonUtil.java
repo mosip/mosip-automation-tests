@@ -29,7 +29,6 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
@@ -532,23 +531,6 @@ public class CommonUtil {
 
 			out.flush();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-	}
-
-	public static void copyMultipartFileWithBuffer(MultipartFile sourceFile, Path destination) {
-		try (InputStream inputStream = sourceFile.getInputStream();
-				BufferedOutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(destination))) {
-
-			byte[] buffer = new byte[8192];
-			int bytesRead;
-
-			while ((bytesRead = inputStream.read(buffer)) != -1) {
-				outputStream.write(buffer, 0, bytesRead);
-			}
-
-			outputStream.flush();
-		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
 	}

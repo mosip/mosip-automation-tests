@@ -340,7 +340,9 @@ public class CommandsService {
 			throw new IOException("Refusing to store upload outside configured upload folder: " + targetLocation);
 		}
 
-		CommonUtil.copyMultipartFileWithBuffer(file, canonicalTarget);
+		try (InputStream input = file.getInputStream()) {
+			Files.copy(input, canonicalTarget, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+		}
 		if (!Files.isRegularFile(canonicalTarget)) {
 			throw new IOException("Upload was not persisted: " + canonicalTarget);
 		}

@@ -52,17 +52,24 @@ public final class FileBiometricLoader {
 			2, "leftring", 3, "leftlittle", 4, "rightthumb", 5, "rightindex", 6, "rightmiddle", 7, "rightring", 8,
 			"rightlittle", 9);
 
+	// Per-call salt so multiple personas generated under the same contextKey (same scenario,
+	// same test run) pick distinct fingerprint/iris impressions instead of sharing biometric
+	// input for MOSIP dedupe tests — same approach as PhotoProvider.getPhoto's PERSONA_CALL_SEQ.
+	private static final java.util.concurrent.atomic.AtomicLong PERSONA_CALL_SEQ = new java.util.concurrent.atomic.AtomicLong();
+
 	/**
-	 * Deterministic impression index in [1, folderCount] from scenario id and resident/session
-	 * context — safe under parallel runs. Folding in the contextKey (unique per resident/session)
-	 * keeps two residents sharing the same scenario id from selecting the same biometric folder.
+	 * Deterministic impression index in [1, folderCount] from scenario id, resident/session
+	 * context, and a per-call salt — safe under parallel runs. Folding in the contextKey (unique
+	 * per resident/session) and the call salt keeps multiple residents sharing the same scenario
+	 * id from selecting the same biometric folder.
 	 */
 	static int deterministicImpression(int scenarioNumber, int folderCount, String contextKey) {
 		if (folderCount <= 0) {
 			return 1;
 		}
 		int residentSalt = contextKey == null ? 0 : contextKey.hashCode();
-		return Math.floorMod((scenarioNumber + residentSalt) - 1, folderCount) + 1;
+		long personaSalt = PERSONA_CALL_SEQ.incrementAndGet();
+		return Math.floorMod((scenarioNumber + residentSalt + (int) personaSalt) - 1, folderCount) + 1;
 	}
 
 	static int parseScenarioNumber(String contextKey) {

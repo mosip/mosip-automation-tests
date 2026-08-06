@@ -79,7 +79,6 @@ public class PacketMakerService {
 
 	private static final class PacketThreadContext {
 		private String templateSource;
-		private String mosipVersion;
 	}
 
 	private static final String UNDERSCORE = "_";
@@ -180,7 +179,7 @@ public class PacketMakerService {
 			canonical = new File(candidate).getCanonicalFile().toPath();
 			canonicalRoot = new File(root).getCanonicalFile().toPath();
 		} catch (IOException e) {
-			throw new SecurityException("Invalid path: " + candidate);
+			throw new SecurityException("Invalid path: " + candidate, e);
 		}
 		if (!canonical.startsWith(canonicalRoot)) {
 			throw new SecurityException("Refusing to access path outside allowed root: " + candidate);
@@ -217,7 +216,7 @@ public class PacketMakerService {
 			canonical = new File(candidate).getCanonicalFile().toPath();
 			templateRoot = new File(templateFolder).getCanonicalFile().toPath();
 		} catch (IOException e) {
-			throw new SecurityException("Invalid template path: " + candidate);
+			throw new SecurityException("Invalid template path: " + candidate, e);
 		}
 		if (!canonical.startsWith(templateRoot)) {
 			throw new SecurityException("Refusing to use template path outside configured template root: " + candidate);
@@ -290,9 +289,6 @@ public class PacketMakerService {
 
 	private PacketSyncService packetSyncService;
 
-	@Value("${mosip.version:1.2}")
-	private String mosipVersion;
-
 	@Value("${packetmanager.zip.datetime.pattern:yyyyMMddHHmmss}")
 	private String zipDatetimePattern;
 
@@ -329,10 +325,9 @@ public class PacketMakerService {
 		return ctx != null && ctx.templateSource != null ? ctx.templateSource : src;
 	}
 
-	private void beginPacketThreadContext(String templateSource, String version) {
+	private void beginPacketThreadContext(String templateSource) {
 		PacketThreadContext ctx = new PacketThreadContext();
 		ctx.templateSource = templateSource != null ? templateSource : src;
-		ctx.mosipVersion = version != null ? version : mosipVersion;
 		PACKET_THREAD_CONTEXT.set(ctx);
 	}
 
@@ -366,7 +361,7 @@ public class PacketMakerService {
 		if (source != null)
 			effectiveSource = source;
 
-		beginPacketThreadContext(effectiveSource, mosipVersion);
+		beginPacketThreadContext(effectiveSource);
 		try {
 		String regId = getRegIdFromPacketPath(packetPath);
 		String tempPacketRootFolder = Path.of(packetPath).toString();
@@ -450,14 +445,11 @@ public class PacketMakerService {
 			assertUnderAllowedRoot(Paths.get(dataFile), contextKey);
 		}
 		String effectiveSource = src;
-		String effectiveMosipVersion = mosipVersion;
 		if (contextKey != null && !contextKey.equals("")) {
 			Properties props = contextUtils.loadServerContext(contextKey);
 			for (Map.Entry<Object, Object> entry : props.entrySet()) {
 				if (entry.getKey().toString().equals("mosip.test.packet.template.source")) {
 					effectiveSource = entry.getValue().toString();
-				} else if (entry.getKey().toString().equals("mosip.version")) {
-					effectiveMosipVersion = entry.getValue().toString();
 				}
 			}
 		}
@@ -465,7 +457,7 @@ public class PacketMakerService {
 			effectiveSource = source;
 		}
 
-		beginPacketThreadContext(effectiveSource, effectiveMosipVersion);
+		beginPacketThreadContext(effectiveSource);
 		try {
 			String process = null;
 			String packetPath = "";
@@ -503,8 +495,9 @@ public class PacketMakerService {
 					}
 
 					Path templateRoot = Paths.get(templateLocation).toAbsolutePath().normalize();
-					Path target = Paths.get(templateLocation + File.separator + source + File.separator + process
-							+ File.separator + "rid_id", originalFileName).toAbsolutePath().normalize();
+					Path target = Paths.get(templateLocation + File.separator + activeTemplateSource()
+							+ File.separator + process + File.separator + "rid_id", originalFileName)
+							.toAbsolutePath().normalize();
 
 					if (!target.startsWith(templateRoot)) {
 						logger.error("Refusing to copy pre-reg document outside template root: {}", target);
