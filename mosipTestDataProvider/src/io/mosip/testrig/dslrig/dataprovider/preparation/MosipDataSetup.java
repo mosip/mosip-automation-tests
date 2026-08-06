@@ -502,8 +502,11 @@ public class MosipDataSetup {
 			int delay, String operation, String contextKey, String statusCode, String failureReason)
 			throws JSONException, NoSuchAlgorithmException {
 
-		if (operation == null || operation.equals(""))
-			operation = "Indentify";
+		if (operation == null || operation.isBlank()) {
+			operation = "Identify";
+		} else if ("Indentify".equalsIgnoreCase(operation)) {
+			operation = "Identify";
+		}
 
 		String responseStr = "";
 		String url = VariableManager.getVariableValue(contextKey, "urlBase").toString()
@@ -512,14 +515,17 @@ public class MosipDataSetup {
 		JSONObject req = new JSONObject();
 
 		byte[] valBytes = java.util.Base64.getUrlDecoder().decode(bdbString);
-		req.put("id", CommonUtil.getSHAFromBytes(valBytes));
+		String biometricId = CommonUtil.getSHAFromBytes(valBytes);
+		req.put("id", biometricId);
 		req.put("version", "1.0");
 		req.put("requesttime", CommonUtil.getUTCDateTime(null));
 		req.put("actionToInterfere", operation);
 
-		req.put("forcedResponse", failureReason);
+		String forcedResponse = resolveMockAbisForcedResponse(statusCode, failureReason);
+		String errorCode = resolveMockAbisErrorCode(forcedResponse, statusCode, failureReason);
+		req.put("forcedResponse", forcedResponse);
 		req.put("delayInExecution", Integer.toString(delay));
-		req.put("errorCode", statusCode);
+		req.put("errorCode", errorCode);
 
 		if (!bDuplicate)
 			req.put("gallery", JSONObject.NULL);
@@ -537,16 +543,41 @@ public class MosipDataSetup {
 		}
 
 		try {
+			logger.info("configureMockABISBiometric id=" + biometricId + " delayInExecution=" + delay + " url=" + url
+					+ " req=" + req);
 			JSONObject resp = RestClient.post(url, req, contextKey);
 			if (resp != null) {
 				responseStr = resp.toString();
+				logger.info("configureMockABISBiometric response=" + responseStr);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("configureMockABISBiometric failed for id=" + biometricId + ": " + e.getMessage());
 			responseStr = e.getMessage();
 		}
 
 		return responseStr;
+	}
+
+	private static String resolveMockAbisForcedResponse(String statusCode, String failureReason) {
+		if (failureReason != null && !failureReason.isBlank()) {
+			return failureReason;
+		}
+		if (statusCode != null && isMockAbisForcedResponse(statusCode)) {
+			return statusCode;
+		}
+		return "Success";
+	}
+
+	private static String resolveMockAbisErrorCode(String forcedResponse, String statusCode, String failureReason) {
+		if ("Error".equalsIgnoreCase(forcedResponse) && statusCode != null && !statusCode.isBlank()) {
+			return statusCode;
+		}
+		return "";
+	}
+
+	private static boolean isMockAbisForcedResponse(String value) {
+		return "Success".equalsIgnoreCase(value) || "Error".equalsIgnoreCase(value)
+				|| "Duplicate".equalsIgnoreCase(value);
 	}
 
 	public static String uploadPackets(List<String> packetPaths, String contextKey) {

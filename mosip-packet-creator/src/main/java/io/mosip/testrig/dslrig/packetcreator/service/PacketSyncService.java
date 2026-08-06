@@ -85,7 +85,6 @@ public class PacketSyncService {
 	private static final Queue<SlotEntry> slotQueue = new ConcurrentLinkedQueue<>();
 	private static final long SLOT_EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000;
 
-
 	private static final String STATUS = "status";
 	private static final String SUCCESS = "SUCCESS";
 	private static final String RESPONSE = "response";
@@ -348,7 +347,8 @@ public class PacketSyncService {
 
 			try {
 				byte[] packetBytes = CommonUtil.read(packetPath);
-				VariableManager.setVariableValue(contextKey, "cachedPacketHash", cryptoUtil.getHexEncodedHash(packetBytes));
+				VariableManager.setVariableValue(contextKey, "cachedPacketHash",
+						cryptoUtil.getHexEncodedHash(packetBytes));
 				VariableManager.setVariableValue(contextKey, "cachedPacketSize", String.valueOf(packetBytes.length));
 			} catch (Exception e) {
 				logger.warn("Could not pre-cache packet hash/size; will re-read during sync: {}", e.getMessage());
@@ -425,7 +425,6 @@ public class PacketSyncService {
 			if (obj.getString(STATUS).equals("Packet has reached Packet Receiver")) {
 				functionResponse.put(RESPONSE, nobj);
 				nobj.put(STATUS, SUCCESS);
-
 
 				nobj.put(REGISTRATIONID, packetMakerService.getNewRegId());
 				nobj.put("serverApiTrace", apiRequestUtil.consumeServerApiTrace(contextKey));
@@ -528,10 +527,14 @@ public class PacketSyncService {
 		if (contextKey != null && !contextKey.equals("")) {
 			Properties props = contextUtils.loadServerContext(contextKey);
 			String pv;
-			if ((pv = props.getProperty("mosip.test.packet.syncapi")) != null) syncapi = pv;
-			if ((pv = props.getProperty("mosip.test.primary.langcode")) != null) primaryLangCode = pv;
-			if ((pv = props.getProperty("mosip.test.baseurl")) != null) baseUrl = pv;
-			if ((pv = props.getProperty("mosip.version")) != null) mosipVersion = pv;
+			if ((pv = props.getProperty("mosip.test.packet.syncapi")) != null)
+				syncapi = pv;
+			if ((pv = props.getProperty("mosip.test.primary.langcode")) != null)
+				primaryLangCode = pv;
+			if ((pv = props.getProperty("mosip.test.baseurl")) != null)
+				baseUrl = pv;
+			if ((pv = props.getProperty("mosip.version")) != null)
+				mosipVersion = pv;
 		}
 		Path container = Path.of(containerFile);
 		String rid = null;
@@ -557,13 +560,15 @@ public class PacketSyncService {
 		Object cachedHash = VariableManager.getVariableValue(contextKey, "cachedPacketHash");
 		Object cachedSize = VariableManager.getVariableValue(contextKey, "cachedPacketSize");
 		if (cachedHash != null && cachedSize != null) {
-			jsonObject.put("packetHashValue", checkSum.equalsIgnoreCase("invalidCheckSum") ? "INVALID_CHECKSUM" : cachedHash.toString());
+			jsonObject.put("packetHashValue",
+					checkSum.equalsIgnoreCase("invalidCheckSum") ? "INVALID_CHECKSUM" : cachedHash.toString());
 			jsonObject.put("packetSize", Long.parseLong(cachedSize.toString()));
 			VariableManager.removeVariableValue(contextKey, "cachedPacketHash");
 			VariableManager.removeVariableValue(contextKey, "cachedPacketSize");
 		} else {
 			byte[] fileBytes = CommonUtil.read(containerFile);
-			jsonObject.put("packetHashValue", checkSum.equalsIgnoreCase("invalidCheckSum") ? "INVALID_CHECKSUM" : cryptoUtil.getHexEncodedHash(fileBytes));
+			jsonObject.put("packetHashValue", checkSum.equalsIgnoreCase("invalidCheckSum") ? "INVALID_CHECKSUM"
+					: cryptoUtil.getHexEncodedHash(fileBytes));
 			jsonObject.put("packetSize", fileBytes.length);
 		}
 		jsonObject.put("supervisorStatus", supervisorStatus);
@@ -601,13 +606,13 @@ public class PacketSyncService {
 		if (contextKey != null && !contextKey.equals("")) {
 			Properties props = contextUtils.loadServerContext(contextKey);
 			String pv;
-			if ((pv = props.getProperty("mosip.test.packet.uploadapi")) != null) uploadapi = pv;
-			if ((pv = props.getProperty("mosip.test.baseurl")) != null) baseUrl = pv;
+			if ((pv = props.getProperty("mosip.test.packet.uploadapi")) != null)
+				uploadapi = pv;
+			if ((pv = props.getProperty("mosip.test.baseurl")) != null)
+				baseUrl = pv;
 		}
 
-
 		VariableManager.setVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS", "APPROVED");
-
 
 		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Finger",
 				"MOSIP-FINGER01-2345678901");
@@ -628,7 +633,6 @@ public class PacketSyncService {
 
 	public String preRegisterResident(List<String> personaFilePath, String contextKey) throws IOException {
 		StringBuilder builder = new StringBuilder();
-
 
 		for (String path : personaFilePath) {
 			ResidentModel resident = ResidentModel.readPersona(path);
@@ -749,13 +753,13 @@ public class PacketSyncService {
 		public final String date;
 		public final String regCenterId;
 		public final AppointmentTimeSlotModel slot;
-		public final long createdTime; 
+		public final long createdTime;
 
 		public SlotEntry(String date, String regCenterId, AppointmentTimeSlotModel slot) {
 			this.date = date;
 			this.regCenterId = regCenterId;
 			this.slot = slot;
-			this.createdTime = System.currentTimeMillis(); 
+			this.createdTime = System.currentTimeMillis();
 		}
 
 		public boolean isExpired() {
@@ -845,7 +849,8 @@ public class PacketSyncService {
 					}
 
 					int selectedDocIndex = 0;
-					if (resident.getDocIndexes() != null && resident.getDocIndexes().containsKey(doc.getDocCategoryCode())) {
+					if (resident.getDocIndexes() != null
+							&& resident.getDocIndexes().containsKey(doc.getDocCategoryCode())) {
 						selectedDocIndex = resident.getDocIndexes().get(doc.getDocCategoryCode());
 					}
 					if (selectedDocIndex < 0 || selectedDocIndex >= doc.getDocs().size()
@@ -1033,12 +1038,13 @@ public class PacketSyncService {
 				String value = updateAttrs.getProperty(key);
 				key = key.toLowerCase().trim();
 
-
 				MosipDocument doc = null;
 				if (persona.getDocuments() != null) {
 					for (MosipDocument md : persona.getDocuments()) {
-						String docCategoryCode = md.getDocCategoryCode() == null ? "" : md.getDocCategoryCode().toLowerCase();
-						String docCategoryName = md.getDocCategoryName() == null ? "" : md.getDocCategoryName().toLowerCase();
+						String docCategoryCode = md.getDocCategoryCode() == null ? ""
+								: md.getDocCategoryCode().toLowerCase();
+						String docCategoryName = md.getDocCategoryName() == null ? ""
+								: md.getDocCategoryName().toLowerCase();
 						if (docCategoryCode.equals(key) || docCategoryName.equals(key)) {
 							doc = md;
 							break;
@@ -1401,7 +1407,6 @@ public class PacketSyncService {
 				Properties updateAttrs = req.getUpdateAttributeList();
 				if (updateAttrs != null) {
 
-
 					JSONObject updateResult = updatePersona(updateAttrs, persona, contextKey);
 					individualResponse.put("file", req.getPersonaFilePath());
 					individualResponse.put("updatedAttributes", updateResult);
@@ -1424,7 +1429,7 @@ public class PacketSyncService {
 
 		JSONObject finalResponse = new JSONObject();
 		finalResponse.put("result", responseList);
-		return finalResponse.toString(2); 
+		return finalResponse.toString(2);
 	}
 
 	public String updateResidentData(Hashtable<PersonaRequestType, Properties> hashtable, String uin, String rid,
@@ -1558,7 +1563,7 @@ public class PacketSyncService {
 				VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus") == null
 						? "--TAG_VALUE_NOT_AVAILABLE--"
 						: VariableManager.getVariableValue(contextKey, "ID_OBJECT-residenceStatus").toString());
-
+						
 		return packetTags.toString();
 
 	}
@@ -1658,15 +1663,27 @@ public class PacketSyncService {
 				duplicateBdbs = null;
 			List<String> reponse = new ArrayList<>();
 			for (String b : subTypeBdbStr) {
+				int abisDelaySec = resolveMockAbisDelaySeconds(expct.getDelaySec());
+				RestClient.logInfo(contextKey,
+						"setPersonaMockABISExpectation delaySec=" + abisDelaySec + " operation="
+								+ expct.getOperation() + " statusCode=" + expct.getStatusCode() + " failureReason="
+								+ expct.getFailureReason());
 				String responseStr = MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(), duplicateBdbs,
-						(expct.getDelaySec() <= 0 ? DataProviderConstants.DEFAULT_ABIS_DELAY : expct.getDelaySec()),
-						expct.getOperation(), contextKey, expct.getStatusCode(), expct.getFailureReason());
+						abisDelaySec, expct.getOperation(), contextKey, expct.getStatusCode(),
+						expct.getFailureReason());
 				reponse.add(responseStr);
 			}
 			RestClient.logInfo(contextKey, String.join(", ", reponse));
 		}
 
 		return STATUS_SUCCESS;
+	}
+
+	private static int resolveMockAbisDelaySeconds(int delaySec) {
+		if (delaySec > 0) {
+			return delaySec;
+		}
+		return DataProviderConstants.DEFAULT_ABIS_DELAY;
 	}
 
 	public String updateMachine(MosipMachineModel machine, String contextKey) {
@@ -1680,7 +1697,7 @@ public class PacketSyncService {
 	}
 
 	public String updatePreRegAppointment(String preregId, String contextKey) {
-		return PreRegistrationSteps.updatePreRegAppointment(preregId, contextKey);	
+		return PreRegistrationSteps.updatePreRegAppointment(preregId, contextKey);
 	}
 
 	public String deleteMockAbisExpectations(String contextKey, String mockId) {
@@ -1720,23 +1737,20 @@ public class PacketSyncService {
 		outerRequest.put("requesttime", CommonUtil.getUTCDateTime(null));
 		outerRequest.put("version", "v1");
 
-
 		JSONObject innerRequest = new JSONObject();
 		innerRequest.put(REGISTRATIONID, rid);
 		innerRequest.put("process", VariableManager.getVariableValue(contextKey, "process").toString());
 		innerRequest.put("source", VariableManager.getVariableValue(contextKey, "source").toString());
-		innerRequest.put("additionalInfoReqId", ""); 
-
+		innerRequest.put("additionalInfoReqId", "");
 
 		JSONObject notificationInfo = new JSONObject();
 		notificationInfo.put("name", (resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
 				+ resident.getName().getSurName()));
-		notificationInfo.put("phone", resident.getContact().getMobileNumber()); 
-		notificationInfo.put("email", resident.getContact().getEmailId()); 
+		notificationInfo.put("phone", resident.getContact().getMobileNumber());
+		notificationInfo.put("email", resident.getContact().getEmailId());
 
 		innerRequest.put("notificationInfo", notificationInfo);
 		outerRequest.put("request", innerRequest);
-
 
 		JSONObject response = RestClient.post(url, outerRequest, "crvs", contextKey);
 
