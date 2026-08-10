@@ -88,9 +88,11 @@ for pushes/PRs touching `mosip-packet-creator/**`.
 
 ### Do
 
-1. Build `mosipTestDataProvider` before this module — the Maven reactor
-   will fail otherwise since `dslrig-packetcreator` depends on
-   `dslrig-dataprovider`.
+1. Build `mosipTestDataProvider` before this module if building it
+   standalone (e.g. via `cd mosip-packet-creator && mvn clean install`) —
+   `dslrig-packetcreator` depends on `dslrig-dataprovider`. Building from
+   the repo root with `mvn -pl mosip-packet-creator -am clean install`
+   builds `mosipTestDataProvider` automatically as part of the reactor.
 2. Keep `-D` system properties before `-jar` in any Java command you write
    for this module.
 3. Treat `PacketUtilityRunlog.txt` and any `dslrig-packetcreator-*.jar` in

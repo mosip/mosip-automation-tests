@@ -49,6 +49,11 @@ use Maven's reactor module flag from the root:
 mvn -pl mosip-packet-creator -am clean install -Dgpg.skip
 ```
 
+The `-am` (also-make) flag builds required sibling modules (e.g.
+`mosipTestDataProvider`) as part of the same reactor run. If you instead
+`cd` into `mosip-packet-creator` and build it standalone, you must install
+`mosipTestDataProvider` first — see that module's `AGENTS.md`.
+
 There is no repo-wide single-command test runner outside of the Maven
 `test` phase (`mvn test` per module) — the actual E2E test execution is a
 separate, manual step described in each module's `AGENTS.md`.
@@ -63,9 +68,12 @@ separate, manual step described in each module's `AGENTS.md`.
   properties files in this repo (for example
   `mosip-packet-creator/src/main/resources/dockersupport/centralized/mosip-packet-creator/config/application.properties`)
   ship with blank credential fields (`mosip.test.regclient.password =`,
-  `mosip.test.regclient.secretkey=`, etc.) that are meant to be filled in
-  locally with real values before a run, but those filled-in values must
-  stay local and not be pushed back to git.
+  `mosip.test.regclient.secretkey=`, etc.). Keep these tracked files blank:
+  copy the containing folder to an untracked deployment location first,
+  then fill in real values only in that copy (see
+  `mosip-packet-creator/AGENTS.md`'s "Local run" steps) and point the
+  runtime at it (e.g. Spring's `--spring.config.location`). Never push
+  filled-in values back to git.
 - CI secrets (`OSSRH_USER`, `OSSRH_SECRET`, `OSSRH_TOKEN`, `GPG_SECRET`,
   `SLACK_WEBHOOK`) are injected by GitHub Actions from repository secrets —
   see `.github/workflows/automationtests.yaml` and
@@ -113,11 +121,10 @@ separate, manual step described in each module's `AGENTS.md`.
 
 ## Pull Request Guidelines
 
-- Target branch: `master`. This was confirmed two ways: `gh repo view
-  mosip/mosip-automation-tests --json defaultBranchRef` reports `master`,
-  and `master` is 43 commits ahead of `develop` with `develop` having zero
-  commits of its own not already in `master` — i.e. `develop` is a stale
-  branch, not the active integration target.
+- Target branch: `master`. Confirm with `gh repo view
+  mosip/mosip-automation-tests --json defaultBranchRef`, which reports the
+  current default branch. Verify the current branch policy before opening
+  a pull request, since it can change over time.
 - CI (`.github/workflows/packetcreator.yaml`,
   `.github/workflows/dslorchestrator.yaml`) triggers on `pull_request` for
   every PR, and also on `push` to `master`, `develop`, `release*`, and

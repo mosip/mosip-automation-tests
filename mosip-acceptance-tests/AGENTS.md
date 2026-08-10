@@ -65,9 +65,9 @@ java -Denv.user="$ENV_USER" -Denv.endpoint="$ENV_ENDPOINT" \
 ### Docker / container run
 
 `ivv-orchestrator/Dockerfile` builds on `mosipid/openjdk-21-jre:21.0.4` and
-runs `entrypoint.sh`, which launches the jar using environment variables
+runs `entrypoint.sh`, which reads environment variables
 (`USER`, `ENDPOINT`, `TESTLEVEL`, and others declared with `ENV` in the
-Dockerfile) instead of command-line flags. Docker builds/publishes are
+Dockerfile) and maps them to Java `-D` system properties. Docker builds/publishes are
 driven by `.github/workflows/dslorchestrator.yaml`, which only triggers
 its Docker build/publish job for pushes/PRs touching
 `mosip-acceptance-tests/**`.
