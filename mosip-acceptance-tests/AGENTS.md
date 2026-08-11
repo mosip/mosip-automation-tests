@@ -40,13 +40,17 @@ mvn clean install -Dgpg.skip
 
 Run the built jar with the environment-specific system properties, as
 documented in the repo root `README.md`. `-D` system properties must come
-**before** `-jar`:
+**before** `-jar`. From the repo root, using the artifact name the POM's
+shade-plugin `finalName` actually produces (currently
+`dslrig-ivv-orchestrator-1.4.0-SNAPSHOT-jar-with-dependencies.jar` — check
+`mosip-acceptance-tests/ivv-orchestrator/pom.xml`'s `<version>` if this has
+moved on):
 
 ```bash
 ENV_USER="qa"
 ENV_ENDPOINT="https://qa.example.mosip.net"
 java -Denv.user="$ENV_USER" -Denv.endpoint="$ENV_ENDPOINT" \
-  -jar ivv-orchestrator/target/dslrig-ivv-orchestrator-1.5.0-jar-with-dependencies.jar
+  -jar mosip-acceptance-tests/ivv-orchestrator/target/dslrig-ivv-orchestrator-1.4.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 - `env.user` — environment name, e.g. `qa`, `qa2`, `dev`.
@@ -79,9 +83,14 @@ its Docker build/publish job for pushes/PRs touching
   scenario-selection settings. Several of these (e.g. `Kernel.properties`,
   which actually lives in the sibling `mosip-functional-tests` repo per
   the root `README.md`) must have their secret keys updated for your
-  target environment before a run.
-- Do not commit environment-specific secrets you fill into these files
-  back to git — see the root `AGENTS.md`'s Configuration section.
+  target environment before a run. Unlike `mosip-packet-creator`, this
+  module has no built-in external-config-file override — the properties
+  are packaged from the classpath — so there is no way to fill in real
+  values without touching a tracked path.
+- Never commit environment-specific secrets you fill into these files:
+  keep the filled-in state as local, uncommitted changes and check
+  `git status`/`git diff` before staging anything from this directory —
+  see the root `AGENTS.md`'s Configuration section.
 
 ## Agent rules
 

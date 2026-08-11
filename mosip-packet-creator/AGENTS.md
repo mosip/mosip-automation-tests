@@ -48,13 +48,20 @@ resulting jar into a `centralized/mosip-packet-creator` deployment folder.
    (`mosip.test.regclient.machineid`, `mosip.test.baseurl`,
    `mosip.test.regclient.userid`, `mosip.test.regclient.password`, etc.)
    for your target environment. **Do not commit these filled-in values.**
-3. Run the built jar, pointing Spring at that properties file. `-D`
-   system properties must precede `-jar`:
+3. `cd` into that deployment folder, then run the built jar from inside
+   it, pointing Spring at the properties file you just edited (matching
+   `run_centralized_packet_creator.bat`'s `chdir` before invoking java).
+   `-D` system properties must precede `-jar`. The jar name matches the
+   module's current Maven version — currently
+   `dslrig-packetcreator-1.4.0-SNAPSHOT.jar` (check
+   `mosip-packet-creator/pom.xml`'s `<version>` if this has moved on):
 
    ```bash
+   DEPLOY_DIR="/path/to/centralized/mosip-packet-creator"
+   cd "$DEPLOY_DIR"
    java -Xss8m -Dfile.encoding=UTF-8 \
-     -jar dslrig-packetcreator-1.5.0.jar \
-     --spring.config.location=file:///path/to/centralized/mosip-packet-creator/config/application.properties
+     -jar dslrig-packetcreator-1.4.0-SNAPSHOT.jar \
+     --spring.config.location="file://$DEPLOY_DIR/config/application.properties"
    ```
 
    (`run_centralized_packet_creator.bat` in this repo runs a debug variant
@@ -78,11 +85,17 @@ for pushes/PRs touching `mosip-packet-creator/**`.
 - `src/main/resources/dockersupport/centralized/mosip-packet-creator/config/application.properties`
   ships with credential and machine-id fields intentionally blank (e.g.
   `mosip.test.regclient.password =`, `mosip.test.regclient.secretkey=`).
-  Fill these locally for your environment; never commit real values back.
+  Keep this **tracked** file blank — do not fill in real values here.
+  Fill in the values only in the untracked copy at your deployment
+  location (see "Local run" above, step 1: copy `centralized/` out of
+  the repo first, then edit the copy).
 - `resource/privatekeys/` under the same `dockersupport` tree already
   contains a registration-client key file checked into this repo's
-  history. Do not add further real private keys here without maintainer
-  confirmation.
+  history. Real private keys are never permitted here — do not add
+  further ones. If the existing key hasn't been confirmed as
+  synthetic/test-only, treat it as compromised: it needs to be
+  rotated/revoked and removed from tracked resources (and ideally git
+  history), not left in place.
 
 ## Agent rules
 

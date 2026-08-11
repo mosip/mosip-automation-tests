@@ -147,10 +147,14 @@ separate, manual step described in each module's `AGENTS.md`.
   `PacketUtilityRunlog.txt`). Check `git status` before committing broad
   directory adds.
 - The `mosip-packet-creator/src/main/resources/dockersupport/centralized/mosip-packet-creator/resource/privatekeys/`
-  folder contains a registration-client key file that is already tracked
-  in git history for this repo; do not add further private keys or
-  environment-specific credential files here without confirming with a
-  maintainer that they are meant to be public.
+  folder contains a registration-client key file (named after a
+  `qa-upgrade2` environment host) that is already tracked in git history
+  for this repo. Real private keys are never permitted here — do not
+  add further ones or other environment-specific credential files. If
+  this existing key hasn't been confirmed as synthetic/test-only, treat
+  it as compromised: it needs to be rotated/revoked by whoever owns
+  that QA environment and removed from tracked resources (and ideally
+  from git history), not left as-is.
 - `mosip-acceptance-tests/ivv-orchestrator` contains several `.temp-*`
   classpath-arg files checked into `src/` from prior local runs — these
   are historical artifacts already in the repo, not something to emulate;
