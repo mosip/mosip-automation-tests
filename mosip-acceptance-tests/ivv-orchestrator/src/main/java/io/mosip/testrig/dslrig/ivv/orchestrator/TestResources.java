@@ -193,10 +193,14 @@ public class TestResources {
 					continue;
 				}
 				String relativePath = entry.getName().substring(prefix.length());
-				File destFile = new File(destinationRoot, normalizedPath + "/" + relativePath);
-				destFile.getParentFile().mkdirs();
+				Path destRoot = destinationRoot.toPath().resolve(normalizedPath).normalize();
+				Path targetPath = destRoot.resolve(relativePath).normalize();
+				if (!targetPath.startsWith(destRoot)) {
+					throw new IOException("Zip Slip attempt blocked: " + entry.getName());
+				}
+				Files.createDirectories(targetPath.getParent());
 				try (InputStream in = jarFile.getInputStream(entry)) {
-					Files.copy(in, destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					Files.copy(in, targetPath, StandardCopyOption.REPLACE_EXISTING);
 				}
 				copied = true;
 			}
