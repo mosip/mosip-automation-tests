@@ -407,6 +407,13 @@ public class Orchestrator {
 		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
+		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.IsDebugEnabled()) {
+			String skipMsg = "Skipping AFTER_SUITE scenario because enableDebug=yes";
+			logger.info(skipMsg);
+			extentTest.skip(skipMsg);
+			updateRunStatistics(scenario);
+			throw new SkipException(skipMsg);
+		}
 		if (testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression")) {
 			logger.info("Running Scenario #" + scenario.getId());
 		} else if (matchTags("Negative_Test", scenario.getTags()) && testLevel.equalsIgnoreCase("smoke")) {
