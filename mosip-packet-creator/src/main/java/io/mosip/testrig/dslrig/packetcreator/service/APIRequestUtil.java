@@ -106,7 +106,32 @@ public class APIRequestUtil {
                 .setParam("http.socket.timeout", httpUploadTimeoutMs));
     }
 
+	/**
+	 * Resolve request-local auth endpoints from context without mutating shared fields.
+	 */
+	private AuthEndpointContext resolveAuthEndpointContext(String contextKey, String requestBaseUrl) {
+		String effectiveBaseUrl = this.baseUrl;
+		String effectiveAuthManagerURL = this.authManagerURL;
+		if (contextKey != null && !contextKey.isEmpty()) {
+			Properties props = contextUtils.loadServerContext(contextKey);
+			String pv;
+			if ((pv = props.getProperty("mosip.test.baseurl")) != null) {
+				effectiveBaseUrl = pv;
+			}
+			if ((pv = props.getProperty("mosip.test.authmanager.url")) != null) {
+				effectiveAuthManagerURL = pv;
+			}
+		}
+		if (requestBaseUrl != null && !requestBaseUrl.isEmpty()) {
+			effectiveBaseUrl = requestBaseUrl;
+		}
+		return new AuthEndpointContext(effectiveBaseUrl, effectiveAuthManagerURL);
+	}
+
+	@Deprecated
 	void loadContext(String context) {
+		// Kept for callers that still expect credential field hydration.
+		// Do not use for baseUrl — prefer resolveAuthEndpointContext for request-local values.
 		Properties props = contextUtils.loadServerContext(context);
 		String pv;
 		if ((pv = props.getProperty("mosip.test.regclient.userid")) != null) operatorId = pv;
@@ -115,7 +140,16 @@ public class APIRequestUtil {
 		if ((pv = props.getProperty("mosip.test.regclient.clientid")) != null) clientId = pv;
 		if ((pv = props.getProperty("mosip.test.regclient.appId")) != null) appId = pv;
 		if ((pv = props.getProperty("mosip.test.regclient.secretkey")) != null) secretKey = pv;
-		if ((pv = props.getProperty("mosip.test.baseurl")) != null) baseUrl = pv;
+	}
+
+	private static final class AuthEndpointContext {
+		private final String baseUrl;
+		private final String authManagerURL;
+
+		private AuthEndpointContext(String baseUrl, String authManagerURL) {
+			this.baseUrl = baseUrl;
+			this.authManagerURL = authManagerURL;
+		}
 	}
 
     /**
@@ -226,10 +260,10 @@ public class APIRequestUtil {
         }
     }
     public JSONObject get(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
+    	AuthEndpointContext auth = resolveAuthEndpointContext(contextKey, baseUrl);
     	logger.info(url);
     	if (!isValidToken(contextKey)){
-            initToken(contextKey);
+            initToken(contextKey, auth);
         }
     	boolean bDone = false;
     	int nLoop  = 0;
@@ -243,7 +277,7 @@ public class APIRequestUtil {
     			if(nLoop >= 1)
     				bDone = true;
     			else {
-    				initToken(contextKey);
+    				initToken(contextKey, auth);
     				nLoop++;
     			}
     		}
@@ -263,10 +297,10 @@ public class APIRequestUtil {
         return new JSONObject(response.getBody().asString()).getJSONObject(dataKey);
     }
     public JSONObject getJsonObject(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
+    	AuthEndpointContext auth = resolveAuthEndpointContext(contextKey, baseUrl);
     	logger.info(url);
     	if (!isValidToken(contextKey)){
-            initToken(contextKey);
+            initToken(contextKey, auth);
         }
     	boolean bDone = false;
     	int nLoop  = 0;
@@ -280,7 +314,7 @@ public class APIRequestUtil {
     			if(nLoop >= 1)
     				bDone = true;
     			else {
-    				initToken(contextKey);
+    				initToken(contextKey, auth);
     				nLoop++;
     			}
     		}
@@ -300,11 +334,11 @@ public class APIRequestUtil {
         return new JSONObject(response.getBody().asString());
     }
     public JSONObject getPreReg(String baseUrl,String url, JSONObject requestParams, JSONObject pathParam,String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
+    	AuthEndpointContext auth = resolveAuthEndpointContext(contextKey, baseUrl);
     	if (!isValidToken(contextKey)){
 
 
-        		initToken_prereg(contextKey);
+        		initToken_prereg(contextKey, auth);
 
         }
 
@@ -321,7 +355,7 @@ public class APIRequestUtil {
     				bDone = true;
     			else {
 
-    				initToken_prereg(contextKey);
+    				initToken_prereg(contextKey, auth);
     				nLoop++;
     			}
     		}
@@ -343,10 +377,10 @@ public class APIRequestUtil {
 
 
     public JSONObject post(String baseUrl,String url, JSONObject jsonRequest,String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
+    	AuthEndpointContext auth = resolveAuthEndpointContext(contextKey, baseUrl);
 
     	if (!isValidToken(contextKey)){
-            initToken(contextKey);
+            initToken(contextKey, auth);
         }
 
     	boolean bDone = false;
@@ -360,7 +394,7 @@ public class APIRequestUtil {
     			if(nLoop >= 1)
     				bDone = true;
     			else {
-    				initToken(contextKey);
+    				initToken(contextKey, auth);
     				nLoop++;
     			}
     		}
@@ -378,13 +412,12 @@ public class APIRequestUtil {
 
 
     public JSONArray syncRid(String baseUrl,String url, String requestBody, String timestamp,String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
 		String centerId= VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 		String machineId=VariableManager.getVariableValue(contextKey, "machineid").toString();
-    	loadContext(contextKey);
+    	AuthEndpointContext auth = resolveAuthEndpointContext(contextKey, baseUrl);
     	 AuthTokenStore.remove(contextKey, AuthTokenStore.ROLE_SYSTEM);
     	if (!isValidToken(contextKey)){
-            initToken(contextKey);
+            initToken(contextKey, auth);
         }
 
     	boolean bDone = false;
@@ -409,7 +442,7 @@ public class APIRequestUtil {
     			if(nLoop >= 1)
     				bDone = true;
     			else {
-    				initToken(contextKey);
+    				initToken(contextKey, auth);
     				nLoop++;
     			}
     		}
@@ -429,15 +462,12 @@ public class APIRequestUtil {
     }
 
     public JSONObject uploadFile(String baseUrl,String url, String filePath, String contextKey) throws Exception {
-    	this.baseUrl = baseUrl;
-
-
-    	loadContext(contextKey);
+    	AuthEndpointContext auth = resolveAuthEndpointContext(contextKey, baseUrl);
     	AuthTokenStore.remove(contextKey, AuthTokenStore.ROLE_SYSTEM);
 
 
     	if (!isValidToken(contextKey)){
-            initToken(contextKey);
+            initToken(contextKey, auth);
         }
     	File f = new File(filePath);
 
@@ -508,13 +538,16 @@ public class APIRequestUtil {
 
 
     public boolean initToken_prereg(String contextKey){
+        return initToken_prereg(contextKey, resolveAuthEndpointContext(contextKey, null));
+    }
+
+    public boolean initToken_prereg(String contextKey, AuthEndpointContext auth){
         try {	
 
 
 			JSONObject requestBody = new JSONObject();
 			JSONObject nestedRequest = buildInternalUseridPwdRequest(contextKey);
 
-			String urlBase = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
 			if (!shouldForceAuthRefresh(contextKey)) {
 				String cachedToken = getRunCachedInternalAuthToken(contextKey);
 				if (cachedToken != null && !cachedToken.isEmpty()) {
@@ -529,9 +562,9 @@ public class APIRequestUtil {
 			requestBody.put("requesttime", getUTCDateTime(LocalDateTime.now()));
 			requestBody.put("request", nestedRequest);
 
-
-            Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
-            addServerApiTrace(contextKey, "POST", baseUrl + authManagerURL, requestBody, null, response);
+			String authUrl = auth.baseUrl + auth.authManagerURL;
+            Response response = given().contentType("application/json").body(requestBody.toString()).post(authUrl);
+            addServerApiTrace(contextKey, "POST", authUrl, requestBody, null, response);
 
 			if(RestClient.isDebugEnabled(contextKey))
             logger.info("Authtoken generation request response: {}", response.asString());
@@ -542,7 +575,7 @@ public class APIRequestUtil {
             if (response.getStatusCode() != 200 ||  response.toString().contains("errorCode")) {
             	if(bSlackit)
             		SlackIt.postMessage(null,
-            				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+            				authUrl + " Failed to authenticate, Is " + auth.baseUrl + " down ?");
 
             	return false;
             }
@@ -558,7 +591,7 @@ public class APIRequestUtil {
             logger.error("",ex);
             if(bSlackit)
         		SlackIt.postMessage(null,
-        				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+        				auth.baseUrl + auth.authManagerURL + " Failed to authenticate, Is " + auth.baseUrl + " down ?");
 
             return false;
 		}
@@ -566,6 +599,10 @@ public class APIRequestUtil {
 
 
     public boolean initToken(String contextKey){
+        return initToken(contextKey, resolveAuthEndpointContext(contextKey, null));
+    }
+
+    public boolean initToken(String contextKey, AuthEndpointContext auth){
         try {	
 
 
@@ -583,7 +620,6 @@ public class APIRequestUtil {
 			JSONObject requestBody = new JSONObject();
 			JSONObject nestedRequest = buildInternalUseridPwdRequest(contextKey);
 
-			String urlBase = VariableManager.getVariableValue(contextKey,"urlBase").toString().trim();
 			if (!shouldForceAuthRefresh(contextKey)) {
 				String cachedToken = getRunCachedInternalAuthToken(contextKey);
 				if (cachedToken != null && !cachedToken.isEmpty()) {
@@ -598,9 +634,9 @@ public class APIRequestUtil {
 			requestBody.put("requesttime", getUTCDateTime(LocalDateTime.now()));
 			requestBody.put("request", nestedRequest);
 
-
-            Response response = given().contentType("application/json").body(requestBody.toString()).post(baseUrl + authManagerURL);
-            addServerApiTrace(contextKey, "POST", baseUrl + authManagerURL, requestBody, null, response);
+			String authUrl = auth.baseUrl + auth.authManagerURL;
+            Response response = given().contentType("application/json").body(requestBody.toString()).post(authUrl);
+            addServerApiTrace(contextKey, "POST", authUrl, requestBody, null, response);
             if(RestClient.isDebugEnabled(contextKey))
             logger.info("Authtoken generation request response: {}", response.asString());
 			if(response.getStatusCode() == 401) {
@@ -610,7 +646,7 @@ public class APIRequestUtil {
             if (response.getStatusCode() != 200 ||  response.toString().contains("errorCode")) {
             	if(bSlackit)
             		SlackIt.postMessage(null,
-            				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+            				authUrl + " Failed to authenticate, Is " + auth.baseUrl + " down ?");
 
             	return false;
             }
@@ -626,7 +662,7 @@ public class APIRequestUtil {
             logger.error("",ex);
             if(bSlackit)
         		SlackIt.postMessage(null,
-        				baseUrl + authManagerURL + " Failed to authenticate, Is " + baseUrl + " down ?");
+        				auth.baseUrl + auth.authManagerURL + " Failed to authenticate, Is " + auth.baseUrl + " down ?");
 
             return false;
 		}

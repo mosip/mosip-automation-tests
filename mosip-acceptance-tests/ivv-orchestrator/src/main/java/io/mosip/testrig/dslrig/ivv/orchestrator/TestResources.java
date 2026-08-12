@@ -57,8 +57,11 @@ public class TestResources {
 	public static void copyTestResource(String resPath) {
 		try {
 			String normalized = resPath.startsWith("/") ? resPath.substring(1) : resPath;
-			File destination = new File(TestResources.getGlobalResourcePaths());
-			File destChild = new File(destination, normalized);
+			File destinationRoot = new File(TestResources.getGlobalResourcePaths()).getCanonicalFile();
+			File destChild = new File(destinationRoot, normalized).getCanonicalFile();
+			if (!destChild.toPath().startsWith(destinationRoot.toPath())) {
+				throw new IllegalArgumentException("Resource path escapes root: " + normalized);
+			}
 			// Prefer resources already extracted into this run's working copy (fresh JAR extract)
 			// over any stale external cache under the JAR parent / classpath staging.
 			if (destChild.isDirectory() && hasAnyFile(destChild)) {
@@ -85,8 +88,11 @@ public class TestResources {
 			if (destChild.exists()) {
 				FileUtils.deleteDirectory(destChild);
 			}
-			FileUtils.copyDirectoryToDirectory(source, destination);
-			logger.info("Copied test resource: " + source.getAbsolutePath() + " -> " + destination.getAbsolutePath());
+			FileUtils.copyDirectoryToDirectory(source, destinationRoot);
+			logger.info("Copied test resource: " + source.getAbsolutePath() + " -> " + destinationRoot.getAbsolutePath());
+		} catch (IllegalArgumentException e) {
+			logger.error("Invalid resource path: " + e.getMessage());
+			throw e;
 		} catch (Exception e) {
 			logger.error("Exception occured while copying the file: "+e.getMessage());
 		}

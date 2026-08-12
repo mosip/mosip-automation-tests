@@ -94,13 +94,13 @@ public final class SensitiveLogMasker {
 
 	private static final Pattern JSON_LIKE_SECRET = Pattern.compile(
 
-			"(?i)(\"(?:password|clientSecret|client_secret|secret|token|access_token|refresh_token|privateKey|private_key|secretKey|secret_key|apiKey|api_key|authorization|sessionKey|session_key|cookie|certificate|cert|rid|prid|uin|vid|individualId|residentId)\"\\s*:\\s*\")([^\"]*)(\")");
+			"(?i)(\"(?:password|clientSecret|client_secret|secret|token|access_token|refresh_token|auth_token|id_token|otp|privateKey|private_key|secretKey|secret_key|apiKey|api_key|authorization|sessionKey|session_key|cookie|certificate|cert|rid|prid|uin|vid|individualId|residentId)\"\\s*:\\s*\")([^\"]*)(\")");
 
 
 
 	private static final Pattern QUERY_SECRET = Pattern.compile(
 
-			"(?i)((?:client_secret|clientSecret|secret|token|password|api_key|apiKey|access_token|refresh_token|rid|prid|uin|vid|individualId|residentId)=)([^&\\s]+)");
+			"(?i)((?:client_secret|clientSecret|secret|token|password|api_key|apiKey|access_token|refresh_token|auth_token|id_token|otp|rid|prid|uin|vid|individualId|residentId)=)([^&\\s]+)");
 
 
 

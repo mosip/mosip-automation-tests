@@ -6434,7 +6434,7 @@ And I read pre req where pre-requisite data index is 1 and store result in envir
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
-And I clone resident data where persona file path is the saved persona file path and store result in u2 demo persona file path
+And I clone resident data where persona file path is the saved persona file path and store result in pre update demo persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
@@ -6456,10 +6456,10 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved rid u2
 And I get uin by rid where source registration ID is the saved rid u2 and store result in uin after u2
 And I verify notification where notification type is updated, and email is the saved email
-And I clone resident data where persona file path is the saved persona file path and store result in u1 demo persona file path
+And I clone resident data where persona file path is the saved persona file path and store result in u2 demo persona file path
 And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name=Updated Resident250, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved uin after u2
-And I update resident with uin where persona file path is u1 demo persona file path, and UIN is the saved uin after u2
+And I update resident with uin where persona file path is u2 demo persona file path, and UIN is the saved uin after u2
 And I clone resident data where persona file path is the saved persona file path and store result in updated name persona file path
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template u3
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template u3 and store result in rid u3
@@ -6471,8 +6471,8 @@ And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after u3 and store result in VID
 And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is updated name persona file path, and VID is the saved VID
-And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is u1 demo persona file path, and VID is the saved VID, and age update flag is ERROR
-And I demo authentication where demo field is gender, and UIN is the saved uin after u3, and persona file path is u2 demo persona file path, and VID is the saved VID, and age update flag is ERROR
+And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is u2 demo persona file path, and VID is the saved VID, and age update flag is ERROR
+And I demo authentication where demo field is gender, and UIN is the saved uin after u3, and persona file path is pre update demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
   @scenario_251

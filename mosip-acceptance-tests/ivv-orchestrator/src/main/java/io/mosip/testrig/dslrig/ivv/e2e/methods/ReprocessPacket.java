@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.dbaccess.DBManager;
@@ -43,29 +42,26 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	    logger.info("Response Body: " + responseBody);
 
 	    if (responseBody == null || responseBody.isBlank()) {
-	        logger.warn("Reprocess returned empty body for rid=" + rid + "; continuing.");
-	        return;
+	        throw new RigInternalError("Reprocess returned an empty response for rid=" + rid);
 	    }
 
 	    JSONObject res;
 	    try {
 	        res = new JSONObject(responseBody);
 	    } catch (Exception ex) {
-	        logger.warn("Reprocess response is not JSON for rid=" + rid + "; continuing. Body: " + responseBody);
-	        return;
+	        throw new RigInternalError("Reprocess returned a non-JSON response for rid=" + rid);
 	    }
 
 	    if (!res.has("status")) {
-	        logger.warn("Reprocess response has no 'status' field for rid=" + rid + "; continuing. Body: " + responseBody);
-	        return;
+	        throw new RigInternalError("Reprocess response missing 'status' field for rid=" + rid);
 	    }
 
 	    String expectedStatusMessage = "Packet with registrationId '" + rid + "' has been forwarded to next stage";
 	    String actualStatusMessage = res.getString("status").replace("\"", ""); 
 
 	    if (!actualStatusMessage.equals(expectedStatusMessage)) {
-	        logger.warn("Reprocess status message differed for rid=" + rid + ". Expected: " + expectedStatusMessage
-	                + " Actual: " + actualStatusMessage);
+	        throw new RigInternalError("Unexpected reprocess status for rid=" + rid
+	                + ". Expected: " + expectedStatusMessage + " Actual: " + actualStatusMessage);
 	    }
 	}
 

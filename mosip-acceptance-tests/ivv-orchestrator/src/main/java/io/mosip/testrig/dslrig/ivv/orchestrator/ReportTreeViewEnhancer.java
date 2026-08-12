@@ -1745,7 +1745,9 @@ public final class ReportTreeViewEnhancer {
             return new String[] {"No headers", ""};
         }
         String trimmed = raw.trim();
-        if (!trimmed.startsWith("[")) {
+        // Header payloads look like "[key=value, ...]<body>". JSON arrays also start with '['
+        // and must be kept intact as the response body.
+        if (!trimmed.startsWith("[") || !trimmed.matches("^\\[[^\\]]*=[^\\]]*\\].*")) {
             return new String[] {"No headers", raw};
         }
         int close = trimmed.indexOf(']');
