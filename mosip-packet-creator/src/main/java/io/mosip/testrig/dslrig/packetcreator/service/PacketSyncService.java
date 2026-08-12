@@ -487,9 +487,11 @@ public class PacketSyncService {
 	public String syncPacketRid(String containerFile, String name, String supervisorStatus, String supervisorComment,
 			String proc, String contextKey, String additionalInfoReqId) throws Exception {
 
+		ContextConfig config = resolveContextConfig(contextKey);
 		RidSyncRequestData ridSyncRequestData = prepareRidSyncRequest(containerFile, name, supervisorStatus,
-				supervisorComment, proc, contextKey, additionalInfoReqId);
-		JSONArray response = apiRequestUtil.syncRid(baseUrl, baseUrl + syncapi, ridSyncRequestData.getRequestBody(),
+				supervisorComment, proc, contextKey, additionalInfoReqId, config);
+		JSONArray response = apiRequestUtil.syncRid(config.baseUrl, config.baseUrl + config.syncApi,
+				ridSyncRequestData.getRequestBody(),
 				APIRequestUtil.getUTCDateTime(ridSyncRequestData.getTimestamp()), contextKey);
 
 		return response.toString();
@@ -498,8 +500,9 @@ public class PacketSyncService {
 	public RidSyncReqResponseDTO syncPacketRidRequest(String containerFile, String name, String supervisorStatus,
 			String supervisorComment, String proc, String contextKey, String additionalInfoReqId) throws Exception {
 
+		ContextConfig config = resolveContextConfig(contextKey);
 		RidSyncRequestData ridSyncRequestData = prepareRidSyncRequest(containerFile, name, supervisorStatus,
-				supervisorComment, proc, contextKey, additionalInfoReqId);
+				supervisorComment, proc, contextKey, additionalInfoReqId, config);
 		String centerId = null;
 		String machineId = null;
 
@@ -521,21 +524,16 @@ public class PacketSyncService {
 
 	private RidSyncRequestData prepareRidSyncRequest(String containerFile, String name, String supervisorStatus,
 			String supervisorComment, String proc, String contextKey, String additionalInfoReqId)
-			throws Exception, Exception {
+			throws Exception {
+		return prepareRidSyncRequest(containerFile, name, supervisorStatus, supervisorComment, proc, contextKey,
+				additionalInfoReqId, resolveContextConfig(contextKey));
+	}
+
+	private RidSyncRequestData prepareRidSyncRequest(String containerFile, String name, String supervisorStatus,
+			String supervisorComment, String proc, String contextKey, String additionalInfoReqId,
+			ContextConfig config) throws Exception {
 		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 		String machineId = VariableManager.getVariableValue(contextKey, "machineid").toString();
-		if (contextKey != null && !contextKey.equals("")) {
-			Properties props = contextUtils.loadServerContext(contextKey);
-			String pv;
-			if ((pv = props.getProperty("mosip.test.packet.syncapi")) != null)
-				syncapi = pv;
-			if ((pv = props.getProperty("mosip.test.primary.langcode")) != null)
-				primaryLangCode = pv;
-			if ((pv = props.getProperty("mosip.test.baseurl")) != null)
-				baseUrl = pv;
-			if ((pv = props.getProperty("mosip.version")) != null)
-				mosipVersion = pv;
-		}
 		Path container = Path.of(containerFile);
 		String rid = null;
 		if (container.getName(container.getNameCount() - 1).toString().contains("-")) {
@@ -549,7 +547,7 @@ public class PacketSyncService {
 		}
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put(REGISTRATIONID, rid);
-		jsonObject.put("langCode", primaryLangCode);
+		jsonObject.put("langCode", config.primaryLangCode);
 		jsonObject.put("name", name);
 		jsonObject.put("email", "");
 		jsonObject.put("phone", "");
@@ -574,7 +572,7 @@ public class PacketSyncService {
 		jsonObject.put("supervisorStatus", supervisorStatus);
 		jsonObject.put("supervisorComment", supervisorComment);
 
-		if (mosipVersion != null && !mosipVersion.isEmpty() && mosipVersion.equals("1.2")) {
+		if (config.mosipVersion != null && !config.mosipVersion.isEmpty() && config.mosipVersion.equals("1.2")) {
 			String id = StringUtils.isNotBlank(additionalInfoReqId) ? additionalInfoReqId : rid;
 			String packetId = (container.getName(container.getNameCount() - 1).toString()).replace(".zip", "");
 
@@ -603,14 +601,7 @@ public class PacketSyncService {
 
 	public String uploadPacket(String path, String contextKey) throws Exception {
 
-		if (contextKey != null && !contextKey.equals("")) {
-			Properties props = contextUtils.loadServerContext(contextKey);
-			String pv;
-			if ((pv = props.getProperty("mosip.test.packet.uploadapi")) != null)
-				uploadapi = pv;
-			if ((pv = props.getProperty("mosip.test.baseurl")) != null)
-				baseUrl = pv;
-		}
+		ContextConfig config = resolveContextConfig(contextKey);
 
 		VariableManager.setVariableValue(contextKey, "SUPERVISOR_APPROVAL_STATUS", "APPROVED");
 
@@ -619,8 +610,9 @@ public class PacketSyncService {
 		VariableManager.setVariableValue(contextKey, "META_INFO-CAPTURED_REGISTERED_DEVICES-Face",
 				"MOSIP-FACE01-2345678901");
 
-		RestClient.logInfo(contextKey, baseUrl + uploadapi + ",path=" + path);
-		JSONObject response = apiRequestUtil.uploadFile(baseUrl, baseUrl + uploadapi, path, contextKey);
+		RestClient.logInfo(contextKey, config.baseUrl + config.uploadApi + ",path=" + path);
+		JSONObject response = apiRequestUtil.uploadFile(config.baseUrl, config.baseUrl + config.uploadApi, path,
+				contextKey);
 		if (VariableManager.getVariableValue(contextKey, "mosip.test.temp") != null
 				&& VariableManager.getVariableValue(contextKey, "mountPath") != null) {
 
@@ -1755,6 +1747,56 @@ public class PacketSyncService {
 		JSONObject response = RestClient.post(url, outerRequest, "crvs", contextKey);
 
 		return response.toString();
+	}
+
+	/**
+	 * Resolve context-specific sync/upload settings into request-local values so
+	 * concurrent requests with different contextKeys cannot overwrite shared fields.
+	 */
+	private ContextConfig resolveContextConfig(String contextKey) {
+		String effectiveBaseUrl = baseUrl;
+		String effectiveSyncApi = syncapi;
+		String effectiveUploadApi = uploadapi;
+		String effectiveLangCode = primaryLangCode;
+		String effectiveVersion = mosipVersion;
+		if (contextKey != null && !contextKey.isEmpty()) {
+			Properties props = contextUtils.loadServerContext(contextKey);
+			String pv;
+			if ((pv = props.getProperty("mosip.test.packet.syncapi")) != null) {
+				effectiveSyncApi = pv;
+			}
+			if ((pv = props.getProperty("mosip.test.packet.uploadapi")) != null) {
+				effectiveUploadApi = pv;
+			}
+			if ((pv = props.getProperty("mosip.test.primary.langcode")) != null) {
+				effectiveLangCode = pv;
+			}
+			if ((pv = props.getProperty("mosip.test.baseurl")) != null) {
+				effectiveBaseUrl = pv;
+			}
+			if ((pv = props.getProperty("mosip.version")) != null) {
+				effectiveVersion = pv;
+			}
+		}
+		return new ContextConfig(effectiveBaseUrl, effectiveSyncApi, effectiveUploadApi, effectiveLangCode,
+				effectiveVersion);
+	}
+
+	private static final class ContextConfig {
+		private final String baseUrl;
+		private final String syncApi;
+		private final String uploadApi;
+		private final String primaryLangCode;
+		private final String mosipVersion;
+
+		private ContextConfig(String baseUrl, String syncApi, String uploadApi, String primaryLangCode,
+				String mosipVersion) {
+			this.baseUrl = baseUrl;
+			this.syncApi = syncApi;
+			this.uploadApi = uploadApi;
+			this.primaryLangCode = primaryLangCode;
+			this.mosipVersion = mosipVersion;
+		}
 	}
 
 }

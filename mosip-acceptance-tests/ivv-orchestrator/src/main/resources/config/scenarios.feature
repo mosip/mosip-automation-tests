@@ -6471,7 +6471,7 @@ And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after u3 and store result in VID
 And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is updated name persona file path, and VID is the saved VID
-And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is u1 demo persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is u1 demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I demo authentication where demo field is gender, and UIN is the saved uin after u3, and persona file path is u2 demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
@@ -6541,6 +6541,9 @@ And I ridsync where packet type is LOST, and packet zip path is the saved packet
 And I packetsync where packet zip path is the saved packet zip path
 And I check status where packet status is PROCESSED, and registration ID is rid lost
 And I get uin by rid where source registration ID is rid lost and store result in second UIN
+Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved second UIN
+And I get email by uin where resident UIN is the saved second UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
 Then I check ridstage where registration ID is rid lost, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
@@ -6604,7 +6607,7 @@ And I update resident with uin where persona file path is the saved persona file
 And I update resident with uin where persona file path is pre update demo persona file path, and UIN is the saved UIN
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template u2
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template u2 and store result in rid u2
-And I check status where packet status is REJECTED, and registration ID is the saved rid u2
+And I check status where packet status is PROCESSED, and registration ID is the saved rid u2
 And I get uin by rid where source registration ID is the saved rid u2 and store result in uin after u2
 And I verify notification where notification type is updated, and email is the saved email
 And I wait where wait seconds is UIN_WAIT_TIME

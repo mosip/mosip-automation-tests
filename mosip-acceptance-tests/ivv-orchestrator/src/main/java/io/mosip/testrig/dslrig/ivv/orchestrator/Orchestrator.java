@@ -408,7 +408,7 @@ public class Orchestrator {
 		beforeSuiteFailed = !passed;
 		if (!passed) {
 			disableAllRetries = true;
-			logger.error("Scenario 0 (before suite) FAILED. All other scenarios will be skipped; AFTER_SUITE will still run.");
+			logger.error("Scenario 0 (before suite) FAILED. All other scenarios will be skipped; AFTER_SUITE will also be skipped.");
 		} else {
 			logger.info("Scenario 0 (before suite) PASSED. Other scenarios may proceed.");
 		}

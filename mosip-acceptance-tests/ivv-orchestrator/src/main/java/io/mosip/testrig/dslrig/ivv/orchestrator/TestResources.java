@@ -57,6 +57,15 @@ public class TestResources {
 	public static void copyTestResource(String resPath) {
 		try {
 			String normalized = resPath.startsWith("/") ? resPath.substring(1) : resPath;
+			File destination = new File(TestResources.getGlobalResourcePaths());
+			File destChild = new File(destination, normalized);
+			// Prefer resources already extracted into this run's working copy (fresh JAR extract)
+			// over any stale external cache under the JAR parent / classpath staging.
+			if (destChild.isDirectory() && hasAnyFile(destChild)) {
+				logger.info("Using freshly populated test resource: " + destChild.getAbsolutePath());
+				return;
+			}
+
 			File source = resolveResourceSourceDirectory(normalized);
 			if (source == null) {
 				if (!materializeResourceFromClasspath(normalized)) {
@@ -73,8 +82,6 @@ public class TestResources {
 			File classpathTarget = new File(TestRunner.getClasspathResourceRoot(), normalized);
 			mirrorDirectoryIfMissing(source, classpathTarget);
 
-			File destination = new File(TestResources.getGlobalResourcePaths());
-			File destChild = new File(destination, normalized);
 			if (destChild.exists()) {
 				FileUtils.deleteDirectory(destChild);
 			}
@@ -159,9 +166,13 @@ public class TestResources {
 	}
 
 	static boolean copyTestResourceFromClasspath(String normalizedPath, File destinationRoot) throws IOException {
+		File destChild = new File(destinationRoot, normalizedPath);
+		// Preserve a freshly populated destination (e.g. JAR extract) over stale classpath caches.
+		if (destChild.isDirectory() && hasAnyFile(destChild)) {
+			return true;
+		}
 		File source = resolveResourceSourceDirectory(normalizedPath);
 		if (source != null) {
-			File destChild = new File(destinationRoot, normalizedPath);
 			if (destChild.exists()) {
 				FileUtils.deleteDirectory(destChild);
 			}
@@ -170,7 +181,6 @@ public class TestResources {
 		}
 		if (materializeResourceFromClasspath(normalizedPath)) {
 			source = new File(TestRunner.getClasspathResourceRoot(), normalizedPath);
-			File destChild = new File(destinationRoot, normalizedPath);
 			if (destChild.exists()) {
 				FileUtils.deleteDirectory(destChild);
 			}

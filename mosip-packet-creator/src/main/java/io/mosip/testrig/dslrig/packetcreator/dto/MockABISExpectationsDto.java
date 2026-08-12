@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.packetcreator.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class MockABISExpectationsDto {
 	String personaPath;
 
 	@Schema(description = "When true, ABIS returns duplicate match.", example = "false")
+	@JsonProperty("isDuplicate")
 	@JsonAlias("duplicate")
 	boolean isDuplicate;
 

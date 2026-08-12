@@ -397,6 +397,16 @@ public class TestRunner {
 
 	/** Classpath root (e.g. target/classes), without MosipTestResource/MosipTemporaryTestResource. */
 	public static String getClasspathResourceRoot() {
+		ensureResourcePathsInitialized();
+		if ("JAR".equalsIgnoreCase(cachedRunType)) {
+			// Per-run staging under the extracted resource tree — never the JAR parent directory,
+			// which can retain stale suites/data from a prior materialization.
+			File staging = new File(cachedGlobalResourcePath, ".classpath-staging");
+			if (!staging.exists() && !staging.mkdirs()) {
+				LOGGER.warn("Could not create classpath staging directory: " + staging.getAbsolutePath());
+			}
+			return staging.getAbsolutePath();
+		}
 		String global = getGlobalResourcePath();
 		int marker = global.indexOf(TestResources.resourceTestFolderName);
 		if (marker > 0) {

@@ -52,7 +52,9 @@ public final class SensitiveLogMasker {
 
 			"certificate", "cert", "certdata", "cert_data", "keystore", "p12",
 
-			"symmetrickey", "symmetric_key", "rsa", "aeskey", "aes_key");
+			"symmetrickey", "symmetric_key", "rsa", "aeskey", "aes_key",
+
+			"rid", "prid", "uin", "vid", "individualid", "residentid");
 
 
 
@@ -92,13 +94,19 @@ public final class SensitiveLogMasker {
 
 	private static final Pattern JSON_LIKE_SECRET = Pattern.compile(
 
-			"(?i)(\"(?:password|clientSecret|client_secret|secret|token|access_token|refresh_token|privateKey|private_key|secretKey|secret_key|apiKey|api_key|authorization|sessionKey|session_key|cookie|certificate|cert)\"\\s*:\\s*\")([^\"]*)(\")");
+			"(?i)(\"(?:password|clientSecret|client_secret|secret|token|access_token|refresh_token|privateKey|private_key|secretKey|secret_key|apiKey|api_key|authorization|sessionKey|session_key|cookie|certificate|cert|rid|prid|uin|vid|individualId|residentId)\"\\s*:\\s*\")([^\"]*)(\")");
 
 
 
 	private static final Pattern QUERY_SECRET = Pattern.compile(
 
-			"(?i)((?:client_secret|clientSecret|secret|token|password|api_key|apiKey|access_token|refresh_token)=)([^&\\s]+)");
+			"(?i)((?:client_secret|clientSecret|secret|token|password|api_key|apiKey|access_token|refresh_token|rid|prid|uin|vid|individualId|residentId)=)([^&\\s]+)");
+
+
+
+	private static final Pattern MOSIP_ID_PATH = Pattern.compile(
+
+			"(?i)(/(?:rid|prid|uin|vid|individualId|residentId)/)([^/?&#\\s]+)");
 
 
 
@@ -291,6 +299,8 @@ public final class SensitiveLogMasker {
 		result = replaceAll(JSON_LIKE_SECRET, result, 1, 3);
 
 		result = replaceAll(QUERY_SECRET, result, 1, 0);
+
+		result = replaceAll(MOSIP_ID_PATH, result, 1, 0);
 
 		result = replaceAll(AUTHORIZATION_HEADER, result, 1, 0);
 

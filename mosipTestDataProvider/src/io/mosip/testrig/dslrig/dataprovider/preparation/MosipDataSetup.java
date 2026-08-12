@@ -522,7 +522,7 @@ public class MosipDataSetup {
 		req.put("actionToInterfere", operation);
 
 		String forcedResponse = resolveMockAbisForcedResponse(statusCode, failureReason);
-		String errorCode = resolveMockAbisErrorCode(forcedResponse, statusCode, failureReason);
+		String errorCode = resolveMockAbisErrorCode(forcedResponse, failureReason);
 		req.put("forcedResponse", forcedResponse);
 		req.put("delayInExecution", Integer.toString(delay));
 		req.put("errorCode", errorCode);
@@ -543,16 +543,15 @@ public class MosipDataSetup {
 		}
 
 		try {
-			logger.info("configureMockABISBiometric id=" + biometricId + " delayInExecution=" + delay + " url=" + url
-					+ " req=" + req);
+			logger.info("configureMockABISBiometric operation={} delayInExecution={}", operation, delay);
 			JSONObject resp = RestClient.post(url, req, contextKey);
 			if (resp != null) {
 				responseStr = resp.toString();
-				logger.info("configureMockABISBiometric response=" + responseStr);
+				logger.info("configureMockABISBiometric completed successfully");
 			}
 		} catch (Exception e) {
-			logger.error("configureMockABISBiometric failed for id=" + biometricId + ": " + e.getMessage());
-			responseStr = e.getMessage();
+			logger.error("configureMockABISBiometric failed for operation={}", operation, e);
+			throw new IllegalStateException("Mock ABIS configuration failed", e);
 		}
 
 		return responseStr;
@@ -560,17 +559,25 @@ public class MosipDataSetup {
 
 	private static String resolveMockAbisForcedResponse(String statusCode, String failureReason) {
 		if (failureReason != null && !failureReason.isBlank()) {
-			return failureReason;
+			return "Error";
 		}
 		if (statusCode != null && isMockAbisForcedResponse(statusCode)) {
 			return statusCode;
 		}
+		if (statusCode != null && !statusCode.isBlank()) {
+			try {
+				int status = Integer.parseInt(statusCode);
+				return status >= 200 && status < 300 ? "Success" : "Error";
+			} catch (NumberFormatException e) {
+				return "Error";
+			}
+		}
 		return "Success";
 	}
 
-	private static String resolveMockAbisErrorCode(String forcedResponse, String statusCode, String failureReason) {
-		if ("Error".equalsIgnoreCase(forcedResponse) && statusCode != null && !statusCode.isBlank()) {
-			return statusCode;
+	private static String resolveMockAbisErrorCode(String forcedResponse, String failureReason) {
+		if ("Error".equalsIgnoreCase(forcedResponse)) {
+			return failureReason == null ? "" : failureReason;
 		}
 		return "";
 	}
