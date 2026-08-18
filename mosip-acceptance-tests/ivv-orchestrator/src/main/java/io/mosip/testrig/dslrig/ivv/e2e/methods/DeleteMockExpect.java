@@ -6,6 +6,7 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
+import io.restassured.response.Response;
 
 public class DeleteMockExpect extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(DeleteMockExpect.class);
@@ -24,15 +25,16 @@ public class DeleteMockExpect extends BaseTestCaseUtil implements StepInterface 
 			modalityHashValue = step.getScenario().getVariables().get(step.getParameters().get(0));
 		}
 
+		String url = null;
 		if (String.valueOf(modalityHashValue).equals("null") || String.valueOf(modalityHashValue).isEmpty()) {
-			String url = baseUrl + props.getProperty("deleteMockExpectation");
-			deleteRequest(url, "deleteMockExpectation", step);
+			url = baseUrl + props.getProperty("deleteMockExpectation");
+			Response response = deleteRequest(url, "deleteMockExpectation", step);
 		} else {
 			String[] hashValues = modalityHashValue.split(",");
 			for (String hashValue : hashValues) {
 				hashValue = hashValue.replaceAll("[A-Za-z ]+=", "").replace("{", "").replace("}", "");
-				String url = baseUrl + props.getProperty("deleteMockExpectation") + "/" + hashValue;
-				deleteRequest(url, "deleteMockExpectation for hash value: " + hashValue, step);
+				url = baseUrl + props.getProperty("deleteMockExpectation") + "/" + hashValue;
+				Response response = deleteRequest(url, "deleteMockExpectation for hash value: " + hashValue, step);
 			}
 		}
 	}

@@ -42,27 +42,6 @@ public class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 	private static SecureRandom rand = new SecureRandom();
 
-	/**
-	 * Parses the scenario id stored under {@code contextKey} into a number, defaulting to 1 on
-	 * any malformed/missing value. Shared by biometric-selection call sites so an unparseable
-	 * scenario id degrades to impression 1 everywhere instead of throwing in some callers only.
-	 */
-	public static int parseScenarioNumber(String contextKey) {
-		try {
-			String beforeScenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
-			String afterScenario = beforeScenario.contains(":")
-					? beforeScenario.substring(0, beforeScenario.indexOf(':'))
-					: beforeScenario;
-			if (afterScenario.contains("_")) {
-				afterScenario = afterScenario.replace("_", "0");
-			}
-			return Integer.parseInt(afterScenario.trim());
-		} catch (Exception e) {
-			logger.warn("Unable to parse scenario number for {}, defaulting to 1: {}", contextKey, e.getMessage());
-			return 1;
-		}
-	}
-
 	private static String cachedUtcDateformat;
 	private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 	private static final String MOUNT_PATH_KEY = "mountPath";

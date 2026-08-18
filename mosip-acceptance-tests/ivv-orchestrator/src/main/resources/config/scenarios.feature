@@ -1043,25 +1043,32 @@ And I delete packet data
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
-  Scenario: Resident walks into registration center and while registration is in progress tries to register at another center
+  Scenario: Resident booked pre-registration with support documents. walks into registration center tries to get UIN after previous UIN application is in progress with different center
 Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I read pre req where pre-requisite data index is 2 and store result in environment 2 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 2 details, and generate private key is false
 And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in first zip packet path
-And I ridsync where packet type is NEW, and packet zip path is the saved first zip packet path and store result in first registration ID
+And I send otp where persona file path is the saved persona file path and store result in email
+And I validate otp where persona file path is the saved persona file path, and email is the saved email
+And I pre register where persona file path is the saved persona file path and store result in pre-registration ID
+And I upload documents where persona file path is the saved persona file path, and pre-registration ID is the saved pre-registration ID
+And I update pre reg status where status code is 0, and pre-registration ID is the saved pre-registration ID, and validation mode is valid
+And I book appointment where holiday booking flag is false, and pre-registration ID is the saved pre-registration ID, and slot number is 2
+And I generate and upload packet where pre-registration ID is the saved pre-registration ID, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
 And I read pre req where pre-requisite data index is 2 and store result in environment 2 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 2 details, and generate private key is true
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in second packet template path
-And I packetcreator where packet type is NEW, and template path is the saved second packet template path and store result in second zip packet path
-And I ridsync where packet type is NEW, and packet zip path is the saved second zip packet path and store result in second registration ID
-And I bulk upload packet where first packet zip path is the saved first zip packet path, and second packet zip path is the saved second zip packet path
-And I wait where wait seconds is 90
-And I check status where packet status is REREGISTER, and registration ID is the saved first registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
-And I get uin by rid where source registration ID is the saved second registration ID and store result in UIN
+And I set context where context key is env_context, and pre-requisite details is the saved environment 2 details, and generate private key is false
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in template path2
+And I packetcreator where packet type is NEW, and template path is the saved template path2 and store result in packet zip path
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in second registration ID
+And I packetsync where packet zip path is the saved packet zip path
+And I post mock mv where registration ID is the saved second registration ID, and manual verification decision is REJECTED
+And I check status where packet status is REJECTED, and registration ID is the saved second registration ID
 And I delete packet data
 
   @scenario_39
@@ -6134,6 +6141,30 @@ And I get email by uin where resident UIN is the saved UIN and store result in e
 And I verify notification where notification type is UIN Generated, and email is the saved email
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
+
+#  @scenario_237
+#  @Positive_Test
+#  @persona_ResidentMaleAdult
+#  @group_NA
+#  Scenario: Resident walks into registration center completes the process and gets UIN card with handle. Later updates his name and handle and perform demographic authentication both using UIN and handle
+#Given I get ping health where component is packetcreator
+#And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+#And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+#And I get ping health where component is targetenv
+#And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+#And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+#And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+#And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+#And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+#And I get email by uin where resident UIN is the saved UIN and store result in email
+#And I verify notification where notification type is UIN Generated, and email is the saved email
+#And I wait where wait seconds is 90
+#And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and email or phone is the saved email and store result in VID
+#And I verify notification where notification type is Successful Generation of VID, and email is the saved email
+#And I update identity with array handles where persona file path is the saved UIN, and parameter 2 is the saved persona file path
+#And I get handles by uin where parameter 1 is the saved UIN and store result in handles
+#And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID, and age update flag is 0, and handle key is handles
+#And I delete packet data
 
   @scenario_238
   @Positive_Test

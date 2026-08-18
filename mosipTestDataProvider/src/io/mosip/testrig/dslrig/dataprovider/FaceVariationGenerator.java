@@ -22,12 +22,6 @@ public final class FaceVariationGenerator {
 
 	public static String faceVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick)
 			throws Exception {
-		return faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick,
-				String.valueOf(currentScenarioNumber));
-	}
-
-	public static String faceVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick,
-			String outputScope) throws Exception {
 
 		String inputFaceTemplatePath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath") + "/"
@@ -35,7 +29,7 @@ public final class FaceVariationGenerator {
 
 		String outputUniqueFaceDataPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath") + "/output/"
-				+ outputScope;
+				+ currentScenarioNumber;
 
 		Path faceOutDir = Paths.get(outputUniqueFaceDataPath, "face");
 		// Clear leftovers so callers do not pick an older NONMATCH_* file under parallel/re-runs.

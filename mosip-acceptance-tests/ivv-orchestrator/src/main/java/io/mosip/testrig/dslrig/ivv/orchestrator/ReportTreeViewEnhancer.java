@@ -140,12 +140,6 @@ public final class ReportTreeViewEnhancer {
                     "(?i)<b><u>Response:\\s*</u></b>\\s*<pre><div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray",
                     Pattern.DOTALL);
 
-    /** Legacy responses logged as plain {@code <pre>[headers]body</pre>} without textarea panels. */
-    private static final Pattern HTTP_RESP_LEGACY =
-            Pattern.compile(
-                    "(?i)<b><u>Response:\\s*</u></b>\\s*<pre>(?!\\s*<div)([\\s\\S]*?)</pre>",
-                    Pattern.DOTALL);
-
     private static final Pattern VALIDATION_PANEL =
             Pattern.compile(
                     "(?:<br/>\\s*){1,2}<b>\\s*Output validation:\\s*</b>\\s*EXPECTED vs ACTUAL\\s*"
@@ -559,8 +553,6 @@ public final class ReportTreeViewEnhancer {
         // wrapScenarioDetailCards now detects already-wrapped H3s and skips them, calling
         // it here is safe: it only wraps the orphaned H3s that still lack a section.
         out = wrapScenarioDetailCards(out);
-        out = annotateHttpBlocks(out);
-        out = applyReportPayloadLimits(out);
         return stripScenarioDetailCardChrome(out);
     }
 
@@ -1725,53 +1717,7 @@ public final class ReportTreeViewEnhancer {
                         "<div style='width:100%; overflow: hidden;'><textarea style='border:solid 1px black; width: 100%; "
                                 + "box-sizing: border-box;' name='message' rows='6' readonly='true'>",
                         msgNew);
-        return annotateLegacyPlainPreResponses(html);
-    }
-
-    private static String annotateLegacyPlainPreResponses(String html) {
-        Matcher m = HTTP_RESP_LEGACY.matcher(html);
-        StringBuffer sb = new StringBuffer(html.length());
-        while (m.find()) {
-            String[] parts = splitLegacyResponsePayload(m.group(1));
-            String replacement = buildHttpResponsePayloadBlock(parts[0], parts[1]);
-            m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
-        }
-        m.appendTail(sb);
-        return sb.toString();
-    }
-
-    private static String[] splitLegacyResponsePayload(String raw) {
-        if (raw == null || raw.isEmpty()) {
-            return new String[] {"No headers", ""};
-        }
-        String trimmed = raw.trim();
-        if (!trimmed.startsWith("[")) {
-            return new String[] {"No headers", raw};
-        }
-        int close = trimmed.indexOf(']');
-        if (close <= 0) {
-            return new String[] {trimmed.substring(1), ""};
-        }
-        return new String[] {trimmed.substring(1, close), trimmed.substring(close + 1)};
-    }
-
-    private static String buildHttpResponsePayloadBlock(String headers, String body) {
-        String headerText = headers == null || headers.isBlank() ? "No headers" : headers.trim();
-        String bodyText = body == null ? "" : body.trim();
-        if (bodyText.isEmpty()) {
-            bodyText = "No response body";
-        }
-        return "<div class=\"http-callline http-callline-res\">"
-                + "<span class=\"http-badge http-badge-res\">Response</span></div>"
-                + "<pre class=\"http-payload http-payload-response\">"
-                + "<div class=\"http-field http-headers-field\">"
-                + "<textarea class='http-ta http-headers-ta' style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='2' readonly='true'>"
-                + escapeForTextareaText(headerText)
-                + "</textarea></div>"
-                + "<div class='http-field http-body-field'>"
-                + "<textarea class='http-ta http-body-ta' style='border:solid 1px black; width: 100%; box-sizing: border-box;' name='message' rows='6' readonly='true'>"
-                + escapeForTextareaText(bodyText)
-                + "</textarea> </div></pre>";
+        return html;
     }
 
     static final class ScenarioRow {

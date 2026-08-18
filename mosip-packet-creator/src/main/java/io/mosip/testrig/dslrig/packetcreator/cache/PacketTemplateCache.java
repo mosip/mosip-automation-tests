@@ -1,7 +1,7 @@
 package io.mosip.testrig.dslrig.packetcreator.cache;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -23,9 +23,6 @@ public final class PacketTemplateCache {
 	private static final Logger logger = LoggerFactory.getLogger(PacketTemplateCache.class);
 	private static final int MAX_ENTRIES = 256;
 	private static final ConcurrentHashMap<String, String> RESPONSE_CACHE = new ConcurrentHashMap<>();
-	/** Same boundary ResidentModel enforces when writing personas: only java.io.tmpdir is trusted. */
-	private static final Path ALLOWED_DIR = Paths
-			.get(System.getProperty("java.io.tmpdir", System.getProperty("user.dir"))).toAbsolutePath().normalize();
 
 	private PacketTemplateCache() {
 	}
@@ -44,25 +41,15 @@ public final class PacketTemplateCache {
 	}
 
 	public static String buildKey(String contextKey, String process, String qualityScore, boolean generateValidCbeff,
-			String outDir, String preregId, String purpose, List<String> personaFilePaths) throws IOException {
+			List<String> personaFilePaths) throws IOException {
 		List<String> normalized = new ArrayList<>(personaFilePaths.size());
 		for (String path : personaFilePaths) {
-			// Only file-existence/mtime metadata is read here to derive an in-memory cache key;
-			// file contents are never accessed and the key is never exposed to callers.
-			if (path == null || path.contains("..")) {
-				throw new IOException("Invalid persona file path: " + path);
-			}
-			File f = new File(path).getCanonicalFile();
-			Path canonicalPath = f.toPath();
-			if (!canonicalPath.startsWith(ALLOWED_DIR)) {
-				throw new IOException("Persona file path outside allowed directory: " + path);
-			}
-			long modified = f.exists() ? f.lastModified() : 0L;
-			normalized.add(canonicalPath + "@" + modified);
+			Path p = Paths.get(path).toAbsolutePath().normalize();
+			long modified = Files.exists(p) ? Files.getLastModifiedTime(p).toMillis() : 0L;
+			normalized.add(p + "@" + modified);
 		}
 		Collections.sort(normalized);
 		return contextKey + "|" + process + "|" + qualityScore + "|" + generateValidCbeff + "|"
-				+ outDir + "|" + preregId + "|" + purpose + "|"
 				+ String.join(",", normalized);
 	}
 

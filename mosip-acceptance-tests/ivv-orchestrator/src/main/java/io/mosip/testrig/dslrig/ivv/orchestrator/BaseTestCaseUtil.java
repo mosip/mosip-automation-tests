@@ -131,16 +131,6 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
 
-	private static final int ID_REPO_ACTUATOR_CONNECT_MS = 10_000;
-
-	private static final int ID_REPO_ACTUATOR_READ_MS = 15_000;
-
-	public static RestAssuredConfig getIdRepoActuatorHttpConfig() {
-		return RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
-				.setParam("http.connection.timeout", ID_REPO_ACTUATOR_CONNECT_MS)
-				.setParam("http.socket.timeout", ID_REPO_ACTUATOR_READ_MS));
-	}
-
 	/** Prevents orchestrator threads hanging forever on packet-creator / resident/* calls. */
 	private static final int PACKET_CREATOR_CONNECT_MS = 15_000;
 
@@ -154,38 +144,6 @@ public class BaseTestCaseUtil extends BaseStep {
 	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = 600_000L;
 
 	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = 15_000;
-
-	private static final long DEFAULT_PACKET_STATUS_POLL_INTERVAL_MS = 5_000L;
-
-	private static final int DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT = 80;
-
-	public static long getPacketStatusPollIntervalMs() {
-		String value = props.getProperty("waitTime");
-		if (value == null || value.isBlank()) {
-			return DEFAULT_PACKET_STATUS_POLL_INTERVAL_MS;
-		}
-		try {
-			long parsed = Long.parseLong(value.trim());
-			return parsed > 0 ? parsed : DEFAULT_PACKET_STATUS_POLL_INTERVAL_MS;
-		} catch (NumberFormatException e) {
-			logger.warn("Invalid waitTime '{}', using default {}", value, DEFAULT_PACKET_STATUS_POLL_INTERVAL_MS);
-			return DEFAULT_PACKET_STATUS_POLL_INTERVAL_MS;
-		}
-	}
-
-	public static int getPacketStatusMaxLoopCount() {
-		String value = props.getProperty("loopCount");
-		if (value == null || value.isBlank()) {
-			return DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT;
-		}
-		try {
-			int parsed = Integer.parseInt(value.trim());
-			return parsed > 0 ? parsed : DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT;
-		} catch (NumberFormatException e) {
-			logger.warn("Invalid loopCount '{}', using default {}", value, DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT);
-			return DEFAULT_PACKET_STATUS_MAX_LOOP_COUNT;
-		}
-	}
 
 	public static long getMaxPacketStatusWaitTimeMs() {
 		String value = props.getProperty("maxPacketStatusWaitTimeMs");

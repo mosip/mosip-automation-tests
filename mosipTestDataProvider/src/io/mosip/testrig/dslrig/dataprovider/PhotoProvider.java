@@ -33,8 +33,6 @@ public class PhotoProvider {
 	 * packet-creator JVM (Scenario_241) and cascades to later scenarios (e.g. Scenario_181).
 	 */
 	private static final Object LARGE_FACE_LOCK = new Object();
-	/** Per-call salt so distinct personas within the same scenario get distinct impressions/output dirs. */
-	private static final java.util.concurrent.atomic.AtomicLong PERSONA_CALL_SEQ = new java.util.concurrent.atomic.AtomicLong();
 	static String Photo_File_Format = "/face%04d.jpg";
 
 	static byte[][] getPhoto(String contextKey) {
@@ -67,20 +65,21 @@ public class PhotoProvider {
 			}
 			int numberOfSubfolders = listDir.length;
 
-			int currentScenarioNumber = CommonUtil.parseScenarioNumber(contextKey);
-
-			// Per-call salt so multiple personas generated under the same scenario pick distinct
-			// template impressions and write to distinct output dirs, instead of sharing both and
-			// relying solely on post-processing RNG to differentiate them.
-			long personaSalt = PERSONA_CALL_SEQ.incrementAndGet();
+			String beforescenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
+			String afterscenario = beforescenario.contains(":")
+					? beforescenario.substring(0, beforescenario.indexOf(':'))
+					: beforescenario;
+			if (afterscenario.contains("_")) {
+				afterscenario = afterscenario.replace("_", "0");
+			}
+			int currentScenarioNumber = Integer.valueOf(afterscenario);
 
 			// Deterministic impression pick — Math.random() caused biometric collisions under parallel runs.
-			int impressionToPick = Math.floorMod(currentScenarioNumber - 1 + (int) (personaSalt % numberOfSubfolders),
-					numberOfSubfolders) + 1;
+			int impressionToPick = Math.floorMod(currentScenarioNumber - 1, numberOfSubfolders) + 1;
 
-			// Returns per-persona output directory; face file is under <dir>/face/
+			// Returns scenario output directory; face file is under <dir>/face/
 			String outputDirPath = FaceVariationGenerator.faceVariationGenerator(contextKey, currentScenarioNumber,
-					impressionToPick, currentScenarioNumber + "_" + personaSalt);
+					impressionToPick);
 
 			logger.info("currentScenarioNumber=" + currentScenarioNumber + " numberOfSubfolders=" + numberOfSubfolders
 					+ " impressionToPick=" + impressionToPick + " outputDir=" + outputDirPath);

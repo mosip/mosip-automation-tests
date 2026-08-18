@@ -415,7 +415,7 @@ public class Orchestrator {
 		beforeSuiteFailed = !passed;
 		if (!passed) {
 			disableAllRetries = true;
-			logger.error("Scenario 0 (before suite) FAILED. All other scenarios will be skipped; AFTER_SUITE will still run.");
+			logger.error("Scenario 0 (before suite) FAILED. All other scenarios will be skipped.");
 		} else {
 			logger.info("Scenario 0 (before suite) PASSED. Other scenarios may proceed.");
 		}
@@ -459,14 +459,6 @@ public class Orchestrator {
 		// Create the ExtentTest entry immediately so every scenario — including those
 		// skipped before any step runs — appears in the report.
 		ExtentTest extentTest = extent.createTest("Scenario_" + scenario.getId() + ": " + scenario.getDescription());
-
-		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.IsDebugEnabled()) {
-			String skipMsg = "Skipping AFTER_SUITE scenario because enableDebug=yes";
-			logger.info(skipMsg);
-			extentTest.skip(skipMsg);
-			updateRunStatistics(scenario);
-			throw new SkipException(skipMsg);
-		}
 
 		awaitBeforeSuiteSetup(scenario);
 
@@ -531,17 +523,17 @@ public class Orchestrator {
 
 		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
-		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && beforeSuiteFailed) {
-			String skipMsg = "Skipping AFTER_SUITE teardown because Scenario 0 (before suite) failed — "
-					+ "WritePreReq(1/2/3) data was never stored. Fix Scenario 0 (track2b steps 17-25 for index 2) first.";
-			logger.error(skipMsg);
+		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.IsDebugEnabled()) {
+			String skipMsg = "Skipping AFTER_SUITE scenario because enableDebug=yes";
+			logger.info(skipMsg);
 			extentTest.skip(skipMsg);
 			updateRunStatistics(scenario);
 			throw new SkipException(skipMsg);
 		}
-		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.IsDebugEnabled()) {
-			String skipMsg = "Skipping AFTER_SUITE scenario because enableDebug=yes";
-			logger.info(skipMsg);
+		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && beforeSuiteFailed) {
+			String skipMsg = "Skipping AFTER_SUITE teardown because Scenario 0 (before suite) failed — "
+					+ "WritePreReq(1/2/3) data was never stored. Fix Scenario 0 (track2b steps 17-25 for index 2) first.";
+			logger.error(skipMsg);
 			extentTest.skip(skipMsg);
 			updateRunStatistics(scenario);
 			throw new SkipException(skipMsg);
@@ -900,10 +892,7 @@ public class Orchestrator {
 	private static boolean isFullSuiteRun() {
 		String scenariosToExecute = ConfigManager.getproperty("scenariosToExecute");
 		String flowsToExecute = ConfigManager.getproperty("scenariosFlowToExecute");
-		String testLevel = BaseTestCase.testLevel;
-		boolean regressionLevel = testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression");
-		return regressionLevel
-				&& (scenariosToExecute == null || scenariosToExecute.trim().isEmpty())
+		return (scenariosToExecute == null || scenariosToExecute.trim().isEmpty())
 				&& (flowsToExecute == null || flowsToExecute.trim().isEmpty());
 	}
 

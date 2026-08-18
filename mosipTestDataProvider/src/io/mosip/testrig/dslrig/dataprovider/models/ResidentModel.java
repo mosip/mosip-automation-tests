@@ -127,8 +127,8 @@ public class ResidentModel implements Serializable {
 				this.toJSONString().getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static ResidentModel readPersona(String filePath, String contextKey) throws IOException {
-		return PersonaParseCache.readPersona(filePath, contextKey);
+	public static ResidentModel readPersona(String filePath) throws IOException {
+		return PersonaParseCache.readPersona(filePath);
 	}
 
 	public void writePersona(String filePath) throws IOException {

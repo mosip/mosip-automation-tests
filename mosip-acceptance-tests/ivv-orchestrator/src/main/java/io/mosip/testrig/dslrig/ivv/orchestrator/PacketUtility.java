@@ -402,12 +402,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public void verifyOtp(String resFilePath, HashMap<String, String> contextKey, String emailOrPhone,
 			Scenario.Step step, String otp) throws RigInternalError {
-		String url = baseUrl + props.getProperty("verifyOtpUrl") + emailOrPhone;
+		String url = baseUrl + props.getProperty("verifyOtpUrl") + emailOrPhone + "/" + otp;
 		JSONObject jsonReq = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(resFilePath);
 		jsonReq.put(PERSONAFILEPATH, jsonArray);
-		jsonReq.put("otp", otp);
 		Response response = postRequest(url, jsonReq.toString(), "Verify Otp", step);
 		if (!response.getBody().asString().toLowerCase().contains("validation_successful")) {
 			this.hasError = true;
@@ -522,6 +521,8 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public String updateResidentRid(String personaFilePath, String rid, Scenario.Step step) throws RigInternalError {
 		String url = baseUrl + props.getProperty(UPDATERESIDENTURL);
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put("RID", rid);
 
 		JSONObject jsonwrapper = new JSONObject();
 		JSONObject jsonReq = new JSONObject();
@@ -532,9 +533,9 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PR_RESIDENTLIST, residentAttrib);
 
 		jsonwrapper.put(REQUESTS, jsonReq);
-		jsonwrapper.put("rid", rid);
 
-		Response response = postRequest(url, jsonwrapper.toString(), "link Resident data with RID", step);
+		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
+				"link Resident data with RID", step);
 		DslReportLogUtil.reportRequestAndResponse("", "", url, jsonwrapper.toString(), response.getBody().asString());
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;
@@ -557,9 +558,11 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put(PR_RESIDENTLIST, residentAttrib);
 
 		jsonwrapper.put(REQUESTS, jsonReq);
-		jsonwrapper.put("uin", uin);
 
-		Response response = postRequest(url, jsonwrapper.toString(), "link Resident data with UIN", step);
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put("UIN", uin);
+		Response response = postRequestWithQueryParamAndBody(url, jsonwrapper.toString(), map,
+				"link Resident data with UIN", step);
 
 		if (!response.getBody().asString().toLowerCase().contains(SUCCESS)) {
 			this.hasError = true;

@@ -2,7 +2,6 @@ package io.mosip.testrig.dslrig.packetcreator.dto;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
@@ -17,13 +16,5 @@ public class PreRegisterRequestDto {
 
 	@Schema(description = "When true, read RID from sync response instead of generating locally.", example = "false")
 	private boolean getRidFromSync;
-
-	@Schema(description = "OTP to verify; required for the OTP-verification API.", example = "111111")
-	@NotBlank(message = "otp must not be blank", groups = OtpVerification.class)
-	private String otp;
-
-	/** Validation group applied only by the OTP-verification controller method. */
-	public interface OtpVerification {
-	}
 
 }

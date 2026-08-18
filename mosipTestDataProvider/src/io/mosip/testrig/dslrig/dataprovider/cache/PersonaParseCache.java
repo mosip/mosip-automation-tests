@@ -45,12 +45,13 @@ public final class PersonaParseCache {
 		return true;
 	}
 
-	public static ResidentModel readPersona(String filePath, String contextKey) throws IOException {
+	public static ResidentModel readPersona(String filePath) throws IOException {
 		Path absolute = Paths.get(filePath).toAbsolutePath().normalize();
-		String cacheKey = absolute + "@" + Files.getLastModifiedTime(absolute);
+		long modified = Files.getLastModifiedTime(absolute).toMillis();
+		String cacheKey = absolute + "@" + modified;
 
 		byte[] bytes;
-		if (isEnabled(contextKey)) {
+		if (isEnabled(null)) {
 			byte[] cachedBytes = BYTES_CACHE.get(cacheKey);
 			if (cachedBytes != null) {
 				bytes = cachedBytes;

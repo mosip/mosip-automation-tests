@@ -9,8 +9,4 @@ public class PersonaRequestDto {
 
 	Hashtable<PersonaRequestType, Properties> requests;
 
-	String uin;
-
-	String rid;
-
 }

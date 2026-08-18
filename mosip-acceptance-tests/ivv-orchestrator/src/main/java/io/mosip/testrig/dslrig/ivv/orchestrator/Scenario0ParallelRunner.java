@@ -222,8 +222,7 @@ public final class Scenario0ParallelRunner {
 			store = stepRangeExecutor.execute(masterScenario, store, SET_CONTEXT_DETAILS2, SET_CONTEXT_DETAILS2,
 					willRetry);
 
-			logger.info("Scenario 0 parallel setup: phase 3b - track3b on main thread (steps "
-					+ TRACK3B_FROM + "-" + TRACK3B_TO + ")");
+			logger.info("Scenario 0 parallel setup: phase 3b - track3b on main thread (steps 29-37)");
 
 			store = stepRangeExecutor.execute(masterScenario, store, TRACK3B_FROM, TRACK3B_TO, willRetry);
 

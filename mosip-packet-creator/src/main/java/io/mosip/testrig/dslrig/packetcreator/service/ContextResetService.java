@@ -43,7 +43,6 @@ public class ContextResetService {
 	public void resetContextData(String contextKey) throws Exception {
 		contextUtils.clearPacketGenFolders(contextKey);
 		clearRunScopedCache(contextKey);
-		SchemaUtil.invalidateContext(contextKey);
 		VariableManager.deleteNameSpace(contextKey);
 		logger.info("Context data reset for context {}", contextKey);
 	}
