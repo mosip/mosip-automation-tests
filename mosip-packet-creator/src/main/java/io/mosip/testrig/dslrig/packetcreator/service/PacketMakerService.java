@@ -731,18 +731,23 @@ public class PacketMakerService {
             unencZipPath.getFileName().toString());
     CommonUtil.copyFileWithBuffer(unencZipPath, destination);
     Path osTempRoot = getOsTempRoot();
-    Path ctxTempRoot = getContextTempRoot(contextKey);
     Path unencNormalized = normalizeAbsolute(unencZipPath);
-    if ((osTempRoot != null && unencNormalized.startsWith(osTempRoot))
-            || (ctxTempRoot != null && unencNormalized.startsWith(ctxTempRoot))) {
-        Files.delete(unencNormalized);
+    if (osTempRoot != null && unencNormalized.startsWith(osTempRoot)) {
+        Path relative = osTempRoot.relativize(unencNormalized);
+        Path safeUnenc = osTempRoot.resolve(relative).normalize();
+        if (safeUnenc.startsWith(osTempRoot) && !relative.toString().contains("..")) {
+            Files.delete(safeUnenc);
+        }
     } else {
         logger.warn("Refusing to delete path outside allowed temp roots: {}", unencNormalized);
     }
     Path containerNormalized = normalizeAbsolute(validatedContainerRoot);
-    if ((osTempRoot != null && containerNormalized.startsWith(osTempRoot))
-            || (ctxTempRoot != null && containerNormalized.startsWith(ctxTempRoot))) {
-        FileSystemUtils.deleteRecursively(containerNormalized);
+    if (osTempRoot != null && containerNormalized.startsWith(osTempRoot)) {
+        Path relative = osTempRoot.relativize(containerNormalized);
+        Path safeContainer = osTempRoot.resolve(relative).normalize();
+        if (safeContainer.startsWith(osTempRoot) && !relative.toString().contains("..")) {
+            FileSystemUtils.deleteRecursively(safeContainer);
+        }
     } else {
         logger.warn("Refusing to delete path outside allowed temp roots: {}", containerNormalized);
     }
@@ -771,9 +776,14 @@ public class PacketMakerService {
 				contextKey.replace(CONTEXT, ""), src.getFileName().toString());
 		CommonUtil.copyFileWithBuffer(src, destination);
 
-		Path srcToDelete = validateUnderAllowedTempRoots(src, contextKey);
-		if (srcToDelete != null) {
-			Files.delete(srcToDelete);
+		Path osTempRoot = getOsTempRoot();
+		Path srcNormalized = normalizeAbsolute(src);
+		if (osTempRoot != null && srcNormalized.startsWith(osTempRoot)) {
+			Path relative = osTempRoot.relativize(srcNormalized);
+			Path safeSrc = osTempRoot.resolve(relative).normalize();
+			if (safeSrc.startsWith(osTempRoot) && !relative.toString().contains("..")) {
+				Files.delete(safeSrc);
+			}
 		}
 		return result;
 	}
