@@ -141,7 +141,7 @@ public class Orchestrator {
 		suiteStartTime = System.currentTimeMillis();
 		BaseTestCaseUtil.exectionStartTime = suiteStartTime;
 		logger.info("Suite start time is: " + BaseTestCaseUtil.exectionStartTime);
-		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
+		this.properties = Utils.getProperties(TestRunner.resolveConfigFile("config.properties"));
 		Utils.setupLogger(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
 				+ this.properties.getProperty("ivv._path.auditlog"));
 		String emailableReportName = null;
@@ -199,7 +199,7 @@ public class Orchestrator {
 
 		String scenarioSheet = null;
 
-		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
+		String configFile = TestRunner.resolveConfigFile("config.properties");
 		Properties properties = Utils.getProperties(configFile);
 
 		scenarioSheet = getScenarioSheet();

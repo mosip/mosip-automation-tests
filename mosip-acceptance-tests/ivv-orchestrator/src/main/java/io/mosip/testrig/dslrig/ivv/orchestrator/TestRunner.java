@@ -145,8 +145,11 @@ public class TestRunner {
 		List<String> suitefiles = new ArrayList<String>();
 		String os = System.getProperty("os.name");
 		LOGGER.info(os);
-		if (checkRunType().contains("IDE") || os.toLowerCase().contains("windows") == true) {
-			homeDir = new File(TestResources.getResourcePath().replace("/MosipTestResource/MosipTemporaryTestResource", "") + "testngFile");
+		// Windows must not be treated as IDE: JAR runs unpack suites under
+		// MosipTemporaryTestResource/testngFile, not target/testngFile.
+		if (checkRunType().contains("IDE")) {
+			homeDir = new File(TestResources.getResourcePath().replace("\\", "/")
+					.replace("/MosipTestResource/MosipTemporaryTestResource", "") + "testngFile");
 			LOGGER.info("IDE Home Dir=" + homeDir);
 		} else {
 			homeDir = new File(getGlobalResourcePath() + "/testngFile");
@@ -435,6 +438,24 @@ public class TestRunner {
 	public static String getExternalResourcePath() {
 		ensureResourcePathsInitialized();
 		return cachedExternalResourcePath;
+	}
+
+	/**
+	 * Config files live next to the jar in Docker ({@code build_files/config}) and
+	 * under MosipTemporaryTestResource after a local JAR unpack. Prefer the path
+	 * that actually exists so both layouts work.
+	 */
+	public static String resolveConfigFile(String fileName) {
+		ensureResourcePathsInitialized();
+		File nextToJarOrClasses = new File(getExternalResourcePath(), "config/" + fileName);
+		if (nextToJarOrClasses.isFile()) {
+			return nextToJarOrClasses.getAbsolutePath();
+		}
+		File extracted = new File(getGlobalResourcePath(), "config/" + fileName);
+		if (extracted.isFile()) {
+			return extracted.getAbsolutePath();
+		}
+		return nextToJarOrClasses.getAbsolutePath();
 	}
 
 	private static void setLogLevels(){

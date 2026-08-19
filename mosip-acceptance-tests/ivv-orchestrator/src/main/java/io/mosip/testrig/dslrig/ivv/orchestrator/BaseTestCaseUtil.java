@@ -54,7 +54,7 @@ public class BaseTestCaseUtil extends BaseStep {
 	private static final Logger logger = LoggerFactory.getLogger(BaseTestCaseUtil.class);
 
 	public static Properties props = new AdminTestUtil()
-			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
+			.getproperty(TestRunner.resolveConfigFile("test-orchestrator_mz.properties"));
 
 	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
 
