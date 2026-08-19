@@ -135,10 +135,13 @@ public class Orchestrator {
 		completedScenarioCount.set(0);
 		executableScenarioCount = 0;
 
+		DslStepTimingCollector.clear();
+		DslPacketTemplateCache.clear();
+
 		suiteStartTime = System.currentTimeMillis();
 		BaseTestCaseUtil.exectionStartTime = suiteStartTime;
 		logger.info("Suite start time is: " + BaseTestCaseUtil.exectionStartTime);
-		this.properties = Utils.getProperties(TestRunner.getExternalResourcePath() + "/config/config.properties");
+		this.properties = Utils.getProperties(TestRunner.resolveConfigFile("config.properties"));
 		Utils.setupLogger(System.getProperty("user.dir") + "/" + System.getProperty("testng.outpur.dir") + "/"
 				+ this.properties.getProperty("ivv._path.auditlog"));
 		String emailableReportName = null;
@@ -178,7 +181,11 @@ public class Orchestrator {
 	public void afterSuite() {
 		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
 		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
+		DslStepTimingCollector.logReport();
 		extent.flush();
+		if (dslConfigManager.IsDebugEnabled()) {
+			logger.info("Debug mode enabled; suite teardown limited to timing report and extent flush");
+		}
 	}
 
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
@@ -192,7 +199,7 @@ public class Orchestrator {
 
 		String scenarioSheet = null;
 
-		String configFile = TestRunner.getExternalResourcePath() + "/config/config.properties";
+		String configFile = TestRunner.resolveConfigFile("config.properties");
 		Properties properties = Utils.getProperties(configFile);
 
 		scenarioSheet = getScenarioSheet();
@@ -516,6 +523,13 @@ public class Orchestrator {
 
 		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
+		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.IsDebugEnabled()) {
+			String skipMsg = "Skipping AFTER_SUITE scenario because enableDebug=yes";
+			logger.info(skipMsg);
+			extentTest.skip(skipMsg);
+			updateRunStatistics(scenario);
+			throw new SkipException(skipMsg);
+		}
 		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && beforeSuiteFailed) {
 			String skipMsg = "Skipping AFTER_SUITE teardown because Scenario 0 (before suite) failed — "
 					+ "WritePreReq(1/2/3) data was never stored. Fix Scenario 0 (track2b steps 17-25 for index 2) first.";
@@ -878,10 +892,8 @@ public class Orchestrator {
 	private static boolean isFullSuiteRun() {
 		String scenariosToExecute = ConfigManager.getproperty("scenariosToExecute");
 		String flowsToExecute = ConfigManager.getproperty("scenariosFlowToExecute");
-		String testLevel = BaseTestCase.testLevel;
 		return (scenariosToExecute == null || scenariosToExecute.trim().isEmpty())
-				&& (flowsToExecute == null || flowsToExecute.trim().isEmpty())
-				&& (testLevel == null || testLevel.isBlank() || "regression".equalsIgnoreCase(testLevel));
+				&& (flowsToExecute == null || flowsToExecute.trim().isEmpty());
 	}
 
 	private static Boolean matchTags(String systemTags, ArrayList<String> scenarioTags) {

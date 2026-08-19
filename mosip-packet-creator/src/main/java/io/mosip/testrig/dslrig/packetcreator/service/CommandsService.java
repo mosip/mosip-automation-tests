@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
@@ -31,6 +33,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.restassured.http.ContentType;
+import static io.restassured.RestAssured.given;
+
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
@@ -49,6 +54,9 @@ public class CommandsService {
 
 	@Value("${mosip.test.pinglistfile:../deploy/pinglist.txt}")
 	private String pinglistfile;
+
+	@Value("${mosip.test.idrepo.actuator.info.path:idrepository/v1/identity/actuator/info}")
+	private String idRepoActuatorInfoPath;
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
@@ -136,6 +144,82 @@ public class CommandsService {
         }
 
         return retJson.toString();
+	}
+
+	public String getIdRepoActuatorInfo(String contextKey, String targetBaseUrlOverride) {
+		try {
+			String envBaseUrl = resolveTargetBaseUrl(contextKey, targetBaseUrlOverride);
+			String infoUrl = joinBaseUrlAndPath(envBaseUrl, idRepoActuatorInfoPath);
+			RestClient.logInfo(contextKey, "Fetching id-repository actuator info from " + infoUrl);
+			io.restassured.response.Response response = given().relaxedHTTPSValidation()
+					.contentType(ContentType.JSON).accept(ContentType.JSON).get(infoUrl);
+			if (response == null || response.getStatusCode() != 200) {
+				int status = response == null ? -1 : response.getStatusCode();
+				String body = response == null ? "" : response.getBody().asString();
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "IDREPO_ACTUATOR_INFO_FAIL", infoUrl,
+						"HTTP " + status + ": " + body);
+			}
+			String body = response.getBody().asString();
+			JSONObject json = new JSONObject(body);
+			if (!json.has("build") || !json.getJSONObject("build").has("version")) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "IDREPO_ACTUATOR_INFO_INVALID", infoUrl, body);
+			}
+			return json.toString();
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception ex) {
+			logger.error("getIdRepoActuatorInfo failed for context {}", contextKey, ex);
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "IDREPO_ACTUATOR_INFO_FAIL", contextKey, ex,
+					ex.getMessage());
+		}
+	}
+
+	private String resolveTargetBaseUrl(String contextKey, String targetBaseUrlOverride) {
+		if (targetBaseUrlOverride != null && !targetBaseUrlOverride.isBlank()) {
+			return decodeTargetBaseUrl(targetBaseUrlOverride);
+		}
+		Properties props = contextUtils.loadServerContext(contextKey);
+		String fromContext = props.getProperty("urlBase");
+		if (fromContext != null && !fromContext.isBlank()) {
+			return fromContext.trim();
+		}
+		if (baseUrl != null && !baseUrl.isBlank()) {
+			return baseUrl.trim();
+		}
+		throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_MISSING",
+				"targetBaseUrl query parameter, context urlBase, or mosip.test.baseurl must be configured");
+	}
+
+	private static String decodeTargetBaseUrl(String value) {
+		String normalized = value.trim();
+		for (int i = 0; i < 2 && normalized.contains("%"); i++) {
+			try {
+				String decoded = URLDecoder.decode(normalized, StandardCharsets.UTF_8);
+				if (decoded.equals(normalized)) {
+					break;
+				}
+				normalized = decoded;
+			} catch (IllegalArgumentException ex) {
+				break;
+			}
+		}
+		return normalized;
+	}
+
+	private static String joinBaseUrlAndPath(String baseUrl, String apiPath) {
+		if (baseUrl == null || baseUrl.isBlank()) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_MISSING",
+					"targetBaseUrl query parameter, context urlBase, or mosip.test.baseurl must be configured");
+		}
+		String base = baseUrl.trim();
+		String path = apiPath == null ? "" : apiPath.trim();
+		if (base.endsWith("/") && path.startsWith("/")) {
+			return base + path.substring(1);
+		}
+		if (!base.endsWith("/") && !path.startsWith("/")) {
+			return base + "/" + path;
+		}
+		return base + path;
 	}
 
 	public String writeToFile(String contextKey, Properties requestData, long offset) throws IOException {

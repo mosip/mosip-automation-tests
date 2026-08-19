@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+import io.mosip.testrig.dslrig.packetcreator.cache.PacketTemplateCache;
 
 /**
  * Shared reset/clear logic for {@link io.mosip.testrig.dslrig.packetcreator.controller.ContextController}
@@ -29,6 +30,9 @@ public class ContextResetService {
 	 */
 	public void clearRunScopedCache(String contextKey) {
 		apiRequestUtil.clearRunScopedCache(contextKey);
+		PacketTemplateCache.clear();
+		clearPersonaTemplateCacheIfAvailable();
+		clearPersonaParseCacheIfAvailable();
 		logger.info("Run-scoped cache cleared for context {}", contextKey);
 	}
 
@@ -41,5 +45,27 @@ public class ContextResetService {
 		clearRunScopedCache(contextKey);
 		VariableManager.deleteNameSpace(contextKey);
 		logger.info("Context data reset for context {}", contextKey);
+	}
+
+	private void clearPersonaParseCacheIfAvailable() {
+		try {
+			Class<?> cacheClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.cache.PersonaParseCache");
+			cacheClass.getMethod("clear").invoke(null);
+		} catch (ClassNotFoundException e) {
+			logger.debug("PersonaParseCache not available on classpath; skipping parse cache clear");
+		} catch (Exception e) {
+			logger.warn("Failed to clear PersonaParseCache", e);
+		}
+	}
+
+	private void clearPersonaTemplateCacheIfAvailable() {
+		try {
+			Class<?> cacheClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.cache.PersonaTemplateCache");
+			cacheClass.getMethod("clear").invoke(null);
+		} catch (ClassNotFoundException e) {
+			logger.debug("PersonaTemplateCache not available on classpath; skipping template cache clear");
+		} catch (Exception e) {
+			logger.warn("Failed to clear PersonaTemplateCache", e);
+		}
 	}
 }

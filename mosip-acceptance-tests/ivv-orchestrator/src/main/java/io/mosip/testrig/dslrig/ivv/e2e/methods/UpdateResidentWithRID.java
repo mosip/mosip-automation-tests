@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.DslPacketTemplateCache;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 public class UpdateResidentWithRID extends BaseTestCaseUtil implements StepInterface {
@@ -20,12 +21,14 @@ public class UpdateResidentWithRID extends BaseTestCaseUtil implements StepInter
 	@Override
 	public void run() throws RigInternalError {
 		Boolean isForChildPacket = false;
-		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) { 
+		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) {
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
 			if (isForChildPacket && !step.getScenario().getGeneratedResidentData().isEmpty()
-					&& step.getScenario().getRid_updateResident() != null)
-				packetUtility.updateResidentRid(step.getScenario().getGeneratedResidentData().get(0),
-						step.getScenario().getRid_updateResident(), step);
+					&& step.getScenario().getRid_updateResident() != null) {
+				String personaFilePath = step.getScenario().getGeneratedResidentData().get(0);
+				packetUtility.updateResidentRid(personaFilePath, step.getScenario().getRid_updateResident(), step);
+				DslPacketTemplateCache.incrementUpdateCounter(personaFilePath);
+			}
 		} else {
 			if (!step.getParameters().isEmpty() && step.getParameters().size() == 2) {
 				String personaFilePath = step.getParameters().get(0);
@@ -34,10 +37,13 @@ public class UpdateResidentWithRID extends BaseTestCaseUtil implements StepInter
 					personaFilePath = step.getScenario().getVariables().get(personaFilePath);
 					_rid = step.getScenario().getVariables().get(_rid);
 					packetUtility.updateResidentRid(personaFilePath, _rid, step);
+					DslPacketTemplateCache.incrementUpdateCounter(personaFilePath);
 				}
 			} else {
 				for (String rid : step.getScenario().getRidPersonaPath().keySet()) {
-					packetUtility.updateResidentRid(step.getScenario().getRidPersonaPath().get(rid), rid, step);
+					String personaFilePath = step.getScenario().getRidPersonaPath().get(rid);
+					packetUtility.updateResidentRid(personaFilePath, rid, step);
+					DslPacketTemplateCache.incrementUpdateCounter(personaFilePath);
 				}
 			}
 

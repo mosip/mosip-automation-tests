@@ -29,7 +29,7 @@ jobs:
       matrix:
         include:
         - language: java-kotlin
-          build-mode: none # This mode only analyzes Java. Set this to 'autobuild' or 'manual' to analyze Kotlin too.
+          build-mode: autobuild # autobuild compiles the project (root pom.xml aggregates all modules) so CodeQL gets full type/dataflow information and accurate, freshly-tracked alert locations.
 
     steps:
     - name: Checkout repository

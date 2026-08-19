@@ -16,6 +16,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -268,45 +269,76 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 	public JSONArray getTemplate(Set<String> resPath, String process, HashMap<String, String> contextKey,
 			Scenario.Step step, String qualityScore, boolean genarateValidCbeff) throws RigInternalError {
-		JSONObject jsonReq = new JSONObject();
-		JSONArray arr = new JSONArray();
-		for (String residentPath : resPath) {
-			arr.put(residentPath);
-		}
-		jsonReq.put(PERSONAFILEPATH, arr);
-		String url = baseUrl + props.getProperty("getTemplateUrl") + process + "/" + qualityScore + "/"
-				+ genarateValidCbeff;
+		String scenarioId = step != null && step.getScenario() != null ? step.getScenario().getId() : null;
+		try (DslStepTimingCollector.TimingScope timing = DslStepTimingCollector.start("getPacketTemplate")
+				.scenarioId(scenarioId)) {
+			ArrayList<String> personaPaths = new ArrayList<>(resPath);
+			if (step != null && DslPacketTemplateCache.isEnabled()) {
+				try {
+					String cacheKey = DslPacketTemplateCache.buildKey(
+							BaseTestCaseUtil.buildPacketCreatorContextKey(step.getScenario()), process, qualityScore,
+							genarateValidCbeff, personaPaths);
+					String cached = DslPacketTemplateCache.get(cacheKey);
+					if (cached != null && cached.toLowerCase().contains("packets")) {
+						return new JSONObject(cached).getJSONArray("packets");
+					}
+				} catch (Exception e) {
+					logger.info("Template cache lookup skipped: " + e.getMessage());
+				}
+			}
 
-		int count = 0;
-		int maxRetryCount = Integer.parseInt(props.getProperty("loopCount"));;
-		Response templateResponse = null;
-		JSONArray resp = null;
-		do {
-			count++;
-			templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
-			if (!templateResponse.getBody().asString().toLowerCase().contains("packets")) {
-				if (count == maxRetryCount) {
-					this.hasError = true;
-					throw new RigInternalError(templateResponse.getBody().asString());
-				} 
-				else {
-					logger.info("Unable to get biometrics via mds.Retrying...");
-					continue;
-				}		
+			JSONObject jsonReq = new JSONObject();
+			JSONArray arr = new JSONArray();
+			for (String residentPath : resPath) {
+				arr.put(residentPath);
 			}
-			JSONObject jsonResponse = new JSONObject(templateResponse.asString());
-			resp = jsonResponse.getJSONArray("packets");
-			if ((resp.length() <= 0)) {
-				if (count == maxRetryCount) {
-					this.hasError = true;
-					throw new RigInternalError("Unable to get Template from packet utility");
-				} 
-					logger.info("Unable to get Template from packet utility.Retrying...");				
-			} else {
-				break;
-			}
-		} while (count < maxRetryCount);
-		return resp;
+			jsonReq.put(PERSONAFILEPATH, arr);
+			String url = baseUrl + props.getProperty("getTemplateUrl") + process + "/" + qualityScore + "/"
+					+ genarateValidCbeff;
+
+			int count = 0;
+			int maxRetryCount = BaseTestCaseUtil.getPacketTemplateRetryCount();
+			Response templateResponse = null;
+			JSONArray resp = null;
+			Long lastServerMs = null;
+			do {
+				count++;
+				templateResponse = postRequest(url, jsonReq.toString(), "GET-TEMPLATE", step);
+				lastServerMs = DslStepTimingCollector.parseEnvoyUpstreamMs(templateResponse);
+				if (!templateResponse.getBody().asString().toLowerCase().contains("packets")) {
+					if (count == maxRetryCount) {
+						this.hasError = true;
+						throw new RigInternalError(templateResponse.getBody().asString());
+					} else {
+						logger.info("Unable to get biometrics via mds.Retrying...");
+						continue;
+					}
+				}
+				JSONObject jsonResponse = new JSONObject(templateResponse.asString());
+				resp = jsonResponse.getJSONArray("packets");
+				if ((resp.length() <= 0)) {
+					if (count == maxRetryCount) {
+						this.hasError = true;
+						throw new RigInternalError("Unable to get Template from packet utility");
+					}
+					logger.info("Unable to get Template from packet utility.Retrying...");
+				} else {
+					if (step != null && DslPacketTemplateCache.isEnabled()) {
+						try {
+							String cacheKey = DslPacketTemplateCache.buildKey(
+									BaseTestCaseUtil.buildPacketCreatorContextKey(step.getScenario()), process,
+									qualityScore, genarateValidCbeff, personaPaths);
+							DslPacketTemplateCache.put(cacheKey, jsonResponse.toString());
+						} catch (Exception e) {
+							logger.info("Template cache store skipped: " + e.getMessage());
+						}
+					}
+					timing.serverMs(lastServerMs);
+					break;
+				}
+			} while (count < maxRetryCount);
+			return resp;
+		}
 	}
 
 	public String createUploadPacket(Set<String> resPath, String source, String process, boolean genrateValidateToken, String uin, HashMap<String, String> contextKey,
@@ -697,7 +729,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String url = baseUrl + "/packet/sync/01/" + true; 
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, true, invalidMachineFlag);
+				getRidFromSync, true, invalidMachineFlag, "generateAndUploadPacketWrongHash");
 	}
 
 	public String generateAndUploadPacketSkippingPrereg(String packetPath, String residentPath,
@@ -706,7 +738,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; 
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, true,invalidMachineFlag);
+				getRidFromSync, true, invalidMachineFlag, "generateAndUploadPacketSkippingPrereg");
 
 	}
 
@@ -716,64 +748,85 @@ public class PacketUtility extends BaseTestCaseUtil {
 
 		String url = baseUrl + "/packet/sync/0/" + getRidFromSync; 
 		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
-				getRidFromSync, false,invalidMachineFlag);
+				getRidFromSync, false, invalidMachineFlag, "generateAndUploadWithInvalidCbeffPacketSkippingPrereg");
 
 	}
 
 	public String getRID(String url, String packetPath, String residentPath, String additionalInfoReqId,
 			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync,
-			boolean genarateValidCbeff,String invalidMachineFlag) throws RigInternalError {
-		String rid = null;
-		if (genarateValidCbeff)
-			url += "/1"; 
-		else
-			url += "/0"; 
-		JSONObject jsonReq = new JSONObject();
-		JSONArray arr = new JSONArray();
-		arr.put(0, packetPath);
-		arr.put(1, residentPath);
-		jsonReq.put(PERSONAFILEPATH, arr);
-		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
+			boolean genarateValidCbeff, String invalidMachineFlag) throws RigInternalError {
+		return getRID(url, packetPath, residentPath, additionalInfoReqId, contextKey, responseStatus, step,
+				getRidFromSync, genarateValidCbeff, invalidMachineFlag, "generateAndUploadPacketSkippingPrereg");
+	}
 
-		int count = 0;
-		int maxRetryCount = Integer.parseInt(props.getProperty("loopCount"));
+	public String getRID(String url, String packetPath, String residentPath, String additionalInfoReqId,
+			HashMap<String, String> contextKey, String responseStatus, Scenario.Step step, boolean getRidFromSync,
+			boolean genarateValidCbeff, String invalidMachineFlag, String timingLabel) throws RigInternalError {
+		String scenarioId = step != null && step.getScenario() != null ? step.getScenario().getId() : null;
+		String label = (timingLabel == null || timingLabel.isBlank()) ? "generateAndUploadPacketSkippingPrereg"
+				: timingLabel;
+		try (DslStepTimingCollector.TimingScope timing = DslStepTimingCollector.start(label).scenarioId(scenarioId)) {
+			String rid = null;
+			if (genarateValidCbeff)
+				url += "/1";
+			else
+				url += "/0";
+			JSONObject jsonReq = new JSONObject();
+			JSONArray arr = new JSONArray();
+			arr.put(0, packetPath);
+			arr.put(1, residentPath);
+			jsonReq.put(PERSONAFILEPATH, arr);
+			jsonReq.put("additionalInfoReqId", additionalInfoReqId);
 
-		do {
-	  		count++;
-			Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
+			int count = 0;
+			int maxRetryCount = BaseTestCaseUtil.getPacketSyncRetryCount();
+			Long lastServerMs = null;
 
-			if (invalidMachineFlag.contentEquals("invalidMachine") && response.getBody().asString().toLowerCase().contains("failed to sign data")) {
-				return "";
-			}
-			String body = response.getBody().asString();
-			if (body.contains("PRE_REG_TO_REGISTER_FAIL") && body.contains("RPR-PKR-002")) {
-				if ("INVALID_PACKET_SIZE".equalsIgnoreCase(responseStatus)) {
-					logger.info("Received expected Invalid Packet Size error (RPR-PKR-002): " + body);
-					return "INVALID_PACKET_SIZE";
+			do {
+				count++;
+				Response response = postRequest(url, jsonReq.toString(), "Generate And UploadPacket", step);
+				lastServerMs = DslStepTimingCollector.parseEnvoyUpstreamMs(response);
+
+				if (invalidMachineFlag.contentEquals("invalidMachine")
+						&& response.getBody().asString().toLowerCase().contains("failed to sign data")) {
+					return "";
 				}
-				this.hasError = true;
-				throw new RigInternalError("Received unexpected invalid packet size error: " + body);
-			}
-			if (!body.toLowerCase().contains(responseStatus)
-					|| body.toLowerCase().contains("failed")) {
-				if (count == maxRetryCount) {
+				String body = response.getBody().asString();
+				if (isInvalidPacketSizeError(body)) {
+					if ("INVALID_PACKET_SIZE".equalsIgnoreCase(responseStatus)) {
+						logger.info("Received expected Invalid Packet Size error (RPR-PKR-002): " + body);
+						return "INVALID_PACKET_SIZE";
+					}
 					this.hasError = true;
-					throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
-				} else {
-					logger.info("Unable to generate and upload packet . Retrying...");
-				    continue;
+					throw new RigInternalError("Received unexpected invalid packet size error: " + body);
 				}
-			}
+				if (!body.toLowerCase().contains(responseStatus) || body.toLowerCase().contains("failed")) {
+					if (count == maxRetryCount) {
+						this.hasError = true;
+						throw new RigInternalError("Unable to Generate And UploadPacket from packet utility");
+					} else {
+						logger.info("Unable to generate and upload packet . Retrying...");
+						continue;
+					}
+				} else {
+					JSONObject jsonResp = new JSONObject(response.getBody().asString());
+					rid = jsonResp.getJSONObject(RESPONSE).getString("registrationId");
+					timing.serverMs(lastServerMs);
+					break;
+				}
 
-			else {
-				JSONObject jsonResp = new JSONObject(response.getBody().asString());
-				rid = jsonResp.getJSONObject(RESPONSE).getString("registrationId");
-				break;
-			}
+			} while (count < maxRetryCount);
 
-		} while (count < maxRetryCount);
+			return rid;
+		}
+	}
 
-		return rid;
+	private static boolean isInvalidPacketSizeError(String body) {
+		if (body == null || body.isBlank()) {
+			return false;
+		}
+		return body.contains("PRE_REG_TO_REGISTER_FAIL") && body.contains("RPR-PKR-002")
+				&& body.contains("Invalid Packet Size");
 	}
 
 	public String createContext(String key, String baseUrl, Scenario.Step step) throws RigInternalError {
