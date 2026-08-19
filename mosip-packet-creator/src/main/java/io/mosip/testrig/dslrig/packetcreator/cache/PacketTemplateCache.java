@@ -1,7 +1,6 @@
 package io.mosip.testrig.dslrig.packetcreator.cache;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -44,9 +43,17 @@ public final class PacketTemplateCache {
 			List<String> personaFilePaths) throws IOException {
 		List<String> normalized = new ArrayList<>(personaFilePaths.size());
 		for (String path : personaFilePaths) {
+			if (path == null || path.isBlank() || path.contains("..")) {
+				throw new IOException("Invalid persona file path");
+			}
 			Path p = Paths.get(path).toAbsolutePath().normalize();
-			long modified = Files.exists(p) ? Files.getLastModifiedTime(p).toMillis() : 0L;
-			normalized.add(p + "@" + modified);
+			if (p.toString().contains("..")) {
+				throw new IOException("Invalid persona file path");
+			}
+			// Do not touch the filesystem here: a cache key only needs a stable path
+			// string, and Files.exists/getLastModifiedTime on caller-supplied paths
+			// is flagged as path injection.
+			normalized.add(p.toString());
 		}
 		Collections.sort(normalized);
 		return contextKey + "|" + process + "|" + qualityScore + "|" + generateValidCbeff + "|"

@@ -399,18 +399,49 @@ public class PacketMakerService {
 			}
 			if (preRegPacketLocation != null) {
 				List<String> files = getDemographicDocFiles(preRegPacketLocation.getAbsolutePath());
+				Path preRegRoot = preRegPacketLocation.toPath().toAbsolutePath().normalize();
+				Path templateRoot = Paths.get(templateLocation).toAbsolutePath().normalize();
+				Path osTempRoot = getOsTempRoot();
+				Path ctxTempRoot = getContextTempRoot(contextKey);
+				Path trustedTemplateRoot = Paths.get(templateFolder).toAbsolutePath().normalize();
+				Path workRoot = workDirectory == null ? null
+						: Paths.get(workDirectory).toAbsolutePath().normalize();
 
 				for (String filePath : files) {
-					Path sourceprereg = Paths.get(filePath);
+					Path sourceprereg = Paths.get(filePath).toAbsolutePath().normalize();
+					if (sourceprereg.toString().contains("..") || !sourceprereg.startsWith(preRegRoot)) {
+						continue;
+					}
+					boolean sourceTrusted = (osTempRoot != null && sourceprereg.startsWith(osTempRoot))
+							|| (ctxTempRoot != null && sourceprereg.startsWith(ctxTempRoot))
+							|| sourceprereg.startsWith(trustedTemplateRoot)
+							|| (workRoot != null && sourceprereg.startsWith(workRoot));
+					if (!sourceTrusted) {
+						continue;
+					}
 					String originalFileName = sourceprereg.getFileName().toString();
 					if (!originalFileName.toLowerCase().endsWith(".pdf")) {
 						continue;
 					} else {
 						originalFileName = originalFileName.replaceFirst("^[^_]*_", "");
 					}
+					if (originalFileName.contains("..") || originalFileName.indexOf('/') >= 0
+							|| originalFileName.indexOf('\\') >= 0) {
+						continue;
+					}
 
-					Path target = Paths.get(templateLocation + File.separator + source + File.separator + processArg
-							+ File.separator + "rid_id", originalFileName);
+					Path target = Paths.get(templateLocation, source, processArg, "rid_id", originalFileName)
+							.toAbsolutePath().normalize();
+					if (target.toString().contains("..") || !target.startsWith(templateRoot)) {
+						continue;
+					}
+					boolean targetTrusted = (osTempRoot != null && target.startsWith(osTempRoot))
+							|| (ctxTempRoot != null && target.startsWith(ctxTempRoot))
+							|| target.startsWith(trustedTemplateRoot)
+							|| (workRoot != null && target.startsWith(workRoot));
+					if (!targetTrusted) {
+						continue;
+					}
 
 					try {
 						Files.copy(sourceprereg, target, StandardCopyOption.REPLACE_EXISTING);
@@ -699,13 +730,21 @@ public class PacketMakerService {
     Path destination = Path.of(mountPath + tempPath, contextKey.replace(CONTEXT, ""),
             unencZipPath.getFileName().toString());
     CommonUtil.copyFileWithBuffer(unencZipPath, destination);
-    Path unencZipToDelete = validateUnderAllowedTempRoots(unencZipPath, contextKey);
-    if (unencZipToDelete != null) {
-        Files.delete(unencZipToDelete);
+    Path osTempRoot = getOsTempRoot();
+    Path ctxTempRoot = getContextTempRoot(contextKey);
+    Path unencNormalized = normalizeAbsolute(unencZipPath);
+    if ((osTempRoot != null && unencNormalized.startsWith(osTempRoot))
+            || (ctxTempRoot != null && unencNormalized.startsWith(ctxTempRoot))) {
+        Files.delete(unencNormalized);
+    } else {
+        logger.warn("Refusing to delete path outside allowed temp roots: {}", unencNormalized);
     }
-    Path containerRootToDelete = validateUnderAllowedTempRoots(validatedContainerRoot, contextKey);
-    if (containerRootToDelete != null) {
-        FileSystemUtils.deleteRecursively(containerRootToDelete);
+    Path containerNormalized = normalizeAbsolute(validatedContainerRoot);
+    if ((osTempRoot != null && containerNormalized.startsWith(osTempRoot))
+            || (ctxTempRoot != null && containerNormalized.startsWith(ctxTempRoot))) {
+        FileSystemUtils.deleteRecursively(containerNormalized);
+    } else {
+        logger.warn("Refusing to delete path outside allowed temp roots: {}", containerNormalized);
     }
 
 
