@@ -55,6 +55,7 @@
   "e2e_SyncData": ["call type", "machine details", "key case or center index"],
   "e2e_corruptPacket": ["byte offset", "data to write", "packet zip path"],
   "e2e_bulkUploadPacket": ["persona ID or packet path"],
+  "e2e_bulkUploadPacket#2": ["first packet zip path", "second packet zip path"],
   "e2e_configureMockAbis": ["persona ID", "modality subtypes", "duplicate match flag", "hash modality keys", "persona path", "modality hash map", "delay seconds", "mock ABIS status", "use actuator delay"],
   "e2e_postMockMv": ["registration ID", "manual verification decision"],
   "e2e_DeleteMockExpect": ["modality hash value"],

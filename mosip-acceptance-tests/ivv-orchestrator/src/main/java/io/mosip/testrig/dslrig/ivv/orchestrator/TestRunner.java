@@ -140,29 +140,21 @@ public class TestRunner {
 	}
 
 	public static void startTestRunner() {
-		File homeDir = null;
 		TestNG runner = new TestNG();
 		List<String> suitefiles = new ArrayList<String>();
-		String os = System.getProperty("os.name");
-		LOGGER.info(os);
-		if (checkRunType().contains("IDE") || os.toLowerCase().contains("windows") == true) {
-			homeDir = new File(TestResources.getResourcePath().replace("/MosipTestResource/MosipTemporaryTestResource", "") + "testngFile");
-			LOGGER.info("IDE Home Dir=" + homeDir);
-		} else {
-			homeDir = new File(getGlobalResourcePath() + "/testngFile");
-			LOGGER.info("Jar Home Dir=" + homeDir);
-		}
+		LOGGER.info(System.getProperty("os.name"));
+		File homeDir = resolveTestNgSuiteDirectory();
+		LOGGER.info("TestNG suite dir=" + homeDir.getAbsolutePath());
 
-		File[] suiteFiles = homeDir.listFiles();
+		File[] suiteFiles = homeDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".xml"));
 		if (suiteFiles == null || suiteFiles.length == 0) {
 			throw new IllegalStateException(
 					"No TestNG suite files under " + homeDir.getAbsolutePath()
-							+ ". Ensure the image JAR contains testngFile/ and startup completed extractResourceFromJar.");
+							+ ". Ensure testngFile/testng.xml is on the classpath or under target/classes,"
+							+ " and startup completed copyTestResources/extractResourceFromJar.");
 		}
 		for (File file : suiteFiles) {
-			if (file.getName().toLowerCase() != null) {
-				suitefiles.add(file.getAbsolutePath());
-			}
+			suitefiles.add(file.getAbsolutePath());
 		}
 
 		runner.setTestSuites(suitefiles);
@@ -401,6 +393,60 @@ public class TestRunner {
 	public static String getGlobalResourcePath() {
 		ensureResourcePathsInitialized();
 		return cachedGlobalResourcePath;
+	}
+
+	/** Classpath root (e.g. target/classes), without MosipTestResource/MosipTemporaryTestResource. */
+	public static String getClasspathResourceRoot() {
+		ensureResourcePathsInitialized();
+		if ("JAR".equalsIgnoreCase(cachedRunType)) {
+			// Per-run staging under the extracted resource tree — never the JAR parent directory,
+			// which can retain stale suites/data from a prior materialization.
+			File staging = new File(cachedGlobalResourcePath, ".classpath-staging");
+			if (!staging.exists() && !staging.mkdirs()) {
+				LOGGER.warn("Could not create classpath staging directory: " + staging.getAbsolutePath());
+			}
+			return staging.getAbsolutePath();
+		}
+		String global = getGlobalResourcePath();
+		int marker = global.indexOf(TestResources.resourceTestFolderName);
+		if (marker > 0) {
+			return global.substring(0, marker).replaceAll("[/\\\\]$", "");
+		}
+		return global.replace("MosipTestResource/MosipTemporaryTestResource", "")
+				.replace("MosipTestResource\\MosipTemporaryTestResource", "")
+				.replaceAll("[/\\\\]$", "");
+	}
+
+	private static File resolveTestNgSuiteDirectory() {
+		File fromWorkingCopy = new File(getGlobalResourcePath() + "/testngFile");
+		if (hasTestNgSuiteFiles(fromWorkingCopy)) {
+			return fromWorkingCopy;
+		}
+
+		File fromClasspathRoot = new File(getClasspathResourceRoot() + File.separator + "testngFile");
+		if (hasTestNgSuiteFiles(fromClasspathRoot)) {
+			return fromClasspathRoot;
+		}
+
+		try {
+			File destination = new File(getGlobalResourcePath());
+			if (TestResources.copyTestResourceFromClasspath("testngFile", destination)
+					&& hasTestNgSuiteFiles(fromWorkingCopy)) {
+				return fromWorkingCopy;
+			}
+		} catch (IOException e) {
+			LOGGER.warn("Could not materialize testngFile from classpath: " + e.getMessage());
+		}
+
+		return fromWorkingCopy;
+	}
+
+	private static boolean hasTestNgSuiteFiles(File dir) {
+		if (dir == null || !dir.isDirectory()) {
+			return false;
+		}
+		File[] suiteFiles = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".xml"));
+		return suiteFiles != null && suiteFiles.length > 0;
 	}
 
 	private static boolean copyFilesFromJarToOutsideResource(String path) {

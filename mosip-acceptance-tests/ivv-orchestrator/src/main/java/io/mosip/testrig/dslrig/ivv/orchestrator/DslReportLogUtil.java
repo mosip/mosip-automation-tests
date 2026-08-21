@@ -14,7 +14,7 @@ public final class DslReportLogUtil {
 
 	public static void reportRequestAndResponse(String operation, String headers, String url, String request,
 			String response) {
-		GlobalMethods.ReportRequestAndResponse(operation, mask(headers), url, mask(request), mask(response));
+		GlobalMethods.ReportRequestAndResponse(operation, mask(headers), url, mask(request), mask(response), true);
 	}
 
 	public static void reportRequestAndResponse(String operation, String headers, String url, String request,
@@ -38,7 +38,7 @@ public final class DslReportLogUtil {
 		String headerStr = response != null && response.getHeaders() != null
 				? response.getHeaders().asList().toString()
 				: headers;
-		GlobalMethods.ReportRequestAndResponse(null, mask(headerStr), url, null, mask(body));
+		GlobalMethods.ReportRequestAndResponse(null, mask(headerStr), url, null, mask(body), true);
 	}
 
 	private static String mask(String value) {

@@ -174,6 +174,19 @@ public class ReadableDslStepCodecTest {
         assertRoundTrip("e2e_getBioModalityHash(-1,Right IndexFinger@@Left LittleFinger,$$personaFilePath)");
     }
 
+    @Test
+    public void should_preserveRoundTrip_whenBulkUploadPacketHasTwoPaths() {
+        assertRoundTrip("e2e_bulkUploadPacket($$firstZipPacketPath,$$secondZipPacketPath)");
+    }
+
+    @Test
+    public void should_decodeToDsl_whenBulkUploadPacketHasTwoPaths() {
+        String gherkin = "I bulk upload packet where first packet zip path is the saved first zip packet path, "
+                + "and second packet zip path is the saved second zip packet path";
+        assertDecodeToDsl(gherkin,
+                "e2e_bulkUploadPacket($$firstZipPacketPath,$$secondZipPacketPath)");
+    }
+
     private static void assertRoundTrip(String dsl) {
         String encoded = ReadableDslStepCodec.encode(dsl);
         String decoded = ReadableDslStepCodec.decode(encoded);
