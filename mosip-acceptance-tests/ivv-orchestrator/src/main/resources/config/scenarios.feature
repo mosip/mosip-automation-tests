@@ -6617,6 +6617,44 @@ And I demo authentication where demo field is name, and UIN is the saved uin aft
 And I demo authentication where demo field is name, and UIN is the saved uin after u2, and persona file path is pre update demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
+  @scenario_257
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_NA
+  Scenario: Resident registers as both guardian and introducer for two different minors
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in parent persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved parent persona file path and store result in parent packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved parent persona file path, and packet template path is the saved parent packet template path and store result in parent registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved parent registration ID
+And I get uin by rid where source registration ID is the saved parent registration ID and store result in parent UIN
+And I get email by uin where resident UIN is the saved parent UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update resident with uin where persona file path is the saved parent persona file path, and UIN is the saved parent UIN
+And I get resident data where persona type is minor, and guardian flag is true, and gender and biometric flags is Male and store result in child persona file path
+And I update resident with guardian skipping pre reg where guardian persona file path is the saved parent persona file path, and child persona file path is the saved child persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved child persona file path and store result in child packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved child persona file path, and packet template path is the saved child packet template path and store result in child registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved child registration ID
+And I get uin by rid where source registration ID is the saved child registration ID and store result in child UIN
+And I get email by uin where resident UIN is the saved child UIN and store result in second email
+And I verify notification where notification type is UIN Generated, and email is the saved second email
+Then I check ridstage where registration ID is the saved child registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is SUCCESS
+And I get resident data where persona type is infant, and guardian flag is true, and gender and biometric flags is Male and false and false and true and store result in child persona 2
+And I update resident with guardian skipping pre reg where guardian persona file path is the saved parent persona file path, and child persona file path is the saved child persona 2
+And I get packet template where packet type is NEW, and persona file path is the saved child persona 2 and store result in child template2
+And I generate and upload packet skipping prereg where persona file path is the saved child persona 2, and packet template path is the saved child template2 and store result in child rid2
+And I check status where packet status is PROCESSED, and registration ID is the saved child rid2
+And I get uin by rid where source registration ID is the saved child rid2 and store result in child uin2
+And I get email by uin where resident UIN is the saved child uin2 and store result in third email
+And I verify notification where notification type is UIN Generated, and email is the saved third email
+Then I check ridstage where registration ID is the saved child rid2, and RID stage is INTRODUCER_VALIDATION, and stage status is SUCCESS
+Then I check ridstage where registration ID is the saved child rid2, and RID stage is VERIFICATION, and stage status is SUCCESS
+And I delete packet data
+
   @scenario_AFTER_SUITE
   @Positive_Test
   @persona_ResidentMaleAdult
