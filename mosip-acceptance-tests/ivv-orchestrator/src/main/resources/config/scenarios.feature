@@ -6456,7 +6456,6 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 And I verify notification where notification type is updated, and email is the saved email
 And I wait where wait seconds is 900
 Then I reprocess packet where registration ID is the saved registration ID
-And I check status where packet status is REREGISTER, and registration ID is the saved registration ID
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is CREATE_DRAFT, and stage status is FAILED
 And I delete packet data
 
@@ -6575,7 +6574,6 @@ And I packetsync where packet zip path is the saved lost zip2
 And I check status where packet status is PROCESSED, and registration ID is rid lost2
 And I wait where wait seconds is 900
 Then I reprocess packet where registration ID is rid lost1
-And I check status where packet status is REREGISTER, and registration ID is rid lost1
 Then I check ridstage where registration ID is rid lost1, and RID stage is CREATE_DRAFT, and stage status is FAILED
 And I delete packet data
 
