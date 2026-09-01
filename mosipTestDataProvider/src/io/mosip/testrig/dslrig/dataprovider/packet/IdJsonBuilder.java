@@ -385,11 +385,10 @@ public final class IdJsonBuilder {
 			}
 			if (processDynamicFields(s, identity, resident, contextKey))
 				continue;
-			if (s.getFieldCategory().equals("evidence") && s.getId().equals("nrcId") ) {
-				identity.put(s.getId(),resident.getNrcId().getNrcId());
+			if (s.getId().equals("nrcId")) {
+				identity.put(s.getId(), resident.getNrcId() == null ? "" : resident.getNrcId().getNrcId());
 				continue;
 			}
-			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
 				String primaryValue = "";
 				String secValue = "";
 				if (VariableManager.getVariableValue(contextKey, "name") != null
@@ -674,7 +673,6 @@ public final class IdJsonBuilder {
 					else
 						identity.put(s.getId(), primaryValue);
 				}
-			}
 
 		}
 		JSONObject retObject = new JSONObject();

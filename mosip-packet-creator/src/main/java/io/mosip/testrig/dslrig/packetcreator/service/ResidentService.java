@@ -14,7 +14,7 @@ public class ResidentService {
 	private static final Logger logger = LoggerFactory.getLogger(ResidentService.class);
 
 	public String downloadCard(String personaPath, String uin, String context) throws Exception {
-		ResidentModel resident = ResidentModel.readPersona(personaPath);
+		ResidentModel resident = ResidentModel.readPersona(personaPath, context);
 		RegistrationSteps steps = new RegistrationSteps();
 		return steps.downloadCard(resident, uin, context);
 	}

@@ -57,12 +57,23 @@ public class ZipUtils {
 
 	public boolean unzip(String sourceFile, String targetDirectory, String contextKey) {
 		boolean unzipped = false;
+		Path targetRoot = Path.of(targetDirectory).toAbsolutePath().normalize();
 		try (InputStream in = Files.newInputStream(Path.of(sourceFile));
 			 ZipInputStream zipInputStream = new ZipInputStream(in)) {
 			ZipEntry zipEntry = zipInputStream.getNextEntry();
 			while (zipEntry != null) {
-				Path file = Path.of(targetDirectory, zipEntry.getName());
-
+				// Zip Slip guard: a crafted zip entry name (e.g. "../../etc/passwd") must not be
+				// allowed to resolve outside targetDirectory.
+				Path file = targetRoot.resolve(zipEntry.getName()).normalize();
+				if (!file.startsWith(targetRoot)) {
+					logger.error("Zip entry is outside the target directory: {}", zipEntry.getName());
+					return false;
+				}
+				if (zipEntry.isDirectory()) {
+					Files.createDirectories(file);
+					zipEntry = zipInputStream.getNextEntry();
+					continue;
+				}
 
 				Files.createDirectories(file.getParent());
 
@@ -79,6 +90,7 @@ public class ZipUtils {
 			}
 		} catch (IOException e) {
 			logger.error("Error while unzipping", e);
+			return false;
 		}
 		return unzipped;
 	}

@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider;
 
+import io.mosip.testrig.dslrig.dataprovider.util.BiometricOutputScope;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import javax.imageio.ImageIO;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,12 @@ public final class FaceVariationGenerator {
 
 	public static String faceVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick)
 			throws Exception {
+		return faceVariationGenerator(contextKey, currentScenarioNumber, impressionToPick,
+				currentScenarioNumber + "_" + UUID.randomUUID());
+	}
+
+	public static String faceVariationGenerator(String contextKey, int currentScenarioNumber, int impressionToPick,
+			String outputScope) throws Exception {
 
 		String inputFaceTemplatePath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath") + "/"
@@ -29,13 +36,14 @@ public final class FaceVariationGenerator {
 
 		String outputUniqueFaceDataPath = System.getProperty("java.io.tmpdir")
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath") + "/output/"
-				+ currentScenarioNumber;
+				+ outputScope;
 
-		Files.createDirectories(Paths.get(outputUniqueFaceDataPath));
+		BiometricOutputScope.prepare(outputUniqueFaceDataPath, "face");
 
 		generateNonMatchingFace(inputFaceTemplatePath, outputUniqueFaceDataPath, "face",
 				"face" + impressionToPick + ".png");
 
+		// Return the scenario output directory (callers list <dir>/face/).
 		return outputUniqueFaceDataPath;
 	}
 

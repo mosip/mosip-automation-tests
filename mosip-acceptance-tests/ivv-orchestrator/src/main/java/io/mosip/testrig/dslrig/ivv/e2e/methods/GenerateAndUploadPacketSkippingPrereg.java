@@ -12,6 +12,8 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil implements StepInterface {
 	public static Logger logger = Logger.getLogger(GenerateAndUploadPacketSkippingPrereg.class);
 
+	private static final String INVALID_PACKET_SIZE = "INVALID_PACKET_SIZE";
+
 	static {
 		if (dslConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
@@ -25,8 +27,13 @@ public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil impl
 		boolean getRidFromSync = true;
 		Boolean isForChildPacket = false;
 		String invalidMachineFlag = "";
-		if (step.getParameters().size() == 3 && step.getParameters().get(2).contains("invalidMachine")) {
-			invalidMachineFlag = step.getParameters().get(2);
+		boolean expectInvalidPacketSize = step.getParameters().stream()
+				.anyMatch(p -> INVALID_PACKET_SIZE.equalsIgnoreCase(p));
+		if (step.getParameters().size() >= 3) {
+			String thirdParam = step.getParameters().get(2);
+			if (thirdParam.contains("invalidMachine")) {
+				invalidMachineFlag = thirdParam;
+			}
 		}
 		if (!step.getParameters().isEmpty() && step.getParameters().size() == 1) {
 			isForChildPacket = Boolean.parseBoolean(step.getParameters().get(0));
@@ -50,24 +57,29 @@ public class GenerateAndUploadPacketSkippingPrereg extends BaseTestCaseUtil impl
 
 		} else {
 			if (step.getParameters().size() == 3) {
-				getRidFromSync = Boolean.parseBoolean(step.getParameters().get(2));
+				String thirdParam = step.getParameters().get(2);
+				if (!thirdParam.contains("invalidMachine")
+						&& !INVALID_PACKET_SIZE.equalsIgnoreCase(thirdParam)) {
+					getRidFromSync = Boolean.parseBoolean(thirdParam);
+				}
 			}
 
 			String _additionalInfoReqId = null;
 			if (step.getParameters().size() > 3) {
 				_additionalInfoReqId = step.getParameters().get(3);
-				if (!_additionalInfoReqId.isEmpty() && _additionalInfoReqId.startsWith("$$")) {
+				if (INVALID_PACKET_SIZE.equalsIgnoreCase(_additionalInfoReqId)) {
+					_additionalInfoReqId = null;
+				} else if (!_additionalInfoReqId.isEmpty() && _additionalInfoReqId.startsWith("$$")) {
 					_additionalInfoReqId = resolveScenarioVariable(step, _additionalInfoReqId);
 				}
 			}
 
 			String[] paths = resolvePersonaAndTemplatePaths(step);
-			String responseStatus = step.getParameters().stream()
-					.anyMatch(p -> "INVALID_PACKET_SIZE".equalsIgnoreCase(p)) ? "INVALID_PACKET_SIZE" : "success";
+			String responseStatus = expectInvalidPacketSize ? INVALID_PACKET_SIZE : "success";
 			String rid = packetUtility.generateAndUploadPacketSkippingPrereg(paths[1], paths[0],
 					_additionalInfoReqId, step.getScenario().getCurrentStep(), responseStatus, step, getRidFromSync,
 					invalidMachineFlag);
-			if ("INVALID_PACKET_SIZE".equals(rid)) {
+			if (INVALID_PACKET_SIZE.equals(rid)) {
 				logger.info("Packet upload returned expected Invalid Packet Size error (RPR-PKR-002) - step validation passed");
 				return;
 			}
