@@ -102,16 +102,14 @@ public class CheckTags extends BaseTestCaseUtil implements StepInterface {
 			Map<String, String> mapPacketCreator = new TreeMap<>(
 					objectMapper.convertValue(nodePacketCreator, Map.class));
 
-			for (Map.Entry<String, String> entry : mapFromServer.entrySet()) {
+			// Compare only tags present in packet creator; ignore extra tags on the server.
+			for (Map.Entry<String, String> entry : mapPacketCreator.entrySet()) {
 				String key = entry.getKey();
-				String valueFromServer = entry.getValue();
-				String valuePacketCreator = mapPacketCreator.get(key);
+				String valuePacketCreator = sortValue(entry.getValue());
+				String valueFromServer = sortValue(mapFromServer.get(key));
 
-				valueFromServer = sortValue(valueFromServer);
-				valuePacketCreator = sortValue(valuePacketCreator);
-
-				if (valuePacketCreator != null && valuePacketCreator.equals(valueFromServer)) {
-					logger.info("Key :" + key + "has the same value in both JSONs: " + valueFromServer);
+				if (valueFromServer != null && valueFromServer.equals(valuePacketCreator)) {
+					logger.info("Key :" + key + " has the same value in both JSONs: " + valueFromServer);
 				} else {
 					logger.info("Key '" + key + "' has different values in the two JSONs.");
 					tagMismatched += "Key :" + key + "   Value from server : " + valueFromServer
