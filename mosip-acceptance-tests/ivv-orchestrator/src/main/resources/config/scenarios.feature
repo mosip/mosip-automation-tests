@@ -4306,7 +4306,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 Then I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I packetsync where packet zip path is the saved packet zip path
-Then I check status where packet status is REREGISTER, and registration ID is the saved registration ID
+Then I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I delete packet data
 
   @scenario_164
