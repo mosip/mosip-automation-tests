@@ -63,6 +63,7 @@ import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipIDSchema;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
+import io.mosip.testrig.dslrig.dataprovider.packet.PacketJsonSupport;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.DemographicMissFieldUtil;
@@ -524,6 +525,7 @@ public class PacketMakerService {
 			JSONObject jbToMerge = schemaUtil.getPacketIDData(schemaJson, dataToMerge, type);
 
 			JSONObject mergedJsonMap = mergeJSONObject(templateFile, jbToMerge, contextKey);
+			stripResidentUinFromNewPacket(mergedJsonMap, process, contextKey);
 
 			if (type.equals("id")) {
 				stripDemographicMissFieldsFromMergedIdentity(mergedJsonMap, contextKey);
@@ -892,6 +894,19 @@ public class PacketMakerService {
 		return mainNode;
 	}
 
+
+	private void stripResidentUinFromNewPacket(JSONObject mergedJsonMap, String process, String contextKey) {
+		if (mergedJsonMap == null || !PacketJsonSupport.isNewRegistrationProcess(process)) {
+			return;
+		}
+		JSONObject identity;
+		if (mergedJsonMap.has(IDENTITY)) {
+			identity = mergedJsonMap.getJSONObject(IDENTITY);
+		} else {
+			identity = mergedJsonMap;
+		}
+		PacketJsonSupport.omitResidentUin(identity, contextKey);
+	}
 
 	private void stripDemographicMissFieldsFromMergedIdentity(JSONObject mergedJsonMap, String contextKey) {
 		Object personaPathObj = VariableManager.getVariableValue(contextKey, "packetSyncPersonaPath");
