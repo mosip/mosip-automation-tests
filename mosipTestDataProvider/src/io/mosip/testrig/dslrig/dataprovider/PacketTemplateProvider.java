@@ -28,6 +28,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.SchemaRule;
 import io.mosip.testrig.dslrig.dataprovider.packet.CrvsIdJsonBuilder;
 import io.mosip.testrig.dslrig.dataprovider.packet.EvidenceJsonBuilder;
 import io.mosip.testrig.dslrig.dataprovider.packet.IdJsonBuilder;
+import io.mosip.testrig.dslrig.dataprovider.packet.PacketJsonSupport;
 import io.mosip.testrig.dslrig.dataprovider.packet.PacketMetadataBuilder;
 import io.mosip.testrig.dslrig.dataprovider.packet.PacketTemplateDocuments;
 import io.mosip.testrig.dslrig.dataprovider.persona.PersonaBiometricsAssembler;
@@ -216,6 +217,11 @@ public class PacketTemplateProvider {
 			if (s.getType().equalsIgnoreCase(DOCUMENTTYPE) || s.getType().equalsIgnoreCase(BIOMETRICSTYPE)) {
 				continue;
 			}
+			if (PacketJsonSupport.isNewRegistrationProcess(process)
+					&& PacketJsonSupport.isResidentUinField(s.getId(), contextKey)) {
+				json.remove(s.getId());
+				continue;
+			}
 			List<SchemaRule> rule = s.getRequiredOn();
 			if (rule != null) {
 				for (SchemaRule sr : rule) {
@@ -227,6 +233,10 @@ public class PacketTemplateProvider {
 					}
 				}
 			}
+		}
+
+		if (PacketJsonSupport.isNewRegistrationProcess(process)) {
+			PacketJsonSupport.omitResidentUin(json, contextKey);
 		}
 
 		if (!json.has("identity")) {
