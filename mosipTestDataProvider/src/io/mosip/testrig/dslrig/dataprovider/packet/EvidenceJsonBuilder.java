@@ -98,12 +98,15 @@ public final class EvidenceJsonBuilder {
 
 					}
 					continue;
-				} else if (VariableManager.getVariableValue(contextKey, "uin") != null
-						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "uin"))) {
-					if (resident.getUIN() == null || resident.getUIN().equals(""))
-						identity.put(s.getId(), JSONObject.NULL);
-					else
-						identity.put(s.getId(), resident.getUIN());
+				} else if (PacketJsonSupport.isResidentUinField(s.getId(), contextKey)) {
+					Object processValue = VariableManager.getVariableValue(contextKey, "process");
+					String process = processValue == null ? "" : processValue.toString();
+					if (!PacketJsonSupport.isNewRegistrationProcess(process)) {
+						if (resident.getUIN() == null || resident.getUIN().equals(""))
+							identity.put(s.getId(), JSONObject.NULL);
+						else
+							identity.put(s.getId(), resident.getUIN());
+					}
 					continue;
 				} else if (VariableManager.getVariableValue(contextKey, "introducerUIN") != null
 						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "introducerUIN"))) {
@@ -199,6 +202,11 @@ public final class EvidenceJsonBuilder {
 					identity.put(s.getId(), primVal.equals("") ? JSONObject.NULL : primVal);
 				}
 			}
+		}
+		Object processValue = VariableManager.getVariableValue(contextKey, "process");
+		String process = processValue == null ? "" : processValue.toString();
+		if (PacketJsonSupport.isNewRegistrationProcess(process)) {
+			PacketJsonSupport.omitResidentUin(identity, contextKey);
 		}
 		JSONObject retObject = new JSONObject();
 		retObject.put(IDENTITY, identity);
