@@ -10,6 +10,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.MosipIDSchema;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Translator;
+import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 /**
  * JSON node helpers for packet identity and biometric metadata (extracted from
@@ -23,6 +24,36 @@ public final class PacketJsonSupport {
 	private static final String VALUE = "value";
 
 	private PacketJsonSupport() {
+	}
+
+	public static boolean isNewRegistrationProcess(String process) {
+		if (process == null || process.isBlank()) {
+			return false;
+		}
+		String normalized = process.trim();
+		return "NEW".equalsIgnoreCase(normalized) || "CRVS_NEW".equalsIgnoreCase(normalized);
+	}
+
+	public static boolean isResidentUinField(String schemaId, String contextKey) {
+		if (schemaId == null || schemaId.isBlank()) {
+			return false;
+		}
+		if ("UIN".equalsIgnoreCase(schemaId)) {
+			return true;
+		}
+		Object mapped = VariableManager.getVariableValue(contextKey, "uin");
+		return mapped != null && schemaId.equals(mapped.toString());
+	}
+
+	public static void omitResidentUin(JSONObject identity, String contextKey) {
+		if (identity == null) {
+			return;
+		}
+		identity.remove("UIN");
+		Object mapped = VariableManager.getVariableValue(contextKey, "uin");
+		if (mapped != null && !mapped.toString().isBlank()) {
+			identity.remove(mapped.toString());
+		}
 	}
 
 	public static JSONObject constructExceptnNode(BioModality modality) {
