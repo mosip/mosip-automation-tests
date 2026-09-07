@@ -341,11 +341,12 @@ public final class IdJsonBuilder {
 				continue;
 			}
 
-			if (VariableManager.getVariableValue(contextKey, "uin") != null
-					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "uin"))) {
-				String uin = resident.getUIN();
-				if (uin != null && !uin.trim().equals("")) {
-					identity.put(s.getId(), uin.trim());
+			if (PacketJsonSupport.isResidentUinField(s.getId(), contextKey)) {
+				if (!PacketJsonSupport.isNewRegistrationProcess(process)) {
+					String uin = resident.getUIN();
+					if (uin != null && !uin.trim().equals("")) {
+						identity.put(s.getId(), uin.trim());
+					}
 				}
 				continue;
 			}
@@ -674,6 +675,9 @@ public final class IdJsonBuilder {
 						identity.put(s.getId(), primaryValue);
 				}
 
+		}
+		if (PacketJsonSupport.isNewRegistrationProcess(process)) {
+			PacketJsonSupport.omitResidentUin(identity, contextKey);
 		}
 		JSONObject retObject = new JSONObject();
 		retObject.put(IDENTITY, identity);

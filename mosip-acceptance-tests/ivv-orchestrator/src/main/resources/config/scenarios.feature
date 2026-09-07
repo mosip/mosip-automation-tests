@@ -348,7 +348,7 @@ And I update demo or bio details where bio type is 0, and miss fields is 0, and 
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in new packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved new packet template path and store result in second registration ID
-And I check status where packet status is REREGISTER, and registration ID is the saved second registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is SUCCESS
 And I delete packet data
 
