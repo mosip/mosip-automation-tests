@@ -26,6 +26,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSDevice;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSDeviceCaptureModel;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
+import io.mosip.testrig.dslrig.dataprovider.util.CreatedPathRegistry;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -105,13 +106,7 @@ public class MDSClient implements MDSClientInterface {
 	public void createProfile(String profilePath, String profile, ResidentModel resident, String contextKey,
 			String purpose) throws Exception {
 
-		File profDir1 = new File(profilePath + "/" + profile);
-		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
-		if (!profDir1.exists())
-			profDir1.mkdir();
-		if (!profDir.exists())
-			profDir.mkdir();
-
+		File profDir = ensureProfileDir(profilePath, profile, purpose, contextKey);
 
 		ISOConverter convert = new ISOConverter();
 		try {
@@ -156,12 +151,7 @@ public class MDSClient implements MDSClientInterface {
 
 	public void updateProfile(String profilePath, String profile, ResidentModel resident, String contextKey,
 			String purpose) throws Exception {
-		File profDir1 = new File(profilePath + "/" + profile);
-		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
-		if (!profDir1.exists())
-			profDir1.mkdir();
-		if (!profDir.exists())
-			profDir.mkdir();
+		File profDir = ensureProfileDir(profilePath, profile, purpose, contextKey);
 		String biometricTypes = VariableManager.getVariableValue(contextKey, "regenAttribute") != null
 				? VariableManager.getVariableValue(contextKey, "regenAttribute").toString().toLowerCase()
 				: null;
@@ -249,41 +239,34 @@ public class MDSClient implements MDSClientInterface {
 		}
 	}
 
+	private File ensureProfileDir(String profilePath, String profile, String purpose, String contextKey) {
+		File profDir1 = new File(profilePath + "/" + profile);
+		File profDir = new File(profilePath + "/" + profile + "/" + purpose);
+		if (!profDir1.exists())
+			profDir1.mkdir();
+		if (!profDir.exists())
+			profDir.mkdir();
+		CreatedPathRegistry.register(contextKey, CreatedPathRegistry.CREATED_PATHS_KEY, profDir1.getAbsolutePath());
+		return profDir;
+	}
 
 	public void removeProfile(String profilePath, String profile, int port, String contextKey) {
-		setProfile("Default", port, contextKey);
-		File profDir = new File(profilePath + "/" + profile);
-		boolean isFileDeleted = false;
-		boolean isProfDirDeleted = false;
-		if (profDir.exists()) {
-
-			File[] files = profDir.listFiles();
-
-
-			for (File file : files) {
-				boolean isDeleted = file.delete();
-				if (!isDeleted) {
-					if (RestClient.isDebugEnabled(contextKey)) {
-						 logger.info("File {} deleted successfully", file.getName());
-					}
-				}
-				isFileDeleted = file.delete();
-				if (!isFileDeleted) {
-					if (RestClient.isDebugEnabled(contextKey)) {
-						 logger.info("File {} deleted successfully", file.getName());
-					}
-				}
-			}
-			isProfDirDeleted = profDir.delete();
-			if (!isProfDirDeleted) {
-				if (RestClient.isDebugEnabled(contextKey)) {
-					logger.info("Profile directory {} deleted successfully", profDir.getName());
-				}else {
-					    logger.warn("Failed to delete profile directory {}", profDir.getName());
-				 }
-			}
+		if (profile == null || profile.isBlank() || "Default".equalsIgnoreCase(profile)) {
+			return;
 		}
-
+		try {
+			if (port > 0) {
+				setProfile("Default", port, contextKey);
+			}
+		} catch (Throwable t) {
+			logger.warn("Failed to reset MDS profile to Default: {}", t.getMessage());
+		}
+		File profDir = new File(profilePath + "/" + profile);
+		try {
+			CommonUtil.deleteOldTempDir(profDir.getAbsolutePath(), contextKey);
+		} catch (IOException e) {
+			logger.warn("Failed to delete MDS profile {}: {}", profile, e.getMessage());
+		}
 	}
 
 	public void setProfile(String profile, int port, String contextKey) {

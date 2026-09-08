@@ -65,6 +65,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.packet.PacketJsonSupport;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
+import io.mosip.testrig.dslrig.dataprovider.util.CreatedPathRegistry;
 import io.mosip.testrig.dslrig.dataprovider.util.DemographicMissFieldUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
@@ -202,6 +203,7 @@ public class PacketMakerService {
 			return;
 		try {
 			workDirectory = Files.createTempDirectory("pktcreator").toFile().getAbsolutePath();
+			CreatedPathRegistry.registerShared(workDirectory);
 			logger.info("CURRENT WORK DIRECTORY --> {}", workDirectory);
 			File folder = new File(templateFolder);
 			File[] files = folder.listFiles();
@@ -756,6 +758,7 @@ public class PacketMakerService {
 					+ centerId + "_" + machineId + "-" + getcurrentTimeStamp();
 		Path targetDirectory = Paths.get(tempDir);
 		FileSystemUtils.copyRecursively(sourceDirectory, targetDirectory);
+		CreatedPathRegistry.register(contextKey, CreatedPathRegistry.PKTCREATOR_FILES_KEY, targetDirectory.toString());
 		setupTemplateName(tempDir, rid, contextKey);
 		return targetDirectory.toString();
 	}
@@ -795,13 +798,23 @@ public class PacketMakerService {
 		metaData.put("packetname", rid + UNDERSCORE + type);
 
 		File containerMetaDataTemp = File.createTempFile("pkm", ".cm");
-		writeJSONFile(metaData, containerMetaDataTemp.getAbsolutePath());
-		Map<?, ?> mergedJsonMap = mergeJSON(fileToFix, containerMetaDataTemp.getAbsolutePath());
-		if (!writeJSONFile(mergedJsonMap, fileToFix)) {
-			logger.error("Error creating containerMetaData packet {} ", rid);
-			return false;
+		CreatedPathRegistry.register(contextKey, CreatedPathRegistry.PKM_FILES_KEY,
+				containerMetaDataTemp.getAbsolutePath());
+		try {
+			writeJSONFile(metaData, containerMetaDataTemp.getAbsolutePath());
+			Map<?, ?> mergedJsonMap = mergeJSON(fileToFix, containerMetaDataTemp.getAbsolutePath());
+			if (!writeJSONFile(mergedJsonMap, fileToFix)) {
+				logger.error("Error creating containerMetaData packet {} ", rid);
+				return false;
+			}
+			return true;
+		} finally {
+			try {
+				CommonUtil.deleteOldTempDir(containerMetaDataTemp.getAbsolutePath(), contextKey);
+			} catch (Exception e) {
+				logger.warn("Failed to delete temp container metadata file {}", containerMetaDataTemp, e);
+			}
 		}
-		return true;
 
 	}
 

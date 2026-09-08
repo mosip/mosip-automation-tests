@@ -95,6 +95,11 @@
       "actionPattern": "^e2e_DeletePacketData\\(\\)$",
       "gherkin": "I delete temporary packet persona and template files from disk",
       "keyword": "And"
+    },
+    {
+      "actionPattern": "^e2e_DeleteOverallCreatedData\\(\\)$",
+      "gherkin": "I delete overall created data",
+      "keyword": "And"
     }
   ]
 }

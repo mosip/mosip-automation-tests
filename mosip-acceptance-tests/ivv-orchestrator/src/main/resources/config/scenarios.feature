@@ -6676,4 +6676,5 @@ And I delete certificates and onboarding partners
 And I masterdata delete
 And I write persona data
 And I clear run cache
+And I delete overall created data
 

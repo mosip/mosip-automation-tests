@@ -23,6 +23,7 @@ import com.lowagie.text.DocumentException;
 
 import io.mosip.testrig.dslrig.dataprovider.models.*;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
+import io.mosip.testrig.dslrig.dataprovider.util.CreatedPathRegistry;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 
 public class DocumentProvider {
@@ -75,16 +76,7 @@ public class DocumentProvider {
     private static void updateVariable(String contextKey,
                                        String variable,
                                        String newPath) {
-
-        String existing = VariableManager.getVariableValue(contextKey, variable) != null
-                ? VariableManager.getVariableValue(contextKey, variable).toString()
-                : "";
-
-        String updated = existing.isEmpty()
-                ? newPath
-                : existing + "," + newPath;
-
-        VariableManager.setVariableValue(contextKey, variable, updated);
+        CreatedPathRegistry.register(contextKey, variable, newPath);
     }
 
     private static String buildAddress(ResidentModel res) {

@@ -390,4 +390,22 @@ public class PacketController {
 
     }
 
+	@Operation(summary = "delete all tracked created files leftover after the suite")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted leftover created data") })
+	@DeleteMapping(value = "/delete/allcreateddata/{contextKey}")
+	public @ResponseBody String deleteAllCreatedData(@PathVariable("contextKey") String contextKey) throws Exception {
+		try {
+			return ContextUtils.clearAllCreatedData();
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("deleteAllCreatedData", e);
+			throw new ServiceException(
+					HttpStatus.INTERNAL_SERVER_ERROR,
+					"DELETE_ALL_CREATED_DATA_FAIL",
+					e.getMessage()
+			);
+		}
+	}
+
 }

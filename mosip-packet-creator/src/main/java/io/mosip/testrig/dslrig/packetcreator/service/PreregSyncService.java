@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import io.mosip.testrig.dslrig.dataprovider.util.CreatedPathRegistry;
+
 @Service
 public class PreregSyncService {
     Logger logger = LoggerFactory.getLogger(PreregSyncService.class);
@@ -48,6 +50,7 @@ public class PreregSyncService {
 		if (workDirectory != null) return;
 		try{
 			workDirectory = Files.createTempDirectory("prereg").toFile().getAbsolutePath();
+			CreatedPathRegistry.registerShared(workDirectory);
 			logger.info("CURRENT PRE_REG WORK DIRECTORY --> {}", workDirectory);
 		} catch(Exception ex){
 			logger.error("", ex);

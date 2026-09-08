@@ -178,6 +178,8 @@ public class Orchestrator {
 	public void afterSuite() {
 		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
 		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
+		BaseTestCaseUtil.deleteOverallCreatedDataAfterSuite();
+		logDslMemory("after suite");
 		extent.flush();
 	}
 
@@ -812,7 +814,24 @@ public class Orchestrator {
 			signalBeforeSuiteComplete(scenarioSucceeded);
 		}
 		updateRunStatistics(scenario);
+		logDslMemory("after scenario " + scenario.getId());
 
+	}
+
+	private static void logDslMemory(String phase) {
+		try {
+			OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+			Runtime runtime = Runtime.getRuntime();
+			long heapUsedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+			long freePhysicalMb = osBean.getFreePhysicalMemorySize() / (1024 * 1024);
+			String line = "DSL MEMORY [" + phase + "] heapUsed=" + heapUsedMb + " MB freePhysical="
+					+ freePhysicalMb + " MB";
+			System.out.println(line);
+			logger.info(line);
+			Reporter.log("<b>" + line + "</b><br>");
+		} catch (Exception e) {
+			logger.warn("Failed to log DSL memory for phase " + phase + ": " + e.getMessage());
+		}
 	}
 
 	private String getPackage(Scenario.Step step) {

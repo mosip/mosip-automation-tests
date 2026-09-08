@@ -62,6 +62,7 @@ import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
 import io.mosip.testrig.dslrig.dataprovider.test.ResidentPreRegistration;
 import io.mosip.testrig.dslrig.dataprovider.test.prereg.PreRegistrationSteps;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
+import io.mosip.testrig.dslrig.dataprovider.util.CreatedPathRegistry;
 import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.Gender;
 import io.mosip.testrig.dslrig.dataprovider.util.ResidentAttribute;
@@ -245,19 +246,7 @@ public class PacketSyncService {
 		JSONArray outIds = new JSONArray();
 		try {
 			String tmpDir = Files.createTempDirectory(RESIDENTS_PREFIX).toFile().getAbsolutePath();
-
-			String existingValue = VariableManager.getVariableValue(contextKey, RESIDENTS_PREFIX) != null
-					? VariableManager.getVariableValue(contextKey, RESIDENTS_PREFIX).toString()
-					: "";
-
-			String updatedValue;
-			if (!existingValue.isEmpty()) {
-				updatedValue = existingValue + "," + tmpDir;
-			} else {
-				updatedValue = tmpDir;
-			}
-
-			VariableManager.setVariableValue(contextKey, RESIDENTS_PREFIX, updatedValue);
+			CreatedPathRegistry.register(contextKey, RESIDENTS_PREFIX, tmpDir);
 
 			for (ResidentModel r : lst) {
 				Path tempPath = Path.of(tmpDir, r.getId() + ".json");
@@ -463,20 +452,7 @@ public class PacketSyncService {
 		jsonWrapper.put("identity", jsonIdentity);
 		RestClient.logInfo(contextKey, jsonWrapper.toString());
 		String tmpDir = Files.createTempDirectory("preregIds_").toFile().getAbsolutePath();
-
-		String newPreregPath = tmpDir;
-		String existingPreregValue = VariableManager.getVariableValue(contextKey, "preregIds_") != null
-				? VariableManager.getVariableValue(contextKey, "preregIds_").toString()
-				: "";
-
-		String updatedPreregValue;
-		if (!existingPreregValue.isEmpty()) {
-			updatedPreregValue = existingPreregValue + "," + newPreregPath;
-		} else {
-			updatedPreregValue = newPreregPath;
-		}
-
-		VariableManager.setVariableValue(contextKey, "preregIds_", updatedPreregValue);
+		CreatedPathRegistry.register(contextKey, "preregIds_", tmpDir);
 
 		Path tempPath = Path.of(tmpDir, resident.getId() + "_ID.json");
 		CommonUtil.write(tempPath, jsonWrapper.toString().getBytes());
@@ -660,6 +636,7 @@ public class PacketSyncService {
 			p.put(preRegId, personaFilePath);
 
 			p.store(writer, "PreRegID to persona mapping file");
+			CreatedPathRegistry.registerShared(new File(preRegMapFile).getAbsolutePath());
 
 		} catch (IOException e) {
 			logger.error("saveRegIDMap " + e.getMessage());
@@ -903,19 +880,7 @@ public class PacketSyncService {
 		}
 		if (outDir == null || outDir.trim().equals("")) {
 			packetDir = Files.createTempDirectory("packets_");
-			String newPacketPath = packetDir.toFile().getAbsolutePath();
-			String existingPacketValue = VariableManager.getVariableValue(contextKey, "packets_") != null
-					? VariableManager.getVariableValue(contextKey, "packets_").toString()
-					: "";
-
-			String updatedPacketValue;
-			if (!existingPacketValue.isEmpty()) {
-				updatedPacketValue = existingPacketValue + "," + newPacketPath;
-			} else {
-				updatedPacketValue = newPacketPath;
-			}
-
-			VariableManager.setVariableValue(contextKey, "packets_", updatedPacketValue);
+			CreatedPathRegistry.register(contextKey, "packets_", packetDir.toFile().getAbsolutePath());
 			RestClient.logInfo(contextKey, "packetDir=" + packetDir);
 		} else {
 			packetDir = Paths.get(outDir);
