@@ -2,7 +2,9 @@ package io.mosip.testrig.dslrig.dataprovider.variables;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.cache.Cache;
@@ -165,6 +167,11 @@ public final class VariableManager {
 			Cache<String, Object> cache = varNameSpaces.remove(contextKey);
 			if (cache != null) {
 				synchronized (cacheManager) {
+					try {
+						cache.clear();
+					} catch (Exception e) {
+						logger.warn("Failed to clear cache entries for {}: {}", contextKey, e.getMessage());
+					}
 					cacheManager.destroyCache(contextKey);
 				}
 			}
@@ -173,6 +180,13 @@ public final class VariableManager {
 			return "false";
 		}
 		return "true";
+	}
+
+	public static Set<String> getContextKeys() {
+		if (varNameSpaces == null) {
+			return Collections.emptySet();
+		}
+		return Set.copyOf(varNameSpaces.keySet());
 	}
 
 	public static void printAllContents() {

@@ -142,6 +142,25 @@ public class CommonUtil {
 			return packetRoot;
 		}
 
+		Path registeredRoot = findMatchingRegisteredCreatedRoot(normalizedCandidate);
+		if (registeredRoot != null) {
+			return registeredRoot;
+		}
+
+		return null;
+	}
+
+	private static Path findMatchingRegisteredCreatedRoot(Path candidate) {
+		for (String segment : CreatedPathRegistry.snapshot(CreatedPathRegistry.GLOBAL_CONTEXT,
+				CreatedPathRegistry.CREATED_PATHS_KEY)) {
+			if (!CreatedPathRegistry.isSafeToTrack(segment)) {
+				continue;
+			}
+			Path registeredRoot = normalizeAbsolute(Paths.get(segment));
+			if (isPathUnderRoot(candidate, registeredRoot)) {
+				return registeredRoot;
+			}
+		}
 		return null;
 	}
 
@@ -149,16 +168,8 @@ public class CommonUtil {
 		if (contextKey == null || contextKey.isBlank()) {
 			return null;
 		}
-		Object packetsVar = VariableManager.getVariableValue(contextKey, PACKETS_TEMP_KEY);
-		if (packetsVar == null) {
-			return null;
-		}
-		for (String segment : packetsVar.toString().split(",")) {
-			String trimmed = segment.trim();
-			if (trimmed.isEmpty()) {
-				continue;
-			}
-			Path packetRoot = normalizeAbsolute(Paths.get(trimmed));
+		for (String segment : CreatedPathRegistry.snapshot(contextKey, PACKETS_TEMP_KEY)) {
+			Path packetRoot = normalizeAbsolute(Paths.get(segment));
 			if (isPathUnderRoot(candidate, packetRoot)) {
 				return packetRoot;
 			}
@@ -208,6 +219,10 @@ public class CommonUtil {
 		Path normalizedCandidate = candidate.toAbsolutePath().normalize();
 		Path canonicalRoot = toCanonicalTrustedPath(root);
 
+		if (normalizedCandidate.equals(normalizedRoot) || normalizedCandidate.equals(canonicalRoot)) {
+			return normalizedCandidate;
+		}
+
 		Path baseRoot;
 		Path relative;
 		if (normalizedCandidate.startsWith(normalizedRoot)) {
@@ -218,6 +233,10 @@ public class CommonUtil {
 			relative = canonicalRoot.relativize(normalizedCandidate);
 		} else {
 			throw new IOException("Invalid output path");
+		}
+
+		if (relative.getNameCount() == 0) {
+			return baseRoot.toAbsolutePath().normalize();
 		}
 
 		if (relative.isAbsolute() || containsUnsafePathComponent(relative)) {
@@ -580,7 +599,7 @@ public class CommonUtil {
 							}
 
 							Files.delete(normalizedPath);
-							logger.info("Deleted: {}", normalizedPath);
+							logger.debug("Deleted: {}", normalizedPath);
 						} catch (IOException e) {
 							logger.error("❌ Failed to delete {}", path, e);
 							throw new RuntimeException(e);
@@ -617,19 +636,11 @@ public class CommonUtil {
 	}
 
 	public static void addTempDir(String contextKey, String variableKey, String newDir) {
+		if (contextKey == null || variableKey == null || newDir == null || newDir.isBlank()) {
+			return;
+		}
 		try {
-
-			Object existing = VariableManager.getVariableValue(contextKey, variableKey);
-
-			String updatedValue = (existing == null || existing.toString().isEmpty())
-					? newDir
-					: existing + "," + newDir;
-
-			VariableManager.setVariableValue(
-					contextKey,
-					variableKey,
-					updatedValue);
-
+			VariableManager.appendVariableValue(contextKey, variableKey, newDir);
 		} catch (Exception e) {
 			logger.error("Failed to add temp dir: {}", newDir, e);
 		}

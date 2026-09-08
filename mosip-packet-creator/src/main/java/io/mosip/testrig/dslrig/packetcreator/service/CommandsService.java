@@ -32,6 +32,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
+import io.mosip.testrig.dslrig.dataprovider.util.CreatedPathRegistry;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
@@ -214,8 +215,10 @@ public class CommandsService {
 			keyGenerator = KeyPairGenerator.getInstance("RSA");
 			keyGenerator.initialize(2048, new SecureRandom());
 			final KeyPair keypair = keyGenerator.generateKeyPair();
-			createKeyFile(String.valueOf(personaConfigPath) + File.separator + "privatekeys//" + machineId + ".reg.key",
-					keypair.getPrivate().getEncoded());
+			String privateKeyPath = String.valueOf(personaConfigPath) + File.separator + "privatekeys"
+					+ File.separator + machineId + ".reg.key";
+			createKeyFile(privateKeyPath, keypair.getPrivate().getEncoded());
+			CreatedPathRegistry.registerShared(privateKeyPath);
 			final String publicKey = java.util.Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
 			return publicKey;
 		} catch (NoSuchAlgorithmException e) {

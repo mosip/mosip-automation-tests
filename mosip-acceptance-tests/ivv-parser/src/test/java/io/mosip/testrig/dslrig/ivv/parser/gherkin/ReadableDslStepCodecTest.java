@@ -174,6 +174,11 @@ public class ReadableDslStepCodecTest {
         assertRoundTrip("e2e_getBioModalityHash(-1,Right IndexFinger@@Left LittleFinger,$$personaFilePath)");
     }
 
+    @Test
+    public void should_decodeDeleteOverallCreatedData() {
+        assertDecodeToDsl("I delete overall created data", "e2e_deleteOverallCreatedData()");
+    }
+
     private static void assertRoundTrip(String dsl) {
         String encoded = ReadableDslStepCodec.encode(dsl);
         String decoded = ReadableDslStepCodec.decode(encoded);

@@ -28,6 +28,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.ExecContext;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
+import io.mosip.testrig.dslrig.dataprovider.util.CreatedPathRegistry;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
@@ -58,6 +59,8 @@ public class ContextUtils {
 	    try (FileWriter fr = new FileWriter(filePath.toFile())) {
 
 	        props.store(fr, "Server Context Attributes");
+	        CreatedPathRegistry.register(ctxName, CreatedPathRegistry.CREATED_PATHS_KEY,
+	                filePath.toAbsolutePath().toString());
 
 	        Properties pp = loadServerContext(ctxName);
 	        pp.forEach((k, v) ->
@@ -100,28 +103,12 @@ public class ContextUtils {
 
 
 	public static String clearPacketGenFolders(String ctxName) throws IOException {
-
-	    deleteCommaSeparatedPaths(ctxName, "residents_");
-	    deleteCommaSeparatedPaths(ctxName, "packets_");
-	    deleteCommaSeparatedPaths(ctxName, "preregIds_");
-	    deleteCommaSeparatedPaths(ctxName, "Passport_");
-	    deleteCommaSeparatedPaths(ctxName, "DrivingLic_");
-
+		CreatedPathRegistry.clearScenario(ctxName);
 	    return "Deleted all packet data successfully";
 	}
 
-	private static void deleteCommaSeparatedPaths(String ctxName, String key) throws IOException {
-	    Object valueObj = VariableManager.getVariableValue(ctxName, key);
-	    if (valueObj != null) {
-	        String[] paths = valueObj.toString().split(",");
-	        for (String path : paths) {
-	            String trimmedPath = path.trim();
-	            if (!trimmedPath.isEmpty()) {
-	                CommonUtil.deleteOldTempDir(trimmedPath, ctxName);
-	            }
-	        }
-	        VariableManager.removeVariableValue(ctxName, key);
-	    }
+	public static String clearAllCreatedData() throws IOException {
+		return CreatedPathRegistry.clearAll();
 	}
 
 
@@ -203,6 +190,7 @@ public class ContextUtils {
 			String privateKeyPath = privateKeyFilePath.toString();
 
 	        createKeyFile(privateKeyPath, keypair.getPrivate().getEncoded());
+	        CreatedPathRegistry.registerShared(privateKeyPath);
 
 	        String publicKey = Base64.getEncoder().encodeToString(keypair.getPublic().getEncoded());
 	        if (publicKey == null || publicKey.isEmpty()) {

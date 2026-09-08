@@ -73,6 +73,7 @@
   "e2e_uploadDeviceCertificate": [],
   "e2e_resetContextData": [],
   "e2e_DeletePacketData": [],
+  "e2e_DeleteOverallCreatedData": [],
   "e2e_clearDeviceCertCache": [],
   "e2e_ReprocessPacket": ["registration ID"],
   "e2e_RenameFpDataFiles": ["persona file path"],

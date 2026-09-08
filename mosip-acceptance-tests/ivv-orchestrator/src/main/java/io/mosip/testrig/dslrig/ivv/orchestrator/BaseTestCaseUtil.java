@@ -192,6 +192,23 @@ public class BaseTestCaseUtil extends BaseStep {
 	public BaseTestCaseUtil() {
 	}
 
+	public static void deleteOverallCreatedDataAfterSuite() {
+		String pcBase = dslConfigManager.getpacketUtilityBaseUrl();
+		if (pcBase == null || pcBase.isBlank()) {
+			logger.warn("Skipping overall created-data cleanup: packet utility base URL is not set");
+			return;
+		}
+		String url = pcBase + "/delete/allcreateddata/after_suite";
+		try {
+			Response response = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON).when().delete(url).then().extract().response();
+			logger.info("AfterSuite overall created data cleanup HTTP {} body={}", response.getStatusCode(),
+					response.getBody().asString());
+		} catch (Exception e) {
+			logger.warn("AfterSuite overall created data cleanup failed: {}", e.getMessage());
+		}
+	}
+
 	public String getDateTime() {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMddHHmmssSSS");
 		LocalDateTime now = LocalDateTime.now();

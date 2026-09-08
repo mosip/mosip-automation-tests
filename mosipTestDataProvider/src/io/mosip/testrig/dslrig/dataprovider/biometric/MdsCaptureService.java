@@ -326,13 +326,17 @@ public final class MdsCaptureService {
 			}
 			return capture;
 		} finally {
-			cleanupMdsResources(mds, port, contextKey);
+			cleanupMdsResources(mds, port, contextKey, mdsprofilePath, profileName);
 		}
 	}
 
-	private static void cleanupMdsResources(MDSClientInterface mds, int port, String contextKey) {
+	private static void cleanupMdsResources(MDSClientInterface mds, int port, String contextKey,
+			String mdsprofilePath, String profileName) {
 		try {
-			if (mds != null && port > 0) {
+			if (mds != null && mdsprofilePath != null && profileName != null && !profileName.isBlank()
+					&& !"Default".equalsIgnoreCase(profileName)) {
+				mds.removeProfile(mdsprofilePath, profileName, port, contextKey);
+			} else if (mds != null && port > 0) {
 				mds.setProfile("Default", port, contextKey);
 			}
 		} catch (Throwable t) {
