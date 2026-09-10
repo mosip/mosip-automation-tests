@@ -45,7 +45,7 @@ public class RunCacheController {
 	public @ResponseBody ResponseEntity<Map<String, Object>> warmRunCache(@PathVariable("contextKey") String contextKey) {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.isEmpty()) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			Map<String, Object> summary = RunCacheService.warm(contextKey);
 			return ResponseEntity.ok(summary);

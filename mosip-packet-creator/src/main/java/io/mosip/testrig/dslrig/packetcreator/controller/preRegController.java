@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.http.HttpStatus;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
@@ -49,13 +50,19 @@ public class preRegController {
 	@Operation(summary = "Request for OTP for the given Persona and channel {mail | phone}")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully requested OTP for given persona and channel") })
-	@PostMapping(value = "/otp/request/{to}/{contextKey}")
-	public @ResponseBody String requestOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-			@PathVariable("to") String to, @PathVariable("contextKey") String contextKey) {
+	@PostMapping(value = "/otp/request/{contextKey}")
+	public @ResponseBody String requestOtp(
+			@Validated(PreRegisterRequestDto.OtpRequest.class) @RequestBody PreRegisterRequestDto preRegisterRequestDto,
+			@PathVariable("contextKey") String contextKey) {
 
 		try {
+			String to = preRegisterRequestDto.getEmailOrPhone();
+			if (to == null || to.isBlank()) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "EMAIL_OR_PHONE_REQUIRED",
+						"emailOrPhone is required in the request body");
+			}
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.requestOtp(preRegisterRequestDto.getPersonaFilePath(), to, contextKey);
 
@@ -68,16 +75,22 @@ public class preRegController {
 	@Operation(summary = "Verify the sent OTP for the given Persona and channel {mail | phone}")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully verified the OTP sent for given persona and channel") })
-	@PostMapping(value = "/otp/verify/{to}/{otp}/{contextKey}")
-	public @ResponseBody String verifyOtp(@RequestBody PreRegisterRequestDto preRegisterRequestDto,
-			@PathVariable("to") String to, @PathVariable("contextKey") String contextKey,
-			@PathVariable("otp") String otp) {
+	@PostMapping(value = "/otp/verify/{contextKey}")
+	public @ResponseBody String verifyOtpForChannel(
+			@Validated(PreRegisterRequestDto.OtpVerification.class) @RequestBody PreRegisterRequestDto preRegisterRequestDto,
+			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+			String to = preRegisterRequestDto.getEmailOrPhone();
+			if (to == null || to.isBlank()) {
+				throw new ServiceException(HttpStatus.BAD_REQUEST, "EMAIL_OR_PHONE_REQUIRED",
+						"emailOrPhone is required in the request body");
 			}
-			return packetSyncService.verifyOtp(preRegisterRequestDto.getPersonaFilePath().get(0), to, otp, contextKey);
+			if (personaConfigPath != null && !personaConfigPath.equals("")) {
+				DataProviderConstants.setResource(personaConfigPath);
+			}
+			return packetSyncService.verifyOtp(preRegisterRequestDto.getPersonaFilePath().get(0), to,
+					preRegisterRequestDto.getOtp(), contextKey);
 
 		} catch (Exception ex) {
 			logger.error("verifyOtp", ex);
@@ -93,7 +106,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.preRegisterResident(preRegisterRequestDto.getPersonaFilePath(), contextKey);
 
@@ -111,7 +124,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.updateResidentApplication(preRegisterRequestDto.getPersonaFilePath().get(0),
 					preregId, contextKey);
@@ -133,7 +146,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.preRegisterGetApplications(null, preregId, contextKey);
 
@@ -153,7 +166,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.preRegisterGetApplications("Booked", preregId, contextKey);
 
@@ -172,7 +185,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.verifyOtp(preRegisterRequestDto.getPersonaFilePath().get(0), to, null, contextKey);
 
@@ -191,7 +204,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.bookAppointment(preregId, nthSlot, contextKey);
 
@@ -211,7 +224,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.bookAppointment(preregId, nthSlot, contextKey);
 
@@ -229,7 +242,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.bookSpecificAppointment(preregId, appointmentDto, contextKey);
 
@@ -247,7 +260,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.getAvailableAppointments(contextKey);
 
@@ -268,7 +281,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.bookAppointmentSlot(preregId, nthSlot, bookOnHolidays, contextKey);
 
@@ -287,7 +300,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.cancelAppointment(preregId, appointmentDto, contextKey);
 
@@ -316,7 +329,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.updatePreRegistrationStatus(preregId, statusCode, contextKey);
 
@@ -334,7 +347,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.uploadDocuments(preRegisterRequestDto.getPersonaFilePath().get(0), preregId,
 					contextKey);

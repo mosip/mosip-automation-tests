@@ -60,12 +60,20 @@ public final class PersonaDataManager {
 		try {
 			ht = personaDataCollection.get(key);
 		} catch (Exception e) {
+			logger.error("Error looking up persona namespace {}: {}", key, e.getMessage());
 		}
-		if (ht == null) {
+		if (ht != null) {
+			return ht;
+		}
+		synchronized (PersonaDataManager.class) {
+			ht = personaDataCollection.get(key);
+			if (ht != null) {
+				return ht;
+			}
 			ht = cacheManager.createCache(key, cacheConfig);
 			personaDataCollection.put(key, ht);
+			return ht;
 		}
-		return ht;
 	}
 
 	public static Object setVariableValue(String key, String varName, Object value) {

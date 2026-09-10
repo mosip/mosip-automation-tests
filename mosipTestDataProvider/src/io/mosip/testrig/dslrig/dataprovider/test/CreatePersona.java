@@ -34,8 +34,6 @@ import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 public class CreatePersona {
 	private static final Logger logger = LoggerFactory.getLogger(CreatePersona.class);
 
-	static 	Hashtable<Double,Properties> tbl;
-
 	public static JSONObject constructNode(JSONObject identity, String Id, String primLang, String secLang, String primVal, String secVal, Boolean bSimpleType) {
 		JSONObject obj = new JSONObject();
 		JSONArray array  = new JSONArray();
@@ -109,8 +107,8 @@ public class CreatePersona {
 	}
 	public static JSONObject createIdentity(ResidentModel resident, DataCallback cb,String contextKey) {
 
-		Hashtable<Double,Properties>  tbl1 = MosipMasterData.getIDSchemaLatestVersion(contextKey);
-		tbl = MosipMasterData.getPreregIDSchemaLatestVersion(contextKey);
+		Hashtable<Double,Properties> tbl1 = MosipMasterData.getIDSchemaLatestVersion(contextKey);
+		Hashtable<Double,Properties> tbl = MosipMasterData.getPreregIDSchemaLatestVersion(contextKey);
 		Double preRegUISpecVersion = tbl.keys().nextElement();
 		Double schemaversion = tbl1.keys().nextElement();
 		List<MosipIDSchema>  lstSchema =(List<MosipIDSchema>) tbl.get(preRegUISpecVersion).get("schemaList");

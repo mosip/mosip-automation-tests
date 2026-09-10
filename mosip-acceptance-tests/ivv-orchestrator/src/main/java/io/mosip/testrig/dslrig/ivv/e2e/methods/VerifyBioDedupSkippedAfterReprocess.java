@@ -57,7 +57,7 @@ public class VerifyBioDedupSkippedAfterReprocess extends BaseTestCaseUtil implem
 		StringBuilder detail = new StringBuilder();
 
 		for (int attempt = 0; attempt < loopCount && !pass; attempt++) {
-			Response response = getRequestSilent(baseUrl + props.getProperty("ridStatus") + rid, step);
+			Response response = getRequestSilent(baseUrl + props.getProperty("ridStatus"), step, ridHeader(rid));
 			JSONObject res = new JSONObject(response.getBody().asString());
 			detail.setLength(0);
 			if (!res.has("response") || res.isNull("response")) {

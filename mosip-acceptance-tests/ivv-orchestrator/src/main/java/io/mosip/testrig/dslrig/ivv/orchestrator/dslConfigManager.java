@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,12 @@ import io.mosip.testrig.apirig.utils.ConfigManager;
 
 public class dslConfigManager extends ConfigManager {
 	private static final Logger LOGGER = Logger.getLogger(dslConfigManager.class);
+
+	private static final String KNOWN_ISSUES_JAVA11_FILE = "config/java11Known_Issues.txt";
+	private static final String KNOWN_ISSUES_JAVA21_FILE = "config/java21Known_Issues.txt";
+
+	private static volatile Map<String, String> cachedTestcaseToBeSkippedMap;
+	private static volatile String knownIssuesSourceFile;
 
 	public static void init() {
 		Map<String, Object> moduleSpecificPropertiesMap = new HashMap<>();
@@ -126,11 +133,64 @@ public class dslConfigManager extends ConfigManager {
 	    return skipMap.getOrDefault(normalizeScenarioKey(scenario), "");
 	}
 
+	/**
+	 * Selects Java 11 vs Java 21 known-issues file from id-repository identity-service version
+	 * (1.2.x → Java 11 file, 1.3+ → Java 21 file) and caches the parsed skip map for the run.
+	 */
+	public static synchronized void initKnownIssuesFromIdRepoVersion(String version) {
+		String fileName = resolveKnownIssuesFileName(version);
+		knownIssuesSourceFile = fileName;
+		cachedTestcaseToBeSkippedMap = loadTestcaseToBeSkippedMapFromFile(fileName);
+		LOGGER.info("Loaded " + cachedTestcaseToBeSkippedMap.size() + " known issues from " + fileName
+				+ " for id-repository version " + version);
+	}
+
+	public static String getKnownIssuesSourceFile() {
+		return knownIssuesSourceFile;
+	}
+
+	static String resolveKnownIssuesFileName(String version) {
+		if (version == null || version.isBlank()) {
+			throw new IllegalArgumentException("id-repository build.version is empty");
+		}
+		String normalized = version.trim();
+		String[] parts = normalized.split("\\.");
+		if (parts.length < 2) {
+			throw new IllegalArgumentException("Invalid id-repository version: " + version);
+		}
+		int major;
+		int minor;
+		try {
+			major = Integer.parseInt(parts[0]);
+			minor = Integer.parseInt(parts[1]);
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Invalid id-repository version: " + version, e);
+		}
+		if (major != 1 || minor < 2) {
+			throw new IllegalArgumentException("Unsupported id-repository version: " + version);
+		}
+		if (minor == 2) {
+			return KNOWN_ISSUES_JAVA11_FILE;
+		}
+		// Any 1.3+ release (including future minors) runs on Java 21.
+		return KNOWN_ISSUES_JAVA21_FILE;
+	}
+
 	public static Map<String, String> loadTestcaseToBeSkippedMap() {
+		Map<String, String> cached = cachedTestcaseToBeSkippedMap;
+		if (cached != null) {
+			return cached;
+		}
+		LOGGER.warn("Known issues not loaded; run Scenario 0 step 'load known issues by env' first. "
+				+ "No platform known-issue skips will apply until then.");
+		return Collections.emptyMap();
+	}
+
+	private static Map<String, String> loadTestcaseToBeSkippedMapFromFile(String relativePath) {
 	    Map<String, String> testcaseToBeSkippedMap = new HashMap<>();
 
 	    try (BufferedReader br = new BufferedReader(
-	            new FileReader(BaseTestCase.getGlobalResourcePath() + "/" + "config/TestCaseSkip.txt"))) {
+	            new FileReader(BaseTestCase.getGlobalResourcePath() + "/" + relativePath))) {
 
 	        String line;
 	        while ((line = br.readLine()) != null) {
@@ -155,7 +215,8 @@ public class dslConfigManager extends ConfigManager {
 	            }
 	        }
 	    } catch (IOException e) {
-	        e.printStackTrace();
+	        LOGGER.error("Failed to load known issues from " + relativePath, e);
+	        throw new IllegalStateException("Failed to load known issues from " + relativePath, e);
 	    }
 
 	    return testcaseToBeSkippedMap;
@@ -245,6 +306,24 @@ public class dslConfigManager extends ConfigManager {
 		return properties;
 	}
 
+
+	/**
+	 * Whether the AFTER_SUITE teardown scenario (mock expectation cleanup, machine/center/user
+	 * delete mapping) should be skipped. Deliberately independent of {@link #IsDebugEnabled()}:
+	 * verbose logging must not bypass teardown hygiene.
+	 */
+	public static boolean isAfterSuiteTeardownSkipped() {
+		if (Boolean.parseBoolean(System.getProperty("dslrig.skipAfterSuiteTeardown", "false"))) {
+			return true;
+		}
+		try {
+			String v = ConfigManager.getproperty("skipAfterSuiteTeardown");
+			return v != null && "yes".equalsIgnoreCase(v.trim());
+		} catch (Exception e) {
+			LOGGER.warn("Could not read skipAfterSuiteTeardown; running AFTER_SUITE teardown", e);
+			return false;
+		}
+	}
 
 	public static boolean isInternalApiLoggingForReport() {
 		if (Boolean.parseBoolean(System.getProperty("dslrig.internal.api.logging", "false"))) {

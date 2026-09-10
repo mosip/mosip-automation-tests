@@ -72,6 +72,13 @@ public class GetResidentData extends BaseTestCaseUtil implements StepInterface {
 						}
 						continue;
 					}
+					if (optionalParam.toLowerCase().startsWith("largeface=")) {
+						String[] keyValue = optionalParam.split("=", 2);
+						if (keyValue.length == 2) {
+							largeFace = keyValue[1].trim();
+						}
+						continue;
+					}
 					if (optionalParam.toLowerCase().startsWith("lowqualitydocument=")) {
 						String[] keyValue = optionalParam.split("=", 2);
 						if (keyValue.length == 2) {

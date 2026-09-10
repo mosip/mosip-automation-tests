@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.dataprovider.util;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -28,7 +29,6 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mifmif.common.regex.Generex;
@@ -41,6 +41,27 @@ import java.io.*;
 public class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 	private static SecureRandom rand = new SecureRandom();
+
+	/**
+	 * Parses the scenario id stored under {@code contextKey} into a number, defaulting to 1 on
+	 * any malformed/missing value. Shared by biometric-selection call sites so an unparseable
+	 * scenario id degrades to impression 1 everywhere instead of throwing in some callers only.
+	 */
+	public static int parseScenarioNumber(String contextKey) {
+		try {
+			String beforeScenario = VariableManager.getVariableValue(contextKey, "scenario").toString();
+			String afterScenario = beforeScenario.contains(":")
+					? beforeScenario.substring(0, beforeScenario.indexOf(':'))
+					: beforeScenario;
+			if (afterScenario.contains("_")) {
+				afterScenario = afterScenario.replace("_", "0");
+			}
+			return Integer.parseInt(afterScenario.trim());
+		} catch (Exception e) {
+			logger.warn("Unable to parse scenario number for {}, defaulting to 1: {}", contextKey, e.getMessage());
+			return 1;
+		}
+	}
 
 	private static String cachedUtcDateformat;
 	private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
@@ -122,6 +143,41 @@ public class CommonUtil {
 		Files.createDirectories(safeParent);
 
 		return safePath;
+	}
+
+	/**
+	 * Validates a caller-supplied file path (e.g. a persona file path from a REST request body)
+	 * resolves under one of the allowed temp/packet roots for {@code contextKey} before it is
+	 * read, mirroring {@link #validateOutputPath(String, String)}'s root checks but without
+	 * creating any directories.
+	 */
+	public static Path validateReadablePath(String path, String contextKey) throws IOException {
+		if (path == null || path.isBlank()) {
+			throw new IOException("Path is required");
+		}
+		if (path.contains("..")) {
+			throw new IOException("Invalid path");
+		}
+
+		Path resolved = Paths.get(path).toAbsolutePath().normalize();
+
+		Path matchedRoot = findMatchingAllowedRoot(resolved, contextKey);
+		if (matchedRoot == null) {
+			throw new IOException("Path is outside allowed temp roots: " + path);
+		}
+
+		Path safePath = buildPathUnderRoot(matchedRoot, resolved);
+		if (!isPathUnderRoot(safePath, matchedRoot)) {
+			throw new IOException("Path traversal attempt detected");
+		}
+		Path realPath = safePath.toRealPath();
+		if (!isPathUnderRoot(realPath, matchedRoot)) {
+			throw new IOException("Path resolves outside allowed temp roots: " + path);
+		}
+		if (!Files.isRegularFile(realPath, LinkOption.NOFOLLOW_LINKS)) {
+			throw new IOException("Path is not a regular file: " + path);
+		}
+		return realPath;
 	}
 
 	private static Path findMatchingAllowedRoot(Path candidate, String contextKey) {
@@ -264,6 +320,18 @@ public class CommonUtil {
 		if (obj.has(attrName))
 			return obj.getString(attrName);
 		return defValue;
+	}
+
+	public static String joinBaseUrlAndPath(String baseUrl, String path) {
+		String base = baseUrl == null ? "" : baseUrl.trim();
+		String apiPath = path == null ? "" : path.trim();
+		if (base.endsWith("/") && apiPath.startsWith("/")) {
+			return base + apiPath.substring(1);
+		}
+		if (!base.endsWith("/") && !apiPath.startsWith("/")) {
+			return base + "/" + apiPath;
+		}
+		return base + apiPath;
 	}
 
 	public static String getHexEncodedHash(byte[] data) throws Exception {
@@ -463,23 +531,6 @@ public class CommonUtil {
 
 			out.flush();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-	}
-
-	public static void copyMultipartFileWithBuffer(MultipartFile sourceFile, Path destination) {
-		try (InputStream inputStream = sourceFile.getInputStream();
-				BufferedOutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(destination))) {
-
-			byte[] buffer = new byte[8192];
-			int bytesRead;
-
-			while ((bytesRead = inputStream.read(buffer)) != -1) {
-				outputStream.write(buffer, 0, bytesRead);
-			}
-
-			outputStream.flush();
-		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
 	}

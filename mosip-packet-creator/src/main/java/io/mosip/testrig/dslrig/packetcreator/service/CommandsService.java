@@ -8,8 +8,12 @@ import java.io.FileOutputStream;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -31,6 +35,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.restassured.http.ContentType;
+import static io.restassured.RestAssured.given;
+
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
@@ -49,6 +56,9 @@ public class CommandsService {
 
 	@Value("${mosip.test.pinglistfile:../deploy/pinglist.txt}")
 	private String pinglistfile;
+
+	@Value("${mosip.test.idrepo.actuator.info.path:idrepository/v1/identity/actuator/info}")
+	private String idRepoActuatorInfoPath;
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
@@ -138,6 +148,119 @@ public class CommandsService {
         return retJson.toString();
 	}
 
+	public String getIdRepoActuatorInfo(String contextKey, String targetBaseUrlOverride) {
+		try {
+			String envBaseUrl = resolveTargetBaseUrl(contextKey, targetBaseUrlOverride);
+			String infoUrl = joinBaseUrlAndPath(envBaseUrl, idRepoActuatorInfoPath);
+			RestClient.logInfo(contextKey, "Fetching id-repository actuator info from " + infoUrl);
+			io.restassured.response.Response response = given()
+					.contentType(ContentType.JSON).accept(ContentType.JSON).get(infoUrl);
+			if (response == null || response.getStatusCode() != 200) {
+				int status = response == null ? -1 : response.getStatusCode();
+				String body = response == null ? "" : response.getBody().asString();
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "IDREPO_ACTUATOR_INFO_FAIL", infoUrl,
+						"HTTP " + status + ": " + body);
+			}
+			String body = response.getBody().asString();
+			JSONObject json = new JSONObject(body);
+			if (!json.has("build") || !json.getJSONObject("build").has("version")) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "IDREPO_ACTUATOR_INFO_INVALID", infoUrl, body);
+			}
+			return json.toString();
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception ex) {
+			logger.error("getIdRepoActuatorInfo failed for context {}", contextKey, ex);
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "IDREPO_ACTUATOR_INFO_FAIL", contextKey, ex,
+					ex.getMessage());
+		}
+	}
+
+	private String resolveTargetBaseUrl(String contextKey, String targetBaseUrlOverride) {
+		Properties props = contextUtils.loadServerContext(contextKey);
+		String fromContext = props.getProperty("urlBase");
+		if (targetBaseUrlOverride != null && !targetBaseUrlOverride.isBlank()) {
+			String decoded = decodeTargetBaseUrl(targetBaseUrlOverride);
+			validateAllowedTargetBaseUrl(decoded, fromContext);
+			return decoded;
+		}
+		if (fromContext != null && !fromContext.isBlank()) {
+			return fromContext.trim();
+		}
+		if (baseUrl != null && !baseUrl.isBlank()) {
+			return baseUrl.trim();
+		}
+		throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_MISSING",
+				"targetBaseUrl query parameter, context urlBase, or mosip.test.baseurl must be configured");
+	}
+
+	/**
+	 * Blocks SSRF via the {@code targetBaseUrl} override: only https/http schemes are
+	 * accepted, and the scheme, host, and port must exactly match an already-configured
+	 * trusted origin (context urlBase / mosip.test.baseurl). No other target is allowed.
+	 */
+	private void validateAllowedTargetBaseUrl(String candidate, String contextUrlBase) {
+		URI uri;
+		try {
+			uri = URI.create(candidate);
+		} catch (IllegalArgumentException ex) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_INVALID", candidate, ex,
+					ex.getMessage());
+		}
+		String scheme = uri.getScheme();
+		if (scheme == null || !("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_NOT_ALLOWED", candidate);
+		}
+		String host = uri.getHost();
+		if (host == null || host.isBlank()) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_INVALID", candidate);
+		}
+		if (isTrustedOrigin(uri, contextUrlBase) || isTrustedOrigin(uri, baseUrl)) {
+			return;
+		}
+		throw new ServiceException(HttpStatus.FORBIDDEN, "TARGET_BASE_URL_NOT_ALLOWED", candidate);
+	}
+
+	private static boolean isTrustedOrigin(URI candidate, String trustedBaseUrl) {
+		if (trustedBaseUrl == null || trustedBaseUrl.isBlank()) {
+			return false;
+		}
+		try {
+			URI trusted = URI.create(trustedBaseUrl.trim());
+			return trusted.getHost() != null
+					&& trusted.getHost().equalsIgnoreCase(candidate.getHost())
+					&& trusted.getPort() == candidate.getPort()
+					&& trusted.getScheme() != null
+					&& trusted.getScheme().equalsIgnoreCase(candidate.getScheme());
+		} catch (IllegalArgumentException ex) {
+			return false;
+		}
+	}
+
+	private static String decodeTargetBaseUrl(String value) {
+		String normalized = value.trim();
+		for (int i = 0; i < 2 && normalized.contains("%"); i++) {
+			try {
+				String decoded = URLDecoder.decode(normalized, StandardCharsets.UTF_8);
+				if (decoded.equals(normalized)) {
+					break;
+				}
+				normalized = decoded;
+			} catch (IllegalArgumentException ex) {
+				break;
+			}
+		}
+		return normalized;
+	}
+
+	private static String joinBaseUrlAndPath(String baseUrl, String apiPath) {
+		if (baseUrl == null || baseUrl.isBlank()) {
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "TARGET_BASE_URL_MISSING",
+					"targetBaseUrl query parameter, context urlBase, or mosip.test.baseurl must be configured");
+		}
+		return CommonUtil.joinBaseUrlAndPath(baseUrl, apiPath == null ? "" : apiPath);
+	}
+
 	public String writeToFile(String contextKey, Properties requestData, long offset) throws IOException {
 
 
@@ -196,16 +319,34 @@ public class CommandsService {
 	public String storeFile(MultipartFile file) throws IOException {
 		String fileExtension = "";
 		String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
-		fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+		int dotIndex = originalFileName.lastIndexOf(".");
+		if (dotIndex >= 0) {
+			fileExtension = originalFileName.substring(dotIndex);
+		}
+		// The extracted "extension" is attacker-controlled text after the last dot in the
+		// original filename; strip any path separators/traversal so it cannot smuggle a
+		// directory escape into targetLocation below.
+		fileExtension = fileExtension.replaceAll("[\\\\/]", "_").replace("..", "_");
 		File uploadFolder = new File(uploadPath);
-		if (!uploadFolder.exists() || !uploadFolder.isDirectory()) {
-			uploadFolder.mkdir();
+		if (!uploadFolder.isDirectory() && !uploadFolder.mkdirs()) {
+			throw new IOException("Failed to create upload folder: " + uploadFolder);
 		}
 		String fileName = UUID.randomUUID().toString() + fileExtension;
 		Path targetLocation = Path.of(uploadPath + "/" + fileName);
 
-		CommonUtil.copyMultipartFileWithBuffer(file, targetLocation);
-		return targetLocation.toString();
+		Path canonicalTarget = targetLocation.toFile().getCanonicalFile().toPath();
+		Path canonicalUploadFolder = uploadFolder.getCanonicalFile().toPath();
+		if (!canonicalTarget.getParent().equals(canonicalUploadFolder)) {
+			throw new IOException("Refusing to store upload outside configured upload folder: " + targetLocation);
+		}
+
+		try (InputStream input = file.getInputStream()) {
+			Files.copy(input, canonicalTarget, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+		}
+		if (!Files.isRegularFile(canonicalTarget)) {
+			throw new IOException("Upload was not persisted: " + canonicalTarget);
+		}
+		return canonicalTarget.toString();
 	}
 
 	public String generatekey(String contextKey, String machineId) {

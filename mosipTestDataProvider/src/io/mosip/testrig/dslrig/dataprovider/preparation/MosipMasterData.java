@@ -626,7 +626,7 @@ public  class MosipMasterData {
 		} catch (Exception e) {
 			logger.debug("process not set for {}, defaulting to NEW", contextKey);
 		}
-		if (process.equalsIgnoreCase("LOST")) {
+		if (process.equalsIgnoreCase("LOST") || process.equalsIgnoreCase("UPDATE")) {
 			process = "NEW";
 		}
 		return process.toLowerCase().trim() + "Process";

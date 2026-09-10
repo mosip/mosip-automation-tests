@@ -134,10 +134,13 @@ public class CryptoUtil {
 
 	public byte[] encrypt(byte[] data, String referenceId, String contextKey) throws Exception {
 
+		String endpointBase = baseUrl;
 		if (contextKey != null && !contextKey.equals("")) {
 			Properties props = contextUtils.loadServerContext(contextKey);
 			String ctxBaseUrl = props.getProperty("mosip.test.baseurl");
-			if (ctxBaseUrl != null) baseUrl = ctxBaseUrl.trim();
+			if (ctxBaseUrl != null) {
+				endpointBase = ctxBaseUrl.trim();
+			}
 		}
 		JSONObject encryptObj = new JSONObject();
 
@@ -157,7 +160,7 @@ public class CryptoUtil {
 		wrapper.put("version", "1.0");
 		wrapper.put("request", encryptObj);
 		logger.debug("Prepared encrypt request for referenceId={}, appId={}", referenceId, encryptionAppId);
-		JSONObject secretObject = apiUtil.post(baseUrl, baseUrl + encryptApi, wrapper, contextKey);
+		JSONObject secretObject = apiUtil.post(endpointBase, endpointBase + encryptApi, wrapper, contextKey);
 
 		byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
 		return mergeEncryptedData(encBytes,
@@ -192,10 +195,13 @@ public class CryptoUtil {
 			throws Exception {
 		JSONObject encryptObj = new JSONObject();
 
+		String endpointBase = baseUrl;
 		if (contextKey != null && !contextKey.equals("")) {
 			Properties props = contextUtils.loadServerContext(contextKey);
 			String ctxBaseUrl = props.getProperty("mosip.test.baseurl");
-			if (ctxBaseUrl != null) baseUrl = ctxBaseUrl.trim();
+			if (ctxBaseUrl != null) {
+				endpointBase = ctxBaseUrl.trim();
+			}
 		}
 		encryptObj.put("aad", getRandomBytes(GCM_AAD_LENGTH));
 		encryptObj.put("applicationId", encryptionAppId);
@@ -213,7 +219,7 @@ public class CryptoUtil {
 		wrapper.put("version", "1.0");
 		wrapper.put("request", encryptObj);
 
-		JSONObject secretObject = apiUtil.post(baseUrl, baseUrl + encryptApi, wrapper, contextKey);
+		JSONObject secretObject = apiUtil.post(endpointBase, endpointBase + encryptApi, wrapper, contextKey);
 		byte[] encBytes = org.apache.commons.codec.binary.Base64.decodeBase64(secretObject.getString("data"));
 		byte[] mergeddata = mergeEncryptedData(encBytes,
 				org.apache.commons.codec.binary.Base64.decodeBase64(encryptObj.getString("salt")),

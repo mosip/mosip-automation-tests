@@ -37,8 +37,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
-import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
-
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogCollector;
@@ -54,6 +52,8 @@ import io.mosip.testrig.dslrig.packetcreator.service.CommandsService;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextResetService;
 
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
+
+import io.mosip.testrig.dslrig.packetcreator.util.DataProviderResourceConfigurer;
 
 import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 
@@ -118,11 +118,7 @@ public class ContextController {
 
 	    try {
 
-	        if (personaConfigPath != null && !personaConfigPath.isEmpty()) {
-
-	            DataProviderConstants.RESOURCE = personaConfigPath;
-
-	        }
+	        DataProviderResourceConfigurer.configure(personaConfigPath);
 
 
 	        String result = contextUtils.createUpdateServerContext(contextProperties, contextKey);
@@ -157,6 +153,21 @@ public class ContextController {
 
 	}
 
+
+	@Operation(summary = "Fetch id-repository identity-service actuator info",
+			description = "Calls {targetBaseUrl}/idrepository/v1/identity/actuator/info and returns the actuator JSON "
+					+ "(including build.version) for Java 11 vs Java 21 environment detection in the DSL before-suite.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Actuator info retrieved successfully") })
+	@GetMapping("/env/idrepoActuatorInfo/{contextKey}")
+	public @ResponseBody String getIdRepoActuatorInfo(@PathVariable("contextKey") String contextKey,
+			@RequestParam(name = "targetBaseUrl", required = false) String targetBaseUrl) {
+		try {
+			return commandsService.getIdRepoActuatorInfo(contextKey, targetBaseUrl);
+		} catch (ServiceException se) {
+			throw se;
+		}
+	}
 
 	@GetMapping("/ping/{eSignetDeployed}/{contextKey}")
 
