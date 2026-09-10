@@ -35,6 +35,9 @@
   "$$clientId": "OIDC client ID",
   "$$zipPacketPath": "packet zip path",
   "$$hashValue": "biometric hash value",
+  "$$modalityHashValue": "modality hash value",
+  "$$oldBioPersonaFilePath": "old bio persona file path",
+  "$$oldDemoPersonaFilePath": "old demo persona file path",
   "$$additionalReqId": "additional req id",
   "$$additionalReqId2": "additional req id2"
 }

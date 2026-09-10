@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -300,7 +300,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					break;
 
 				default:
-					throw new RigInternalError("Given DEMO doesn't match with the options in the script");
+					putNamePartDemoField(demoField, demoResponse, inputJson);
+					break;
 				}
 			}
 
@@ -500,7 +501,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					break;
 
 				default:
-					throw new RigInternalError("Given DEMO doesn't match with the options in the script");
+					putNamePartDemoField(demoField, demoResponse, inputJson);
+					break;
 				}
 			}
 
@@ -705,7 +707,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 					break;
 
 				default:
-					throw new RigInternalError("Given DEMO doesn't match with the options in the script");
+					putNamePartDemoField(demoField, demoResponse, inputJson);
+					break;
 				}
 			}
 
@@ -843,6 +846,33 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		}
 
 		return handleValue;
+	}
+
+	private void putNamePartDemoField(String demoField, String demoResponse, JSONObject inputJson)
+			throws RigInternalError {
+		String personaField;
+		if (E2EConstants.DEMOFNAME.equals(demoField)) {
+			personaField = E2EConstants.DEMOFNAME;
+		} else if (E2EConstants.DEMOLNAME.equals(demoField)) {
+			personaField = E2EConstants.DEMOLNAME;
+		} else {
+			this.hasError = true;
+			throw new RigInternalError("Given DEMO doesn't match with the options in the script");
+		}
+
+		String demoValue = JsonPrecondtion.getValueFromJson(demoResponse,
+				E2EConstants.DEMOFETCH + "." + personaField);
+		if (demoValue == null || demoValue.isEmpty()) {
+			this.hasError = true;
+			throw new RigInternalError("Unable to get the Demo value for field " + demoField + " from Persona");
+		}
+		Reporter.log("<span style='color:green;'>" + demoField + " : " + demoValue + "</span>");
+		JSONArray nameArray = new JSONArray();
+		JSONObject nameObj = new JSONObject();
+		nameObj.put("language", BaseTestCase.getLanguageList().get(0));
+		nameObj.put("value", demoValue);
+		nameArray.put(nameObj);
+		inputJson.getJSONObject("identityRequest").put(E2EConstants.DEMONAME, nameArray);
 	}
 
 }
