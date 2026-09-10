@@ -174,6 +174,64 @@ public class ReadableDslStepCodecTest {
         assertRoundTrip("e2e_getBioModalityHash(-1,Right IndexFinger@@Left LittleFinger,$$personaFilePath)");
     }
 
+    @Test
+    public void decodeOldBioPersonaCloneAndAuth() {
+        assertDecodeToDsl(
+                "I clone resident data where persona file path is the saved persona file path "
+                        + "and store result in old bio persona file path",
+                "$$oldBioPersonaFilePath=e2e_cloneResidentData($$personaFilePath)");
+        assertDecodeToDsl(
+                "I bio authentication where device info file is faceDevice, and UIN is the saved UIN, "
+                        + "and VID is the saved VID, and persona file path is the saved old bio persona file path",
+                "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$oldBioPersonaFilePath)");
+    }
+
+    @Test
+    public void decodeLastNameUpdateAndPartialNameDemoAuth() {
+        assertDecodeToDsl(
+                "I clone resident data where persona file path is the saved persona file path "
+                        + "and store result in old demo persona file path",
+                "$$oldDemoPersonaFilePath=e2e_cloneResidentData($$personaFilePath)");
+        assertDecodeToDsl(
+                "I update demo or bio details where bio type is 0, and miss fields is 0, "
+                        + "and update attributes is lastName, and persona file is the saved persona file path",
+                "e2e_updateDemoOrBioDetails(0,0,lastName,$$personaFilePath)");
+        assertDecodeToDsl(
+                "I update resident with uin where persona file path is the saved old demo persona file path, "
+                        + "and UIN is the saved UIN",
+                "e2e_updateResidentWithUIN($$oldDemoPersonaFilePath,$$uin)");
+        assertDecodeToDsl(
+                "I demo authentication where demo field is firstName, and UIN is the saved second UIN, "
+                        + "and persona file path is the saved persona file path, and VID is the saved VID",
+                "e2e_demoAuthentication(firstName,$$uin2,$$personaFilePath,$$vid)");
+        assertDecodeToDsl(
+                "I demo authentication where demo field is lastName, and UIN is the saved second UIN, "
+                        + "and persona file path is the saved old demo persona file path, and VID is the saved VID, "
+                        + "and age update flag is ERROR",
+                "e2e_demoAuthentication(lastName,$$uin2,$$oldDemoPersonaFilePath,$$vid,ERROR)");
+    }
+
+    @Test
+    public void decodeStaleLostL1ReprocessKeepsL2Name() {
+        assertDecodeToDsl(
+                "I update demo or bio details where bio type is 0, and miss fields is 0, "
+                        + "and update attributes is name=LostResident265A and addressLine1=L1AddressLine, "
+                        + "and persona file is the saved persona file path",
+                "e2e_updateDemoOrBioDetails(0,0,name=LostResident265A@@addressLine1=L1AddressLine,$$personaFilePath)");
+        assertDecodeToDsl(
+                "I reprocess packet where registration ID is rid lost1",
+                "e2e_reprocessPacket($$ridLost1)");
+        assertDecodeToDsl(
+                "I demo authentication where demo field is name, and UIN is the saved UIN, "
+                        + "and persona file path is the saved persona file path, and VID is the saved VID",
+                "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)");
+        assertDecodeToDsl(
+                "I demo authentication where demo field is name, and UIN is the saved UIN, "
+                        + "and persona file path is the saved old demo persona file path, and VID is the saved VID, "
+                        + "and age update flag is ERROR",
+                "e2e_demoAuthentication(name,$$uin,$$oldDemoPersonaFilePath,$$vid,ERROR)");
+    }
+
     private static void assertRoundTrip(String dsl) {
         String encoded = ReadableDslStepCodec.encode(dsl);
         String decoded = ReadableDslStepCodec.decode(encoded);
