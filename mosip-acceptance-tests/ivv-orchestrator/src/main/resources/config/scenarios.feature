@@ -82,14 +82,20 @@ And I delete packet data
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
-  Scenario: Resident walks into registration center completes the process and gets UIN card
+  Scenario: Resident books pre-registration, completes packet processing, generates VID, requests credential, and performs bio and demo authentication
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I send otp where persona file path is the saved persona file path and store result in email
+And I validate otp where persona file path is the saved persona file path, and email is the saved email
+And I pre register where persona file path is the saved persona file path and store result in pre-registration ID
+And I upload documents where persona file path is the saved persona file path, and pre-registration ID is the saved pre-registration ID
+And I update pre reg status where status code is 0, and pre-registration ID is the saved pre-registration ID, and validation mode is valid
+And I book appointment where holiday booking flag is false, and pre-registration ID is the saved pre-registration ID, and slot number is 1
+And I generate and upload packet where pre-registration ID is the saved pre-registration ID, and packet template path is the saved packet template path and store result in registration ID
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 And I get email by uin where resident UIN is the saved UIN and store result in email
@@ -97,6 +103,15 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is SUCCESS
 Then I check tags where registration ID is the saved registration ID
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and email or phone is the saved email and store result in VID
+And I verify notification where notification type is Successful Generation of VID, and email is the saved email
+And I credential request where UIN is the saved UIN, and email is the saved email and store result in credential request ID
+And I check credential status where credential request ID is the saved credential request ID
+And I download card where credential request ID is the saved credential request ID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I bio authentication where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
   @scenario_4
