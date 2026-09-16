@@ -61,6 +61,7 @@ import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
 import io.mosip.testrig.dslrig.ivv.e2e.methods.ClearRunCache;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
+import io.restassured.response.Response;
 
 public class Orchestrator {
 	private static Logger logger = Logger.getLogger(Orchestrator.class);
@@ -194,10 +195,11 @@ public class Orchestrator {
 	private void purgeAllPacketCreatorData() {
 		String url = BaseTestCaseUtil.baseUrl + BaseTestCaseUtil.props.getProperty("purgeAllPacketData");
 		try {
-			io.restassured.response.Response response = io.restassured.RestAssured.given().relaxedHTTPSValidation()
-					.queryParam("mountPath", ConfigManager.getproperty("mountPath"))
-					.queryParam("tempPath", ConfigManager.getproperty("mosip.test.temp"))
-					.when().delete(url).then().extract().response();
+			HashMap<String, String> queryParams = new HashMap<>();
+			queryParams.put("mountPath", ConfigManager.getproperty("mountPath"));
+			queryParams.put("tempPath", ConfigManager.getproperty("mosip.test.temp"));
+			Response response = BaseTestCaseUtil.deleteRequestWithQueryParamWithoutStep(url, queryParams,
+					"purgeAllPacketData");
 			if (response != null && response.getStatusCode() == 200) {
 				logger.info("Purged all packet-creator temp data after suite: " + response.getBody().asString());
 			} else {
