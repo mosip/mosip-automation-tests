@@ -59,7 +59,9 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
+import io.mosip.testrig.dslrig.ivv.e2e.methods.ClearRunCache;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
+import io.restassured.response.Response;
 
 public class Orchestrator {
 	private static Logger logger = Logger.getLogger(Orchestrator.class);
@@ -182,9 +184,30 @@ public class Orchestrator {
 		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
 		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
 		DslStepTimingCollector.logReport();
-		extent.flush();
 		if (dslConfigManager.IsDebugEnabled()) {
 			logger.info("Debug mode enabled; suite teardown limited to timing report and extent flush");
+		} else {
+			purgeAllPacketCreatorData();
+		}
+		extent.flush();
+	}
+
+	private void purgeAllPacketCreatorData() {
+		String url = BaseTestCaseUtil.baseUrl + BaseTestCaseUtil.props.getProperty("purgeAllPacketData");
+		try {
+			HashMap<String, String> queryParams = new HashMap<>();
+			queryParams.put("mountPath", ConfigManager.getproperty("mountPath"));
+			queryParams.put("tempPath", ConfigManager.getproperty("mosip.test.temp"));
+			Response response = BaseTestCaseUtil.deleteRequestWithQueryParamWithoutStep(url, queryParams,
+					"purgeAllPacketData");
+			if (response != null && response.getStatusCode() == 200) {
+				logger.info("Purged all packet-creator temp data after suite: " + response.getBody().asString());
+			} else {
+				logger.warn("Failed to purge packet-creator temp data after suite. Status: "
+						+ (response != null ? response.getStatusCode() : "no response"));
+			}
+		} catch (Exception e) {
+			logger.warn("Failed to purge packet-creator temp data after suite: " + e.getMessage());
 		}
 	}
 
@@ -523,12 +546,13 @@ public class Orchestrator {
 
 		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
-		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && dslConfigManager.IsDebugEnabled()) {
-			String skipMsg = "Skipping AFTER_SUITE scenario because enableDebug=yes";
-			logger.info(skipMsg);
-			extentTest.skip(skipMsg);
-			updateRunStatistics(scenario);
-			throw new SkipException(skipMsg);
+		boolean afterSuiteClearCacheOnly = scenario.getId().equalsIgnoreCase("AFTER_SUITE")
+				&& dslConfigManager.IsDebugEnabled();
+		if (afterSuiteClearCacheOnly) {
+			String msg = "enableDebug=yes: running only the 'I clear run cache' step of AFTER_SUITE; "
+					+ "skipping the rest of the teardown";
+			logger.info(msg);
+			extentTest.info(msg);
 		}
 		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && beforeSuiteFailed) {
 			String skipMsg = "Skipping AFTER_SUITE teardown because Scenario 0 (before suite) failed — "
@@ -620,6 +644,7 @@ public class Orchestrator {
 			boolean willRetry =
 			        !disableAllRetries
 			        && !"sanity".equalsIgnoreCase(BaseTestCase.testLevel)
+			        && !scenario.getId().equalsIgnoreCase("0")
 			        && (attempt < maxAttempts)
 			        && (totalFailedScenarios.get() < MAX_FAILED_SCENARIOS_BEFORE_STOP_RETRY);
 
@@ -670,6 +695,14 @@ public class Orchestrator {
 					st.setSystemProperties(properties);
 					st.setState(store);
 					st.setStep(step);
+
+					if (afterSuiteClearCacheOnly && !(st instanceof ClearRunCache)) {
+						String skipStepMsg = identifier + " - skipped (enableDebug=yes, running only clear run cache)";
+						logger.info(skipStepMsg);
+						extentTest.skip(skipStepMsg);
+						continue;
+					}
+
 					String stepAction = "e2e_" + step.getName() + step.getParameters();
 					stepAction = trimSpaceWithinSquareBrackets(stepAction);
 
@@ -789,7 +822,7 @@ public class Orchestrator {
 				    throw new RuntimeException("Before Suite failed. Aborting scenario execution.");
 				}
 
-				if (attempt < maxAttempts) {
+				if (attempt < maxAttempts && !scenario.getId().equalsIgnoreCase("0")) {
 					String humanRetryMessage = ordinalWord(attempt) + " try for scenario " + scenario.getId()
 							+ " failed; trying for " + ordinalWord(attempt + 1) + " time.";
 

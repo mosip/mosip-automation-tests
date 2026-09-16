@@ -583,6 +583,23 @@ public class BaseTestCaseUtil extends BaseStep {
 		return deleteResponse;
 	}
 
+	public static Response deleteRequestWithQueryParamWithoutStep(String url, HashMap<String, String> map,
+			String opsToLog) {
+		Response deleteResponse = null;
+		if (dslConfigManager.IsDebugEnabled()) {
+			deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").log().all().when()
+					.delete(url).then().log().all().extract().response();
+		} else {
+			deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").when().delete(url).then()
+					.extract().response();
+		}
+
+		DslReportLogUtil.reportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
+				deleteResponse.getBody().asString());
+
+		return deleteResponse;
+	}
+
 	public Response deleteRequestWithQueryParam(String url, HashMap<String, String> map, String opsToLog,
 			Scenario.Step step) {
 		url = addContextToUrl(url, step);

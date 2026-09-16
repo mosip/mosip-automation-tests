@@ -13,7 +13,6 @@ import java.nio.file.*;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.UUID;
 
 public final class IrisVariationGenerator {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(IrisVariationGenerator.class);
@@ -83,12 +82,13 @@ public final class IrisVariationGenerator {
 
 		localInvert(img, r);
 
-		String uniqueName = "NONMATCH_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + originalName;
+		String uniqueToken = BiometricUniquenessStamp.uniqueToken();
+		BiometricUniquenessStamp.apply(img, uniqueToken);
 
 		Path outDir = Paths.get(outputDir, irisPath);
 		Files.createDirectories(outDir);
 
-		Path out = outDir.resolve(uniqueName);
+		Path out = outDir.resolve("NONMATCH_" + uniqueToken + "_" + originalName);
 		ImageIO.write(img, "png", out.toFile());
 
 		logger.info("[IRIS-NONMATCH] " + sha256(Files.readAllBytes(out)));

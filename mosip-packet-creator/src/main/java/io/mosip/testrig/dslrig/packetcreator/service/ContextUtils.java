@@ -127,6 +127,50 @@ public class ContextUtils {
 	    return "Deleted all packet data successfully";
 	}
 
+	public static PacketTempPurge.Stats purgeMountedTempDir(String mountPath, String tempPath, long minAgeMs)
+			throws IOException {
+	    PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
+	    if (mountPath == null || mountPath.isBlank() || tempPath == null || tempPath.isBlank()) {
+	        return stats;
+	    }
+	    Path resolved = Paths.get(mountPath + tempPath).toAbsolutePath().normalize();
+	    if (resolved.getNameCount() < 2 || resolved.equals(resolved.getRoot())) {
+	        logger.warn("Refusing to purge suspiciously shallow mounted temp path: {}", resolved);
+	        return stats;
+	    }
+	    File[] entries = resolved.toFile().listFiles();
+	    if (entries == null) {
+	        return stats;
+	    }
+	    for (File entry : entries) {
+	        PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
+	    }
+	    return stats;
+	}
+
+	public static PacketTempPurge.Stats purgeOrphanScratchDirs(long minAgeMs) throws IOException {
+	    PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
+	    String[] prefixes = { "residents_", "packets_", "preregIds_", "docs_" };
+	    File tmpRoot = new File(System.getProperty("java.io.tmpdir"));
+	    File[] entries = tmpRoot.listFiles();
+	    if (entries == null) {
+	        return stats;
+	    }
+	    for (File entry : entries) {
+	        if (!entry.isDirectory()) {
+	            continue;
+	        }
+	        String name = entry.getName();
+	        for (String prefix : prefixes) {
+	            if (name.startsWith(prefix)) {
+	                PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
+	                break;
+	            }
+	        }
+	    }
+	    return stats;
+	}
+
 	private static void deleteCommaSeparatedPaths(String ctxName, String key) throws IOException {
 	    Object valueObj = VariableManager.getVariableValue(ctxName, key);
 	    if (valueObj != null) {
