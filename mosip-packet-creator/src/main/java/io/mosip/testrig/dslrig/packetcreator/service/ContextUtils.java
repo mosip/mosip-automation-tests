@@ -36,6 +36,12 @@ import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 public class ContextUtils {
 
 	private static final Pattern CONTEXT_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9._-]+$");
+	private static final String SERVER_CONTEXT_FILE_PREFIX = "server.context.";
+	private static final String PROPERTIES_SUFFIX = ".properties";
+	private static final String MDS_PROFILE_DIR = "Profile";
+	private static final String PRIVATE_KEYS_DIR = "privatekeys";
+	private static final String DEFAULT_MDS_PROFILE = "Default";
+	private static final String GENERATED_MDS_PROFILE_PREFIX = "res";
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
@@ -107,7 +113,7 @@ public class ContextUtils {
 	    validateContextName(ctxName);
 	    Path baseDir = Paths.get(personaConfigPath).normalize();
 	    Path filePath = baseDir
-	            .resolve("server.context." + ctxName + ".properties")
+	            .resolve(SERVER_CONTEXT_FILE_PREFIX + ctxName + PROPERTIES_SUFFIX)
 	            .normalize();
 	    if (!filePath.startsWith(baseDir)) {
 	        throw new SecurityException("Path traversal attempt detected");
@@ -169,6 +175,79 @@ public class ContextUtils {
 	        }
 	    }
 	    return stats;
+	}
+
+	public static PacketTempPurge.Stats purgeGeneratedResourceArtifacts(String personaConfigPath, long minAgeMs) {
+		PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
+		if (personaConfigPath == null || personaConfigPath.isBlank()) {
+			return stats;
+		}
+		Path baseDir = Paths.get(personaConfigPath).toAbsolutePath().normalize();
+		File resourceDir = baseDir.toFile();
+		if (!resourceDir.isDirectory()) {
+			logger.warn("Skipping resource artifact purge; path is not a directory: {}", baseDir);
+			return stats;
+		}
+		purgeGeneratedServerContextFiles(resourceDir, minAgeMs, stats);
+		purgeResourceSubdir(baseDir.resolve(MDS_PROFILE_DIR), baseDir, minAgeMs, stats, true);
+		purgeResourceSubdir(baseDir.resolve(PRIVATE_KEYS_DIR), baseDir, minAgeMs, stats, false);
+		return stats;
+	}
+
+	private static void purgeGeneratedServerContextFiles(File resourceDir, long minAgeMs, PacketTempPurge.Stats stats) {
+		File[] entries = resourceDir.listFiles();
+		if (entries == null) {
+			return;
+		}
+		for (File entry : entries) {
+			if (!entry.isFile() || !isGeneratedServerContextFile(entry.getName())) {
+				continue;
+			}
+			boolean existed = entry.exists();
+			PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
+			if (existed && !entry.exists()) {
+				String ctxName = contextNameFromServerContextFile(entry.getName());
+				if (ctxName != null) {
+					SERVER_CONTEXT_CACHE.remove(ctxName);
+				}
+			}
+		}
+	}
+
+	private static void purgeResourceSubdir(Path dir, Path baseDir, long minAgeMs, PacketTempPurge.Stats stats,
+			boolean generatedMdsProfilesOnly) {
+		Path normalized = dir.normalize();
+		if (!normalized.startsWith(baseDir) || !normalized.toFile().isDirectory()) {
+			return;
+		}
+		File[] children = normalized.toFile().listFiles();
+		if (children == null) {
+			return;
+		}
+		for (File child : children) {
+			if (generatedMdsProfilesOnly
+					&& (!child.isDirectory() || !isGeneratedMdsProfile(child.getName()))) {
+				stats.skipOther();
+				continue;
+			}
+			PacketTempPurge.deleteIfStale(child, minAgeMs, stats, logger);
+		}
+	}
+
+	private static boolean isGeneratedServerContextFile(String name) {
+		return name != null && name.startsWith(SERVER_CONTEXT_FILE_PREFIX) && name.endsWith(PROPERTIES_SUFFIX);
+	}
+
+	private static String contextNameFromServerContextFile(String name) {
+		if (!isGeneratedServerContextFile(name)) {
+			return null;
+		}
+		return name.substring(SERVER_CONTEXT_FILE_PREFIX.length(), name.length() - PROPERTIES_SUFFIX.length());
+	}
+
+	private static boolean isGeneratedMdsProfile(String name) {
+		return name != null && name.startsWith(GENERATED_MDS_PROFILE_PREFIX)
+				&& !DEFAULT_MDS_PROFILE.equalsIgnoreCase(name);
 	}
 
 	private static void deleteCommaSeparatedPaths(String ctxName, String key) throws IOException {
