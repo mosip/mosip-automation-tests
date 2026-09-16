@@ -228,6 +228,25 @@ public class PacketMakerService {
 
 	}
 
+	public PacketTempPurge.Stats purgeWorkDirectory(long minAgeMs) {
+		PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
+		if (workDirectory == null) {
+			return stats;
+		}
+		File[] entries = new File(workDirectory).listFiles();
+		if (entries == null) {
+			return stats;
+		}
+		for (File entry : entries) {
+			if (entry.getName().matches("v\\d+(\\.\\d+)?\\.json")) {
+				stats.skipOther();
+				continue;
+			}
+			PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
+		}
+		return stats;
+	}
+
 	public String getNewRegId() {
 		PacketThreadContext ctx = PACKET_THREAD_CONTEXT.get();
 		if (ctx != null && ctx.regId != null) {
