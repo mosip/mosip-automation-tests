@@ -517,9 +517,11 @@ public class MosipDataSetup {
 		req.put("requesttime", CommonUtil.getUTCDateTime(null));
 		req.put("actionToInterfere", operation);
 
-		req.put("forcedResponse", failureReason);
+		String forcedResponse = resolveMockAbisForcedResponse(statusCode, failureReason);
+		String errorCode = resolveMockAbisErrorCode(forcedResponse, failureReason);
+		req.put("forcedResponse", forcedResponse);
 		req.put("delayInExecution", Integer.toString(delay));
-		req.put("errorCode", statusCode);
+		req.put("errorCode", errorCode);
 
 		if (!bDuplicate)
 			req.put("gallery", JSONObject.NULL);
@@ -547,6 +549,36 @@ public class MosipDataSetup {
 		}
 
 		return responseStr;
+	}
+
+	private static String resolveMockAbisForcedResponse(String statusCode, String failureReason) {
+		if (failureReason != null && !failureReason.isBlank()) {
+			return "Error";
+		}
+		if (statusCode != null && isMockAbisForcedResponse(statusCode)) {
+			return statusCode;
+		}
+		if (statusCode != null && !statusCode.isBlank()) {
+			try {
+				int status = Integer.parseInt(statusCode);
+				return status >= 200 && status < 300 ? "Success" : "Error";
+			} catch (NumberFormatException e) {
+				return "Error";
+			}
+		}
+		return "Success";
+	}
+
+	private static String resolveMockAbisErrorCode(String forcedResponse, String failureReason) {
+		if ("Error".equalsIgnoreCase(forcedResponse)) {
+			return failureReason == null ? "" : failureReason;
+		}
+		return "";
+	}
+
+	private static boolean isMockAbisForcedResponse(String value) {
+		return "Success".equalsIgnoreCase(value) || "Error".equalsIgnoreCase(value)
+				|| "Duplicate".equalsIgnoreCase(value);
 	}
 
 	public static String uploadPackets(List<String> packetPaths, String contextKey) {
