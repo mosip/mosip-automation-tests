@@ -382,7 +382,7 @@ public class PacketController {
 
     }
 
-	@Operation(summary = "Purge leftover packet-creator scratch/temp data")
+	@Operation(summary = "Purge leftover packet-creator scratch/temp and generated resource data")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Purged stale packet-creator temp data") })
 	@DeleteMapping(value = "/workDir/purgeAll")
 	public @ResponseBody String purgeAllPacketData(
@@ -404,6 +404,7 @@ public class PacketController {
 			stats.add(packetMakerService.purgeWorkDirectory(ageMs));
 			stats.add(ContextUtils.purgeOrphanScratchDirs(ageMs));
 			stats.add(ContextUtils.purgeMountedTempDir(mountPath, tempPath, ageMs));
+			stats.add(ContextUtils.purgeGeneratedResourceArtifacts(personaConfigPath, ageMs));
 			String message = "Purged stale packet data: " + stats.summary() + " overlappingRequests=" + active
 					+ " minAgeMs=" + ageMs;
 			logger.info(message);

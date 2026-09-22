@@ -258,22 +258,22 @@ public final class Scenario0ParallelRunner {
 			logger.info(
 					"Scenario 0 parallel setup: phase 5b - GenerateAuthCertifcates and WarmRunCache in parallel (upload after auth)");
 
-			final Store storeForAuthAndWarm = store;
-			CompletableFuture<Void> authCertsFuture = CompletableFuture.runAsync(() -> {
-				try {
-					Scenario authScenario = scenarioCopier.copyForTrack(masterScenario);
-					Store authStore = cloneStore(storeForAuthAndWarm);
-					stepRangeExecutor.execute(authScenario, authStore, STEP_GENERATE_AUTH_CERTS, STEP_GENERATE_AUTH_CERTS,
-							willRetry);
-					logger.info("Scenario 0 parallel setup: GenerateAuthCertifcates completed (step "
-							+ STEP_GENERATE_AUTH_CERTS + ")");
-				} catch (Exception e) {
-					throw new RuntimeException("GenerateAuthCertifcates failed (step " + STEP_GENERATE_AUTH_CERTS + "): "
-							+ rootCauseMessage(e), e);
-				}
-			}, executor);
-
-			joinAsyncStep(authCertsFuture, "GenerateAuthCertifcates");
+			/*
+			 * Keep this step on the TestNG test thread. Reporter.log() stores output
+			 * against the current test result, so API details emitted on an executor
+			 * thread are visible in the console but are missing from the HTML report.
+			 * WarmRunCache remains asynchronous, therefore these two operations still
+			 * execute in parallel.
+			 */
+			try {
+				store = stepRangeExecutor.execute(masterScenario, store, STEP_GENERATE_AUTH_CERTS,
+						STEP_GENERATE_AUTH_CERTS, willRetry);
+				logger.info("Scenario 0 parallel setup: GenerateAuthCertifcates completed (step "
+						+ STEP_GENERATE_AUTH_CERTS + ")");
+			} catch (Exception e) {
+				throw new RuntimeException("GenerateAuthCertifcates failed (step " + STEP_GENERATE_AUTH_CERTS + "): "
+						+ rootCauseMessage(e), e);
+			}
 
 			store = stepRangeExecutor.execute(masterScenario, store, STEP_UPLOAD_DEVICE_CERT, STEP_UPLOAD_DEVICE_CERT,
 					willRetry);
