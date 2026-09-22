@@ -2,7 +2,7 @@ apiVersion: v2
 name: packetcreator
 description: A Helm chart for DSL orchestrator
 type: application
-version: 1.5.0-develop
+version: 1.6.0-SNAPSHOT
 appVersion: ""
 dependencies:
   - name: common
