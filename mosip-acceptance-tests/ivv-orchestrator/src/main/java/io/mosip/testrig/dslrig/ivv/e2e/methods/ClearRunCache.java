@@ -23,7 +23,11 @@ public class ClearRunCache extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 		String clearUrl = baseUrl + props.getProperty("clearRunCache");
-		Response response = postRequest(clearUrl, "{}", "Clear run-scoped MOSIP API cache", step);
+		String contextKey = buildPacketCreatorContextKey(step.getScenario());
+		if ("AFTER_SUITE".equalsIgnoreCase(step.getScenario().getId())) {
+			contextKey = System.getProperty("env.user") + "_S0_context";
+		}
+		Response response = postRequest(clearUrl, "{}", "Clear run-scoped MOSIP API cache", step, contextKey);
 		if (response == null || response.getStatusCode() != 200) {
 			this.hasError = true;
 			throw new RigInternalError("Clearing run cache failed");

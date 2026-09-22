@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import io.mosip.testrig.dslrig.dataprovider.NameProvider;
 import io.mosip.testrig.dslrig.dataprovider.PacketTemplateProvider;
+import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.ResidentDataProvider;
 import io.mosip.testrig.dslrig.packetcreator.cache.PacketTemplateCache;
 import io.mosip.testrig.dslrig.dataprovider.persona.PersonaBiometricsAssembler;
@@ -57,6 +58,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.MosipIndividualTypeModel;
 import io.mosip.testrig.dslrig.dataprovider.models.Name;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSDeviceCaptureModel;
+import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
@@ -1244,6 +1246,11 @@ public class PacketSyncService {
 						}
 						break;
 
+					case "lastname":
+					case "surname":
+						updateLastNameAttribute(persona, value, contextKey, oldValues, newValues);
+						break;
+
 					case "residencestatus":
 					case "rs":
 						if (value != null && !value.equals("")) {
@@ -1278,6 +1285,61 @@ public class PacketSyncService {
 		responseJson.put("oldValues", oldValues);
 		responseJson.put("newValues", newValues);
 		return responseJson;
+	}
+
+	private void updateLastNameAttribute(ResidentModel persona, String value, String contextKey,
+			JSONObject oldValues, JSONObject newValues) {
+		if (persona.getName() == null) {
+			persona.setName(new Name());
+		}
+		Name primaryName = persona.getName();
+		String oldLastName = primaryName.getSurName();
+		oldValues.put("lastName", oldLastName);
+
+		String newLastName;
+		if (value == null || value.trim().isEmpty()) {
+			String lang = persona.getPrimaryLanguage() != null ? persona.getPrimaryLanguage()
+					: DataProviderConstants.LANG_CODE_ENGLISH;
+			newLastName = generateDistinctSurName(persona.getGender(), lang, oldLastName, contextKey);
+		} else {
+			newLastName = value.trim();
+		}
+		primaryName.setSurName(newLastName);
+		newValues.put("lastName", newLastName);
+
+		if (persona.getName_seclang() != null) {
+			String oldSecLastName = persona.getName_seclang().getSurName();
+			oldValues.put("lastName_seclang", oldSecLastName);
+			String newSecLastName;
+			if (value == null || value.trim().isEmpty()) {
+				String secLang = persona.getSecondaryLanguage() != null ? persona.getSecondaryLanguage()
+						: DataProviderConstants.LANG_CODE_ENGLISH;
+				newSecLastName = generateDistinctSurName(persona.getGender(), secLang, oldSecLastName, contextKey);
+			} else {
+				newSecLastName = newLastName;
+			}
+			persona.getName_seclang().setSurName(newSecLastName);
+			newValues.put("lastName_seclang", newSecLastName);
+		}
+	}
+
+	private String generateDistinctSurName(Gender gender, String lang, String oldSurName, String contextKey) {
+		Gender nameGender = gender != null ? gender : Gender.Male;
+		String language = lang != null ? lang : DataProviderConstants.LANG_CODE_ENGLISH;
+		for (int attempt = 0; attempt < 5; attempt++) {
+			try {
+				List<Name> generatedNames = NameProvider.generateNames(nameGender, language, 1, null, contextKey);
+				if (generatedNames != null && !generatedNames.isEmpty()) {
+					String generated = generatedNames.get(0).getSurName();
+					if (generated != null && !generated.isBlank() && !generated.equals(oldSurName)) {
+						return generated;
+					}
+				}
+			} catch (Exception e) {
+				logger.warn("Unable to generate a distinct last name on attempt {}: {}", attempt + 1, e.getMessage());
+			}
+		}
+		return "Ln" + System.currentTimeMillis();
 	}
 
 	public String getPersonaData(List<UpdatePersonaDto> getPersonaRequest, String contextKey) throws Exception {
@@ -1453,8 +1515,8 @@ public class PacketSyncService {
 			try {
 				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
 				List<String> regenAttrs = req.getRegenAttributeList();
-				if (regenAttrs != null)
-					VariableManager.setVariableValue(contextKey, "regenAttribute", String.join(",", regenAttrs));
+				VariableManager.setVariableValue(contextKey, "regenAttribute",
+						regenAttrs == null ? "" : String.join(",", regenAttrs));
 				if (regenAttrs != null) {
 					for (String attr : regenAttrs) {
 						if (req.getTestPersonaPath() != null) {
@@ -1462,6 +1524,18 @@ public class PacketSyncService {
 							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
 						} else {
 							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
+						}
+					}
+					// updateBiometric clears capture; rebuild so mock-ABIS hash and packets use new bios
+					if (persona.getBiometric() != null && !regenAttrs.isEmpty()) {
+						try {
+							MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(persona, contextKey,
+									"Registration", "60", "UPDATE");
+							if (capture != null && capture.getLstBiometrics() != null) {
+								persona.getBiometric().setCapture(capture.getLstBiometrics());
+							}
+						} catch (Exception e) {
+							logger.error("Failed to refresh MDS capture after biometric regen: {}", e.getMessage(), e);
 						}
 					}
 				}

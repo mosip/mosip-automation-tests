@@ -108,6 +108,8 @@ public class ResidentDataProvider {
 
 		if (bDirty) {
 			model.getBiometric().setCbeff(null);
+			// Stale MDS capture would keep old bioValues for mock-ABIS / hash / packets.
+			model.getBiometric().setCapture(null);
 		}
 
 		return model;
@@ -151,6 +153,7 @@ public class ResidentDataProvider {
 		if (bDirty) {
 			model.setFilteredBioAttribtures(null);
 			model.getBiometric().setCbeff(null);
+			model.getBiometric().setCapture(null);
 		}
 		return model;
 	}

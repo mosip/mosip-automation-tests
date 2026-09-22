@@ -96,7 +96,16 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 			if (step.getParameters().get(7).contains("@@")) {
 				errorList = PacketUtility.getParamsArg(step.getParameters().get(7), "@@");
 				statusCode = errorList.get(0);
-				failureReason = errorList.get(1);
+				failureReason = errorList.size() > 1 ? errorList.get(1) : null;
+				// "@@Success" / "@@Duplicate" / "@@Error" → empty statusCode + keyword
+				if ((statusCode == null || statusCode.isBlank()) && failureReason != null) {
+					String fr = failureReason.trim();
+					if ("Success".equalsIgnoreCase(fr) || "Duplicate".equalsIgnoreCase(fr)
+							|| "Error".equalsIgnoreCase(fr)) {
+						statusCode = fr;
+						failureReason = null;
+					}
+				}
 			} else {
 				statusCode = step.getParameters().get(7);
 			}
