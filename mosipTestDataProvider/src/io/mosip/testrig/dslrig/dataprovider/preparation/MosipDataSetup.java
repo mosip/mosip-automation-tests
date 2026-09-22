@@ -518,7 +518,7 @@ public class MosipDataSetup {
 		req.put("actionToInterfere", operation);
 
 		String forcedResponse = resolveMockAbisForcedResponse(statusCode, failureReason);
-		String errorCode = resolveMockAbisErrorCode(forcedResponse, failureReason);
+		String errorCode = resolveMockAbisErrorCode(forcedResponse, statusCode, failureReason);
 		req.put("forcedResponse", forcedResponse);
 		req.put("delayInExecution", Integer.toString(delay));
 		req.put("errorCode", errorCode);
@@ -552,6 +552,12 @@ public class MosipDataSetup {
 	}
 
 	private static String resolveMockAbisForcedResponse(String statusCode, String failureReason) {
+		// Gherkin/DSL encodes bare statuses as "@@Success" / "@@Duplicate" / "@@Error",
+		// which parse as empty statusCode + failureReason=<word>. Also "10@@Error".
+		// Pre-MOSIP-45443 behavior: forcedResponse came from failureReason when set.
+		if (failureReason != null && !failureReason.isBlank() && isMockAbisForcedResponse(failureReason)) {
+			return failureReason;
+		}
 		if (failureReason != null && !failureReason.isBlank()) {
 			return "Error";
 		}
@@ -569,9 +575,16 @@ public class MosipDataSetup {
 		return "Success";
 	}
 
-	private static String resolveMockAbisErrorCode(String forcedResponse, String failureReason) {
-		if ("Error".equalsIgnoreCase(forcedResponse)) {
-			return failureReason == null ? "" : failureReason;
+	private static String resolveMockAbisErrorCode(String forcedResponse, String statusCode, String failureReason) {
+		if (!"Error".equalsIgnoreCase(forcedResponse)) {
+			return "";
+		}
+		// 10@@Error → errorCode must be "10" (statusCode), not the word "Error"
+		if (statusCode != null && !statusCode.isBlank() && !isMockAbisForcedResponse(statusCode)) {
+			return statusCode;
+		}
+		if (failureReason != null && !failureReason.isBlank() && !isMockAbisForcedResponse(failureReason)) {
+			return failureReason;
 		}
 		return "";
 	}

@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import io.mosip.testrig.dslrig.dataprovider.NameProvider;
 import io.mosip.testrig.dslrig.dataprovider.PacketTemplateProvider;
+import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.ResidentDataProvider;
 import io.mosip.testrig.dslrig.packetcreator.cache.PacketTemplateCache;
 import io.mosip.testrig.dslrig.dataprovider.persona.PersonaBiometricsAssembler;
@@ -57,6 +58,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.MosipIndividualTypeModel;
 import io.mosip.testrig.dslrig.dataprovider.models.Name;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSDeviceCaptureModel;
+import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
@@ -1513,8 +1515,8 @@ public class PacketSyncService {
 			try {
 				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
 				List<String> regenAttrs = req.getRegenAttributeList();
-				if (regenAttrs != null)
-					VariableManager.setVariableValue(contextKey, "regenAttribute", String.join(",", regenAttrs));
+				VariableManager.setVariableValue(contextKey, "regenAttribute",
+						regenAttrs == null ? "" : String.join(",", regenAttrs));
 				if (regenAttrs != null) {
 					for (String attr : regenAttrs) {
 						if (req.getTestPersonaPath() != null) {
@@ -1522,6 +1524,18 @@ public class PacketSyncService {
 							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
 						} else {
 							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
+						}
+					}
+					// updateBiometric clears capture; rebuild so mock-ABIS hash and packets use new bios
+					if (persona.getBiometric() != null && !regenAttrs.isEmpty()) {
+						try {
+							MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(persona, contextKey,
+									"Registration", "60", "UPDATE");
+							if (capture != null && capture.getLstBiometrics() != null) {
+								persona.getBiometric().setCapture(capture.getLstBiometrics());
+							}
+						} catch (Exception e) {
+							logger.error("Failed to refresh MDS capture after biometric regen: {}", e.getMessage(), e);
 						}
 					}
 				}

@@ -198,7 +198,8 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
 					Reporter.log("<span style='color:green;'>Email : " + demoValue + "</span>");
-					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
+					// IDA demo auth expects "email" (json-property maps emailId -> email)
+					inputJson.getJSONObject("identityRequest").put("email", demoValue);
 					break;
 
 				case E2EConstants.DEMOYMLPHONE:
@@ -266,12 +267,12 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOMNAME);
 					lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
-					if (firstNm == null || midNm == null || lastNm == null) {
+					if (firstNm == null || lastNm == null) {
 						this.hasError = true;
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					fullname = firstNm + " " + midNm + " " + lastNm;
+					fullname = buildFullName(firstNm, midNm, lastNm);
 					Reporter.log("<span style='color:green;'>Name : " + fullname + "</span>");
 					JSONArray nameArray = new JSONArray();
 					JSONObject nameObj = new JSONObject();
@@ -406,7 +407,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
+					inputJson.getJSONObject("identityRequest").put("email", demoValue);
 					break;
 
 				case E2EConstants.DEMOYMLPHONE:
@@ -469,12 +470,12 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOMNAME);
 					lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
-					if (firstNm == null || midNm == null || lastNm == null) {
+					if (firstNm == null || lastNm == null) {
 						this.hasError = true;
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					fullname = firstNm + " " + midNm + " " + lastNm;
+					fullname = buildFullName(firstNm, midNm, lastNm);
 					JSONArray nameArray = new JSONArray();
 					JSONObject nameObj = new JSONObject();
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -611,7 +612,7 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					inputJson.getJSONObject("identityRequest").put(demoField, demoValue);
+					inputJson.getJSONObject("identityRequest").put("email", demoValue);
 					break;
 
 				case E2EConstants.DEMOYMLPHONE:
@@ -675,12 +676,12 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOMNAME);
 					lastNm = JsonPrecondtion.getValueFromJson(demoResponse,
 							E2EConstants.DEMOFETCH + "." + E2EConstants.DEMOLNAME);
-					if (firstNm == null || midNm == null || lastNm == null) {
+					if (firstNm == null || lastNm == null) {
 						this.hasError = true;
 						throw new RigInternalError(
 								"Unable to get the Demo value for field " + demoField + " from Persona");
 					}
-					fullname = firstNm + " " + midNm + " " + lastNm;
+					fullname = buildFullName(firstNm, midNm, lastNm);
 					JSONArray nameArray = new JSONArray();
 					JSONObject nameObj = new JSONObject();
 					nameObj.put("language", BaseTestCase.getLanguageList().get(0));
@@ -873,6 +874,17 @@ public class DemoAuthentication extends BaseTestCaseUtil implements StepInterfac
 		nameObj.put("value", demoValue);
 		nameArray.put(nameObj);
 		inputJson.getJSONObject("identityRequest").put(E2EConstants.DEMONAME, nameArray);
+	}
+
+	/**
+	 * Builds full name the same way registration/IDRepo store it: always
+	 * first + " " + mid + " " + last (empty midName yields a double space).
+	 */
+	private static String buildFullName(String firstNm, String midNm, String lastNm) {
+		String first = firstNm == null ? "" : firstNm;
+		String mid = midNm == null ? "" : midNm;
+		String last = lastNm == null ? "" : lastNm;
+		return first + " " + mid + " " + last;
 	}
 
 }

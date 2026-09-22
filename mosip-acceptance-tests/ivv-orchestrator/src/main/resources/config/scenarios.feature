@@ -6480,10 +6480,9 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 And I get uin by rid where source registration ID is the saved rid u2 and store result in uin after u2
 And I verify notification where notification type is updated, and email is the saved email
 And I clone resident data where persona file path is the saved persona file path and store result in u2 demo persona file path
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name=Updated Resident250, and persona file is the saved persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved uin after u2
 And I update resident with uin where persona file path is u2 demo persona file path, and UIN is the saved uin after u2
-And I clone resident data where persona file path is the saved persona file path and store result in updated name persona file path
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template u3
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template u3 and store result in rid u3
 And I check status where packet status is PROCESSED, and registration ID is the saved rid u3
@@ -6493,7 +6492,7 @@ And I verify notification where notification type is updated, and email is the s
 And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after u3 and store result in VID
 And I wait where wait seconds is 90
-And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is updated name persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved persona file path, and VID is the saved VID
 And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is u2 demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I demo authentication where demo field is gender, and UIN is the saved uin after u3, and persona file path is pre update demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
@@ -6604,7 +6603,7 @@ And I delete packet data
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_Update
-  Scenario: Resident gets UIN bio update fails due to ABIS duplicate demographic update succeeds verify latest resident data reflects successful update only
+  Scenario: Resident gets UIN then biometric update is rejected as an ABIS duplicate and name update succeeds verify only updated name can authenticate
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -6617,15 +6616,16 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
-And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
-And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is -1, and mock ABIS status is Duplicate
-And I update demo or bio details where bio type is face and finger and iris, and miss fields is 0, and update attributes is 0, and persona file is the saved persona file path
-And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template u1
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template u1 and store result in rid u1
+And I clone resident data where persona file path is the saved persona file path and store result in bio update persona file path
+And I update demo or bio details where bio type is face and finger and iris, and miss fields is 0, and update attributes is 0, and persona file is the saved bio update persona file path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved bio update persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved bio update persona file path, and modality hash map is the saved modality hash value, and delay seconds is -1, and mock ABIS status is Duplicate
+And I update resident with uin where persona file path is the saved bio update persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved bio update persona file path and store result in update template u1
+And I generate and upload packet skipping prereg where persona file path is the saved bio update persona file path, and packet template path is the saved update template u1 and store result in rid u1
 And I check status where packet status is REJECTED, and registration ID is the saved rid u1
 And I delete mock expect
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name=Updated Resident254, and persona file is the saved persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I update resident with uin where persona file path is pre update demo persona file path, and UIN is the saved UIN
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template u2
@@ -6895,7 +6895,7 @@ And I delete packet data
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: Resident gets UIN updates last name then demo auth with original first name succeeds and demo auth with old last name fails
+  Scenario: Resident gets UIN updates last name then demo auth with updated full name succeeds and demo auth with old full name fails
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -6921,8 +6921,8 @@ And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vid where VID type is Perpetual, and UIN is the saved second UIN, and email or phone is the saved email and store result in VID
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
 And I wait where wait seconds is 90
-And I demo authentication where demo field is firstName, and UIN is the saved second UIN, and persona file path is the saved persona file path, and VID is the saved VID
-And I demo authentication where demo field is lastName, and UIN is the saved second UIN, and persona file path is the saved old demo persona file path, and VID is the saved VID, and age update flag is ERROR
+And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved old demo persona file path, and VID is the saved VID, and age update flag is ERROR
 Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved second UIN
 And I delete packet data
 
@@ -6944,7 +6944,7 @@ And I get email by uin where resident UIN is the saved UIN and store result in e
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I wait where wait seconds is 90
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name=LostResident265A and addressLine1=L1AddressLine, and persona file is the saved persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name and addressLine1=L1AddressLine, and persona file is the saved persona file path
 And I clone resident data where persona file path is the saved persona file path and store result in old demo persona file path
 And I update resident with uin where persona file path is the saved old demo persona file path, and UIN is the saved UIN
 And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template1
@@ -6954,7 +6954,7 @@ And I packetsync where packet zip path is the saved lost zip1
 And I check status where packet status is PROCESSED, and registration ID is rid lost1
 And I get uin by rid where source registration ID is rid lost1 and store result in lost packet UIN1
 Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved lost packet UIN1
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name=LostResident265B, and persona file is the saved persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name and email=lost265l2test, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template2
 And I packetcreator where packet type is LOST, and template path is lost template2 and store result in lost zip2
@@ -6966,11 +6966,12 @@ Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is 
 And I wait where wait seconds is 900
 Then I reprocess packet where registration ID is rid lost1
 Then I check ridstage where registration ID is rid lost1, and RID stage is CREATE_DRAFT, and stage status is FAILED
+And I get email by uin where resident UIN is the saved UIN and store result in email
 And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and email or phone is the saved email and store result in VID
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
 And I wait where wait seconds is 90
-And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
-And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved old demo persona file path, and VID is the saved VID, and age update flag is ERROR
+And I demo authentication where demo field is emailId, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is emailId, and UIN is the saved UIN, and persona file path is the saved old demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
   @scenario_AFTER_SUITE

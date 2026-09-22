@@ -293,7 +293,10 @@ public class BaseTestCaseUtil extends BaseStep {
 	protected static String addContextToUrl(String url, Scenario.Step step) {
 
 		String context = buildPacketCreatorContextKey(step.getScenario());
+		return addContextToUrl(url, context);
+	}
 
+	private static String addContextToUrl(String url, String context) {
 		if (url.contains("?")) {
 			String urlArr[] = url.split("\\?");
 			return urlArr[0] + "/" + context + "?" + urlArr[1];
@@ -476,6 +479,15 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	public Response postRequest(String url, String body, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
+		return postRequestToResolvedUrl(url, body, step);
+	}
+
+	protected Response postRequest(String url, String body, String opsToLog, Scenario.Step step, String contextKey) {
+		url = addContextToUrl(url, contextKey);
+		return postRequestToResolvedUrl(url, body, step);
+	}
+
+	private Response postRequestToResolvedUrl(String url, String body, Scenario.Step step) {
 		if (dslConfigManager.IsDebugEnabled()) {
 			Response apiResponse = givenHttpClient(url).body(body).log().all().when().post(url).then().log().all()
 					.extract().response();
