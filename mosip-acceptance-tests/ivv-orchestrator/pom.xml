@@ -173,7 +173,18 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-reload4j</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.hibernate.orm</groupId>
+					<artifactId>hibernate-hikaricp</artifactId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<!-- Align with hibernate-core:5.3.20.Final from apitest-commons (avoids NoClassDefFoundError SettingConsumer) -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-hikaricp</artifactId>
+			<version>5.3.20.Final</version>
 		</dependency>
 
 		<dependency>
@@ -203,7 +214,7 @@
 		<dependency>
 			<groupId>io.mosip.resident</groupId>
 			<artifactId>apitest-resident</artifactId>
-			<version>1.2.1.2</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
