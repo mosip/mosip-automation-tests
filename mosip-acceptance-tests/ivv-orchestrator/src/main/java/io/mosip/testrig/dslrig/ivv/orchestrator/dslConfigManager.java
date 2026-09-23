@@ -54,6 +54,33 @@ public class dslConfigManager extends ConfigManager {
 		return ConfigManager.getproperty("threadCount");
 	}
 
+	/** When true, long Wait steps park/resume via {@code ScenarioParkScheduler}. */
+	public static boolean isParkResumeEnabled() {
+		try {
+			String v = ConfigManager.getproperty("parkResumeEnabled");
+			if (v == null || v.isBlank()) {
+				return false;
+			}
+			return "yes".equalsIgnoreCase(v.trim()) || "true".equalsIgnoreCase(v.trim());
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Max scenarios TestNG may submit concurrently when park/resume is on.
+	 * Derived from {@code threadCount}: {@code max(threadCount * 10, 50)}.
+	 */
+	public static int getMaxInFlightScenarios() {
+		int threadCount = 8;
+		try {
+			threadCount = Math.max(1, Integer.parseInt(getThreadCount().trim()));
+		} catch (Exception ignored) {
+			threadCount = 8;
+		}
+		return Math.max(threadCount * 10, 50);
+	}
+
 	public static int getMaxSuiteTime() {
 		try {
 		    return Integer.parseInt(ConfigManager.getproperty("maxSuiteTime"));

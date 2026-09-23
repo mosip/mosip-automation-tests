@@ -59,7 +59,6 @@ import io.mosip.testrig.dslrig.ivv.core.exceptions.FeatureNotSupportedError;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.core.utils.Utils;
 import io.mosip.testrig.dslrig.ivv.dg.DataGenerator;
-import io.mosip.testrig.dslrig.ivv.e2e.methods.ClearRunCache;
 import io.mosip.testrig.dslrig.ivv.parser.Parser;
 import io.restassured.response.Response;
 
@@ -172,7 +171,28 @@ public class Orchestrator {
 		else
 			logger.setLevel(Level.ERROR);
 
+		parkOrchestratorInstance = this;
+		if (dslConfigManager.isParkResumeEnabled()) {
+			int workers = 8;
+			try {
+				workers = Math.max(1, Integer.parseInt(dslConfigManager.getThreadCount().trim()));
+			} catch (Exception ignored) {
+				workers = 8;
+			}
+			ScenarioParkScheduler.init(workers, step -> {
+				Orchestrator orch = parkOrchestratorInstance;
+				if (orch == null) {
+					throw new IllegalStateException("Orchestrator not available for park worker step factory");
+				}
+				return orch.getInstanceOf(step);
+			});
+			logger.info("Park/resume enabled: ScenarioParkScheduler workers=" + workers);
+		}
+
 	}
+
+	/** Shared Orchestrator used by park-scheduler workers to instantiate steps. */
+	private static volatile Orchestrator parkOrchestratorInstance;
 
 	@BeforeTest
 	public static void create_proxy_server() {
@@ -184,6 +204,9 @@ public class Orchestrator {
 		BaseTestCaseUtil.exectionEndTime = System.currentTimeMillis();
 		logger.info("Suite end time is: " + BaseTestCaseUtil.exectionEndTime);
 		DslStepTimingCollector.logReport();
+		if (ScenarioParkScheduler.isInitialized()) {
+			ScenarioParkScheduler.get().shutdown();
+		}
 		if (dslConfigManager.IsDebugEnabled()) {
 			logger.info("Debug mode enabled; suite teardown limited to timing report and extent flush");
 		} else {
@@ -214,11 +237,18 @@ public class Orchestrator {
 	@DataProvider(name = "ScenarioDataProvider", parallel = true)
 	public static Object[][] dataProvider() throws RigInternalError {
 		int threadCount = Integer.parseInt(dslConfigManager.getThreadCount());
+		int dataProviderThreads = dslConfigManager.isParkResumeEnabled()
+				? dslConfigManager.getMaxInFlightScenarios()
+				: threadCount;
 
-		System.out.println("Executing with thread count: " + threadCount);
-		logger.info("Executing DataProvider with thread count: " + threadCount);
+		System.out.println("Executing with thread count: " + threadCount
+				+ (dslConfigManager.isParkResumeEnabled()
+						? " (park/resume workers), maxInFlight=" + dataProviderThreads
+						: ""));
+		logger.info("Executing DataProvider with thread count: " + dataProviderThreads
+				+ " (active workers=" + threadCount + ", parkResume=" + dslConfigManager.isParkResumeEnabled() + ")");
 
-		System.setProperty("dataproviderthreadcount", String.valueOf(threadCount));
+		System.setProperty("dataproviderthreadcount", String.valueOf(dataProviderThreads));
 
 		String scenarioSheet = null;
 
@@ -406,7 +436,10 @@ public class Orchestrator {
 			dataArray[i][4] = properties;
 		}
 
-		System.setProperty("testng.threadcount", String.valueOf(dslConfigManager.getThreadCount()));
+		int testngThreadProp = dslConfigManager.isParkResumeEnabled()
+				? dslConfigManager.getMaxInFlightScenarios()
+				: Integer.parseInt(dslConfigManager.getThreadCount());
+		System.setProperty("testng.threadcount", String.valueOf(testngThreadProp));
 		return dataArray;
 	}
 
@@ -669,102 +702,53 @@ public class Orchestrator {
 					scenarioSucceeded = true;
 					continue;
 				}
-				if (scenario.getId().equalsIgnoreCase("0")) {
-					logger.info("Scenario 0: using parallel phased execution for before-suite setup");
-					store = Scenario0ParallelRunner.run(scenario, store, willRetry,
-							(sc, st, from, to, retry) -> executeScenarioStepsRange(sc, st, extentTest, properties,
-									from, to, retry),
-							this::copyScenarioForParallelTrack);
-					scenarioSucceeded = true;
-					continue;
-				}
-				for (int stepIndex = 0; stepIndex < scenario.getSteps().size(); stepIndex++) {
-					Scenario.Step step = scenario.getSteps().get(stepIndex);
 
-					identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters()
-							+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule()
-							+ "] [variant: "
+				ScenarioExecutionState execState = new ScenarioExecutionState();
+				execState.setScenario(scenario);
+				execState.setStore(store);
+				execState.setProperties(properties);
+				execState.setExtentTest(extentTest);
+				execState.setTestResult(Reporter.getCurrentTestResult());
+				execState.setStepIndex(0);
+				execState.setJumpBackIndex(jumpBackIndex);
+				execState.setIterationCount(iterationCount);
+				execState.setWillRetry(willRetry);
+				execState.setAfterSuiteClearCacheOnly(afterSuiteClearCacheOnly);
 
-							+ step.getVariant() + "]";
-					logger.info(identifier);
+				parkOrchestratorInstance = this;
+				boolean usePark = dslConfigManager.isParkResumeEnabled()
+						&& ScenarioParkScheduler.isInitialized()
+						&& !scenario.getId().equalsIgnoreCase("AFTER_SUITE");
 
-					extentTest.info(identifier + " - running"); 
-					extentTest.info("parameters: " + step.getParameters().toString());
-					StepInterface st = getInstanceOf(step);
-					st.setExtentInstance(extentTest);
-					st.setSystemProperties(properties);
-					st.setState(store);
-					st.setStep(step);
-
-					if (afterSuiteClearCacheOnly && !(st instanceof ClearRunCache)) {
-						String skipStepMsg = identifier + " - skipped (enableDebug=yes, running only clear run cache)";
-						logger.info(skipStepMsg);
-						extentTest.skip(skipStepMsg);
-						continue;
-					}
-
-					String stepAction = "e2e_" + step.getName() + step.getParameters();
-					stepAction = trimSpaceWithinSquareBrackets(stepAction);
-
-					if (step.getOutVarName() != null)
-						stepAction = step.getOutVarName() + "=" + stepAction;
-
-					String stepParams[] = getStepDetails("S_" + step.getScenario().getId() + stepAction);
-					if (stepParams == null && step.getScenario().getId().contains("_")) {
-
-						String baseScenarioId = step.getScenario().getId().split("_")[0];
-						stepParams = getStepDetails("S_" + baseScenarioId + stepAction);
-					}
-
-					if (!step.getName().contains("loopWindow")) {
-
-						StringBuilder sb = new StringBuilder();
-
-						sb.append(
-								"<div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='3' readonly='true'>");
-						sb.append("Step Name: " + step.getName() + "\n");
-						if (stepParams != null) {
-							sb.append("Step Description: " + stepParams[0] + "\n");
-							sb.append("Step Parameters: " + stepParams[1]);
-						} else {
-							sb.append("Step Description: [ERROR: stepParams is null]\n");
-							sb.append("Step Parameters: [ERROR: stepParams is null]");
+				if (usePark) {
+					try {
+						ScenarioParkScheduler.get().execute(execState).join();
+					} catch (java.util.concurrent.CompletionException ce) {
+						Throwable cause = ce.getCause() != null ? ce.getCause() : ce;
+						if (cause instanceof Exception) {
+							throw (Exception) cause;
 						}
-						sb.append("</textarea></div>");
-
-						Reporter.log(sb.toString());
-
-					}
-
-
-					if (step.getName().contains("loopWindow")) {
-
-						if (step.getParameters().get(0).contains("START")) {
-							jumpBackIndex = stepIndex + 1;
-							iterationCount = 1;
-						} else if (step.getParameters().size() > 1 && step.getParameters().get(0).contains("END")) {
-							int loopCount = Integer.parseInt(step.getParameters().get(1));
-							if (iterationCount < loopCount) {
-								stepIndex = jumpBackIndex - 1;
-								iterationCount++;
-								logger.info("Repeating loop, iteration: " + iterationCount + " of " + loopCount);
-								continue;
-							} else {
-								logger.info("Loop completed after " + iterationCount + " iterations.");
-							}
+						if (cause instanceof Error) {
+							throw (Error) cause;
 						}
+						throw new RuntimeException(cause);
 					}
-
-
-					StepRunner.runLifecycle(st);
-					if (StepRunner.lifecycleFailed(st)) {
-						failStep(extentTest, identifier, willRetry, "Step reported error");
+				} else {
+					ScenarioStepExecutor.Outcome outcome = ScenarioStepExecutor.runUntilYieldOrDone(execState,
+							this::getInstanceOf);
+					// Defensive: Wait should only yield on park workers; if yield leaks here, sleep then continue.
+					while (outcome == ScenarioStepExecutor.Outcome.YIELD) {
+						long sleepMs = execState.getWakeAtMs() - System.currentTimeMillis();
+						if (sleepMs > 0) {
+							Thread.sleep(sleepMs);
+						}
+						outcome = ScenarioStepExecutor.runUntilYieldOrDone(execState, this::getInstanceOf);
 					}
-					store = st.getState();
-
-					extentTest.pass(identifier + " - passed");
 				}
-
+				store = execState.getStore();
+				if (execState.getLastIdentifier() != null) {
+					identifier = execState.getLastIdentifier();
+				}
 
 				scenarioSucceeded = true;
 			} catch (SkipException e) {
@@ -1136,11 +1120,11 @@ public class Orchestrator {
 		}
 	}
 
-	private static String[] getStepDetails(String stepName) {
+	public static String[] getStepDetails(String stepName) {
 		return allStepsMap.get(stepName);
 	}
 
-	private static String trimSpaceWithinSquareBrackets(String stringToTrim) {
+	public static String trimSpaceWithinSquareBrackets(String stringToTrim) {
 
 		int openBracketIndex = stringToTrim.indexOf('[');
 		int closeBracketIndex = stringToTrim.lastIndexOf(']');
@@ -1236,7 +1220,7 @@ public class Orchestrator {
 		return store;
 	}
 
-	private static void failStep(ExtentTest extentTest, String identifier, boolean willRetry, String message) {
+	public static void failStep(ExtentTest extentTest, String identifier, boolean willRetry, String message) {
 		if (willRetry) {
 			extentTest.warning(identifier + " - failed (will retry)");
 		} else {
