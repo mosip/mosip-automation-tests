@@ -173,18 +173,12 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-reload4j</artifactId>
 				</exclusion>
+				<!-- MOSIP-45576: exclude Hibernate 6 hikaricp until apitest-commons ships Hibernate 6 (avoids SettingConsumer clash with hibernate-core 5.3.20) -->
 				<exclusion>
 					<groupId>org.hibernate.orm</groupId>
 					<artifactId>hibernate-hikaricp</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-
-		<!-- Align with hibernate-core:5.3.20.Final from apitest-commons (avoids NoClassDefFoundError SettingConsumer) -->
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-hikaricp</artifactId>
-			<version>5.3.20.Final</version>
 		</dependency>
 
 		<dependency>
