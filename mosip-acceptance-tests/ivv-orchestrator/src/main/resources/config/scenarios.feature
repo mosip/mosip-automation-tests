@@ -1570,7 +1570,6 @@ And I delete packet data
   @group_NA
   Scenario: Resident walks into get UIN card and different resident tries to get UIN both resident having same demo and different biometric details
 Given I get ping health where component is packetcreator
-And I delete mock expect
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get ping health where component is targetenv
@@ -2177,7 +2176,7 @@ And I get bio modality hash where persona ID is -1, and modality subtypes is Rig
 And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is delay, and mock ABIS status is 10 and Error
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is REPROCESS
-And I delete mock expect
+And I delete mock expect where modality hash value is the saved modality hash value
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 And I get email by uin where resident UIN is the saved UIN and store result in email
@@ -2330,6 +2329,7 @@ And I packetcreator where packet type is BIOMETRIC_CORRECTION, and template path
 And I ridsync where packet type is BIOMETRIC_CORRECTION, and packet zip path is the saved zip packet path1, and additional info request ID is additional req id and store result in rid1
 And I packetsync where packet zip path is the saved zip packet path1
 And I check status where packet status is PROCESSED, and registration ID is the saved rid1
+And I delete mock expect where modality hash value is the saved modality hash value
 And I delete packet data
 
   @scenario_87
@@ -2918,6 +2918,7 @@ And I packetsync where packet zip path is child zip packet path
 And I post mock mv where registration ID is the saved parent registration ID, and manual verification decision is REJECTED
 And I check status where packet status is REJECTED, and registration ID is the saved parent registration ID
 And I check status where packet status is REJECTED, and registration ID is the saved child registration ID
+And I delete mock expect where modality hash value is the saved modality hash value
 And I delete packet data
 
   @scenario_109
@@ -4712,6 +4713,7 @@ And I update resident with uin where persona file path is the saved persona file
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
 And I check status where packet status is FAILED, and registration ID is the saved second registration ID
+And I delete mock expect where modality hash value is the saved modality hash value
 And I delete packet data
 
   @scenario_179
@@ -6374,7 +6376,7 @@ And I configure mock abis where persona ID is -1, and modality subtypes is Right
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is REPROCESS
 Then I verify bio dedup skipped after reprocess where registration ID is the saved registration ID
-Then I delete mock expect
+Then I delete mock expect where modality hash value is the saved modality hash value
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 And I get email by uin where resident UIN is the saved UIN and store result in email
@@ -6624,7 +6626,7 @@ And I update resident with uin where persona file path is the saved bio update p
 And I get packet template where packet type is UPDATE, and persona file path is the saved bio update persona file path and store result in update template u1
 And I generate and upload packet skipping prereg where persona file path is the saved bio update persona file path, and packet template path is the saved update template u1 and store result in rid u1
 And I check status where packet status is REJECTED, and registration ID is the saved rid u1
-And I delete mock expect
+And I delete mock expect where modality hash value is the saved modality hash value
 And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I update resident with uin where persona file path is pre update demo persona file path, and UIN is the saved UIN
@@ -6984,7 +6986,6 @@ Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I skip
-And I delete mock expect
 And I machine where call type is DCOM, and center details is the saved environment 1 details
 And I user where user action is DELETE_CENTERMAPPING, and user index or master user is 1, and password or zone flag is Techno@123, and center index or details is the saved environment 1 details and store result in environment 1 details
 And I center where call type is DCOM, and user details is the saved environment 1 details, and center index is 1
