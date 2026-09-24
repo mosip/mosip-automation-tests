@@ -173,6 +173,11 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-reload4j</artifactId>
 				</exclusion>
+				<!-- MOSIP-45576: exclude Hibernate 6 hikaricp until apitest-commons ships Hibernate 6 (avoids SettingConsumer clash with hibernate-core 5.3.20) -->
+				<exclusion>
+					<groupId>org.hibernate.orm</groupId>
+					<artifactId>hibernate-hikaricp</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -203,7 +208,7 @@
 		<dependency>
 			<groupId>io.mosip.resident</groupId>
 			<artifactId>apitest-resident</artifactId>
-			<version>1.2.1.2</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

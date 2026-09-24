@@ -108,7 +108,6 @@ And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and em
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
 And I credential request where UIN is the saved UIN, and email is the saved email and store result in credential request ID
 And I check credential status where credential request ID is the saved credential request ID
-And I download card where credential request ID is the saved credential request ID
 And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
 And I bio authentication where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
@@ -243,7 +242,6 @@ And I verify notification where notification type is updated, and email is the s
 And I credential request where UIN is the saved second UIN, and email is the saved email and store result in credential request ID
 And I check credential status where credential request ID is the saved credential request ID
 And I verify notification where notification type is Credential Issuance Status, and email is the saved email
-And I download card where credential request ID is the saved credential request ID
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
@@ -336,7 +334,6 @@ And I wait where wait seconds is UIN_WAIT_TIME
 And I get email by uin where resident UIN is the saved uin1 and store result in email
 And I credential request where UIN is the saved uin1, and email is the saved email and store result in credential request ID
 And I check credential status where credential request ID is the saved credential request ID
-And I download card where credential request ID is the saved credential request ID
 And I update demo or bio details where bio type is iris and face and finger, and miss fields is 0, and update attributes is 0, and persona file is the saved persona file path
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in new packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved new packet template path and store result in second registration ID
@@ -413,7 +410,6 @@ And I verify notification where notification type is updated, and email is the s
 And I credential request where UIN is the saved second UIN, and email is the saved email and store result in credential request ID
 And I check credential status where credential request ID is the saved credential request ID
 And I verify notification where notification type is Credential Issuance Status, and email is the saved email
-And I download card where credential request ID is the saved credential request ID
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
@@ -648,7 +644,6 @@ And I get email by uin where resident UIN is the saved UIN and store result in e
 And I credential request where UIN is the saved UIN, and email is the saved email1 and store result in credential request ID
 And I check credential status where credential request ID is the saved credential request ID
 And I verify notification where notification type is Credential Issuance Status, and email is the saved email1
-And I download card where credential request ID is the saved credential request ID
 And I update demo or bio details where bio type is finger and face, and miss fields is 0, and update attributes is 0, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
@@ -683,7 +678,6 @@ And I wait where wait seconds is UIN_WAIT_TIME
 And I credential request where UIN is the saved UIN, and email is the saved email and store result in credential request ID
 And I check credential status where credential request ID is the saved credential request ID
 And I verify notification where notification type is Credential Issuance Status, and email is the saved email
-And I download card where credential request ID is the saved credential request ID
 And I update demo or bio details where bio type is iris, and miss fields is 0, and update attributes is 0, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
@@ -718,7 +712,6 @@ And I wait where wait seconds is UIN_WAIT_TIME
 And I credential request where UIN is the saved UIN, and email is the saved email and store result in credential request ID
 And I check credential status where credential request ID is the saved credential request ID
 And I verify notification where notification type is Credential Issuance Status, and email is the saved email
-And I download card where credential request ID is the saved credential request ID
 And I update demo or bio details where bio type is finger, and miss fields is 0, and update attributes is 0, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
@@ -876,7 +869,6 @@ And I get email by uin where resident UIN is the saved second UIN and store resu
 And I credential request where UIN is the saved second UIN, and email is the saved email and store result in credential request ID
 And I check credential status where credential request ID is the saved credential request ID
 And I verify notification where notification type is Credential Issuance Status, and email is the saved email
-And I download card where credential request ID is the saved credential request ID
 And I delete packet data
 
   @scenario_33
@@ -980,7 +972,6 @@ And I get email by uin where resident UIN is the saved UIN and store result in e
 And I credential request where UIN is the saved UIN, and email is the saved email1 and store result in credential request ID
 And I check credential status where credential request ID is the saved credential request ID
 And I verify notification where notification type is Credential Issuance Status, and email is the saved email1
-And I download card where credential request ID is the saved credential request ID
 And I update demo or bio details where bio type is finger, and miss fields is 0, and update attributes is 0, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
@@ -6663,7 +6654,7 @@ And I get packet template where packet type is UPDATE, and persona file path is 
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 And I verify notification where notification type is updated, and email is the saved email
-And I wait where wait seconds is 900
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is the saved registration ID
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is CREATE_DRAFT, and stage status is FAILED
 And I delete packet data
@@ -6685,7 +6676,7 @@ And I get uin by rid where source registration ID is the saved registration ID a
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
-And I wait where wait seconds is 900
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is the saved registration ID
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I delete packet data
@@ -6713,7 +6704,7 @@ And I get packet template where packet type is UPDATE, and persona file path is 
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 And I verify notification where notification type is updated, and email is the saved email
-And I wait where wait seconds is 900
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is the saved second registration ID
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
@@ -6748,7 +6739,7 @@ And I get packet template where packet type is UPDATE, and persona file path is 
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template b and store result in rid update b
 And I check status where packet status is PROCESSED, and registration ID is the saved rid update b
 And I verify notification where notification type is updated, and email is the saved email
-And I wait where wait seconds is 900
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is the saved rid update a
 Then I check ridstage where registration ID is the saved rid update a, and RID stage is CREATE_DRAFT, and stage status is FAILED
 And I delete packet data
@@ -6781,7 +6772,7 @@ And I packetcreator where packet type is LOST, and template path is lost templat
 And I ridsync where packet type is LOST, and packet zip path is the saved lost zip2 and store result in rid lost2
 And I packetsync where packet zip path is the saved lost zip2
 And I check status where packet status is PROCESSED, and registration ID is rid lost2
-And I wait where wait seconds is 900
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is rid lost1
 Then I check ridstage where registration ID is rid lost1, and RID stage is CREATE_DRAFT, and stage status is FAILED
 And I delete packet data
@@ -6814,7 +6805,7 @@ And I packetcreator where packet type is LOST, and template path is lost templat
 And I ridsync where packet type is LOST, and packet zip path is the saved lost zip2 and store result in rid lost2
 And I packetsync where packet zip path is the saved lost zip2
 And I check status where packet status is PROCESSED, and registration ID is rid lost2
-And I wait where wait seconds is 900
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is rid lost2
 And I check status where packet status is PROCESSED, and registration ID is rid lost2
 Then I check ridstage where registration ID is rid lost2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
@@ -6963,7 +6954,7 @@ And I packetsync where packet zip path is the saved lost zip2
 And I check status where packet status is PROCESSED, and registration ID is rid lost2
 And I get uin by rid where source registration ID is rid lost2 and store result in lost packet UIN2
 Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved lost packet UIN2
-And I wait where wait seconds is 900
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is rid lost1
 Then I check ridstage where registration ID is rid lost1, and RID stage is CREATE_DRAFT, and stage status is FAILED
 And I get email by uin where resident UIN is the saved UIN and store result in email
