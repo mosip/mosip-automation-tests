@@ -299,7 +299,8 @@ public class PacketController {
 	public @ResponseBody String packetReprocess(@RequestBody PacketReprocessDto requestDto,
 			@PathVariable("contextKey") String contextKey) throws Exception {
 		try {
-			return packetSyncService.reprocessPacket(requestDto.getRID() ,requestDto.getWorkflowInstanceId(), contextKey);
+			return packetSyncService.reprocessPacket(requestDto.getRID(), requestDto.getWorkflowInstanceId(),
+					requestDto.getRegType(), contextKey);
 
 		} catch (ServiceException se) {
             throw se;
