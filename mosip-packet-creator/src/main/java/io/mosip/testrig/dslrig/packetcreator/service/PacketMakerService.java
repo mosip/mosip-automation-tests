@@ -965,7 +965,7 @@ public class PacketMakerService {
 		}
 	}
 
-	private String generateRegId(String contextKey) {
+	public String generateRegId(String contextKey) {
 		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 		String machineId = VariableManager.getVariableValue(contextKey, "machineid").toString();
 		SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHHmmss");

@@ -1062,6 +1062,9 @@ public class PacketSyncService {
 			machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
 
 			centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
+			VariableManager.setVariableValue(contextKey, "machineid", machineId);
+			regId = packetMakerService.generateRegId(contextKey);
+			logger.info("Generated CRVS RID (same as local packet): {}", regId);
 
 			JSONObject returnMsg = packetTemplateProvider.generateCRVSField(source, resident, process, machineId,
 					centerId, contextKey, props, regId, validateToken, uin);
@@ -1163,7 +1166,13 @@ public class PacketSyncService {
 						if (value == null || value.trim().isEmpty()) {
 							break;
 						}
-						if ("minor".equalsIgnoreCase(value)) {
+						if ("infant".equalsIgnoreCase(value)) {
+							persona.setInfant(true);
+							persona.setMinor(false);
+							int randomAgeMonths = 1 + (int) (Math.random() * 48);
+							value = LocalDate.now().minusMonths(randomAgeMonths)
+									.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+						} else if ("minor".equalsIgnoreCase(value)) {
 							persona.setInfant(false);
 							persona.setMinor(true);
 							int randomAge = 5 + (int) (Math.random() * (18 - 5 + 1));
@@ -1831,10 +1840,12 @@ public class PacketSyncService {
 
 	}
 
-	public String reprocessPacket(String rid, String workflowInstanceId, String contextKey) throws Exception {
+	public String reprocessPacket(String rid, String workflowInstanceId, String regType, String contextKey)
+			throws Exception {
 		String url = baseUrl + "registrationprocessor/v1/securezone/notification";
+		String resolvedRegType = (regType == null || regType.isBlank()) ? "NEW" : regType.trim();
 		JSONObject requestBody = new JSONObject();
-		requestBody.put("reg_type", "NEW");
+		requestBody.put("reg_type", resolvedRegType);
 		requestBody.put("rid", rid);
 		requestBody.put("isValid", true);
 		requestBody.put("internalError", false);
@@ -1845,6 +1856,9 @@ public class PacketSyncService {
 		requestBody.put("source", JSONObject.NULL);
 		requestBody.put("iteration", 1);
 		requestBody.put("workflowInstanceId", workflowInstanceId);
+
+		logger.info("Reprocess securezone notification for rid={}, reg_type={}, workflowInstanceId={}", rid,
+				resolvedRegType, workflowInstanceId);
 
 		JSONObject response = RestClient.post(url, requestBody, "regproc", contextKey);
 
