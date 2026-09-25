@@ -55,6 +55,10 @@ public final class CrvsIdJsonBuilder {
 		if (locations_seclang != null)
 			locationSet_sec = locations_seclang.keySet();
 
+		String process = VariableManager.getVariableValue(contextKey, "process") != null
+				? VariableManager.getVariableValue(contextKey, "process").toString()
+				: "";
+
 		List<String> lstMissedAttributesCRVS = resident.getMissAttributes();
 		if (lstMissedAttributesCRVS != null && !lstMissedAttributesCRVS.isEmpty()) {
 			lstMissedAttributesCRVS = DemographicMissFieldUtil
@@ -70,6 +74,11 @@ public final class CrvsIdJsonBuilder {
 
 			if (lstMissedAttributesCRVS != null
 					&& lstMissedAttributesCRVS.stream().anyMatch(v -> v.equalsIgnoreCase(s.getId()))) {
+				// UPDATE treats omitted fields as "no change" and succeeds. Emit null so
+				// required demographic validation fails (e.g. scenario without necessary data).
+				if (process.contains("UPDATE")) {
+					identity.put(s.getId(), JSONObject.NULL);
+				}
 				continue;
 			}
 
@@ -102,11 +111,10 @@ public final class CrvsIdJsonBuilder {
 				continue;
 			}
 			if (IdJsonBuilder.processDynamicFields(s, identity, resident, contextKey)) {
-				if (s.getId().contains("gender")) {
-					Object rawValue = identity.get("gender");
-					if (rawValue instanceof JSONArray) {
-						identity.put("gender", rawValue.toString());
-					}
+				// packetmanager/createPacket expects Map<String,String>; stringify any simpleType arrays
+				Object rawValue = identity.opt(s.getId());
+				if (rawValue instanceof JSONArray) {
+					identity.put(s.getId(), rawValue.toString());
 				}
 				continue;
 			}
@@ -201,19 +209,29 @@ public final class CrvsIdJsonBuilder {
 				}
 
 		}
-		if (validateToken == true
-				&& VariableManager.getVariableValue(contextKey, "process").toString().contains("NEW")) {
-			identity.put("introducerInfoToken", RestClient.getToken("crvs", contextKey));
-		} else if (validateToken == true
-				&& VariableManager.getVariableValue(contextKey, "process").toString().contains("DEATH")) {
-			identity.put("deceasedInformer", RestClient.getToken("crvs", contextKey));
+		if (process.contains("NEW")) {
+			if (validateToken) {
+				identity.put("introducerInfoToken", RestClient.getToken("crvs", contextKey));
+			}
+		} else if (process.contains("DEATH")) {
+			if (validateToken) {
+				identity.put("deceasedInformer", RestClient.getToken("crvs", contextKey));
+			}
 			identity.put("declaredAsDeceased", "Y");
-			identity.put("UIN", uin);
+			if (uin != null && !uin.isEmpty()) {
+				identity.put("UIN", uin);
+			}
 			LocalDate today = LocalDate.now();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 			String formattedDate = today.format(formatter);
 			identity.put("deceasedDeclarationDate", formattedDate);
-
+		} else if (process.contains("UPDATE")) {
+			if (validateToken) {
+				identity.put("introducerInfoToken", RestClient.getToken("crvs", contextKey));
+			}
+			if (uin != null && !uin.isEmpty()) {
+				identity.put("UIN", uin);
+			}
 		}
 		return identity;
 	}

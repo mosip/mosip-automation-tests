@@ -348,10 +348,7 @@ public class PacketUtility extends BaseTestCaseUtil {
 		for (String residentPath : resPath) {
 			arr.put(residentPath);
 		}
-		DateFormat dateFormatter = new SimpleDateFormat("yyyyMMddHHmmss");
-		Calendar cal = Calendar.getInstance();
-		String timestampValue = dateFormatter.format(cal.getTime());
-		String genRid = "27847" + BaseTestCase.generateRandomNumberString(10) + timestampValue;
+		String genRid = "0";
 		jsonReq.put(PERSONAFILEPATH, arr);
 		jsonReq.put("source", source);
 		if (uin != null) {

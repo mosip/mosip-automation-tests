@@ -20,7 +20,7 @@
   "e2e_getUINByRid": ["source registration ID"],
   "e2e_getEmailByUIN": ["resident UIN"],
   "e2e_verifyNotification": ["notification type", "email"],
-  "e2e_CheckRIDStage": ["registration ID", "RID stage", "stage status", "sub-status"],
+  "e2e_CheckRIDStage": ["registration ID", "RID stage", "stage status", "sub-status", "occurrence count"],
   "e2e_Center": ["call type", "user details", "center index", "center active flag"],
   "e2e_Machine": ["call type", "center details", "center index", "machine active flag"],
   "e2e_WritePreReq": ["environment details", "pre-requisite data index"],
