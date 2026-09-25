@@ -7,6 +7,8 @@ import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.PacketUtility;
+import io.mosip.testrig.dslrig.ivv.orchestrator.ScenarioParkScheduler;
+import io.mosip.testrig.dslrig.ivv.orchestrator.ScenarioYieldException;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 public class WaitTillReprocessorInterval extends BaseTestCaseUtil implements StepInterface {
@@ -30,6 +32,9 @@ public class WaitTillReprocessorInterval extends BaseTestCaseUtil implements Ste
 
 		try {
 			Reporter.log("Total waiting for: " + waitTime / 1000 + " Sec" + " Starting Waiting: " + getDateTime());
+			if (dslConfigManager.isParkResumeEnabled() && ScenarioParkScheduler.isRunningOnWorker()) {
+				throw new ScenarioYieldException(waitTime);
+			}
 			sleepWithCountdown(waitTime, "Reprocessor wait");
 			Reporter.log("Waiting Done: " + getDateTime());
 		} catch (NumberFormatException e) {

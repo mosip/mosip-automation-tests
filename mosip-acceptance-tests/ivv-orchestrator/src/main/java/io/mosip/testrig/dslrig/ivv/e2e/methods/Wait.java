@@ -7,6 +7,8 @@ import org.testng.Reporter;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.ScenarioParkScheduler;
+import io.mosip.testrig.dslrig.ivv.orchestrator.ScenarioYieldException;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 public class Wait extends BaseTestCaseUtil implements StepInterface {
@@ -63,6 +65,10 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 			String finalMsg = " Wait Time  " + (waitTime / 1000) + " seconds";
 			logger.info(finalMsg);
 			Reporter.log(finalMsg, true);
+
+			if (dslConfigManager.isParkResumeEnabled() && ScenarioParkScheduler.isRunningOnWorker()) {
+				throw new ScenarioYieldException(waitTime);
+			}
 			sleepWithCountdown(waitTime, "Wait");
 
 		} catch (NumberFormatException e) {
