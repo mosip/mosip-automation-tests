@@ -1,5 +1,10 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Level;
@@ -33,11 +38,12 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	    }
 
 	    Map<String, Object> registration = getRegistrationRecord(rid);
-	    String workflowInstanceId = (String) registration.get("workflow_instance_id");
-	    // process column holds NEW / UPDATE / LOST ΓÇö required by securezone notification as reg_type
-	    String regType = registration.get("process") != null ? registration.get("process").toString() : null;
+	    String workflowInstanceId = value(registration, "workflow_instance_id");
+	    // process column holds NEW / UPDATE / LOST, required by securezone notification as reg_type
+	    String regType = value(registration, "process");
 	    if (regType == null || regType.isBlank()) {
-	        throw new RigInternalError("reg_type/process not found in regprc.registration for rid=" + rid);
+	        throw new RigInternalError("reg_type/process not found in regprc.registration for rid=" + rid
+	        		+ " keys=" + (registration == null ? "null" : registration.keySet()));
 	    }
 
 	    JSONObject jsonReq = new JSONObject();
@@ -67,13 +73,78 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	    }
 	}
 
-	public static Map<String, Object> getRegistrationRecord(String RID) {
-		String sqlQuery = "SELECT workflow_instance_id, process FROM regprc.registration where reg_id='" + RID + "'";
-
-		return DBManager.executeQueryAndGetRecord(ConfigManager.getproperty("audit_default_schema"), sqlQuery);
+	public static Map<String, Object> getRegistrationRecord(String RID) throws RigInternalError {
+		String sqlQuery = "SELECT workflow_instance_id, process FROM regprc.registration where reg_id='" + RID
+				+ "' ORDER BY cr_dtimes DESC";
+		Map<String, Object> row = null;
+		try {
+			row = DBManager.executeQueryAndGetRecord(ConfigManager.getproperty("audit_default_schema"), sqlQuery);
+		} catch (RuntimeException e) {
+			logger.error("Hibernate registration lookup failed for rid=" + RID + ": " + e.getMessage());
+		}
+		if (value(row, "process") == null || value(row, "workflow_instance_id") == null) {
+			logger.info("Registration lookup via audit connection missed process for rid=" + RID
+					+ "; querying mosip_regprc directly");
+			row = queryRegprcDirect(RID);
+		}
+		return row;
 	}
 
-	public static String getWorkflowInstanceId(String RID) {
-		return (String) getRegistrationRecord(RID).get("workflow_instance_id");
+	/**
+	 * regprc.registration lives in database mosip_regprc. The shared DB helper uses
+	 * audit_db_schema, which points at mosip_audit on several environments and then
+	 * returns an empty map.
+	 */
+	private static Map<String, Object> queryRegprcDirect(String rid) throws RigInternalError {
+		String host = ConfigManager.getDbServer();
+		String port = ConfigManager.getDbPort();
+		if (port == null || port.isBlank()) {
+			port = "5432";
+		}
+		String user = ConfigManager.getAuditDbUser();
+		String pass = ConfigManager.getAuditDbPass();
+		String url = "jdbc:postgresql://" + host + ":" + port + "/mosip_regprc";
+		String sql = "SELECT workflow_instance_id, process FROM regprc.registration WHERE reg_id=? ORDER BY cr_dtimes DESC";
+		try {
+			Class.forName("org.postgresql.Driver");
+			try (Connection connection = DriverManager.getConnection(url, user, pass);
+					PreparedStatement statement = connection.prepareStatement(sql)) {
+				statement.setString(1, rid);
+				try (ResultSet rs = statement.executeQuery()) {
+					if (!rs.next()) {
+						throw new RigInternalError("no regprc.registration row for rid=" + rid + " on " + host + ":"
+								+ port + "/mosip_regprc");
+					}
+					Map<String, Object> row = new HashMap<>();
+					row.put("workflow_instance_id", rs.getString("workflow_instance_id"));
+					row.put("process", rs.getString("process"));
+					return row;
+				}
+			}
+		} catch (RigInternalError e) {
+			throw e;
+		} catch (Exception e) {
+			throw new RigInternalError(
+					"regprc lookup failed for rid=" + rid + " via " + url + ": " + e.getMessage());
+		}
+	}
+
+	private static String value(Map<String, Object> row, String key) {
+		if (row == null || key == null) {
+			return null;
+		}
+		for (Map.Entry<String, Object> entry : row.entrySet()) {
+			if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(key) && entry.getValue() != null) {
+				String text = entry.getValue().toString().trim();
+				if (!text.isEmpty()) {
+					return text;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static String getWorkflowInstanceId(String RID) throws RigInternalError {
+		return value(getRegistrationRecord(RID), "workflow_instance_id");
 	}
 }
