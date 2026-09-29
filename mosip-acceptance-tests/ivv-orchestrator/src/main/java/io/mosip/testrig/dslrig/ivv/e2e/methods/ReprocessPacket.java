@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Level;
@@ -97,35 +99,67 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	 */
 	private static Map<String, Object> queryRegprcDirect(String rid) throws RigInternalError {
 		String host = ConfigManager.getDbServer();
-		String port = ConfigManager.getDbPort();
-		if (port == null || port.isBlank()) {
-			port = "5432";
-		}
 		String user = ConfigManager.getAuditDbUser();
 		String pass = ConfigManager.getAuditDbPass();
-		String url = "jdbc:postgresql://" + host + ":" + port + "/mosip_regprc";
-		String sql = "SELECT workflow_instance_id, process FROM regprc.registration WHERE reg_id=? ORDER BY cr_dtimes DESC";
-		try {
-			Class.forName("org.postgresql.Driver");
-			try (Connection connection = DriverManager.getConnection(url, user, pass);
-					PreparedStatement statement = connection.prepareStatement(sql)) {
-				statement.setString(1, rid);
-				try (ResultSet rs = statement.executeQuery()) {
-					if (!rs.next()) {
-						throw new RigInternalError("no regprc.registration row for rid=" + rid + " on " + host + ":"
-								+ port + "/mosip_regprc");
-					}
-					Map<String, Object> row = new HashMap<>();
-					row.put("workflow_instance_id", rs.getString("workflow_instance_id"));
-					row.put("process", rs.getString("process"));
-					return row;
-				}
+		List<String> ports = candidatePorts();
+		Exception last = null;
+		String lastUrl = null;
+		for (String port : ports) {
+			String url = "jdbc:postgresql://" + host + ":" + port + "/mosip_regprc";
+			try {
+				return queryRegprc(url, user, pass, rid, host, port);
+			} catch (RigInternalError noRow) {
+				throw noRow;
+			} catch (Exception e) {
+				last = e;
+				lastUrl = url;
+				logger.error("regprc connect failed via " + url + ": " + e.getMessage());
 			}
-		} catch (RigInternalError e) {
-			throw e;
-		} catch (Exception e) {
-			throw new RigInternalError(
-					"regprc lookup failed for rid=" + rid + " via " + url + ": " + e.getMessage());
+		}
+		throw new RigInternalError("regprc lookup failed for rid=" + rid + " via " + lastUrl + ": "
+				+ (last == null ? "no ports" : last.getMessage()));
+	}
+
+	/**
+	 * dev2 accepts Postgres on 5433. A blank db-port was defaulting to 5432, and that
+	 * port closes the connection, so the process column was never read.
+	 */
+	private static List<String> candidatePorts() {
+		List<String> ports = new ArrayList<>();
+		addPort(ports, ConfigManager.getDbPort());
+		addPort(ports, "5433");
+		addPort(ports, "5432");
+		return ports;
+	}
+
+	private static void addPort(List<String> ports, String port) {
+		if (port == null) {
+			return;
+		}
+		String trimmed = port.trim();
+		if (trimmed.isEmpty() || ports.contains(trimmed)) {
+			return;
+		}
+		ports.add(trimmed);
+	}
+
+	private static Map<String, Object> queryRegprc(String url, String user, String pass, String rid, String host,
+			String port) throws Exception {
+		Class.forName("org.postgresql.Driver");
+		String sql = "SELECT workflow_instance_id, process FROM regprc.registration WHERE reg_id=? ORDER BY cr_dtimes DESC";
+		try (Connection connection = DriverManager.getConnection(url, user, pass);
+				PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setString(1, rid);
+			try (ResultSet rs = statement.executeQuery()) {
+				if (!rs.next()) {
+					throw new RigInternalError("no regprc.registration row for rid=" + rid + " on " + host + ":"
+							+ port + "/mosip_regprc");
+				}
+				Map<String, Object> row = new HashMap<>();
+				row.put("workflow_instance_id", rs.getString("workflow_instance_id"));
+				row.put("process", rs.getString("process"));
+				return row;
+			}
 		}
 	}
 
