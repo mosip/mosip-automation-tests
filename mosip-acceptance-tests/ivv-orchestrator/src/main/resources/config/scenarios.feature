@@ -5078,7 +5078,7 @@ Then I check ridstage where registration ID is the saved registration ID, and RI
 Then I check tags where registration ID is the saved registration ID
 Then I get email by uin where resident UIN is the saved UIN and store result in email
 Then I deactivate uin where parameter 1 is the saved UIN, and parameter 2 is the saved email
-Then I reprocess packet where registration ID is the saved registration ID
+Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
 Then I check status where packet status is REREGISTER, and registration ID is the saved registration ID
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is UIN_GENERATOR, and stage status is ERROR
 And I delete packet data
@@ -6522,7 +6522,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved rid u2
 And I get uin by rid where source registration ID is the saved rid u2 and store result in uin after u2
 And I verify notification where notification type is updated, and email is the saved email
-And I reprocess packet where registration ID is the saved rid u1
+And I reprocess packet where registration ID is the saved rid u1, and packet type is UPDATE
 And I check status where packet status is REREGISTER, and registration ID is the saved rid u1
 Then I check ridstage where registration ID is the saved rid u1, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I wait where wait seconds is UIN_WAIT_TIME
@@ -6657,7 +6657,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 And I verify notification where notification type is updated, and email is the saved email
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is the saved registration ID
+Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is CREATE_DRAFT, and stage status is FAILED
 And I delete packet data
 
@@ -6679,7 +6679,7 @@ And I get email by uin where resident UIN is the saved UIN and store result in e
 And I verify notification where notification type is UIN Generated, and email is the saved email
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is the saved registration ID
+Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
 And I delete packet data
 
@@ -6707,7 +6707,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 And I verify notification where notification type is updated, and email is the saved email
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is the saved second registration ID
+Then I reprocess packet where registration ID is the saved second registration ID, and packet type is UPDATE
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
 And I delete packet data
 
@@ -6741,7 +6741,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved rid update b
 And I verify notification where notification type is updated, and email is the saved email
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is the saved rid update a
+Then I reprocess packet where registration ID is the saved rid update a, and packet type is UPDATE
 Then I check ridstage where registration ID is the saved rid update a, and RID stage is CREATE_DRAFT, and stage status is FAILED
 And I delete packet data
 
@@ -6774,7 +6774,7 @@ And I ridsync where packet type is LOST, and packet zip path is the saved lost z
 And I packetsync where packet zip path is the saved lost zip2
 And I check status where packet status is PROCESSED, and registration ID is rid lost2
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is rid lost1
+Then I reprocess packet where registration ID is rid lost1, and packet type is LOST
 Then I check ridstage where registration ID is rid lost1, and RID stage is CREATE_DRAFT, and stage status is FAILED
 And I delete packet data
 
@@ -6807,7 +6807,7 @@ And I ridsync where packet type is LOST, and packet zip path is the saved lost z
 And I packetsync where packet zip path is the saved lost zip2
 And I check status where packet status is PROCESSED, and registration ID is rid lost2
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is rid lost2
+Then I reprocess packet where registration ID is rid lost2, and packet type is LOST
 Then I check ridstage where registration ID is rid lost2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
 And I delete packet data
 
@@ -6955,7 +6955,7 @@ And I check status where packet status is PROCESSED, and registration ID is rid 
 And I get uin by rid where source registration ID is rid lost2 and store result in lost packet UIN2
 Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved lost packet UIN2
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is rid lost1
+Then I reprocess packet where registration ID is rid lost1, and packet type is LOST
 Then I check ridstage where registration ID is rid lost1, and RID stage is CREATE_DRAFT, and stage status is FAILED
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and email or phone is the saved email and store result in VID

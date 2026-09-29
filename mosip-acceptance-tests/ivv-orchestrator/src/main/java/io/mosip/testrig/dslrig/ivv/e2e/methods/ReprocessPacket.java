@@ -35,18 +35,23 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	public void run() throws RigInternalError {
 	    String rid = null;
 
+	    String regType = null;
+
 	    if (step.getParameters().size() >= 1) {
 	        rid = step.getScenario().getVariables().get(step.getParameters().get(0));
 	    }
-
-	    Map<String, Object> registration = getRegistrationRecord(rid);
-	    String workflowInstanceId = value(registration, "workflow_instance_id");
-	    // process column holds NEW / UPDATE / LOST, required by securezone notification as reg_type
-	    String regType = value(registration, "process");
-	    if (regType == null || regType.isBlank()) {
-	        throw new RigInternalError("reg_type/process not found in regprc.registration for rid=" + rid
-	        		+ " keys=" + (registration == null ? "null" : registration.keySet()));
+	    if (step.getParameters().size() >= 2) {
+	        regType = step.getParameters().get(1);
+	        if (regType != null && regType.startsWith("$$")) {
+	            regType = step.getScenario().getVariables().get(regType);
+	        }
 	    }
+	    if (regType == null || regType.isBlank()) {
+	        throw new RigInternalError("packet type is required on reprocess for rid=" + rid
+	                + ". Pass NEW, UPDATE, or LOST from the scenario.");
+	    }
+
+	    String workflowInstanceId = getWorkflowInstanceId(rid);
 
 	    JSONObject jsonReq = new JSONObject();
 	    jsonReq.put("rid", rid);
@@ -76,7 +81,7 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	}
 
 	public static Map<String, Object> getRegistrationRecord(String RID) throws RigInternalError {
-		String sqlQuery = "SELECT workflow_instance_id, process FROM regprc.registration where reg_id='" + RID
+		String sqlQuery = "SELECT workflow_instance_id FROM regprc.registration where reg_id='" + RID
 				+ "' ORDER BY cr_dtimes DESC";
 		Map<String, Object> row = null;
 		try {
@@ -84,8 +89,8 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 		} catch (RuntimeException e) {
 			logger.error("Hibernate registration lookup failed for rid=" + RID + ": " + e.getMessage());
 		}
-		if (value(row, "process") == null || value(row, "workflow_instance_id") == null) {
-			logger.info("Registration lookup via audit connection missed process for rid=" + RID
+		if (value(row, "workflow_instance_id") == null) {
+			logger.info("Workflow lookup via audit connection missed workflow_instance_id for rid=" + RID
 					+ "; querying mosip_regprc directly");
 			row = queryRegprcDirect(RID);
 		}
@@ -122,7 +127,7 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 
 	/**
 	 * dev2 accepts Postgres on 5433. A blank db-port was defaulting to 5432, and that
-	 * port closes the connection, so the process column was never read.
+	 * port closes the connection, so workflow_instance_id was never read.
 	 */
 	private static List<String> candidatePorts() {
 		List<String> ports = new ArrayList<>();
@@ -146,7 +151,7 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	private static Map<String, Object> queryRegprc(String url, String user, String pass, String rid, String host,
 			String port) throws Exception {
 		Class.forName("org.postgresql.Driver");
-		String sql = "SELECT workflow_instance_id, process FROM regprc.registration WHERE reg_id=? ORDER BY cr_dtimes DESC";
+		String sql = "SELECT workflow_instance_id FROM regprc.registration WHERE reg_id=? ORDER BY cr_dtimes DESC";
 		try (Connection connection = DriverManager.getConnection(url, user, pass);
 				PreparedStatement statement = connection.prepareStatement(sql)) {
 			statement.setString(1, rid);
@@ -157,7 +162,6 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 				}
 				Map<String, Object> row = new HashMap<>();
 				row.put("workflow_instance_id", rs.getString("workflow_instance_id"));
-				row.put("process", rs.getString("process"));
 				return row;
 			}
 		}

@@ -1843,7 +1843,10 @@ public class PacketSyncService {
 	public String reprocessPacket(String rid, String workflowInstanceId, String regType, String contextKey)
 			throws Exception {
 		String url = baseUrl + "registrationprocessor/v1/securezone/notification";
-		String resolvedRegType = (regType == null || regType.isBlank()) ? "NEW" : regType.trim();
+		if (regType == null || regType.isBlank()) {
+			throw new IllegalArgumentException("reg_type is required for securezone reprocess of rid=" + rid);
+		}
+		String resolvedRegType = regType.trim().toUpperCase();
 		JSONObject requestBody = new JSONObject();
 		requestBody.put("reg_type", resolvedRegType);
 		requestBody.put("rid", rid);
