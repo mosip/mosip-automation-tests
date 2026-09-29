@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.dbaccess.DBManager;
@@ -33,9 +32,18 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	        rid = step.getScenario().getVariables().get(step.getParameters().get(0));
 	    }
 
+	    Map<String, Object> registration = getRegistrationRecord(rid);
+	    String workflowInstanceId = (String) registration.get("workflow_instance_id");
+	    // process column holds NEW / UPDATE / LOST ΓÇö required by securezone notification as reg_type
+	    String regType = registration.get("process") != null ? registration.get("process").toString() : null;
+	    if (regType == null || regType.isBlank()) {
+	        throw new RigInternalError("reg_type/process not found in regprc.registration for rid=" + rid);
+	    }
+
 	    JSONObject jsonReq = new JSONObject();
 	    jsonReq.put("rid", rid);
-	    jsonReq.put("workflowInstanceId", getWorkflowInstanceId(rid));
+	    jsonReq.put("workflowInstanceId", workflowInstanceId);
+	    jsonReq.put("regType", regType.trim().toUpperCase());
 
 	    Response response = postRequest(baseUrl + props.getProperty("reprocessPacket"), jsonReq.toString(), "Reprocess the rid", step);
 
@@ -59,11 +67,13 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	    }
 	}
 
-	public static String  getWorkflowInstanceId(String RID) {
-		String sqlQuery = "SELECT * FROM regprc.registration where reg_id='"+RID+"'";
+	public static Map<String, Object> getRegistrationRecord(String RID) {
+		String sqlQuery = "SELECT workflow_instance_id, process FROM regprc.registration where reg_id='" + RID + "'";
 
-		Map<String, Object> response = DBManager
-				.executeQueryAndGetRecord(ConfigManager.getproperty("audit_default_schema"), sqlQuery);
-		return (String) response.get("workflow_instance_id");
+		return DBManager.executeQueryAndGetRecord(ConfigManager.getproperty("audit_default_schema"), sqlQuery);
+	}
+
+	public static String getWorkflowInstanceId(String RID) {
+		return (String) getRegistrationRecord(RID).get("workflow_instance_id");
 	}
 }

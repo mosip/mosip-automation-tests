@@ -277,7 +277,7 @@ public class PacketTemplateProvider {
 			allIdentityDetails.put("isNew", true);
 		}
 		allIdentityDetails.put("isUpdate", false);
-		if (process.equals("UPDATE")) {
+		if (process != null && (process.equals("UPDATE") || process.contains("UPDATE"))) {
 			allIdentityDetails.put("isUpdate", true);
 		}
 		allIdentityDetails.put("isLost", false);

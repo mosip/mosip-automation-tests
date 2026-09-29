@@ -5216,7 +5216,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
@@ -5307,7 +5307,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
@@ -5336,7 +5336,7 @@ And I read pre req where pre-requisite data index is 4 and store result in exter
 And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_DEATH, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
 And I sync external packet where packet zip path is the saved second registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
 And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
 And I verify notification where notification type is updated, and email is the saved email
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
@@ -5354,7 +5354,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-And I check status where packet status is FAILED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
   @scenario_201
@@ -5369,7 +5369,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is minor, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-And I check status where packet status is FAILED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
   @scenario_202
@@ -5398,7 +5398,7 @@ And I get resident data where persona type is infant, and guardian flag is false
 And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is dob=04/24/2026, and persona file is the saved persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-And I check status where packet status is FAILED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
   @scenario_204
@@ -5414,7 +5414,7 @@ And I get resident data where persona type is infant, and guardian flag is false
 And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is dob=24/04/2026, and persona file is the saved persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-And I check status where packet status is FAILED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
   @scenario_205
@@ -5495,7 +5495,7 @@ And I read pre req where pre-requisite data index is 4 and store result in exter
 And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_DEATH, and parameter 3 is the saved persona file path, and parameter 4 is the saved UIN and store result in second registration ID
 And I sync external packet where packet zip path is the saved second registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
 And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
 And I verify notification where notification type is updated, and email is the saved email
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
@@ -5513,13 +5513,13 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
 And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_DEATH, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
 And I sync external packet where packet zip path is the saved second registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
 And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
 And I verify notification where notification type is updated, and email is the saved email
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
@@ -5552,7 +5552,7 @@ And I get email by uin where resident UIN is the saved child UIN and store resul
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_DEATH, and parameter 3 is the saved child persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
 And I sync external packet where packet zip path is the saved second registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
 And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
 And I verify notification where notification type is updated, and email is the saved email
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
@@ -6680,7 +6680,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is the saved registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
 And I delete packet data
 
   @scenario_259
@@ -6708,8 +6708,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 And I verify notification where notification type is updated, and email is the saved email
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is the saved second registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
-Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
 And I delete packet data
 
   @scenario_260
@@ -6729,13 +6728,13 @@ And I get uin by rid where source registration ID is the saved registration ID a
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I wait where wait seconds is 90
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name=Updated Resident260A, and persona file is the saved persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template a
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template a and store result in rid update a
 And I check status where packet status is PROCESSED, and registration ID is the saved rid update a
 And I verify notification where notification type is updated, and email is the saved email
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name=Updated Resident260B, and persona file is the saved persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template b
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template b and store result in rid update b
@@ -6809,8 +6808,7 @@ And I packetsync where packet zip path is the saved lost zip2
 And I check status where packet status is PROCESSED, and registration ID is rid lost2
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is rid lost2
-And I check status where packet status is PROCESSED, and registration ID is rid lost2
-Then I check ridstage where registration ID is rid lost2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+Then I check ridstage where registration ID is rid lost2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
 And I delete packet data
 
   @scenario_257
@@ -6965,6 +6963,306 @@ And I verify notification where notification type is Successful Generation of VI
 And I wait where wait seconds is 90
 And I demo authentication where demo field is emailId, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
 And I demo authentication where demo field is emailId, and UIN is the saved UIN, and persona file path is the saved old demo persona file path, and VID is the saved VID, and age update flag is ERROR
+And I delete packet data
+
+  @scenario_266
+  @Positive_Test
+  @persona_ResidentFemaleAdult
+  @group_External_New
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow for name
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I get ping health where component is targetenv
+And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
+And I sync external packet where packet zip path is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+  @scenario_267
+  @Positive_Test
+  @persona_ResidentFemaleAdult
+  @group_External_New
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow for date of birth
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I get ping health where component is targetenv
+And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
+And I sync external packet where packet zip path is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is dob=infant, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+  @scenario_268
+  @Positive_Test
+  @persona_ResidentFemaleAdult
+  @group_External_New
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow for gender
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I get ping health where component is targetenv
+And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
+And I sync external packet where packet zip path is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is gender=Male, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+  @scenario_269
+  @Positive_Test
+  @persona_ResidentFemaleAdult
+  @group_External_New
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow for name and date of birth
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I get ping health where component is targetenv
+And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
+And I sync external packet where packet zip path is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name and dob, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+  @scenario_270
+  @Positive_Test
+  @persona_ResidentFemaleAdult
+  @group_Adult_New
+  Scenario: Resident Infant walks into registration center gets UIN with parent RID details and later we perform crvs external packet update flow
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in parent persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved parent persona file path and store result in parent packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved parent persona file path, and packet template path is the saved parent packet template path and store result in parent registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved parent registration ID
+And I get uin by rid where source registration ID is the saved parent registration ID and store result in parent UIN
+And I get email by uin where resident UIN is the saved parent UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update resident with uin where persona file path is the saved parent persona file path, and UIN is the saved parent UIN
+And I get resident data where persona type is infant, and guardian flag is true, and gender and biometric flags is Male and false and false and true and store result in child persona file path
+And I update resident with guardian skipping pre reg where guardian persona file path is the saved parent persona file path, and child persona file path is the saved child persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved child persona file path and store result in child packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved child persona file path, and packet template path is the saved child packet template path and store result in child registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved child registration ID
+And I get uin by rid where source registration ID is the saved child registration ID and store result in child UIN
+And I get email by uin where resident UIN is the saved child UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved child persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved child persona file path, and parameter 4 is true, and parameter 5 is the saved child UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+  @scenario_271
+  @Positive_Test
+  @persona_ResidentFemaleAdult
+  @group_External_New
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow without the token
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I get ping health where component is targetenv
+And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
+And I sync external packet where packet zip path is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is the saved UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+  @scenario_272
+  @Negative_Test
+  @persona_ResidentFemaleAdult
+  @group_External_New
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow with invalid source and process
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I get ping health where component is targetenv
+And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
+And I sync external packet where packet zip path is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS11@invalid, and packet template path is CRVS_UPDATE1, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
+And I delete packet data
+
+  @scenario_273
+  @Negative_Test
+  @persona_ResidentFemaleAdult
+  @group_External_New
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow without UIN
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I get ping health where component is targetenv
+And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
+And I sync external packet where packet zip path is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is 0000000000 and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
+And I delete packet data
+
+  @scenario_274
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_New
+  Scenario: Resident walks into registration center completes the process and gets UIN card later we perform crvs external packet update flow for adult with biometrics
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS, and sub-status is RPR-WIA-001
+And I delete packet data
+
+  @scenario_275
+  @Positive_Test
+  @persona_ResidentFemaleAdult
+  @group_Adult_New
+  Scenario: Resident walks into registration center completes the process and gets UIN card later we perform crvs external packet death flow and then crvs external packet update flow
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_DEATH, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in third registration ID
+And I sync external packet where packet zip path is the saved third registration ID
+Then I check ridstage where registration ID is the saved third registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS
+And I delete packet data
+
+  @scenario_276
+  @Negative_Test
+  @persona_ResidentFemaleAdult
+  @group_External_New
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow with future date of birth
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I get ping health where component is targetenv
+And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
+And I sync external packet where packet zip path is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is dob=04/24/2027, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
+And I delete packet data
+
+  @scenario_277
+  @Negative_Test
+  @persona_ResidentFemaleAdult
+  @group_External_New
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow without necessary demographic data (missing name fields: fullName/firstName/lastName/middleName, and DOB set to future date 04/24/2027)
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I get ping health where component is targetenv
+And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
+And I sync external packet where packet zip path is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is name, and update attributes is dob=04/24/2027, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
   @scenario_AFTER_SUITE

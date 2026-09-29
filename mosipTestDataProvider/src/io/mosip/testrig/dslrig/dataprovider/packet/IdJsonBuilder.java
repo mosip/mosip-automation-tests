@@ -292,8 +292,10 @@ public final class IdJsonBuilder {
 							break;
 						}
 					}
-				if (flow.equals("CRVS_NEW")) {
-
+				// CRVS createPacket expects stringified simpleType values (same as CRVS_NEW path).
+				// For UPDATE/DEATH, constructNode would put a raw JSONArray and packetmanager returns 400.
+				if (flow != null && flow.toUpperCase().contains("CRVS")) {
+					// leave found=false so callers fall through to updateSimpleTypeString
 				} else {
 					CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(),
 							resident.getSecondaryLanguage(), primaryValue, secValue,
