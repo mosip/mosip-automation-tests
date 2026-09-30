@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=dslrig
-CHART_VERSION=1.6.0-SNAPSHOT
+CHART_VERSION=1.6.0-develop
 
 echo Create $NS namespace
 kubectl create ns $NS
