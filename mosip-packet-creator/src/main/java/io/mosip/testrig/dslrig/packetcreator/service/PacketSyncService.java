@@ -1009,8 +1009,8 @@ public class PacketSyncService {
 				} finally {
 					MDS_SEMAPHORE.release();
 				}
-				if (!returnMsg.equalsIgnoreCase("Success"))
-					return "{\"" + returnMsg + "\"}";
+				if (returnMsg == null || !returnMsg.equalsIgnoreCase("Success"))
+					return "{\"" + (returnMsg == null ? "template generation returned null" : returnMsg) + "\"}";
 
 				JSONObject obj = new JSONObject();
 				obj.put("id", resident.getId());
@@ -1158,6 +1158,17 @@ public class PacketSyncService {
 						oldValues.put("email", persona.getContact().getEmailId());
 						persona.getContact().setEmailId(value);
 						newValues.put("email", value);
+						break;
+
+					case "phone":
+					case "phonenumber":
+					case "mobilenumber":
+						String oldPhone = persona.getContact() == null ? "" : persona.getContact().getMobileNumber();
+						oldValues.put("phone", oldPhone == null ? "" : oldPhone);
+						if (persona.getContact() != null) {
+							persona.getContact().setMobileNumber(value == null ? "" : value);
+						}
+						newValues.put("phone", value == null ? "" : value);
 						break;
 
 					case "dob":
@@ -1843,7 +1854,10 @@ public class PacketSyncService {
 	public String reprocessPacket(String rid, String workflowInstanceId, String regType, String contextKey)
 			throws Exception {
 		String url = baseUrl + "registrationprocessor/v1/securezone/notification";
-		String resolvedRegType = (regType == null || regType.isBlank()) ? "NEW" : regType.trim();
+		if (regType == null || regType.isBlank()) {
+			throw new IllegalArgumentException("reg_type is required for securezone reprocess of rid=" + rid);
+		}
+		String resolvedRegType = regType.trim().toUpperCase();
 		JSONObject requestBody = new JSONObject();
 		requestBody.put("reg_type", resolvedRegType);
 		requestBody.put("rid", rid);

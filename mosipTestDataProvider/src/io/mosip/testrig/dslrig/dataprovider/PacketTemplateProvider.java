@@ -128,7 +128,12 @@ public class PacketTemplateProvider {
 
 		} catch (Throwable e) {
 			logger.error("generate", e);
-			return e.getMessage();
+			String message = e.getMessage();
+			String where = e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : e.getClass().getName();
+			if (message == null || message.isBlank()) {
+				message = e.getClass().getName();
+			}
+			return message + " at " + where;
 		}
 		JSONObject processMVEL = processMVEL(resident, idJson, process, contextSchemaDetail, contextKey);
 		idJson = processMVEL.toString();
@@ -202,7 +207,8 @@ public class PacketTemplateProvider {
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
-			if (s.getType().equalsIgnoreCase(DOCUMENTTYPE) || s.getType().equalsIgnoreCase(BIOMETRICSTYPE)) {
+			if (s.getType() != null && (s.getType().equalsIgnoreCase(DOCUMENTTYPE)
+					|| s.getType().equalsIgnoreCase(BIOMETRICSTYPE))) {
 				continue;
 			}
 			if (json.has(s.getId()))
@@ -214,7 +220,8 @@ public class PacketTemplateProvider {
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
-			if (s.getType().equalsIgnoreCase(DOCUMENTTYPE) || s.getType().equalsIgnoreCase(BIOMETRICSTYPE)) {
+			if (s.getType() != null && (s.getType().equalsIgnoreCase(DOCUMENTTYPE)
+					|| s.getType().equalsIgnoreCase(BIOMETRICSTYPE))) {
 				continue;
 			}
 			if (PacketJsonSupport.isNewRegistrationProcess(process)

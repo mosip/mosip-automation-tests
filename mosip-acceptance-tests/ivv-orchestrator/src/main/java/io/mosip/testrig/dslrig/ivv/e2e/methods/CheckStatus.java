@@ -103,9 +103,13 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 						gotSuccessfulPoll = true;
 						lastPollError = null;
 						logger.info("RID Status: " + ridStatus + " | Loop Count: " + counter);
-						if (!ridStatus.contains("under")) {
+						if (isTerminalPacketStatus(ridStatus)) {
 							stopReason = "status left under-processing";
 							break;
+						}
+						if (!ridStatus.contains("under")) {
+							logger.warn("Ignoring non-terminal status body for RID " + rid
+									+ " on loop " + counter + ": " + ridStatus);
 						}
 					} catch (Exception pollEx) {
 						lastPollError = rootMessage(pollEx);
@@ -177,6 +181,28 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			throw new RigInternalError("Packet status check interrupted");
 		}
 
+	}
+
+	/**
+	 * Keep polling through under-processing and through packet-creator error bodies
+	 * such as {@code {Failed}}. Only a real packet status (processed, rejected,
+	 * reregister, failed) ends the wait before {@code loopCount}.
+	 */
+	private static boolean isTerminalPacketStatus(String ridStatus) {
+		if (ridStatus == null || ridStatus.isBlank()) {
+			return false;
+		}
+		String status = ridStatus.trim().toLowerCase();
+		if (status.contains("under")) {
+			return false;
+		}
+		if (status.equals("{failed}") || status.startsWith("{") || status.startsWith("[")
+				|| status.contains("exception") || status.contains("timed out")
+				|| status.contains("cannot invoke") || status.contains("error")) {
+			return false;
+		}
+		return status.contains("processed") || status.contains("rejected") || status.contains("reregister")
+				|| status.equals("failed");
 	}
 
 	private static String rootMessage(Throwable t) {

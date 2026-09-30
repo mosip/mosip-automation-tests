@@ -219,8 +219,8 @@ public class ReadableDslStepCodecTest {
                         + "and persona file is the saved persona file path",
                 "e2e_updateDemoOrBioDetails(0,0,name=LostResident265A@@addressLine1=L1AddressLine,$$personaFilePath)");
         assertDecodeToDsl(
-                "I reprocess packet where registration ID is rid lost1",
-                "e2e_reprocessPacket($$ridLost1)");
+                "I reprocess packet where registration ID is rid lost1, and packet type is LOST",
+                "e2e_reprocessPacket($$ridLost1,LOST)");
         assertDecodeToDsl(
                 "I demo authentication where demo field is name, and UIN is the saved UIN, "
                         + "and persona file path is the saved persona file path, and VID is the saved VID",
