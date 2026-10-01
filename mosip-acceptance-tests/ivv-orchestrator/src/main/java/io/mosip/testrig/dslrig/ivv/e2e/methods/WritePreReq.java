@@ -51,6 +51,9 @@ public class WritePreReq extends BaseTestCaseUtil implements StepInterface {
 		try {
 			props.putAll(kernelprops);
 			for (Map.Entry<String, String> entry : map.entrySet()) {
+				if (entry.getKey() != null && entry.getKey().startsWith("$$")) {
+					continue;
+				}
 				if (entry.getValue() == null) {
 					props.setProperty(entry.getKey(), "");
 				} else if (entry.getValue() != null)

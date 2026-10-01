@@ -214,6 +214,11 @@ public final class IdJsonBuilder {
 
 	}
 
+	private static String variableText(String contextKey, String name) {
+		Object value = VariableManager.getVariableValue(contextKey, name);
+		return value == null ? "" : value.toString();
+	}
+
 	public static Boolean updateFromAdditionalAttribute(JSONObject identity, MosipIDSchema s, ResidentModel resident,
 			String contextKey) {
 		Boolean bRet = false;
@@ -227,7 +232,12 @@ public final class IdJsonBuilder {
 			String value = addtnAttr.get(key);
 
 			if (s.getId().equalsIgnoreCase(key)) {
-				if (s.getType().equals(SIMPLETYPE)) {
+				if (value == null || value.isBlank()) {
+					identity.put(s.getId(), "");
+					bRet = true;
+					break;
+				}
+				if (s.getType() != null && s.getType().equals(SIMPLETYPE)) {
 
 					JSONArray jsonO = null;
 					try {
@@ -261,7 +271,7 @@ public final class IdJsonBuilder {
 		Object processValue = VariableManager.getVariableValue(contextKey, "process");
 		String flow = processValue != null ? processValue.toString() : "";
 
-		if (s.getFieldType().equals("dynamic")) {
+		if (s.getFieldType() != null && s.getFieldType().equals("dynamic")) {
 
 			found = processGender(s, resident, identity, genderTypes, dynaFields, contextKey);
 			if (found)
@@ -292,8 +302,10 @@ public final class IdJsonBuilder {
 							break;
 						}
 					}
-				if (flow.equals("CRVS_NEW")) {
-
+				// CRVS createPacket expects stringified simpleType values (same as CRVS_NEW path).
+				// For UPDATE/DEATH, constructNode would put a raw JSONArray and packetmanager returns 400.
+				if (flow != null && flow.toUpperCase().contains("CRVS")) {
+					// leave found=false so callers fall through to updateSimpleTypeString
 				} else {
 					CreatePersona.constructNode(identity, s.getId(), resident.getPrimaryLanguage(),
 							resident.getSecondaryLanguage(), primaryValue, secValue,
@@ -359,13 +371,14 @@ public final class IdJsonBuilder {
 			}
 			
 
-			if (VariableManager.getVariableValue(contextKey, "invalidIdSchemaFlag").toString().equals("invalidIdSchema")
+			String invalidIdSchemaFlag = variableText(contextKey, "invalidIdSchemaFlag");
+			if (invalidIdSchemaFlag.equals("invalidIdSchema")
 					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion"))) {
 				identity.put(s.getId(), Double.valueOf(INVALID_SCHEMA));
 				continue;
 			}
 
-			if (VariableManager.getVariableValue(contextKey, "invalidIdSchemaFlag").toString().equals("oldIdSchema")
+			if (invalidIdSchemaFlag.equals("oldIdSchema")
 					&& s.getId().equals(VariableManager.getVariableValue(contextKey, "IDSchemaVersion"))) {
 				identity.put(s.getId(),MosipMasterData.getIDSchemaOldVersion(contextKey));
 				continue;
@@ -377,8 +390,10 @@ public final class IdJsonBuilder {
 				continue;
 			}
 
-			if (s.getId().contains("residenceStatus")) {
-				VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus", resident.getResidentStatus().getCode());
+			if (s.getId().contains("residenceStatus") && resident.getResidentStatus() != null
+					&& resident.getResidentStatus().getCode() != null) {
+				VariableManager.setVariableValue(contextKey, "ID_OBJECT-residenceStatus",
+						resident.getResidentStatus().getCode());
 			}
 
 			if (updateFromAdditionalAttribute(identity, s, resident, contextKey)) {
@@ -428,11 +443,13 @@ public final class IdJsonBuilder {
 						secValue = addrLines.getValue1();
 					}
 				} else if (s.getId().contains("residenceStatus")) {
-					primaryValue = resident.getResidentStatus().getCode();
-					secValue = primaryValue;
+					if (resident.getResidentStatus() != null) {
+						primaryValue = resident.getResidentStatus().getCode();
+						secValue = primaryValue;
+					}
 				} else if (VariableManager.getVariableValue(contextKey, "emailId") != null
 						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "emailId"))) {
-					primaryValue = resident.getContact().getEmailId();
+					primaryValue = resident.getContact() == null ? "" : resident.getContact().getEmailId();
 				}
 
 				else if (s.getId().toLowerCase().contains("blood")) {
@@ -440,7 +457,8 @@ public final class IdJsonBuilder {
 					secValue = primaryValue;
 				} else if (VariableManager.getVariableValue(contextKey, "individualBiometrics") != null
 						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "individualBiometrics"))) {
-					if(!VariableManager.getVariableValue(contextKey, "skipBiometricClassificationFlag").toString().contentEquals("skipBiometricClassification"))
+					if (!variableText(contextKey, "skipBiometricClassificationFlag")
+							.contentEquals("skipBiometricClassification"))
 					{
 						JSONObject o = new JSONObject();
 						o.put(FORMAT, CBEFF);

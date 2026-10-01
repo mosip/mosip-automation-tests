@@ -13,4 +13,7 @@ public class PacketReprocessDto {
 	@Schema(description = "Workflow instance id from registration status.", example = "wf-12345", requiredMode = Schema.RequiredMode.REQUIRED)
 	private String workflowInstanceId;
 
+	@Schema(description = "Registration process type for securezone notification (NEW, UPDATE, LOST).", example = "UPDATE", requiredMode = Schema.RequiredMode.REQUIRED)
+	private String regType;
+
 }

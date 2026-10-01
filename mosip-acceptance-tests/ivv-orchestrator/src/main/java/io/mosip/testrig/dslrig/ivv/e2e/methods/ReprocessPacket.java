@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.mosip.testrig.apirig.dbaccess.DBManager;
@@ -28,14 +27,26 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	@Override
 	public void run() throws RigInternalError {
 	    String rid = null;
+	    String regType = null;
 
 	    if (step.getParameters().size() >= 1) {
 	        rid = step.getScenario().getVariables().get(step.getParameters().get(0));
+	    }
+	    if (step.getParameters().size() >= 2) {
+	        regType = step.getParameters().get(1);
+	        if (regType != null && regType.startsWith("$$")) {
+	            regType = step.getScenario().getVariables().get(regType);
+	        }
+	    }
+	    if (regType == null || regType.isBlank()) {
+	        throw new RigInternalError("packet type is required on reprocess for rid=" + rid
+	                + ". Pass NEW, UPDATE, or LOST from the scenario.");
 	    }
 
 	    JSONObject jsonReq = new JSONObject();
 	    jsonReq.put("rid", rid);
 	    jsonReq.put("workflowInstanceId", getWorkflowInstanceId(rid));
+	    jsonReq.put("regType", regType.trim().toUpperCase());
 
 	    Response response = postRequest(baseUrl + props.getProperty("reprocessPacket"), jsonReq.toString(), "Reprocess the rid", step);
 
@@ -59,7 +70,7 @@ public class ReprocessPacket extends BaseTestCaseUtil implements StepInterface {
 	    }
 	}
 
-	public static String  getWorkflowInstanceId(String RID) {
+	public static String getWorkflowInstanceId(String RID) {
 		String sqlQuery = "SELECT * FROM regprc.registration where reg_id='"+RID+"'";
 
 		Map<String, Object> response = DBManager

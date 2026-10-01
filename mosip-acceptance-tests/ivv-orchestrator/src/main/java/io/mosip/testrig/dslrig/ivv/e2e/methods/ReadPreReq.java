@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.ivv.e2e.methods;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -52,7 +53,15 @@ public class ReadPreReq extends BaseTestCaseUtil implements StepInterface {
 				throw new RigInternalError(msg);
 			}
 			if (step.getOutVarName() != null) {
-				step.getScenario().getVariables().putAll(prereq);
+				HashMap<String, String> variables = step.getScenario().getVariables();
+				for (Map.Entry<String, String> entry : prereq.entrySet()) {
+					// A prereq written mid-suite (scenario 37 rewrites index 4) can still
+					// contain another scenario's $$personaFilePath / $$rid. Never apply those.
+					if (entry.getKey() != null && entry.getKey().startsWith("$$")) {
+						continue;
+					}
+					variables.put(entry.getKey(), entry.getValue());
+				}
 			}
 			Reporter.log("Loaded the prereq data for executing the scenario (index " + appendedkey + ")<br>");
 
