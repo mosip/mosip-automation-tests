@@ -67,7 +67,9 @@ public final class CrvsIdJsonBuilder {
 		}
 
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
-			RestClient.logInfo(contextKey, s.toJSONString());
+			if (RestClient.isDebugEnabled(contextKey)) {
+				RestClient.logInfo(contextKey, s.getId());
+			}
 
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;

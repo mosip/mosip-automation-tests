@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.dataprovider.variables;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -155,6 +156,23 @@ public final class VariableManager {
 		}
 
 		return bRet;
+	}
+
+	/**
+	 * Deletes every context created by set context. The default namespace is kept.
+	 * Called from after-suite {@code /runCache/clear}.
+	 */
+	public static void deleteScenarioNamespaces() {
+		if (varNameSpaces == null) {
+			return;
+		}
+		for (String nameSpace : new ArrayList<>(varNameSpaces.keySet())) {
+			if (NS_DEFAULT.equals(nameSpace)) {
+				continue;
+			}
+			deleteNameSpace(nameSpace);
+		}
+		logger.info("Deleted scenario context namespaces");
 	}
 
 	public static String deleteNameSpace(String contextKey) {

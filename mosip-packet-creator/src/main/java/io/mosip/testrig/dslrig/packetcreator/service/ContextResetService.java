@@ -37,6 +37,14 @@ public class ContextResetService {
 	}
 
 	/**
+	 * After-suite clear: run cache, then every context namespace created by set context.
+	 */
+	public void clearAfterSuite(String contextKey) {
+		clearRunScopedCache(contextKey);
+		VariableManager.deleteScenarioNamespaces();
+	}
+
+	/**
 	 * Full context reset: temp packet folders, run cache, and the entire context variable namespace.
 	 * Used by {@code /resetContextData} when a scenario needs a clean slate.
 	 */
