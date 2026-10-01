@@ -588,11 +588,15 @@ public class Orchestrator {
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 		}
 		if (dslConfigManager.isInTobeBugList("S-" + scenario.getId()) && isFullSuiteRun()) {
-			extentTest.skip("S-" + scenario.getId() + ": Skipping scenario due to known platform known issue");
+			String bugId = dslConfigManager.getBugId("S-" + scenario.getId());
+			String bugLabel = dslConfigManager.knownIssueLabel(bugId);
+			String skipMsg = "S-" + scenario.getId() + ": Skipping scenario due to known platform known issue"
+					+ (bugLabel.isEmpty() ? "" : " (" + bugLabel + ")");
+			extentTest.skip(skipMsg);
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			failBeforeSuiteIfScenario0Skipped(scenario);
 			updateRunStatistics(scenario);
-			throw new SkipException("S-" + scenario.getId() + ": Skipping scenario due to platform known issue");
+			throw new SkipException(skipMsg);
 		}
 		if (dslConfigManager.isInTobeSkippedList("A-" + scenario.getId()) && isFullSuiteRun()) {
 			extentTest.skip("A-" + scenario.getId()
