@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.hibernate.mapping.Set;
@@ -23,6 +25,13 @@ public class dslConfigManager extends ConfigManager {
 
 	private static final String KNOWN_ISSUES_JAVA11_FILE = "config/java11Known_Issues,txt";
 	private static final String KNOWN_ISSUES_JAVA21_FILE = "config/java21Known_Issues,txt";
+	private static final String JIRA_BROWSE_BASE = "https://mosip.atlassian.net/browse/";
+	private static final Pattern GITHUB_ISSUE_URL = Pattern.compile(
+			"^https?://github\\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/issues/(\\d+)(?:[/?#].*)?$",
+			Pattern.CASE_INSENSITIVE);
+	private static final Pattern GITHUB_ISSUE_SHORT = Pattern.compile(
+			"^(?:github:)?([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)#(\\d+)$",
+			Pattern.CASE_INSENSITIVE);
 
 	private static volatile Map<String, String> cachedTestcaseToBeSkippedMap;
 	private static volatile String knownIssuesSourceFile;
@@ -131,6 +140,56 @@ public class dslConfigManager extends ConfigManager {
 	public static String getBugId(String scenario) {
 	    Map<String, String> skipMap = loadTestcaseToBeSkippedMap();
 	    return skipMap.getOrDefault(normalizeScenarioKey(scenario), "");
+	}
+
+	/**
+	 * Report link for a known-issue id. Jira keys stay on mosip.atlassian.net.
+	 * A GitHub issue URL or {@code owner/repo#number} links to that GitHub issue.
+	 */
+	public static String knownIssueHref(String bugId) {
+		if (bugId == null) {
+			return "";
+		}
+		String id = bugId.trim();
+		if (id.isEmpty()) {
+			return "";
+		}
+		Matcher githubUrl = GITHUB_ISSUE_URL.matcher(id);
+		if (githubUrl.matches()) {
+			return githubIssueUrl(githubUrl);
+		}
+		Matcher githubShort = GITHUB_ISSUE_SHORT.matcher(id);
+		if (githubShort.matches()) {
+			return githubIssueUrl(githubShort);
+		}
+		if (id.startsWith("http://") || id.startsWith("https://")) {
+			return id;
+		}
+		return JIRA_BROWSE_BASE + id;
+	}
+
+	/** Short label shown in the report. GitHub entries render as {@code repo#number}. */
+	public static String knownIssueLabel(String bugId) {
+		if (bugId == null) {
+			return "";
+		}
+		String id = bugId.trim();
+		if (id.isEmpty()) {
+			return "";
+		}
+		Matcher githubUrl = GITHUB_ISSUE_URL.matcher(id);
+		if (githubUrl.matches()) {
+			return githubUrl.group(2) + "#" + githubUrl.group(3);
+		}
+		Matcher githubShort = GITHUB_ISSUE_SHORT.matcher(id);
+		if (githubShort.matches()) {
+			return githubShort.group(2) + "#" + githubShort.group(3);
+		}
+		return id;
+	}
+
+	private static String githubIssueUrl(Matcher matcher) {
+		return "https://github.com/" + matcher.group(1) + "/" + matcher.group(2) + "/issues/" + matcher.group(3);
 	}
 
 	/**
