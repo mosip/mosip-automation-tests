@@ -295,20 +295,20 @@ public class EmailableReport implements IReporter {
 		writer.print(".left-aligned {text-align:left;}");
 		writer.print(".attn { background-color: #eb5050 !important; }");
 		writer.print(".red-text { color: #000 !important; font-weight: normal; }");
-		writer.print(".bug-column { width:150px; min-width:150px; white-space:nowrap; text-align:center; overflow:visible; }");
+		writer.print(".bug-column { width:220px; min-width:220px; white-space:nowrap; text-align:center; overflow:visible; }");
 		writer.print(
 				".dsl-scenario-summary-wrap { border:1px solid #d1d1d1; border-radius:8px; overflow:hidden; margin:12px 0 18px; background:#fff; }");
 		writer.print(".dsl-scenario-summary-wrap #summary.scenario-table { table-layout:fixed; width:100%; margin-bottom:0; }");
 		writer.print(
 				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(1), .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(1) { width:12%; min-width:120px; text-align:center; }");
 		writer.print(
-				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(2) { width:74%; vertical-align:top; text-align:center; }");
+				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(2) { width:70%; vertical-align:top; text-align:center; }");
 		writer.print(
-				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) { width:74%; vertical-align:top; text-align:left; }");
+				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) { width:70%; vertical-align:top; text-align:left; }");
 		writer.print(
 				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2), .dsl-scenario-summary-wrap #summary.scenario-table td.scenario-desc-col, .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) * { white-space:normal !important; overflow:visible !important; text-overflow:clip !important; word-break:break-word !important; overflow-wrap:anywhere !important; }");
 		writer.print(
-				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(3), .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(3) { width:14%; min-width:150px; text-align:center; vertical-align:top; overflow:visible; white-space:nowrap; }");
+				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(3), .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(3) { width:18%; min-width:220px; text-align:center; vertical-align:top; overflow:visible; white-space:nowrap; }");
 		writer.print(
 				".dsl-scenario-summary-wrap #summary thead th { background:#d6dfe8 !important; color:#1a1a1a !important; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; text-align:center !important; border-color:#d1d1d1 !important; }");
 		writer.print(
@@ -786,8 +786,11 @@ public class EmailableReport implements IReporter {
 							String bugId = dslConfigManager.getBugId("S-" + scenarioDetails[0]);
 
 							if (bugId != null && !bugId.isEmpty()) {
-								displayValue = "<a href='https://mosip.atlassian.net/browse/" + bugId
-										+ "' target='_blank' style='text-decoration:none;'>" + "🔗 " + bugId + "</a>";
+								String href = dslConfigManager.knownIssueHref(bugId);
+								String label = dslConfigManager.knownIssueLabel(bugId);
+								displayValue = "<a href='" + Utils.escapeHtml(href)
+										+ "' target='_blank' style='text-decoration:none;'>" + "🔗 "
+										+ Utils.escapeHtml(label) + "</a>";
 
 							} else {
 								displayValue = "NA";
