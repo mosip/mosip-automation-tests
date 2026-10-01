@@ -48,7 +48,9 @@ public final class EvidenceJsonBuilder {
 		List<String> missList = resident.getMissAttributes();
 
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
-			RestClient.logInfo(contextKey, s.toJSONString());
+			if (RestClient.isDebugEnabled(contextKey)) {
+				RestClient.logInfo(contextKey, s.getId());
+			}
 			String primVal = "";
 			String secVal = "";
 
