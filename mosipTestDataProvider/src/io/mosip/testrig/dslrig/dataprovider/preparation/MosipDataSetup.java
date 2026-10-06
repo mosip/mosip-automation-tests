@@ -499,7 +499,8 @@ public class MosipDataSetup {
 	}
 
 	public static String configureMockABISBiometric(String bdbString, boolean bDuplicate, String[] duplicateBdbs,
-			int delay, String operation, String contextKey, String statusCode, String failureReason)
+			int delay, String operation, String contextKey, String statusCode, String failureReason,
+			boolean deleteAfterUse)
 			throws JSONException, NoSuchAlgorithmException {
 
 		if (operation == null || operation.equals(""))
@@ -522,6 +523,7 @@ public class MosipDataSetup {
 		req.put("forcedResponse", forcedResponse);
 		req.put("delayInExecution", Integer.toString(delay));
 		req.put("errorCode", errorCode);
+		req.put("deleteAfterUse", deleteAfterUse);
 
 		if (!bDuplicate)
 			req.put("gallery", JSONObject.NULL);

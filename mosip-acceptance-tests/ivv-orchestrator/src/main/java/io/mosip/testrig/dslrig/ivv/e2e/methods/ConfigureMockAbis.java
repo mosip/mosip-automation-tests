@@ -159,6 +159,7 @@ public class ConfigureMockAbis extends BaseTestCaseUtil implements StepInterface
 
 		jsonOutterReq.put("statusCode", statusCode);
 		jsonOutterReq.put("failureReason", failureReason);
+		jsonOutterReq.put("deleteAfterUse", delaySec > 0);
 
 		JSONArray refHashs = new JSONArray();
 		if (!hashModality.isEmpty() && hashModality.size() > 0) {
