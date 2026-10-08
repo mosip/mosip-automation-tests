@@ -73,6 +73,22 @@ public final class PersonaParseCache {
 		BYTES_CACHE.clear();
 	}
 
+	/**
+	 * Drops cached bytes for a persona file so a later read sees the write even
+	 * when the file timestamp does not change.
+	 */
+	public static void invalidate(String filePath) {
+		if (filePath == null || filePath.isBlank()) {
+			return;
+		}
+		try {
+			String prefix = Paths.get(filePath).toAbsolutePath().normalize().toString() + "@";
+			BYTES_CACHE.keySet().removeIf(key -> key.startsWith(prefix));
+		} catch (Exception e) {
+			logger.debug("Persona cache invalidate skipped for {}", filePath, e);
+		}
+	}
+
 	private static void evictIfNeeded() {
 		int overflow = BYTES_CACHE.size() - MAX_ENTRIES;
 		if (overflow <= 0) {
