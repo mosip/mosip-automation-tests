@@ -53,13 +53,43 @@ import io.restassured.specification.RequestSpecification;
 public class BaseTestCaseUtil extends BaseStep {
 	private static final Logger logger = LoggerFactory.getLogger(BaseTestCaseUtil.class);
 
-	public static Properties props = new AdminTestUtil()
-			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
-
-	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
-
 	public static final long DEFAULT_WAIT_TIME = 30000l;
 	public static final long TIME_IN_MILLISEC = 1000l;
+	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = 10_000;
+	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
+	private static final int PACKET_CREATOR_CONNECT_MS = 15_000;
+	private static final int PACKET_CREATOR_SOCKET_MS = 120_000;
+	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = 600_000L;
+	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = 15_000;
+	private static final String REGPROC_DEFAULT_PROPERTIES = "registration-processor-default.properties";
+	private static final String BIO_DEDUPE_REPROCESS_BUFFER_TIME = "registration.processor.bio.dedupe.reprocess.buffer.time";
+
+	public static Properties props = new AdminTestUtil()
+			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
+	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
+	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
+			.httpClient(HttpClientConfig.httpClientConfig()
+					.setParam("http.connection.timeout", PACKET_CREATOR_CONNECT_MS)
+					.setParam("http.socket.timeout", PACKET_CREATOR_SOCKET_MS));
+
+	public static PacketUtility packetUtility = new PacketUtility();
+	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
+	public static Map<String, String> sceanrioExecutionStatistics = Collections
+			.synchronizedMap(new HashMap<String, String>());
+	public static String partnerKeyUrl = null;
+	public static String kycPartnerKeyUrl = null;
+	public static String partnerId = null;
+	public static String kycPartnerId = null;
+	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
+	public static String extentReportName = "";
+	public static long exectionStartTime = 0;
+	public static long exectionEndTime = 0;
+	public static JSONArray regProcActuatorResponseArray = null;
+	public static String regProcWaitInterval = "";
+	public static String bioDedupeReprocessBufferSeconds = "";
+
+	public BaseTestCaseUtil() {
+	}
 
 	/**
 	 * Sleeps for the given duration while updating a single console line every second
@@ -127,24 +157,6 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 	}
 
-	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = 10_000;
-
-	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
-
-	/** Prevents orchestrator threads hanging forever on packet-creator / resident/* calls. */
-	private static final int PACKET_CREATOR_CONNECT_MS = 15_000;
-
-	private static final int PACKET_CREATOR_SOCKET_MS = 120_000;
-
-	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
-			.httpClient(HttpClientConfig.httpClientConfig()
-					.setParam("http.connection.timeout", PACKET_CREATOR_CONNECT_MS)
-					.setParam("http.socket.timeout", PACKET_CREATOR_SOCKET_MS));
-
-	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = 600_000L;
-
-	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = 15_000;
-
 	public static long getMaxPacketStatusWaitTimeMs() {
 		String value = props.getProperty("maxPacketStatusWaitTimeMs");
 		if (value == null || value.isBlank()) {
@@ -183,19 +195,6 @@ public class BaseTestCaseUtil extends BaseStep {
 				.setParam("http.socket.timeout", socketMs));
 	}
 
-	public static PacketUtility packetUtility = new PacketUtility();
-	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
-
-	public static Map<String, String> sceanrioExecutionStatistics = Collections
-			.synchronizedMap(new HashMap<String, String>());
-
-
-	public static String partnerKeyUrl = null;
-	public static String kycPartnerKeyUrl = null;
-	public static String partnerId = null;
-	public static String kycPartnerId = null;
-	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
-
 	/** In-memory key used by {@link io.mosip.testrig.dslrig.ivv.e2e.methods.WritePreReq} / ReadPreReq. */
 	public static String prereqStoragePath(String index) {
 		return TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
@@ -217,21 +216,12 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 	}
 
-	public static String extentReportName="";
-    public static long exectionStartTime = 0;
-    public static long exectionEndTime = 0;
-	public static JSONArray regProcActuatorResponseArray = null;
-	public static String regProcWaitInterval = "";
-
 	public static String getExtentReportName() {
 		return extentReportName;
 	}
 
 	public static void setExtentReportName(String emailableReportName) {
 		BaseTestCaseUtil.extentReportName = emailableReportName;
-	}
-
-	public BaseTestCaseUtil() {
 	}
 
 	public String getDateTime() {
@@ -786,36 +776,73 @@ public class BaseTestCaseUtil extends BaseStep {
 	}
 
 	public static String getRegprocWaitFromActuator() {
-		String url = BaseTestCase.ApplnURI + dslConfigManager.getproperty("actuatorRegprocEndpoint");
-
 		if (regProcWaitInterval != null && !regProcWaitInterval.isEmpty())
 			return regProcWaitInterval;
 
 		try {
-			if (regProcActuatorResponseArray == null) {
-				Response response = null;
-				JSONObject responseJson = null;
-				response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
-				DslReportLogUtil.reportResponse(response.getHeaders().asList().toString(), url, response);
-
-				responseJson = new JSONObject(response.getBody().asString());
-				regProcActuatorResponseArray = responseJson.getJSONArray("propertySources");
-			}
-
-			for (int i = 0, size = regProcActuatorResponseArray.length(); i < size; i++) {
-				JSONObject eachJson = regProcActuatorResponseArray.getJSONObject(i);
-				if (eachJson.get("name").toString().contains("registration-processor-default.properties")) {
-					regProcWaitInterval = eachJson.getJSONObject(GlobalConstants.PROPERTIES)
-							.getJSONObject("registration.processor.reprocess.minutes").get(GlobalConstants.VALUE)
-							.toString();
-					break;
-				}
-			}
+			loadRegprocActuatorPropertySources();
+			regProcWaitInterval = readRegprocActuatorProperty("registration.processor.reprocess.minutes", true);
 			return regProcWaitInterval;
 		} catch (Exception e) {
 			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
 			return regProcWaitInterval;
 		}
+	}
+
+	/**
+	 * Seconds from {@code registration.processor.bio.dedupe.reprocess.buffer.time}
+	 * in the regproc actuator env. Empty when the property is absent.
+	 */
+	public static String getBioDedupeReprocessBufferSeconds() {
+		if (bioDedupeReprocessBufferSeconds != null && !bioDedupeReprocessBufferSeconds.isEmpty())
+			return bioDedupeReprocessBufferSeconds;
+
+		try {
+			loadRegprocActuatorPropertySources();
+			bioDedupeReprocessBufferSeconds = readRegprocActuatorProperty(BIO_DEDUPE_REPROCESS_BUFFER_TIME, false);
+			return bioDedupeReprocessBufferSeconds == null ? "" : bioDedupeReprocessBufferSeconds;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return bioDedupeReprocessBufferSeconds == null ? "" : bioDedupeReprocessBufferSeconds;
+		}
+	}
+
+	private static void loadRegprocActuatorPropertySources() {
+		if (regProcActuatorResponseArray != null)
+			return;
+
+		String url = BaseTestCase.ApplnURI + dslConfigManager.getproperty("actuatorRegprocEndpoint");
+		Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+		DslReportLogUtil.reportResponse(response.getHeaders().asList().toString(), url, response);
+		JSONObject responseJson = new JSONObject(response.getBody().asString());
+		regProcActuatorResponseArray = responseJson.getJSONArray("propertySources");
+	}
+
+	/**
+	 * @param onlyDefaultFile when true, read only registration-processor-default.properties
+	 *                         (same source the reprocess minute list has always used). When false,
+	 *                         use the first property source that defines the key, which is the
+	 *                         effective Spring value.
+	 */
+	private static String readRegprocActuatorProperty(String propertyKey, boolean onlyDefaultFile) {
+		if (regProcActuatorResponseArray == null)
+			return "";
+
+		for (int i = 0, size = regProcActuatorResponseArray.length(); i < size; i++) {
+			JSONObject eachJson = regProcActuatorResponseArray.getJSONObject(i);
+			if (onlyDefaultFile && !eachJson.optString("name").contains(REGPROC_DEFAULT_PROPERTIES))
+				continue;
+			JSONObject properties = eachJson.optJSONObject(GlobalConstants.PROPERTIES);
+			if (properties == null || !properties.has(propertyKey))
+				continue;
+			JSONObject entry = properties.optJSONObject(propertyKey);
+			if (entry == null || !entry.has(GlobalConstants.VALUE))
+				continue;
+			String value = entry.get(GlobalConstants.VALUE).toString().trim();
+			if (!value.isEmpty())
+				return value;
+		}
+		return "";
 	}
 
 	protected String resolveScenarioVariable(String value) throws RigInternalError {
