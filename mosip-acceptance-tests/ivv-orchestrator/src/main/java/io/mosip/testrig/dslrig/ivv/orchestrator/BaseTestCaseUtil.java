@@ -53,14 +53,19 @@ import io.restassured.specification.RequestSpecification;
 public class BaseTestCaseUtil extends BaseStep {
 	private static final Logger logger = LoggerFactory.getLogger(BaseTestCaseUtil.class);
 
-	/** Seconds-to-milliseconds factor used by wait steps. */
-	public static final long TIME_IN_MILLISEC = 1000L;
+	public static final long DEFAULT_WAIT_TIME = 30000l;
+	public static final long TIME_IN_MILLISEC = 1000l;
+	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = 10_000;
+	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
+	private static final int PACKET_CREATOR_CONNECT_MS = 15_000;
+	private static final int PACKET_CREATOR_SOCKET_MS = 120_000;
+	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = 600_000L;
+	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = 15_000;
+	private static final String REGPROC_DEFAULT_PROPERTIES = "registration-processor-default.properties";
+	private static final String BIO_DEDUPE_REPROCESS_BUFFER_TIME = "registration.processor.bio.dedupe.reprocess.buffer.time";
 
 	public static Properties props = new AdminTestUtil()
 			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
-	public static final long DEFAULT_WAIT_TIME = orchestratorLong("defaultWaitTimeMs", 30_000L);
-	private static final int PACKET_CREATOR_CONNECT_MS = orchestratorInt("packetCreatorConnectMs", 15_000);
-	private static final int PACKET_CREATOR_SOCKET_MS = orchestratorInt("packetCreatorSocketMs", 120_000);
 	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
 	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
 			.httpClient(HttpClientConfig.httpClientConfig()
@@ -153,50 +158,33 @@ public class BaseTestCaseUtil extends BaseStep {
 	}
 
 	public static long getMaxPacketStatusWaitTimeMs() {
-		return orchestratorLong("maxPacketStatusWaitTimeMs", 600_000L);
-	}
-
-	public static int getPacketStatusSocketTimeoutMs() {
-		return orchestratorInt("packetStatusSocketTimeoutMs", 15_000);
-	}
-
-	private static long orchestratorLong(String key, long fallback) {
-		String value = props == null ? null : props.getProperty(key);
+		String value = props.getProperty("maxPacketStatusWaitTimeMs");
 		if (value == null || value.isBlank()) {
-			return fallback;
+			return DEFAULT_MAX_PACKET_STATUS_WAIT_MS;
 		}
 		try {
 			long parsed = Long.parseLong(value.trim());
-			if (parsed > 0) {
-				return parsed;
-			}
+			return parsed > 0 ? parsed : DEFAULT_MAX_PACKET_STATUS_WAIT_MS;
 		} catch (NumberFormatException e) {
-			logger.warn("Invalid {} '{}', using default {}", key, value, fallback);
-			return fallback;
+			logger.warn("Invalid maxPacketStatusWaitTimeMs '{}', using default {}", value,
+					DEFAULT_MAX_PACKET_STATUS_WAIT_MS);
+			return DEFAULT_MAX_PACKET_STATUS_WAIT_MS;
 		}
-		logger.warn("Invalid {} '{}', using default {}", key, value, fallback);
-		return fallback;
 	}
 
-	private static int orchestratorInt(String key, int fallback) {
-		long parsed = orchestratorLong(key, fallback);
-		if (parsed > Integer.MAX_VALUE) {
-			logger.warn("Invalid {} '{}', using default {}", key, parsed, fallback);
-			return fallback;
+	public static int getPacketStatusSocketTimeoutMs() {
+		String value = props.getProperty("packetStatusSocketTimeoutMs");
+		if (value == null || value.isBlank()) {
+			return DEFAULT_PACKET_STATUS_SOCKET_MS;
 		}
-		return (int) parsed;
-	}
-
-	private static String dslProperty(String key, String fallback) {
 		try {
-			String value = dslConfigManager.getproperty(key);
-			if (value != null && !value.isBlank()) {
-				return value.trim();
-			}
-		} catch (Exception e) {
-			logger.warn("Unable to read {} from dsl.properties, using {}", key, fallback);
+			int parsed = Integer.parseInt(value.trim());
+			return parsed > 0 ? parsed : DEFAULT_PACKET_STATUS_SOCKET_MS;
+		} catch (NumberFormatException e) {
+			logger.warn("Invalid packetStatusSocketTimeoutMs '{}', using default {}", value,
+					DEFAULT_PACKET_STATUS_SOCKET_MS);
+			return DEFAULT_PACKET_STATUS_SOCKET_MS;
 		}
-		return fallback;
 	}
 
 	private static RestAssuredConfig packetCreatorHttpConfig(int socketTimeoutMs) {
@@ -343,8 +331,8 @@ public class BaseTestCaseUtil extends BaseStep {
 			String logUrl = pcBase + "/context/internalApiLogs/" + pathKey + "?clear=true&reportHints=true";
 			RestAssuredConfig timeoutConfig = RestAssuredConfig.config()
 					.httpClient(HttpClientConfig.httpClientConfig()
-							.setParam("http.connection.timeout", orchestratorInt("internalApiLogFetchConnectMs", 10_000))
-							.setParam("http.socket.timeout", orchestratorInt("internalApiLogFetchReadMs", 30_000)));
+							.setParam("http.connection.timeout", INTERNAL_API_LOG_FETCH_CONNECT_MS)
+							.setParam("http.socket.timeout", INTERNAL_API_LOG_FETCH_READ_MS));
 			io.restassured.response.Response r = io.restassured.RestAssured.given().config(timeoutConfig)
 					.relaxedHTTPSValidation().get(logUrl);
 			String body;
@@ -811,9 +799,7 @@ public class BaseTestCaseUtil extends BaseStep {
 
 		try {
 			loadRegprocActuatorPropertySources();
-			bioDedupeReprocessBufferSeconds = readRegprocActuatorProperty(dslProperty(
-					"bioDedupeReprocessBufferTimeKey", "registration.processor.bio.dedupe.reprocess.buffer.time"),
-					false);
+			bioDedupeReprocessBufferSeconds = readRegprocActuatorProperty(BIO_DEDUPE_REPROCESS_BUFFER_TIME, false);
 			return bioDedupeReprocessBufferSeconds == null ? "" : bioDedupeReprocessBufferSeconds;
 		} catch (Exception e) {
 			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
@@ -842,11 +828,9 @@ public class BaseTestCaseUtil extends BaseStep {
 		if (regProcActuatorResponseArray == null)
 			return "";
 
-		String defaultPropertiesFile = dslProperty("regprocActuatorPropertySection",
-				"registration-processor-default.properties");
 		for (int i = 0, size = regProcActuatorResponseArray.length(); i < size; i++) {
 			JSONObject eachJson = regProcActuatorResponseArray.getJSONObject(i);
-			if (onlyDefaultFile && !eachJson.optString("name").contains(defaultPropertiesFile))
+			if (onlyDefaultFile && !eachJson.optString("name").contains(REGPROC_DEFAULT_PROPERTIES))
 				continue;
 			JSONObject properties = eachJson.optJSONObject(GlobalConstants.PROPERTIES);
 			if (properties == null || !properties.has(propertyKey))
