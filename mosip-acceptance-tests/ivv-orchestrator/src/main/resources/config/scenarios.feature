@@ -7263,7 +7263,7 @@ And I sync external packet where packet zip path is the saved second registratio
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_282
+  @scenario_281
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
@@ -7283,6 +7283,51 @@ Then I check ridstage where registration ID is the saved registration ID, and RI
 And I rename packet objects where registration ID is the saved registration ID, and packet process is NEW, and object action is rename, and hold seconds is 90
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+  @scenario_283
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_NA
+  Scenario: Biometric correction packet BC1 is stuck on a 3 minute ABIS delay while biometric correction packet BC2 with different details is processed. BC2 keeps the latest resident data. After the delay completes, BC1 is also processed
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is email=additionalReqId_283, and persona file is the saved persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path, and biometric quality score is 10 and store result in packet template path
+And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS, and sub-status is RPR-WIA-001
+Then I get additional req id where email prefix is additionalReqId_283 and store result in additional req id
+And I clone resident data where persona file path is the saved persona file path and store result in bc1 persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved bc1 persona file path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved bc1 persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved bc1 persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I get packet template where packet type is BIOMETRIC_CORRECTION, and persona file path is the saved bc1 persona file path and store result in correction template bc1
+And I packetcreator where packet type is BIOMETRIC_CORRECTION, and template path is the saved correction template bc1, and additional info request ID is additional req id and store result in correction zip bc1
+And I ridsync where packet type is BIOMETRIC_CORRECTION, and packet zip path is the saved correction zip bc1, and additional info request ID is additional req id and store result in rid bc1
+And I packetsync where packet zip path is the saved correction zip bc1
+Then I check ridstage where registration ID is the saved rid bc1, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I get packet template where packet type is BIOMETRIC_CORRECTION, and persona file path is the saved persona file path and store result in correction template bc2
+And I packetcreator where packet type is BIOMETRIC_CORRECTION, and template path is the saved correction template bc2, and additional info request ID is additional req id and store result in correction zip bc2
+And I ridsync where packet type is BIOMETRIC_CORRECTION, and packet zip path is the saved correction zip bc2, and additional info request ID is additional req id and store result in rid bc2
+And I packetsync where packet zip path is the saved correction zip bc2
+And I check status where packet status is PROCESSED, and registration ID is the saved rid bc2
+And I get uin by rid where source registration ID is the saved rid bc2 and store result in uin after bc2
+And I get email by uin where resident UIN is the saved uin after bc2 and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved rid bc2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is 180
+And I check status where packet status is PROCESSED, and registration ID is the saved rid bc1
+Then I check ridstage where registration ID is the saved rid bc1, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after bc2 and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved uin after bc2, and persona file path is the saved persona file path, and VID is the saved VID
 And I delete packet data
 
   @scenario_AFTER_SUITE
