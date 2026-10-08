@@ -55,18 +55,16 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	public static Properties props = new AdminTestUtil()
 			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
-	public static final long DEFAULT_WAIT_TIME = longProperty("defaultWaitTimeMs", 30000L);
-	public static final long TIME_IN_MILLISEC = longProperty("timeInMillisec", 1000L);
-	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = intProperty("internalApiLogFetchConnectMs", 10_000);
-	private static final int INTERNAL_API_LOG_FETCH_READ_MS = intProperty("internalApiLogFetchReadMs", 30_000);
-	private static final int PACKET_CREATOR_CONNECT_MS = intProperty("packetCreatorConnectMs", 15_000);
-	private static final int PACKET_CREATOR_SOCKET_MS = intProperty("packetCreatorSocketMs", 120_000);
-	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = longProperty("maxPacketStatusWaitTimeMs", 600_000L);
-	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = intProperty("packetStatusSocketTimeoutMs", 15_000);
-	private static final String REGPROC_DEFAULT_PROPERTIES = dslProperty("regprocActuatorPropertySection",
-			"registration-processor-default.properties");
-	private static final String BIO_DEDUPE_REPROCESS_BUFFER_TIME = dslProperty("bioDedupeReprocessBufferTimeKey",
-			"registration.processor.bio.dedupe.reprocess.buffer.time");
+	public static final long DEFAULT_WAIT_TIME = longProperty("defaultWaitTimeMs");
+	public static final long TIME_IN_MILLISEC = longProperty("timeInMillisec");
+	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = intProperty("internalApiLogFetchConnectMs");
+	private static final int INTERNAL_API_LOG_FETCH_READ_MS = intProperty("internalApiLogFetchReadMs");
+	private static final int PACKET_CREATOR_CONNECT_MS = intProperty("packetCreatorConnectMs");
+	private static final int PACKET_CREATOR_SOCKET_MS = intProperty("packetCreatorSocketMs");
+	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = longProperty("maxPacketStatusWaitTimeMs");
+	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = intProperty("packetStatusSocketTimeoutMs");
+	private static final String REGPROC_DEFAULT_PROPERTIES = dslProperty("regprocActuatorPropertySection");
+	private static final String BIO_DEDUPE_REPROCESS_BUFFER_TIME = dslProperty("bioDedupeReprocessBufferTimeKey");
 	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
 	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
 			.httpClient(HttpClientConfig.httpClientConfig()
@@ -158,38 +156,44 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 	}
 
-	private static long longProperty(String key, long fallback) {
+	private static long longProperty(String key) {
 		if (props == null) {
-			return fallback;
+			throw new IllegalStateException("Missing test-orchestrator_mz.properties value for " + key);
 		}
 		String value = props.getProperty(key);
 		if (value == null || value.isBlank()) {
-			return fallback;
+			throw new IllegalStateException("Missing test-orchestrator_mz.properties value for " + key);
 		}
 		try {
 			long parsed = Long.parseLong(value.trim());
-			return parsed > 0 ? parsed : fallback;
-		} catch (NumberFormatException e) {
-			logger.warn("Invalid {} '{}', using {}", key, value, fallback);
-			return fallback;
-		}
-	}
-
-	private static int intProperty(String key, int fallback) {
-		long parsed = longProperty(key, fallback);
-		return parsed > Integer.MAX_VALUE ? fallback : (int) parsed;
-	}
-
-	private static String dslProperty(String key, String fallback) {
-		try {
-			String value = dslConfigManager.getproperty(key);
-			if (value != null && !value.isBlank()) {
-				return value.trim();
+			if (parsed <= 0) {
+				throw new IllegalStateException("Invalid " + key + " '" + value + "'");
 			}
-		} catch (Exception e) {
-			logger.warn("Unable to read {} from dsl.properties, using {}", key, fallback);
+			return parsed;
+		} catch (NumberFormatException e) {
+			throw new IllegalStateException("Invalid " + key + " '" + value + "'", e);
 		}
-		return fallback;
+	}
+
+	private static int intProperty(String key) {
+		long parsed = longProperty(key);
+		if (parsed > Integer.MAX_VALUE) {
+			throw new IllegalStateException("Invalid " + key + " '" + parsed + "'");
+		}
+		return (int) parsed;
+	}
+
+	private static String dslProperty(String key) {
+		String value;
+		try {
+			value = dslConfigManager.getproperty(key);
+		} catch (Exception e) {
+			throw new IllegalStateException("Missing dsl.properties value for " + key, e);
+		}
+		if (value == null || value.isBlank()) {
+			throw new IllegalStateException("Missing dsl.properties value for " + key);
+		}
+		return value.trim();
 	}
 
 	public static long getMaxPacketStatusWaitTimeMs() {
