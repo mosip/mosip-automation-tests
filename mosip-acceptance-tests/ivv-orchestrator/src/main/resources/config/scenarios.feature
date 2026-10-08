@@ -7263,7 +7263,7 @@ And I sync external packet where packet zip path is the saved second registratio
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_284
+  @scenario_282
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
