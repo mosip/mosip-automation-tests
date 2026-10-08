@@ -119,6 +119,10 @@ public class dslConfigManager extends ConfigManager {
 		return getproperty("esignetMockBaseURL");
 	}
 
+	public static String getMinioBucket() {
+		return ConfigManager.getproperty("minio-bucket");
+	}
+
 	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
 		String toSkippedList = ConfigManager.getproperty("scenariosToSkip");
 		List<String> toBeSkippedLsit = Arrays.asList(toSkippedList.split(","));

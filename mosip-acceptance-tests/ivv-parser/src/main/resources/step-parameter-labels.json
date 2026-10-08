@@ -58,6 +58,7 @@
   "e2e_bulkUploadPacket": ["persona ID or packet path"],
   "e2e_configureMockAbis": ["persona ID", "modality subtypes", "duplicate match flag", "hash modality keys", "persona path", "modality hash map", "delay seconds", "mock ABIS status", "use actuator delay"],
   "e2e_postMockMv": ["registration ID", "manual verification decision"],
+  "e2e_renamePacketObjects": ["registration ID", "packet process", "object action", "hold seconds"],
   "e2e_DeleteMockExpect": ["modality hash value"],
   "e2e_GetBlocklistedWord": ["call type", "blocklisted word"],
   "e2e_getBioModalityHash": ["persona ID", "modality subtypes", "persona path"],
