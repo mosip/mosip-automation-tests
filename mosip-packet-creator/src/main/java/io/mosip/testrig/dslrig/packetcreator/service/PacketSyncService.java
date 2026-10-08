@@ -1822,7 +1822,8 @@ public class PacketSyncService {
 			for (String b : subTypeBdbStr) {
 				String responseStr = MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(), duplicateBdbs,
 						(expct.getDelaySec() <= 0 ? DataProviderConstants.DEFAULT_ABIS_DELAY : expct.getDelaySec()),
-						expct.getOperation(), contextKey, expct.getStatusCode(), expct.getFailureReason());
+						expct.getOperation(), contextKey, expct.getStatusCode(), expct.getFailureReason(),
+						expct.isDeleteAfterUse());
 				reponse.add(responseStr);
 			}
 			RestClient.logInfo(contextKey, String.join(", ", reponse));

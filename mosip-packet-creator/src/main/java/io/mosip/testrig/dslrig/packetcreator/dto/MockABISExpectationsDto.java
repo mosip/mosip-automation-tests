@@ -32,4 +32,7 @@ public class MockABISExpectationsDto {
 
 	@Schema(description = "Failure reason when status is non-success.", example = "")
 	String failureReason;
+
+	@Schema(description = "When true, mock ABIS deletes this expectation after the first request uses it. Defaults to false, so the expectation stays for later packets.", example = "false")
+	boolean deleteAfterUse = false;
 }
