@@ -53,19 +53,20 @@ import io.restassured.specification.RequestSpecification;
 public class BaseTestCaseUtil extends BaseStep {
 	private static final Logger logger = LoggerFactory.getLogger(BaseTestCaseUtil.class);
 
-	public static final long DEFAULT_WAIT_TIME = 30000l;
-	public static final long TIME_IN_MILLISEC = 1000l;
-	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = 10_000;
-	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
-	private static final int PACKET_CREATOR_CONNECT_MS = 15_000;
-	private static final int PACKET_CREATOR_SOCKET_MS = 120_000;
-	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = 600_000L;
-	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = 15_000;
-	private static final String REGPROC_DEFAULT_PROPERTIES = "registration-processor-default.properties";
-	private static final String BIO_DEDUPE_REPROCESS_BUFFER_TIME = "registration.processor.bio.dedupe.reprocess.buffer.time";
-
 	public static Properties props = new AdminTestUtil()
 			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
+	public static final long DEFAULT_WAIT_TIME = longProperty("defaultWaitTimeMs", 30000L);
+	public static final long TIME_IN_MILLISEC = longProperty("timeInMillisec", 1000L);
+	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = intProperty("internalApiLogFetchConnectMs", 10_000);
+	private static final int INTERNAL_API_LOG_FETCH_READ_MS = intProperty("internalApiLogFetchReadMs", 30_000);
+	private static final int PACKET_CREATOR_CONNECT_MS = intProperty("packetCreatorConnectMs", 15_000);
+	private static final int PACKET_CREATOR_SOCKET_MS = intProperty("packetCreatorSocketMs", 120_000);
+	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = longProperty("maxPacketStatusWaitTimeMs", 600_000L);
+	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = intProperty("packetStatusSocketTimeoutMs", 15_000);
+	private static final String REGPROC_DEFAULT_PROPERTIES = dslProperty("regprocActuatorPropertySection",
+			"registration-processor-default.properties");
+	private static final String BIO_DEDUPE_REPROCESS_BUFFER_TIME = dslProperty("bioDedupeReprocessBufferTimeKey",
+			"registration.processor.bio.dedupe.reprocess.buffer.time");
 	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
 	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
 			.httpClient(HttpClientConfig.httpClientConfig()
@@ -155,6 +156,40 @@ public class BaseTestCaseUtil extends BaseStep {
 		for (int i = 0; i < length; i++) {
 			System.out.print('\b');
 		}
+	}
+
+	private static long longProperty(String key, long fallback) {
+		if (props == null) {
+			return fallback;
+		}
+		String value = props.getProperty(key);
+		if (value == null || value.isBlank()) {
+			return fallback;
+		}
+		try {
+			long parsed = Long.parseLong(value.trim());
+			return parsed > 0 ? parsed : fallback;
+		} catch (NumberFormatException e) {
+			logger.warn("Invalid {} '{}', using {}", key, value, fallback);
+			return fallback;
+		}
+	}
+
+	private static int intProperty(String key, int fallback) {
+		long parsed = longProperty(key, fallback);
+		return parsed > Integer.MAX_VALUE ? fallback : (int) parsed;
+	}
+
+	private static String dslProperty(String key, String fallback) {
+		try {
+			String value = dslConfigManager.getproperty(key);
+			if (value != null && !value.isBlank()) {
+				return value.trim();
+			}
+		} catch (Exception e) {
+			logger.warn("Unable to read {} from dsl.properties, using {}", key, fallback);
+		}
+		return fallback;
 	}
 
 	public static long getMaxPacketStatusWaitTimeMs() {
