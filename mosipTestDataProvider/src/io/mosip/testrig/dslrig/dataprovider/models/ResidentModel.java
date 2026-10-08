@@ -118,39 +118,13 @@ public class ResidentModel implements Serializable {
 		}
 
 		Path filePath = Paths.get(path).toAbsolutePath().normalize();
-		if (!isUnderAllowedTemp(filePath)) {
+		if (!filePath.startsWith(ALLOWED_DIR)) {
 			throw new SecurityException(
 					"Path is outside allowed directory: " + filePath);
 		}
 
 		Files.write(filePath,
 				this.toJSONString().getBytes(StandardCharsets.UTF_8));
-		PersonaParseCache.invalidate(filePath.toString());
-	}
-
-	/**
-	 * Windows temp paths are sometimes the 8.3 short name ({@code JAYESH~1.KHA})
-	 * and sometimes the resolved long name. A cloned persona uses the long name,
-	 * which does not {@code startsWith} the short {@code java.io.tmpdir}.
-	 */
-	private static boolean isUnderAllowedTemp(Path filePath) {
-		Path allowed = ALLOWED_DIR;
-		if (filePath.startsWith(allowed)) {
-			return true;
-		}
-		try {
-			Path realAllowed = Files.exists(allowed) ? allowed.toRealPath() : allowed.toAbsolutePath().normalize();
-			Path candidate = filePath;
-			if (Files.exists(filePath)) {
-				candidate = filePath.toRealPath();
-			} else if (filePath.getParent() != null && Files.exists(filePath.getParent())) {
-				candidate = filePath.getParent().toRealPath().resolve(filePath.getFileName()).normalize();
-			}
-			return candidate.startsWith(realAllowed) || candidate.startsWith(allowed);
-		} catch (IOException e) {
-			logger.debug("Could not resolve persona path against temp dir: {}", e.getMessage());
-			return false;
-		}
 	}
 
 	public static ResidentModel readPersona(String filePath) throws IOException {
@@ -159,7 +133,6 @@ public class ResidentModel implements Serializable {
 
 	public void writePersona(String filePath) throws IOException {
 		Files.write(Paths.get(filePath), this.toJSONString().getBytes());
-		PersonaParseCache.invalidate(filePath);
 	}
 
 	public static void main(String[] args) {

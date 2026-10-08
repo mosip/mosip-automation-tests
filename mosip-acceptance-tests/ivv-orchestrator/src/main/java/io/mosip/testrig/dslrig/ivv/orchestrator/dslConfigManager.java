@@ -53,23 +53,6 @@ public class dslConfigManager extends ConfigManager {
 		}
 
 		init(moduleSpecificPropertiesMap);
-		alignAuthCertsPathWithSignatureLookup();
-	}
-
-	/**
-	 * Partner p12 files are written under {@code authCertsPath}. On Windows that
-	 * property is {@code /home/mosip/authcerts} (for example {@code D:\home\mosip\authcerts}),
-	 * but demo-auth signing always reads {@code %TEMP%\AUTHCERTS}. The partner key
-	 * is then missing, {@code generateSignatureWithRequest} returns null, and IDA
-	 * rejects the call with IDA-MPA-001. Clearing the property on Windows makes
-	 * key generation use the same temp folder the signer already reads. Linux keeps
-	 * {@code /home/mosip/authcerts}, which matches signing there.
-	 */
-	private static void alignAuthCertsPathWithSignatureLookup() {
-		String os = System.getProperty("os.name", "").toLowerCase();
-		if (os.contains("windows")) {
-			propertiesMap.put("authCertsPath", "");
-		}
 	}
 
 	public static String getmountPathForScenario() {
