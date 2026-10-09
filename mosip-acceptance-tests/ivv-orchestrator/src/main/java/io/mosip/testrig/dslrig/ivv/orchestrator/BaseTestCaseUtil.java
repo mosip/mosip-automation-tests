@@ -55,11 +55,37 @@ public class BaseTestCaseUtil extends BaseStep {
 
 	public static Properties props = new AdminTestUtil()
 			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
-
+	public static final long DEFAULT_WAIT_TIME = longProperty("defaultWaitTimeMs");
+	public static final long TIME_IN_MILLISEC = longProperty("timeInMillisec");
+	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = intProperty("internalApiLogFetchConnectMs");
+	private static final int INTERNAL_API_LOG_FETCH_READ_MS = intProperty("internalApiLogFetchReadMs");
+	private static final int PACKET_CREATOR_CONNECT_MS = intProperty("packetCreatorConnectMs");
+	private static final int PACKET_CREATOR_SOCKET_MS = intProperty("packetCreatorSocketMs");
+	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = longProperty("maxPacketStatusWaitTimeMs");
+	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = intProperty("packetStatusSocketTimeoutMs");
 	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
+	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
+			.httpClient(HttpClientConfig.httpClientConfig()
+					.setParam("http.connection.timeout", PACKET_CREATOR_CONNECT_MS)
+					.setParam("http.socket.timeout", PACKET_CREATOR_SOCKET_MS));
 
-	public static final long DEFAULT_WAIT_TIME = 30000l;
-	public static final long TIME_IN_MILLISEC = 1000l;
+	public static PacketUtility packetUtility = new PacketUtility();
+	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
+	public static Map<String, String> sceanrioExecutionStatistics = Collections
+			.synchronizedMap(new HashMap<String, String>());
+	public static String partnerKeyUrl = null;
+	public static String kycPartnerKeyUrl = null;
+	public static String partnerId = null;
+	public static String kycPartnerId = null;
+	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
+	public static String extentReportName = "";
+	public static long exectionStartTime = 0;
+	public static long exectionEndTime = 0;
+	public static JSONArray regProcActuatorResponseArray = null;
+	public static String regProcWaitInterval = "";
+
+	public BaseTestCaseUtil() {
+	}
 
 	/**
 	 * Sleeps for the given duration while updating a single console line every second
@@ -127,23 +153,32 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 	}
 
-	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = 10_000;
+	private static long longProperty(String key) {
+		if (props == null) {
+			throw new IllegalStateException("Missing test-orchestrator_mz.properties value for " + key);
+		}
+		String value = props.getProperty(key);
+		if (value == null || value.isBlank()) {
+			throw new IllegalStateException("Missing test-orchestrator_mz.properties value for " + key);
+		}
+		try {
+			long parsed = Long.parseLong(value.trim());
+			if (parsed <= 0) {
+				throw new IllegalStateException("Invalid " + key + " '" + value + "'");
+			}
+			return parsed;
+		} catch (NumberFormatException e) {
+			throw new IllegalStateException("Invalid " + key + " '" + value + "'", e);
+		}
+	}
 
-	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
-
-	/** Prevents orchestrator threads hanging forever on packet-creator / resident/* calls. */
-	private static final int PACKET_CREATOR_CONNECT_MS = 15_000;
-
-	private static final int PACKET_CREATOR_SOCKET_MS = 120_000;
-
-	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
-			.httpClient(HttpClientConfig.httpClientConfig()
-					.setParam("http.connection.timeout", PACKET_CREATOR_CONNECT_MS)
-					.setParam("http.socket.timeout", PACKET_CREATOR_SOCKET_MS));
-
-	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = 600_000L;
-
-	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = 15_000;
+	private static int intProperty(String key) {
+		long parsed = longProperty(key);
+		if (parsed > Integer.MAX_VALUE) {
+			throw new IllegalStateException("Invalid " + key + " '" + parsed + "'");
+		}
+		return (int) parsed;
+	}
 
 	public static long getMaxPacketStatusWaitTimeMs() {
 		String value = props.getProperty("maxPacketStatusWaitTimeMs");
@@ -183,19 +218,6 @@ public class BaseTestCaseUtil extends BaseStep {
 				.setParam("http.socket.timeout", socketMs));
 	}
 
-	public static PacketUtility packetUtility = new PacketUtility();
-	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
-
-	public static Map<String, String> sceanrioExecutionStatistics = Collections
-			.synchronizedMap(new HashMap<String, String>());
-
-
-	public static String partnerKeyUrl = null;
-	public static String kycPartnerKeyUrl = null;
-	public static String partnerId = null;
-	public static String kycPartnerId = null;
-	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
-
 	/** In-memory key used by {@link io.mosip.testrig.dslrig.ivv.e2e.methods.WritePreReq} / ReadPreReq. */
 	public static String prereqStoragePath(String index) {
 		return TestRunner.getExternalResourcePath() + "/config/" + BaseTestCase.environment + "_prereqdata_"
@@ -217,21 +239,12 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 	}
 
-	public static String extentReportName="";
-    public static long exectionStartTime = 0;
-    public static long exectionEndTime = 0;
-	public static JSONArray regProcActuatorResponseArray = null;
-	public static String regProcWaitInterval = "";
-
 	public static String getExtentReportName() {
 		return extentReportName;
 	}
 
 	public static void setExtentReportName(String emailableReportName) {
 		BaseTestCaseUtil.extentReportName = emailableReportName;
-	}
-
-	public BaseTestCaseUtil() {
 	}
 
 	public String getDateTime() {

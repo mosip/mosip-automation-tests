@@ -38,7 +38,9 @@ public final class DslReportLogUtil {
 		String headerStr = response != null && response.getHeaders() != null
 				? response.getHeaders().asList().toString()
 				: headers;
-		GlobalMethods.ReportRequestAndResponse(null, mask(headerStr), url, null, mask(body));
+		// formatResponse=true puts headers and body in textareas. The unformatted path
+		// dumps the payload as raw <pre> text, which stretches the report (actuator /env).
+		GlobalMethods.ReportRequestAndResponse(null, mask(headerStr), url, null, mask(body), true);
 	}
 
 	private static String mask(String value) {

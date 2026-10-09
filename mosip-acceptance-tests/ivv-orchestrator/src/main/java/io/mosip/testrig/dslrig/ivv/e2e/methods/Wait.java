@@ -4,6 +4,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.Reporter;
 
+import io.mosip.testrig.apirig.masterdata.utils.MasterDataUtil;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
@@ -38,11 +39,19 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 
 			} else if ("PACKET_UPLOAD_WAIT_TIME".equalsIgnoreCase(param)) {
 
-				if (nextPacketUploadWaitTime == null || nextPacketUploadWaitTime.isBlank()) {
-					logger.info("Next Packet Upload Wait Time missing : Taking default Time as 15 Min");
-					waitTime = TIME_IN_MILLISEC * 60 * 15;
+				if (nextPacketUploadWaitTime != null && !nextPacketUploadWaitTime.isBlank()) {
+					waitTime = TIME_IN_MILLISEC * Long.parseLong(nextPacketUploadWaitTime.trim());
 				} else {
-					waitTime = TIME_IN_MILLISEC * Integer.parseInt(nextPacketUploadWaitTime);
+					String bufferSeconds = MasterDataUtil.getValueFromRegprocActuator(
+							dslConfigManager.getproperty("regprocActuatorPropertySection"),
+							dslConfigManager.getproperty("bioDedupeReprocessBufferTimeKey"));
+					if (bufferSeconds == null || bufferSeconds.isBlank()) {
+						throw new RigInternalError(
+								"registration.processor.bio.dedupe.reprocess.buffer.time was not found in regproc actuator env");
+					}
+					logger.info("PACKET_UPLOAD_WAIT_TIME from registration.processor.bio.dedupe.reprocess.buffer.time: "
+							+ bufferSeconds + " seconds");
+					waitTime = TIME_IN_MILLISEC * Long.parseLong(bufferSeconds.trim());
 				}
 
 			} else if ("UIN_WAIT_TIME".equalsIgnoreCase(param)) {
