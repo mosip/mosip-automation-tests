@@ -373,14 +373,18 @@ public class RestClient {
 	}
 
 	public static Response getWithoutCookie(String url) {
+		return getWithoutCookie(url, null);
+	}
+
+	public static Response getWithoutCookie(String url, ContentType accept) {
 
 		Response response = null;
 		try {
-			response = requestSpec(null)
-					.relaxedHTTPSValidation()
-					.log().all()
-					.when()
-					.get(url);
+			RequestSpecification spec = requestSpec(null).relaxedHTTPSValidation();
+			if (accept != null) {
+				spec = spec.accept(accept);
+			}
+			response = spec.log().all().when().get(url);
 
 			if (response == null) {
 				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
@@ -389,6 +393,29 @@ public class RestClient {
 			throw se;
 		} catch (Exception e) {
 			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+		}
+		return response;
+	}
+
+	public static Response deleteWithoutCookie(String url) {
+
+		Response response = null;
+		try {
+			response = requestSpec(null)
+					.relaxedHTTPSValidation()
+					.accept(ContentType.JSON)
+					.log().all()
+					.when()
+					.delete(url);
+
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("DELETE failed for url {} : {}", url, e.getMessage(), e);
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 		return response;
