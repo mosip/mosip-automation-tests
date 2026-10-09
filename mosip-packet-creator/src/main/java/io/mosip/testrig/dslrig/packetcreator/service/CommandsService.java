@@ -34,6 +34,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import static io.restassured.RestAssured.given;
 
 import io.mosip.testrig.dslrig.dataprovider.util.CommonUtil;
@@ -156,7 +157,7 @@ public class CommandsService {
 			String envBaseUrl = resolveTargetBaseUrl(contextKey, targetBaseUrlOverride);
 			String infoUrl = joinBaseUrlAndPath(envBaseUrl, idRepoActuatorInfoPath);
 			RestClient.logInfo(contextKey, "Fetching id-repository actuator info from " + infoUrl);
-			io.restassured.response.Response response = given().relaxedHTTPSValidation()
+			Response response = given().relaxedHTTPSValidation()
 					.contentType(ContentType.JSON).accept(ContentType.JSON).get(infoUrl);
 			if (response == null || response.getStatusCode() != 200) {
 				int status = response == null ? -1 : response.getStatusCode();
@@ -183,7 +184,7 @@ public class CommandsService {
 		String cachesUrl = joinBaseUrlAndPath(resolveTargetBaseUrl(contextKey, null), packetManagerCachesPath);
 		try {
 			RestClient.logInfo(contextKey, "Listing packet manager caches from " + cachesUrl);
-			io.restassured.response.Response listed = given().relaxedHTTPSValidation().accept(ContentType.JSON)
+			Response listed = given().relaxedHTTPSValidation().accept(ContentType.JSON)
 					.get(cachesUrl);
 			if (listed == null || listed.getStatusCode() != 200) {
 				throw cacheClearFailure(cachesUrl, listed);
@@ -201,8 +202,7 @@ public class CommandsService {
 				}
 				String cacheUrl = joinBaseUrlAndPath(cachesUrl, cacheName);
 				RestClient.logInfo(contextKey, "Clearing packet manager cache " + cacheUrl);
-				io.restassured.response.Response deleted = given().relaxedHTTPSValidation().accept(ContentType.JSON)
-						.delete(cacheUrl);
+				Response deleted = RestClient.deleteWithoutCookie(cacheUrl);
 				int status = deleted == null ? -1 : deleted.getStatusCode();
 				if (status != 204 && status != 200) {
 					throw cacheClearFailure(cacheUrl, deleted);
@@ -219,7 +219,7 @@ public class CommandsService {
 		}
 	}
 
-	private static ServiceException cacheClearFailure(String url, io.restassured.response.Response response) {
+	private static ServiceException cacheClearFailure(String url, Response response) {
 		int status = response == null ? -1 : response.getStatusCode();
 		String body = response == null || response.getBody() == null ? "" : response.getBody().asString();
 		return new ServiceException(HttpStatus.BAD_GATEWAY, "PACKET_MANAGER_CACHE_CLEAR_FAIL", url,

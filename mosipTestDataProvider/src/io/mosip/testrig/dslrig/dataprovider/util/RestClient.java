@@ -394,6 +394,29 @@ public class RestClient {
 		return response;
 	}
 
+	public static Response deleteWithoutCookie(String url) {
+
+		Response response = null;
+		try {
+			response = requestSpec(null)
+					.relaxedHTTPSValidation()
+					.accept(ContentType.JSON)
+					.log().all()
+					.when()
+					.delete(url);
+
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("DELETE failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+		}
+		return response;
+	}
+
 
 	public static JSONObject getWithoutAuth(String url, JSONObject requestParams, JSONObject pathParam,
 			String contextKey)
