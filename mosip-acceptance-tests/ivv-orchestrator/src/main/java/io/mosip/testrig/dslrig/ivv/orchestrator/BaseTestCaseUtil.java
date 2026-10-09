@@ -63,8 +63,6 @@ public class BaseTestCaseUtil extends BaseStep {
 	private static final int PACKET_CREATOR_SOCKET_MS = intProperty("packetCreatorSocketMs");
 	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = longProperty("maxPacketStatusWaitTimeMs");
 	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = intProperty("packetStatusSocketTimeoutMs");
-	private static final String REGPROC_DEFAULT_PROPERTIES = dslProperty("regprocActuatorPropertySection");
-	private static final String BIO_DEDUPE_REPROCESS_BUFFER_TIME = dslProperty("bioDedupeReprocessBufferTimeKey");
 	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
 	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
 			.httpClient(HttpClientConfig.httpClientConfig()
@@ -85,7 +83,6 @@ public class BaseTestCaseUtil extends BaseStep {
 	public static long exectionEndTime = 0;
 	public static JSONArray regProcActuatorResponseArray = null;
 	public static String regProcWaitInterval = "";
-	public static String bioDedupeReprocessBufferSeconds = "";
 
 	public BaseTestCaseUtil() {
 	}
@@ -181,19 +178,6 @@ public class BaseTestCaseUtil extends BaseStep {
 			throw new IllegalStateException("Invalid " + key + " '" + parsed + "'");
 		}
 		return (int) parsed;
-	}
-
-	private static String dslProperty(String key) {
-		String value;
-		try {
-			value = dslConfigManager.getproperty(key);
-		} catch (Exception e) {
-			throw new IllegalStateException("Missing dsl.properties value for " + key, e);
-		}
-		if (value == null || value.isBlank()) {
-			throw new IllegalStateException("Missing dsl.properties value for " + key);
-		}
-		return value.trim();
 	}
 
 	public static long getMaxPacketStatusWaitTimeMs() {
@@ -815,73 +799,36 @@ public class BaseTestCaseUtil extends BaseStep {
 	}
 
 	public static String getRegprocWaitFromActuator() {
+		String url = BaseTestCase.ApplnURI + dslConfigManager.getproperty("actuatorRegprocEndpoint");
+
 		if (regProcWaitInterval != null && !regProcWaitInterval.isEmpty())
 			return regProcWaitInterval;
 
 		try {
-			loadRegprocActuatorPropertySources();
-			regProcWaitInterval = readRegprocActuatorProperty("registration.processor.reprocess.minutes", true);
+			if (regProcActuatorResponseArray == null) {
+				Response response = null;
+				JSONObject responseJson = null;
+				response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+				DslReportLogUtil.reportResponse(response.getHeaders().asList().toString(), url, response);
+
+				responseJson = new JSONObject(response.getBody().asString());
+				regProcActuatorResponseArray = responseJson.getJSONArray("propertySources");
+			}
+
+			for (int i = 0, size = regProcActuatorResponseArray.length(); i < size; i++) {
+				JSONObject eachJson = regProcActuatorResponseArray.getJSONObject(i);
+				if (eachJson.get("name").toString().contains("registration-processor-default.properties")) {
+					regProcWaitInterval = eachJson.getJSONObject(GlobalConstants.PROPERTIES)
+							.getJSONObject("registration.processor.reprocess.minutes").get(GlobalConstants.VALUE)
+							.toString();
+					break;
+				}
+			}
 			return regProcWaitInterval;
 		} catch (Exception e) {
 			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
 			return regProcWaitInterval;
 		}
-	}
-
-	/**
-	 * Seconds from {@code registration.processor.bio.dedupe.reprocess.buffer.time}
-	 * in the regproc actuator env. Empty when the property is absent.
-	 */
-	public static String getBioDedupeReprocessBufferSeconds() {
-		if (bioDedupeReprocessBufferSeconds != null && !bioDedupeReprocessBufferSeconds.isEmpty())
-			return bioDedupeReprocessBufferSeconds;
-
-		try {
-			loadRegprocActuatorPropertySources();
-			bioDedupeReprocessBufferSeconds = readRegprocActuatorProperty(BIO_DEDUPE_REPROCESS_BUFFER_TIME, false);
-			return bioDedupeReprocessBufferSeconds == null ? "" : bioDedupeReprocessBufferSeconds;
-		} catch (Exception e) {
-			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
-			return bioDedupeReprocessBufferSeconds == null ? "" : bioDedupeReprocessBufferSeconds;
-		}
-	}
-
-	private static void loadRegprocActuatorPropertySources() {
-		if (regProcActuatorResponseArray != null)
-			return;
-
-		String url = BaseTestCase.ApplnURI + dslConfigManager.getproperty("actuatorRegprocEndpoint");
-		Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
-		DslReportLogUtil.reportResponse(response.getHeaders().asList().toString(), url, response);
-		JSONObject responseJson = new JSONObject(response.getBody().asString());
-		regProcActuatorResponseArray = responseJson.getJSONArray("propertySources");
-	}
-
-	/**
-	 * @param onlyDefaultFile when true, read only registration-processor-default.properties
-	 *                         (same source the reprocess minute list has always used). When false,
-	 *                         use the first property source that defines the key, which is the
-	 *                         effective Spring value.
-	 */
-	private static String readRegprocActuatorProperty(String propertyKey, boolean onlyDefaultFile) {
-		if (regProcActuatorResponseArray == null)
-			return "";
-
-		for (int i = 0, size = regProcActuatorResponseArray.length(); i < size; i++) {
-			JSONObject eachJson = regProcActuatorResponseArray.getJSONObject(i);
-			if (onlyDefaultFile && !eachJson.optString("name").contains(REGPROC_DEFAULT_PROPERTIES))
-				continue;
-			JSONObject properties = eachJson.optJSONObject(GlobalConstants.PROPERTIES);
-			if (properties == null || !properties.has(propertyKey))
-				continue;
-			JSONObject entry = properties.optJSONObject(propertyKey);
-			if (entry == null || !entry.has(GlobalConstants.VALUE))
-				continue;
-			String value = entry.get(GlobalConstants.VALUE).toString().trim();
-			if (!value.isEmpty())
-				return value;
-		}
-		return "";
 	}
 
 	protected String resolveScenarioVariable(String value) throws RigInternalError {
