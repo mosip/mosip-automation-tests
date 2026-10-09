@@ -60,11 +60,22 @@ public class RenamePacketObjects extends BaseTestCaseUtil implements StepInterfa
 			}
 		}
 
-		String bucket = required("minio-bucket", dslConfigManager.getMinioBucket());
-		String url = required("s3-host", dslConfigManager.getS3Host());
-		String accessKey = required("s3-user-key", dslConfigManager.getS3UserKey());
-		required("s3-user-secret", dslConfigManager.getS3SecretKey());
-		report("MinIO " + url + " user " + accessKey + " bucket " + bucket);
+		String bucket = dslConfigManager.getMinioBucket();
+		String url = dslConfigManager.getS3Host();
+		String accessKey = dslConfigManager.getS3UserKey();
+		String secretKey = dslConfigManager.getS3SecretKey();
+		if (bucket == null || bucket.isBlank() || url == null || url.isBlank() || accessKey == null
+				|| accessKey.isBlank() || secretKey == null || secretKey.isBlank()) {
+			this.hasError = true;
+			throw new RigInternalError(
+					"Missing dsl.properties value for minio-bucket, s3-host, s3-user-key, or s3-user-secret");
+		}
+		bucket = bucket.trim();
+		url = url.trim();
+		accessKey = accessKey.trim();
+		String minioTarget = "MinIO " + url + " user " + accessKey + " bucket " + bucket;
+		logger.info(minioTarget);
+		Reporter.log(minioTarget, true);
 
 		S3Adapter minio = new S3Adapter();
 		RigInternalError failure = null;
@@ -75,7 +86,9 @@ public class RenamePacketObjects extends BaseTestCaseUtil implements StepInterfa
 					String from = S3Adapter.getName(rid, E2EConstants.SOURCE, process, objectName);
 					String to = S3Adapter.getName(rid, E2EConstants.SOURCE, process, objectName + HOLD_SUFFIX);
 					minio.moveObject(bucket, from, to);
-					report("Renamed " + bucket + "/" + from + " to " + suffix + HOLD_SUFFIX);
+					String renamed = "Renamed " + bucket + "/" + from + " to " + suffix + HOLD_SUFFIX;
+					logger.info(renamed);
+					Reporter.log(renamed, true);
 				}
 				if (holdSeconds > 0) {
 					sleepWithCountdown(TIME_IN_MILLISEC * holdSeconds, "MinIO packet objects renamed");
@@ -99,17 +112,5 @@ public class RenamePacketObjects extends BaseTestCaseUtil implements StepInterfa
 			this.hasError = true;
 			throw failure;
 		}
-	}
-
-	private static String required(String name, String value) throws RigInternalError {
-		if (value == null || value.isBlank()) {
-			throw new RigInternalError("Missing dsl.properties value: " + name);
-		}
-		return value.trim();
-	}
-
-	private static void report(String message) {
-		logger.info(message);
-		Reporter.log(message, true);
 	}
 }
