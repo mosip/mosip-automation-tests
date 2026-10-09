@@ -373,14 +373,18 @@ public class RestClient {
 	}
 
 	public static Response getWithoutCookie(String url) {
+		return getWithoutCookie(url, null);
+	}
+
+	public static Response getWithoutCookie(String url, ContentType accept) {
 
 		Response response = null;
 		try {
-			response = requestSpec(null)
-					.relaxedHTTPSValidation()
-					.log().all()
-					.when()
-					.get(url);
+			RequestSpecification spec = requestSpec(null).relaxedHTTPSValidation();
+			if (accept != null) {
+				spec = spec.accept(accept);
+			}
+			response = spec.log().all().when().get(url);
 
 			if (response == null) {
 				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);

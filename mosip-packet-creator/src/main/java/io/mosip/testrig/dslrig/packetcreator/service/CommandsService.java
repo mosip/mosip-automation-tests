@@ -184,8 +184,7 @@ public class CommandsService {
 		String cachesUrl = joinBaseUrlAndPath(resolveTargetBaseUrl(contextKey, null), packetManagerCachesPath);
 		try {
 			RestClient.logInfo(contextKey, "Listing packet manager caches from " + cachesUrl);
-			Response listed = given().relaxedHTTPSValidation().accept(ContentType.JSON)
-					.get(cachesUrl);
+			Response listed = RestClient.getWithoutCookie(cachesUrl, ContentType.JSON);
 			if (listed == null || listed.getStatusCode() != 200) {
 				throw cacheClearFailure(cachesUrl, listed);
 			}
