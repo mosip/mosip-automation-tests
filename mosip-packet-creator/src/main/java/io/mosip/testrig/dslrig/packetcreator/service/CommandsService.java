@@ -58,6 +58,11 @@ public class CommandsService {
 	@Value("${mosip.test.idrepo.actuator.info.path:idrepository/v1/identity/actuator/info}")
 	private String idRepoActuatorInfoPath;
 
+	@Value("${mosip.test.packetmanager.caches.path:/commons/v1/packetmanager/actuator/caches}")
+	private String packetManagerCachesPath;
+
+	private static final String[] PACKET_MANAGER_CACHE_NAMES = { "packet", "packets", "tags" };
+
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
@@ -172,6 +177,58 @@ public class CommandsService {
 			throw new ServiceException(HttpStatus.BAD_GATEWAY, "IDREPO_ACTUATOR_INFO_FAIL", contextKey, ex,
 					ex.getMessage());
 		}
+	}
+
+	public String clearPacketManagerCaches(String contextKey) {
+		String cachesUrl = joinBaseUrlAndPath(resolveTargetBaseUrl(contextKey, null), packetManagerCachesPath);
+		try {
+			RestClient.logInfo(contextKey, "Listing packet manager caches from " + cachesUrl);
+			io.restassured.response.Response listed = given().relaxedHTTPSValidation().accept(ContentType.JSON)
+					.get(cachesUrl);
+			if (listed == null || listed.getStatusCode() != 200) {
+				throw cacheClearFailure(cachesUrl, listed);
+			}
+			String body = listed.getBody() == null ? "" : listed.getBody().asString();
+			if (!hasCache(body, "packet") || !hasCache(body, "packets")) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "PACKET_MANAGER_CACHE_CLEAR_FAIL", cachesUrl,
+						"packet and packets caches were not listed: " + body);
+			}
+			boolean tagsListed = hasCache(body, "tags");
+			JSONObject cleared = new JSONObject();
+			for (String cacheName : PACKET_MANAGER_CACHE_NAMES) {
+				if ("tags".equals(cacheName) && !tagsListed) {
+					continue;
+				}
+				String cacheUrl = joinBaseUrlAndPath(cachesUrl, cacheName);
+				RestClient.logInfo(contextKey, "Clearing packet manager cache " + cacheUrl);
+				io.restassured.response.Response deleted = given().relaxedHTTPSValidation().accept(ContentType.JSON)
+						.delete(cacheUrl);
+				int status = deleted == null ? -1 : deleted.getStatusCode();
+				if (status != 204 && status != 200) {
+					throw cacheClearFailure(cacheUrl, deleted);
+				}
+				cleared.put(cacheName, status);
+			}
+			return cleared.toString();
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception ex) {
+			logger.error("clearPacketManagerCaches failed for context {}", contextKey, ex);
+			throw new ServiceException(HttpStatus.BAD_GATEWAY, "PACKET_MANAGER_CACHE_CLEAR_FAIL", cachesUrl, ex,
+					ex.getMessage());
+		}
+	}
+
+	private static ServiceException cacheClearFailure(String url, io.restassured.response.Response response) {
+		int status = response == null ? -1 : response.getStatusCode();
+		String body = response == null || response.getBody() == null ? "" : response.getBody().asString();
+		return new ServiceException(HttpStatus.BAD_GATEWAY, "PACKET_MANAGER_CACHE_CLEAR_FAIL", url,
+				"HTTP " + status + ": " + body);
+	}
+
+	private static boolean hasCache(String body, String cacheName) {
+		return java.util.regex.Pattern.compile("\"" + java.util.regex.Pattern.quote(cacheName) + "\"\\s*:")
+				.matcher(body).find();
 	}
 
 	private String resolveTargetBaseUrl(String contextKey, String targetBaseUrlOverride) {

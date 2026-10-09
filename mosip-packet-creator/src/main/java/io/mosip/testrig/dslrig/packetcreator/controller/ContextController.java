@@ -169,6 +169,19 @@ public class ContextController {
 		}
 	}
 
+	@Operation(summary = "Clear packet manager Spring caches",
+			description = "Lists and deletes the packet, packets, and tags caches on packet manager "
+					+ "({urlBase}/commons/v1/packetmanager/actuator/caches) for the target environment of this context.")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Caches cleared") })
+	@PostMapping("/packetmanager/caches/clear/{contextKey}")
+	public @ResponseBody String clearPacketManagerCaches(@PathVariable("contextKey") String contextKey) {
+		try {
+			return commandsService.clearPacketManagerCaches(contextKey);
+		} catch (ServiceException se) {
+			throw se;
+		}
+	}
+
 	@GetMapping("/ping/{eSignetDeployed}/{contextKey}")
 
 

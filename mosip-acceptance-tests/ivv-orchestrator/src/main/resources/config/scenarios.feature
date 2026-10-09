@@ -7267,7 +7267,7 @@ And I delete packet data
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
-  Scenario: New packet stays in ABIS while id, optional, and evidence are renamed in MinIO and left renamed, then the packet is processed
+  Scenario: New packet stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet is processed
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -7280,7 +7280,8 @@ And I configure mock abis where persona ID is -1, and modality subtypes is Right
 And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
 And I packetsync where packet zip path is the saved packet zip path
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
-And I rename packet objects where registration ID is the saved registration ID, and packet process is NEW, and object action is rename, and hold seconds is 90
+And I rename packet objects where registration ID is the saved registration ID, and packet process is NEW, and object action is rename, and hold seconds is 0
+And I clear packet manager cache
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
