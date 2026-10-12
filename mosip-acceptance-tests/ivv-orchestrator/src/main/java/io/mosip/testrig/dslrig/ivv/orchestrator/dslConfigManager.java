@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.mapping.Set;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 
 public class dslConfigManager extends ConfigManager {
@@ -36,16 +37,20 @@ public class dslConfigManager extends ConfigManager {
 	private static volatile Map<String, String> cachedTestcaseToBeSkippedMap;
 	private static volatile String knownIssuesSourceFile;
 
-	public static void init() {
+	public static Properties props = loadProperties();
+	public static String baseUrl = getpacketUtilityBaseUrl();
+
+	public static synchronized void init() {
+		props = loadProperties();
 		Map<String, Object> moduleSpecificPropertiesMap = new HashMap<>();
 
 		try {
 			String path = TestRunner.getGlobalResourcePath() + "/config/dsl.properties";
-			Properties props = getproperties(path);
+			Properties dslProps = getproperties(path);
 
-			for (String key : props.stringPropertyNames()) {
+			for (String key : dslProps.stringPropertyNames()) {
 
-				String value = System.getenv(key) == null ? props.getProperty(key) : System.getenv(key);
+				String value = System.getenv(key) == null ? dslProps.getProperty(key) : System.getenv(key);
 				moduleSpecificPropertiesMap.put(key, value);
 			}
 		} catch (Exception e) {
@@ -53,6 +58,55 @@ public class dslConfigManager extends ConfigManager {
 		}
 
 		init(moduleSpecificPropertiesMap);
+		baseUrl = getpacketUtilityBaseUrl();
+	}
+
+	public static Properties loadProperties() {
+		Properties p = AdminTestUtil
+				.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
+		if (p == null) {
+			p = new Properties();
+		}
+		for (String key : p.stringPropertyNames()) {
+			String overrideVal = getEnvOrSystemProperty(key);
+			if (overrideVal != null && !overrideVal.isBlank()) {
+				p.setProperty(key, overrideVal.trim());
+				LOGGER.info("Overriding test-orchestrator property '" + key + "' from environment/system property: '"
+						+ maskIfSensitive(key, overrideVal.trim()) + "'");
+			}
+		}
+		return p;
+	}
+
+	public static String getEnvOrSystemProperty(String key) {
+		String val = System.getenv(key);
+		if (val != null && !val.isBlank()) {
+			return val;
+		}
+		val = System.getProperty(key);
+		if (val != null && !val.isBlank()) {
+			return val;
+		}
+		if (key.contains(".")) {
+			String underscoreKey = key.replace('.', '_');
+			val = System.getenv(underscoreKey);
+			if (val != null && !val.isBlank()) {
+				return val;
+			}
+			val = System.getenv(underscoreKey.toUpperCase());
+			if (val != null && !val.isBlank()) {
+				return val;
+			}
+		}
+		return null;
+	}
+
+	public static String maskIfSensitive(String key, String value) {
+		String lower = key.toLowerCase();
+		if (lower.contains("password") || lower.contains("secret") || lower.contains("token") || lower.contains("key")) {
+			return "******";
+		}
+		return value;
 	}
 
 	public static String getmountPathForScenario() {

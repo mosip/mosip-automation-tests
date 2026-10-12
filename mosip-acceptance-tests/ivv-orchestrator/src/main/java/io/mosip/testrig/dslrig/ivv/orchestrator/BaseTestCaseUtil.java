@@ -53,59 +53,15 @@ import io.restassured.specification.RequestSpecification;
 public class BaseTestCaseUtil extends BaseStep {
 	private static final Logger logger = LoggerFactory.getLogger(BaseTestCaseUtil.class);
 
-	public static Properties props = loadProperties();
+	public static Properties props = dslConfigManager.props;
 
 	public static synchronized void init() {
-		props = loadProperties();
+		props = dslConfigManager.props;
 		baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
 	}
 
 	public static Properties loadProperties() {
-		Properties p = AdminTestUtil
-				.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
-		if (p == null) {
-			p = new Properties();
-		}
-		for (String key : p.stringPropertyNames()) {
-			String overrideVal = getEnvOrSystemProperty(key);
-			if (overrideVal != null && !overrideVal.isBlank()) {
-				p.setProperty(key, overrideVal.trim());
-				logger.info("Overriding test-orchestrator property '{}' from environment/system property: '{}'",
-						key, maskIfSensitive(key, overrideVal.trim()));
-			}
-		}
-		return p;
-	}
-
-	private static String getEnvOrSystemProperty(String key) {
-		String val = System.getenv(key);
-		if (val != null && !val.isBlank()) {
-			return val;
-		}
-		val = System.getProperty(key);
-		if (val != null && !val.isBlank()) {
-			return val;
-		}
-		if (key.contains(".")) {
-			String underscoreKey = key.replace('.', '_');
-			val = System.getenv(underscoreKey);
-			if (val != null && !val.isBlank()) {
-				return val;
-			}
-			val = System.getenv(underscoreKey.toUpperCase());
-			if (val != null && !val.isBlank()) {
-				return val;
-			}
-		}
-		return null;
-	}
-
-	private static String maskIfSensitive(String key, String value) {
-		String lower = key.toLowerCase();
-		if (lower.contains("password") || lower.contains("secret") || lower.contains("token") || lower.contains("key")) {
-			return "******";
-		}
-		return value;
+		return dslConfigManager.loadProperties();
 	}
 
 	public static final long DEFAULT_WAIT_TIME = longProperty("defaultWaitTimeMs");
