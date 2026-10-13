@@ -53,8 +53,17 @@ import io.restassured.specification.RequestSpecification;
 public class BaseTestCaseUtil extends BaseStep {
 	private static final Logger logger = LoggerFactory.getLogger(BaseTestCaseUtil.class);
 
-	public static Properties props = new AdminTestUtil()
-			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
+	public static Properties props = dslConfigManager.props;
+
+	public static synchronized void init() {
+		props = dslConfigManager.props;
+		baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
+	}
+
+	public static Properties loadProperties() {
+		return dslConfigManager.loadProperties();
+	}
+
 	public static final long DEFAULT_WAIT_TIME = longProperty("defaultWaitTimeMs");
 	public static final long TIME_IN_MILLISEC = longProperty("timeInMillisec");
 	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = intProperty("internalApiLogFetchConnectMs");
@@ -63,6 +72,7 @@ public class BaseTestCaseUtil extends BaseStep {
 	private static final int PACKET_CREATOR_SOCKET_MS = intProperty("packetCreatorSocketMs");
 	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = longProperty("maxPacketStatusWaitTimeMs");
 	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = intProperty("packetStatusSocketTimeoutMs");
+
 	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
 	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
 			.httpClient(HttpClientConfig.httpClientConfig()

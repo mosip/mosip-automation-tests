@@ -18,7 +18,9 @@ import org.apache.log4j.Logger;
 import org.hibernate.mapping.Set;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.LogMaskingUtil;
 
 public class dslConfigManager extends ConfigManager {
 	private static final Logger LOGGER = Logger.getLogger(dslConfigManager.class);
@@ -36,16 +38,20 @@ public class dslConfigManager extends ConfigManager {
 	private static volatile Map<String, String> cachedTestcaseToBeSkippedMap;
 	private static volatile String knownIssuesSourceFile;
 
-	public static void init() {
+	public static Properties props = loadProperties();
+	public static String baseUrl = getpacketUtilityBaseUrl();
+
+	public static synchronized void init() {
+		props = loadProperties();
 		Map<String, Object> moduleSpecificPropertiesMap = new HashMap<>();
 
 		try {
 			String path = TestRunner.getGlobalResourcePath() + "/config/dsl.properties";
-			Properties props = getproperties(path);
+			Properties dslProps = getproperties(path);
 
-			for (String key : props.stringPropertyNames()) {
+			for (String key : dslProps.stringPropertyNames()) {
 
-				String value = System.getenv(key) == null ? props.getProperty(key) : System.getenv(key);
+				String value = System.getenv(key) == null ? dslProps.getProperty(key) : System.getenv(key);
 				moduleSpecificPropertiesMap.put(key, value);
 			}
 		} catch (Exception e) {
@@ -53,6 +59,27 @@ public class dslConfigManager extends ConfigManager {
 		}
 
 		init(moduleSpecificPropertiesMap);
+		baseUrl = getpacketUtilityBaseUrl();
+	}
+
+	public static Properties loadProperties() {
+		Properties p = AdminTestUtil
+				.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
+		if (p == null) {
+			p = new Properties();
+		}
+		for (String key : p.stringPropertyNames()) {
+			String overrideVal = System.getProperty(key, System.getenv(key));
+			if (overrideVal == null || overrideVal.isBlank()) {
+				overrideVal = System.getenv(key.replace('.', '_'));
+			}
+			if (overrideVal != null && !overrideVal.isBlank()) {
+				p.setProperty(key, overrideVal.trim());
+				LOGGER.info("Overriding test-orchestrator property '" + key + "': '"
+						+ LogMaskingUtil.maskSensitiveData(key, overrideVal.trim()) + "'");
+			}
+		}
+		return p;
 	}
 
 	public static String getmountPathForScenario() {
