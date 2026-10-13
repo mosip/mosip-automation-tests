@@ -20,6 +20,7 @@ import org.hibernate.mapping.Set;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.LogMaskingUtil;
 
 public class dslConfigManager extends ConfigManager {
 	private static final Logger LOGGER = Logger.getLogger(dslConfigManager.class);
@@ -68,45 +69,17 @@ public class dslConfigManager extends ConfigManager {
 			p = new Properties();
 		}
 		for (String key : p.stringPropertyNames()) {
-			String overrideVal = getEnvOrSystemProperty(key);
+			String overrideVal = System.getProperty(key, System.getenv(key));
+			if (overrideVal == null || overrideVal.isBlank()) {
+				overrideVal = System.getenv(key.replace('.', '_'));
+			}
 			if (overrideVal != null && !overrideVal.isBlank()) {
 				p.setProperty(key, overrideVal.trim());
-				LOGGER.info("Overriding test-orchestrator property '" + key + "' from environment/system property: '"
-						+ maskIfSensitive(key, overrideVal.trim()) + "'");
+				LOGGER.info("Overriding test-orchestrator property '" + key + "': '"
+						+ LogMaskingUtil.maskSensitiveData(key, overrideVal.trim()) + "'");
 			}
 		}
 		return p;
-	}
-
-	public static String getEnvOrSystemProperty(String key) {
-		String val = System.getenv(key);
-		if (val != null && !val.isBlank()) {
-			return val;
-		}
-		val = System.getProperty(key);
-		if (val != null && !val.isBlank()) {
-			return val;
-		}
-		if (key.contains(".")) {
-			String underscoreKey = key.replace('.', '_');
-			val = System.getenv(underscoreKey);
-			if (val != null && !val.isBlank()) {
-				return val;
-			}
-			val = System.getenv(underscoreKey.toUpperCase());
-			if (val != null && !val.isBlank()) {
-				return val;
-			}
-		}
-		return null;
-	}
-
-	public static String maskIfSensitive(String key, String value) {
-		String lower = key.toLowerCase();
-		if (lower.contains("password") || lower.contains("secret") || lower.contains("token") || lower.contains("key")) {
-			return "******";
-		}
-		return value;
 	}
 
 	public static String getmountPathForScenario() {
