@@ -38,6 +38,41 @@ public final class CrvsIdJsonBuilder {
 	private CrvsIdJsonBuilder() {
 	}
 
+	private static boolean isFullNameField(String fieldId) {
+		return "fullname".equals(fieldId) || fieldId.endsWith("fullname");
+	}
+
+	private static boolean isFirstNameField(String fieldId) {
+		return "firstname".equals(fieldId) || fieldId.endsWith("firstname");
+	}
+
+	private static boolean isLastNameField(String fieldId) {
+		return "lastname".equals(fieldId) || fieldId.endsWith("lastname") || "surname".equals(fieldId);
+	}
+
+	private static boolean isMiddleNameField(String fieldId) {
+		return "middlename".equals(fieldId) || fieldId.endsWith("middlename");
+	}
+
+	private static boolean isAddressField(String fieldId) {
+		return fieldId.contains("addressline") || fieldId.contains("permanentaddress")
+				|| fieldId.contains("temporaryaddress");
+	}
+
+	private static String joinName(String first, String middle, String last) {
+		StringBuilder name = new StringBuilder();
+		for (String part : new String[] { first, middle, last }) {
+			if (part == null || part.isBlank()) {
+				continue;
+			}
+			if (name.length() > 0) {
+				name.append(' ');
+			}
+			name.append(part.trim());
+		}
+		return name.toString();
+	}
+
 	public static JSONObject generateCRVSIDJson(ResidentModel resident, String contextKey, Properties prop,
 			ContextSchemaDetail contextSchemaDetail, boolean validateToken, String uin)
 			throws JSONException, Exception {
@@ -127,32 +162,41 @@ public final class CrvsIdJsonBuilder {
 			}
 				String primaryValue = "";
 				String secValue = "";
-				if (VariableManager.getVariableValue(contextKey, "name") != null
-						&& VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
-					primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
-							+ resident.getName().getSurName();
-					if (secLanguage != null)
-						secValue = resident.getName_seclang().getFirstName() + " "
-								+ resident.getName_seclang().getMidName() + " "
-								+ resident.getName_seclang().getSurName();
-				} else if (prop.getProperty(FIRSTNAME) != null && s.getId().equals(prop.getProperty(FIRSTNAME))) {
+				String fieldId = s.getId() == null ? "" : s.getId().toLowerCase();
+				if (isFullNameField(fieldId)) {
+					primaryValue = joinName(resident.getName().getFirstName(), resident.getName().getMidName(),
+							resident.getName().getSurName());
+					if (secLanguage != null && resident.getName_seclang() != null)
+						secValue = joinName(resident.getName_seclang().getFirstName(),
+								resident.getName_seclang().getMidName(), resident.getName_seclang().getSurName());
+				} else if (isFirstNameField(fieldId)
+						|| (prop.getProperty(FIRSTNAME) != null && s.getId().equals(prop.getProperty(FIRSTNAME)))) {
 					primaryValue = resident.getName().getFirstName();
-					if (secLanguage != null)
+					if (secLanguage != null && resident.getName_seclang() != null)
 						secValue = resident.getName_seclang().getFirstName();
-				} else if (prop.getProperty(LASTNAME) != null && s.getId().equals(prop.getProperty(LASTNAME))) {
+				} else if (isLastNameField(fieldId)
+						|| (prop.getProperty(LASTNAME) != null && s.getId().equals(prop.getProperty(LASTNAME)))) {
 					primaryValue = resident.getName().getSurName();
-					if (secLanguage != null)
+					if (secLanguage != null && resident.getName_seclang() != null)
 						secValue = resident.getName_seclang().getSurName();
-				} else if (prop.getProperty(MIDDLENAME) != null && s.getId().equals(prop.getProperty(MIDDLENAME))) {
+				} else if (isMiddleNameField(fieldId)
+						|| (prop.getProperty(MIDDLENAME) != null && s.getId().equals(prop.getProperty(MIDDLENAME)))) {
 					primaryValue = resident.getName().getMidName();
-					if (secLanguage != null)
+					if (secLanguage != null && resident.getName_seclang() != null)
 						secValue = resident.getName_seclang().getMidName();
+				} else if (VariableManager.getVariableValue(contextKey, "name") != null
+						&& VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
+					primaryValue = joinName(resident.getName().getFirstName(), resident.getName().getMidName(),
+							resident.getName().getSurName());
+					if (secLanguage != null && resident.getName_seclang() != null)
+						secValue = joinName(resident.getName_seclang().getFirstName(),
+								resident.getName_seclang().getMidName(), resident.getName_seclang().getSurName());
 				} else if (VariableManager.getVariableValue(contextKey, "dob") != null
 						&& s.getId().equals(VariableManager.getVariableValue(contextKey, "dob"))) {
 					primaryValue = resident.getDob();
 					secValue = primaryValue;
-				} else if (prop.getProperty("addressgroup") != null
-						&& s.getId().equals(prop.getProperty("addressgroup"))) {
+				} else if (isAddressField(fieldId) || (prop.getProperty("addressgroup") != null
+						&& s.getId().equals(prop.getProperty("addressgroup")))) {
 					if (s.getControlType().equals(CHECKBOX)) {
 						primaryValue = "Y";
 						if (secLanguage != null)

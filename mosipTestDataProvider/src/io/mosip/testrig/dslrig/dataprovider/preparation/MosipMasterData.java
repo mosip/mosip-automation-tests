@@ -577,14 +577,16 @@ public  class MosipMasterData {
 		if (resp == null) {
 			return null;
 		}
-		if (processKey != null) {
-			JSONObject processObject = resp.optJSONObject(processKey);
-			if (processObject != null) {
-				JSONArray screens = processObject.optJSONArray("screens");
-				if (screens != null && screens.length() > 0) {
-					return screens;
-				}
-			}
+		JSONArray screens = screensOf(resp, processKey);
+		if (screens != null) {
+			return screens;
+		}
+
+		String preferredKey = preferredProcessKey(processKey);
+		screens = screensOf(resp, preferredKey);
+		if (screens != null) {
+			logger.info("idschema/latest has no {}. Using {} for this packet", processKey, preferredKey);
+			return screens;
 		}
 
 		JSONArray rootScreens = resp.optJSONArray("screens");
@@ -598,17 +600,46 @@ public  class MosipMasterData {
 			if (!key.endsWith("Process")) {
 				continue;
 			}
-			JSONObject processObject = resp.optJSONObject(key);
-			if (processObject == null) {
-				continue;
-			}
-			JSONArray screens = processObject.optJSONArray("screens");
-			if (screens != null && screens.length() > 0) {
+			screens = screensOf(resp, key);
+			if (screens != null) {
 				logger.info("Using fallback process block {} for idschema/latest", key);
 				return screens;
 			}
 		}
 		return null;
+	}
+
+	private static JSONArray screensOf(JSONObject resp, String processKey) {
+		if (resp == null || processKey == null || processKey.isBlank()) {
+			return null;
+		}
+		JSONObject processObject = resp.optJSONObject(processKey);
+		if (processObject == null) {
+			return null;
+		}
+		JSONArray screens = processObject.optJSONArray("screens");
+		if (screens == null || screens.length() == 0) {
+			return null;
+		}
+		return screens;
+	}
+
+	/**
+	 * CRVS and other flows often have no block of their own. A new packet must use
+	 * {@code newProcess}, not whichever process object appears first in the payload.
+	 */
+	private static String preferredProcessKey(String processKey) {
+		String lower = processKey == null ? "" : processKey.toLowerCase();
+		if (lower.contains("update")) {
+			return "updateProcess";
+		}
+		if (lower.contains("lost")) {
+			return "lostProcess";
+		}
+		if (lower.contains("correction")) {
+			return "bioCorrectionProcess";
+		}
+		return "newProcess";
 	}
 
 	private static String getIdSchemaLatestUrl(String contextKey) {
