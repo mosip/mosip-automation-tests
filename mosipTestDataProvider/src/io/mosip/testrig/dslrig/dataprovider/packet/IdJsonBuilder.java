@@ -155,14 +155,13 @@ public final class IdJsonBuilder {
 		} else {
 			String[] addressLines = resident.getAddress();
 			int index = 0;
-			String addressId = s.getId() == null ? "" : s.getId().toLowerCase();
-			if (addressId.contains("line1") || addressId.contains("permanent"))
+			if (s.getId().toLowerCase().contains("line1"))
 				index = 0;
-			else if (addressId.contains("line2") || addressId.contains("temporary"))
+			else if (s.getId().toLowerCase().contains("line2"))
 				index = 1;
-			else if (addressId.contains("line3"))
+			else if (s.getId().toLowerCase().contains("line3"))
 				index = 2;
-			else if (addressId.contains("line4"))
+			else if (s.getId().toLowerCase().contains("line4"))
 				index = 3;
 
 			if (index > -1)

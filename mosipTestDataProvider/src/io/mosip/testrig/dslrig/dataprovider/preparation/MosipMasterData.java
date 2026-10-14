@@ -582,7 +582,7 @@ public  class MosipMasterData {
 			return screens;
 		}
 
-		String preferredKey = preferredProcessKey(processKey);
+		String preferredKey = standardProcessKey(processKey);
 		screens = screensOf(resp, preferredKey);
 		if (screens != null) {
 			logger.info("idschema/latest has no {}. Using {} for this packet", processKey, preferredKey);
@@ -625,21 +625,18 @@ public  class MosipMasterData {
 	}
 
 	/**
-	 * CRVS and other flows often have no block of their own. A new packet must use
-	 * {@code newProcess}, not whichever process object appears first in the payload.
+	 * A flow-specific key such as {@code crvs_newProcess} has no block on some environments.
+	 * The normal packet block is the same key with the flow prefix removed: {@code newProcess}.
 	 */
-	private static String preferredProcessKey(String processKey) {
-		String lower = processKey == null ? "" : processKey.toLowerCase();
-		if (lower.contains("update")) {
-			return "updateProcess";
+	private static String standardProcessKey(String processKey) {
+		if (processKey == null) {
+			return null;
 		}
-		if (lower.contains("lost")) {
-			return "lostProcess";
+		int split = processKey.lastIndexOf('_');
+		if (split < 0 || split == processKey.length() - 1) {
+			return null;
 		}
-		if (lower.contains("correction")) {
-			return "bioCorrectionProcess";
-		}
-		return "newProcess";
+		return processKey.substring(split + 1);
 	}
 
 	private static String getIdSchemaLatestUrl(String contextKey) {
