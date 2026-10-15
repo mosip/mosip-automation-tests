@@ -22,8 +22,15 @@ public class ThreadCountChanger implements IAlterSuiteListener  {
 	public void alter(List<XmlSuite> suites) {
 	    logger.info("ThreadCountChanger invoked!");
 
-	    int count = Integer.parseInt(dslConfigManager.getThreadCount()); 
-	    logger.info("Running suite with thread count: " + count);
+	    int workerCount = Integer.parseInt(dslConfigManager.getThreadCount());
+	    // When park/resume is on, TestNG may submit many scenarios while only workerCount
+	    // run steps concurrently; parked scenarios free workers for others.
+	    int count = dslConfigManager.isParkResumeEnabled()
+	    		? dslConfigManager.getMaxInFlightScenarios()
+	    		: workerCount;
+	    logger.info("Running suite with TestNG thread count: " + count
+	    		+ " (active park workers=" + workerCount + ", parkResume="
+	    		+ dslConfigManager.isParkResumeEnabled() + ")");
 
 	    for (XmlSuite suite : suites) {
 	        logger.info("Before setting, thread count for suite: " + suite.getName() + " -> " + suite.getThreadCount());
