@@ -1233,7 +1233,7 @@ public class PacketSyncService {
 
 								names_primary = NameProvider.generateNames(persona.getGender(), primarylang, count,
 										eng_names, contextKey);
-								persona.setName(names_primary.get(0));
+								persona.setName(firstGeneratedName(names_primary, persona.getGender()));
 							} else {
 
 								Name newName = new Name();
@@ -1254,7 +1254,7 @@ public class PacketSyncService {
 
 								names_sec = NameProvider.generateNames(persona.getGender(), secLang, count, eng_names,
 										contextKey);
-								persona.setName_seclang(names_sec.get(0));
+								persona.setName_seclang(firstGeneratedName(names_sec, persona.getGender()));
 							} else {
 
 								Name newNameSec = new Name();
@@ -1305,6 +1305,18 @@ public class PacketSyncService {
 		responseJson.put("oldValues", oldValues);
 		responseJson.put("newValues", newValues);
 		return responseJson;
+	}
+
+	private Name firstGeneratedName(List<Name> generatedNames, Gender gender) {
+		if (generatedNames != null && !generatedNames.isEmpty() && generatedNames.get(0) != null) {
+			return generatedNames.get(0);
+		}
+		logger.warn("Name generation returned no rows; using a fallback name");
+		Name fallback = new Name();
+		fallback.setFirstName("Fn" + System.currentTimeMillis());
+		fallback.setSurName("Ln" + System.currentTimeMillis());
+		fallback.setGender(gender != null ? gender : Gender.Male);
+		return fallback;
 	}
 
 	private void updateLastNameAttribute(ResidentModel persona, String value, String contextKey,

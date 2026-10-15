@@ -14,8 +14,10 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import io.mosip.kernel.core.util.StringUtils;
 
@@ -23,7 +25,7 @@ public class S3Adapter {
 	public static Logger logger = Logger.getLogger(S3Adapter.class); 
 	private AmazonS3 connection = null;
 
-	private int maxRetry = 20;
+	private int maxRetry = 2;
 
 	private int maxConnection = 200;
 
@@ -54,9 +56,12 @@ public class S3Adapter {
 							dslConfigManager.getS3Region()))
 					.build();
 
+			logger.info("Checking MinIO bucket " + bucketName);
 			connection.doesBucketExistV2(bucketName);
+			logger.info("MinIO bucket check finished for " + bucketName);
 			retry = 0;
 		} catch (Exception e) {
+			logger.error("MinIO connection failed for bucket " + bucketName + ": " + e.getMessage(), e);
 			if (retry >= maxRetry) {
 
 				retry = 0;
@@ -98,6 +103,66 @@ public class S3Adapter {
 			connection.putObject(putObjectRequest);
 			return true;
 		}
+
+	public boolean objectExists(String bucket, String key) {
+		AmazonS3 client = getConnection(bucket);
+		if (client == null) {
+			throw new IllegalStateException("MinIO connection failed for bucket " + bucket);
+		}
+		logger.info("MinIO object exists? " + bucket + "/" + key);
+		boolean exists = client.doesObjectExist(bucket, key);
+		logger.info("MinIO object " + bucket + "/" + key + " exists=" + exists);
+		return exists;
+	}
+
+	public long objectSize(String bucket, String key) {
+		AmazonS3 client = getConnection(bucket);
+		if (client == null) {
+			throw new IllegalStateException("MinIO connection failed for bucket " + bucket);
+		}
+		return client.getObjectMetadata(bucket, key).getContentLength();
+	}
+
+	public List<String> listObjectKeys(String bucket, String prefix) {
+		AmazonS3 client = getConnection(bucket);
+		if (client == null) {
+			throw new IllegalStateException("MinIO connection failed for bucket " + bucket);
+		}
+		List<String> keys = new ArrayList<>();
+		try {
+			ObjectListing listing = client.listObjects(bucket, prefix);
+			while (listing != null) {
+				if (listing.getObjectSummaries() != null) {
+					for (S3ObjectSummary summary : listing.getObjectSummaries()) {
+						keys.add(summary.getKey());
+					}
+				}
+				if (listing.isTruncated()) {
+					listing = client.listNextBatchOfObjects(listing);
+				} else {
+					break;
+				}
+			}
+		} catch (Exception e) {
+			logger.warn("Failed to list objects in bucket " + bucket + " with prefix " + prefix + ": " + e.getMessage());
+		}
+		return keys;
+	}
+
+	public void moveObject(String bucket, String fromKey, String toKey) {
+		AmazonS3 client = getConnection(bucket);
+		if (client == null) {
+			throw new IllegalStateException("MinIO connection failed for bucket " + bucket);
+		}
+		if (!client.doesObjectExist(bucket, fromKey)) {
+			throw new IllegalStateException("MinIO object not found: " + bucket + "/" + fromKey);
+		}
+		if (client.doesObjectExist(bucket, toKey)) {
+			throw new IllegalStateException("MinIO target already exists: " + bucket + "/" + toKey);
+		}
+		client.copyObject(bucket, fromKey, bucket, toKey);
+		client.deleteObject(bucket, fromKey);
+	}
 
 	private boolean doesBucketExists(String bucketName) {
 

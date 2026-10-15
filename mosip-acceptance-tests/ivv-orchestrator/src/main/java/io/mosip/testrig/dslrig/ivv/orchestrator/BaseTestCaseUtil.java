@@ -818,6 +818,43 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 	}
 
+	/**
+	 * Effective value of a key from registration-processor actuator {@code /env}.
+	 * Property sources are scanned in actuator order, so the first hit is the active value.
+	 */
+	public static String getRegprocActuatorProperty(String key) {
+		String url = BaseTestCase.ApplnURI + dslConfigManager.getproperty("actuatorRegprocEndpoint");
+		try {
+			if (regProcActuatorResponseArray == null) {
+				Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+				DslReportLogUtil.reportResponse(response.getHeaders().asList().toString(), url, response);
+				JSONObject responseJson = new JSONObject(response.getBody().asString());
+				regProcActuatorResponseArray = responseJson.getJSONArray("propertySources");
+			}
+			for (int i = 0, size = regProcActuatorResponseArray.length(); i < size; i++) {
+				JSONObject eachJson = regProcActuatorResponseArray.getJSONObject(i);
+				JSONObject properties = eachJson.optJSONObject(GlobalConstants.PROPERTIES);
+				if (properties == null || !properties.has(key)) {
+					continue;
+				}
+				JSONObject entry = properties.optJSONObject(key);
+				if (entry == null) {
+					continue;
+				}
+				String value = entry.optString(GlobalConstants.VALUE, "");
+				if (value != null && !value.isBlank()) {
+					logger.info("Actuator " + url + " source " + eachJson.optString("name") + " key " + key
+							+ " value " + value);
+					return value;
+				}
+			}
+			return "";
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return "";
+		}
+	}
+
 	protected String resolveScenarioVariable(String value) throws RigInternalError {
 		return resolveScenarioVariable(step, value);
 	}

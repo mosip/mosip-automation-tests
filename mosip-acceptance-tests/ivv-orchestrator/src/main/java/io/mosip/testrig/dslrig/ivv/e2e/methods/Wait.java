@@ -25,7 +25,6 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 		long waitTime = DEFAULT_WAIT_TIME;
 
 		String uinWaitTime = dslConfigManager.getUinWaitTime();
-		String nextPacketUploadWaitTime = dslConfigManager.getNextPacketUploadWaitTime();
 
 		String param = (step.getParameters() != null && !step.getParameters().isEmpty())
 				? step.getParameters().get(0)
@@ -38,12 +37,15 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 
 			} else if ("PACKET_UPLOAD_WAIT_TIME".equalsIgnoreCase(param)) {
 
-				if (nextPacketUploadWaitTime == null || nextPacketUploadWaitTime.isBlank()) {
-					logger.info("Next Packet Upload Wait Time missing : Taking default Time as 15 Min");
-					waitTime = TIME_IN_MILLISEC * 60 * 15;
-				} else {
-					waitTime = TIME_IN_MILLISEC * Integer.parseInt(nextPacketUploadWaitTime);
+				String bufferSeconds = getRegprocActuatorProperty(
+						"registration.processor.bio.dedupe.reprocess.buffer.time");
+				if (bufferSeconds == null || bufferSeconds.isBlank()) {
+					throw new RigInternalError(
+							"registration.processor.bio.dedupe.reprocess.buffer.time was not found in regproc actuator env");
 				}
+				logger.info("PACKET_UPLOAD_WAIT_TIME from registration.processor.bio.dedupe.reprocess.buffer.time: "
+						+ bufferSeconds + " seconds");
+				waitTime = TIME_IN_MILLISEC * Long.parseLong(bufferSeconds.trim());
 
 			} else if ("UIN_WAIT_TIME".equalsIgnoreCase(param)) {
 

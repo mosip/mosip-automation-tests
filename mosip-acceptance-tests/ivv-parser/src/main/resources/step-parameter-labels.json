@@ -88,5 +88,6 @@
   "e2e_CreateAndUploadExternalPacket": ["persona file path", "packet template path"],
   "e2e_WaitTillReprocessorInterval": [],
   "e2e_VerifyBioDedupSkippedAfterReprocess": ["registration ID"],
+  "e2e_verifyIdRepoDraftLocation": ["registration ID", "location phase"],
   "e2e_Skip": []
 }

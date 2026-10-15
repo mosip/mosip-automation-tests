@@ -30,7 +30,12 @@ public class NameProvider {
 			CSVHelper helper;
 			helper = new CSVHelper(resPath);
 			int recCount = helper.getRecordCount();
-			int[] recNos = CommonUtil.generateRandomNumbers(count, recCount, 0);
+			if (recCount <= 0) {
+				logger.error("No surname rows in {}", resPath);
+				helper.close();
+				return values;
+			}
+			int[] recNos = CommonUtil.generateRandomNumbers(count, recCount - 1, 0);
 
 			helper.open();
 			List<String[]> recs = helper.readRecords(recNos);
@@ -156,7 +161,13 @@ public class NameProvider {
 			helper = new CSVHelper(resPath);
 
 			int recCount = helper.getRecordCount();
-			int[] recNos = CommonUtil.generateRandomNumbers(count, recCount, 0);
+			if (recCount <= 0) {
+				logger.error("No name rows in {}", resPath);
+				helper.close();
+				return names;
+			}
+			// generateRandomNumbers is inclusive, CSV rows are 0..recCount-1
+			int[] recNos = CommonUtil.generateRandomNumbers(count, recCount - 1, 0);
 			helper.open();
 
 			List<String[]> recs = helper.readRecords(recNos);
