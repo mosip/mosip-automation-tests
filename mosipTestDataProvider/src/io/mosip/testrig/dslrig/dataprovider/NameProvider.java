@@ -192,6 +192,10 @@ public class NameProvider {
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
+		if (names.isEmpty()) {
+			logger.error("Name CSV produced no rows from {}; using synthetic names", resPath);
+			return generateSynthNames(gender, count);
+		}
 		VariableManager.setVariableValue(MosipMasterData.RUN_CONTEXT, resPath, names);
 		return names;
 	}

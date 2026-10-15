@@ -104,17 +104,6 @@ public class S3Adapter {
 			return true;
 		}
 
-	public boolean objectExists(String bucket, String key) {
-		AmazonS3 client = getConnection(bucket);
-		if (client == null) {
-			throw new IllegalStateException("MinIO connection failed for bucket " + bucket);
-		}
-		logger.info("MinIO object exists? " + bucket + "/" + key);
-		boolean exists = client.doesObjectExist(bucket, key);
-		logger.info("MinIO object " + bucket + "/" + key + " exists=" + exists);
-		return exists;
-	}
-
 	public long objectSize(String bucket, String key) {
 		AmazonS3 client = getConnection(bucket);
 		if (client == null) {
